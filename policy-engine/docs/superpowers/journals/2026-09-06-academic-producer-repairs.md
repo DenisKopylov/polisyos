@@ -432,3 +432,122 @@ proof = {
 (scratch / "rendered-prompt-proof.json").write_text(json.dumps(proof, indent=2) + "\n")
 print(json.dumps(proof, indent=2))
 ```
+
+## APR-V01 — shared bound debt-checker receipt
+
+Both row commits were complete and read back before this run. Source was frozen;
+only this append-only closeout record is added afterward.
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python tools/quality/validation/check_debt_ledger.py --check > _build/debt-check.log 2>&1
+```
+
+**Exactly one invocation. Exit 1; 942.56 seconds (15m42.56s).** This is a red
+ledger-reconciliation receipt, not a pass. The complete redirected output reports
+five missing ledger IDs and one render drift; its six blocking lines are:
+
+```text
+ledger_missing_id: academic-selective-extraction-prompt-never-rendered
+ledger_missing_id: evidence-class-normalizer-zeroes-two-canonical-classes
+ledger_missing_id: evidence-row-design-hint-differs-from-adjudication
+ledger_missing_id: extraction-ask-offers-six-of-ten-evidence-classes
+ledger_missing_id: literature-infers-evidence-class-from-a-sentence
+ledger_render_drift: docs/plans/active/LEDGER.md
+```
+
+These are recorded for the architect's transcription lane. No `--write` or edit
+under `docs/plans/active/` was performed, and the checker was not rerun. Its full
+metrics record 44 pytest collection selections, zero collection failures and
+zero host-unknown collections. These are collection receipts, not 44 executed
+tests or a directory-wide test run.
+
+Informational findings are grouped below by parsing **every line** of
+`_build/debt-check.log`; the denominator is this one complete text log, not a
+repository census. The two nine-count codes refer to the same nine unresolved
+selection identities and must not be added as distinct underlying debts.
+
+| Informational code | Count |
+| --- | --- |
+| `closure_signal_count_exit_disagreement` | 9 |
+| `closure_signal_identity_unresolvable` | 9 |
+| `closure_signal_runner_unsupported` | 1 |
+| `register_supplies_missing_standing` | 10 |
+
+Full log SHA-256:
+`1f87d1684dc8398756db6a252c395ee4b24b57bd11f8455b0f05207b5b994984`.
+
+P41 provenance: `not_established` for the whole check's red. The explicit
+one-invocation instruction prevents replaying this checker at the slice base;
+no nearer-base substitute or inherited-red claim is made. The repair results
+remain independently demonstrated in APR-R01 and APR-R02; no ledger closure or
+all-gates-green claim is made. The source freeze and row commits are preserved.
+
+## APR-C03 — candidate: architecture deep-import drift
+
+The scoped architecture command also returned exit 1 (32.21 seconds):
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check --skip-generated-checks > _build/academic-producer-repairs/architecture-guardrails.log 2>&1
+```
+
+Generated-output execution was omitted because these internal repairs change no
+public/generated surface; no TypeScript scanner or generated-artifact wave ran.
+The check reports `deep_import.json` drift and unregistered deep imports from
+`polisyos.runtime.http.services.acquisition_admission_bundle` into
+`polisyos.core.artifacts.manifest`, `.signing` and `.write_contract`.
+This is a separate candidate for architecture/runtime owner triage; no baseline
+or import change is included here. The failure's origin is `not_established`,
+not labeled inherited. Complete enumeration of `guardrails._iter_py_files()`
+covered 2,619 Python source inputs; its changed-path intersection contains both
+academic producer modules, so no zero-intersection claim is possible for the
+whole source-wide predicate. No base replay was performed and no failure was
+excluded from the receipt.
+
+## APR-V02 — final data custody and branch delivery
+
+After the checker completed, the pinned database was opened only in binary read
+mode and hashed again. The assertion passed with:
+
+```text
+production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+sha256:583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+```
+
+Exact command (output retained in the worktree scratch):
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python - <<'PY' > _build/academic-producer-repairs/data-digest-final.log
+import hashlib
+from pathlib import Path
+snapshot = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+with snapshot.open('rb') as stream:
+    digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+assert digest == '583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967', digest
+print(snapshot)
+print('sha256:' + digest)
+PY
+```
+
+The complete `git diff --name-only` set from the task base to this branch is
+four Python files and this one Markdown journal. Every path was read back with
+`git show codex/debt-academic-producer-repairs:<path>` and byte-compared against
+the worktree. The two row commits share only the required journal; the Row 2
+journal begins with the exact Row 1 journal bytes. This verification is repeated
+after committing this receipt. No active plan, historical-data path or extra
+mechanism path is in the delivered set.
+
+- Row 1: `f876c26f2`, canonical evidence normalization; APR-T01 is its separate
+  transcription paragraph.
+- Row 2: `558226958`, selective request rendering; APR-T02 is its separate
+  transcription paragraph.
+- The subsequent commit contains only this closeout receipt.
+
+Closeout pattern pass: the failure/repair register was reopened. `P29`/`P33`
+are addressed by red/green runtime properties and literal-input variants;
+`P31` by canonical self-aliases derived from the enum; `P05`/`P15` by retained
+candidate status; `P35` by complete owner/log/delivered-path denominators;
+`P40` by leaving APR-C01/C02/C03 as distinct candidates; `P41` by retaining
+both red verification receipts without an unproved inherited-red classification.
+The authorized repairs are complete on the branch. Their targeted tests pass
+(34 and 7 respectively); ledger reconciliation and the scoped architecture
+check remain red as explicitly recorded above.

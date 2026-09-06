@@ -261,6 +261,14 @@ an extraction call per work plus a self-verification pass, and the lane was expl
 estimate it so that whoever plans the pass is not anchored by a number produced here. The 69,798
 unrecorded `source_basis` cells are also unexplained.
 
+**Known defect on the satisfying route, measured 2026-09-06.** Before any re-extraction runs,
+`evidence-class-normalizer-zeroes-two-canonical-classes` must be repaired. The live ask requests all
+ten evidence classes, but `_normalize_evidence_strength` at `article_extractor.py:396` has no alias
+for the canonical `quasi_natural_event` or `structural` and maps both to `unknown` — weight 0.60 and
+0.45 respectively, both to 0.0. A pass run today would therefore zero every study the model correctly
+places in those two classes, across the whole corpus, and the result would be indistinguishable from
+an absent axis. This is cheap now and becomes another historical layer afterwards.
+
 **Register cross-reference.** `historical-confidence-carries-a-withdrawn-contribution` in
 `docs/plans/active/DEBT-REGISTER.md`, whose two original closes — re-derivation from retained bytes,
 or a per-row marker — are both dead: the first yields zero everywhere, and the second would be true

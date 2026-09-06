@@ -34,8 +34,13 @@ PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/pla
 # (`extraction-ask-offers-six-of-ten-evidence-classes`), and the 488 divergent hint cells
 # (`evidence-row-design-hint-differs-from-adjudication`). No row was closed by that lane; the two
 # historical rows were superseded in place and keep their statuses.
+# register 197 -> 198 on 2026-09-06: the evidence-class reachability census refuted both rows it was
+# commissioned under — `extraction-ask-offers-six-of-ten-evidence-classes` and
+# `literature-infers-evidence-class-from-a-sentence` both `open` -> `folded`, each with the
+# measurement its closure signal required — and located the live defect neither named, added as
+# `evidence-class-normalizer-zeroes-two-canonical-classes`. Two folds and one addition: +1.
 PUBLISHED_DENOMINATORS = {
-    "register": 197,
+    "register": 198,
     "gy": 38,
     "atlas": 22,
     "frontend_disposition_entries": 261,

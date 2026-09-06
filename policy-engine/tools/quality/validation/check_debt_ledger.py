@@ -45,7 +45,7 @@ PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/pla
 # report-only rule, added as `design-normalization-matches-a-substring-before-identity`. Two
 # closures and one addition: +1.
 PUBLISHED_DENOMINATORS = {
-    "register": 202,
+    "register": 209,
     "gy": 38,
     "atlas": 22,
     "frontend_disposition_entries": 261,

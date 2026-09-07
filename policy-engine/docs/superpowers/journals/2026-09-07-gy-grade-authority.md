@@ -5181,6 +5181,1415 @@ def test_receipt_emission_cannot_mint_world_or_grounding_grade_from_skg_refusal(
     assert issues, forged.world_write_outcomes
 ````
 
+### GGA-PA1-11 — unreadable population is not a known empty population
+
+Before the final correction freezes, root's source audit found a narrower
+source-truth hypothesis: a refused view/virtual/nontext population returns zero
+counts and an empty-array hash even though it has not read the source
+population. A successfully read empty native table and a refused table therefore
+share the same numeric denominator. The independent two-case probe below will
+require unknown counts for the unreadable case while retaining measured zero
+for the genuinely empty source. This is part of the same source-audit invariant;
+it grants neither semantic eligibility nor a scientific relation grade.
+
+The initial two-case execution returned **2 failed, exit 1, 0.96 seconds**
+(`pa1-population-unknown-before.xml`). The unreadable view reached the intended
+`row_count is None` assertion and exposed zero; my purported empty-table positive
+control failed earlier at its status assertion. Direct inspection showed that
+`_retained_columns` requires physical column segments from `pragma_storage_info`,
+which the empty table lacks. That source is also unproven by this bounded reader;
+the initial assumption that it was an admitted empty population was wrong.
+
+The corrected control is a readable native one-row table. The exact two-case
+station then reports **1 failed, 1 passed, exit 1, 1.03 seconds**, with only the
+unreadable view failing its intended unknown-count assertion. The correction
+keeps the existing materialization boundary and makes refused counts unknown;
+it does not weaken the source guard to admit the failed empty-table control.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts='' _build/gy_grade_authority/test_population_unknown_denominator.py --junitxml=_build/gy_grade_authority/pa1-population-unknown-corrected-before.xml
+```
+
+After correction, the same independent population probe reports **2 passed,
+exit 0, 0.89 seconds** (`pa1-population-unknown-after.xml`). A refused population
+now carries unknown counts and projection hash; the materialization guard is
+unchanged.
+
+One additional hypothesis was recorded before the final review: a process-local
+source seal tied to the same owner object and request bytes proves its earlier
+emission, but cannot replace current replay after source or CAS bytes change.
+The final intake must therefore replay those inputs even when the unchanged
+artifact and owner object are reused. The independent delta will exercise both
+ordinary input mutations with a configured replay control. This is not yet a
+claimed measured red; it is part of the same current-source binding invariant,
+with a removal probe requested for the shortcut.
+
+### GGA-PA1-12 — corrected shared admission and complete receipt emission
+
+The corrected source resolves the owner route from the current planned
+requirement. Recorded SKG evidence requires an independently configured
+`ProductionCG2CalibrationSource`, current requirement/problem/world, bound CAS
+bytes and current source replay. Missing context emits
+`UnverifiedSourceGroundingRefusal` without copying the offered source population
+or its claimed grades. The live owner uses the same admission. An SKG artifact
+cannot escape this route by naming Fabric as its producer.
+
+`run_acquisition_closed_loop` seals its complete canonical receipt bytes after
+the actual projection. The validator and both generation-cycle grade consumers
+require this provenance; nested mutation and raw DTO reconstruction lose it.
+This is provenance for this process's recomputed emission, not an institutional
+signature or authentication of a general Fabric response. A saved receipt must
+be replayed through current owner/request/world context before authority use.
+Source admission always replays source/CAS bytes; a prior source seal is not a
+freshness substitute.
+
+Independent delta: **14 passed, exit 0, 47.43 seconds**, with all testcase
+identities and execution JUnit retained in
+`pa1-n7-independent-delta-handback.json`. Restoring the same-context early return
+while keeping markers and source files unchanged gives **2 failed,
+12 deselected, exit 1, 36.88 seconds**: changed source bytes and changed CAS bytes
+again emit a supposedly recomputed source resolution. All eleven corrected
+Python freeze hashes match before and after these runs. The review found no new
+blocking class within the declared source/reference scope.
+
+The complete source consumer census walks **2,626 Python files**, independently
+reconciled by path, AST binding, token-chain binding and the whole-tree candidate
+search. Its six target calls locate the producer/validator and the two actual
+grade consumers in `acquisition_planner.py` and `generation_cycle.py`; no sibling
+source grade consumer is found in that bound inventory. The HTTP governed
+projection is an audit configuration, not another receipt-to-grounding consumer.
+Final stable evidence is `acquisition_receipt_consumer_census.final.json` and
+`final_audit_freeze_binding.json`.
+
+The final targeted wave reaches **115 cases: 113 passed, one skipped, one setup
+error; exit 1, 163.71 seconds** (`pa1-n7-final-targeted.xml`). The skip is
+`test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle`, which is
+explicitly cloud-gated and must not call the network in routine tests. The error
+is `test_second_domain_pack::test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable`:
+its `live_bundle` fixture stops in the tools historical N4 replay with
+`education_n4_historical_replay_call_denominator_mismatch`, before the test's
+time-stability or receipt assertions. This is **not_established** as to
+provenance; no slice-base isolation/disjoint denominator has been demonstrated.
+It is not counted as evidence for the receipt property.
+
+The separate predicted tools compatibility boundary remains unreached by that
+test: `check_layer3_gy_acquisition_contract.py::_core_issues` reconstructs a raw
+receipt at lines 475–479, and
+`check_layer3_gy_second_domain_pack.py::_validate_n7_receipt_evidence` does so at
+lines 5687–5712. Current-context authority validation must replay independently
+configured owner/request/world evidence there, or retain the result as explicit
+archival evidence without a current authority grade. Those tools are outside
+the grant. Do not mint a live seal from archived bytes or suppress the new
+provenance issue. The permitted unit assertion now expects the typed raw-DTO
+refusal; the later bundle validator assertion is deliberately unchanged, so a
+future reachable compatibility failure remains visible.
+
+The scientific handback is still GGA-PA1-06: define accepted independent
+proposal/reference relation gold and context, its adjudicator authority, and
+the outcome-sensitive production calibration acceptance rule. The source
+producer, CAS replay, actual request bridge and honest refusal are implemented;
+the positive calibration chain remains `producer_missing` pending that decision
+and the corresponding independently admitted observations. The acceptance slot
+stays typed and empty, CG2 stays cold-start and N8 blocked. No owner is appointed.
+General Fabric/OpenAlex count-based admission remains a proposed row, not a
+capability claimed closed by this SKG repair.
+
+### GGA-GATE-03 — obsolete import permission is a companion handback
+
+The final architecture gate exits **1** because replacing the old in-memory SKG
+schema probe removes an existing deep import. Complete source identity sets
+agree at **2,626 Python files**. Recomputed edge differences are
+`current_only=[]` and exactly
+`baseline_only=[polisyos.runtime.quality.acquisition_planner->polisyos.data_forge.domains.academic.knowledge]`.
+This is caused companion drift, not an inherited failure and not new import
+creep. `architecture/baselines/imports/deep_import.json` is outside the grant.
+
+Exact handback: delete the following object from its `edges` array, including
+its following comma. No added permission or baseline absorption is proposed.
+The surgical patch is
+`_build/gy_grade_authority/obsolete-skg-import-baseline.proposed.patch`, SHA-256
+`856a4ba60534052fa60ec23d53270dc545d6ceda1db79986f1e50b1d605a8911`.
+It has not been applied. No sync command was run.
+
+```json
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge",
+      "target_root": "data_forge"
+    }
+```
+
+The finding-set station needed its own correction before handback: matching
+every stdout line beginning `- ` initially counted removed JSON diff lines as
+findings. Stopping at the first diff then dropped genuine findings printed
+after that diff. Both attempts are preserved as v1/v2 artifacts. The final
+parser consumes the complete old/new hunk denominators, excludes only those
+diff lines, and reconciles against a second lexical derivation valid for these
+JSON-only diagnostic diffs. It preserves the genuine historical finding sets
+and the final single drift finding. The gate's real exit status was retained
+throughout; no smaller parsed set was treated as a passing run.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check --skip-generated-checks > _build/gy_grade_authority/architecture-pa1-final.log 2>&1
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.architecture_final_identity_diff
+```
+
+### GGA-PA1-13 — real retained source, independently reconciled artifact set
+
+The real source station executes the canonical N8-request fixture from
+`test_value_gate`, the actual controller adapter, real N7 source owner, CAS
+persistence and independently supplied request replay. It does not execute a
+full live N8 evaluation or claim an empirical positive chain. The source file
+is **2,390,503,424 bytes**, SHA-256
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+
+The denominator is the entire five-column projection of
+`main.ac_skg_simulation_parameters`: **5,124 rows, 5,124 distinct numeric IDs,
+4,050 distinct variable names**. It is separate from the earlier `ac_numeric`
+evidence census and is not a relation-calibration population. Independent direct
+SQL aggregates, a complete Python Counter, SQL GROUP BY and the complete CAS
+Counter agree; missing and extra multisets are both empty. Their common multiset
+SHA-256 is `012e569d358b46a161b8a3725cbadaa4fb2c0023236c464486410ef948f121af`.
+Zero literal `avg_income` matches establishes no semantic absence; semantic
+coverage remains `not_established`.
+
+The persisted resolution is **1,676,572 bytes**, artifact
+`sha256:73a84409f361f0c1d8da8412c8c7fbc6fc4f663ecb510debfd9b9c1f279cbac7`.
+Its exact request SHA-256 is
+`0e9d63f3751eb3dce61d3bed3244ab166a2bad188f7547ad53c2e3fb024efe47`.
+Its native projection SHA-256 is
+`4151ade1789cb779259ebcb6064d301a9a61f5396d3e7928cfc3df46fb9e4e33`.
+The receipt records `completed_no_results`, one `no_result` world outcome,
+zero actual groundings and zero network calls. CG2 is `cold_start`, N8 is
+`blocked`, and all relation acceptance slots remain empty. The real station
+exits **0 in 16.291 seconds**. Independent reconciliation exits **0 in 4.765
+seconds**, with the source streamed once before and once after, both hashes
+equal, mtime unchanged, external reads disabled and spill confined to `_build`.
+
+The final marker-preserving removal modes exercise this shared mechanism:
+
+| Removed property | Actual result | Restored behavior |
+| --- | --- | --- |
+| Current source/request replay at live N7 capture | 1 failed, exit 1, 1.02 s | Tampered request refused |
+| Complete source admission/refusal on the planned SKG route | 2 failed, exit 1, 3.01 s | Both SKG and forged Fabric labels refused |
+| Complete receipt emission provenance | 1 failed, exit 1, 1.92 s | Actual generation consumer refuses forged `current_valid` |
+
+Restoring the same four cases gives **4 passed, exit 0, 2.68 seconds**. All eleven
+frozen source/test hashes remain identical before and after each mode. The
+first v2 wrapper attempts exited 3 before collection because the logging Tee
+omitted `isatty`; those are preserved harness non-receipts, not product reds.
+The v3 wrapper delegates stream attributes and returns the actual pytest status.
+Root independently reconciled the full JUnit and removal logs and reran the
+read-only final-handback reconciler successfully.
+
+Final evidence summary: `pa1-n7-final-handback.json`, SHA-256
+`70c4cff64840157941cc44afca90a1bd575ff43bd923b20d74b0df5627876d39`.
+It binds all 115 targeted testcase identities, the eleven-file freeze and 24
+evidence artifacts. Independent population evidence is
+`pa1_n7_population_independent_reconcile.json`. The reproduction stations are
+preserved below, including their exact module commands.
+
+### GGA-SCOPE-02 — final local handback boundary
+
+The complete slice delta is **76 paths = 48 lane-owned + 28 accepted upstream-only
+paths**. The lane union independently reconciles as four pre-merge paths plus
+45 continuation paths minus the shared journal. There are no out-of-grant lane
+paths or unexplained upstream paths. All eleven final Python freeze hashes
+match. The five newly added source modules have their three nearest README
+companions. Evidence: `closeout_scope_audit.final.json` and
+`final_audit_freeze_binding.json`.
+
+The stale ref remains `ba5946ebc70bb63f30e4776d0426e19f37dffd31`. The accepted
+final stale-analysis section is byte-identical to `d4ba9901cbcb29e5d27a71dac7b359b28fe1adec`,
+SHA-256 `0a3a21f86b778fb2ba86596820b1db458f18ffba9950ce747ec692196bf8628e`.
+Both coordinated global public-surface companions remain untouched. All four
+Foundry authority capability states remain `absent/unallocated`; these changes
+do not appoint their owners or establish their complete authority chains.
+No auxiliary worktree was created. No push, rebase, stash, stale-ref mutation,
+debt-register verification or debt-ledger checker execution occurred.
+
+The owned outcomes are: shared publication verification through both entry
+paths; all five DEF22 intended assertions reached and passed, with institutional
+acceptance outstanding; the supported HTTP artifact facade repair; and the
+buildable PA1 source/request/receipt capability with the specific positive-chain
+scientific decision handed back. Both freshly derived pin values and declaration
+bindings matched their proposal, and the IR reference pages matched the prepared
+version after being written from the actual supported exposure. The eight
+existing IR exports remain the authorized public-surface expansion owned by
+team-polisyos. None of these statements closes the outstanding appointments.
+
+Additional proposed rows, not new appointments:
+
+- `n7-archival-receipt-current-context-replay-missing`: proposed runtime/quality
+  and tools validation owners; raw archival DTOs cannot carry the new current
+  receipt authority. The two exact tool seams are named in GGA-PA1-12.
+- `gy-n4-historical-replay-obstructs-n7-importer-assertions`: proposed GY-N4 /
+  tools validation owners; the measured setup failure prevents those assertions.
+  Provenance remains `not_established`.
+- `n7-fabric-openalex-response-count-is-not-grounding-authority`: proposed
+  Fabric/DataForge and runtime/quality owners; their own-route response-count
+  admission was not repaired or claimed closed by the SKG source mechanism.
+
+The earlier mirror-test and transformer-Ruff findings remain explicit,
+unbaselined and unattributed as recorded in GGA-ADJ-03. The obsolete import
+permission removal is an exact companion handback, not an accepted new baseline.
+The global IR inventory blind spot and unregistered IR reference generator remain
+the proposed findings already recorded above. The failure/repair register was
+reopened at closeout; the source/grade boundary follows P29/P31/P32/P37/P38,
+complete sets and their corrections follow P35, the review correction is one
+P40 class widening, and P41 prevents the remaining reds from acquiring invented
+inheritance.
+
+### GGA-EVIDENCE-04 — durable final station sources
+
+These are executable diagnostic/reconciliation stations retained because `_build`
+is ignored. The committed implementation and tests remain their normal owners.
+Each gate is invoked separately as a package module; the mode-specific commands
+are taken verbatim from the reconciled handback.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts='' tests/unit/data_forge/domains/academic/knowledge/test_skg_identity_bridge.py tests/unit/data_forge/domains/academic/knowledge/test_skg_source_population.py tests/unit/runtime/quality/test_production_grounding_calibration.py tests/unit/runtime/quality/test_acquisition_planner.py tests/unit/runtime/quality/test_acquisition_source_replay.py tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_invokes_n7_and_records_same_cycle_reentry tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters tests/unit/runtime/quality/test_generation_cycle.py::test_value_data_gap_routes_to_n7_acquisition_terminal tests/unit/runtime/quality/test_generation_cycle.py::test_canonical_n7_route_attaches_exact_owner_cost_basis tests/unit/runtime/quality/test_generation_cycle.py::test_honest_single_cycle_acquisition_terminal_validates tests/unit/runtime/quality/test_second_domain_pack.py::test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable --junitxml=_build/gy_grade_authority/pa1-n7-final-targeted.xml
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src GY_PA1_N7_REMOVE=source_replay .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src GY_PA1_N7_REMOVE=refusal .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src GY_PA1_N7_REMOVE=receipt .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_real_replay
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_population_independent_reconcile
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_final_handback
+```
+
+#### `_build/gy_grade_authority/pa1_n7_real_replay.py`
+
+5292 bytes, SHA-256 `c5d1d69963563b20f8a17bac169ee27ddfbedea3d44fc52169883e68fe2ed8dc`.
+
+````python
+"""Run retained production source through the real N8-request/N7-refusal bridge.
+
+The request/world fixture is the exact avg_income owner test's current request;
+it supplies no empirical treatment assignment or relation-calibration authority.
+"""
+import hashlib
+import json
+import time
+from pathlib import Path
+
+from polisyos.core import artifacts
+from polisyos.data_forge.read_api import academic
+from polisyos.runtime.quality import acquisition_planner as acquisition
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+from polisyos.runtime.quality.production_grounding_calibration import (
+    ProductionCG2CalibrationSource, SourceGroundingRequest,
+)
+from polisyos.runtime.quality.substrate_registry import DEFAULT_L2_SCHOLAR_KG_PATH
+from tests.unit.runtime.quality.test_value_gate import (
+    _avg_income_candidate, _avg_income_problem, _world_record,
+)
+
+
+def main():
+    started = time.monotonic()
+    scratch = Path("_build/gy_grade_authority/pa1_n7_real")
+    source = academic.SourceSnapshot(
+        path=DEFAULT_L2_SCHOLAR_KG_PATH,
+        reference=str(DEFAULT_L2_SCHOLAR_KG_PATH.resolve()),
+        sha256="583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967",
+    )
+    candidate, problem, world_record = _avg_income_candidate(), _avg_income_problem(), _world_record()
+    gap = acquisition.value_input_world_knowledge_requirement_gap(
+        claim_ref=f"value-claim:{candidate.candidate_id}"
+    )
+    request = {"cycle_index": 0, "requirement_gap": gap.model_dump(mode="json")}
+    controller = GenerationCycleController(repo_root=scratch)
+    specs = controller._n7_data_requirement_specs(problem, acquisition_request=request)
+    assert len(specs) == 1 and specs[0] == gap
+    world = acquisition.AcquisitionWorldSnapshot(
+        world_ref=world_record.content_hash,
+        world_model_record_ref=world_record.world_model_record_id,
+        known_slots=("avg_income",),
+    )
+    receipt = acquisition.run_acquisition_closed_loop(
+        run_id="pa1-real-source-avg-income", acquisition_request=request,
+        data_requirement_specs=specs, world_snapshot=world, design_problem=problem,
+        owner_gateway=acquisition.RealAcquisitionOwnerGateway(
+            repo_root=scratch, skg_source_snapshot=source
+        ),
+    )
+    assert not acquisition.validate_acquisition_receipt(receipt)
+    assert receipt.real_grounding_result_count == 0
+    assert len(receipt.owner_artifacts) == 1
+    response = receipt.owner_artifacts[0].payload["owner_response"]
+    ref = artifacts.ArtifactRef.model_validate(response["resolution_ref"])
+    owner = ProductionCG2CalibrationSource(
+        source=source, store=artifacts.FileSystemCAS(scratch / ".n7-live-cas"),
+        scratch=scratch / ".n7-live-cas" / "source-query-scratch",
+    )
+    expected_request = SourceGroundingRequest(
+        requirement_ref=gap.compiled_requirement_ref, claim_ref=gap.claim_ref,
+        compiled_requirement=gap.model_dump(mode="json"),
+        design_problem=problem.model_dump(mode="json"), world_snapshot=world.model_dump(mode="json"),
+    )
+    result = owner.replay(ref=ref, request=expected_request)
+    assert result.target_variable == "avg_income" and result.n8_admission == "blocked"
+    receipt_bytes = json.dumps(receipt.model_dump(mode="json"), sort_keys=True, separators=(",", ":")).encode()
+    receipt_path = scratch / "n7-receipt.json"
+    receipt_path.write_bytes(receipt_bytes)
+    population = result.source_population
+    output = {
+        "request_source": "test_value_gate exact avg_income candidate/problem/world fixture",
+        "source_sha256": source.sha256,
+        "resolution_ref": ref.model_dump(mode="json"),
+        "resolution_bytes": len(owner._store.get_bytes(ref.artifact_id)),
+        "request": result.request.model_dump(mode="json"),
+        "request_sha256": result.request_sha256,
+        "population_status": population.status,
+        "row_count": population.row_count,
+        "distinct_numeric_id_count": population.distinct_numeric_id_count,
+        "distinct_variable_name_count": population.distinct_variable_name_count,
+        "literal_target_match_count": len(population.literal_target_row_indices),
+        "semantic_target_coverage": population.semantic_target_coverage,
+        "projection_sha256": population.projection_sha256,
+        "relation_acceptance": result.relation_acceptance.model_dump(mode="json"),
+        "cg2_status": result.cg2_status,
+        "cg2_owner_ledger_id": result.cg2_owner_ledger_id,
+        "refusal_reasons": result.refusal_reasons,
+        "receipt_status": receipt.status,
+        "world_write_statuses": [row.status for row in receipt.world_write_outcomes],
+        "real_grounding_result_count": receipt.real_grounding_result_count,
+        "n8_admission": result.n8_admission,
+        "network_calls": receipt.network_call_count,
+        "receipt_path": str(receipt_path),
+        "receipt_sha256": hashlib.sha256(receipt_bytes).hexdigest(),
+        "elapsed_seconds": time.monotonic() - started,
+    }
+    Path("_build/gy_grade_authority/pa1-n7-real-replay-output.json").write_text(json.dumps(output, indent=2) + "\n")
+    print(json.dumps({key: value for key, value in output.items() if key != "request"}), flush=True)
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_n7_removal_v3.py`
+
+3216 bytes, SHA-256 `0a8561e616054740bef8e131dd8cc7f2351441cfac3c5e0ed2500625a9d32df7`.
+
+````python
+"""Real runtime-property removals; source markers remain byte-identical."""
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+import pytest
+
+from polisyos.runtime.quality import acquisition_planner as acquisition
+from polisyos.runtime.quality import production_grounding_calibration as calibration
+
+mode = os.environ.get("GY_PA1_N7_REMOVE", "restored")
+log = Path(f"_build/gy_grade_authority/pa1-n7-removal-{mode}-v3.txt").open("w")
+
+
+class Tee:
+    def __init__(self, stream):
+        self.stream = stream
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+    def write(self, value):
+        log.write(value)
+        log.flush()
+        return self.stream.write(value)
+    def flush(self):
+        log.flush()
+        self.stream.flush()
+
+
+sys.stdout, sys.stderr = Tee(sys.stdout), Tee(sys.stderr)
+manifest = json.loads(Path("_build/gy_grade_authority/pa1_n7_corrected_freeze.json").read_text())
+
+
+def hashes():
+    actual = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in manifest}
+    assert actual == manifest, "frozen source changed"
+    return actual
+
+
+print(json.dumps({"mode": mode, "frozen_hashes_before": hashes()}), flush=True)
+if mode == "source_replay":
+    def no_replay(self, *, ref, request):
+        return calibration.ProductionGroundingSourceResolution.model_validate_json(
+            self._store.get_bytes(ref.artifact_id)
+        )
+    calibration.ProductionCG2CalibrationSource.replay = no_replay
+    nodes = ["tests/unit/runtime/quality/test_acquisition_planner.py::test_real_skg_capture_requires_source_bound_replay_before_audit_emission"]
+elif mode == "refusal":
+    def no_admission(*, artifact, record, spec, source_owner):
+        return artifact
+    acquisition._admit_source_artifact = no_admission
+    original = acquisition._owner_artifact_validation_issues
+    def no_skg_refusal(artifact):
+        return tuple(issue for issue in original(artifact) if not issue.startswith("skg_"))
+    acquisition._owner_artifact_validation_issues = no_skg_refusal
+    nodes = ["tests/unit/runtime/quality/test_acquisition_source_replay.py::test_expected_skg_route_cannot_escape_by_relabeling_artifact_owner"]
+elif mode == "receipt":
+    original = acquisition._emission_is_sealed
+    def no_receipt_seal(model, registry, context=acquisition._UNSPECIFIED_EMISSION_CONTEXT):
+        if registry is acquisition._VERIFIED_RECEIPT_EMISSIONS:
+            return True
+        return original(model, registry, context)
+    acquisition._emission_is_sealed = no_receipt_seal
+    nodes = ["_build/gy_grade_authority/test_pa1_n7_receipt_removal_behavior.py"]
+else:
+    nodes = [
+        "tests/unit/runtime/quality/test_acquisition_planner.py::test_real_skg_capture_requires_source_bound_replay_before_audit_emission",
+        "tests/unit/runtime/quality/test_acquisition_source_replay.py::test_expected_skg_route_cannot_escape_by_relabeling_artifact_owner",
+        "_build/gy_grade_authority/test_pa1_n7_receipt_removal_behavior.py",
+    ]
+result = pytest.main([*nodes, "--override-ini", "addopts=", "-q"])
+print(json.dumps({"mode": mode, "pytest_exit": result, "frozen_hashes_after": hashes()}), flush=True)
+raise SystemExit(result)
+````
+
+#### `_build/gy_grade_authority/test_pa1_n7_receipt_removal_behavior.py`
+
+1114 bytes, SHA-256 `537c21747a7a50188c3fbf2e23dd28748bc4c36812960acae363ed5fc24addac`.
+
+````python
+"""A live receipt's forged copy must not feed the actual GenerationCycle consumer."""
+from polisyos.runtime.quality import acquisition_planner as n7
+from polisyos.runtime.quality.generation_cycle import _n7_rederived_grounding_for_candidate
+from tests.unit.runtime.quality.test_acquisition_source_replay import captured, _replay
+
+
+def test_actual_cycle_consumer_refuses_forged_complete_receipt(captured):
+    receipt = _replay(*captured)
+    payload = receipt.model_dump(mode="json")
+    payload["grounding_rederivations"] = [{
+        "design_id": "candidate:forged", "source_slots": ["avg_income"],
+        "status": "current_valid", "grounding_score": 1.0, "report_ref": "report:self-issued",
+        "evidence_refs": [], "issue_codes": [],
+    }]
+    payload["real_grounding_result_count"] = 1
+    payload["useful_design_rate_after"] = 1.0
+    payload["status"] = "completed"
+    payload["no_result_costed_gap"] = False
+    payload["content_hash"] = ""
+    forged = n7.AcquisitionReceipt.model_validate(payload)
+    assert _n7_rederived_grounding_for_candidate(forged, candidate_id="candidate:forged") is None
+````
+
+#### `_build/gy_grade_authority/test_pa1_n7_independent_delta.py`
+
+6440 bytes, SHA-256 `f92e896f3675b56a1aa53422dd1a05a1593e9596ad8d1f54eed16ff77d1944f8`.
+
+````python
+"""Delta review of the same PA1 binding class with configured replay controls."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+
+import duckdb
+import pytest
+
+from polisyos.core import artifacts
+from polisyos.data_forge.read_api import academic
+from polisyos.runtime.quality import acquisition_planner as n7
+from polisyos.runtime.quality.production_grounding_calibration import ProductionCG2CalibrationSource
+from _build.gy_grade_authority import test_pa1_n7_independent_review as original
+
+_UNCONFIGURED_REPLAY = original.replay
+
+
+@pytest.fixture(autouse=True)
+def restore_removed_same_context_shortcut_only_for_negative_control(monkeypatch):
+    if os.environ.get('GY_REVIEW_RESTORE_SOURCE_FASTPATH') != '1':
+        return
+    original_admit = n7._admit_source_artifact
+    def shortcut(*, artifact, record, spec, source_owner):
+        expected_owner = n7._owner_component_for_record(record, spec)
+        request = n7._source_grounding_request(record, spec)
+        context = (source_owner, n7._canonical_model_bytes(request))
+        if (expected_owner == artifact.owner_component == 'data_forge.skg' and
+                n7._emission_is_sealed(artifact, n7._VERIFIED_SOURCE_EMISSIONS, context)):
+            return artifact
+        return original_admit(artifact=artifact, record=record, spec=spec, source_owner=source_owner)
+    monkeypatch.setattr(n7, '_admit_source_artifact', shortcut)
+
+
+@pytest.fixture
+def configured_case(tmp_path, monkeypatch):
+    case = original.captured.__wrapped__(tmp_path)
+    path = tmp_path / 'retained.duckdb'
+    source = academic.SourceSnapshot(path=path, reference='fixture://independent-source',
+                                    sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    store = artifacts.FileSystemCAS(tmp_path / '.n7-live-cas')
+    owner = ProductionCG2CalibrationSource(source=source, store=store, scratch=tmp_path / 'configured-spill')
+    def configured_replay(gap, problem, world, artifact):
+        return n7.run_acquisition_closed_loop(
+            run_id='review-configured-replay', acquisition_request={'cycle_index': 1},
+            data_requirement_specs=(gap,), world_snapshot=world, design_problem=problem,
+            owner_gateway=n7.RecordedAcquisitionOwnerGateway(
+                artifacts_by_requirement={gap.compiled_requirement_ref: artifact},
+                skg_calibration_source=owner,
+            ),
+        )
+    monkeypatch.setattr(original, 'replay', configured_replay)
+    return case, owner, store, source
+
+
+def test_matching_configured_replay_control(configured_case):
+    original.test_matching_recorded_control(configured_case[0])
+
+
+@pytest.mark.parametrize('mutation', ['current_world', 'current_outcome', 'population', 'cas_ref'])
+def test_same_four_source_and_request_escape_cases(configured_case, mutation):
+    original.test_recorded_intake_must_rebind_source_and_current_request(configured_case[0], mutation)
+
+
+@pytest.mark.parametrize('owner_component', ['data_forge.skg', 'fabric.ingestion'])
+def test_same_expected_owner_route_and_ceiling_cases(configured_case, owner_component):
+    original.test_current_skg_gap_cannot_escape_ceiling_by_relabeling_owner(configured_case[0], owner_component)
+
+
+@pytest.mark.parametrize('grade', ['world_written', 'grounding_valid'])
+def test_same_complete_receipt_emission_escape_cases(configured_case, grade):
+    original.test_receipt_emission_cannot_mint_world_or_grounding_grade_from_skg_refusal(configured_case[0], grade)
+
+
+def test_missing_replay_context_emits_only_unverified_current_refusal(configured_case):
+    gap, problem, world, artifact = configured_case[0]
+    receipt = _UNCONFIGURED_REPLAY(gap, problem, world, artifact)
+    response = receipt.owner_artifacts[0].payload['owner_response']
+    assert response['owner_response_kind'] == 'skg_unverified_source_refusal'
+    assert 'resolution' not in response
+    assert response['refusal']['verification_status'] == 'not_established'
+    assert response['refusal']['request']['world_snapshot'] == world.model_dump(mode='json')
+    assert response['refusal']['n8_admission'] == 'blocked'
+    assert receipt.grown_world_added_slots == ()
+    assert receipt.real_grounding_result_count == 0
+    assert all(row.status == 'rejected' for row in receipt.world_write_outcomes)
+
+
+@pytest.mark.parametrize('shape', ['mapping', 'dto'])
+def test_deserialized_receipt_requires_fresh_context_replay(configured_case, shape):
+    receipt = original.replay(*configured_case[0])
+    assert n7.validate_acquisition_receipt(receipt) == ()
+    payload = json.loads(receipt.model_dump_json())
+    submitted = payload if shape == 'mapping' else n7.AcquisitionReceipt.model_validate(payload)
+    issues = n7.validate_acquisition_receipt(submitted)
+    assert any(issue['code'] == 'acquisition_receipt_current_context_replay_unavailable' for issue in issues)
+    assert not n7.acquisition_receipt_has_verified_emission(submitted)
+
+
+@pytest.mark.parametrize('mutation', ['source_bytes', 'cas_blob'])
+def test_same_owner_and_request_reuse_does_not_replace_current_replay(configured_case, mutation):
+    case, owner, store, source = configured_case
+    gap, problem, world, artifact = case
+    first = original.replay(gap, problem, world, artifact)
+    assert n7.validate_acquisition_receipt(first) == ()
+    sealed_artifact = first.owner_artifacts[0]
+    if mutation == 'source_bytes':
+        with duckdb.connect(str(source.path)) as con:
+            con.execute("UPDATE ac_skg_simulation_parameters SET canonical_name='changed-after-capture'")
+    else:
+        ref = artifacts.ArtifactRef.model_validate(sealed_artifact.payload['owner_response']['resolution_ref'])
+        blob, _ = store.get_paths(ref.artifact_id)
+        body = json.loads(blob.read_bytes())
+        body['request']['claim_ref'] = 'claim:changed-after-capture'
+        blob.write_text(json.dumps(body))
+    second = original.replay(gap, problem, world, sealed_artifact)
+    response = second.owner_artifacts[0].payload['owner_response']
+    assert response['owner_response_kind'] == 'skg_unverified_source_refusal', {
+        'same_owner_object': owner, 'accepted_response_kind': response['owner_response_kind'],
+        'validation_issues': n7.validate_acquisition_receipt(second),
+    }
+    assert response['refusal']['verification_status'] == 'not_established'
+    assert second.grown_world_added_slots == ()
+    assert second.real_grounding_result_count == 0
+````
+
+#### `_build/gy_grade_authority/pa1_n7_delta_handback.py`
+
+7054 bytes, SHA-256 `d98e6b61cb4785a56d21daf089642b5cb83d6b350171a1c0c0327725d590d180`.
+
+````python
+"""Read back the frozen PA1 delta test receipts; does not run another test wave."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+ROOT = Path.cwd()
+SCRATCH = ROOT / "_build/gy_grade_authority"
+
+
+def digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def read_receipt(name: str, *, expected_tests: int, expected_failures: int) -> dict:
+    path = SCRATCH / name
+    tree = ET.parse(path)
+    cases = tree.findall(".//testcase")
+    rows = [
+        {
+            "identity": f"{case.attrib['classname']}::{case.attrib['name']}",
+            "outcome": "failed" if case.find("failure") is not None else "passed",
+            "failure_message": case.find("failure").get("message")
+            if case.find("failure") is not None
+            else None,
+        }
+        for case in cases
+    ]
+    suites = tree.findall(".//testsuite")
+    totals = {
+        key: sum(int(suite.get(key, "0")) for suite in suites)
+        for key in ("tests", "failures", "errors", "skipped")
+    }
+    assert len(cases) == len({row['identity'] for row in rows}) == totals['tests'] == expected_tests
+    assert sum(row['outcome'] == 'failed' for row in rows) == totals['failures'] == expected_failures
+    assert totals['errors'] == totals['skipped'] == 0
+    return {
+        "path": str(path.relative_to(ROOT)), "sha256": digest(path),
+        "suite_totals": totals,
+        "suite_duration_seconds": sum(float(suite.get("time", "0")) for suite in suites),
+        "complete_case_set": rows,
+    }
+
+
+def main() -> None:
+    manifest_path = SCRATCH / 'pa1_n7_corrected_freeze.json'
+    manifest = json.loads(manifest_path.read_text())
+    observed = {path: digest(ROOT / path) for path in manifest}
+    assert observed == manifest, {path: sha for path, sha in observed.items() if sha != manifest[path]}
+    assert all(Path(path).suffix == '.py' for path in manifest)
+    original_path = SCRATCH / 'test_pa1_n7_independent_review.py'
+    assert digest(original_path) == 'eebc33e8367517e0596470a753d1b2a814b6b6de39b8c9586237cfefa1a9e24f'
+    result = {
+        'disposition': 'GO within declared source-reference and current-request replay ceiling',
+        'bucket': 'SAME source/current-request/route/whole-emission authority class; coherent correction reviewed, no new blocking class found',
+        'frozen_python_path_count': len(manifest),
+        'freeze_manifest': {'path': str(manifest_path.relative_to(ROOT)), 'sha256': digest(manifest_path), 'complete_observed_path_hash_set': observed},
+        'original_probe': {'path': str(original_path.relative_to(ROOT)), 'sha256': digest(original_path)},
+        'delta_probe': {'path': '_build/gy_grade_authority/test_pa1_n7_independent_delta.py', 'sha256': digest(SCRATCH / 'test_pa1_n7_independent_delta.py')},
+        'positive_delta': {
+            'command': 'PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts="" _build/gy_grade_authority/test_pa1_n7_independent_delta.py --junitxml=_build/gy_grade_authority/pa1-n7-independent-delta.xml',
+            'exit_code': 0, 'pytest_duration_seconds': 47.43,
+            **read_receipt('pa1-n7-independent-delta.xml', expected_tests=14, expected_failures=0),
+        },
+        'removal_red': {
+            'command': 'GY_REVIEW_RESTORE_SOURCE_FASTPATH=1 PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts="" _build/gy_grade_authority/test_pa1_n7_independent_delta.py -k same_owner_and_request --junitxml=_build/gy_grade_authority/pa1-n7-independent-source-fastpath-red.xml',
+            'exit_code': 1, 'pytest_duration_seconds': 36.88, 'deselected_stdout': 12,
+            'removed_property': 'Every source admission recomputes current source/CAS; scratch wrapper restores old same-owner/request process-local-seal early return without modifying source or markers.',
+            'observed_divergence': 'Both changed source bytes and changed bound CAS blob were accepted as skg_exact_request_source_resolution with validate_acquisition_receipt()==().',
+            **read_receipt('pa1-n7-independent-source-fastpath-red.xml', expected_tests=2, expected_failures=2),
+        },
+        'source_review': [
+            'Shared intake derives the expected owner from the current planned record/spec, replays CAS with the exact current request and independently configured snapshot, and compares the whole canonical payload. Relabeling the SKG response or owner cannot grant acquired substrate for the planned SKG route.',
+            'Missing replay context normalizes to current-request typed unverified refusal without copying submitted resolution/population facts. Refused population counts are None, not a false measured zero.',
+            'A process-local full-byte receipt seal is required at validate_acquisition_receipt and both GenerationCycle consumers (_reenter_cycle_after_n7_acquisition and _n7_rederived_grounding_for_candidate). Raw/deserialized or altered receipts do not regain authority.',
+            'Source admission always replays even after a prior valid emission under the same configured owner/request. Receipt seal is emission provenance, not a scientific appointment or an assertion of later external-source freshness.',
+        ],
+        'bounded_limits': [
+            'Configured deployment source snapshot, CAS/replayer configuration, runtime code and private in-process state are trusted. No arbitrary Python-memory or filesystem-administrator substitution was tested or claimed closed.',
+            'CAS binds recomputed source-reference projection and current request. Source authenticity, semantic target coverage, causal eligibility, native uncertainty adequacy, target transport and calibration authority remain not_established; N8 remains blocked and no acquired SKG registration is issued.',
+            'No independent relation-outcome gold, evaluator appointment, exact-stratum calibration population or scientific grade was created. This is not full positive PA1 closure.',
+            'Other Fabric/OpenAlex general count-to-grade concerns remain outside this bounded correction; the planned SKG route relabel escape is closed.',
+        ],
+    }
+    output = SCRATCH / 'pa1-n7-independent-delta-handback.json'
+    output.write_text(json.dumps(result, indent=2) + '\n')
+    saved = json.loads(output.read_text())
+    assert saved == result
+    print(json.dumps({'output': str(output.relative_to(ROOT)), 'sha256': digest(output), 'script_sha256': digest(Path(__file__)), 'freeze_sha256': digest(manifest_path), 'delta_probe_sha256': result['delta_probe']['sha256'], 'delta_receipt_sha256': result['positive_delta']['sha256'], 'red_receipt_sha256': result['removal_red']['sha256'], 'frozen_python_paths_read_back': len(observed), 'positive_case_count': len(result['positive_delta']['complete_case_set']), 'red_case_count': len(result['removal_red']['complete_case_set'])}, indent=2))
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_n7_final_handback.py`
+
+8563 bytes, SHA-256 `3c4dfa35627427413ca01417c1e67014b4a560a9b4c5c2fa1ee8f36e459ff05f`.
+
+````python
+"""Reconcile the frozen final wave, behavioral removals and retained-source run."""
+
+import hashlib
+import json
+import re
+from pathlib import Path
+
+BASE = Path("_build/gy_grade_authority")
+PREFIX = 'PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src '
+freeze = json.loads((BASE / "pa1_n7_corrected_freeze.json").read_text())
+actual = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in freeze}
+assert actual == freeze
+wave = json.loads((BASE / "pa1-n7-final-targeted-reconciled.json").read_text())
+assert wave["source_hashes"] == freeze
+removals = []
+for mode, expected_exit, expected_count in (
+    ("source_replay", 1, 1), ("refusal", 1, 2), ("receipt", 1, 1), ("restored", 0, 4)
+):
+    path = BASE / f"pa1-n7-removal-{mode}-v3.txt"
+    body = path.read_text()
+    records = [json.loads(line) for line in body.splitlines() if line.startswith('{"mode":')]
+    assert len(records) == 2
+    assert records[0]["frozen_hashes_before"] == records[1]["frozen_hashes_after"] == freeze
+    assert records[1]["pytest_exit"] == expected_exit
+    outcome = "failed" if expected_exit else "passed"
+    match = re.search(rf"{expected_count} {outcome}, 1 warning in ([0-9.]+)s", body)
+    assert match, (mode, body)
+    command = PREFIX + (f"GY_PA1_N7_REMOVE={mode} " if mode != "restored" else "")
+    removals.append({
+        "mode": mode,
+        "command": command + ".venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3",
+        "exit_code": expected_exit,
+        "case_count": expected_count,
+        "outcome": outcome,
+        "pytest_reported_seconds": float(match[1]),
+        "log": str(path),
+        "all_11_source_and_test_hashes_unchanged": True,
+    })
+
+real = json.loads((BASE / "pa1-n7-real-replay-output.json").read_text())
+assert real["n8_admission"] == "blocked" and real["real_grounding_result_count"] == 0
+receipt = Path(real["receipt_path"])
+assert hashlib.sha256(receipt.read_bytes()).hexdigest() == real["receipt_sha256"]
+artifact_names = [
+    "pa1_n7_corrected_freeze.json", "pa1_n7_final_receipts.py",
+    "pa1-n7-final-targeted.xml", "pa1-n7-final-targeted-reconciled.json",
+    "pa1_n7_removal_v2.py", "pa1_n7_removal_v3.py",
+    "test_pa1_n7_receipt_removal_behavior.py", "pa1_n7_real_replay.py",
+    "pa1-n7-real-replay-output.json", "pa1-n7-independent-delta-handback.json",
+    "test_pa1_n7_independent_review.py", "test_pa1_n7_independent_delta.py",
+    "pa1-n7-independent-delta.xml", "pa1-n7-independent-source-fastpath-red.xml",
+    "pa1-population-unknown-corrected-before.xml", "pa1-population-unknown-after.xml",
+]
+artifact_paths = [BASE / name for name in artifact_names] + [receipt]
+artifact_paths += [BASE / f"pa1-n7-removal-{mode}-v{version}.txt"
+    for version, modes in ((2, ("source_replay", "refusal", "receipt")),
+                           (3, ("source_replay", "refusal", "receipt", "restored")))
+    for mode in modes]
+artifact_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in artifact_paths}
+report = {
+    "source_status": "frozen; no commits by this subagent",
+    "source_hashes": actual,
+    "pattern_closeout": ["P29", "P31", "P32", "P35", "P37", "P38", "P40", "P41"],
+    "class": "SAME source/current-request/expected-route/whole-emission authority binding",
+    "capability": "Exact-request source discovery, persistence/replay and N7 honest refusal are wired and exercised; positive relation-calibrated grounding remains verification_missing/producer_missing pending the scientific acceptance decision.",
+    "full_positive_boundary": {
+        "required_decision": ["CG1 proposal-reference relation gold context", "accepted independent relation adjudicator", "outcome-sensitive calibration acceptance rule"],
+        "reason": "Academic edge publication adjudication does not establish the proposal-reference relation. The same publishable study can support a correct or incorrect proposal binding. No accepted mapping is defined; counts and publication labels cannot supply it.",
+        "actual_request_limits": ["avg_income and average_treatment_effect are supplied", "candidate treatment/operator and reference epoch are not established", "No treatment assignment, empirical causal contrast or target transport grade is manufactured"],
+        "remaining_engineering_after_decision": "Implement the chosen relation-evidence producer/admission and CG2 outcome-sensitive calibration against independently supplied gold/context; current refusal artifact is not that positive corpus.",
+    },
+    "final_wave": {
+        "command": PREFIX + ".venv/bin/python -m pytest -q --override-ini addopts='' tests/unit/data_forge/domains/academic/knowledge/test_skg_identity_bridge.py tests/unit/data_forge/domains/academic/knowledge/test_skg_source_population.py tests/unit/runtime/quality/test_production_grounding_calibration.py tests/unit/runtime/quality/test_acquisition_planner.py tests/unit/runtime/quality/test_acquisition_source_replay.py tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_invokes_n7_and_records_same_cycle_reentry tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters tests/unit/runtime/quality/test_generation_cycle.py::test_value_data_gap_routes_to_n7_acquisition_terminal tests/unit/runtime/quality/test_generation_cycle.py::test_canonical_n7_route_attaches_exact_owner_cost_basis tests/unit/runtime/quality/test_generation_cycle.py::test_honest_single_cycle_acquisition_terminal_validates tests/unit/runtime/quality/test_second_domain_pack.py::test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable --junitxml=_build/gy_grade_authority/pa1-n7-final-targeted.xml",
+        "exit_code": 1,
+        "pytest_reported_seconds": 163.71,
+        "complete_case_count": wave["test_count"],
+        "outcomes": wave["outcomes"],
+        "complete_case_set_artifact": "_build/gy_grade_authority/pa1-n7-final-targeted-reconciled.json",
+        "skip": "test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle: explicit cloud-gated network lane",
+        "setup_error": "test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable: tools fixture raises education_n4_historical_replay_call_denominator_mismatch before intended assertions",
+        "setup_error_provenance": "not_established; exact slice-base replay and complete-input disjointness have not been measured",
+        "later_tool_compatibility": "Raw-receipt validator and full bundle assertions were not reached. The new full emission guard requires current-context replay; no bypass or skipped assertion was introduced.",
+    },
+    "removal_gates": removals,
+    "v2_harness_failures": "All three v2 attempts exit 3 before collection because stdout Tee lacked isatty; preserved logs are non-receipts, not product reds. v3 transparently delegates stream attributes.",
+    "real_retained_station": {
+        "command": PREFIX + ".venv/bin/python -m _build.gy_grade_authority.pa1_n7_real_replay",
+        "exit_code": 0,
+        "scope": "Canonical N8-request fixture plus actual retained source through controller adapter, real N7, CAS and independently expected request replay. Not a full live N8 evaluation or empirical positive chain.",
+        "denominator": "All rows of main.ac_skg_simulation_parameters, native five-column reference projection; not all ac_numeric estimates or a calibration population",
+        "complete_result": real,
+    },
+    "remaining_companions": [
+        "Root measured obsolete architecture baseline edge after proper DataForge read_api reuse; exact companion removal outside agent grant, caused drift, not inherited.",
+        "tools check_layer3_gy_acquisition_contract._core_issues and check_layer3_gy_second_domain_pack._validate_n7_attempt reconstruct raw DTOs. To admit authority they need deployment/current-request replay; otherwise report audit-only unverified. Root owns exact handback.",
+        "Other Fabric/OpenAlex count-to-grade owner admission concerns are outside this SKG source-reference correction; no shared-family closure is claimed.",
+    ],
+    "artifact_sha256": artifact_hashes,
+}
+output = BASE / "pa1-n7-final-handback.json"
+output.write_text(json.dumps(report, indent=2) + "\n")
+print(json.dumps({"handback": str(output), "sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
+                  "frozen_python_paths": len(actual), "hashed_evidence_paths": len(artifact_hashes),
+                  "wave": report["final_wave"]["outcomes"], "removals": removals}, indent=2))
+````
+
+#### `_build/gy_grade_authority/test_population_unknown_denominator.py`
+
+1631 bytes, SHA-256 `82217b1958c709158e31554fe11c1a8ff6560d2e7a704a849f3fadd7e186b1b0`.
+
+````python
+"""An unreadable source cannot be graded as a known empty population."""
+import hashlib
+import duckdb
+import pytest
+from polisyos.data_forge.read_api import academic
+
+@pytest.mark.parametrize("unreadable", [False, True])
+def test_unreadable_denominator_is_unknown_while_native_population_is_measured(tmp_path, unreadable):
+    path = tmp_path / "source.duckdb"
+    with duckdb.connect(str(path)) as con:
+        con.execute("CREATE TABLE original(numeric_id VARCHAR, openalex_id VARCHAR, canonical_name VARCHAR, linked_claim_ids_json VARCHAR, linked_edges_json VARCHAR)")
+        con.execute("INSERT INTO original VALUES ('n1', 'W1', 'avg_income', '[]', '[]')")
+        if unreadable:
+            con.execute("CREATE VIEW ac_skg_simulation_parameters AS SELECT * FROM original")
+        else:
+            con.execute("ALTER TABLE original RENAME TO ac_skg_simulation_parameters")
+    source = academic.SourceSnapshot(path=path, reference="fixture://source", sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    result = academic.read_source_reference_population(source=source, target_variable="avg_income", scratch=tmp_path / "spill")
+    if unreadable:
+        assert result.status == "refused"
+        assert result.row_count is None, "Unreadable population was falsely counted as zero"
+        assert result.distinct_numeric_id_count is None
+        assert result.distinct_variable_name_count is None
+    else:
+        assert result.status == "reference_population_recomputed"
+        assert result.row_count == 1
+        assert result.distinct_numeric_id_count == 1
+        assert result.distinct_variable_name_count == 1
+````
+
+#### `_build/gy_grade_authority/pa1_n7_population_independent_reconcile.py`
+
+8803 bytes, SHA-256 `0fab7051a3405f768051a2bf3cf55ae4bdd47fa4fe2b08a2ecc6fe57527b73dc`.
+
+````python
+"""Direct read-only SQL/Counter reconciliation; no owner producer/helper imports."""
+from __future__ import annotations
+import hashlib
+import json
+import stat
+import subprocess
+import time
+from collections import Counter
+from pathlib import Path
+
+import duckdb
+
+BASE = Path('_build/gy_grade_authority')
+REPORT = BASE/'pa1-n7-real-replay-output.json'
+CAS = BASE/'pa1_n7_real/.n7-live-cas/artifacts/sha256'
+SCRATCH = BASE/'pa1_n7_independent_reconcile_spill'
+RESULT = BASE/'pa1_n7_population_independent_reconcile.json'
+EXPECTED_SOURCE_SHA = '583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967'
+EXPECTED_HEAD = 'c7ef95f7a3fd08c6df18277c5feae0ef8f31003f'
+COLUMNS = ('numeric_id','openalex_id','canonical_name','linked_claim_ids_json','linked_edges_json')
+TABLE = 'main.ac_skg_simulation_parameters'
+
+def head() -> str:
+    return subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
+
+def stream_sha(path: Path) -> tuple[str,int]:
+    digest=hashlib.sha256(); size=0
+    with path.open('rb') as handle:
+        while chunk:=handle.read(8*1024*1024): digest.update(chunk);size+=len(chunk)
+    return digest.hexdigest(),size
+
+def encode(value: object) -> bytes:
+    return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode()
+
+def counter_rows(counter: Counter) -> list[dict]:
+    return [{'values':list(row),'multiplicity':count} for row,count in sorted(counter.items(),key=lambda row:encode(row[0]))]
+
+started=time.monotonic()
+report_bytes=REPORT.read_bytes(); report=json.loads(report_bytes)
+artifact_sha=report['resolution_ref']['artifact_id'].removeprefix('sha256:')
+blob=CAS/artifact_sha[:2]/artifact_sha[2:4]/(artifact_sha+'.blob')
+blob_bytes=blob.read_bytes(); resolution=json.loads(blob_bytes)
+population=resolution['source_population']
+source=Path(population['source_reference'])
+assert population['columns']==list(COLUMNS)
+assert population['table']=='ac_skg_simulation_parameters'
+assert report['source_sha256']==population['source_sha256']==EXPECTED_SOURCE_SHA
+assert hashlib.sha256(blob_bytes).hexdigest()==artifact_sha
+assert len(blob_bytes)==report['resolution_bytes']
+assert all(set(row)==set(COLUMNS) for row in population['rows'])
+assert all(value is None or type(value) is str for row in population['rows'] for value in row.values())
+before_stat=source.stat(); before_head=head()
+assert before_head==EXPECTED_HEAD
+before_sha,before_size=stream_sha(source)
+assert before_sha==EXPECTED_SOURCE_SHA
+SCRATCH.mkdir(parents=True,exist_ok=True)
+quoted=', '.join('"'+column+'"' for column in COLUMNS)
+queries={
+ 'rows':f'SELECT {quoted} FROM {TABLE}',
+ 'grouped_rows':f'SELECT {quoted}, COUNT(*) AS multiplicity FROM {TABLE} GROUP BY ALL',
+ 'counters':f'SELECT COUNT(*), COUNT(DISTINCT numeric_id), COUNT(DISTINCT canonical_name) FROM {TABLE}',
+ 'distinct_full_rows':f'SELECT COUNT(*) FROM (SELECT DISTINCT {quoted} FROM {TABLE})',
+ 'literal_target':f'SELECT COUNT(*) FROM {TABLE} WHERE canonical_name = ?',
+ 'lowercase_target':f'SELECT COUNT(*) FROM {TABLE} WHERE lower(canonical_name) = lower(?)',
+ 'null_counts':f'SELECT '+', '.join(f'COUNT(*) FILTER (WHERE "{column}" IS NULL)' for column in COLUMNS)+f' FROM {TABLE}',
+}
+with duckdb.connect(str(source),read_only=True,config={'temp_directory':str(SCRATCH.resolve()),'memory_limit':'512MB'}) as connection:
+    connection.execute('SET enable_external_access = false')
+    settings={name:connection.execute('SELECT current_setting(?)',[name]).fetchone()[0]
+              for name in ('access_mode','enable_external_access','temp_directory','memory_limit')}
+    tables=connection.execute("SELECT table_schema,table_name,table_type FROM information_schema.tables WHERE table_schema='main' AND table_name='ac_skg_simulation_parameters'").fetchall()
+    assert tables==[('main','ac_skg_simulation_parameters','BASE TABLE')],tables
+    sql_rows=connection.execute(queries['rows']).fetchall()
+    grouped=connection.execute(queries['grouped_rows']).fetchall()
+    sql_counts=connection.execute(queries['counters']).fetchone()
+    sql_distinct_rows=connection.execute(queries['distinct_full_rows']).fetchone()[0]
+    sql_literal=connection.execute(queries['literal_target'],[population['target_variable']]).fetchone()[0]
+    sql_lower=connection.execute(queries['lowercase_target'],[population['target_variable']]).fetchone()[0]
+    sql_nulls=connection.execute(queries['null_counts']).fetchone()
+after_sha,after_size=stream_sha(source)
+after_stat=source.stat(); after_head=head()
+direct=Counter(tuple(row) for row in sql_rows)
+cas=Counter(tuple(row[column] for column in COLUMNS) for row in population['rows'])
+group_counter=Counter({tuple(row[:-1]):int(row[-1]) for row in grouped})
+target=population['target_variable']
+python_counts=(len(sql_rows),len({row[0] for row in sql_rows if row[0] is not None}),len({row[2] for row in sql_rows if row[2] is not None}))
+cas_counts=(len(population['rows']),len({row['numeric_id'] for row in population['rows'] if row['numeric_id'] is not None}),len({row['canonical_name'] for row in population['rows'] if row['canonical_name'] is not None}))
+python_nulls=tuple(sum(row[i] is None for row in sql_rows) for i in range(len(COLUMNS)))
+literal_indices=[i for i,row in enumerate(population['rows']) if row['canonical_name']==target]
+casefold_rows=[row for row in sql_rows if isinstance(row[2],str) and row[2].casefold()==target.casefold()]
+missing=direct-cas; extra=cas-direct
+checks={
+ 'source_sha_before_and_after_match':before_sha==after_sha==EXPECTED_SOURCE_SHA,
+ 'source_size_unchanged':before_size==after_size,
+ 'source_mtime_unchanged':before_stat.st_mtime_ns==after_stat.st_mtime_ns,
+ 'source_mode_unchanged':before_stat.st_mode==after_stat.st_mode,
+ 'branch_head_unchanged':before_head==after_head==EXPECTED_HEAD,
+ 'direct_SQL_and_CAS_full_multisets_equal':not missing and not extra,
+ 'direct_SQL_and_grouped_SQL_full_multisets_equal':direct==group_counter,
+ 'SQL_Python_CAS_counts_equal':tuple(sql_counts)==python_counts==cas_counts,
+ 'SQL_full_row_distinct_count_equal':sql_distinct_rows==len(direct)==len(cas),
+ 'SQL_and_Python_null_counts_equal':tuple(sql_nulls)==python_nulls,
+ 'literal_counts_and_CAS_indices_equal':sql_literal==len(literal_indices)==len(population['literal_target_row_indices']) and literal_indices==population['literal_target_row_indices'],
+ 'population_declared_counts_equal':tuple(sql_counts)==(population['row_count'],population['distinct_numeric_id_count'],population['distinct_variable_name_count']),
+ 'report_counts_equal':tuple(sql_counts)==(report['row_count'],report['distinct_numeric_id_count'],report['distinct_variable_name_count']),
+}
+result={
+ 'scope':'all rows of five native columns in main.ac_skg_simulation_parameters; exact retained-reference projection, not ac_numeric evidence or relation/calibration observations',
+ 'source':str(source),'expected_source_sha256':EXPECTED_SOURCE_SHA,'source_sha256_before':before_sha,'source_sha256_after':after_sha,
+ 'source_size_bytes':before_size,'source_mode':stat.filemode(before_stat.st_mode),'source_mtime_ns_before':before_stat.st_mtime_ns,'source_mtime_ns_after':after_stat.st_mtime_ns,
+ 'source_hash_stream_passes':2,'connection_settings':settings,'table':TABLE,'columns':list(COLUMNS),'queries':queries,'query_target':target,
+ 'branch_head_before':before_head,'branch_head_after':after_head,
+ 'CAS_artifact_ref':report['resolution_ref']['artifact_id'],'CAS_blob':str(blob),'CAS_blob_sha256':hashlib.sha256(blob_bytes).hexdigest(),'CAS_blob_bytes':len(blob_bytes),
+ 'input_report_sha256':hashlib.sha256(report_bytes).hexdigest(),
+ 'SQL_counts':dict(zip(('rows','distinct_numeric_ids','distinct_variable_names'),sql_counts)),
+ 'Python_counts':dict(zip(('rows','distinct_numeric_ids','distinct_variable_names'),python_counts)),
+ 'CAS_counts':dict(zip(('rows','distinct_numeric_ids','distinct_variable_names'),cas_counts)),
+ 'distinct_complete_five_column_rows':sql_distinct_rows,'null_counts':dict(zip(COLUMNS,sql_nulls)),
+ 'direct_full_multiset_sha256':hashlib.sha256(encode(counter_rows(direct))).hexdigest(),
+ 'CAS_full_multiset_sha256':hashlib.sha256(encode(counter_rows(cas))).hexdigest(),
+ 'grouped_SQL_full_multiset_sha256':hashlib.sha256(encode(counter_rows(group_counter))).hexdigest(),
+ 'missing_from_CAS':counter_rows(missing),'extra_in_CAS':counter_rows(extra),
+ 'literal_target_count':sql_literal,'lowercase_SQL_target_count':sql_lower,'casefold_Python_target_count':len(casefold_rows),
+ 'literal_absence_scope':'Exact lexical match only; semantic target coverage and scientific eligibility remain not_established.',
+ 'checks':checks,'elapsed_seconds':time.monotonic()-started,
+}
+RESULT.write_text(json.dumps(result,indent=2)+'\n')
+assert all(checks.values()),checks
+print(json.dumps(result,indent=2))
+````
+
+#### `_build/gy_grade_authority/architecture_final_identity_diff.py`
+
+3090 bytes, SHA-256 `a0746a7c0a4d4b2a9972feef5af9fc0575df774fffbe97d43e4383bc71212103`.
+
+````python
+"""Diff complete gate finding identities, never summary totals."""
+import json
+import os
+import re
+from pathlib import Path
+from tools.devx.architecture import guardrails as g
+
+logs = ("architecture-final.log", "architecture-after-facades.log", "architecture-after-admitted-facade.log", "architecture-pa1-final.log")
+sets = {}
+for log in logs:
+    lines = (Path("_build/gy_grade_authority") / log).read_text().splitlines()
+    assert any(marker in lines for marker in (
+        "Architecture guardrail check FAILED:", "Architecture guardrail check passed."
+    )), (log, "incomplete gate output")
+    ignored = set()
+    i = 0
+    while i < len(lines):
+        hunk = re.match(r"^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@", lines[i])
+        if hunk:
+            old, new = (int(value) if value is not None else 1 for value in hunk.groups())
+            i += 1
+            while old or new:
+                line = lines[i]
+                if line.startswith("-"):
+                    old -= 1
+                elif line.startswith("+"):
+                    new -= 1
+                elif line.startswith(" "):
+                    old -= 1
+                    new -= 1
+                elif not line.startswith("\\ No newline"):
+                    raise ValueError((log, "invalid diff hunk", line))
+                assert old >= 0 and new >= 0, (log, "invalid diff count")
+                ignored.add(i)
+                i += 1
+            continue
+        i += 1
+    sets[log] = {line[2:] for i,line in enumerate(lines) if i not in ignored and line.startswith("- ")}
+    # Independent lexical derivation is valid for these JSON-only diagnostic diffs:
+    # removed JSON lines are indented; all owner finding prefixes start nonspace.
+    alternate = {line[2:] for line in lines if re.match(r"^- \S", line)}
+    assert sets[log] == alternate, (log, "independent finding identity mismatch")
+
+owner_paths = {str(p.relative_to(g.REPO_ROOT)) for p in g._iter_py_files()}
+independent_paths = {str(Path(root, name).relative_to(g.REPO_ROOT))
+ for root, dirs, files in os.walk(g.SRC_ROOT)
+ if "__pycache__" not in Path(root).parts for name in files if name.endswith(".py")}
+assert owner_paths == independent_paths
+policies = g._parse_public_surface(g.DEFAULT_PUBLIC_MANIFEST)
+current = {edge.key: edge for edge in g.collect_deep_import_edges(policies)}
+baseline = g._load_deep_import_baseline(g.DEFAULT_DEEP_IMPORT_BASELINE)
+result = {"source_file_type": "src/**/*.py excluding __pycache__", "source_denominator": len(owner_paths),
+ "independent_source_denominator": len(independent_paths),
+ "source_identity_difference": [], "finding_sets": {k: sorted(v) for k,v in sets.items()},
+ "diffs": [{"before": a, "after": b, "added": sorted(sets[b]-sets[a]), "removed": sorted(sets[a]-sets[b])}
+ for a,b in zip(logs, logs[1:])], "current_deep_import_creep": sorted(set(current)-set(baseline)), "obsolete_baseline_identities": sorted(set(baseline)-set(current))}
+text = json.dumps(result, indent=2) + "\n"
+Path("_build/gy_grade_authority/architecture-pa1-finding-identity-diff.json").write_text(text)
+print(text)
+````
+
+#### `_build/gy_grade_authority/closeout_scope_audit.py`
+
+8448 bytes, SHA-256 `58f71191c232a321514ce128dfc279863c9391c4470bd6cb98d4e6d929910e7e`.
+
+````python
+"""Read-only path/ref audit; no governance register contents are read."""
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import tomllib
+from datetime import UTC, datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[3]
+BASE = 'f481538706316b0d94722fd2a3891b2067779a38'
+ACCEPTED = 'd4ba9901cbcb29e5d27a71dac7b359b28fe1adec'
+CONTINUATION = '58f8073e44f44519003b5b10c1ccf0d38d7de43a'
+STALE = 'ba5946ebc70bb63f30e4776d0426e19f37dffd31'
+P = 'policy-engine/'
+
+def git(*args: str) -> bytes:
+    return subprocess.run(['git', *args], cwd=ROOT, check=True, capture_output=True).stdout
+
+def names(*args: str) -> set[str]:
+    return {p.decode() for p in git(*args).split(b'\0') if p}
+
+def diff(start: str, end: str | None = None) -> set[str]:
+    return names('diff', '--no-renames', '--name-only', '-z', start, *((end,) if end else ()), '--')
+
+def pinned(ref: str, path: str) -> bytes:
+    return git('show', f'{ref}:{path}')
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+def independent_worktree_delta(start: str, head: str, untracked: set[str]) -> set[str]:
+    # Independently compose committed and live deltas, then remove paths whose
+    # changes cancel. Commands expose path/status metadata, never register bodies.
+    candidates = diff(start, head) | diff(head) | untracked
+    result = set(untracked)
+    for path in sorted(candidates - untracked):
+        proc = subprocess.run(['git', 'diff', '--quiet', '--no-renames', start, '--', path], cwd=ROOT)
+        if proc.returncode not in (0, 1):
+            raise RuntimeError(f'git diff failed for {path}')
+        if proc.returncode == 1:
+            result.add(path)
+    return result
+
+def authorize(path: str) -> str | None:
+    prefixes = {
+        P+'src/polisyos/foundry/': 'original Foundry source grant',
+        P+'src/polisyos/scientist/': 'original Scientist source grant',
+        P+'src/polisyos/runtime/quality/': 'original Runtime quality source grant',
+        P+'src/polisyos/data_forge/': 'extended DataForge source/facade grant',
+        P+'tests/unit/': 'mirrored unit tests and explicit IR test grant',
+        P+'tests/integration/': 'mirrored integration tests grant',
+    }
+    exact = {
+        P+'src/polisyos/runtime/http/services/acquisition_admission_bundle.py': 'explicit HTTP supported-facade repair',
+        P+'src/polisyos/ir/api.py': 'explicit eight-type IR public export grant',
+        P+'docs/reference/ir/public-surface.md': 'explicit derived IR page grant',
+        P+'docs/reference/ir/schema-catalog.md': 'explicit derived IR page grant',
+        P+'architecture/production_quality/method_catalog_dependency_authority.toml': 'explicit measured dependency pin grant',
+        P+'architecture/production_quality/method_catalog_dependency_profiles.toml': 'explicit measured dependency pin grant',
+        P+'docs/plans/active/layer3-slices/GY-engine-subordination.md': 'original GY plan/census/routing companion grant',
+        P+'docs/superpowers/journals/2026-09-07-gy-grade-authority.md': 'explicit durable journal companion',
+    }
+    return exact.get(path) or next((label for prefix, label in prefixes.items() if path.startswith(prefix)), None)
+
+head = git('rev-parse', 'HEAD').decode().strip()
+untracked = names('ls-files', '--others', '--exclude-standard', '-z')
+aggregate = diff(BASE) | untracked
+premerge = diff(BASE, ACCEPTED)
+continuation = diff(CONTINUATION) | untracked
+lane = premerge | continuation
+upstream = diff(ACCEPTED, CONTINUATION)
+aggregate_check = independent_worktree_delta(BASE, head, untracked)
+continuation_check = independent_worktree_delta(CONTINUATION, head, untracked)
+premerge_check = names('diff-tree', '--no-commit-id', '--no-renames', '--name-only', '-r', '-z', BASE, ACCEPTED)
+sets = {'whole_slice_worktree_delta': aggregate, 'accepted_premerge_lane_delta': premerge,
+        'continuation_worktree_delta': continuation, 'complete_lane_union': lane,
+        'accepted_upstream_merge_delta': upstream, 'whole_slice_upstream_only': aggregate-lane,
+        'untracked_nonignored': untracked}
+
+journal = P+'docs/superpowers/journals/2026-09-07-gy-grade-authority.md'
+marker = b'## codex/gy-def6-e11 analysis\n'
+old_journal = pinned(ACCEPTED, journal)
+new_journal = (ROOT/journal).read_bytes()
+assert old_journal.count(marker) == new_journal.count(marker) == 1
+old_section = old_journal[old_journal.index(marker):]
+new_section = new_journal[new_journal.index(marker):]
+cap_path = P+'architecture/production_quality/method_catalog_dependency_authority.toml'
+old_caps = tomllib.loads(pinned(CONTINUATION, cap_path).decode())
+new_caps = tomllib.loads((ROOT/cap_path).read_text())
+
+def capabilities(value: object) -> dict[str, str]:
+    rows = {}
+    def visit(item: object) -> None:
+        if isinstance(item, dict):
+            if 'capability_id' in item and 'state' in item:
+                rows[item['capability_id']] = item['state']
+            for child in item.values(): visit(child)
+        elif isinstance(item, list):
+            for child in item: visit(child)
+    visit(value)
+    return rows
+
+globals_ = {}
+for path in (P+'architecture/public_surface/inventory.json', P+'docs/reference/public-surface.md'):
+    prior, current = pinned(CONTINUATION, path), (ROOT/path).read_bytes()
+    globals_[path] = {'unchanged': prior == current, 'continuation_sha256': sha(prior), 'current_sha256': sha(current)}
+
+new_source = {p for p in lane if p.startswith(P+'src/') and p.endswith('.py')
+              and subprocess.run(['git', 'cat-file', '-e', f'{BASE}:{p}'], cwd=ROOT, capture_output=True).returncode != 0}
+readmes = {}
+for path in sorted(new_source):
+    directory = (ROOT/path).parent
+    while directory != ROOT and not (directory/'README.md').exists(): directory = directory.parent
+    readme = directory/'README.md'
+    readmes[path] = {'nearest_readme': str(readme.relative_to(ROOT)) if readme.exists() else None,
+                    'module_name_present': Path(path).stem in readme.read_text() if readme.exists() else False,
+                    'note': 'Presence is a discovery aid; semantic adequacy requires the recorded manual README review.'}
+
+result = {
+    'audit_time_utc': datetime.now(UTC).isoformat(), 'status': 'interim_live_PA1_worktree_requires_refreeze_replay',
+    'slice_base': BASE, 'accepted_premerge': ACCEPTED, 'continuation_base': CONTINUATION, 'head': head,
+    'scope_denominator': 'complete changed repository paths, all file types, plus every nonignored untracked file',
+    'sets': {name: {'count': len(paths), 'paths': sorted(paths)} for name, paths in sets.items()},
+    'independent_set_crosschecks': {
+        'aggregate_difference': sorted(aggregate ^ aggregate_check),
+        'continuation_difference': sorted(continuation ^ continuation_check),
+        'premerge_difference': sorted(premerge ^ premerge_check),
+        'lane_union_arithmetic': {'premerge':len(premerge),'continuation':len(continuation),
+                                 'intersection':len(premerge & continuation),'union':len(lane)}},
+    'lane_path_authorization': {path: authorize(path) for path in sorted(lane)},
+    'lane_paths_outside_grants': sorted(p for p in lane if authorize(p) is None),
+    'upstream_only_paths_not_explained_by_accepted_merge': sorted((aggregate-lane)-upstream),
+    'stale_ref': {'actual':git('rev-parse','--verify','codex/gy-def6-e11').decode().strip(),'expected':STALE},
+    'global_companions': globals_,
+    'capability_rows': {'current':capabilities(new_caps), 'continuation':capabilities(old_caps),
+                        'unchanged':capabilities(new_caps)==capabilities(old_caps)},
+    'accepted_final_stale_analysis': {'unchanged':old_section==new_section,'accepted_sha256':sha(old_section),
+                                     'current_sha256':sha(new_section),'bytes':len(new_section)},
+    'new_source_readme_companions': readmes,
+    'lane_path_sha256': {path:sha((ROOT/path).read_bytes()) for path in sorted(lane) if (ROOT/path).is_file()},
+}
+end_untracked = names('ls-files', '--others', '--exclude-standard', '-z')
+result['pathset_stability'] = {
+    'head_unchanged': git('rev-parse', 'HEAD').decode().strip() == head,
+    'aggregate_symmetric_difference_after_inspection': sorted(aggregate ^ (diff(BASE) | end_untracked)),
+    'continuation_symmetric_difference_after_inspection': sorted(continuation ^ (diff(CONTINUATION) | end_untracked)),
+}
+print(json.dumps(result, indent=2))
+````
+
+#### `_build/gy_grade_authority/acquisition_receipt_consumer_census.py`
+
+7834 bytes, SHA-256 `f54892722f8f35b1764226ff24c163c6c1c876f5b368b9710b503f5b5acd855d`.
+
+````python
+"""Complete source receipt-call census with independent token/binding and rg checks."""
+from __future__ import annotations
+import ast
+import hashlib
+import io
+import json
+import re
+import subprocess
+import tokenize
+from collections import defaultdict
+from pathlib import Path
+
+TARGETS = {'AcquisitionReceipt', 'run_acquisition_closed_loop',
+           'validate_acquisition_receipt', 'acquisition_receipt_has_verified_emission'}
+FIELDS = {'acquisition_receipt', 'acquisition_receipts', 'grounding_rederivations',
+          'world_write_outcomes', 'real_grounding_result_count', 'grown_world_after_ref'}
+PATTERN = '|'.join(sorted(TARGETS | FIELDS))
+files = sorted(p for p in Path('src/polisyos').rglob('*.py') if '__pycache__' not in p.parts)
+rg_paths = subprocess.run(['rg','--files','--hidden','--no-ignore','src/polisyos','-g','*.py'],
+                          capture_output=True,text=True,check=True).stdout.splitlines()
+rg_set = {p for p in rg_paths if '__pycache__' not in Path(p).parts}
+sources = {str(p):p.read_text() for p in files}
+calls, fields, imports, errors, ambiguities, differences = [], [], [], [], [], []
+for path, source in sources.items():
+    try: tree = ast.parse(source)
+    except SyntaxError as exc:
+        errors.append({'file':path,'error':str(exc)})
+        continue
+    nodes = list(ast.walk(tree))
+    bindings = defaultdict(set)
+    parts = list(Path(path).with_suffix('').parts[1:])
+    package = parts[:-1]
+    module = '.'.join(parts[:-1] if parts[-1]=='__init__' else parts)
+    for node in nodes:
+        if isinstance(node, ast.ImportFrom):
+            owner = '.'.join(package[:len(package)-node.level+1]) if node.level else ''
+            owner = '.'.join(p for p in (owner,node.module) if p)
+            for alias in node.names:
+                route = f'{owner}.{alias.name}'
+                bindings[alias.asname or alias.name].add(route)
+                if alias.name in TARGETS or owner.endswith('acquisition_planner'):
+                    imports.append({'file':path,'line':node.lineno,'route':route,'as':alias.asname})
+        elif isinstance(node,ast.Import):
+            for alias in node.names:
+                bindings[alias.asname or alias.name.split('.')[0]].add(alias.name if alias.asname else alias.name.split('.')[0])
+        elif isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+            bindings[node.name].add(f'{module}.{node.name}')
+    def resolve(node):
+        if isinstance(node,ast.Name): return bindings.get(node.id,set())
+        if isinstance(node,ast.Attribute): return {r+'.'+node.attr for r in resolve(node.value)}
+        return set()
+    for _ in range(len(nodes)):
+        changed = False
+        for node in nodes:
+            if isinstance(node,ast.Assign):
+                values = resolve(node.value)
+                for target in node.targets:
+                    if isinstance(target,ast.Name) and not values<=bindings[target.id]:
+                        bindings[target.id].update(values); changed=True
+        if not changed: break
+    def relevant(routes): return any(set(route.split('.')) & TARGETS for route in routes)
+    def enclosing(node):
+        owners=[n for n in nodes if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))
+                and n.lineno<=node.lineno<=n.end_lineno]
+        return min(owners,key=lambda n:n.end_lineno-n.lineno).name if owners else None
+    ast_positions = set()
+    for node in nodes:
+        if isinstance(node,ast.Call) and isinstance(node.func,(ast.Name,ast.Attribute)):
+            routes=resolve(node.func)
+            spelling=ast.unparse(node.func)
+            if relevant(routes) or set(spelling.split('.')) & TARGETS:
+                ast_positions.add((node.func.lineno,node.func.col_offset))
+                row={'file':path,'line':node.lineno,'call':spelling,'routes':sorted(routes),'function':enclosing(node)}
+                calls.append(row)
+                if len(routes)!=1: ambiguities.append(row)
+        if isinstance(node,ast.Attribute) and node.attr in FIELDS:
+            fields.append({'file':path,'line':node.lineno,'field':node.attr,'kind':'attribute','function':enclosing(node)})
+        elif isinstance(node,ast.Constant) and isinstance(node.value,str) and node.value in FIELDS:
+            fields.append({'file':path,'line':node.lineno,'field':node.value,'kind':'literal','function':enclosing(node)})
+    tokens=[t for t in tokenize.generate_tokens(io.StringIO(source).readline)
+            if t.type not in {tokenize.NL,tokenize.NEWLINE,tokenize.INDENT,tokenize.DEDENT,tokenize.COMMENT}]
+    token_positions=set()
+    for i,token in enumerate(tokens):
+        if token.type!=tokenize.NAME or (i and tokens[i-1].string in {'.','def','class'}): continue
+        j=i; chain=[token.string]
+        while j+2<len(tokens) and tokens[j+1].string=='.' and tokens[j+2].type==tokenize.NAME:
+            chain.append(tokens[j+2].string); j+=2
+        if j+1>=len(tokens) or tokens[j+1].string!='(': continue
+        routes={'.'.join([route,*chain[1:]]) for route in bindings.get(chain[0],set())}
+        if relevant(routes) or set(chain)&TARGETS: token_positions.add(token.start)
+    if ast_positions!=token_positions:
+        differences.append({'file':path,'ast_only':sorted(ast_positions-token_positions),'token_only':sorted(token_positions-ast_positions)})
+
+raw_files={path for path,source in sources.items() if re.search(PATTERN,source)}
+rg_hit=subprocess.run(['rg','-l','--hidden','--no-ignore',PATTERN,'src/polisyos','-g','*.py'],capture_output=True,text=True)
+assert rg_hit.returncode in (0,1)
+rg_matches={p for p in rg_hit.stdout.splitlines() if '__pycache__' not in Path(p).parts}
+test_files=sorted(p for p in Path('tests').rglob('*.py') if '__pycache__' not in p.parts)
+test_importers=[]
+receipt_tests=[]
+test_errors=[]
+for path in test_files:
+    text=path.read_text()
+    if re.search('|'.join(sorted(TARGETS|FIELDS)),text): receipt_tests.append(str(path))
+    try: tree=ast.parse(text)
+    except SyntaxError as exc:
+        test_errors.append([str(path),str(exc)]); continue
+    for node in ast.walk(tree):
+        if isinstance(node,ast.ImportFrom) and node.module and (
+            node.module in {'polisyos.runtime.quality.acquisition_planner','polisyos.runtime.quality.generation_cycle'}
+            or node.module=='polisyos.runtime.quality' and any(n.name in {'acquisition_planner','generation_cycle'} for n in node.names)):
+            test_importers.append({'file':str(path),'line':node.lineno,'module':node.module,'names':[a.name for a in node.names]})
+result={'cwd':str(Path.cwd()),'head':subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip(),
+        'status':'live source snapshot during coordinated correction; no tests executed',
+        'source_denominator':{'file_type':'every src/polisyos/**/*.py excluding __pycache__','count':len(files),'files':sorted(sources)},
+        'independent_path_difference':sorted(set(sources)^rg_set),'parse_errors':errors,
+        'complete_bound_calls':calls,'binding_ambiguities':ambiguities,'independent_token_call_differences':differences,
+        'direct_imports':imports,'receipt_field_accesses':fields,
+        'raw_symbol_or_field_candidate_files':sorted(raw_files),'independent_rg_candidate_difference':sorted(raw_files^rg_matches),
+        'test_denominator':{'file_type':'tests/**/*.py excluding __pycache__','count':len(test_files)},
+        'test_parse_errors':test_errors,'all_direct_importer_tests':test_importers,'receipt_specific_text_candidate_tests':receipt_tests,
+        'source_snapshot_sha256':{path:hashlib.sha256(source.encode()).hexdigest() for path,source in sources.items()},
+        'source_changed_during_census':[path for path,source in sources.items() if Path(path).read_text()!=source]}
+print(json.dumps(result,indent=2))
+````
+
+#### Final result artifact identities
+
+Complete row/path/test sets are in these local artifacts and recomputable from
+the preserved stations and their named inputs.
+
+```json
+{
+  "pa1-n7-final-handback.json": {
+    "bytes": 19698,
+    "sha256": "70c4cff64840157941cc44afca90a1bd575ff43bd923b20d74b0df5627876d39"
+  },
+  "pa1-n7-independent-delta-handback.json": {
+    "bytes": 10469,
+    "sha256": "404c2e03e3d466b9411f2722af2b2351e71ea3993abacaf79272274d00b3c219"
+  },
+  "pa1_n7_population_independent_reconcile.json": {
+    "bytes": 4952,
+    "sha256": "d576a8a6f3c878826f31534405f85e02677e8939b5f4aea8d519b463cb7c2e88"
+  },
+  "closeout_scope_audit.final.json": {
+    "bytes": 39393,
+    "sha256": "ecf1ed00e6557913e19488c7cf489a8fdb4d8294e2951b48ef105f54fe4f9417"
+  },
+  "acquisition_receipt_consumer_census.final.json": {
+    "bytes": 523018,
+    "sha256": "626c1dc1ef0288b0eeb0f668a3de6d0194d373b28abc0f1b967f7296fe573438"
+  },
+  "final_audit_freeze_binding.json": {
+    "bytes": 4857,
+    "sha256": "18dda0be6bbe64c60159e460ff668dd74495c58ceb840e506fad2540209715e5"
+  },
+  "architecture-pa1-finding-identity-diff.json": {
+    "bytes": 8279,
+    "sha256": "c7cd63f9a231cde9875fcadcc3c578d460fe93d16dc2e2ab78eba3f20a9c231d"
+  }
+}
+```
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation

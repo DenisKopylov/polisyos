@@ -61,6 +61,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
+    acquisition_receipt_has_verified_emission,
     grounding_coverage_requirement_gap,
     l1_variable_availability_requirement_gap,
     plan_requirement_gap_acquisition,
@@ -3086,6 +3087,14 @@ class GenerationCycleController:
         *,
         acquisition_request: Mapping[str, Any],
     ) -> tuple[object, ...]:
+        raw_gap = acquisition_request.get("requirement_gap")
+        if isinstance(raw_gap, Mapping):
+            gap = AcquisitionRequirementGap.model_validate(raw_gap)
+            expected = value_input_world_knowledge_requirement_gap(claim_ref=gap.claim_ref)
+            if gap.model_dump(mode="json") == expected.model_dump(mode="json"):
+                # Carry the actual unsatisfied any_of request, without fabricating
+                # data-family requirements or claiming either alternative is met.
+                return (gap,)
         hinted = problem.runtime_hints.get("n7_data_requirement_specs")
         if hinted is not None:
             return tuple(hinted)
@@ -3178,6 +3187,11 @@ class GenerationCycleController:
         acquisition_receipt: AcquisitionReceipt,
         budget_state: BudgetState,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
+        if not acquisition_receipt_has_verified_emission(acquisition_receipt):
+            raise GenerationCycleError(
+                "n7_receipt_current_context_replay_unavailable",
+                "Raw or changed N7 receipt requires replay before cycle re-entry.",
+            )
         receipt_payload = acquisition_receipt.model_dump(mode="json")
         rederived = _n7_rederived_grounding_for_candidate(
             acquisition_receipt,
@@ -4027,6 +4041,8 @@ def _n7_rederived_grounding_for_candidate(
     *,
     candidate_id: str,
 ) -> object | None:
+    if not acquisition_receipt_has_verified_emission(receipt):
+        return None
     for row in receipt.grounding_rederivations:
         if row.design_id == candidate_id and row.status in {"current_valid", "grounded_shadow"}:
             return row

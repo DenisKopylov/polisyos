@@ -118,12 +118,7 @@ def _require_snapshot(source: SourceSnapshot) -> None:
         raise ValueError("source_snapshot_hash_mismatch")
 
 
-def _read_row(
-    con: duckdb.DuckDBPyConnection,
-    table: str,
-    predicate: str,
-    parameters: list[str | int],
-) -> SourceRow:
+def _retained_columns(con: duckdb.DuckDBPyConnection, table: str) -> list[tuple]:
     relation = con.execute(
         "SELECT table_type FROM information_schema.tables "
         "WHERE table_catalog=current_database() AND table_schema='main' AND table_name=?",
@@ -143,6 +138,16 @@ def _read_row(
     }
     if any(column[0] not in stored_columns for column in description):
         raise ValueError(f"source_column_not_materialized:{table}")
+    return description
+
+
+def _read_row(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+    predicate: str,
+    parameters: list[str | int],
+) -> SourceRow:
+    description = _retained_columns(con, table)
     projections = []
     for column in description:
         identifier = '"' + column[0].replace('"', '""') + '"'

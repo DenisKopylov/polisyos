@@ -97,6 +97,8 @@ _EXPORTS = {
     "SourceIdentityBundle": f"{_ACADEMIC_KNOWLEDGE}.skg_identity_bridge",
     "produce_source_identity_bundle": f"{_ACADEMIC_KNOWLEDGE}.skg_identity_bridge",
     "replay_source_identity_bundle": f"{_ACADEMIC_KNOWLEDGE}.skg_identity_bridge",
+    "SourceReferencePopulation": f"{_ACADEMIC_KNOWLEDGE}.skg_source_population",
+    "read_source_reference_population": f"{_ACADEMIC_KNOWLEDGE}.skg_source_population",
 }
 
 

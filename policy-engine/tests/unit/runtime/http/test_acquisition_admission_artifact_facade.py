@@ -15,7 +15,7 @@ def test_acquisition_producer_resolves_artifact_dependencies_through_facade() ->
         import importlib
 
         consumer = "polisyos.runtime.http.services.acquisition_admission_bundle"
-        facade = "polisyos.core.artifacts"
+        facade = "polisyos.core"
         requests = []
         original_import = builtins.__import__
 
@@ -23,13 +23,14 @@ def test_acquisition_producer_resolves_artifact_dependencies_through_facade() ->
             if (globals or {}).get("__name__") == consumer and (
                 name == facade or name.startswith(facade + ".")
             ):
-                requests.append(name)
+                requests.append((name, tuple(fromlist)))
             return original_import(name, globals, locals, fromlist, level)
 
         builtins.__import__ = observed_import
         importlib.import_module(consumer)
         assert requests, "The real consumer did not resolve its artifact dependencies"
-        assert set(requests) == {facade}, requests
+        assert all(name == facade for name, _ in requests), requests
+        assert any("artifacts" in names for _, names in requests), requests
         """
     )
     result = subprocess.run(

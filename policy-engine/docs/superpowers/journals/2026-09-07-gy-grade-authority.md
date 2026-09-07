@@ -1750,6 +1750,90 @@ if __name__ == "__main__":
     stations[args.station]()
 ```
 
+### GGA-DEF22-07 — all five intended assertions execute after authorized repinning
+
+The four fresh owner-derived values in GGA-DEF22-06 match the old proposal
+exactly; the proposal was compared only after computation and was not applied.
+For avoidance of an escape-notation ambiguity in that entry, the domain digest
+prefix is `ASCII("polisyos.foundry." + domain + ".v1") || NUL`, followed by
+`uint64be(len(raw)) || raw`. The NUL is one zero byte, not printable backslash text.
+The pin update follows upstream dependency changes `753e0458a` and `2021f81d6`,
+both ancestors of the measured merge base. It repairs the architect's identified
+repinning omission; it does not change an invariant to accommodate this lane.
+
+At committed pin station `03555b6e2da49e065a26726a54b6eed1118d9c21`, the exact
+five-test acceptance denominator reports **5 passed, exit 0, 40.11 seconds**.
+JUnit: `_build/gy_grade_authority/def22-five-after-pins.xml`.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m pytest tests/repo_quality/tools/test_execute_gy_n12_artifact_transition.py::test_cb_i01_n8_n10a_and_chronology_share_one_foundry_discriminant tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i02_research_profile_names_torch_as_first_generic_case tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilities tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i03_outside_closure_difference_is_diagnostic_irrelevant tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i03a_novel_admitted_profile_verifies_from_owner_data -q --override-ini addopts='' --tb=short --junitxml=_build/gy_grade_authority/def22-five-after-pins.xml
+```
+
+These execute their actual assertions: CB-I01 compares the shared N8/N10a/
+chronology Foundry discriminant, content reference, profile, root and resolved
+distributions; CB-I02 checks torch's diagnostic role without altering governing
+bytes; CB-I02A checks two data-generated incompatibilities despite unchanged
+labels/shapes; CB-I03 checks outside-closure diagnostic irrelevance; CB-I03A
+verifies a novel admitted profile from owner data. The lock-identity removal
+probe in GGA-DEF22-04 already goes red while markers remain. The engineering
+closure requested in this continuation is met. Appointed acceptance remains
+outstanding; neither this green nor the pin updates appoints anyone. All four
+authored `absent/unallocated` capability states are unchanged.
+
+### GGA-FACADE-03 — the first facade repair was one boundary too shallow
+
+The complete architecture gate refuted the sufficiency of GGA-FACADE-02:
+`polisyos.core.artifacts` is itself outside the declared supported entry points.
+The actual supported `polisyos.core` facade already exports `artifacts`, so the
+runtime consumer now obtains every artifact symbol through that existing object.
+No implementation or baseline exception is introduced. The runtime import
+observer was strengthened to require the supported root; restoring the original
+consumer with all symbols present gives **exit 1**, listing exactly the three
+private import requests alongside the root import. This is the same import
+boundary one level deeper, not an unrelated repair.
+
+The restored runtime facade probe plus the six existing acquisition integration
+tests report **7 passed, exit 0, 26.09 seconds**; Ruff on the two changed Python
+files reports an empty finding set. Commands (each invoked alone):
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m pytest tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py tests/integration/core_runtime/test_acquisition_admission_bundle.py -q --override-ini addopts='' --tb=short
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.facade_removal_probe
+PATH="$PWD/.venv/bin:$PATH" .venv/bin/python -m ruff check src/polisyos/runtime/http/services/acquisition_admission_bundle.py tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py
+```
+
+### GGA-ADJ-03 — final behavioral package and explicit gate limitations
+
+The initial combined test collection collided on the two existing mirror test
+basenames. Running the identical explicit file set with
+`--import-mode=importlib` reaches **143 tests: 142 passed, one failed, exit 1,
+26.95 seconds**. Complete file list is
+`_build/gy_grade_authority/adjudication_final_gate.json`; JUnit is
+`_build/gy_grade_authority/adjudication-final.xml`. The sole failure identity is
+`tests/unit/data_forge/mirror_contracts/test_claim_adjudication.py::test_claim_adjudication_source_modules_have_static_contracts`.
+It asks a source-tree filename walk for a DataForge module with exact stem
+`claim_adjudication.py`, which that tree does not contain. No fake module is
+added to satisfy this marker assertion. Attribution is **not_established**:
+no exact slice-base replay with a disjoint input denominator has been shown.
+Proposed row: `data-forge-adjudication-mirror-requires-absent-module-stem`, proposed
+owner DataForge test maintainers. This does not obstruct the behavioral closure.
+
+The frozen 20-Python-file Ruff denominator reports 116 identities, all in
+`_resolve_extract_transformers.py`: F401 30, TC001 1, E501 53, F821 29, N806 1,
+SIM102 2. The other 19 files have empty finding sets. These are retained in
+`_build/gy_grade_authority/adjudication_ruff.json`, not baselined or described as
+inherited. Changed-line disjointness is not P41 input-denominator disjointness.
+Proposed row: `data-forge-resolve-transformer-lint-findings`, proposed owner
+DataForge batch maintainers. Unrelated import/refactor cleanup is outside this
+grade-authority diff.
+
+The final architecture gate exposed new invalid subfacade imports in addition to
+the already corrected HTTP instance. Root `core` and `data_forge.read_api`
+facades offer the needed objects. Eight literature IR types lack a callable
+public facade export; the IR schema catalog is descriptive reflection, not a
+model resolver. That remaining file boundary is being handed back concretely,
+without dynamic import tricks or absorbing findings into a baseline.
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation

@@ -1027,6 +1027,579 @@ list; the coordinator requested explicit extension while other work continues.
 No architecture file has been changed at this point. Updating the pins does not
 baseline an import finding or appoint an authority.
 
+### GGA-DEF22-05 — source committed; remaining stops are owner pins
+
+Append-only correction to the pre-commit observation above: Foundry source and
+its mirrored probes were committed as `057d5f7be7b7c918f25078a89c14c26d2b95c676`
+after branch-attachment verification. Both files were reread from the named
+branch and matched the independently reviewed bytes. The exact original five
+acceptance nodes then returned **exit 1, three failed and two passed, 23.64 s**.
+The uncommitted-source guard is no longer the stopping point.
+
+- CB-I01 stops in its producer before consumer assertions at lines 2504–2507.
+- CB-I02 passes the torch and diagnostic assertions, then stops before the
+  governing comparison at line 7523.
+- CB-I02A passes both data-generated incompatibility assertions, then stops
+  before the governing comparison and same-label checks at lines 7580–7582.
+- CB-I03 and CB-I03A execute their intended assertions completely and pass.
+
+The remaining three stop at `check_layer3_gy_value_gate_contract.py:982`,
+`DigestPredicateMismatch`, against the stale owner-declaration pins. This is not
+an inherited-red claim and is not five-test closure. The prepared four-value
+patch has been decoded and resolved by the real owner in memory. Its application
+requires the explicit architecture-file extension requested by the coordinator;
+no appointment or digest-equality relaxation is involved.
+
+### GGA-PA1-02 — available evidence cannot support the positive upstream grade
+
+The hypothesis was narrower than “there are no estimates”: a positive DataForge
+producer needs independently admitted treatment/outcome and estimand identity,
+source-bound effect support, applicable scope and numeric uncertainty. Initial
+exploration found enough numeric material to make this a real question. The
+complete-set measurements below reject absence of numbers as the explanation;
+they do not turn the numbers into causal authority.
+
+Station: the continuation worktree with its existing read-only `production_data`
+link; local `.venv/bin` first in PATH. Complete production-data enumeration found
+6,562 files, including 27 files with academic/scholar path components (17 JSON,
+three JSONL and one academic DuckDB among the other files). All eight production
+DuckDB files were readable. The academic holder is 2,390,503,424 bytes and has 27
+`ac_` tables; `ac_skg_span_grounded_claims` is absent from the complete table set.
+JSON root keys and every JSONL record were walked rather than inferred from an
+index. Four additional worktree test DuckDB files are invalid stubs: their
+contents are **ambiguous/unreadable**, never four zero-evidence holders.
+
+The separate main `_build` holder enumeration found 59 readable DuckDB files.
+Its 13 academic holders have the same byte digest
+`9696bc7e129300767ca3f805879ab9a17d691740b34e4c2eef974c485a077d6a`,
+five tables with one row each and no span-grounding table. These existing holders
+were read only; none was used as independently admitted production evidence.
+
+Complete relational populations, with explicit denominators:
+
+- `ac_parameter_estimates`: 62,248 estimates; 4,106 have both CI endpoints and
+  4,032 have nonzero intervals. Of 919 exact UA/Ukraine country rows, 24 have
+  nonzero intervals. None of those 24 satisfies the old candidate trust-score
+  filter of 0.5; that filter is not adopted as an authority rule.
+- `ac_causal_claims`: 7,868 rows; `ac_skg_edges`: 7,607 rows. Every row in these
+  two complete tables is candidate material. The edge count also agrees with
+  the separately stored `ac_skg_versions.n_edges` value of 7,607.
+- `ac_article_extractions`: 137,714 claim subtrees. The complete subtree-key
+  walk does not find the current `evidence_strength` axis. A separate exploratory
+  nested-span key walk was reported in stdout, but its exact query was not
+  retained. No span-population conclusion in this handback depends on that
+  unpreserved measurement; the admitted-table and candidate-row measurements
+  above are the decisive evidence.
+- The L1 catalog has ten tables and 3,708,006 observations spanning 101 canonical
+  variables. Exactly 94 variables have numeric UA observations with a period.
+  Their exact-name intersection with all 55,176 stored SKG variable names is
+  `education_outcomes`, `gdp_growth`, `health_outcomes`, `poverty_rate`,
+  `tax_revenue`, `unemployment_rate`. Four are exact edge endpoints. Walking all
+  7,607 edges finds two whose endpoints both belong to the 94-variable set:
+  unemployment → poverty (null meta-effect) and growth → poverty (0.0
+  meta-effect). Both are candidate rows.
+- Running the real canonical resolver for all 94 variables yields 35 exact,
+  three synonym and 56 embedding resolutions, with 93 approved. This measures
+  lexical resolution, not causal identity or source/effect admission.
+- The source-owner AST station walked all 2,623 Python files then present under
+  `src/polisyos` (including the two new adjudication modules), with zero parse
+  errors. Its seven `ValueOuterSet` construction/factory sites are four SKGQuery
+  methods, the empty Foundry household result, household measurement and the N8
+  proxy helper. This is the carrier's constructor denominator, not a claim that
+  the repository contains no other estimator or evidence producer.
+
+The named runtime witness is separate from those population claims. The real
+`resolve_grounded_causal_prior` refuses a stored edge with
+`confidence_layer_vintage`; its referenced snapshot digest is
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+This was a live exception, not a persisted refusal receipt. The source-bound
+intake is doing useful work that a new carrier must not bypass.
+
+One tempting reuse does bypass it. On actual estimate
+`00217008765d4f975631a764` (work `W2165913734`, health PTSD, AU/CH/NL,
+tier 1, trust 0.51963, CI [4.7, 14.5]),
+`SKGQuery.parameter_estimate_value_outer_set` emits `representation_status=
+certified` with `assumption_status=declared` from a direct database read. The
+substantive falsifier `assert value.representation_status != "certified"`
+returned **exit 1** against unchanged data and code. This is an existing-property
+violation probe, not a removal run for a repair made in this continuation.
+The previous S8 removal evidence remains accepted and is not rerun or relabelled.
+
+**Proposed row `skg-numeric-lowering-certifies-declared-premises`**, proposed owner
+DataForge academic/knowledge SKG/value-evidence: a numerical candidate can issue
+its own certified grade. This is the same authority class at another producer.
+Cheapest honest close is independent resolution and binding of numeric and
+identity evidence, or an explicit candidate-only ceiling. This unused alternative
+does not obstruct the row's measured conclusion, so it is recorded and not added
+to this repair's diff.
+
+The existing ValueOwnerGateway supplies L1 outcome rows and explicitly unresolved
+treatment assignment. The Foundry method evidence is
+`contract_only_nonproduction` and not production-value eligible. Ukraine receipt
+identity, lexical canonicalization and schema identity establish different
+properties. Reusing any of them as treatment/estimand/causal support would issue
+the grade from the claim it is meant to grade.
+
+**Result:** the positive producer cannot be completed from the admitted inputs
+available here. The missing input is source-bound independently admitted
+treatment/outcome and estimand support with numeric uncertainty (or owner-issued
+treatment assignment and observations), plus target population/unit/time and
+measurement mapping with applicable transport/calibration evidence. DataForge
+produces that world evidence, N7 admits it, N8 dispatches and persists its value
+receipt, and S8 authorizes selection. No institution is appointed by describing
+that engineering chain. PA1 remains open with `producer_missing`; the previously
+implemented S8 authorization/persistence/ranking/refusal/projection is retained.
+
+Successful original station bodies and the negative witness are preserved below.
+The packaged replay artifact was syntax-checked, not rerun; original measurements
+were separate `python -m timeit` invocations. Original wall times: inventory
+1.12 ms, tables 376 ms, holders 2.02 s, academic files 99.3 ms, numeric 2.87 s,
+claims 2.15 s, UA 279 ms, UA edges 64.9 ms, canonical 8.17 s, owners 10.5 s,
+runtime 2.47 s. The red exited before timeit emitted a duration.
+One optional metadata query attempted a spill beside the read-only holder and
+failed; its metadata-key/retained-abstract counts are `not_established` and are
+not used above. A first numeric query had an SQL alias parse error; the corrected
+complete run is the stated numeric receipt.
+
+### Durable continuation station sources (completed investigation)
+
+These are exact preserved scratch sources, not fresh run receipts. Restore each Python body at its named ignored path and invoke it with `python -m`; commands and observed outcomes are recorded in the corresponding finding. The pin patch remains a proposal pending permission. No invocation here writes a governing architecture file.
+
+`_build/gy_grade_authority/facade_removal_probe.py` — SHA-256 `cc6218eefe0110bbe8888f487c33bc83d78b49cd3a38ef839634cb7254a80265`
+
+```python
+"""Replay only the consumer's pre-facade imports inside the isolated runtime probe."""
+import runpy
+import subprocess
+
+checks = runpy.run_path("tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py")
+real_run = subprocess.run
+prefix = """
+import importlib.machinery
+import subprocess
+original_get_code = importlib.machinery.SourceFileLoader.get_code
+
+def pre_facade_code(self, fullname):
+    if fullname == "polisyos.runtime.http.services.acquisition_admission_bundle":
+        source = subprocess.check_output([
+            "git", "show", "58f8073e44f44519003b5b10c1ccf0d38d7de43a:policy-engine/src/polisyos/runtime/http/services/acquisition_admission_bundle.py"
+        ])
+        return compile(source, self.path, "exec")
+    return original_get_code(self, fullname)
+
+importlib.machinery.SourceFileLoader.get_code = pre_facade_code
+"""
+
+def removed_facade_run(args, **kwargs):
+    assert args[1] == "-c"
+    return real_run([*args[:2], prefix + args[2]], **kwargs)
+
+subprocess.run = removed_facade_run
+checks["test_acquisition_producer_resolves_artifact_dependencies_through_facade"]()
+```
+
+`_build/gy_grade_authority/def22_lock_removal_probe.py` — SHA-256 `719ce7d81d78b575afa9c117f27867e83e3872f68f7012244cfa42474aa0b7c0`
+
+```python
+"""Remove exact edge selection in memory while retaining every source marker."""
+
+import hashlib
+import json
+import os
+from pathlib import Path
+
+import pytest
+
+from polisyos.foundry.methods.catalog import dependency_profile as profile
+
+source = Path(profile.__file__)
+before = hashlib.sha256(source.read_bytes()).hexdigest()
+markers_before = (
+    profile.DependencyProfileDiscriminant.model_fields["schema_version"].annotation,
+    profile.DependencyProfileDiscriminant.model_fields["rule_version"].annotation,
+)
+if os.environ.get("GY_DEF22_REMOVE_LOCK_IDENTITY") == "1":
+    def first_named_row(edge, packages_by_name, marker_environment, *, used_marker_keys):
+        return packages_by_name[profile.canonicalize_name(edge["name"])][0]
+
+    profile._resolve_selected_lock_row = first_named_row
+after = hashlib.sha256(source.read_bytes()).hexdigest()
+assert before == after
+assert markers_before == (
+    profile.DependencyProfileDiscriminant.model_fields["schema_version"].annotation,
+    profile.DependencyProfileDiscriminant.model_fields["rule_version"].annotation,
+)
+print(json.dumps({"source_sha256": before, "marker_and_source_bytes_preserved": True}))
+raise SystemExit(pytest.main([
+    "tests/unit/foundry/methods/test_dependency_profile.py::test_universal_lock_resolves_selected_edge_identity",
+    "-q", "--override-ini", "addopts=",
+]))
+```
+
+`_build/gy_grade_authority/def22_owner_pin_proposal.py` — SHA-256 `6993b1d2d2bb593eccff4066e46a27308a32739abae548be99c52ad0c3a3d337`
+
+```python
+"""Prepare a surgical proposal; never write to tracked owner artifacts."""
+
+import difflib
+import json
+from pathlib import Path
+
+from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, domain_digest
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    declaration_ref,
+    load_dependency_profile_registry,
+    decode_dependency_profile_registry_toml,
+    resolve_profile_declaration_for_purpose,
+)
+
+root = Path.cwd()
+profile_path = root / "architecture/production_quality/method_catalog_dependency_profiles.toml"
+authority_path = root / "architecture/production_quality/method_catalog_dependency_authority.toml"
+registry = load_dependency_profile_registry(profile_path)
+old_profile_bytes = profile_path.read_bytes()
+old_authority_bytes = authority_path.read_bytes()
+original = resolve_profile_declaration_for_purpose(
+    registry,
+    authority_registry_bytes=old_authority_bytes,
+    authority_purpose="n8_method_catalog_reconstruction",
+)
+proposed = original.model_copy(update={
+    "pyproject_ref": domain_digest(DigestDomain.PYPROJECT, (root / "pyproject.toml").read_bytes()),
+    "lockfile_ref": domain_digest(DigestDomain.UV_LOCK, (root / "uv.lock").read_bytes()),
+})
+old_ref, new_ref = declaration_ref(original), declaration_ref(proposed)
+profile_text = old_profile_bytes.decode()
+authority_text = old_authority_bytes.decode()
+for field in ("pyproject_ref", "lockfile_ref"):
+    old, new = getattr(original, field).value, getattr(proposed, field).value
+    assert profile_text.count(old) == 1
+    profile_text = profile_text.replace(old, new)
+for old, new in (
+    (old_ref.artifact_id, new_ref.artifact_id),
+    (old_ref.semantic_hash.value, new_ref.semantic_hash.value),
+):
+    assert authority_text.count(old) == 1
+    authority_text = authority_text.replace(old, new)
+assert resolve_profile_declaration_for_purpose(
+    decode_dependency_profile_registry_toml(profile_text.encode()),
+    authority_registry_bytes=authority_text.encode(),
+    authority_purpose="n8_method_catalog_reconstruction",
+) == proposed
+patch = "".join(
+    "".join(difflib.unified_diff(
+        before.decode().splitlines(keepends=True), after.splitlines(keepends=True),
+        fromfile="a/policy-engine/" + str(path.relative_to(root)),
+        tofile="b/policy-engine/" + str(path.relative_to(root)),
+    ))
+    for path, before, after in (
+        (profile_path, old_profile_bytes, profile_text),
+        (authority_path, old_authority_bytes, authority_text),
+    )
+)
+destination = root / "_build/gy_grade_authority/def22-owner-pins.proposed.patch"
+destination.write_text(patch)
+assert profile_path.read_bytes() == old_profile_bytes
+assert authority_path.read_bytes() == old_authority_bytes
+print(json.dumps({
+    "proposed_patch": str(destination),
+    "tracked_owner_artifacts_unchanged": True,
+    "old_declaration_ref": old_ref.model_dump(mode="json"),
+    "new_declaration_ref": new_ref.model_dump(mode="json"),
+    "pyproject_ref": proposed.pyproject_ref.model_dump(mode="json"),
+    "lockfile_ref": proposed.lockfile_ref.model_dump(mode="json"),
+}, indent=2))
+```
+
+`_build/gy_grade_authority/def22-owner-pins.proposed.patch` — SHA-256 `9bd8b7585700ba08dbabad066108504da5989653cb116857036928a379cc2d6e`
+
+JSON-encoded exact patch bytes (decode this string to reconstruct the patch):
+
+```json
+"--- a/policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml\n+++ b/policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml\n@@ -8,5 +8,5 @@\n python_constraint = \">=3.14,<3.15\"\n resolver_name = \"uv\"\n resolver_version = \"0.9.21\"\n-pyproject_sha256 = \"sha256:803cbfb79c7727807db1c98d07413e8ef2f1b2a08929bd99bc2f8e638ee5142d\"\n-uv_lock_sha256 = \"sha256:d3ca8737e0ce78b1deade715174576cb5449b443d96180e7029d9999d0584572\"\n+pyproject_sha256 = \"sha256:a25bc559fb92ba39e357babc2961f4e8981b39bb51e599632a8224dcfed52484\"\n+uv_lock_sha256 = \"sha256:ed542325c18b409047b5c81bfff3f242ca8ab6c22591b43a135d0e6caa1b4d68\"\n--- a/policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml\n+++ b/policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml\n@@ -7,8 +7,8 @@\n [[purpose_admissions]]\n authority_purpose = \"n8_method_catalog_reconstruction\"\n profile_id = \"n8-method-catalog-reconstruction-py314-uv0921-v1\"\n-declaration_artifact_id = \"sha256:c8bd2bdcef4791dc06685bbfa919aff2b0ff068f0603edded195e05d001d3e8e\"\n-declaration_semantic_hash = \"sha256:211d8fdd5454db593208abc6a5e88b516509955e0b32059f0864cbf4392bb103\"\n+declaration_artifact_id = \"sha256:f5f2ab920e1ea44c6c2cbb9bdc3a6da2dd7e2e7e067d23dd0dc1ee91ee000aca\"\n+declaration_semantic_hash = \"sha256:016d01f2315ac1eabad0cffff17bb45a94fd63883a50eb33929cb6f7f491c56a\"\n predicate_class = \"recomputed\"\n \n [[capabilities]]\n"
+```
+
+`_build/gy_grade_authority/pa1_dataforge_stations.py` — SHA-256 `8f6c9b77652f62861d09442485fb8e12bd41fdd64b8cbdf8ead482de276c027e`
+
+```python
+"""Read-only replay bodies for the PA1 DataForge investigation.
+
+The station bodies were originally executed using ``python -m timeit``.
+This replay artifact preserves their queries; its creation is not a new run.
+Results describe the files present at execution, never a future branch census.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import hashlib
+import json
+from collections import Counter
+from dataclasses import asdict
+from pathlib import Path
+
+import duckdb
+
+
+def emit(value: object) -> None:
+    print(json.dumps(value, indent=2, default=str))
+
+
+def academic_path() -> Path:
+    return next(Path("production_data").rglob("scholar_knowledge.duckdb"))
+
+
+def inventory() -> None:
+    root = Path("production_data")
+    files = sorted(p for p in root.rglob("*") if p.is_file())
+    relevant = [p for p in files if any("academic" in part or "scholar" in part for part in p.parts)]
+    emit({
+        "root": str(root.resolve()), "all_files": len(files),
+        "academic_path_files": len(relevant),
+        "academic_extensions": dict(Counter(p.suffix for p in relevant)),
+        "db_files": [{"path": str(p), "size": p.stat().st_size} for p in files
+                     if p.suffix in {".duckdb", ".db", ".sqlite", ".sqlite3"}],
+    })
+
+
+def tables() -> None:
+    rows = []
+    for path in sorted(Path("production_data").rglob("*.duckdb")):
+        con = duckdb.connect(str(path), read_only=True)
+        names = con.execute(
+            "select table_name from information_schema.tables where table_schema = 'main' order by table_name"
+        ).fetchall()
+        academic = [name for (name,) in names if name.startswith("ac_")]
+        census = []
+        for name in academic:
+            quoted = '"' + name.replace('"', '""') + '"'
+            count = con.execute("select count(*) from " + quoted).fetchone()[0]
+            columns = con.execute(
+                "select column_name,data_type from information_schema.columns where table_schema='main' and table_name=? order by ordinal_position",
+                [name],
+            ).fetchall()
+            census.append({"table": name, "rows": count, "columns": columns})
+        rows.append({"path": str(path), "table_denominator": len(names),
+                     "academic_table_denominator": len(academic), "academic": census})
+        con.close()
+    emit(rows)
+
+
+def holders() -> None:
+    output = []
+    for root in (Path("."), Path("/Users/deniskopylov/polisyos/policy-engine/_build")):
+        candidates = sorted(p for p in root.rglob("*.duckdb") if not any(part in {".venv", "node_modules", "production_data"} for part in p.parts))
+        matches, rejected = [], 0
+        for path in candidates:
+            try:
+                con = duckdb.connect(str(path), read_only=True)
+                names = [r[0] for r in con.execute("select table_name from information_schema.tables where table_schema='main' order by table_name").fetchall()]
+                if any(name.startswith("ac_") for name in names):
+                    counts = {name: con.execute('select count(*) from "' + name.replace('"', '""') + '"').fetchone()[0] for name in names}
+                    with path.open("rb") as stream:
+                        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                    matches.append({"path": str(path), "sha256": digest, "tables": counts})
+                con.close()
+            except duckdb.Error:
+                rejected += 1
+        output.append({"root": str(root.resolve()), "duckdb_file_denominator": len(candidates),
+                       "invalid_duckdb_files": rejected, "academic_holders": matches})
+    emit(output)
+
+
+def academic_files() -> None:
+    root = Path("production_data")
+    files = sorted(p for p in root.rglob("*") if p.is_file() and any("academic" in part or "scholar" in part for part in p.parts))
+    rows = []
+    for path in files:
+        row = {"path": str(path), "size": path.stat().st_size, "suffix": path.suffix}
+        if path.suffix == ".json":
+            value = json.loads(path.read_text())
+            row["root_keys"] = list(value) if isinstance(value, dict) else type(value).__name__
+        elif path.suffix == ".jsonl":
+            count, keys = 0, set()
+            with path.open() as stream:
+                for line in stream:
+                    if not line.strip():
+                        continue
+                    value = json.loads(line)
+                    count += 1
+                    if isinstance(value, dict):
+                        keys.update(value)
+            row.update(records=count, root_keys=sorted(keys))
+        rows.append(row)
+    emit({"root": str(root.resolve()), "academic_file_denominator": len(files), "files": rows})
+
+
+def numeric() -> None:
+    path = academic_path()
+    con = duckdb.connect(str(path), read_only=True)
+    queries = {
+        "extraction_root_keys": "select k,count(*) from ac_article_extractions,unnest(json_keys(extraction_json)) x(k) group by k order by k",
+        "parameters": "select count(*) total,count(*) filter(where ci_low is not null and ci_high is not null) with_both_ci,count(*) filter(where ci_low < ci_high) with_nonzero_ci,count(*) filter(where estimate is not null) numeric_estimates,count(*) filter(where lower(country) in ('ua','ukraine')) ukraine from ac_parameter_estimates",
+        "published_claims": "select candidate_layer,strong_design_evidence,count(*) from ac_causal_claims group by all order by all",
+        "edges": "select candidate_layer,evidence_strength,count(*) from ac_skg_edges group by all order by all",
+        "adjudications": "select source_basis,support_status,publishable_edge,count(*) from ac_claim_adjudications group by all order by all",
+        "transport_targets": "select target_context_id,count(*) from ac_skg_transport_scores group by all order by all",
+        "canonization": "select resolution_method,is_approved_canonical,count(*) from ac_skg_variables group by all order by all",
+        "simulation_parameter_origins": "select source_layer,uncertainty_source,count(*) from ac_skg_simulation_parameters group by all order by all",
+        "version": "select * from ac_skg_versions",
+    }
+    print("holder", str(path))
+    for key, query in queries.items():
+        emit({key: con.execute(query).fetchall()})
+    con.close()
+
+
+def claims() -> None:
+    con = duckdb.connect(str(academic_path()), read_only=True)
+    queries = {
+        "claim_subtree_denominator": "select count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims')",
+        "claim_subtree_keys": "select k,count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims') claim,unnest(json_keys(claim.value)) x(k) group by k order by k",
+        "claim_source_basis": "select json_extract_string(claim.value,'$.source_basis'),count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims') claim group by all order by all",
+        "claim_supporting_spans": "select json_type(claim.value,'$.supporting_spans'),count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims') claim group by all order by all",
+        "parameter_json_keys": "select k,count(*) from ac_skg_parameters,unnest(json_keys(parameter_json)) x(k) group by k order by k",
+        "numeric_eligible": "select count(*) from ac_parameter_estimates where ci_low < ci_high and trust_score >= 0.5",
+    }
+    for key, query in queries.items():
+        emit({key: con.execute(query).fetchall()})
+    con.close()
+
+
+def ua() -> None:
+    path = next(Path("production_data").glob("datasets_*/dataset_catalog.duckdb"))
+    con = duckdb.connect(str(path), read_only=True)
+    names = [r[0] for r in con.execute(
+        "select table_name from information_schema.tables where table_schema='main' order by table_name"
+    ).fetchall()]
+    counts, columns = {}, {}
+    for name in names:
+        counts[name] = con.execute('select count(*) from "' + name + '"').fetchone()[0]
+        columns[name] = [r[0] for r in con.execute(
+            "select column_name from information_schema.columns where table_name=? order by ordinal_position", [name]
+        ).fetchall()]
+    variables = con.execute(
+        "select canonical_var,count(*) from ds_observations where country_code='UA' and value is not null and coalesce(year,survey_year,wave) is not null group by canonical_var order by canonical_var"
+    ).fetchall()
+    denominator = con.execute("select count(distinct canonical_var),count(*) from ds_observations").fetchone()
+    academic = duckdb.connect(str(academic_path()), read_only=True)
+    skg_names = {r[0] for r in academic.execute("select canonical_name from ac_skg_variables").fetchall()}
+    edges = academic.execute("select src,dst from ac_skg_edges").fetchall()
+    endpoints = {value for edge in edges for value in edge}
+    emit({"holder": str(path), "table_denominator": len(names), "tables": counts, "columns": columns,
+          "observation_variable_and_row_denominator": denominator,
+          "ua_numeric_period_variable_denominator": len(variables), "ua_variables": variables,
+          "exact_ua_variable_name_intersection": [(v, n) for v, n in variables if v in skg_names],
+          "exact_ua_edge_endpoint_intersection": [v for v, n in variables if v in endpoints]})
+    con.close()
+    academic.close()
+
+
+def ua_edges() -> None:
+    academic = duckdb.connect(str(academic_path()), read_only=True)
+    path = next(Path("production_data").glob("datasets_*/dataset_catalog.duckdb"))
+    con = duckdb.connect(str(path), read_only=True)
+    variables = {r[0] for r in con.execute(
+        "select distinct canonical_var from ds_observations where country_code='UA' and value is not null and coalesce(year,survey_year,wave) is not null"
+    ).fetchall()}
+    edges = academic.execute("select edge_id,src,dst,meta_effect_size,candidate_layer from ac_skg_edges").fetchall()
+    ci = academic.execute("select count(*),count(*) filter(where ci_low<ci_high),count(*) filter(where ci_low<ci_high and trust_score>=0.5) from ac_parameter_estimates where lower(country) in ('ua','ukraine')").fetchone()
+    emit({"academic_edge_denominator": len(edges), "ua_numeric_owner_variables": len(variables),
+          "both_endpoints_exact_ua_owner_variable": [r for r in edges if r[1] in variables and r[2] in variables],
+          "exact_country_UA_estimates_total_ci_candidate_trust": ci})
+    academic.close()
+    con.close()
+
+
+def canonical() -> None:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+    path = academic_path()
+    con = duckdb.connect(str(next(Path("production_data").glob("datasets_*/dataset_catalog.duckdb"))), read_only=True)
+    variables = [r[0] for r in con.execute("select distinct canonical_var from ds_observations where country_code='UA' and value is not null and coalesce(year,survey_year,wave) is not null order by canonical_var").fetchall()]
+    query = SKGQuery(path, path.parent.parent)
+    results = [asdict(query.resolve_runtime_canonical(v, need_type="causal_edge")) for v in variables]
+    emit({"ua_owner_variables_denominator": len(variables),
+          "resolution_methods": dict(Counter(r["method"] for r in results)),
+          "approved": sum(r["approved"] for r in results),
+          "non_similarity_results": [r for r in results if r["method"] in {"exact", "exact_alias", "synonym"}]})
+    query.close()
+    con.close()
+
+
+def owners() -> None:
+    root = Path("src/polisyos")
+    files = sorted(root.rglob("*.py"))
+    constructors, bridges, errors = [], [], []
+    def dotted(node: ast.AST) -> str:
+        if isinstance(node, ast.Name):
+            return node.id
+        if isinstance(node, ast.Attribute):
+            return dotted(node.value) + "." + node.attr
+        return ""
+    for path in files:
+        try:
+            tree = ast.parse(path.read_text())
+        except (SyntaxError, UnicodeError):
+            errors.append(str(path))
+            continue
+        aliases = {"ValueOuterSet"}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                for name in node.names:
+                    if name.name == "ValueOuterSet":
+                        aliases.add(name.asname or name.name)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                target = dotted(node.func)
+                parts = target.split(".")
+                if any(name in parts for name in aliases) and parts[-1] in aliases | {"interval_box"}:
+                    constructors.append({"path": str(path), "line": node.lineno, "call": target})
+            if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and all(term in node.name.lower() for term in ("skg", "identity")):
+                bridges.append({"path": str(path), "line": node.lineno, "name": node.name})
+    emit({"source_python_denominator": len(files), "parse_errors": errors,
+          "value_outer_set_constructors": constructors, "named_skg_identity_definitions": bridges})
+
+
+def runtime() -> None:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+    path = academic_path()
+    con = duckdb.connect(str(path), read_only=True)
+    edge = con.execute("select src,dst from ac_skg_edges order by edge_id limit 1").fetchone()
+    estimate = con.execute("select e.id from ac_parameter_estimates e where ci_low < ci_high and trust_score >= 0.5 and exists(select 1 from ac_claim_adjudications a where a.work_id=e.work_id and a.design_quality_tier=1) order by e.id limit 1").fetchone()
+    query = SKGQuery(path, path.parent.parent / "index")
+    try:
+        result = query.resolve_grounded_causal_prior(cause=edge[0], effect=edge[1], estimand="ATE", scope_context_id="UA", required_skg_version_id=1)
+        print("grounded_prior", result)
+    except ValueError as exc:
+        print("grounded_prior_refusal", str(exc))
+    if estimate:
+        result = query.parameter_estimate_value_outer_set(estimate_id=estimate[0], world_model_record_ref="probe://not-production-wmr", epoch="probe-only")
+        emit({"actual_estimate_lowering": {"estimate_id": estimate[0], "representation_status": result.representation_status,
+              "assumption_status": result.assumption_status, "coordinates": result.coordinates, "lower": result.lower,
+              "upper": result.upper, "calibration_scope": result.calibration_scope, "data_trust": result.data_trust.model_dump(mode="json")}})
+    else:
+        print("no_qualifying_estimate")
+    query.close()
+    con.close()
+
+
+def red() -> None:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+    path = academic_path()
+    query = SKGQuery(path, path.parent.parent)
+    value = query.parameter_estimate_value_outer_set(estimate_id="00217008765d4f975631a764", world_model_record_ref="probe://not-production-wmr", epoch="probe-only")
+    assert value.representation_status != "certified", (value.representation_status, value.assumption_status, value.calibration_scope)
+
+
+if __name__ == "__main__":
+    stations = {function.__name__: function for function in (inventory, tables, holders, academic_files, numeric, claims, ua, ua_edges, canonical, owners, runtime, red)}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("station", choices=tuple(stations))
+    args = parser.parse_args()
+    stations[args.station]()
+```
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation

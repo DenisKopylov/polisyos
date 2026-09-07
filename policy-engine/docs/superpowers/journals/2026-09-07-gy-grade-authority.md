@@ -3104,6 +3104,816 @@ Ruff identities remain recorded without inherited attribution. PA1 exact-request
 grounding and calibration work continues. The stale branch, global public-surface
 companions and all ungranted architecture files remain untouched; no push occurs.
 
+### GGA-PA1-05 — continued investigation before the exact-request bridge
+
+The preceding verified component boundary is committed as
+`d421575d31808796b8a2a66a98c6ca75dfc3f163`. All 28 committed paths were read back
+from named branch `codex/gy-grade-authority` and compared byte-for-byte with the
+working tree; the tree was clean after readback. No branch publication occurred.
+
+Before the next repair, the mechanism hypothesis is that N7's current SKG
+capture measures an empty in-memory schema and routes `table_count` through a
+shared wrapper as acquired content. That does not evaluate the exact income
+request against retained evidence or CG2's actual premise. The candidate repair
+must freeze the request's candidate/problem/world/epoch/outcome/context identity,
+enumerate actual retained evidence through the DataForge read API, resolve its
+source and independent adjudication lineage, and persist/replay the resulting
+request-specific corpus and refusal or verified resolution before N7 consumes it.
+Fabric and OpenAlex use the same response wrapper; its shared authority class
+must not be declared closed by a per-SKG flag check.
+
+A separate semantic question is being checked before any calibration conversion:
+the ratified PR1a source expects independently adjudicated **relation-outcome**
+evidence, while the new claim adjudicator grades publication eligibility,
+source/design and causal credibility. `publishable` cannot silently become
+`correct exact relation` or a CG2 false-binding label. One investigation checks
+existing calibration-owner semantics and any accepted mapping; another enumerates
+actual retained target and independent CAS evidence. A missing table or empty
+CG2 constant is not itself proof that the producer cannot be built. A genuine
+missing scientific acceptance decision or empirical premise must be named and
+measured before it can become a handback.
+
+### GGA-PA1-06 — a measured scientific acceptance gap, distinct from appointment
+
+The independent owner-contract investigation found no accepted conversion from
+the Row 1 grade to CG2 relation-calibration gold. The existing admitted batch is
+explicitly authoritative only for `academic_claim_edge_publishability`
+(`ir/analytics/literature.py`); `claim_metrics` evaluates `publish_to_graph`, and
+the publication predicate uses source, design, support and confidence. CG1's
+`exact`/`certified-specialization` judgment concerns a particular proposal and
+reference atom across nine critical denotation axes, including do-value, scope,
+population and estimand (`runtime/quality/grounding_relation.py`). A study may
+remain publishable while a changed proposal binds it to the wrong atom. Thus
+publication eligibility cannot distinguish correct from false relation binding.
+
+The existing CG6 `_is_false_bind` mechanism instead requires an independently
+derived must-obligation and the actual identifying decision. Its existing
+wrong-atom semantic check passes, **one test, exit 0, 42.91 seconds**:
+
+```sh
+PYTHONPATH=src .venv/bin/python -m pytest -q -o addopts= tests/unit/runtime/quality/test_grounding_benchmark.py::test_must_negative_wrong_atom_identification_counts_false_bind
+```
+
+The complete 2,624-source-Python symbol census locates the existing calibration
+owners in `grounding_bind.py` and `grounding_benchmark.py`, and finds no production
+relation-observation source/schema implementation. `CalibrationStratumRecord`
+has stratum, status, count and hash fields; it has no per-observation relation
+gold or false-bind count. Its current status recomputation checks owner, hash,
+epoch and count; `_risk_ledger` uses configured bounds. The PR1a plan defines
+lineage, observation identity, an exact stratum and at least 20 observations,
+but does not define the relation-specific gold or an outcome-sensitive production
+calibration acceptance rule.
+
+This is a specific missing scientific acceptance decision, not an appointment
+being treated as permission to build. The architect handback must define the
+independently adjudicated proposal/reference relation and exact contextual
+binding, the accepted adjudicator authority, and how observed correct/incorrect
+bindings determine production calibration acceptance. Counting publishable
+papers or merely accumulating 20 signed observations would invent that rule.
+Proposed row: `cg2-production-relation-gold-acceptance-unspecified`; proposed
+owners team-architecture for acceptance semantics and runtime/quality for
+execution, with institutional appointment unallocated. Source/CAS projection,
+exact-request replay and honest N7 refusal remain buildable and are continuing.
+
+### GGA-PA1-07 — complete local calibration evidence and independent reconciliation
+
+This is a new transparent read-only measurement, not the registered PR1a firstness attempt.
+No source, plan, register, ledger or retained-data changes were made. All artifacts below
+are ignored scratch. Measurement UTC: 2026-09-07 21:05–21:14 (local date 2026-09-08).
+
+Hypothesis recorded before measurement: retained claims and stored numeric intervals
+can support candidate grounding, but an exact-stratum CG2 positive additionally needs
+independently appointed relation-outcome evidence with readable, bound CAS lineage.
+Candidate publication labels do not supply the relation outcome they would calibrate.
+
+#### Disposition
+
+The currently exercised avg_income test request specifies target/metric avg_income
+and average_treatment_effect. Its atom does not specify treatment, amount, eligibility
+or timing. Its diversity-key word grant is not an intervention authority. Engineering
+can still assemble a concrete candidate and owner-bound treatment/assignment; this
+omission is not an external impossibility.
+
+The actual configured retained Academic loader resolves **zero verified rows**. Its six
+CAS/registry/input/result/pass/compatibility paths are absent before and after the read.
+No independent CG2 relation-outcome observation is currently available through that
+configured path. The complete retained production tree has no FileSystemCAS manifest
+or blob files. Historical original/remap/backup roots declared by source_lineage.json
+are unavailable locally; their contents are not_established, not counted as zero.
+
+Row1 ClaimAdjudicationVerifier authenticates publication/source/design benchmark and
+execution results. Its gold schema is item_id, split, publish_to_graph, source_basis,
+design_family; precision_publishable uses publish_to_graph. It cannot turn those gold
+labels into an exact/specialization relation label. The retained benchmark_suite.json
+is a scenario-query suite and the real independent corpus parser refuses it for missing
+suite_version/cases and forbidden scenarios. The three retained claim_gold seed rows
+have no signed observation/CAS lineage and concern publication, not relation outcomes.
+
+The smallest further engineering component is a relation-outcome evidence producer and
+verifier that binds actual source/operator/context/epoch cases to separately established
+relation truth and projects their complete distinct population into CG2. Row1's shared
+CAS, signed receipt authentication, complete observation binding and recomputation can
+be reused, but publication yes/no is not the target label. Its deployment appointment
+slot is empty on the actual production default invocation. Deployment-selected trust
+configuration and genuine independent relation observations are external inputs; this
+task cannot appoint their evaluator or manufacture their labels. Existing raw source
+could support subsequent candidate extraction/annotation once an actual operator is
+bound. This report makes no global claim that semantic source recovery is impossible.
+
+#### Denominators and source adequacy
+
+- Full retained production tree: 6,562 files, 88 JSON, 6,329 JSONL, 8 DuckDB, 43 Parquet
+  plus other enumerated formats. Inventory metadata errors: 0.
+- Complete structured authority inspection: all 88 JSON plus all 3 academic/scholar-path
+  JSONL; 90 readable, 1 malformed JSON (curated/udf_schema.json at line 49). Other JSONL
+  data rows were not rescanned: their presence cannot replace the required absent CAS
+  manifest/blob ABI. The malformed schema remains explicitly unreadable.
+- All three academic JSONL: 3 publication seed examples, 45 acquisition backlog records,
+  7,607 heuristic transport-score records. Nine metadata files carry artifact_id keys;
+  they are Ukraine simulation bundle/build manifests, not claim independent evaluation
+  receipts. No key-presence check was used to admit authority.
+- Complete production-source constructor audit at measurement time: 2,624 Python files,
+  0 unreadable/parse errors, one terminal-symbol ClaimAdjudicationVerifier constructor
+  in the DataForge loader, which passes no appointments; no ClaimEvaluatorAppointment
+  constructor. This bounds current source invocation, not external deployment history
+  or an arbitrary caller's ability to inject configured objects.
+- Previous complete retained-source station, reread from its saved bytes: 4,032 stored
+  nonzero-CI parameters, 1,468 works, 4,032 work joins, 4,029 retained abstracts, 1,309
+  nonempty raw contexts, 1,080 literal raw-context-in-abstract matches. These figures
+  are source availability, not causal validity or independently certified native CIs.
+- New one-query missing-field supplement exports all 4,032 rows, with raw context,
+  source title/abstract, units, country and periods. A separate full name aggregation
+  covers all 62,248 parameters and 45,707 distinct names. No literal avg_income name.
+  The lexical income/earnings/wage/salary subset has 27 rows from 12 works; all 12
+  retained abstracts were read. No row in that named subset has exact country UA.
+  All 24 exact-country-UA nonzero-CI rows are retained in the summary. These exhaustive
+  named subsets do not exhaust multilingual or other semantic relevance.
+- Relevant source candidates are real: US SNAP spending propensity, Paraguay wage
+  decomposition, terrorism and county total earnings, and income as a covariate in
+  health/nutrition studies. They do not by themselves bind a chosen policy to UA
+  average-income ATE, its unit conversion, target transport, or CG2 relation truth.
+  Stored intervals are not uniformly native confidence intervals: the UA shadow
+  economy record's 18–46 bounds come from a range across estimation methods in its
+  retained text. A producer must verify the source meaning before using CI fields.
+
+#### Commands and receipts
+
+All commands run from `/Users/deniskopylov/polisyos/.worktrees/gy/policy-engine` and are
+sole module-form commands:
+
+```
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census saved
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census inventory
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census calls
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census metadata
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census runtime
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census native
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census summary
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census income_sources
+```
+
+All final station executions exited 0. Recorded times: saved .110 s, inventory .623 s,
+metadata 6.652 s, final runtime .980 s, native query/export 1.102 s (internal timer),
+summary .172 s. Constructor census total process duration was not retained. A first
+runtime attempt exited 1 because AcademicBatchConfig initializes stage directories and
+the retained source refused academic/raw creation. The final station initializes that
+mutable config in scratch and then sets its public snapshot_root to the existing
+retained holder; it invokes the real owner read and confirms no artifact path appeared.
+This is a harness failure/correction, not a product refusal or a semantic removal red.
+
+No new semantic source gate was implemented in this census lane, so no new property
+removal control is claimed. Earlier accepted Row1/identity behavioral removal evidence
+is unchanged; DEF22 owns tests for the new exact-request/CG2 producer mechanism.
+
+Artifacts (all relative to `_build/gy_grade_authority/`):
+
+| Artifact | SHA-256 |
+| --- | --- |
+| pa1-calibration-saved-output.json | 49ba9f977f4c012b46073cd0f047a7114787cfa3ad4869bd6261cb1a9c0479c9 |
+| pa1-calibration-inventory-output.json | 479fd227a388bd35cb49187b11372763217c2b85889772844c4cab089f0806b7 |
+| pa1-calibration-calls-output.json | a6264bc1db6fb24b84f1cb8c5ae33906e5297ccbb6cc1e9e4ad022e67d478308 |
+| pa1-calibration-metadata-output.json | b601d39959a477f4d9a89a3006ca2fe687d4b212950e6a4d7d55e505281c5e0e |
+| pa1-calibration-runtime-output.json | 410254a05dcee8fcc5961e9e5f8d226fdfaa9211672ebc1c553545b08d63a32a |
+| pa1-calibration-native-output.json | 0df67f563ea2d9d69049507015553bb913a61ab2617c881c0efb86d155513a6a |
+| pa1-calibration-native-population.jsonl | c395cbca101c606d59be01aac1ff71aa9c850a321622ebf2f5603ca47a0cff59 |
+| pa1-calibration-summary-output.json | bc656d3551b791d3278d78393ad2d610521503b1d0b1a6cbc29dc11b2d6708fb |
+| pa1-calibration-income-sources-output.json | 3d12e1e307cda7f0ff822208fa261e94873cb8c816523ac8facebbe68d20d975 |
+
+Full artifact bytes, not truncated stdout, are the count receipts. The census script
+contains exact queries and selection rules. The native station does not use the old
+registered selector or narrow the population by successful outcome.
+
+Independent reconciliation subsequently completed: **exit 0, 2.066643 seconds**. All eight complete identity/multiset comparisons have empty missing/extra sets, and all ten count crosschecks agree. A separate `os.walk` derives the full inventory and metadata frame; SQL derives complete numeric/name/subset identity sets independently of the saved Python projections. Reconciler source SHA-256 `f55173b958bb73e51d12a7647a6cf60ae37699d3a1c61b4a04218a91a5782acc`; output SHA-256 `cf3a4516c6cc745428cfed610597a82e55725a93e2009569bf7256b614722647`.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_census_reconcile
+```
+
+### Durable calibration investigation stations
+
+The relation-owner inspection is pinned to committed source `d421575d31808796b8a2a66a98c6ca75dfc3f163`. Its initial census was a filesystem walk; no retrospective all-file hash snapshot is claimed. The pinned owner inspection preserves complete DTO fields and decision bodies separately from token absence.
+
+#### `_build/gy_grade_authority/pa1_calibration_evidence_census.py`
+
+SHA-256 `7877efe464184021a2da2118018c3cdb7bf68fcce175a2fff59f63634579b9b4`; 18437 bytes.
+
+````python
+"""Transparent read-only census of retained PA1 evidence, not PR1a selection."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+from collections import Counter
+from datetime import UTC, datetime
+import hashlib
+import json
+from pathlib import Path
+import re
+from time import perf_counter
+
+BASE = Path('_build/gy_grade_authority')
+
+
+def digest(path: Path) -> str:
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def emit(name: str, value: object) -> None:
+    out = BASE / ('pa1-calibration-' + name + '-output.json')
+    out.write_text(json.dumps(value, indent=2, default=str) + '\n')
+    print(json.dumps({'artifact': str(out), 'sha256': digest(out), 'result': value}, indent=2, default=str))
+
+
+def saved() -> None:
+    path = BASE / 'pa1-identity-inputs-output.json'
+    data = json.loads(path.read_text())
+    rows = data['numeric_claim_join_rows']
+    terms = re.compile(r'income|earning|wage|salary|poverty|employment|unemployment|gdp|cash|grant|transfer', re.I)
+    relevant = [r for r in rows if any(terms.search(str(r[i] or '')) for i in (2, 9, 10))]
+    exact = [r for r in rows if 'avg_income' in (r[2], r[9], r[10])]
+    stream_path = BASE / 'pa1-source-sufficiency-output.json.txt'
+    text = stream_path.read_text()
+    decoder = json.JSONDecoder()
+    objects = []
+    offset = 0
+    while offset < len(text):
+        while offset < len(text) and text[offset].isspace():
+            offset += 1
+        if offset == len(text):
+            break
+        value, offset = decoder.raw_decode(text, offset)
+        objects.append(value)
+    summary = {k: value for obj in objects for k, value in obj.items()
+               if k not in ('named_target_extractions', 'candidate_numeric_sources')}
+    emit('saved', {
+        'measured_at': datetime.now(UTC).isoformat(),
+        'inputs': {str(path): digest(path), str(stream_path): digest(stream_path)},
+        'join_query_source': str(BASE / 'pa1_identity_inputs.py'),
+        'join_is': 'native nonzero CI parameter estimate matched to same-work extraction claim by numeric effect_size equality; NOT an admitted lineage or a semantic match',
+        'columns': ['numeric_id', 'work_id', 'variable_name', 'point', 'ci_low', 'ci_high', 'unit', 'extraction_id', 'claim_id', 'cause', 'effect', 'direction'],
+        'rows': len(rows), 'reported_rows_crosscheck': data['numeric_claim_join_count'],
+        'distinct_numeric_ids': len({r[0] for r in rows}),
+        'distinct_work_ids': len({r[1] for r in rows}),
+        'exact_avg_income_rows': exact,
+        'relevance_filter': terms.pattern,
+        'complete_lexical_relevant_rows': relevant,
+        'lexical_relevant_count': len(relevant),
+        'prior_source_sufficiency_summary': summary,
+    })
+
+
+def inventory() -> None:
+    root = Path('production_data')
+    files = []
+    errors = []
+    for path in sorted(root.rglob('*')):
+        try:
+            if path.is_file():
+                files.append({'path': str(path), 'size': path.stat().st_size, 'suffix': path.suffix})
+        except OSError as exc:
+            errors.append({'path': str(path), 'error': repr(exc)})
+    out = {
+        'measured_at': datetime.now(UTC).isoformat(), 'root': str(root.resolve()),
+        'file_denominator': len(files), 'extensions': dict(Counter(r['suffix'] for r in files)),
+        'structured_bytes': sum(r['size'] for r in files if r['suffix'] in ('.json', '.jsonl')),
+        'files': files, 'unreadable_metadata': errors,
+    }
+    path = BASE / 'pa1-calibration-inventory-output.json'
+    path.write_text(json.dumps(out, indent=2) + '\n')
+    print(json.dumps({**{k: v for k, v in out.items() if k != 'files'},
+                      'artifact': str(path), 'sha256': digest(path),
+                      'adjudication_named_files': [r for r in files if 'adjudicat' in r['path'].lower()],
+                      'manifest_files': [r for r in files if r['path'].endswith('.manifest.json')]}, indent=2))
+
+
+def calls() -> None:
+    files = sorted(Path('src/polisyos').rglob('*.py'))
+    matches = []
+    errors = []
+    for path in files:
+        try:
+            tree = ast.parse(path.read_text())
+        except (OSError, UnicodeError, SyntaxError) as exc:
+            errors.append({'path': str(path), 'error': repr(exc)})
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                name = ast.unparse(node.func)
+                if name.split('.')[-1] in ('ClaimAdjudicationVerifier', 'ClaimEvaluatorAppointment'):
+                    matches.append({'path': str(path), 'sha256': digest(path), 'line': node.lineno,
+                                    'call': ast.unparse(node)})
+    emit('calls', {'measured_at': datetime.now(UTC).isoformat(),
+                   'root': 'src/polisyos', 'file_type': '.py', 'source_denominator': len(files),
+                   'all_constructor_calls': matches, 'unreadable': errors,
+                   'scope': 'production source calls by terminal symbol; no test fixture appointments, no claim about external deployments'})
+
+
+def metadata() -> None:
+    inventory_path = BASE / 'pa1-calibration-inventory-output.json'
+    inventory = json.loads(inventory_path.read_text())
+    selected = [r for r in inventory['files'] if r['suffix'] == '.json' or
+                (r['suffix'] == '.jsonl' and any('academic' in part or 'scholar' in part
+                                               for part in Path(r['path']).parts))]
+    files = []
+    errors = []
+    authority_keys = {'artifact_id', 'evaluator_id', 'key_id', 'signature_hex', 'observations_ref',
+                      'benchmark_ref', 'candidate_ref', 'evaluation_ref', 'execution_receipt',
+                      'evaluation_receipt', 'result_artifact_id', 'relation_type', 'reference_epoch'}
+    for row in selected:
+        path = Path(row['path'])
+        try:
+            values = ([json.loads(path.read_text())] if path.suffix == '.json' else
+                      [json.loads(line) for line in path.read_text().splitlines() if line.strip()])
+            keys = Counter()
+            root_keys = set()
+            markers = []
+            def walk(value: object, location: str) -> None:
+                if isinstance(value, dict):
+                    for key, child in value.items():
+                        keys[key] += 1
+                        if key in authority_keys:
+                            markers.append({'location': location + '.' + key,
+                                            'value_type': type(child).__name__})
+                        walk(child, location + '.' + key)
+                elif isinstance(value, list):
+                    for index, child in enumerate(value):
+                        walk(child, location + '[' + str(index) + ']')
+            for index, value in enumerate(values):
+                if isinstance(value, dict):
+                    root_keys.update(value)
+                walk(value, str(index))
+            files.append({**row, 'sha256': digest(path), 'records': len(values),
+                          'root_keys': sorted(root_keys), 'complete_nested_key_counts': dict(keys),
+                          'authority_marker_locations_not_verification': markers})
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            errors.append({**row, 'error': repr(exc)})
+    lineage = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/source_lineage.json')
+    data = json.loads(lineage.read_text())
+    remote = [{'source': source, 'role': role, 'declared_path': value,
+               'locally_readable': Path(value).is_file() or Path(value).is_dir()}
+              for source, values in data['sources'].items() for role, value in values.items() if value]
+    out = {'measured_at': datetime.now(UTC).isoformat(), 'inventory_input': str(inventory_path),
+           'inventory_sha256': digest(inventory_path),
+           'selected_denominator': len(selected), 'file_types': dict(Counter(r['suffix'] for r in selected)),
+           'selection': 'ALL production .json metadata plus ALL academic/scholar-path .jsonl, complete nested keywalk; other JSONL rows not reread because admitted CAS ABI requires independently present manifest/blob files',
+           'files': files, 'unreadable': errors, 'declared_source_locations': remote,
+           'scope': 'Markers inventory only. Authority still requires real admitted CAS verifier; missing original remote locations are unavailable, not zero observations there.'}
+    path = BASE / 'pa1-calibration-metadata-output.json'
+    path.write_text(json.dumps(out, indent=2) + '\n')
+    print(json.dumps({k: v for k, v in out.items() if k != 'files'} | {
+        'artifact': str(path), 'sha256': digest(path),
+        'readable_files': len(files), 'authority_marker_files': [r['path'] for r in files if r['authority_marker_locations_not_verification']],
+        'academic_jsonl': [{k: v for k, v in r.items() if k not in ('complete_nested_key_counts', 'authority_marker_locations_not_verification')} for r in files if r['suffix'] == '.jsonl'],
+    }, indent=2))
+
+
+def runtime() -> None:
+    from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import load_verified_claim_adjudication_rows
+    from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import _Corpus, _GoldCase
+    from pydantic import ValidationError
+    snapshot = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z')
+    assert (snapshot / 'academic').is_dir()
+    # The public initializer mkdirs stage folders. Initialize in our scratch,
+    # then configure the existing read-only holder through its mutable field.
+    config = AcademicBatchConfig(snapshot_root=BASE / 'pa1_calibration_runtime_config')
+    config.snapshot_root = snapshot
+    paths = {key: getattr(config, key) for key in (
+        'claim_adjudication_cas_root', 'claim_adjudication_registry_root',
+        'claim_adjudication_result_ref_path', 'claim_adjudication_input_ref_path',
+        'claim_adjudications_path', 'claim_adjudication_passes_path')}
+    before = {key: value.exists() for key, value in paths.items()}
+    capability = load_verified_claim_adjudication_rows(config)
+    complete_verified_rows = capability._read()
+    # Empty current production receipt set takes the actual no-match branch before
+    # current-subject validation. This is absence evidence, not a fabricated subject.
+    observation = capability.for_current_subject({'claim_id': 'd276db167d011acdff858c28'})
+    after = {key: value.exists() for key, value in paths.items()}
+    assert before == after
+    benchmark = snapshot / 'academic/benchmark_suite.json'
+    benchmark_error = None
+    try:
+        _Corpus.model_validate_json(benchmark.read_bytes())
+    except ValidationError as exc:
+        benchmark_error = [{'type': err['type'], 'loc': err['loc']} for err in exc.errors()]
+    emit('runtime', {
+        'measured_at': datetime.now(UTC).isoformat(), 'configured_snapshot': str(snapshot.resolve()),
+        'configuration_note': 'Constructor was initialized in worktree scratch before setting its public snapshot_root field to the retained holder; direct production initialization previously refused an attempted academic/raw mkdir with PermissionError. No retained-data writes.',
+        'paths': {key: str(value) for key, value in paths.items()},
+        'before_exists': before, 'after_exists': after,
+        'real_loader': 'load_verified_claim_adjudication_rows(config).for_current_subject',
+        'existing_income_claim_id': 'd276db167d011acdff858c28',
+        'actual_consumer_result': observation,
+        'complete_owner_row_read': 'VerifiedClaimAdjudicationRows._read()',
+        'verified_current_row_count': len(complete_verified_rows),
+        'production_benchmark_path': str(benchmark), 'production_benchmark_sha256': digest(benchmark),
+        'independent_benchmark_schema_refusal': benchmark_error,
+        'gold_case_schema_fields': list(_GoldCase.model_fields),
+        'ceiling': 'Publication eligibility labels cannot establish CG2 relation-outcome labels. No claim about unavailable remote source roots.',
+    })
+
+
+def native() -> None:
+    import duckdb
+    start = perf_counter()
+    source = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+    before = source.stat()
+    con = duckdb.connect(str(source), read_only=True)
+    scratch = BASE / 'pa1_calibration_duckdb'
+    scratch.mkdir(parents=True, exist_ok=True)
+    con.execute('SET temp_directory = ?', [str(scratch.resolve())])
+    con.execute('SET threads = 2')
+    query = '''SELECT p.id AS numeric_id,p.work_id,p.variable_name,p.estimate,p.ci_low,p.ci_high,
+        p.std_error,p.unit,p.study_design,p.sample_size,p.country,p.period_start,p.period_end,
+        p.trust_score,p.raw_context,w.title,w.abstract,w.year,w.is_retracted,w.full_text_url
+        FROM ac_parameter_estimates p LEFT JOIN ac_works w ON p.work_id=w.id
+        WHERE p.ci_low < p.ci_high ORDER BY p.id'''
+    cursor = con.execute(query)
+    columns = [item[0] for item in cursor.description]
+    rows = [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
+    names = con.execute('SELECT variable_name,count(*) FROM ac_parameter_estimates GROUP BY variable_name ORDER BY variable_name').fetchall()
+    con.close()
+    after = source.stat()
+    assert (before.st_size, before.st_mtime_ns) == (after.st_size, after.st_mtime_ns)
+    artifact = BASE / 'pa1-calibration-native-population.jsonl'
+    artifact.write_text(''.join(json.dumps(row, ensure_ascii=False) + '\n' for row in rows))
+    terms = re.compile(r'(?:^|[._\s])(income|earnings?|wages?|salary|poverty|employment|unemployment|gdp|cash|grants?|transfers?)(?:$|[._\s])', re.I)
+    lexical = [row for row in rows if terms.search(row['variable_name'] or '')]
+    emit('native', {
+        'measured_at': datetime.now(UTC).isoformat(), 'elapsed_seconds': perf_counter() - start,
+        'source': str(source.resolve()), 'source_size': before.st_size,
+        'source_mtime_ns': before.st_mtime_ns, 'source_stat_unchanged': True,
+        'query': query, 'columns': columns, 'complete_native_ci_rows': len(rows),
+        'distinct_works': len({r['work_id'] for r in rows}),
+        'full_population_artifact': str(artifact), 'full_population_sha256': digest(artifact),
+        'all_parameter_row_count': sum(n for _, n in names),
+        'all_parameter_distinct_variable_count': len(names),
+        'all_parameter_variable_counts': names,
+        'lexical_filter_only': terms.pattern,
+        'lexical_native_ci_count': len(lexical),
+        'complete_lexical_native_ci_rows': lexical,
+        'scope': 'Raw extraction evidence. Numeric interval existence and lexical relevance do not prove native source support, causal effect, transport or independent relation labels.',
+    })
+
+
+def summary() -> None:
+    path = BASE / 'pa1-calibration-native-output.json'
+    data = json.loads(path.read_text())
+    rows = [json.loads(line) for line in (BASE / 'pa1-calibration-native-population.jsonl').read_text().splitlines()]
+    income_pattern = re.compile(r'(?:^|[._\s])(income|earnings?|wages?|salary)(?:$|[._\s])', re.I)
+    income = [r for r in rows if income_pattern.search(r['variable_name'] or '')]
+    ua = [r for r in rows if str(r['country']).lower() in ('ua', 'ukraine')]
+    def compact(row: dict) -> dict:
+        return {key: value for key, value in row.items() if key not in ('abstract', 'full_text_url', 'study_design')}
+    out = {
+        'input': str(path), 'input_sha256': digest(path),
+        'complete_native_ci_rows': len(rows), 'all_parameter_rows': data['all_parameter_row_count'],
+        'all_parameter_distinct_names': data['all_parameter_distinct_variable_count'],
+        'all_parameter_exact_avg_income_names': [row for row in data['all_parameter_variable_counts'] if row[0] == 'avg_income'],
+        'native_ci_exact_avg_income_rows': [compact(r) for r in rows if r['variable_name'] == 'avg_income'],
+        'native_ci_income_name_filter': income_pattern.pattern, 'native_ci_income_name_rows': len(income),
+        'native_ci_income_name_works': len({r['work_id'] for r in income}),
+        'complete_income_name_rows': [compact(r) for r in income],
+        'native_ci_exact_country_UA_rows': len(ua), 'complete_exact_country_UA_rows': [compact(r) for r in ua],
+        'native_ci_income_name_and_UA_rows': [compact(r) for r in income if str(r['country']).lower() in ('ua','ukraine')],
+        'ceiling': 'Name filters exhaust named subsets, not semantic potential of every paper or future source recovery.',
+    }
+    emit('summary', out)
+
+
+def income_sources() -> None:
+    summary = json.loads((BASE / 'pa1-calibration-summary-output.json').read_text())
+    work_ids = {row['work_id'] for row in summary['complete_income_name_rows']}
+    all_rows = [json.loads(line) for line in (BASE / 'pa1-calibration-native-population.jsonl').read_text().splitlines()]
+    works = {}
+    for row in all_rows:
+        if row['work_id'] in work_ids:
+            works[row['work_id']] = {key: row[key] for key in ('work_id', 'title', 'abstract', 'country', 'year', 'study_design')}
+    emit('income-sources', {'complete_named_income_work_count': len(works),
+                            'works': [works[key] for key in sorted(works)],
+                            'scope': 'Entire lexical income-name native-CI work subset, not all semantically relevant sources'})
+
+
+def receipts() -> None:
+    report = BASE / 'pa1-calibration-evidence-handback.md'
+    rows = re.findall(r'^\| ([^|]+) \| ([0-9a-f]{64}) \|$', report.read_text(), re.M)
+    actual = {name: digest(BASE / name) for name, _ in rows}
+    assert all(actual[name] == expected for name, expected in rows)
+    print(json.dumps({'report': str(report), 'report_sha256': digest(report),
+                      'script': __file__, 'script_sha256': digest(Path(__file__)),
+                      'artifact_table_rows_verified': len(rows), 'artifact_hashes': actual}, indent=2))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('station', choices=('saved', 'inventory', 'calls', 'metadata', 'runtime', 'native', 'summary', 'income_sources', 'receipts'))
+    args = parser.parse_args()
+    globals()[args.station]()
+````
+
+#### `_build/gy_grade_authority/pa1_calibration_census_reconcile.py`
+
+SHA-256 `f55173b958bb73e51d12a7647a6cf60ae37699d3a1c61b4a04218a91a5782acc`; 9515 bytes.
+
+````python
+"""Independent os.walk and SQL reconciliation of the saved PA1 census."""
+
+from __future__ import annotations
+
+from collections import Counter
+from datetime import UTC, datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+from time import perf_counter
+
+import duckdb
+
+BASE = Path('_build/gy_grade_authority')
+
+
+def sha(path: Path) -> str:
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def canonical(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+
+
+def compare(label: str, first: list[object], second: list[object]) -> dict:
+    left = Counter(canonical(item) for item in first)
+    right = Counter(canonical(item) for item in second)
+    return {
+        'label': label,
+        'saved_count': sum(left.values()), 'independent_count': sum(right.values()),
+        'saved_distinct': len(left), 'independent_distinct': len(right),
+        'saved_multiset_sha256': hashlib.sha256(canonical(sorted(left.items())).encode()).hexdigest(),
+        'independent_multiset_sha256': hashlib.sha256(canonical(sorted(right.items())).encode()).hexdigest(),
+        'missing_from_independent': list((left - right).elements()),
+        'extra_in_independent': list((right - left).elements()),
+        'equal': left == right,
+    }
+
+
+def main() -> None:
+    start = perf_counter()
+    inputs = {name: BASE / name for name in (
+        'pa1-calibration-inventory-output.json', 'pa1-calibration-metadata-output.json',
+        'pa1-calibration-native-output.json', 'pa1-calibration-native-population.jsonl',
+        'pa1-calibration-summary-output.json', 'pa1-calibration-saved-output.json',
+    )}
+    inventory = json.loads(inputs['pa1-calibration-inventory-output.json'].read_text())
+    metadata = json.loads(inputs['pa1-calibration-metadata-output.json'].read_text())
+    numeric = json.loads(inputs['pa1-calibration-native-output.json'].read_text())
+    summary = json.loads(inputs['pa1-calibration-summary-output.json'].read_text())
+    saved = json.loads(inputs['pa1-calibration-saved-output.json'].read_text())
+    rows = [json.loads(line) for line in inputs['pa1-calibration-native-population.jsonl'].read_text().splitlines()]
+
+    errors = []
+    walked = []
+    def walk_error(exc: OSError) -> None:
+        errors.append({'path': exc.filename, 'error': repr(exc)})
+    for directory, _, names in os.walk('production_data', followlinks=False, onerror=walk_error):
+        for name in names:
+            path = os.path.join(directory, name)
+            try:
+                if os.path.isfile(path):
+                    walked.append({'path': path, 'size': os.stat(path).st_size,
+                                   'suffix': os.path.splitext(name)[1]})
+            except OSError as exc:
+                walk_error(exc)
+    frame = []
+    for row in walked:
+        components = os.path.normpath(row['path']).split(os.sep)
+        if row['suffix'] == '.json' or (row['suffix'] == '.jsonl' and
+                any('academic' in part or 'scholar' in part for part in components)):
+            frame.append(row)
+    comparisons = [
+        compare('complete production path/size/type multiset: rglob vs os.walk', inventory['files'], walked),
+        compare('complete metadata frame including unreadable member',
+                [{key: row[key] for key in ('path', 'size', 'suffix')} for row in metadata['files'] + metadata['unreadable']], frame),
+    ]
+    source = Path(numeric['source'])
+    before = source.stat()
+    con = duckdb.connect(str(source), read_only=True)
+    scratch = BASE / 'pa1_calibration_reconcile_duckdb'
+    scratch.mkdir(parents=True, exist_ok=True)
+    con.execute('SET temp_directory = ?', [str(scratch.resolve())])
+    con.execute('SET threads = 2')
+    regex = r'(?i)(^|[._\s])(income|earnings?|wages?|salary)($|[._\s])'
+    queries = {
+        'counts': '''SELECT count(*) AS all_parameters,
+            count(DISTINCT variable_name) AS distinct_nonnull_names,
+            count(*) FILTER(WHERE variable_name IS NULL) AS null_name_rows,
+            count(*) FILTER(WHERE ci_low < ci_high) AS stored_nonzero_ci,
+            count(DISTINCT work_id) FILTER(WHERE ci_low < ci_high) AS native_ci_works,
+            count(*) FILTER(WHERE ci_low < ci_high AND regexp_matches(variable_name, ?)) AS income_rows,
+            count(DISTINCT work_id) FILTER(WHERE ci_low < ci_high AND regexp_matches(variable_name, ?)) AS income_works,
+            count(*) FILTER(WHERE ci_low < ci_high AND lower(country) IN ('ua','ukraine')) AS ua_rows,
+            count(*) FILTER(WHERE variable_name='avg_income') AS exact_avg_income_rows
+            FROM ac_parameter_estimates''',
+        'native_identity': '''SELECT id,work_id,variable_name,country,
+            coalesce(regexp_matches(variable_name, ?),false) AS income,
+            coalesce(lower(country) IN ('ua','ukraine'),false) AS ua
+            FROM ac_parameter_estimates WHERE ci_low < ci_high ORDER BY id''',
+        'all_names': 'SELECT variable_name,count(*) FROM ac_parameter_estimates GROUP BY variable_name ORDER BY variable_name',
+    }
+    cursor = con.execute(queries['counts'], [regex, regex])
+    counts = dict(zip([r[0] for r in cursor.description], cursor.fetchone(), strict=True))
+    native = con.execute(queries['native_identity'], [regex]).fetchall()
+    name_rows = con.execute(queries['all_names']).fetchall()
+    con.close()
+    after = source.stat()
+    comparisons.extend([
+        compare('native-CI full identity occurrences',
+                [[r['numeric_id'], r['work_id'], r['variable_name'], r['country']] for r in rows],
+                [list(r[:4]) for r in native]),
+        compare('all variable names plus exact multiplicities', numeric['all_parameter_variable_counts'], [list(r) for r in name_rows]),
+        compare('native-CI work ID set', sorted({r['work_id'] for r in rows}), sorted({r[1] for r in native})),
+        compare('income native-CI exact numeric ID set',
+                [r['numeric_id'] for r in summary['complete_income_name_rows']], [r[0] for r in native if r[4]]),
+        compare('income native-CI exact work ID set',
+                sorted({r['work_id'] for r in summary['complete_income_name_rows']}), sorted({r[1] for r in native if r[4]})),
+        compare('UA native-CI exact numeric ID set',
+                [r['numeric_id'] for r in summary['complete_exact_country_UA_rows']], [r[0] for r in native if r[5]]),
+    ])
+    prior_join_count = saved['prior_source_sufficiency_summary']['numeric_source_denominator'][0][0]
+    count_checks = {
+        'file_count_equals_walk_and_extensions_sum': inventory['file_denominator'] == len(walked) == sum(Counter(r['suffix'] for r in walked).values()),
+        'metadata_88_json_plus_3_jsonl_equals_90_readable_plus_1_unreadable': len(frame) == 91 == len(metadata['files']) + len(metadata['unreadable']) and Counter(r['suffix'] for r in frame) == {'.json': 88, '.jsonl': 3},
+        'all_parameters_count_equals_group_sum': counts['all_parameters'] == numeric['all_parameter_row_count'] == sum(n for _, n in name_rows),
+        'distinct_names_count_equals_group_population': counts['distinct_nonnull_names'] + int(counts['null_name_rows'] > 0) == len(name_rows) == numeric['all_parameter_distinct_variable_count'],
+        'stored_ci_count_equals_export_and_prior_independent_work_join': counts['stored_nonzero_ci'] == len(rows) == prior_join_count,
+        'native_ci_works_count_equals_export': counts['native_ci_works'] == len({r['work_id'] for r in rows}),
+        'income_count_equals_saved_population': counts['income_rows'] == len(summary['complete_income_name_rows']),
+        'income_works_count_equals_saved_population': counts['income_works'] == len({r['work_id'] for r in summary['complete_income_name_rows']}),
+        'ua_count_equals_saved_population': counts['ua_rows'] == len(summary['complete_exact_country_UA_rows']),
+        'exact_avg_income_count_equals_saved_name_aggregation': counts['exact_avg_income_rows'] == sum(n for name, n in numeric['all_parameter_variable_counts'] if name == 'avg_income'),
+    }
+    result = {
+        'measured_at': datetime.now(UTC).isoformat(), 'elapsed_seconds': perf_counter() - start,
+        'script_sha256': sha(Path(__file__)), 'input_sha256': {str(p): sha(p) for p in inputs.values()},
+        'inventory_root': inventory['root'], 'independent_inventory_mechanism': 'os.walk, os.stat, os.path.splitext',
+        'walk_file_count': len(walked), 'walk_extensions': dict(Counter(r['suffix'] for r in walked)),
+        'walk_errors': errors, 'metadata_frame_count': len(frame),
+        'source': str(source), 'source_stat_unchanged': (before.st_size, before.st_mtime_ns) == (after.st_size, after.st_mtime_ns),
+        'sql_queries': queries, 'sql_income_regex': regex, 'sql_counts': counts,
+        'complete_identity_multiset_comparisons': comparisons, 'independent_count_crosschecks': count_checks,
+        'scope': 'No abstract/source-text SQL columns read. Exact complete identity and count reconciliation, not semantic selection or authority admission.',
+    }
+    out = BASE / 'pa1-calibration-reconciliation-output.json'
+    out.write_text(json.dumps(result, indent=2) + '\n')
+    print(json.dumps({'artifact': str(out), 'sha256': sha(out), 'result': result}, indent=2))
+    assert not errors and result['source_stat_unchanged']
+    assert all(check['equal'] for check in comparisons) and all(count_checks.values())
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_cg2_relation_mapping_census.py`
+
+SHA-256 `ebbe922ea0a60ef6fa524f24974b820a133773b9fbd4d91c0f9f6bb701d3665e`; 1713 bytes.
+
+````python
+import ast,json,re
+from pathlib import Path
+files=sorted(p for p in Path('src').rglob('*.py') if '__pycache__' not in p.parts)
+requested={'ProductionCG2CalibrationSource','ProductionCalibrationObservation','ProductionCalibrationCorpus','ProductionCalibrationResolution'}
+occurrences=[]
+errors=[]
+owners={}
+for path in files:
+ text=path.read_text()
+ if any(word in text for word in ('ProductionCG2','production_calibration_observation','cg2_production_academic','CalibrationStratumRecord','GroundingCalibrationLedger','CalibrationAnchorSet')):
+  occurrences.append(str(path))
+ for symbol in requested:
+  if symbol in text: owners.setdefault(symbol,[]).append(str(path))
+print(json.dumps({'file_type':'src/**/*.py excluding __pycache__','count':len(files),'calibration_candidate_paths':occurrences,'requested_production_symbols':owners},indent=2))
+for filename in ('grounding_bind.py','grounding_benchmark.py','grounding_relation.py'):
+ path=Path('src/polisyos/runtime/quality')/filename
+ tree=ast.parse(path.read_text())
+ rows=[]
+ for node in ast.walk(tree):
+  if isinstance(node,(ast.ClassDef,ast.FunctionDef,ast.AsyncFunctionDef)) and re.search('calibrat|false_bind|promotability|relation_from_axes|^GroundingRelation|^GroundingBenchmarkCase|^GroundingBenchmarkDecision|^LabelDerivation',node.name,re.I):
+   rows.append([node.name,node.lineno])
+ print(filename, json.dumps(sorted(rows,key=lambda x:x[1])))
+path=Path('src/polisyos/ir/analytics/literature.py')
+for node in ast.parse(path.read_text()).body:
+ if isinstance(node,ast.ClassDef) and node.name in ('ClaimAdjudicationResult','AdmittedClaimAdjudicationBatch'):
+  print(node.name,[(x.target.id,x.lineno) for x in node.body if isinstance(x,ast.AnnAssign)])
+````
+
+#### `_build/gy_grade_authority/pa1_cg2_relation_mapping_owner_inspection.py`
+
+SHA-256 `3c5a4a319e2b7c5ed62a2f351b8e6d7a51e4986403dbdec5ef08607de112c409`; 2148 bytes.
+
+````python
+"""Reproduce the narrow owner-interface inspection from the historical source pin."""
+import ast
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+PIN = 'd421575d31808796b8a2a66a98c6ca75dfc3f163'
+OWNERS = {
+ 'src/polisyos/runtime/quality/grounding_bind.py': (
+  'CalibrationStratumRecord', 'GroundingCalibrationLedger',
+  '_OwnedCalibrationStore', '_recompute_owned_calibration_status', '_risk_ledger',
+  '_owned_calibration_store', '_calibration_evidence_hash'),
+ 'src/polisyos/runtime/quality/grounding_benchmark.py': (
+  'LabelDerivation', 'GroundingBenchmarkCase', 'GroundingBenchmarkDecision',
+  'CalibrationAnchorSet', '_is_false_bind'),
+ 'src/polisyos/runtime/quality/grounding_relation.py': (
+  'MechanisticSignature', '_relation_from_axes'),
+ 'src/polisyos/ir/analytics/literature.py': (
+  'ClaimAdjudicationInputItem', 'ClaimAdjudicationResult', 'AdmittedClaimAdjudicationBatch'),
+ 'src/polisyos/data_forge/domains/academic/batch/claim_adjudication_policy.py': (
+  'claim_metrics', 'claim_policy_publishable'),
+}
+result = {'source_commit': PIN, 'scope': 'five pinned owner Python files; no current-tree census', 'owners': {}}
+for path, names in OWNERS.items():
+ data = subprocess.run(['git', 'show', f'{PIN}:policy-engine/{path}'], check=True, capture_output=True).stdout
+ source = data.decode()
+ definitions = []
+ for node in ast.walk(ast.parse(source)):
+  if not isinstance(node, (ast.ClassDef, ast.FunctionDef)) or node.name not in names:
+   continue
+  row = {'name': node.name, 'line': node.lineno, 'kind': type(node).__name__}
+  if isinstance(node, ast.ClassDef):
+   row['complete_annotated_field_set'] = [
+    {'name': item.target.id, 'annotation': ast.unparse(item.annotation),
+     'default': ast.unparse(item.value) if item.value else None}
+    for item in node.body if isinstance(item, ast.AnnAssign)
+   ]
+  else:
+   row['complete_definition'] = ast.get_source_segment(source, node)
+  definitions.append(row)
+ result['owners'][path] = {'sha256': hashlib.sha256(data).hexdigest(),
+                          'definitions': sorted(definitions, key=lambda row: row['line'])}
+print(json.dumps(result, indent=2))
+````
+
+#### `_build/gy_grade_authority/architecture_identity_diff.py`
+
+SHA-256 `b2fd300ead6104ea0f1dacf10eab3bce8685d7bc2cc969ae350009b98f5f601e`; 1588 bytes.
+
+````python
+"""Diff complete gate finding identities, never summary totals."""
+import json
+import os
+from pathlib import Path
+from tools.devx.architecture import guardrails as g
+
+logs = ("architecture-final.log", "architecture-after-facades.log", "architecture-after-admitted-facade.log")
+sets = {}
+for log in logs:
+    lines = (Path("_build/gy_grade_authority") / log).read_text().splitlines()
+    sets[log] = {line[2:] for line in lines if line.startswith("- ")}
+owner_paths = {str(p.relative_to(g.REPO_ROOT)) for p in g._iter_py_files()}
+independent_paths = {str(Path(root, name).relative_to(g.REPO_ROOT))
+ for root, dirs, files in os.walk(g.SRC_ROOT)
+ if "__pycache__" not in Path(root).parts for name in files if name.endswith(".py")}
+assert owner_paths == independent_paths
+policies = g._parse_public_surface(g.DEFAULT_PUBLIC_MANIFEST)
+current = {edge.key: edge for edge in g.collect_deep_import_edges(policies)}
+baseline = g._load_deep_import_baseline(g.DEFAULT_DEEP_IMPORT_BASELINE)
+result = {"source_file_type": "src/**/*.py excluding __pycache__", "source_denominator": len(owner_paths),
+ "independent_source_denominator": len(independent_paths),
+ "source_identity_difference": [], "finding_sets": {k: sorted(v) for k,v in sets.items()},
+ "diffs": [{"before": a, "after": b, "added": sorted(sets[b]-sets[a]), "removed": sorted(sets[a]-sets[b])}
+ for a,b in zip(logs, logs[1:])], "current_deep_import_creep": sorted(set(current)-set(baseline))}
+text = json.dumps(result, indent=2) + "\n"
+Path("_build/gy_grade_authority/architecture-finding-identity-diff.json").write_text(text)
+print(text)
+````
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation

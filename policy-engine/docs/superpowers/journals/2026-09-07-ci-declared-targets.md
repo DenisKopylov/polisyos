@@ -552,7 +552,7 @@ not needed to explain the corresponding job's red.
 
 | Job | Local post-change state and cause |
 | --- | --- |
-| `runtime-contracts` | Pending final JUnit receipt for the already-started exact targeted test list. Assertion failures observed; no usage-error or interpreter rejection. |
+| `runtime-contracts` | **Red**, exit 1: 873 passed, nine failed, one skipped out of 883 JUnit records. Four failures are missing-Prettier tooling non-receipts; remaining assertions concern runtime boundaries, epoch status and metrics injection. Complete individual findings follow. The soak-smoke step is not run after this mandatory failure. |
 | `docs-contract` | **Red**, exit 1 at check_docs_accuracy.py: links point to excluded/unpublished ADR, brand and reference pages. MkDocs is not run after this mandatory failure. |
 | `mutation-subset` | **Red**, exit 2 before mutation: installed mutmut rejects --paths-to-mutate. No source mutations occurred. |
 | `performance-smoke` | **Pass for its benchmark-only command**, exit 0 over the three explicit performance test files; JSON contains benchmark evidence. Non-benchmark tests are intentionally skipped by --benchmark-only. Concurrent local CPU load means these timings are not a CI latency budget receipt. |
@@ -573,3 +573,58 @@ therefore not promoted to a CI pass. Literal target parsing has a declared bound
 coverage adequacy remains the content/history and runtime evidence, not existence.
 The old ABI prefix/no-match proxy is demonstrated divergent by the real imported
 model mutation and no longer decides whether the correctness check runs.
+
+### Runtime-contract receipt and final handback
+
+The exact targeted runtime-contract command completed with exit 1. Its JUnit
+suite attributes and independently enumerated testcase outcomes agree on the
+complete 883-record denominator: 873 passing outcomes, nine failures, one skip,
+zero collection errors. XML-reported duration is 785.144 seconds. The complete
+failure set is recorded here, not sampled. All test paths below are beneath
+`policy-engine/tests/unit/runtime/http/`.
+
+| Test file and test | Local finding | Proposed row / proposed owner |
+| --- | --- | --- |
+| `test_architecture_boundaries.py::test_runtime_never_imports_concrete_cas_write_implementation` | Runtime-quality code imports/constructs concrete CAS types where the check requires write protocols. Full finding list remains in JUnit/log. | `runtime-quality-concrete-cas-boundary` / `team-core-runtime` with runtime-quality owner |
+| `test_architecture_boundaries.py::test_runtime_control_paths_do_not_resolve_registry_singletons_inline` | acquisition_executor.py resolves SourceProfileRegistry.get_instance inline. | `runtime-quality-inline-source-profile-singleton` / `team-core-runtime` |
+| `test_runtime_api_contract_hardening.py::test_epoch_batch_success_example_is_owner_derived_and_strict` | Example target status is stale; assertion expects review_required. Adjudicate authority/status semantics rather than changing the expected string to green the test. | `runtime-epoch-batch-example-status-mismatch` / `team-core-runtime` with custody owner |
+| `test_runtime_api_contract_hardening.py::test_generated_runtime_client_includes_capability_search_wrapper` | Node cannot import prettier; generated-client property was not tested. | `runtime-contract-job-client-toolchain-provisioning` / `team-devx` |
+| `test_runtime_api_contract_hardening.py::test_committed_runtime_client_matches_package_generation_pipeline` | Same missing prettier tooling non-receipt. | Same proposed toolchain row / `team-devx` |
+| `test_runtime_api_contract_hardening.py::test_client_package_entrypoints_generate_only_in_scratch` | Same missing prettier tooling non-receipt through corepack pnpm. | Same proposed toolchain row / `team-devx` |
+| `test_runtime_api_contract_hardening.py::test_schema_and_clients_regenerate_byte_identically_twice` | Same missing prettier tooling non-receipt. | Same proposed toolchain row / `team-devx` |
+| `test_api_maturity.py::test_runtime_container_accepts_typed_test_overrides` | _MetricsStub lacks artifact_operations_total when the artifact store consumes it. | `runtime-metrics-injection-contract-mismatch` / `team-core-runtime` |
+| `test_api_maturity.py::test_runtime_security_middlewares_receive_injected_metrics_provider` | Same metrics-provider attribute mismatch. | Same proposed metrics row / `team-core-runtime` |
+
+The skip is the already proposed moved SLO fixture-root defect. This run did not
+provision workspace node_modules with `corepack pnpm install --frozen-lockfile`;
+therefore the four client-generation failures are **tooling non-receipts**, not
+product drift findings. Their properties are not_established. The workflow's
+runtime-contract job also warrants a separate toolchain-provisioning audit before
+those properties can receive CI evidence. This lane stops at the Pillow dependency
+decision rather than starting an additional client-toolchain repair. No TypeScript
+scanner's missing-dependency output is promoted to a product finding.
+
+Late diagnostic-only finding (recorded after source freeze, no mechanism edit):
+`abi-direct-path-summary-workflow-escape`, proposed owner `team-devx`. The retained
+informational regex over-escapes the workflow self-path; running its actual
+shell-decoded pattern against `.github/workflows/abi.yml` yields no match (exit 1).
+It cannot skip the now-unconditional checks. Correcting that summary is outside the
+closed guard property, so it is recorded as a bounded diagnostic residual rather
+than restarting repairs. No inherited label is asserted for it.
+
+Implementation commit: `b34fc2ea2cffdce30957c0d342dbf1589c5892db`.
+It follows merge `c32d1e2d6ce389793b8341c3e906934344f993ca`, preserving intake commit
+`4926ce1c4` and merging the requested local main. Branch attachment was verified
+before committing; every delivered file was then read from
+`codex/ci-declared-targets` and compared byte-for-byte with the verified worktree.
+The complete changed-path set relative to `d2f2dffe4` is within `.github/**`, the
+generated-artifact manifest, and this explicitly mandated journal. No forbidden
+source/test/tool/baseline/register/ledger path is delivered. Commit hooks reported
+no local Lefthook config; the explicit standalone checks above are the receipts,
+not an implied hook verification.
+
+Final stop: all eight owned rows are dispositioned in the current table, and Pillow
+requires the architect/dependency boundary. This final receipt is a new journal-only
+commit, preserving append-only history. All started verification processes have
+finished. **No push was performed; no CI run is available.** Handback ends at the
+push boundary with local execution limits and proposed owners explicitly recorded.

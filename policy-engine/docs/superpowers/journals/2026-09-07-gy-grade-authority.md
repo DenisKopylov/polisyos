@@ -1050,6 +1050,63 @@ patch has been decoded and resolved by the real owner in memory. Its application
 requires the explicit architecture-file extension requested by the coordinator;
 no appointment or digest-equality relaxation is involved.
 
+### GGA-DEF22-06 — authorized pin remeasurement from committed owner inputs
+
+The architect extended the write grant to exactly the two production-quality
+TOMLs and prohibited applying the prepared patch. The new station therefore read
+all input bytes from git objects at the measured merge base
+`58f8073e44f44519003b5b10c1ccf0d38d7de43a`, recomputed the four authored values,
+validated the resulting declaration with its owner, and only then opened the
+earlier patch as a comparison target. The comparison is exact: **all four values
+match; the complete proposal-difference string is empty**. The patch was not
+applied or used as the source of any value.
+
+Cause is **upstream dependency change**, not this lane or its acceptance tests.
+The architect identified `2021f81d6b8178cfe31f708704b34bbc33a44b6d` and
+`753e0458ad41ef362a5dd9e8ee126621c2cd1c1c`: dependency work including the Pillow
+CI group, hnswlib extra, regex bump and odfpy source. Both are ancestors of this
+station's merge base. At that base, `git log` names `753e0458a` as the last change
+to both complete input files. The owner pins had not been remeasured after the
+decided dependency changes. Updating them preserves the equality invariant.
+
+The raw input hashes agree with the architect's measurement:
+
+| Committed input | Bytes | Raw SHA-256 |
+| --- | ---: | --- |
+| `policy-engine/pyproject.toml` at the base above | 11,189 | `b420723ef2454bce7685b01ff11d7cf29399be8f31399366a2559ffae34a9c48` |
+| `policy-engine/uv.lock` at the base above | 779,174 | `d409a3d90e1ddbf72ec5c64fd3031a203d3963495fc8ca5079e716b3960c6ffd` |
+
+The two TOML field names do not identify the hash vocabulary. The declaration
+decoder gives them the `PYPROJECT` and `UV_LOCK` digest domains. The declared
+`dependency_evidence.domain_digest` hashes
+`ASCII("polisyos.foundry." + domain + ".v1\\0") || uint64be(len(raw)) || raw`.
+Thus the recomputed authored pins are `sha256:a25bc559fb92ba39e357babc2961f4e8981b39bb51e599632a8224dcfed52484`
+and `sha256:ed542325c18b409047b5c81bfff3f242ca8ab6c22591b43a135d0e6caa1b4d68`;
+they are not alternative raw-file hashes.
+
+`dependency_profile.declaration_ref` canonicalizes the strict updated declaration.
+Its raw canonical-byte hash gives
+`declaration_artifact_id=sha256:f5f2ab920e1ea44c6c2cbb9bdc3a6da2dd7e2e7e067d23dd0dc1ee91ee000aca`;
+the `PROFILE_DECLARATION` framed digest gives
+`declaration_semantic_hash=sha256:016d01f2315ac1eabad0cffff17bb45a94fd63883a50eb33929cb6f7f491c56a`.
+The station records the named inputs, derivation, comparison and readback in
+`_build/gy_grade_authority/def22-pin-recomputation.json`.
+
+All four capability rows are parsed and compared before and after, unchanged at
+`absent/unallocated`: `owner_enforced_runtime_subtree_cutoff`,
+`owner_resolved_resolution_receipt_store`, `platform_toolchain_admission`,
+`production_data_trust_policy`. This lock-identity reducer does not appoint a
+runtime cutoff owner, receipt store, platform admission or production trust
+policy; no capability-state amendment is established by these changes.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.def22_recompute_pins
+```
+
+The two TOMLs were written from the computed declaration and read back. The
+following test replay will report assertion reachability separately from pass,
+and separately from the still-outstanding appointed acceptance.
+
 ### GGA-PA1-02 — available evidence cannot support the positive upstream grade
 
 The hypothesis was narrower than “there are no estimates”: a positive DataForge

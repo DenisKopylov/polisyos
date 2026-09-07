@@ -9,7 +9,8 @@ import {
 } from "@playwright/test";
 
 import type { components } from "../src/api/types";
-import { buildSignedPublicDecisionPacket } from "../src/features/runs/domain/publicationPacket";
+import { buildPublicDecisionPacket } from "../src/features/runs/domain/publicationPacket";
+import { forgeLegacyPublicDecisionUrl } from "../src/test/forgeLegacyPublicDecisionUrl";
 import { epochNonreceipt } from "../src/shared/lib/domain/epochSemantics";
 import {
   availableHumanDecisionGate,
@@ -1643,25 +1644,19 @@ test.describe("runtime-dashboard visual baselines", () => {
           humanDecisionRequests.push(pathname);
         }
       });
-      const packet = buildSignedPublicDecisionPacket({
+      const packet = buildPublicDecisionPacket({
         epochSemantics: epochNonreceipt(),
         runId: fixtureMetadata.core_run_id,
       });
 
-      await page.goto(packet.publicUrlPath);
-      await expect(page.getByTestId("publication-packet-panel")).toBeVisible();
-      await expect(page.getByTestId("signed-public-summary")).toBeVisible();
-      const signedEpoch = page
-        .getByTestId("signed-epoch-semantics")
-        .locator("[data-epoch-presentation]");
-      await expect(signedEpoch).toHaveAttribute(
-        "data-epoch-presentation",
-        "nonreceipt",
-      );
-      await expect(signedEpoch).toHaveAttribute(
-        "data-epoch-status",
-        "not_established",
-      );
+      await page.goto(forgeLegacyPublicDecisionUrl(packet));
+      await expect(
+        page.getByTestId("public-decision-unavailable"),
+      ).toBeVisible();
+      await expect(page.getByTestId("publication-packet-panel")).toHaveCount(0);
+      await expect(
+        page.getByText("signature verified", { exact: true }),
+      ).toHaveCount(0);
       await expect(page.getByTestId("human-decision-gate")).toHaveCount(0);
       await expect(
         page.getByTestId("human-decision-machine-export"),

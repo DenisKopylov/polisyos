@@ -3016,16 +3016,16 @@
   },
   "phase35": {
     "eyebrow": "Phase 3.5 / Explanation and publication",
-    "title": "Signed publication packet",
-    "body": "Decision, model card, coverage caveat, threshold contract, argument map, glossary and deterministic explanations are ready for a signed public viewer.",
-    "publicBody": "This read-only packet is verified from the signed public payload and does not need private runtime context.",
+    "title": "Publication preview",
+    "body": "Decision, model card, coverage caveat, threshold contract, argument map, glossary and explanations are shown as an unsigned preview.",
+    "publicBody": "Decision, model card, coverage caveat, threshold contract, argument map, glossary and explanations are shown as an unsigned preview.",
     "openPublicViewer": "Open public viewer",
     "trust": {
       "eyebrow": "Trust framing",
       "title": "Authority caveats"
     },
     "publicSummary": {
-      "eyebrow": "Signed decision"
+      "eyebrow": "Decision preview"
     },
     "argument": {
       "eyebrow": "E1 / Argument",
@@ -3080,11 +3080,11 @@
       "title": "Glossary lens"
     },
     "viewer": {
-      "verified": "signature verified",
-      "invalid": "signature invalid",
+      "unavailable": "Verification unavailable",
+      "unavailableTitle": "No verified public decision is available here",
+      "unavailableBody": "This link does not provide a server-verified public record. Browser-generated packets cannot establish publication authority.",
       "readOnly": "read-only",
       "errorEyebrow": "Public viewer",
-      "errorTitle": "This signed decision cannot be verified",
       "errorBody": "Verification failed: {reason}.",
       "back": "Back to PolicyOS"
     }

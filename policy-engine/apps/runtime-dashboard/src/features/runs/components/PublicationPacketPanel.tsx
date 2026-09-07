@@ -1,6 +1,5 @@
 import {
   BookOpen,
-  ExternalLink,
   FileText,
   GitBranch,
   MapPinned,
@@ -10,18 +9,18 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import type { PublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 import { Quantity } from "@/shared/ui/quantity";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
-import { Badge, Button } from "@polisyos/atlas-ui";
+import { Badge } from "@polisyos/atlas-ui";
 
 export function PublicationPacketPanel({
   packet,
   publicMode = false,
 }: {
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   publicMode?: boolean;
 }) {
   const { t } = useI18n();
@@ -37,13 +36,8 @@ export function PublicationPacketPanel({
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Badge
-            data-kind="neutral"
-            data-testid="frontend-integrity-signature-token"
-            kind="neutral"
-            title={packet.trustFraming.integritySignatureNotice.authorityCaveat}
-          >
-            {packet.signature}
+          <Badge kind="neutral" data-testid="publication-unverified">
+            {t("phase35.viewer.unavailable")}
           </Badge>
           <span
             className="flex flex-wrap gap-2"
@@ -57,12 +51,6 @@ export function PublicationPacketPanel({
                 t("common.unavailable")}
             </Badge>
           </span>
-          {!publicMode ? (
-            <Button href={packet.publicUrlPath} variant="ghost">
-              <ExternalLink className="size-4" aria-hidden="true" />
-              {t("phase35.openPublicViewer")}
-            </Button>
-          ) : null}
         </div>
       </div>
 

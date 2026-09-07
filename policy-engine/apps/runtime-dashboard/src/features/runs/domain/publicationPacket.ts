@@ -201,7 +201,7 @@ export type FrontendIntegritySignatureNotice = {
   authorityCaveat: string;
   badge: string;
   label: string;
-  signatureCue: "frontend_integrity_signature_not_authoritative";
+  signatureCue: "unsigned_preview_not_authoritative";
 };
 
 export type PublicTrustFraming = {
@@ -212,12 +212,6 @@ export type PublicTrustFraming = {
   /** Compatibility shape only; the client no longer emits inferred scenarios. */
   scenarioCaveats: never[];
   visibleCaveat: string;
-};
-
-export type SignedPublicDecisionPacket = PublicDecisionPacket & {
-  publicUrlPath: string;
-  signature: string;
-  signedId: string;
 };
 
 export type PublicDecisionPacketInput = {
@@ -231,27 +225,14 @@ export type PublicDecisionPacketInput = {
   runId: string;
 };
 
-export type SignedPacketVerification =
-  | {
-      packet: SignedPublicDecisionPacket;
-      reason: null;
-      valid: true;
-    }
-  | {
-      packet: null;
-      reason: "bad_format" | "bad_payload" | "bad_signature";
-      valid: false;
-    };
-
 const PUBLIC_PACKET_SCHEMA = "polisyos.public_decision_packet.v1" as const;
-const SIGNATURE_SALT = "polisyos.atlas.public-viewer.v1";
 const FALLBACK_GENERATED_AT = "1970-01-01T00:00:00.000Z";
 const TRUST_FRAMING_VISIBLE_CAVEAT =
   "Use runtime scorecard/readiness authority before approval or closeout.";
 const TRUST_FRAMING_CLOSEOUT_CAVEAT =
   "Frontend signatures, badges, labels, and projections are not closeout authority.";
-const FRONTEND_INTEGRITY_SIGNATURE_CAVEAT =
-  "This frontend signature verifies packet integrity only; it is not trust, approval, publication, or closeout authority.";
+const UNSIGNED_PREVIEW_CAVEAT =
+  "This unsigned preview has no publication verification and is not trust, approval, publication, or closeout authority.";
 const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     definition:
@@ -956,10 +937,10 @@ function buildTrustFraming(input: {
     authorityRole: "not_closeout_authority",
     closeoutAuthorityCaveat: TRUST_FRAMING_CLOSEOUT_CAVEAT,
     integritySignatureNotice: {
-      authorityCaveat: FRONTEND_INTEGRITY_SIGNATURE_CAVEAT,
-      badge: "Integrity only",
-      label: "Frontend integrity signature",
-      signatureCue: "frontend_integrity_signature_not_authoritative",
+      authorityCaveat: UNSIGNED_PREVIEW_CAVEAT,
+      badge: "Unsigned preview",
+      label: "Unsigned preview",
+      signatureCue: "unsigned_preview_not_authoritative",
     },
     mayNotBeUsedFor: uniqueStrings([
       ...DEFAULT_PROJECTION_USE_LIMITS,
@@ -1029,191 +1010,6 @@ export function buildPublicDecisionPacket(
     ...packetWithoutHash,
     packetHash: unsignedPacketHash(packetWithoutHash),
   };
-}
-
-function encodeBase64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = "";
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  const encoded =
-    typeof globalThis.btoa === "function"
-      ? globalThis.btoa(binary)
-      : (globalThis as unknown as { Buffer: typeof Buffer }).Buffer.from(
-          value,
-          "utf8",
-        ).toString("base64");
-  return encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
-}
-
-function decodeBase64Url(value: string) {
-  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = `${normalized}${"=".repeat((4 - (normalized.length % 4)) % 4)}`;
-  const decoded =
-    typeof globalThis.atob === "function"
-      ? new TextDecoder().decode(
-          Uint8Array.from(globalThis.atob(padded), (char) =>
-            char.charCodeAt(0),
-          ),
-        )
-      : (globalThis as unknown as { Buffer: typeof Buffer }).Buffer.from(
-          padded,
-          "base64",
-        ).toString("utf8");
-  return decoded;
-}
-
-function signatureForPayload(payload: PublicDecisionPacket) {
-  return `sig:${stableHash(`${SIGNATURE_SALT}:${stableJson(payload)}`)}`;
-}
-
-function isSignedPublicDecisionPacket(
-  value: unknown,
-): value is SignedPublicDecisionPacket {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const record = value as Partial<SignedPublicDecisionPacket>;
-  return (
-    record.schema === PUBLIC_PACKET_SCHEMA &&
-    typeof record.packetHash === "string" &&
-    typeof record.publicUrlPath === "string" &&
-    typeof record.signature === "string" &&
-    typeof record.signedId === "string" &&
-    Boolean(record.argumentMap) &&
-    Boolean(record.modelCard) &&
-    Boolean(record.coverageCaveat) &&
-    isEpochSemantics(record.epochSemantics) &&
-    Boolean(record.projectionSemantics) &&
-    Boolean(record.thresholdContract) &&
-    Boolean(record.trustFraming)
-  );
-}
-
-function reviveCandidateDisplayState(
-  value: InteractionState,
-): InteractionState {
-  if (
-    !value ||
-    typeof value !== "object" ||
-    typeof value.label !== "string" ||
-    value.purpose !== "interaction_only" ||
-    value.authorityPurpose !== "candidate_display"
-  ) {
-    throw new TypeError("signed packet candidate display state is invalid");
-  }
-  return createInteractionState(value.label, "candidate_display");
-}
-
-function revivePublicationDisplayStates(
-  packet: PublicDecisionPacket,
-): PublicDecisionPacket {
-  return {
-    ...packet,
-    coverageCaveat: {
-      ...packet.coverageCaveat,
-      caveatState: reviveCandidateDisplayState(
-        packet.coverageCaveat.caveatState,
-      ),
-      regions: packet.coverageCaveat.regions.map((region) => ({
-        ...region,
-        displayState: reviveCandidateDisplayState(region.displayState),
-      })),
-    },
-    projectionSemantics: {
-      ...packet.projectionSemantics,
-      displayStates: packet.projectionSemantics.displayStates.map(
-        reviveCandidateDisplayState,
-      ),
-      primaryDisplayState: reviveCandidateDisplayState(
-        packet.projectionSemantics.primaryDisplayState,
-      ),
-    },
-  };
-}
-
-export function signPublicDecisionPacket(
-  packet: PublicDecisionPacket,
-): SignedPublicDecisionPacket {
-  const signature = signatureForPayload(packet);
-  const payload = encodeBase64Url(stableJson({ packet, signature }));
-  const signedId = `${payload}.${signature.replace("sig:", "")}`;
-  return {
-    ...packet,
-    publicUrlPath: `/public/decisions/${signedId}`,
-    signature,
-    signedId,
-  };
-}
-
-export function verifySignedPublicDecisionPacket(
-  signedId: string,
-): SignedPacketVerification {
-  const [payload, signatureSuffix] = signedId.split(".");
-  if (!payload || !signatureSuffix) {
-    return { packet: null, reason: "bad_format", valid: false };
-  }
-  try {
-    const parsed = JSON.parse(decodeBase64Url(payload)) as {
-      packet?: unknown;
-      signature?: unknown;
-    };
-    const packet = parsed.packet;
-    if (
-      !packet ||
-      typeof parsed.signature !== "string" ||
-      !isPublicDecisionPacket(packet)
-    ) {
-      return { packet: null, reason: "bad_payload", valid: false };
-    }
-    const expectedSignature = signatureForPayload(packet);
-    if (
-      parsed.signature !== expectedSignature ||
-      signatureSuffix !== expectedSignature.replace("sig:", "")
-    ) {
-      return { packet: null, reason: "bad_signature", valid: false };
-    }
-    const revivedPacket = revivePublicationDisplayStates(packet);
-    const signedPacket = {
-      ...revivedPacket,
-      publicUrlPath: `/public/decisions/${signedId}`,
-      signature: expectedSignature,
-      signedId,
-    };
-    if (!isSignedPublicDecisionPacket(signedPacket)) {
-      return { packet: null, reason: "bad_payload", valid: false };
-    }
-    return { packet: signedPacket, reason: null, valid: true };
-  } catch {
-    return { packet: null, reason: "bad_payload", valid: false };
-  }
-}
-
-function isPublicDecisionPacket(value: unknown): value is PublicDecisionPacket {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const record = value as Partial<PublicDecisionPacket>;
-  return (
-    record.schema === PUBLIC_PACKET_SCHEMA &&
-    typeof record.packetHash === "string" &&
-    Array.isArray(record.deterministicExplanations) &&
-    Array.isArray(record.glossary) &&
-    Boolean(record.argumentMap) &&
-    Boolean(record.modelCard) &&
-    Boolean(record.coverageCaveat) &&
-    isEpochSemantics(record.epochSemantics) &&
-    Boolean(record.projectionSemantics) &&
-    Boolean(record.thresholdContract) &&
-    Boolean(record.trustFraming)
-  );
-}
-
-export function buildSignedPublicDecisionPacket(
-  input: PublicDecisionPacketInput,
-): SignedPublicDecisionPacket {
-  return signPublicDecisionPacket(buildPublicDecisionPacket(input));
 }
 
 export function packetContainsPrivateContext(packet: PublicDecisionPacket) {

@@ -11,8 +11,8 @@ import * as explainabilityModule from "@/features/runs/components/RunExplainabil
 import { PublicationPacketPanel } from "@/features/runs/components/PublicationPacketPanel";
 import { ATLAS_STANDALONE_DECK_TEMPLATE } from "@/features/runs/domain/deckTemplate";
 import {
-  buildSignedPublicDecisionPacket,
-  type SignedPublicDecisionPacket,
+  buildPublicDecisionPacket,
+  type PublicDecisionPacket,
 } from "@/features/runs/domain/publicationPacket";
 import * as runSummaryModule from "@/features/runs/routes/useRunDetailSummary";
 import { ChartQuantityEvidence } from "@/shared/charts/quantityChartSemantics";
@@ -146,7 +146,7 @@ function runExplainabilityConsumer(input: {
 }
 
 function publicationPacket(confidence: DecisionCardViewModel["confidence"]) {
-  return buildSignedPublicDecisionPacket({
+  return buildPublicDecisionPacket({
     decisionView: { ...baseDecisionView, confidence },
     epochSemantics: epochNonreceipt(),
     evidenceContext: null,
@@ -155,7 +155,7 @@ function publicationPacket(confidence: DecisionCardViewModel["confidence"]) {
   });
 }
 
-function publicationFallbackQuantity(packet: SignedPublicDecisionPacket) {
+function publicationFallbackQuantity(packet: PublicDecisionPacket) {
   return (packet.deterministicExplanations[0] as UnknownRecord | undefined)
     ?.quantity;
 }

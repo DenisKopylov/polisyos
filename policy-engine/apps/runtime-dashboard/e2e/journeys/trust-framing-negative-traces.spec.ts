@@ -1,3 +1,5 @@
+import { forgeLegacyPublicDecisionUrl } from "../../src/test/forgeLegacyPublicDecisionUrl";
+import { epochNonreceipt } from "../../src/shared/lib/domain/epochSemantics";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,7 +11,7 @@ import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 
 import {
-  buildSignedPublicDecisionPacket,
+  buildPublicDecisionPacket,
   type PublicDecisionPacketInput,
 } from "../../src/features/runs/domain/publicationPacket";
 
@@ -168,7 +170,7 @@ const trustFramingCases = [
     },
   },
 ] satisfies {
-  input: Omit<PublicDecisionPacketInput, "runId">;
+  input: Omit<PublicDecisionPacketInput, "runId" | "epochSemantics">;
   scenario: string;
 }[];
 
@@ -179,25 +181,20 @@ test.describe("Wave 35G trust-framing negative UI traces", () => {
 
   for (const { input, scenario } of trustFramingCases) {
     test(`captures trust-framing-${scenario}`, async ({ page }) => {
-      const packet = buildSignedPublicDecisionPacket({
+      const packet = buildPublicDecisionPacket({
         ...input,
+        epochSemantics: epochNonreceipt(),
         runId: `trust-framing-${scenario}`,
       });
 
-      await page.goto(packet.publicUrlPath);
+      await page.goto(forgeLegacyPublicDecisionUrl(packet));
 
-      const caveats = page.getByTestId("trust-framing-caveats");
+      const caveats = page.getByTestId("public-decision-unavailable");
       await expect(caveats).toBeVisible();
+      await expect(page.getByTestId("publication-packet-panel")).toHaveCount(0);
       await expect(
-        caveats.getByTestId(`trust-framing-${scenario}`),
-      ).toBeVisible();
-      await expect(caveats).toContainText(
-        "Use runtime scorecard/readiness authority before approval or closeout.",
-      );
-      await expect(caveats).toContainText(
-        "Frontend signatures, badges, labels, and projections are not closeout authority.",
-      );
-      await expect(caveats).toContainText("runtime_closeout_authority");
+        page.getByText("signature verified", { exact: true }),
+      ).toHaveCount(0);
       await expect(caveats).not.toContainText(/closeout authority granted/i);
       await expect(caveats).not.toContainText(/approval granted/i);
 

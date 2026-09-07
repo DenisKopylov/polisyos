@@ -8,7 +8,7 @@ import {
   type AuthorityLocalScope,
 } from "@/app/offline/authorityLocalState";
 import type { SurfaceId } from "@/app/surfaces/surfaceRegistry";
-import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import type { PublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 
 export const OPERATOR_CRAFT_CHANGED_EVENT = "polisyos:operator-craft-changed";
 
@@ -47,7 +47,6 @@ export type ReviewerThresholdProfile = {
 export type OperatorSnapshotRef = {
   packetHash: string;
   runId: string;
-  signedId: string;
   surfaceId: SurfaceId;
   txAt: string;
   validAt: string;
@@ -161,7 +160,7 @@ export type ReadingOnboardingSnapshot = {
 export type ThresholdImpact = {
   hiddenClaims: Array<{
     label: string;
-    score: SignedPublicDecisionPacket["confidenceLadder"][number]["score"];
+    score: PublicDecisionPacket["confidenceLadder"][number]["score"];
     targetRef: string;
   }>;
   hiddenCount: number;
@@ -262,7 +261,7 @@ function routeForSurface(runId: string, surfaceId: SurfaceId) {
 }
 
 function snapshotRef(input: {
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   runId: string;
   surfaceId: SurfaceId;
   txAt: string;
@@ -270,7 +269,6 @@ function snapshotRef(input: {
   return {
     packetHash: input.packet.packetHash,
     runId: input.runId,
-    signedId: input.packet.signedId,
     surfaceId: input.surfaceId,
     txAt: input.txAt,
     validAt: input.packet.decision.generatedAt ?? input.txAt,
@@ -465,7 +463,7 @@ export function readReviewerThresholdProfile(
 export function setReviewerThreshold(input: {
   next: number;
   now?: string;
-  packet?: SignedPublicDecisionPacket;
+  packet?: PublicDecisionPacket;
   reviewerId?: string;
   runId?: string;
   sequence?: number;
@@ -537,7 +535,7 @@ export function createReviewerAnnotation(input: {
   body: string;
   existingCount?: number;
   now?: string;
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   reviewerId?: string;
   runId: string;
   target: OperatorAnnotationTarget;
@@ -633,7 +631,7 @@ export function createEvidenceWalletItem(input: {
   existingCount?: number;
   note?: string | null;
   now?: string;
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   reviewerId?: string;
   runId: string;
 }) {
@@ -756,7 +754,7 @@ export function startReadingOnboarding(input: {
 
 function createOnboardingStepEvent(input: {
   now: string;
-  packet?: SignedPublicDecisionPacket;
+  packet?: PublicDecisionPacket;
   reviewerId?: string;
   runId: string;
   sequence: number;
@@ -797,7 +795,7 @@ function hasCompletedRequiredOnboardingSteps(state: ReadingOnboardingState) {
 
 export function completeReadingOnboardingStep(input: {
   now?: string;
-  packet?: SignedPublicDecisionPacket;
+  packet?: PublicDecisionPacket;
   reviewerId?: string;
   runId: string;
   scope?: AuthorityLocalScope | null;
@@ -851,7 +849,7 @@ export function completeReadingOnboardingStep(input: {
 
 export function completeReadingOnboardingRun(input: {
   now?: string;
-  packet?: SignedPublicDecisionPacket;
+  packet?: PublicDecisionPacket;
   reviewerId?: string;
   runId: string;
   scope?: AuthorityLocalScope | null;
@@ -899,7 +897,7 @@ export function completeReadingOnboardingRun(input: {
 }
 
 export function buildThresholdImpact(input: {
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   threshold: number;
 }): ThresholdImpact {
   const threshold = rounded(input.threshold);
@@ -926,7 +924,7 @@ export function buildThresholdImpact(input: {
 }
 
 export function buildAnnotationTargets(
-  packet: SignedPublicDecisionPacket,
+  packet: PublicDecisionPacket,
 ): OperatorAnnotationTarget[] {
   const targets: OperatorAnnotationTarget[] = [
     {
@@ -971,7 +969,7 @@ export function buildAnnotationTargets(
 }
 
 export function buildEvidenceWalletCandidates(
-  packet: SignedPublicDecisionPacket,
+  packet: PublicDecisionPacket,
 ): EvidenceWalletCandidate[] {
   const modelRefs = packet.modelCard.references.slice(0, 4).map((ref) => ({
     kind: "artifact" as const,
@@ -1056,7 +1054,7 @@ const ONBOARDING_STEP_ORDER: Array<{
 export function buildReadingOnboardingSnapshot(input: {
   annotations: ReviewerAnnotation[];
   now?: string;
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   state: ReadingOnboardingState;
   thresholdProfile: ReviewerThresholdProfile;
   walletItems: EvidenceWalletItem[];
@@ -1087,7 +1085,7 @@ export function buildOperatorCraftSnapshot(input: {
   annotations?: ReviewerAnnotation[];
   now?: string;
   onboardingState?: ReadingOnboardingState;
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   runId: string;
   thresholdProfile?: ReviewerThresholdProfile;
   walletItems?: EvidenceWalletItem[];

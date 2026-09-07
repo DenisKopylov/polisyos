@@ -11,11 +11,8 @@ import type { PolicyDesignCaseProjection } from "@polisyos/runtime-api-client";
 
 import {
   buildPublicDecisionPacket as buildPublicDecisionPacketRaw,
-  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
   packetContainsPrivateContext,
-  signPublicDecisionPacket,
   type PublicDecisionPacketInput,
-  verifySignedPublicDecisionPacket,
 } from "./publicationPacket";
 
 type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
@@ -24,13 +21,6 @@ type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
 
 function buildPublicDecisionPacket(input: PacketTestInput) {
   return buildPublicDecisionPacketRaw({
-    ...input,
-    epochSemantics: input.epochSemantics ?? epochNonreceipt(),
-  });
-}
-
-function buildSignedPublicDecisionPacket(input: PacketTestInput) {
-  return buildSignedPublicDecisionPacketRaw({
     ...input,
     epochSemantics: input.epochSemantics ?? epochNonreceipt(),
   });
@@ -451,8 +441,8 @@ describe("publication packet domain", () => {
     );
     expect(withTrustSignals.integritySignatureNotice).toMatchObject({
       authorityCaveat:
-        "This frontend signature verifies packet integrity only; it is not trust, approval, publication, or closeout authority.",
-      signatureCue: "frontend_integrity_signature_not_authoritative",
+        "This unsigned preview has no publication verification and is not trust, approval, publication, or closeout authority.",
+      signatureCue: "unsigned_preview_not_authoritative",
     });
     expect(producerAbsent.decision.confidence).toBeNull();
     expect(producerAbsent.confidenceLadder).toEqual([
@@ -464,8 +454,8 @@ describe("publication packet domain", () => {
     ]);
   });
 
-  it("signs and verifies immutable public packets without privileged context", () => {
-    const signed = buildSignedPublicDecisionPacket({
+  it("builds a preview without minting a public signature or URL", () => {
+    const packet = buildPublicDecisionPacket({
       decisionScore: testDecisionScore(0.72),
       decisionView,
       evidenceContext,
@@ -473,37 +463,17 @@ describe("publication packet domain", () => {
       runId: "run-35",
     });
 
-    expect(signed.publicUrlPath).toMatch(/^\/public\/decisions\//u);
-    expect(signed.signature).toMatch(/^sig:/u);
-    expect(signed.projectionSemantics.primaryDisplayState.label).toBe(
+    expect(packet).not.toHaveProperty("signature");
+    expect(packet).not.toHaveProperty("signedId");
+    expect(packet).not.toHaveProperty("publicUrlPath");
+    expect(packet.projectionSemantics.primaryDisplayState.label).toBe(
       "projection_absent",
     );
-    expect(signed.projectionSemantics.authorityRole).toBeNull();
-    const verification = verifySignedPublicDecisionPacket(signed.signedId);
-    expect(verification).toMatchObject({
-      valid: true,
-    });
-    expect(verification.valid).toBe(true);
-    if (!verification.valid) {
-      throw new Error("expected a valid signed packet");
-    }
+    expect(packet.projectionSemantics.authorityRole).toBeNull();
     expect(
-      isInteractionState(
-        verification.packet.projectionSemantics.primaryDisplayState,
-      ),
+      isInteractionState(packet.projectionSemantics.primaryDisplayState),
     ).toBe(true);
-    expect(
-      isInteractionState(verification.packet.coverageCaveat.caveatState),
-    ).toBe(true);
-    const tamperedSuffix = signed.signedId.endsWith("0") ? "1" : "0";
-    expect(
-      verifySignedPublicDecisionPacket(
-        `${signed.signedId.slice(0, -1)}${tamperedSuffix}`,
-      ),
-    ).toMatchObject({
-      reason: "bad_signature",
-      valid: false,
-    });
+    expect(isInteractionState(packet.coverageCaveat.caveatState)).toBe(true);
   });
 
   it("preserves an absent public decision metric as unknown instead of zero", () => {
@@ -526,7 +496,7 @@ describe("publication packet domain", () => {
       primary_state: "publishable",
       states: ["publishable", "projection_only"],
     });
-    const signed = buildSignedPublicDecisionPacket({
+    const signed = buildPublicDecisionPacket({
       decisionScore: testDecisionScore(0.72),
       decisionView,
       evidenceContext,
@@ -555,7 +525,7 @@ describe("publication packet domain", () => {
         primary_state: label,
         states: [label],
       });
-      const signed = buildSignedPublicDecisionPacket({
+      const signed = buildPublicDecisionPacket({
         decisionScore: testDecisionScore(0.72),
         decisionView,
         evidenceContext,
@@ -606,17 +576,13 @@ describe("publication packet domain", () => {
     expect(packetContainsPrivateContext(packet)).toBe(false);
   });
 
-  it("uses stable signatures for stable packet content", () => {
-    const packet = buildPublicDecisionPacket({
-      decisionScore: testDecisionScore(0.72),
-      decisionView,
-      evidenceContext,
-      runId: "run-35",
-    });
-
-    expect(signPublicDecisionPacket(packet).signedId).toBe(
-      signPublicDecisionPacket(packet).signedId,
-    );
+  it("keeps a stable preview fingerprint without issuing a signature", () => {
+    const input = { decisionView, evidenceContext, runId: "run-35" };
+    const first = buildPublicDecisionPacket(input);
+    const second = buildPublicDecisionPacket(input);
+    expect(first.packetHash).toBe(second.packetHash);
+    expect(first).not.toHaveProperty("signature");
+    expect(second).not.toHaveProperty("signature");
   });
 });
 

@@ -121,7 +121,8 @@ view-model producer; remove the signature token and public-link emitter from its
 panel; remove unsigned `signedId` from local operator snapshots; label the preview
 as unsigned in both active locales. Keep the existing public URL route, but never
 parse/admit its content; render a truthful verification nonreceipt. The frozen `ru`
-catalog is untouched. Historical verification text keys remain inert, not emitted.
+catalog is untouched. The three retired verification messages in each active
+catalog are replaced by the three nonreceipt messages; their consumers were removed.
 
 The claim is intentionally bounded: this removes the live false positive and its
 emitter. It does **not** supply a server-backed verification response and therefore
@@ -129,6 +130,21 @@ is not full closure of the row's conjunctive signal. That remaining chain is
 `bridge_missing` / `verification_missing`; it is not an institutional stop on
 building capability. DS12's positive mechanism and record owner remain a distinct
 follow-up, not a manufactured success in this lane.
+
+Final blocker audit corrects any stronger reading: no mandatory forbidden-file edit
+was established for building additional PUBLIC signing/verifier capability. Existing
+`core/artifacts/signing.py` exposes Ed25519 signer/verifier implementations, HTTP
+`human_decisions.py` has persistence/resolution patterns, and the public export
+producer can be imported without editing it. Their existing purpose boundaries
+prohibit substituting human-act custody for `publication_authority`; signature
+validity alone supplies neither the PUBLIC verification vector nor currentness.
+The DS12 capability is explicitly buildable with an empty promoted-record slot.
+Thus the remaining capability is **unfinished**, not an institutional/file blocker.
+This lane delivers the smallest repair of the current false assertion. Adding a
+second constant nonreceipt behind an HTTP endpoint would not establish verification;
+the substantive DS12 signing/admission/verifier chain remains an explicit successor
+proposal, not a claimed closure. The population row's task grant is successor-consumer
+work, not ownership of the governed record producer.
 
 Assertion change ledger (no quiet relaxation):
 
@@ -170,11 +186,15 @@ Assertion change ledger (no quiet relaxation):
   unsigned view model; their substantive assertions are unchanged.
 
 Intermediate implementation errors were ours: the first migration left a renamed
-verifier reference in the route, producing `signedId is not defined`; the typecheck
-also rejected a widened `it.each` tuple. Repaired the references/tuple, not the
-assertions. A formatter invocation used duplicated `policy-engine/` paths and failed
+verifier reference in the production route, producing `signedId is not defined`:
+**PRODUCT**, correctly exposed by the executing test and repaired in production.
+The typecheck separately rejected a widened test `it.each` tuple: **BROKEN
+SCAFFOLDING**, repaired in the fixture without changing assertions.
+A formatter invocation used duplicated `policy-engine/` paths and failed
 before those files were formatted; reran with git's relative-path option. These are
-local BROKEN SCAFFOLDING invocations, not inherited product debt.
+local invocation/scaffolding failures, not inherited product debt. The final
+journal review caught and corrected the earlier grouping of the production
+reference error with these scaffolding failures (P40: new classification-error class).
 Focused route/domain/panel/operator checks then passed 46/46; after replacing the
 mock locale with the real provider, route/domain/panel passed 39/39. Dashboard
 three-project typecheck exited 0. Removal probes and frozen wave recorded below.
@@ -332,11 +352,71 @@ this is the original client-issued-authority class, closed at emission and publi
 consumption; no further repair ladder was opened. Review explicitly confirms that
 strangle is not full server-verification or governed-population closure.
 
+Final P31 literal census walked all 1,108 TS/TSX/JS/JSX files under
+`apps/runtime-dashboard/src`; the production filter excluded `test` path segments,
+`.test/.spec/.stories/.a11y.` names and `.d.ts`, leaving 623 files. It found no
+`buildSignedPublicDecisionPacket`, `verifyPublicDecisionPacket`, `SIGNATURE_SALT`,
+`publicUrlPath` or `phase35.viewer.verified` references. This is a literal-chain
+census, supplemented by the executed intake/emission probes, not a claim about
+every differently named future signer. The Trust View gate uses its own broader
+filter (including `.ts` test helpers); its denominator must not be conflated with
+this production-only census.
+
 Root production build `corepack pnpm exec vite build` passed (10.23 seconds main
 build, plus PWA build); `node ./scripts/postbuild-security.mjs` and
 `node ./scripts/check-atlas-ui-tailwind-source.mjs` each exited 0. Dashboard
 `corepack pnpm run check:architecture` exited 0, no dependency violations.
-The full dashboard Vitest/lint wave is pending; no complete-suite claim yet.
+Dashboard lint (`corepack pnpm run lint`) and the three-project typecheck each
+exited 0. The first full dashboard command was:
+
+```sh
+corepack pnpm exec vitest run --maxWorkers=1 --testTimeout=20000 --hookTimeout=20000 --reporter=json --outputFile=../../_build/atlas-public-surface-full.json
+```
+
+It exited 1 after 630.981 seconds. Its complete JSON assertion set contains
+1,712 passed, two failed and 30 pending assertions, plus one collection failure
+and one setup-failed suite whose 28 assertions were reported as skipped.
+Finding identities, not just the total:
+
+| Finding | Root and deciding evidence | Correction |
+| --- | --- | --- |
+| `locale catalogs > freezes the complete quantitative-use declaration set` | **PRODUCT**, introduced here: three new refusal messages were added while the three retired verification slots remained. The frozen leaf-count check was right about that expansion. | Replace the retired `verified`, `invalid`, `errorTitle` slots with the new refusal slots in en/uk. The complete catalog walk returns 2,868 leaves each; no consumer of the retired keys remains. Keep `parity.test.ts` byte-identical to base, including its quantitative-use identity assertions. |
+| `shared Trust View architecture > censuses every production consumer over the reconciled live source population` | **INSTRUMENT**: the filesystem set included the new attack helper while `git ls-files` did not until it was staged. This verdict depends on staging state, not runtime behavior. | Stage the legitimate new helper. Do not rename it to evade the scanner or change the scanner/assertion. |
+| `src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts` collection | **BROKEN SCAFFOLDING**: the child process explicitly uses isolation-local `.venv/bin/python`; importing the evidence producer failed on missing `jsonschema` before assertions ran. | Install the declared frozen `test` extra in this worktree. No test or producer change. |
+| `src/test/evidence/atlasHealthMetrics.test.ts` suite setup | **BROKEN SCAFFOLDING**: `beforeAll` calls `measureAtlasHealthMetrics`, whose Python source validator imports the same missing `jsonschema`; all 28 assertions were skipped. The JSON reporter retained an empty suite message, so its original exception text is `not_established`. | The declared test environment restoration also allows all 28 unchanged assertions to execute and pass. |
+
+The offline sync first lacked cached lint Node wheels, then the test extra's uvloop
+wheel. `uv sync --frozen --extra test` downloaded the missing declared packages and
+exited 0; no dependency manifest/lockfile changed. Reruns with the same single-worker
+flags: locale + source-census files 89/89, evidence file 33/33, both exit 0. Independent
+delta review found no actionable finding; the locale parity test and scanner files
+remain unchanged. The second full wave uses the identical flags; its receipt is recorded at delivery below.
+
+Final full wave, same command with output path
+`../../_build/atlas-public-surface-final.json`: exit 0, **1,775 passed / 0 failed /
+2 skipped**, 507.798 seconds. A script walked every suite status AND every
+assertion status in both complete JSON reports. The resolved set is exactly the
+four identities above; new and remaining finding sets are both empty. This fuller
+comparison corrected the first read, which missed the setup-failed health suite
+because it inspected assertion failures and nonempty suite messages. Its 28 skipped
+cases are now passes; the reconciliation collection contributes 33 newly executed
+cases. No assertion was relaxed to obtain this green.
+
+Real Chromium public-route execution used the app's Playwright base config with a
+worktree-local supplemental config changing only the Vite webserver to isolated
+port 5297, no backend and no reused server. The eight trust-framing journey cases
+passed. This verifies the actual nonreceipt without an API; it is not a server
+verification receipt or a complete visual-suite claim.
+
+A further browser removal probe restored URL JSON admission into the real
+`PublicationPacketPanel` and displayed `signature verified`, retaining the real
+nonreceipt section and its markers. The first probe incorrectly passed the envelope
+instead of `.packet` and crashed before rendering: **BROKEN SCAFFOLDING**, no removal
+receipt claimed. Correcting only the probe's payload selection produced the intended
+red in `captures trust-framing-frontend_signed`: the nonreceipt was visible, but the
+actual packet panel count was 1 instead of 0. Restore readback matched SHA-256
+`65ce53f57a276d4ae7b43230196dd6fe537fe2d103911ac5783c512a2752ecf3`.
+The restored eight-case Chromium run exited 0, 8/8, in 9.7 seconds.
 
 Root Python architecture gate returned exit 1. It reports baseline drift and the
 three `acquisition_admission_bundle -> core.artifacts.{manifest,signing,write_contract}`
@@ -358,6 +438,13 @@ probe exclusions, is 10,570 files at base and 10,572 here, and **all 25 changed 
 are included**. Thus neither freshness nor the whole gate is called disjoint or
 green. No product freshness verdict exists from this failed instrument. No baseline
 sync or forbidden tool edit was attempted.
+
+Closeout pattern pass reread P29/P31/P32/P35/P37/P38/P41 from the failure/repair
+register. Actual negative runtime behavior is the acceptance signal; exact source
+restoration was verified after the probes, and candidate/synthetic evidence has
+not been promoted into public authority. The complete changed-path walk, all file
+types from the slice base, contains 25 files: 18 dashboard, six atlas-ui and this
+journal. Its intersection with forbidden/outside-grant paths is empty.
 
 ## Proposed incidental rows
 
@@ -408,7 +495,7 @@ refusal, anti-narrowing and DOM/content mutation. The inspected
 `confidenceLedgerRiskSpendTwin.test.tsx` changes caption content while retaining
 semantic markers and changes honest-zero copy into an authority-positive assertion;
 it expects blocked. Inspection is not a fresh pass receipt; the final dashboard
-wave below is the independent live check.
+wave recorded above is the independent live check.
 
 **DS17-BRANCH-03: main's same-path document extends/corrects the fork.** Exact
 branch-to-base whole-file diff: 243 added / 7 deleted lines. Main adds architect

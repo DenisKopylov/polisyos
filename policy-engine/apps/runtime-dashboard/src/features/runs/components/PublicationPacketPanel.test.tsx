@@ -13,7 +13,7 @@ import { renderWithProviders } from "@/test/render";
 import type { PolicyDesignCaseProjection } from "@polisyos/runtime-api-client";
 
 import {
-  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
+  buildPublicDecisionPacket as buildPublicDecisionPacketRaw,
   type PublicDecisionPacketInput,
 } from "../domain/publicationPacket";
 import { PublicationPacketPanel } from "./PublicationPacketPanel";
@@ -22,8 +22,8 @@ type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
   epochSemantics?: EpochSemantics;
 };
 
-function buildSignedPublicDecisionPacket(input: PacketTestInput) {
-  return buildSignedPublicDecisionPacketRaw({
+function buildPublicDecisionPacket(input: PacketTestInput) {
+  return buildPublicDecisionPacketRaw({
     ...input,
     epochSemantics: input.epochSemantics ?? epochNonreceipt(),
   });
@@ -137,7 +137,7 @@ function governanceIssue(): GovernanceIssueView {
 
 describe("PublicationPacketPanel trust framing", () => {
   it("preserves a novel confidence label without minting a trust scenario", () => {
-    const packet = buildSignedPublicDecisionPacket({
+    const packet = buildPublicDecisionPacket({
       decisionView: {
         ...baseDecisionView,
         confidence: "future-owner-confidence",
@@ -156,7 +156,7 @@ describe("PublicationPacketPanel trust framing", () => {
   });
 
   it("renders an opaque owner projection state without a local trust scenario", () => {
-    const packet = buildSignedPublicDecisionPacket({
+    const packet = buildPublicDecisionPacket({
       decisionView: baseDecisionView,
       evidenceContext: tracedEvidenceContext,
       policyDesignCaseProjection: ownerProjection("future_owner_state"),
@@ -172,14 +172,14 @@ describe("PublicationPacketPanel trust framing", () => {
   });
 
   it("renders missing threshold evaluation as unavailable instead of measured zeros", () => {
-    const packet = buildSignedPublicDecisionPacket({
+    const packet = buildPublicDecisionPacket({
       decisionView: baseDecisionView,
       evidenceContext: tracedEvidenceContext,
       runId: "threshold-unavailable",
     });
 
     renderWithProviders(<PublicationPacketPanel packet={packet} publicMode />, {
-      initialEntries: [packet.publicUrlPath],
+      initialEntries: ["/runs/preview/overview"],
     });
 
     const thresholdPanel = screen.getByTestId("threshold-contract-panel");
@@ -210,34 +210,37 @@ describe("PublicationPacketPanel trust framing", () => {
       label: "no-issues-or-refs",
     },
   ])(
-    "renders only the non-authoritative integrity signature notice for $label",
+    "renders an unsigned preview without a publication link for $label",
     ({ evidenceContext, governanceIssues, label }) => {
-      const packet = buildSignedPublicDecisionPacket({
+      const packet = buildPublicDecisionPacket({
         decisionView: baseDecisionView,
         evidenceContext,
         governanceIssues,
         runId: `integrity-framing-${label}`,
       });
 
-      renderWithProviders(
-        <PublicationPacketPanel packet={packet} publicMode />,
-        {
-          initialEntries: [packet.publicUrlPath],
-        },
-      );
+      renderWithProviders(<PublicationPacketPanel packet={packet} />, {
+        initialEntries: ["/runs/preview/overview"],
+      });
 
       const caveats = screen.getByTestId("trust-framing-caveats");
       const integrityNotice = within(caveats).getByTestId(
         "frontend-integrity-signature-notice",
       );
-      const integrityToken = screen.getByTestId(
-        "frontend-integrity-signature-token",
+      expect(
+        screen.queryByTestId("frontend-integrity-signature-token"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: /open public viewer/i }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId("publication-unverified")).toHaveTextContent(
+        "Verification unavailable",
       );
 
       expect(integrityNotice).toBeVisible();
       expect(integrityNotice).toHaveAttribute("data-kind", "neutral");
       expect(integrityNotice).toHaveTextContent(
-        "This frontend signature verifies packet integrity only; it is not trust, approval, publication, or closeout authority.",
+        "This unsigned preview has no publication verification and is not trust, approval, publication, or closeout authority.",
       );
       expect(caveats).toHaveTextContent(
         "Frontend signatures, badges, labels, and projections are not closeout authority.",
@@ -246,16 +249,11 @@ describe("PublicationPacketPanel trust framing", () => {
       expect(caveats).not.toHaveTextContent(/closeout authority granted/i);
       expect(caveats).not.toHaveTextContent(/approval granted/i);
       expect(caveats).not.toHaveTextContent(/disputed|untraced/i);
-      expect(integrityToken).toHaveAttribute("data-kind", "neutral");
-      expect(integrityToken).toHaveAttribute(
-        "title",
-        "This frontend signature verifies packet integrity only; it is not trust, approval, publication, or closeout authority.",
-      );
     },
   );
 
   it("renders threshold evaluation as unavailable without a producer contract", () => {
-    const packet = buildSignedPublicDecisionPacket({
+    const packet = buildPublicDecisionPacket({
       decisionScore: untracedDecisionQuantity({
         metricId: "test.threshold-score",
         point: 0.72,

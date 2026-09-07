@@ -3016,16 +3016,16 @@
   },
   "phase35": {
     "eyebrow": "Phase 3.5 / Explanation and publication",
-    "title": "Signed publication packet",
-    "body": "Decision, model card, coverage caveat, threshold contract, argument map, glossary і deterministic explanations готові для signed public viewer.",
-    "publicBody": "Цей read-only packet verified із signed public payload і не потребує private runtime context.",
+    "title": "Попередній перегляд публікації",
+    "body": "Рішення, картку моделі, застереження щодо охоплення, пороговий контракт, карту аргументів, глосарій і пояснення наведено як непідписаний попередній перегляд.",
+    "publicBody": "Рішення, картку моделі, застереження щодо охоплення, пороговий контракт, карту аргументів, глосарій і пояснення наведено як непідписаний попередній перегляд.",
     "openPublicViewer": "Open public viewer",
     "trust": {
       "eyebrow": "Trust framing",
       "title": "Authority caveats"
     },
     "publicSummary": {
-      "eyebrow": "Signed decision"
+      "eyebrow": "Попередній перегляд рішення"
     },
     "argument": {
       "eyebrow": "E1 / Argument",
@@ -3080,11 +3080,11 @@
       "title": "Glossary lens"
     },
     "viewer": {
-      "verified": "signature verified",
-      "invalid": "signature invalid",
+      "unavailable": "Перевірка недоступна",
+      "unavailableTitle": "За цим посиланням немає перевіреного публічного рішення",
+      "unavailableBody": "Це посилання не надає публічного запису, перевіреного сервером. Пакети, створені браузером, не підтверджують повноваження на публікацію.",
       "readOnly": "read-only",
       "errorEyebrow": "Public viewer",
-      "errorTitle": "This signed decision cannot be verified",
       "errorBody": "Verification failed: {reason}.",
       "back": "Back to PolicyOS"
     }

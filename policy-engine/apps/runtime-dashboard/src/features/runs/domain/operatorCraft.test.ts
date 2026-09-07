@@ -7,7 +7,7 @@ import {
 } from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 import {
-  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
+  buildPublicDecisionPacket as buildPublicDecisionPacketRaw,
   type PublicDecisionPacketInput,
 } from "./publicationPacket";
 import {
@@ -33,8 +33,8 @@ type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
   epochSemantics?: EpochSemantics;
 };
 
-function buildSignedPublicDecisionPacket(input: PacketTestInput) {
-  return buildSignedPublicDecisionPacketRaw({
+function buildPublicDecisionPacket(input: PacketTestInput) {
+  return buildPublicDecisionPacketRaw({
     ...input,
     epochSemantics: input.epochSemantics ?? epochNonreceipt(),
   });
@@ -144,7 +144,7 @@ const verifiedScope: AuthorityLocalScope = {
 };
 
 function packet() {
-  return buildSignedPublicDecisionPacket({
+  return buildPublicDecisionPacket({
     decisionScore: untracedDecisionQuantity({
       metricId: "test.decision_score",
       point: 0.72,

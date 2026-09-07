@@ -1,8 +1,9 @@
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 
 import {
-  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
+  buildPublicDecisionPacket as buildPublicDecisionPacketRaw,
   type PublicDecisionPacketInput,
 } from "@/features/runs/domain/publicationPacket";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
@@ -12,14 +13,15 @@ import {
 } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import type { PolicyDesignCaseProjection } from "@polisyos/runtime-api-client";
 
-import PublicDecisionViewerPage from "./PublicDecisionViewerPage";
+import { publicDecisionViewerRoute } from "@/features/runs/routes.public";
+import { forgeLegacyPublicDecisionUrl } from "@/test/forgeLegacyPublicDecisionUrl";
 
 type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
   epochSemantics?: EpochSemantics;
 };
 
-function buildSignedPublicDecisionPacket(input: PacketTestInput) {
-  return buildSignedPublicDecisionPacketRaw({
+function buildPublicDecisionPacket(input: PacketTestInput) {
+  return buildPublicDecisionPacketRaw({
     ...input,
     epochSemantics: input.epochSemantics ?? epochNonreceipt(),
   });
@@ -27,17 +29,6 @@ function buildSignedPublicDecisionPacket(input: PacketTestInput) {
 
 const testDecisionScore = () =>
   untracedDecisionQuantity({ metricId: "test.decision_score", point: 0.74 });
-
-vi.mock("@/shared/i18n/LocaleProvider", () => ({
-  useOptionalI18n: () => ({
-    t: (key: string, params?: Record<string, string>) =>
-      params?.reason ? `${key}:${params.reason}` : key,
-  }),
-  useI18n: () => ({
-    t: (key: string, params?: Record<string, string>) =>
-      params?.reason ? `${key}:${params.reason}` : key,
-  }),
-}));
 
 const opaqueProjectionStates = [
   ["missing", "missing evidence label"],
@@ -88,105 +79,76 @@ function ownerProjection(primaryState: string): PolicyDesignCaseProjection {
   };
 }
 
+function renderPublicRoute(url: string) {
+  const router = createMemoryRouter([publicDecisionViewerRoute], {
+    initialEntries: [url],
+  });
+  return render(
+    <LocaleProvider>
+      <RouterProvider router={router} />
+    </LocaleProvider>,
+  );
+}
+
 describe("PublicDecisionViewerPage", () => {
-  it("renders a verified signed public decision without API context", async () => {
-    const packet = buildSignedPublicDecisionPacket({
+  it("refuses a browser-signed public decision without server verification", async () => {
+    const packet = buildPublicDecisionPacket({
       decisionScore: testDecisionScore(),
       runId: "public-run",
     });
+    packet.decision.headline = "Forged policy recommendation";
+    const forgedUrl = forgeLegacyPublicDecisionUrl(packet);
+    renderPublicRoute(forgedUrl);
 
-    render(
-      <MemoryRouter initialEntries={[packet.publicUrlPath]}>
-        <Routes>
-          <Route
-            path="/public/decisions/:signedId"
-            element={<PublicDecisionViewerPage />}
-          />
-        </Routes>
-      </MemoryRouter>,
-    );
-
+    // The real registered public route must not treat a recomputed token as evidence.
+    expect(await screen.findByText("PolicyOS")).toBeInTheDocument();
+    expect(screen.queryByText("signature verified")).not.toBeInTheDocument();
     expect(
-      await screen.findByTestId("publication-packet-panel"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("signed-public-summary")).toBeInTheDocument();
-    expect(screen.getByTestId("argument-map-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("citation-model-card-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("coverage-caveat-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("threshold-contract-panel")).toBeInTheDocument();
-    expect(screen.getByText("phase35.viewer.verified")).toBeInTheDocument();
+      screen.queryByText(packet.decision.headline),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("publication-packet-panel"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Verification unavailable")).toBeInTheDocument();
   });
 
-  it("renders an owner publishable state neutrally without inventing blocked", async () => {
-    const packet = buildSignedPublicDecisionPacket({
-      decisionScore: testDecisionScore(),
-      policyDesignCaseProjection: ownerProjection("publishable"),
-      runId: "public-run-projection",
-    });
-
-    render(
-      <MemoryRouter initialEntries={[packet.publicUrlPath]}>
-        <Routes>
-          <Route
-            path="/public/decisions/:signedId"
-            element={<PublicDecisionViewerPage />}
-          />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    const semantics = await screen.findByTestId(
-      "publication-projection-semantics",
-    );
-
-    expect(semantics).toHaveTextContent("publishable");
-    expect(semantics).toHaveTextContent("projection_only");
-    expect(semantics).not.toHaveTextContent("blocked");
-  });
-
-  it.each(opaqueProjectionStates)(
-    "preserves an opaque %s owner state in the public viewer",
+  it.each([["publishable", "publishable"] as const, ...opaqueProjectionStates])(
+    "does not admit a client-supplied %s owner state",
     async (caseId, label) => {
-      const packet = buildSignedPublicDecisionPacket({
-        decisionScore: testDecisionScore(),
+      const packet = buildPublicDecisionPacket({
         policyDesignCaseProjection: ownerProjection(label),
         runId: `public-run-projection-${caseId}`,
       });
+      // All framing, state, signature and hash markers remain available to the attacker.
+      packet.decision.headline = "Forged owner-issued decision";
+      packet.trustFraming.integritySignatureNotice.badge = "Verified";
+      packet.trustFraming.integritySignatureNotice.authorityCaveat =
+        "Publication authorized";
+      renderPublicRoute(forgeLegacyPublicDecisionUrl(packet));
 
-      render(
-        <MemoryRouter initialEntries={[packet.publicUrlPath]}>
-          <Routes>
-            <Route
-              path="/public/decisions/:signedId"
-              element={<PublicDecisionViewerPage />}
-            />
-          </Routes>
-        </MemoryRouter>,
-      );
-
-      const semantics = await screen.findByTestId(
-        "publication-projection-semantics",
-      );
-
-      expect(semantics).toHaveTextContent(label);
-      expect(semantics).toHaveTextContent("projection_only");
-      expect(semantics).not.toHaveTextContent("blocked");
+      expect(await screen.findByText("PolicyOS")).toBeInTheDocument();
+      expect(screen.queryByText("signature verified")).not.toBeInTheDocument();
+      expect(screen.queryByText("Verified")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Publication authorized"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("publication-projection-semantics"),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText("Verification unavailable")).toBeInTheDocument();
     },
   );
 
-  it("rejects invalid signed ids", () => {
-    render(
-      <MemoryRouter initialEntries={["/public/decisions/not-valid"]}>
-        <Routes>
-          <Route
-            path="/public/decisions/:signedId"
-            element={<PublicDecisionViewerPage />}
-          />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    expect(screen.getByTestId("public-decision-invalid")).toBeInTheDocument();
-    expect(screen.getByText("phase35.viewer.invalid")).toBeInTheDocument();
-  });
+  it.each(["not-valid", "e30.deadbeef", "server-record-looking-id"])(
+    "does not invent verification for %s",
+    async (id) => {
+      renderPublicRoute(`/public/decisions/${id}`);
+      expect(await screen.findByText("PolicyOS")).toBeInTheDocument();
+      expect(screen.queryByText("signature verified")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("publication-packet-panel"),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText("Verification unavailable")).toBeInTheDocument();
+    },
+  );
 });

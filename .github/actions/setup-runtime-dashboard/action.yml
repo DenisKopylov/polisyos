@@ -22,6 +22,13 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Enable corepack
+      # setup-node's cache: "pnpm" computes its key by running pnpm, so pnpm must
+      # already be on PATH when that step starts. corepack ships with Node but is
+      # not enabled by default on the runner.
+      shell: bash
+      run: corepack enable
+
     - name: Setup Node
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:

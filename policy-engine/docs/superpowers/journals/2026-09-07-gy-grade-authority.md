@@ -886,6 +886,147 @@ print(json.dumps({"before": sorted(before_ids), "after": sorted(after_ids),
 raise SystemExit(1 if after else 0)
 ```
 
+## Continuation — extended DataForge grant
+
+The architect's continuation closes the 21-row census and adopts the previous
+investigation. Those settled findings and the stale branch are not remeasured.
+The current prompt is the specification; DEBT-REGISTER/LEDGER are neither read nor
+used to verify this continuation, and their checker remains prohibited.
+
+Entry branch was clean at `d4ba9901cbcb29e5d27a71dac7b359b28fe1adec`.
+Local `main` was `58f8073e44f44519003b5b10c1ccf0d38d7de43a`, one transcription
+commit beyond the prompt's `5df4b16e4`; ancestry was verified first. The requested
+`git merge main` fast-forwarded the existing branch to that commit. This is the
+continuation measurement base, not a retroactive replacement of the original
+slice base for P41. No rebase, stash, push or stale-ref change. Auxiliary worktrees:
+none added at continuation entry.
+
+### Investigation hypotheses, recorded before new measurements
+
+- **Adjudication:** the previous dual-entry forgery is accepted evidence. With
+  DataForge granted, one non-producing verifier can own signed observation-bound
+  evaluation and champion replay, with both Scientist and direct DataForge intake
+  consuming it. DataForge may not import Scientist; pure arithmetic must be
+  extracted to the lower owner and reused, not copied or supplied as a claimant
+  callback. Deployment appointment stays typed-empty. Test both entry paths and
+  remove substantive verification while keeping receipt markers.
+- **PA1 upstream:** a certified SKG bridge is buildable only if available stored
+  evidence establishes canonical variables, independently admitted source/effect
+  support, target scope and numeric uncertainty. Investigate complete relevant
+  local artifact/table populations before choosing implementation or a measured
+  input gap. Confidence, a compatible schema or a newly named receipt cannot
+  substitute for those predicates. The already tested S8 mechanism is retained.
+- **DEF22:** the lock resolver appears to collapse a universal lock by package
+  name before edge marker/version/source can select its applicable identity.
+  Traverse selected identities and fail on actual unresolved ambiguity; do not
+  let out-of-closure duplicates decide the diagnostic. Independently trace the
+  frozen owner pin to exact source bytes without weakening digest equality.
+  Acceptance here means that the original five tests reach their intended
+  assertions; a resulting substantive failure is reported separately.
+- **Acquisition facade:** all nine bound objects used by the three offending
+  import statements are already exported from `polisyos.core.artifacts`.
+  Hypothesis: resolving them through that facade preserves consumer behavior and
+  removes the three actual import edges without changing a baseline. A runtime
+  rebind probe will substitute the facade exports and reload the real consumer;
+  restoring private imports should fail that probe with all symbols still present.
+  The architect supplies Atlas's inherited attribution; no new attribution census
+  is needed here.
+
+Pattern pass: P31/P32/P37/P38 govern the shared grade intake; P01/P02 distinguish a
+working producer from an ungrounded carrier; P35 requires complete input sets;
+P40 forbids a per-escape repair ladder; P41 keeps the original slice base for any
+new inherited-red assertion. Source ownership is disjoint across adjudication,
+academic knowledge/SKG, Foundry dependency-profile, and the coordinator's one HTTP
+module. Shared CAS/DuckDB writes and governed artifacts will be serialized if met.
+Targeted module-form gates only, with local `.venv/bin` first in PATH for literal
+`python3` children. Root integrates, commits clean boundaries and reads back from
+the branch. Institutional absence limits output authority, never engineering work.
+
+### GGA-FACADE-02 — inherited import edges repaired through the existing facade
+
+The architect's continuation supplies the inherited attribution from Atlas:
+canonical finding identity differences `main_only=[]`, `base_only=[]`, with the
+stated 2,626-member denominator and empty changed-path intersection. This is an
+accepted handoff, not a new attribution proof invented here.
+
+Fresh scoped source enumeration walks the complete AST of
+`runtime/http/services/acquisition_admission_bundle.py` (one Python file): the
+three private import statements bind nine symbols. All nine are in the complete
+`core/artifacts/__init__.py` `__all__`; missing-export identity set is empty.
+The repair resolves that exact symbol set through `polisyos.core.artifacts`.
+No baseline or exception is changed.
+
+New regression `test_acquisition_producer_resolves_artifact_dependencies_through_facade`
+observes actual Python import requests while loading the real consumer in an
+isolated child using `sys.executable`. Before repair: **exit 1, one failed,
+25.71 s**, with the complete unexpected set `manifest`, `signing`,
+`write_contract` beneath `polisyos.core.artifacts`. After repair, its gate plus
+all six existing acquisition admission integration tests: **exit 0, seven
+passed, 23.30 s**. Empty signer, wrong purpose/resource, incomplete denominator,
+trusted signed readback and untrusted signer behavior are exercised unchanged.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m pytest tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py tests/integration/core_runtime/test_acquisition_admission_bundle.py -q --override-ini addopts=''
+```
+
+Actual removal control replays only this consumer's pre-facade source from the
+continuation base in an isolated loader. Its markers, types and business code
+remain; no worktree file or branch is reverted. The same runtime probe returns
+**exit 1** and the exact three private import identities again. Ruff passes both
+changed paths. Whole architecture finding sets will be read at final integration.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.facade_removal_probe
+```
+
+### GGA-DEF22-04 — universal-lock identities, before the pin reissue
+
+Fresh original five-node replay at unchanged continuation source: **five failed,
+23.65 s, exit 1**. CB-I01 stops at `DigestPredicateMismatch`; the other four at
+`selected_lock_graph`. The lock-file population is 418 complete package rows and
+1,140 dependency edges; 16 edges request extras. These are graph coordinates, not
+an assumption that package names are unique across a universal lock.
+
+The canonical Foundry reducer now retains all candidates by name and resolves
+selected edges by exact version/source plus declared edge/row markers. A selected
+edge must resolve uniquely; conflicting selected identities, malformed selected
+rows or missing marker inputs refuse. It traverses requested transitive extras
+even when their package was previously seen. Out-of-closure alternatives no
+longer veto the selected graph. Marker values remain declared, content-bound
+inputs; no ambient platform observation is substituted. Digest equality and the
+owner's frozen-source equality guard remain intact.
+
+The first novel-lock wave was **eight failed, three passed, 214 deselected,
+24.55 s**, before repair. Final focused identity/marker wave: **16 passed,
+212 deselected, 24.99 s, exit 0**. Root independently reviewed the complete source
+and mirrored-test delta. The mechanism's removal probe erases incoming edge
+identity while retaining source SHA, schema and rule markers: **exit 1, two
+failed and two passed, 8.57 s**. Restored fresh-process control: **exit 0, four
+passed, one observed warning, 7.52 s**.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" GY_DEF22_REMOVE_LOCK_IDENTITY=1 PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.def22_lock_removal_probe
+```
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.def22_lock_removal_probe
+```
+
+Two original CB tests now pass completely; the other two diagnostic tests reach
+and pass their torch/profile assertions, then stop at the correctly enforced
+uncommitted-source guard before consumer-byte assertions. A source commit is the
+next prerequisite. The fifth test still needs the pin repair. This is **not yet
+five-test closure** and no appointed acceptance is supplied.
+
+A concrete, owner-decoded surgical pin proposal is prepared at
+`_build/gy_grade_authority/def22-owner-pins.proposed.patch`: two current file
+hashes in `architecture/production_quality/method_catalog_dependency_profiles.toml`
+and two derived declaration identity fields in
+`method_catalog_dependency_authority.toml`. Both are outside the prompt's write
+list; the coordinator requested explicit extension while other work continues.
+No architecture file has been changed at this point. Updating the pins does not
+baseline an import finding or appoint an authority.
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation

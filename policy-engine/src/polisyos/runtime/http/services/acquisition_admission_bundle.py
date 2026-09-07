@@ -13,19 +13,17 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactGovernanceInfo,
     ArtifactManifest,
-    ProducerInfo,
-    SchemaInfo,
-)
-from polisyos.core.artifacts.signing import (
+    ArtifactWriteOptions,
     Ed25519Signer,
     Ed25519Verifier,
+    ProducerInfo,
+    SchemaInfo,
     SignatureVerificationResult,
     SignatureVerificationStatus,
 )
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.pdc import AuthorityBoundary, OperationContract, OperationInvocationRecord
 from polisyos.runtime.http.authorization import ResourceBindingSource
 from polisyos.runtime.http.permissions import RuntimePermission

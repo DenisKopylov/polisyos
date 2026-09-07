@@ -19,6 +19,12 @@ selection.
 - **Parameter selection** - `ParameterSelector` scores candidates for the current context.
 - **Canonical variables** - `VariableCanonizer` and the runtime registry normalize naming across domains.
 - **Versioning** - `SKGVersionManager` handles retractions and confidence recomputation.
+- **Confidence vintage** - `skg_versioning.confidence_layer_vintage` binds the accepted historical
+  snapshot declaration by full-file SHA-256. `SKGQuery.confidence_layer_vintage` exposes it through
+  the existing read API; confidence readers and named Runtime/copy consumers refuse forwarding via
+  `require_forwardable_confidence`. Foundry returns an empty prior with the declaration in metadata.
+  Values remain in the read-only source for audit. This is a known-snapshot restriction, not a
+  currentness verifier: unregistered hashes and row-wise rewrites need their own binding.
 
 ## Public API
 

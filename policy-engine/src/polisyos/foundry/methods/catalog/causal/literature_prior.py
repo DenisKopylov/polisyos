@@ -192,6 +192,28 @@ class BuildLiteraturePrior:
 
         query: SKGQuery | None = None
         try:
+            vintage = SKGQuery.confidence_layer_vintage(db_path)
+            if vintage is not None:
+                prior, _ = _build_empty_prior(
+                    variables=payload.variables,
+                    domain=domain,
+                    min_confidence=min_confidence,
+                    limit=limit,
+                    build_status="historical_confidence_blocked",
+                    metadata={
+                        "confidence_layer_vintage": vintage.to_payload(),
+                        "skg_db_path": db_path,
+                    },
+                )
+                warnings.append(
+                    "Historical SKG confidence is not reproducible under the current rule; "
+                    "confidence forwarding withheld."
+                )
+                return {
+                    "literature_prior": prior,
+                    "literature_prior_graph": prior.to_causal_graph_model(nodes=payload.variables),
+                    "warnings": warnings,
+                }
             query = SKGQuery(db_path=db_path, index_dir=index_dir)
             rows = query.query_prior_for_variables(
                 payload.variables,

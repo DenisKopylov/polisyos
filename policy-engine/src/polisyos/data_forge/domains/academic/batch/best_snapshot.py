@@ -644,6 +644,8 @@ def _assemble_duckdb(
     remap_db_path: Path,
     assembly_entries: list[dict[str, Any]],
 ) -> int:
+    SKGQuery.require_forwardable_confidence(original_db_path)
+    SKGQuery.require_forwardable_confidence(remap_db_path)
     candidate_db_path.parent.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect(str(candidate_db_path))
     try:
@@ -930,6 +932,13 @@ def _replace_table_contents(
     source_table: str,
     version_id: int | None,
 ) -> None:
+    if source_table.startswith("ac_skg_") or target_table.startswith("ac_skg_"):
+        source = con.execute(
+            "SELECT path FROM duckdb_databases() WHERE database_name = ?", [source_alias]
+        ).fetchone()
+        if not source or not source[0]:
+            raise ValueError("confidence_layer_vintage: ambiguous snapshot copy source")
+        SKGQuery.require_forwardable_confidence(str(source[0]))
     if not _table_exists(con, f"{source_alias}.{source_table}"):
         raise FileNotFoundError(f"Missing source table: {source_alias}.{source_table}")
     if not _table_exists(con, target_table):

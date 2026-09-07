@@ -1,6 +1,6 @@
 # Data Capability Requirements
 
-Freshness: 2026-09-06
+Freshness: 2026-09-07
 Owner: `architect`
 Source of truth: this file; every row's evidence lives in the journal or register entry it cites
 
@@ -274,3 +274,32 @@ an absent axis. This is cheap now and becomes another historical layer afterward
 or a per-row marker — are both dead: the first yields zero everywhere, and the second would be true
 of all 24,275 rows and so would carry no information. Full measurement:
 `docs/superpowers/journals/2026-09-05-historical-cohorts.md`.
+
+**Registration, 2026-09-07.** This existing `absent` requirement is the registered re-extraction
+requirement for `historical-confidence-carries-a-withdrawn-contribution`. Its execution owner
+remains **unallocated**; registration appoints no owner and does not claim a completed data pass.
+The accepted input basis is **310,710 nonblank abstracts / 310,829 works** (HC-F20), and
+**67,262 fulltext-derived raw claims / 137,589 raw claims**, with fulltext not retained. The
+architect's correction in the closure brief supersedes HC-F21/HC-D06's route inference:
+`PolicyArticleExtractor` accepts held abstracts with the declared downgrade described above.
+Fulltext reacquisition is a separate quality upgrade, not a prerequisite for abstract-only
+re-extraction. These are accepted measurements, not a new census or a claim that every abstract
+will yield an admissible claim.
+
+**Acceptance for the data pass.** Persist each emitted claim's explicit candidate evidence class
+and status, separately from extraction confidence and adjudicated design, together with source
+basis, downgrade warnings, input provenance, and applicable schema/rule version. Exercise the
+existing claim ingestion and exact/family/contested reassembly consumers against those artifacts,
+and validate both admitted and rejected outcomes under the current vocabulary and publication
+rules. No restoration of historical numbers, memberships, or edge identities is promised;
+contested non-emission remains distinct from a zero final confidence. Preserve the sharper
+**342 adjudication-contradicting rows / 7,868 published evidence rows** (HC-F06/HC-F07) as a
+distinct subset, not merely instances of general unreproducibility.
+
+**Limits and pattern pass.** Re-extraction cost remains `unmeasured`. The normalizer defect named
+above remains a separate prerequisite repair, outside this registration. P01/P15 require persisted
+candidate artifacts and demonstrated downstream consumption; P04 preserves absence, candidate
+status, and non-emission; P35/P36 preserve the cited denominators; P29/P38 require behavioral
+validation of the vocabulary and consumer outcome, rather than field-name presence. The data
+requirement remains `absent` (`artifact_missing`) until the pass supplies and validates the
+claim-level axis; registering it does not supply those artifacts.

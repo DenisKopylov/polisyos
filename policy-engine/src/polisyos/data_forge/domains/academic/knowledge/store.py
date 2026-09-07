@@ -17,6 +17,9 @@ from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     decode_edge_evidence_strength,
 )
+from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+    require_forwardable_confidence,
+)
 from polisyos.data_forge.domains.academic.knowledge.types import (
     CLAIM_VOCABULARY_COLUMN_CONTRACT,
     CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN,
@@ -593,6 +596,7 @@ class ScholarKnowledgeStore:
         source_bindings: tuple[ClaimVocabularySourceRowBinding, ...] | None = None,
     ) -> CausalClaimResultV2:
         """Project an exact/family/contested edge summary without cross-axis inference."""
+        require_forwardable_confidence(self._db_path)
         _, resolved_binding = self._edge_source_row(source_table, source_identity)
         if (
             source_row is not None

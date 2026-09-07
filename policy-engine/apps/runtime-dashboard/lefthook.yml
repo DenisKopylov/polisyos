@@ -1,20 +1,29 @@
+no_auto_install: true
+
 pre-commit:
+  fail_on_changes: always
   parallel: true
   commands:
     prettier:
+      root: "policy-engine/apps/runtime-dashboard/"
       glob: "*.{css,js,json,md,mjs,ts,tsx,yaml,yml}"
       run: corepack pnpm exec prettier --write --ignore-unknown {staged_files}
     eslint:
+      root: "policy-engine/apps/runtime-dashboard/"
       glob: "*.{js,mjs,ts,tsx}"
       run: corepack pnpm exec eslint --fix {staged_files}
     check-contrast:
+      root: "policy-engine/apps/runtime-dashboard/"
       run: node --experimental-strip-types ../../tools/design/check-contrast.ts
     check-reduced-motion:
+      root: "policy-engine/apps/runtime-dashboard/"
       run: node --experimental-strip-types ../../tools/design/check-reduced-motion.ts
 
 pre-push:
   commands:
     typecheck:
+      root: "policy-engine/apps/runtime-dashboard/"
       run: corepack pnpm run typecheck
     test:
+      root: "policy-engine/apps/runtime-dashboard/"
       run: corepack pnpm run test

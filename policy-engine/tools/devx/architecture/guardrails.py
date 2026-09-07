@@ -13,8 +13,10 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 import tomllib
+import venv
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -1456,7 +1458,6 @@ def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
     )
     shutil.copytree(repo_root, destination, symlinks=True, ignore=ignored)
     for relative in (
-        Path(".venv"),
         Path("node_modules"),
         Path("packages/runtime-api-client/node_modules"),
         Path("apps/runtime-dashboard/node_modules"),
@@ -1467,6 +1468,58 @@ def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
         linked = destination / relative
         linked.parent.mkdir(parents=True, exist_ok=True)
         linked.symlink_to(source, target_is_directory=True)
+
+
+def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
+    """Bind probe imports and uv's disposable environment to the copied source."""
+    private_environment = source_root.parent / "environment"
+    environment = os.environ.copy()
+    for name in (
+        "VIRTUAL_ENV",
+        "CONDA_PREFIX",
+        "PYTHONHOME",
+        "UV_PROJECT_ENVIRONMENT",
+        "UV_NO_SYNC",
+        "UV_NO_CONFIG",
+        "UV_CONFIG_FILE",
+        "UV_ENV_FILE",
+        "UV_ISOLATED",
+    ):
+        environment.pop(name, None)
+    environment.update(
+        {
+            "UV_FROZEN": "1",
+            "UV_PROJECT": str(source_root),
+            "UV_PROJECT_ENVIRONMENT": str(private_environment),
+            "UV_CACHE_DIR": str(source_root.parent / "uv-cache"),
+            "UV_WORKING_DIR": str(source_root),
+            "UV_PYTHON": sys.executable,
+            "UV_NO_ENV_FILE": "1",
+            "PYTHONPATH": os.pathsep.join((str(source_root / "src"), str(source_root))),
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PATH": os.pathsep.join((str(private_environment / "bin"), environment.get("PATH", ""))),
+        }
+    )
+    return environment
+
+
+def _prepare_isolated_probe_environment(source_root: Path, environment: dict[str, str]) -> None:
+    """Provision a private interpreter before any family's output measurement."""
+    private_environment = Path(environment["UV_PROJECT_ENVIRONMENT"])
+    venv.EnvBuilder(with_pip=False).create(private_environment)
+    (source_root / ".venv").symlink_to(private_environment, target_is_directory=True)
+    if (source_root / "pyproject.toml").is_file():
+        uv_binary = shutil.which("uv", path=environment["PATH"])
+        if uv_binary is None:
+            raise FileNotFoundError("uv is required to provision the locked probe environment")
+        subprocess.run(
+            [uv_binary, "sync", "--frozen"],
+            cwd=source_root,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
 
 
 def _changed_snapshot_paths(
@@ -1515,6 +1568,8 @@ def _run_required_generated_artifact_checks(
     required_families = [
         family for family in families if _requires_default_generated_freshness(family)
     ]
+    if not required_families:
+        return []
     violations: list[GuardrailViolation] = []
     declared_owners: dict[str, list[str]] = {}
     for family in families:
@@ -1533,6 +1588,23 @@ def _run_required_generated_artifact_checks(
         isolated_repo_root = scratch_root / "source"
         output_root = scratch_root / "outputs"
         _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
+        environment = _isolated_probe_environment(isolated_repo_root)
+        try:
+            _prepare_isolated_probe_environment(isolated_repo_root, environment)
+        except (OSError, subprocess.CalledProcessError) as error:
+            detail = (
+                ((error.stdout or "") + (error.stderr or "")).strip()
+                if isinstance(error, subprocess.CalledProcessError)
+                else str(error)
+            )
+            return [
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject="required_freshness_environment",
+                    detail="probe_environment_preparation_failed",
+                    message=f"Required freshness environment preparation failed: {detail}",
+                )
+            ]
         for family in required_families:
             family_violations: list[GuardrailViolation] = []
             probe_command = family.output_probe_command
@@ -1558,6 +1630,7 @@ def _run_required_generated_artifact_checks(
             result = subprocess.run(
                 rendered_command,
                 cwd=isolated_repo_root,
+                env=environment,
                 capture_output=True,
                 text=True,
                 check=False,

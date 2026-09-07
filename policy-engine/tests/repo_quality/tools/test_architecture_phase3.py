@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import os
+import subprocess
 import sys
 import textwrap
 from pathlib import Path
@@ -300,6 +302,168 @@ def _write_expected_output(expected_root: Path, relative: str, contents: str) ->
     destination = expected_root / relative
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(contents, encoding="utf-8")
+
+
+def test_generated_probe_preserves_caller_editable_binding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Run a real uv generator without rebinding the caller's editable package."""
+    caller = tmp_path / "caller"
+    package = caller / "src/freshness_station_probe"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (caller / "pyproject.toml").write_text(
+        '[project]\nname = "freshness-station-probe"\nversion = "0.0.0"\n'
+        'requires-python = ">=3.11"\n'
+        '[build-system]\nrequires = []\nbuild-backend = "backend"\nbackend-path = ["."]\n',
+        encoding="utf-8",
+    )
+    # A stdlib-only editable backend keeps the regression independent of network/cache state.
+    (caller / "backend.py").write_text(
+        textwrap.dedent("""\
+            from pathlib import Path
+            from zipfile import ZipFile
+
+            def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
+                name = "freshness_station_probe-0.0.0-py3-none-any.whl"
+                info = "freshness_station_probe-0.0.0.dist-info"
+                files = {
+                    "freshness_station_probe.pth": str(Path(__file__).parent / "src") + "\\n",
+                    info + "/METADATA": "Metadata-Version: 2.1\\nName: freshness-station-probe\\nVersion: 0.0.0\\n",
+                    info + "/WHEEL": "Wheel-Version: 1.0\\nRoot-Is-Purelib: true\\nTag: py3-none-any\\n",
+                }
+                files[info + "/RECORD"] = "".join(key + ",,\\n" for key in files) + info + "/RECORD,,\\n"
+                with ZipFile(Path(wheel_directory) / name, "w") as wheel:
+                    for path, content in files.items():
+                        wheel.writestr(path, content)
+                return name
+
+            build_wheel = build_editable
+            """),
+        encoding="utf-8",
+    )
+    environment = {key: value for key, value in os.environ.items() if not key.startswith("UV_")}
+    environment.pop("VIRTUAL_ENV", None)
+    subprocess.run(
+        ["uv", "sync", "--offline", "--python", sys.executable],
+        cwd=caller,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    def bindings() -> dict[str, bytes]:
+        return {
+            path.relative_to(caller).as_posix(): path.read_bytes()
+            for path in (caller / ".venv").rglob("*.pth")
+        }
+
+    before = bindings()
+    assert before, "The probe must actually have an editable install to protect."
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "generated\n")
+    writer = (
+        "from pathlib import Path; import sys, freshness_station_probe; "
+        "p = Path(sys.argv[1]); p.mkdir(parents=True); "
+        "(p / 'generated.txt').write_text('generated\\n')"
+    )
+    family = _generated_client_family(
+        caller,
+        family_id="editable-binding-probe",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(),
+        output_probe_command=("uv", "run", "--offline", "python", "-c", writer, "{output_root}"),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
+    # Even a caller-selected environment must not redirect the generator's install.
+    monkeypatch.setenv("UV_PROJECT_ENVIRONMENT", str(caller / ".venv"))
+    findings = guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
+
+    assert bindings() == before
+    imported = subprocess.run(
+        [
+            str(caller / ".venv/bin/python"),
+            "-c",
+            "import freshness_station_probe; print(freshness_station_probe.__file__)",
+        ],
+        cwd=caller,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert Path(imported.stdout.strip()) == package / "__init__.py"
+    assert findings == []
+
+
+def test_generated_probe_prepares_private_python_and_cache(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    caller = tmp_path / "caller"
+    caller.mkdir()
+    (caller / "uv.toml").write_text('cache-dir = "_cache/uv"\n', encoding="utf-8")
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "generated\n")
+    writer = textwrap.dedent("""\
+        import os
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        source = Path.cwd().resolve()
+        environment = Path(sys.prefix).resolve()
+        assert environment != Path(sys.base_prefix).resolve()
+        assert not environment.is_relative_to(source)
+        assert (source / '.venv').resolve() == environment
+        assert Path(os.environ['UV_PROJECT_ENVIRONMENT']).resolve() == environment
+        cache = Path(subprocess.run(
+            ['uv', 'cache', 'dir'], capture_output=True, text=True, check=True
+        ).stdout.strip()).resolve()
+        cache.mkdir(parents=True, exist_ok=True)
+        (cache / 'probe-cache-write').write_text('cache')
+        assert not cache.is_relative_to(source)
+        output = Path(sys.argv[1])
+        output.mkdir(parents=True)
+        (output / 'generated.txt').write_text('generated\\n')
+        """)
+    family = _generated_client_family(
+        caller,
+        family_id="private-python-cache-probe",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(),
+        output_probe_command=(".venv/bin/python", "-c", writer, "{output_root}"),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
+
+    findings = guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
+
+    assert findings == []
+    assert not (caller / ".venv").exists()
+    assert not (caller / "_cache").exists()
+
+
+def test_generated_probe_refuses_unprepared_project_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    caller = tmp_path / "caller"
+    caller.mkdir()
+    (caller / "pyproject.toml").write_text(
+        '[project]\nname = "missing-lock-probe"\nversion = "0.0.0"\n',
+        encoding="utf-8",
+    )
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "generated\n")
+    family = _generated_client_family(
+        caller,
+        family_id="unprepared-environment-probe",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(("generated.txt", "generated\n"),),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
+
+    findings = guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
+
+    assert [finding.detail for finding in findings] == ["probe_environment_preparation_failed"]
 
 
 def test_guardrails_rejects_emitted_but_unregistered_output(

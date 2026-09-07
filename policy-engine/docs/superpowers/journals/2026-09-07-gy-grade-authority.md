@@ -1161,6 +1161,99 @@ failed; its metadata-key/retained-abstract counts are `not_established` and are
 not used above. A first numeric query had an SQL alias parse error; the corrected
 complete run is the stated numeric receipt.
 
+### GGA-PA1-03 — independent challenge refutes the stronger impossibility claim
+
+The conclusion in GGA-PA1-02 was too strong. Absence of admitted rows measures the
+current chain; it does not prove that the DataForge producer cannot be built.
+Independent source review identified existing retained-text and span-grounding
+intake seams, and the following new complete source measurement then refuted
+absence of usable source text. This is an append-only correction, not a reason
+to discard the earlier measurements or redo the accepted S8 work.
+
+The new station used read-only DuckDB connections with its spill directory in
+this worktree's scratch. It returned exit 0. Every one of the 4,032 estimates
+with a nonzero CI joins a retained work, spanning 1,468 work IDs. Of those 4,032
+estimate rows, 4,029 join a nonempty abstract, 1,309 carry candidate raw context,
+and 1,080 contexts occur exactly in the retained abstract. Those are complete
+join denominators, not a sampled claim of source availability.
+
+Both edges whose endpoints lie in the complete 94-variable UA observation set
+come from Indonesian papers, `W2914599766` and `W2992159319`. Both abstracts are
+retained; one lacks numeric uncertainty and the other reports a qualitative null
+finding. UA transport is not established by that two-edge source set.
+
+A named positive source witness, separate from the census, is `W7124317257`:
+its abstract reports IVR anxiety SMD −0.77 with 95% CI [−1.32, −0.22]. Stored
+candidate estimate `00f13cb02291b2ba616ebd3f` instead labels the unit `percent`
+and the variable `ArtTherapyMentalHealth`. Source availability therefore opens
+producer work while independently demonstrating why source-byte matching alone
+must not validate the candidate's numerical and identity fields.
+
+The next implementation decision is reuse-first: identify the missing bridge
+around the existing `ingest_openalex_span_grounded_claims` and its source/semantic
+verifier before adding any carrier. Source-grounded extraction, candidate-specific
+causal/estimand validity and target transport remain distinct predicates. This
+entry establishes buildable source work and corrects the impossibility claim;
+it does not issue a positive N8 grade or claim the producer is already delivered.
+
+### GGA-ADJ-02 — shared verifier, and the premises the first repair missed
+
+The first implementation moved deterministic arithmetic to the lower DataForge
+owner and made Scientist execution and direct DataForge materialization share a
+non-producing verifier. It authenticated separately signed benchmark and raw-run
+observations, recomputed metrics/guardrails/promotion and the complete batch, and
+left deployment appointment slots empty. The execution receipt is necessary:
+passing a valid benchmark receipt alone cannot certify arbitrarily fabricated
+runtime results. CAS reads reuse the existing content-hash verification; the
+hypothesis that this needed another hash implementation was rejected on source.
+
+A fieldless, owner-minted row capability then replaced raw mapping admission at
+graph/conflict consumers. Actual removal of `verify_batch` while all DTOs, CAS
+artifacts and fixture signatures remained made both original negatives red:
+Scientist completed with one published claim, and direct DataForge materialized
+the forged batch. Each command returned exit 1 on its refusal assertion. These
+first removal receipts have no retained complete wall duration; a packaged
+station preserves their exact command bodies for the final-source replay.
+
+Independent review exposed two missing premises in that first implementation.
+Both were classified in writing as **the same grade-authority/content-binding
+class**, rather than counted as a sequence of unrelated flag repairs.
+
+- **Subject binding:** an authentic receipt for `c-1`, work `W1`,
+  `tax_rate → employment` was borrowed at graph and conflict joins for another
+  work, or `unrelated_budget → unrelated_hospital_access`, while keeping `c-1`.
+  Four refusal cells failed and two matching controls passed, **exit 1, 15.68 s**.
+  The graph persisted the substituted subject and the conflict artifact marked
+  it publishable. No production monkeypatching or signature changes were needed.
+  A token proved receipt provenance, not that the current projection was its
+  subject. Comparing only the witnessed four fields would repeat this mistake:
+  the signed raw input also carries text, direction, effect size, scope and
+  supporting evidence that the result DTO does not fully retain.
+- **Transition-basis completeness:** the real registry rejected an equal-score
+  challenger to a perfect incumbent as `not_better_than_champion`. After replacing
+  the mutable current pointer, accurate and genuinely fixture-signed challenger
+  observations could omit the optional incumbent context, and replay accepted.
+  Two controls passed and the omitted-incumbent refusal failed, **exit 1**;
+  complete wall duration was not retained. Supplying the real incumbent's
+  observations correctly rejected the challenger. The missing premise was not a
+  false observation: this receipt schema did not establish the completeness of
+  its transition basis. The existing registry retains no predecessor history.
+
+The scoped consumer census parsed all 2,623 Python files then present beneath
+`src/polisyos`, with no parse failures. Its eight named authority APIs had 13
+direct calls; the two graph joins and one conflict join were the demonstrated
+binding boundary. This is a scoped API-call denominator, not a declaration about
+every possible future publication consumer.
+
+The repair decision, before the next measurement: use one complete, source-bound
+subject projection shared by both consumers; missing transport cannot be filled
+from the trusted original to make a comparison pass. Retain the promotion basis
+independently of candidate receipts, require the bound predecessor observations
+when it exists, and distinguish explicit first promotion from missing history.
+No reconstruction of unrecorded legacy transitions is claimed. These corrections
+are batched before the next freeze. This entry records the investigation and
+decision, not a claim that the corrected mechanism has passed.
+
 ### Durable continuation station sources (completed investigation)
 
 These are exact preserved scratch sources, not fresh run receipts. Restore each Python body at its named ignored path and invoke it with `python -m`; commands and observed outcomes are recorded in the corresponding finding. The pin patch remains a proposal pending permission. No invocation here writes a governing architecture file.

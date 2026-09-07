@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from copy import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -128,9 +128,7 @@ def _pareto_archive_payload(**overrides: object) -> dict[str, object]:
         "value_schedule_ref": "pdc://layer2/s8/ua-msme/value-schedule/authorized",
         "ranking_mode": "ranked_with_authorized_values",
         "archive_status": "ranked_with_authorized_values",
-        "scenario_value_schedule_refs": [
-            "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
-        ],
+        "scenario_value_schedule_refs": ["pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"],
         "claim_refs": ["claim://ua-msme/welfare-frontier"],
         "audit_refs": ["cas://audit/welfare-frontier/ua-msme"],
         "authority_boundary": _authority_boundary(authoritative_for=["pareto_archive"]),
@@ -155,9 +153,7 @@ def _value_choice_payload(**overrides: object) -> dict[str, object]:
         ],
         "mandate_refs": ["pdc://layer2/s6/ua-msme/mandate-legitimacy"],
         "delegation_refs": ["pdc://layer2/s7/ua-msme/value-authorization-request"],
-        "value_authorization_decision_refs": [
-            "pdc://layer2/s7/ua-msme/value-authorization-record"
-        ],
+        "value_authorization_decision_refs": ["pdc://layer2/s7/ua-msme/value-authorization-record"],
         "conflict_rows": [],
         "affected_group_rows": [
             {
@@ -181,9 +177,7 @@ def _value_choice_payload(**overrides: object) -> dict[str, object]:
             "pdc://layer2/s8/ua-msme/value-schedule/authorized",
             "pdc://layer2/s8/ua-msme/pareto-archive",
         ],
-        "authority_boundary": _authority_boundary(
-            authoritative_for=["value_choice_provenance"]
-        ),
+        "authority_boundary": _authority_boundary(authoritative_for=["value_choice_provenance"]),
         "rule_version_ref": RULE_VERSION_REF,
     }
     payload.update(overrides)
@@ -532,12 +526,12 @@ def test_s7_value_authorization_route_requires_governance_decision_class_and_fiv
 
 def test_value_tradeoff_disclosure_has_audience_bounded_public_projection() -> None:
     public = _s8("project_value_tradeoff_disclosure")(
-        value_choice_record=_value_choice_payload(),
+        value_choice_record=_value_choice_payload(disposition="advisory_only"),
         audience="PUBLIC",
         rule_version_ref=RULE_VERSION_REF,
     )
     machine = _s8("project_value_tradeoff_disclosure")(
-        value_choice_record=_value_choice_payload(),
+        value_choice_record=_value_choice_payload(disposition="advisory_only"),
         audience="MACHINE",
         rule_version_ref=RULE_VERSION_REF,
     )
@@ -579,3 +573,418 @@ def test_value_choice_records_are_exported_from_runtime_quality() -> None:
 
     missing = sorted(name for name in required_exports if not hasattr(runtime_quality, name))
     assert missing == []
+
+
+def test_ranked_bundle_persistence_requires_owner_verification(tmp_path: Path) -> None:
+    """Deleting persistence admission while keeping DTO markers must reopen this escape."""
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    store = artifacts.FileSystemCAS(tmp_path)
+    with pytest.raises(s8.P20NormativeChoiceError):
+        s8.persist_value_choice_provenance_bundle(
+            {"pareto_archive": _pareto_archive_payload()}, store=store
+        )
+
+
+def _normative_harness(tmp_path: Path, *, fault: str = "") -> dict[str, Any]:
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    store = artifacts.FileSystemCAS(tmp_path)
+    claimant_key, authorizer_key = artifacts.KeyPair.generate(), artifacts.KeyPair.generate()
+    claimant = "claimant://research-owner"
+    authorizer = "principal://ua/ministry-of-economy"
+    if fault == "self_grading":
+        authorizer_key, authorizer = claimant_key, claimant
+    scope = "value-scope://credit-and-budget"
+    mandate = "pdc://layer2/s6/ua-msme/mandate-legitimacy"
+
+    def put(payload: object, kind: str, schema: str, key: Any, identity: str) -> str:
+        ref = store.put_json(
+            payload,
+            artifacts.PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(name=kind, version=schema),
+            ),
+        )
+        store.sign_artifact(
+            ref.artifact_id, artifacts.Ed25519Signer(key.private_key), signer_identity=identity
+        )
+        return str(ref.artifact_id)
+
+    schedule = s8.build_authorized_value_schedule(
+        **_authorized_schedule_payload(
+            principal_refs=[authorizer],
+            schedule_ref=f"pdc://value-schedule/{uuid4().hex}",
+        )
+    )
+    if fault == "shadow":
+        schedule = s8.build_shadow_scenario_value_schedule(
+            schedule_ref=f"pdc://value-schedule/{uuid4().hex}",
+            case_id=CASE_ID,
+            principal_refs=[authorizer],
+            social_weight_provenance_refs=["swr://scenario"],
+            scenario_label="sensitivity",
+            rule_version_ref=RULE_VERSION_REF,
+        )
+    schedule_ref = put(
+        schedule.model_dump(mode="json"),
+        s8.NORMATIVE_SCHEDULE_KIND,
+        s8.LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        claimant_key,
+        claimant,
+    )
+    frontier = s8.build_pareto_archive(
+        **_pareto_archive_payload(
+            ranking_mode="unranked_frontier_only",
+            archive_status="frontier_available",
+            value_schedule_ref=None,
+            rejected_nondominated_alternative_ids=[],
+            **(
+                {
+                    "authority_boundary": _authority_boundary(
+                        authoritative_for=["publication_authority", "outcome_prediction_authority"]
+                    ),
+                }
+                if fault == "broader_frontier"
+                else {}
+            ),
+        )
+    )
+    frontier_ref = put(
+        frontier.model_dump(mode="json"),
+        s8.NORMATIVE_FRONTIER_KIND,
+        s8.LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        claimant_key,
+        claimant,
+    )
+    authorization = s8.NormativeAuthorizationRecord(
+        authorizer_identity=authorizer,
+        authority_purpose="legal_competence"
+        if fault == "purpose"
+        else "value_schedule_for_ranking",
+        case_id="other-case" if fault == "case" else CASE_ID,
+        scope_ref="other-scope" if fault == "scope" else scope,
+        mandate_ref=mandate,
+        decision_class_id="value_authorization",
+        decision_role="legal_reviewer" if fault == "role" else "principal",
+        source_schedule_ref="sha256:" + "f" * 64 if fault == "missing_schedule" else schedule_ref,
+        frontier_ref=frontier_ref,
+        selected_alternative_id="targeted_credit",
+        effective_at=NOW - timedelta(days=1),
+        expires_at=NOW + timedelta(days=-0.5 if fault == "stale" else 1),
+        rule_version_ref=RULE_VERSION_REF,
+    )
+    authorization_ref = put(
+        authorization.model_dump(mode="json"),
+        s8.NORMATIVE_AUTHORIZATION_KIND,
+        s8.NORMATIVE_AUTHORIZATION_SCHEMA_VERSION,
+        authorizer_key,
+        authorizer,
+    )
+    authorizer_trust = s8.NormativeAuthorityPrincipal(
+        identity=authorizer,
+        public_key_pem=authorizer_key.public_pem().decode(),
+        decision_roles=("principal",),
+        authority_purposes=("value_schedule_for_ranking",),
+        case_ids=(CASE_ID,),
+        scope_refs=(scope,),
+        mandate_refs=(mandate,),
+    )
+    principals = [authorizer_trust]
+    if fault != "self_grading":
+        principals.append(
+            s8.NormativeAuthorityPrincipal(
+                identity=claimant, public_key_pem=claimant_key.public_pem().decode()
+            )
+        )
+    trust = s8.NormativeAuthorityTrust(
+        epoch="test-deployment-epoch", principals=() if fault == "empty" else tuple(principals)
+    )
+    owner = s8.NormativeValueScheduleOwner(store=store, trust=trust)
+    if fault == "signature":
+        signature = store.get_signature(authorization_ref)
+        assert signature is not None
+        signature.signature_hex = ("00" if signature.signature_hex[:2] != "00" else "01") + (
+            signature.signature_hex[2:]
+        )
+        store.put_signature(authorization_ref, signature)
+    return {
+        "owner": owner,
+        "store": store,
+        "frontier": frontier,
+        "kwargs": {
+            "frontier_ref": frontier_ref,
+            "authorization_ref": None if fault == "missing" else authorization_ref,
+            "case_id": CASE_ID,
+            "scope_ref": scope,
+            "evaluated_at": NOW,
+        },
+    }
+
+
+def test_separate_signed_authorization_produces_persists_resolves_and_projects(
+    tmp_path: Path,
+) -> None:
+    harness = _normative_harness(tmp_path)
+    owner = harness["owner"]
+    result, bundle_ref = owner.recommend(**harness["kwargs"])
+
+    assert result.ranked_recommendations == ("targeted_credit",), (
+        result.decision_request.reason_codes if result.decision_request else None
+    )
+    assert result.authorization_status == "authorized"
+    assert result.decision_request is None
+    assert result.archive.normative_admission_ref
+    assert (
+        owner.resolve_archive(result.archive.normative_admission_ref, evaluated_at=NOW)
+        == result.archive
+    )
+    assert owner.project(bundle_ref, evaluated_at=NOW) == result.model_dump(mode="json")
+
+
+@pytest.mark.parametrize(
+    ("fault", "reason"),
+    [
+        ("missing", "p20_normative_authorization_missing"),
+        ("missing_schedule", "p20_value_schedule_ref_unresolvable"),
+        ("empty", "p20_normative_authority_slot_empty"),
+        ("self_grading", "p20_normative_self_grading"),
+        ("role", "p20_normative_authority_scope_mismatch"),
+        ("purpose", "p20_normative_authority_scope_mismatch"),
+        ("scope", "p20_normative_authority_scope_mismatch"),
+        ("case", "p20_normative_authority_scope_mismatch"),
+        ("stale", "p20_normative_authorization_stale"),
+        ("shadow", "p20_resolved_schedule_not_authorized"),
+        ("signature", "p20_normative_signature_unverified"),
+    ],
+)
+def test_invalid_authority_keeps_frontier_and_persists_typed_request(
+    tmp_path: Path, fault: str, reason: str
+) -> None:
+    harness = _normative_harness(tmp_path, fault=fault)
+    result, bundle_ref = harness["owner"].recommend(**harness["kwargs"])
+
+    assert result.ranked_recommendations == ()
+    assert result.authorization_status == "blocked"
+    assert (
+        result.archive.nondominated_alternative_ids
+        == harness["frontier"].nondominated_alternative_ids
+    )
+    assert result.archive.frontier_refs == harness["frontier"].frontier_refs
+    assert result.archive.claim_refs == harness["frontier"].claim_refs
+    assert result.archive.authority_boundary.authoritative_for == ["candidate_value_disclosure"]
+    assert result.decision_request.reason_codes == (reason,)
+    assert harness["owner"].project(bundle_ref, evaluated_at=NOW)["decision_request"]
+
+
+def test_ranked_persistence_and_projection_recheck_ttl_and_exact_selection(tmp_path: Path) -> None:
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    harness = _normative_harness(tmp_path)
+    owner = harness["owner"]
+    result, bundle_ref = owner.recommend(**harness["kwargs"])
+    assert result.ranked_recommendations
+    with pytest.raises(s8.P20NormativeChoiceError, match="stale"):
+        owner.project(bundle_ref, evaluated_at=NOW + timedelta(days=2))
+    payload = result.model_dump(mode="json")
+    payload["archive"]["selected_alternative_ref"] = "cash_transfer"
+    payload["ranked_recommendations"] = ["cash_transfer"]
+    with pytest.raises(s8.P20NormativeChoiceError, match="content_mismatch"):
+        s8.persist_value_choice_provenance_bundle(
+            payload, store=harness["store"], owner=owner, evaluated_at=NOW
+        )
+
+
+def test_authorized_projection_cannot_grade_its_own_mapping() -> None:
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    with pytest.raises(s8.P20NormativeChoiceError, match="resolver_absent"):
+        s8.project_value_tradeoff_disclosure(
+            value_choice_record=_value_choice_payload(),
+            audience="PUBLIC",
+            rule_version_ref=RULE_VERSION_REF,
+        )
+
+
+@pytest.mark.parametrize("fault", ["", "role"])
+def test_persisted_authorization_status_is_derived_from_the_verified_result(
+    tmp_path: Path, fault: str
+) -> None:
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    harness = _normative_harness(tmp_path, fault=fault)
+    result, _ = harness["owner"].recommend(**harness["kwargs"])
+    payload = result.model_dump(mode="json")
+    payload["authorization_status"] = (
+        "blocked" if result.authorization_status == "authorized" else "authorized"
+    )
+    with pytest.raises(s8.P20NormativeChoiceError, match="mismatch"):
+        s8.persist_value_choice_provenance_bundle(
+            payload,
+            store=harness["store"],
+            owner=harness["owner"],
+            evaluated_at=NOW,
+        )
+
+
+def test_admission_cannot_replace_verified_claimant_with_an_asserted_identity(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core import artifacts, canon
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    harness = _normative_harness(tmp_path)
+    owner, store = harness["owner"], harness["store"]
+    admission_ref = owner.produce(**harness["kwargs"])
+    payload = canon.from_canonical_bytes(store.get_bytes(admission_ref))
+    payload["claimant_identity"] = "claimant://someone-else"
+    manifest = store.get_manifest(admission_ref)
+    forged = store.put_json(
+        payload,
+        artifacts.PutOptions(
+            kind=manifest.kind,
+            media_type="application/json",
+            schema=manifest.artifact_schema,
+        ),
+    )
+    with pytest.raises(s8.P20NormativeChoiceError, match="admission_content_mismatch"):
+        owner.resolve_archive(str(forged.artifact_id), evaluated_at=NOW)
+
+
+def test_nested_sibling_ranked_payload_must_use_the_same_owner(tmp_path: Path) -> None:
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    harness = _normative_harness(tmp_path)
+    with pytest.raises(s8.P20NormativeChoiceError, match="unregistered_s8_emission"):
+        s8.persist_value_choice_provenance_bundle(
+            {"other_consumer": [{"payload": _pareto_archive_payload()}]},
+            store=harness["store"],
+        )
+
+
+def test_trust_cannot_turn_one_key_into_two_independent_parties(tmp_path: Path) -> None:
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    key = artifacts.KeyPair.generate()
+    trust = s8.NormativeAuthorityTrust(
+        principals=tuple(
+            s8.NormativeAuthorityPrincipal(
+                identity=identity, public_key_pem=key.public_pem().decode()
+            )
+            for identity in ("claimant://original", "principal://alias")
+        )
+    )
+    with pytest.raises(ValueError, match="alias a signing key"):
+        s8.NormativeValueScheduleOwner(store=artifacts.FileSystemCAS(tmp_path), trust=trust)
+
+
+def test_schedule_bytes_remain_bound_after_a_valid_signature(tmp_path: Path) -> None:
+    from polisyos.core import artifacts, canon
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    harness = _normative_harness(tmp_path)
+    store = harness["store"]
+    authorization = canon.from_canonical_bytes(
+        store.get_bytes(harness["kwargs"]["authorization_ref"])
+    )
+    ref = artifacts.ArtifactID.model_validate(authorization["source_schedule_ref"])
+    blob_path, _ = store.get_paths(ref)
+    blob_path.write_bytes(blob_path.read_bytes().replace(b'"approved"', b'"rejected"'))
+    result, _ = harness["owner"].recommend(**harness["kwargs"])
+    assert result.ranked_recommendations == ()
+    assert result.decision_request.reason_codes == (s8.P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE,)
+
+
+def test_selection_permission_sets_a_whole_authority_ceiling(tmp_path: Path) -> None:
+    harness = _normative_harness(tmp_path, fault="broader_frontier")
+    result, bundle_ref = harness["owner"].recommend(**harness["kwargs"])
+    projected = harness["owner"].project(bundle_ref, evaluated_at=NOW)
+    assert result.ranked_recommendations == ("targeted_credit",)
+    assert projected["archive"]["authority_boundary"]["authoritative_for"] == [
+        "value_schedule_for_ranking"
+    ]
+    assert projected["archive"]["nondominated_alternative_ids"] == (
+        harness["frontier"].nondominated_alternative_ids
+    )
+    assert "publication_authority" in projected["archive"]["may_not_use_for"]
+    assert "outcome_prediction_authority" in projected["archive"]["may_not_use_for"]
+
+
+@pytest.mark.parametrize("audience", ["REVIEWER", "MACHINE"])
+def test_permission_projection_never_grades_candidate_auxiliary_premises(
+    tmp_path: Path, audience: str
+) -> None:
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    harness = _normative_harness(tmp_path)
+    result, _ = harness["owner"].recommend(**harness["kwargs"])
+    archive = result.archive
+    candidate = _value_choice_payload(
+        normative_admission_ref=archive.normative_admission_ref,
+        selected_alternative_ref=archive.selected_alternative_ref,
+        value_schedule_ref=archive.value_schedule_ref,
+        pareto_archive_ref=archive.archive_ref,
+        integrity_status="pass",
+        mandate_refs=["mandate://unverified"],
+        delegation_refs=["delegation://unverified"],
+        replay_refs=["replay://unverified"],
+        authority_boundary=_authority_boundary(authoritative_for=["publication_authority"]),
+    )
+    projected = s8.project_value_tradeoff_disclosure(
+        value_choice_record=candidate,
+        audience=audience,
+        rule_version_ref=RULE_VERSION_REF,
+        owner=harness["owner"],
+        evaluated_at=NOW,
+    )
+    status = projected.reviewer_status_fields or projected.machine_integrity_fields
+    assert status["normative_authorization_status"] == "verified"
+    assert status["candidate_material_status"] == "unverified_disclosure"
+    assert all(
+        status[field] == "not_established"
+        for field in status
+        if field.endswith("status")
+        and field not in {"normative_authorization_status", "candidate_material_status"}
+    )
+    persisted = s8.persist_value_choice_provenance_bundle(
+        projected.model_dump(mode="json"),
+        store=harness["store"],
+        owner=harness["owner"],
+        evaluated_at=NOW,
+    )
+    assert harness["owner"].project(str(persisted["artifact_ref"]), evaluated_at=NOW) == (
+        projected.model_dump(mode="json")
+    )
+
+
+@pytest.mark.parametrize("audience", ["REVIEWER", "MACHINE"])
+def test_registered_advisory_disclosure_rejects_all_modified_assessment_fields(
+    tmp_path: Path, audience: str
+) -> None:
+    from copy import deepcopy
+
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    store = artifacts.FileSystemCAS(tmp_path)
+    payload = s8.project_value_tradeoff_disclosure(
+        value_choice_record=_value_choice_payload(disposition="advisory_only"),
+        audience=audience,
+        rule_version_ref=RULE_VERSION_REF,
+    ).model_dump(mode="json")
+    assert s8.persist_value_choice_provenance_bundle(payload, store=store)["artifact_ref"]
+    field = "reviewer_status_fields" if audience == "REVIEWER" else "machine_integrity_fields"
+    # Complete assessment field set comes from the emitted contract, not a list of known probes.
+    for name, original in payload[field].items():
+        mutated = deepcopy(payload)
+        mutated[field][name] = (
+            {"authoritative_for": ["publication_authority"]}
+            if isinstance(original, dict)
+            else "pass"
+        )
+        with pytest.raises(s8.P20NormativeChoiceError, match="disclosure_authority_mismatch"):
+            s8.persist_value_choice_provenance_bundle(mutated, store=store)

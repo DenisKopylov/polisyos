@@ -6,10 +6,11 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from collections.abc import Set as AbstractSet
+from contextvars import ContextVar
 from datetime import UTC, datetime
 from typing import Any, Literal, Self, cast
 
-from pydantic import AwareDatetime, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
@@ -27,6 +28,15 @@ S8_VALUE_CHOICE_FLOOR_ID = "s8_value_provenance"
 P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE = "p20_value_schedule_resolver_absent"
 # Reserved for a future owner-backed resolver's per-reference failure.
 P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE = "p20_value_schedule_ref_unresolvable"
+NORMATIVE_AUTHORIZATION_SCHEMA_VERSION = "policyos.normative_authorization.v1"
+NORMATIVE_AUTHORIZATION_KIND = "runtime_quality.normative_authorization"
+NORMATIVE_SCHEDULE_KIND = "runtime_quality.normative_value_schedule"
+NORMATIVE_FRONTIER_KIND = "runtime_quality.normative_frontier"
+_NORMATIVE_ADMISSION_KIND = "runtime_quality.normative_schedule_admission"
+_NORMATIVE_PURPOSE = "value_schedule_for_ranking"
+_RANKED_ARCHIVE_PAYLOAD: ContextVar[dict[str, object] | None] = ContextVar(
+    "verified_normative_archive", default=None
+)
 
 ValueSourceClass = Literal[
     "authorized_governance_schedule",
@@ -121,7 +131,7 @@ class P20NormativeChoiceError(ValueError):
 
 
 def _require_ranked_value_schedule_resolver(ranking_mode: str) -> None:
-    if ranking_mode == "ranked_with_authorized_values":
+    if ranking_mode == "ranked_with_authorized_values" and _RANKED_ARCHIVE_PAYLOAD.get() is None:
         raise P20NormativeChoiceError(
             f"{P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE}: P20 ranked Pareto archive requires "
             "an owner-resolved authorized value schedule; the value schedule resolver is absent",
@@ -220,10 +230,16 @@ class ParetoArchive(Layer2ReadinessModel):
     may_not_use_for: list[str] = Field(default_factory=lambda: list(_S8_MAY_NOT_USE_FOR))
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+    normative_admission_ref: str | None = None
+    selected_alternative_ref: str | None = None
 
     @model_validator(mode="after")
     def _validate_ranked_admission(self) -> ParetoArchive:
         _require_ranked_value_schedule_resolver(self.ranking_mode)
+        if self.ranking_mode == "ranked_with_authorized_values" and (
+            self.model_dump(mode="json") != _RANKED_ARCHIVE_PAYLOAD.get()
+        ):
+            raise P20NormativeChoiceError("p20_ranked_archive_content_mismatch")
         return self
 
     @classmethod
@@ -274,18 +290,10 @@ class ParetoArchive(Layer2ReadinessModel):
         self,
         *,
         include: (
-            AbstractSet[int]
-            | AbstractSet[str]
-            | Mapping[int, Any]
-            | Mapping[str, Any]
-            | None
+            AbstractSet[int] | AbstractSet[str] | Mapping[int, Any] | Mapping[str, Any] | None
         ) = None,
         exclude: (
-            AbstractSet[int]
-            | AbstractSet[str]
-            | Mapping[int, Any]
-            | Mapping[str, Any]
-            | None
+            AbstractSet[int] | AbstractSet[str] | Mapping[int, Any] | Mapping[str, Any] | None
         ) = None,
         update: dict[str, Any] | None = None,
         deep: bool = False,
@@ -340,6 +348,7 @@ class ValueChoiceProvenanceRecord(Layer2ReadinessModel):
     authority_boundary: AuthorityBoundary
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+    normative_admission_ref: str | None = None
 
 
 class ValueTradeoffDisclosureRecord(Layer2ReadinessModel):
@@ -370,6 +379,8 @@ class ValueTradeoffDisclosureRecord(Layer2ReadinessModel):
     authority_boundary: AuthorityBoundary
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+    normative_admission_ref: str | None = None
+    selected_alternative_ref: str | None = None
 
 
 class ValueChoiceIntegrityReport(Layer2ReadinessModel):
@@ -389,6 +400,462 @@ class ValueChoiceIntegrityReport(Layer2ReadinessModel):
     authority_boundary: AuthorityBoundary
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+
+
+class _NormativeModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class NormativeAuthorityPrincipal(_NormativeModel):
+    """Deployment-supplied trust; never populated from a candidate or authorization payload."""
+
+    identity: str = Field(min_length=1)
+    public_key_pem: str = Field(min_length=1)
+    decision_roles: tuple[str, ...] = ()
+    authority_purposes: tuple[str, ...] = ()
+    case_ids: tuple[str, ...] = ()
+    scope_refs: tuple[str, ...] = ()
+    mandate_refs: tuple[str, ...] = ()
+
+
+class NormativeAuthorityTrust(_NormativeModel):
+    """An empty trust slot admits no authorizer and makes no institutional appointment."""
+
+    epoch: str = Field(default="unconfigured", min_length=1)
+    principals: tuple[NormativeAuthorityPrincipal, ...] = ()
+
+
+class NormativeAuthorizationRecord(_NormativeModel):
+    """External permission for one exact schedule, frontier, and selected alternative.
+
+    Constructing this DTO grants nothing. The independent signature and deployment
+    grant are verified by ``NormativeValueScheduleOwner`` at every consumption.
+    This is permission for the recorded selection, not a proof of optimality.
+    """
+
+    schema_version: Literal["policyos.normative_authorization.v1"] = (
+        NORMATIVE_AUTHORIZATION_SCHEMA_VERSION
+    )
+    authorizer_identity: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    case_id: str = Field(min_length=1)
+    scope_ref: str = Field(min_length=1)
+    mandate_ref: str = Field(min_length=1)
+    decision_class_id: str = Field(min_length=1)
+    decision_role: str = Field(min_length=1)
+    source_schedule_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    frontier_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selected_alternative_id: str = Field(min_length=1)
+    dissent_refs: tuple[str, ...] = ()
+    status: Literal["authorized", "contested", "revoked"] = "authorized"
+    effective_at: AwareDatetime
+    expires_at: AwareDatetime
+    rule_version_ref: str = Field(min_length=1)
+    authoritative_for: tuple[Literal["value_schedule_for_ranking"], ...] = (
+        "value_schedule_for_ranking",
+    )
+    may_not_use_for: tuple[str, ...] = (
+        "legal_competence",
+        "democratic_legitimacy",
+        "claim_evidence",
+        "policy_optimality",
+    )
+
+
+class NormativeDecisionRequest(_NormativeModel):
+    """Persistable refusal asking for explicit value authorization while keeping the frontier."""
+
+    schema_version: Literal["policyos.normative_decision_request.v1"] = (
+        "policyos.normative_decision_request.v1"
+    )
+    case_id: str
+    scope_ref: str
+    frontier_ref: str
+    authorization_ref: str | None
+    reason_codes: tuple[str, ...]
+    requested_at: AwareDatetime
+    authoritative_for: Literal["value_authorization_request"] = "value_authorization_request"
+
+
+class _NormativeScheduleAdmission(_NormativeModel):
+    schema_version: Literal["policyos.normative_schedule_admission.v1"] = (
+        "policyos.normative_schedule_admission.v1"
+    )
+    authorization_ref: str
+    case_id: str
+    scope_ref: str
+    frontier_ref: str
+    schedule_ref: str
+    authorizer_identity: str
+    claimant_identity: str
+    authorizer_key_id: str
+    claimant_key_id: str
+    trust_epoch: str
+    admitted_at: AwareDatetime
+
+
+class NormativeRankingResult(_NormativeModel):
+    """An authorized frontier selection or a frontier plus a typed decision request."""
+
+    archive: ParetoArchive
+    authorization_status: Literal["authorized", "blocked"]
+    ranked_recommendations: tuple[str, ...] = ()
+    decision_request: NormativeDecisionRequest | None = None
+
+
+class _NormativeProjectionAssessment(_NormativeModel):
+    """Selection permission cannot establish other owners' auxiliary grades."""
+
+    normative_authorization_status: Literal["verified", "not_established"]
+    normative_admission_ref: str | None
+    assessed_purpose: Literal["value_schedule_for_ranking"] = "value_schedule_for_ranking"
+    p20_firewall_status: Literal["not_established"] = "not_established"
+    p22_firewall_status: Literal["not_established"] = "not_established"
+    p12_firewall_status: Literal["not_established"] = "not_established"
+    p15_firewall_status: Literal["not_established"] = "not_established"
+    p26_firewall_status: Literal["not_established"] = "not_established"
+    integrity_status: Literal["not_established"] = "not_established"
+    authority_boundary: AuthorityBoundary
+    candidate_material_status: Literal["unverified_disclosure"] = "unverified_disclosure"
+
+
+_S8_EMISSION_ADAPTER = TypeAdapter(NormativeRankingResult | ValueTradeoffDisclosureRecord)
+
+
+class NormativeValueScheduleOwner:
+    """Verify separate signers, persist admission, and re-resolve before ranked emission.
+
+    Trust is installed by the deployment composition root, separately from case
+    inputs. No private key or callback that can assert verification is accepted.
+    An external signature proves the declared permission; it does not validate
+    the empirical outcome claims or appoint the external institution.
+    """
+
+    def __init__(
+        self,
+        *,
+        store: artifacts.FileSystemCAS,
+        trust: NormativeAuthorityTrust | None = None,
+    ) -> None:
+        if trust is None:
+            trust = NormativeAuthorityTrust()
+        if type(store) is not artifacts.FileSystemCAS or type(trust) is not NormativeAuthorityTrust:
+            raise TypeError("normative authority requires the concrete CAS and deployment trust")
+        self._store = store
+        self._trust = trust
+        self._verifier = artifacts.Ed25519Verifier(strict_identity=True)
+        self._principals: dict[str, NormativeAuthorityPrincipal] = {}
+        for principal in trust.principals:
+            key_id = self._verifier.load_trusted_key_pem(
+                principal.public_key_pem.encode(), identity=principal.identity
+            )
+            if key_id in self._principals:
+                raise ValueError("normative deployment trust cannot alias a signing key")
+            self._principals[key_id] = principal
+
+    def _read(self, ref: str, *, kind: str, schema: str) -> dict[str, Any]:
+        try:
+            artifact_id = artifacts.ArtifactID.model_validate(ref)
+            raw = self._store.get_bytes(artifact_id)
+            manifest = self._store.get_manifest(artifact_id)
+            if (
+                ref != f"sha256:{canon.content_hash(raw)}"
+                or manifest.kind != kind
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name != kind
+                or manifest.artifact_schema.version != schema
+            ):
+                raise ValueError("content or manifest mismatch")
+            payload = canon.from_canonical_bytes(raw)
+            if not isinstance(payload, dict):
+                raise ValueError("artifact is not a mapping")
+            return payload
+        except Exception as exc:
+            raise P20NormativeChoiceError(
+                P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE,
+                code=P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE,
+            ) from exc
+
+    @staticmethod
+    def _require_signature(signature: artifacts.SignatureVerificationResult) -> None:
+        if signature.status is not artifacts.SignatureVerificationStatus.VALID:
+            raise P20NormativeChoiceError("p20_normative_signature_unverified")
+
+    def _signed(
+        self, ref: str, *, kind: str, schema: str
+    ) -> tuple[dict[str, Any], NormativeAuthorityPrincipal, str]:
+        payload = self._read(ref, kind=kind, schema=schema)
+        signature = self._store.verify_signature(ref, self._verifier, strict_identity=True)
+        self._require_signature(signature)
+        principal = self._principals.get(signature.key_id or "")
+        if principal is None or signature.signer_identity != principal.identity:
+            raise P20NormativeChoiceError("p20_normative_signer_not_configured")
+        return payload, principal, str(signature.key_id)
+
+    def _resolve_authorization(
+        self,
+        *,
+        authorization_ref: str,
+        frontier_ref: str,
+        case_id: str,
+        scope_ref: str,
+        evaluated_at: datetime,
+        admitted_at: datetime,
+    ) -> tuple[_NormativeScheduleAdmission, AuthorizedValueSchedule, ParetoArchive, str]:
+        from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+            build_decision_rights_matrix,
+            build_governance_decision_class_registry,
+        )
+
+        if not self._trust.principals:
+            raise P20NormativeChoiceError("p20_normative_authority_slot_empty")
+        payload, authorizer, authorizer_key = self._signed(
+            authorization_ref,
+            kind=NORMATIVE_AUTHORIZATION_KIND,
+            schema=NORMATIVE_AUTHORIZATION_SCHEMA_VERSION,
+        )
+        authorization = NormativeAuthorizationRecord.model_validate(payload)
+        role = (
+            build_decision_rights_matrix(
+                case_id=case_id,
+                governance_decision_classes=build_governance_decision_class_registry(
+                    case_id=case_id, rule_version_ref=LAYER2_S8_VALUE_CHOICE_RULE_VERSION
+                ),
+                rule_version_ref=LAYER2_S8_VALUE_CHOICE_RULE_VERSION,
+            )
+            .row_for_decision_class("value_authorization")
+            .required_role
+        )
+        if (
+            authorization.authorizer_identity != authorizer.identity
+            or authorization.authority_purpose != _NORMATIVE_PURPOSE
+            or _NORMATIVE_PURPOSE not in authorizer.authority_purposes
+            or authorization.case_id != case_id
+            or case_id not in authorizer.case_ids
+            or authorization.scope_ref != scope_ref
+            or scope_ref not in authorizer.scope_refs
+            or authorization.mandate_ref not in authorizer.mandate_refs
+            or authorization.decision_class_id != "value_authorization"
+            or authorization.decision_role != role
+            or role not in authorizer.decision_roles
+            or authorization.frontier_ref != frontier_ref
+            or authorization.status != "authorized"
+            or authorization.rule_version_ref != LAYER2_S8_VALUE_CHOICE_RULE_VERSION
+            or authorization.authoritative_for != (_NORMATIVE_PURPOSE,)
+            or not {"legal_competence", "democratic_legitimacy", "claim_evidence"}.issubset(
+                authorization.may_not_use_for
+            )
+        ):
+            raise P20NormativeChoiceError("p20_normative_authority_scope_mismatch")
+        if not (
+            authorization.effective_at <= admitted_at <= evaluated_at < authorization.expires_at
+        ):
+            raise P20NormativeChoiceError("p20_normative_authorization_stale")
+        schedule_payload, schedule_claimant, schedule_key = self._signed(
+            authorization.source_schedule_ref,
+            kind=NORMATIVE_SCHEDULE_KIND,
+            schema=LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        )
+        frontier_payload, claimant, claimant_key = self._signed(
+            frontier_ref,
+            kind=NORMATIVE_FRONTIER_KIND,
+            schema=LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        )
+        if authorizer.identity in {
+            claimant.identity,
+            schedule_claimant.identity,
+        } or authorizer_key in {claimant_key, schedule_key}:
+            raise P20NormativeChoiceError("p20_normative_self_grading")
+        schedule = AuthorizedValueSchedule.model_validate(schedule_payload)
+        frontier = ParetoArchive.model_validate(frontier_payload)
+        if (
+            schedule.disposition != "authorized"
+            or schedule.source_class != "authorized_governance_schedule"
+            or schedule.review_status not in {"approved", "reviewed"}
+            or schedule.case_id != case_id
+            or schedule.mandate_record_ref != authorization.mandate_ref
+            or schedule.effective_at > evaluated_at
+            or schedule.rule_version_ref != authorization.rule_version_ref
+            or authorizer.identity not in schedule.principal_refs
+            or frontier.case_id != case_id
+            or frontier.ranking_mode != "unranked_frontier_only"
+            or authorization.selected_alternative_id not in frontier.nondominated_alternative_ids
+        ):
+            raise P20NormativeChoiceError("p20_resolved_schedule_not_authorized")
+        return (
+            _NormativeScheduleAdmission(
+                authorization_ref=authorization_ref,
+                case_id=case_id,
+                scope_ref=scope_ref,
+                frontier_ref=frontier_ref,
+                schedule_ref=authorization.source_schedule_ref,
+                authorizer_identity=authorizer.identity,
+                claimant_identity=claimant.identity,
+                authorizer_key_id=authorizer_key,
+                claimant_key_id=claimant_key,
+                trust_epoch=self._trust.epoch,
+                admitted_at=admitted_at,
+            ),
+            schedule,
+            frontier,
+            authorization.selected_alternative_id,
+        )
+
+    def produce(
+        self,
+        *,
+        authorization_ref: str,
+        frontier_ref: str,
+        case_id: str,
+        scope_ref: str,
+        evaluated_at: datetime,
+    ) -> str:
+        """Persist a recomputable admission only after independent authorization verifies."""
+        admission, _, _, _ = self._resolve_authorization(
+            authorization_ref=authorization_ref,
+            frontier_ref=frontier_ref,
+            case_id=case_id,
+            scope_ref=scope_ref,
+            evaluated_at=evaluated_at,
+            admitted_at=evaluated_at,
+        )
+        return str(
+            self._store.put_json(
+                admission.model_dump(mode="json"),
+                artifacts.PutOptions(
+                    kind=_NORMATIVE_ADMISSION_KIND,
+                    media_type="application/json",
+                    schema=artifacts.SchemaInfo(
+                        name=_NORMATIVE_ADMISSION_KIND, version=admission.schema_version
+                    ),
+                    producer=artifacts.ProducerInfo(
+                        component=__name__, version=LAYER2_S8_VALUE_CHOICE_RULE_VERSION
+                    ),
+                ),
+            ).artifact_id
+        )
+
+    def resolve_archive(self, admission_ref: str, *, evaluated_at: datetime) -> ParetoArchive:
+        """Recompute the persisted admission and exact authorized archive from signed inputs."""
+        admission = _NormativeScheduleAdmission.model_validate(
+            self._read(
+                admission_ref,
+                kind=_NORMATIVE_ADMISSION_KIND,
+                schema="policyos.normative_schedule_admission.v1",
+            )
+        )
+        expected, _, frontier, selected = self._resolve_authorization(
+            authorization_ref=admission.authorization_ref,
+            frontier_ref=admission.frontier_ref,
+            case_id=admission.case_id,
+            scope_ref=admission.scope_ref,
+            evaluated_at=evaluated_at,
+            admitted_at=admission.admitted_at,
+        )
+        if expected != admission:
+            raise P20NormativeChoiceError("p20_normative_admission_content_mismatch")
+        payload = _ceiling_archive_payload(frontier, authorized=True)
+        payload.update(
+            ranking_mode="ranked_with_authorized_values",
+            archive_status="ranked_with_authorized_values",
+            value_schedule_ref=admission.schedule_ref,
+            normative_admission_ref=admission_ref,
+            selected_alternative_ref=selected,
+            rejected_nondominated_alternative_ids=[
+                alternative
+                for alternative in frontier.nondominated_alternative_ids
+                if alternative != selected
+            ],
+        )
+        token = _RANKED_ARCHIVE_PAYLOAD.set(payload)
+        try:
+            return ParetoArchive.model_validate(payload)
+        finally:
+            _RANKED_ARCHIVE_PAYLOAD.reset(token)
+
+    def validate_archive(self, payload: Mapping[str, object], *, evaluated_at: datetime) -> None:
+        """Require complete equality with the owner-recomputed ranked archive."""
+        admission_ref = payload.get("normative_admission_ref")
+        if not isinstance(admission_ref, str):
+            raise P20NormativeChoiceError("p20_normative_admission_missing")
+        expected = self.resolve_archive(admission_ref, evaluated_at=evaluated_at)
+        if dict(payload) != expected.model_dump(mode="json"):
+            raise P20NormativeChoiceError("p20_ranked_archive_content_mismatch")
+
+    def recommend(
+        self,
+        *,
+        frontier_ref: str,
+        authorization_ref: str | None,
+        case_id: str,
+        scope_ref: str,
+        evaluated_at: datetime,
+    ) -> tuple[NormativeRankingResult, str]:
+        """Persist a verified selection or zero selections plus the frontier and a request."""
+        frontier = ParetoArchive.model_validate(
+            self._read(
+                frontier_ref,
+                kind=NORMATIVE_FRONTIER_KIND,
+                schema=LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+            )
+        )
+        if frontier.case_id != case_id or frontier.ranking_mode != "unranked_frontier_only":
+            raise P20NormativeChoiceError("p20_frontier_binding_mismatch")
+        try:
+            if authorization_ref is None:
+                raise P20NormativeChoiceError("p20_normative_authorization_missing")
+            admission_ref = self.produce(
+                authorization_ref=authorization_ref,
+                frontier_ref=frontier_ref,
+                case_id=case_id,
+                scope_ref=scope_ref,
+                evaluated_at=evaluated_at,
+            )
+            archive = self.resolve_archive(admission_ref, evaluated_at=evaluated_at)
+            token = _RANKED_ARCHIVE_PAYLOAD.set(archive.model_dump(mode="json"))
+            try:
+                result = NormativeRankingResult(
+                    archive=archive,
+                    authorization_status="authorized",
+                    ranked_recommendations=(str(archive.selected_alternative_ref),),
+                )
+            finally:
+                _RANKED_ARCHIVE_PAYLOAD.reset(token)
+        except (ValueError, TypeError) as exc:
+            result = NormativeRankingResult(
+                archive=ParetoArchive.model_validate(
+                    _ceiling_archive_payload(frontier, authorized=False)
+                ),
+                authorization_status="blocked",
+                decision_request=NormativeDecisionRequest(
+                    case_id=case_id,
+                    scope_ref=scope_ref,
+                    frontier_ref=frontier_ref,
+                    authorization_ref=authorization_ref,
+                    reason_codes=(
+                        str(exc)
+                        if isinstance(exc, P20NormativeChoiceError)
+                        else "p20_normative_payload_invalid",
+                    ),
+                    requested_at=evaluated_at,
+                ),
+            )
+        persisted = persist_value_choice_provenance_bundle(
+            result.model_dump(mode="json"),
+            store=self._store,
+            owner=self,
+            evaluated_at=evaluated_at,
+        )
+        return result, str(persisted["artifact_ref"])
+
+    def project(self, bundle_ref: str, *, evaluated_at: datetime) -> dict[str, object]:
+        """Project a persisted result only after the same current authority checks pass."""
+        payload = self._read(
+            bundle_ref,
+            kind="policyos.layer2_s8.value_choice_bundle",
+            schema=LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        )
+        return _admit_normative_emission(payload, owner=self, evaluated_at=evaluated_at)
 
 
 def coerce_social_weight_provenance_for_s8(
@@ -611,6 +1078,8 @@ def project_value_tradeoff_disclosure(
     value_choice_record: ValueChoiceProvenanceRecord | Mapping[str, object],
     audience: str,
     rule_version_ref: str,
+    owner: NormativeValueScheduleOwner | None = None,
+    evaluated_at: datetime | None = None,
 ) -> ValueTradeoffDisclosureRecord:
     """Project value-choice tradeoffs for one audience without scalar authority."""
 
@@ -619,6 +1088,10 @@ def project_value_tradeoff_disclosure(
         if isinstance(value_choice_record, ValueChoiceProvenanceRecord)
         else ValueChoiceProvenanceRecord.model_validate(value_choice_record)
     )
+    if record.disposition == "authorized":
+        _verify_value_choice_projection(
+            record.model_dump(mode="json"), owner=owner, evaluated_at=evaluated_at
+        )
     upper_audience = audience.upper()
     value_schedule_ref = record.value_schedule_ref if upper_audience != "PUBLIC" else None
     expert_refs = [
@@ -633,7 +1106,7 @@ def project_value_tradeoff_disclosure(
         ]
         if ref
     ]
-    return ValueTradeoffDisclosureRecord(
+    disclosure = ValueTradeoffDisclosureRecord(
         disclosure_id=f"layer2.s8.disclosure.{_slug(record.case_id)}.{upper_audience.lower()}",
         disclosure_ref=(
             f"pdc://layer2/s8/{_slug(record.case_id)}/value-tradeoff-disclosure/"
@@ -641,7 +1114,7 @@ def project_value_tradeoff_disclosure(
         ),
         case_id=record.case_id,
         audience=upper_audience,  # type: ignore[arg-type]
-        decision_tradeoff_summary=_tradeoff_summary(record, upper_audience),
+        decision_tradeoff_summary="Candidate value tradeoff disclosure.",
         value_schedule_ref=value_schedule_ref,
         objective_provenance_ref=(
             record.objective_provenance_ref if upper_audience in {"EXPERT", "MACHINE"} else None
@@ -652,11 +1125,7 @@ def project_value_tradeoff_disclosure(
         value_choice_provenance_ref=(
             record.record_ref if upper_audience in {"EXPERT", "MACHINE"} else None
         ),
-        reviewer_status_fields=_reviewer_fields(record) if upper_audience == "REVIEWER" else {},
         expert_refs=expert_refs if upper_audience in {"EXPERT", "MACHINE"} else [],
-        machine_integrity_fields=(
-            _machine_integrity_fields(record) if upper_audience == "MACHINE" else {}
-        ),
         conflict_rows=record.conflict_rows if upper_audience in {"EXPERT", "MACHINE"} else [],
         affected_group_rows=record.affected_group_rows,
         dissent_refs=record.dissent_refs,
@@ -667,7 +1136,12 @@ def project_value_tradeoff_disclosure(
         projection_authority_boundary=_projection_boundary(rule_version_ref),
         authority_boundary=_projection_boundary(rule_version_ref),
         rule_version_ref=rule_version_ref,
+        normative_admission_ref=(
+            record.normative_admission_ref if record.disposition == "authorized" else None
+        ),
+        selected_alternative_ref=record.selected_alternative_ref,
     )
+    return _canonical_tradeoff_disclosure(disclosure, owner=owner, evaluated_at=evaluated_at)
 
 
 def s8_value_provenance_integrity(
@@ -721,10 +1195,17 @@ def persist_value_choice_provenance_bundle(
     *,
     store: artifacts.FileSystemCAS | None = None,
     rule_version_ref: str = LAYER2_S8_VALUE_CHOICE_RULE_VERSION,
+    owner: NormativeValueScheduleOwner | None = None,
+    evaluated_at: datetime | None = None,
 ) -> dict[str, object]:
-    """Persist an S8 bundle through CAS or return deterministic replay refs."""
+    """Persist a registered ranking result or standalone audience disclosure.
 
-    payload = dict(bundle)
+    Other S8 artifacts and arbitrary bundle wrappers have no verified emission
+    contract here and are refused. Authorized outputs require the concrete owner
+    and evaluation time; canonical advisory disclosures need no authority grant.
+    """
+
+    payload = _admit_normative_emission(bundle, owner=owner, evaluated_at=evaluated_at)
     if store is None:
         digest = hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
@@ -755,6 +1236,187 @@ def persist_value_choice_provenance_bundle(
         "artifact_ref": ref.artifact_id,
         "rule_version_ref": rule_version_ref,
     }
+
+
+def _require_normative_owner(
+    owner: NormativeValueScheduleOwner | None, evaluated_at: datetime | None
+) -> tuple[NormativeValueScheduleOwner, datetime]:
+    if type(owner) is not NormativeValueScheduleOwner or evaluated_at is None:
+        raise P20NormativeChoiceError(
+            P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE,
+            code=P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE,
+        )
+    return owner, evaluated_at
+
+
+def _verify_value_choice_projection(
+    payload: Mapping[str, object],
+    *,
+    owner: NormativeValueScheduleOwner | None,
+    evaluated_at: datetime | None,
+) -> None:
+    resolved_owner, instant = _require_normative_owner(owner, evaluated_at)
+    admission_ref = payload.get("normative_admission_ref")
+    if not isinstance(admission_ref, str):
+        raise P20NormativeChoiceError("p20_normative_admission_missing")
+    archive = resolved_owner.resolve_archive(admission_ref, evaluated_at=instant)
+    expected = (
+        archive.case_id,
+        archive.selected_alternative_ref,
+        archive.value_schedule_ref,
+        archive.archive_ref,
+    )
+    actual = tuple(
+        payload.get(key)
+        for key in (
+            "case_id",
+            "selected_alternative_ref",
+            "value_schedule_ref",
+            "pareto_archive_ref",
+        )
+    )
+    if actual != expected:
+        raise P20NormativeChoiceError("p20_value_choice_projection_content_mismatch")
+
+
+def _value_authority_ceiling(rule_version_ref: str, *, authorized: bool) -> AuthorityBoundary:
+    """Construct the entire authority ceiling without carrying candidate grades."""
+    return AuthorityBoundary(
+        authoritative_for=[_NORMATIVE_PURPOSE if authorized else "candidate_value_disclosure"],
+        may_not_use_for=list(
+            dict.fromkeys(
+                [
+                    *_S8_MAY_NOT_USE_FOR,
+                    "legal_competence",
+                    "democratic_legitimacy",
+                    "policy_optimality",
+                ]
+            )
+        ),
+        source_authority="deterministic_producer",
+        posture="governed" if authorized else "advisory",
+        rule_version_refs=[rule_version_ref],
+        known_limits=["Selection permission does not validate candidate policy facts or outcomes."],
+    )
+
+
+def _ceiling_archive_payload(archive: ParetoArchive, *, authorized: bool) -> dict[str, object]:
+    boundary = _value_authority_ceiling(LAYER2_S8_VALUE_CHOICE_RULE_VERSION, authorized=authorized)
+    payload = archive.model_dump(mode="json")
+    # Derive the authority-bearing field set from the actual typed object.
+    for field_name in type(archive).model_fields:
+        if isinstance(getattr(archive, field_name), AuthorityBoundary):
+            payload[field_name] = boundary.model_dump(mode="json")
+    payload["may_not_use_for"] = list(boundary.may_not_use_for)
+    payload["rule_version_ref"] = LAYER2_S8_VALUE_CHOICE_RULE_VERSION
+    if not authorized:
+        payload.update(
+            archive_status="candidate_frontier_available",
+            normative_admission_ref=None,
+            selected_alternative_ref=None,
+            rejected_nondominated_alternative_ids=[],
+        )
+    return payload
+
+
+def _canonical_tradeoff_disclosure(
+    disclosure: ValueTradeoffDisclosureRecord,
+    *,
+    owner: NormativeValueScheduleOwner | None,
+    evaluated_at: datetime | None,
+) -> ValueTradeoffDisclosureRecord:
+    if disclosure.rule_version_ref != LAYER2_S8_VALUE_CHOICE_RULE_VERSION:
+        raise P20NormativeChoiceError("p20_value_choice_projection_rule_mismatch")
+    authorized = disclosure.normative_admission_ref is not None
+    if authorized:
+        resolved_owner, instant = _require_normative_owner(owner, evaluated_at)
+        archive = resolved_owner.resolve_archive(
+            str(disclosure.normative_admission_ref), evaluated_at=instant
+        )
+        if (
+            disclosure.case_id != archive.case_id
+            or disclosure.selected_alternative_ref != archive.selected_alternative_ref
+            or disclosure.rule_version_ref != LAYER2_S8_VALUE_CHOICE_RULE_VERSION
+            or disclosure.value_schedule_ref
+            != (None if disclosure.audience == "PUBLIC" else archive.value_schedule_ref)
+            or disclosure.pareto_archive_ref
+            != (archive.archive_ref if disclosure.audience in {"EXPERT", "MACHINE"} else None)
+        ):
+            raise P20NormativeChoiceError("p20_value_choice_projection_content_mismatch")
+    boundary = _value_authority_ceiling(disclosure.rule_version_ref, authorized=authorized)
+    assessment = _NormativeProjectionAssessment(
+        normative_authorization_status="verified" if authorized else "not_established",
+        normative_admission_ref=disclosure.normative_admission_ref,
+        authority_boundary=boundary,
+    ).model_dump(mode="json")
+    updates: dict[str, object] = {
+        "reviewer_status_fields": assessment if disclosure.audience == "REVIEWER" else {},
+        "machine_integrity_fields": assessment if disclosure.audience == "MACHINE" else {},
+        "decision_tradeoff_summary": (
+            "Independent authorization permits the recorded frontier selection; "
+            "candidate policy facts and outcomes remain unverified."
+            if authorized
+            else (
+                "Candidate value tradeoffs are disclosed; "
+                "selection authorization is not established."
+            )
+        ),
+    }
+    for field_name in type(disclosure).model_fields:
+        if isinstance(getattr(disclosure, field_name), AuthorityBoundary):
+            updates[field_name] = boundary
+    return disclosure.model_copy(update=updates)
+
+
+def _admit_normative_emission(
+    value: Mapping[str, object],
+    *,
+    owner: NormativeValueScheduleOwner | None,
+    evaluated_at: datetime | None,
+) -> dict[str, object]:
+    """Validate complete registered S8 output types, then verify their whole authority semantics.
+
+    Unknown dictionaries and wrappers are not an emission contract. Parsing a
+    candidate archive temporarily permits its declared shape, but no parsed
+    value escapes until canonical owner comparison has verified the content.
+    """
+    candidate_archive = value.get("archive")
+    token = _RANKED_ARCHIVE_PAYLOAD.set(
+        dict(candidate_archive) if isinstance(candidate_archive, Mapping) else None
+    )
+    try:
+        parsed = _S8_EMISSION_ADAPTER.validate_python(value)
+    except (TypeError, ValueError) as exc:
+        raise P20NormativeChoiceError("p20_unregistered_s8_emission") from exc
+    finally:
+        _RANKED_ARCHIVE_PAYLOAD.reset(token)
+    if isinstance(parsed, NormativeRankingResult):
+        archive = parsed.archive
+        if archive.ranking_mode == "ranked_with_authorized_values":
+            resolved_owner, instant = _require_normative_owner(owner, evaluated_at)
+            resolved_owner.validate_archive(archive.model_dump(mode="json"), evaluated_at=instant)
+            if (
+                parsed.authorization_status != "authorized"
+                or parsed.ranked_recommendations != (archive.selected_alternative_ref,)
+                or parsed.decision_request is not None
+            ):
+                raise P20NormativeChoiceError("p20_ranked_recommendation_content_mismatch")
+        elif (
+            archive.ranking_mode != "unranked_frontier_only"
+            or parsed.authorization_status != "blocked"
+            or archive.model_dump(mode="json")
+            != _ceiling_archive_payload(archive, authorized=False)
+            or parsed.ranked_recommendations
+            or parsed.decision_request is None
+        ):
+            raise P20NormativeChoiceError("p20_candidate_result_authority_mismatch")
+    else:
+        canonical = _canonical_tradeoff_disclosure(parsed, owner=owner, evaluated_at=evaluated_at)
+        if parsed.schema_version != LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION or parsed.model_dump(
+            mode="json"
+        ) != canonical.model_dump(mode="json"):
+            raise P20NormativeChoiceError("p20_disclosure_authority_mismatch")
+    return parsed.model_dump(mode="json")
 
 
 def _require_mandate_pass(
@@ -909,35 +1571,6 @@ def _aware_datetime(value: AwareDatetime | str) -> AwareDatetime:
     if isinstance(value, str):
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     return value
-
-
-def _tradeoff_summary(record: ValueChoiceProvenanceRecord, audience: str) -> str:
-    if record.disposition == "authorized":
-        return "Ranked frontier selection is tied to an authorized value schedule."
-    if record.disposition == "contested_multi_principal":
-        return "Frontier tradeoff is contested across principals and is not silently averaged."
-    if audience == "PUBLIC":
-        return "Frontier facts are visible; ranking depends on authorized value provenance."
-    return f"S8 value-choice disposition: {record.disposition}."
-
-
-def _reviewer_fields(record: ValueChoiceProvenanceRecord) -> dict[str, object]:
-    return {
-        "s8_value_disposition": record.disposition,
-        "p20_firewall_status": "pass" if record.disposition == "authorized" else "limit",
-        "p22_firewall_status": "pass" if record.mandate_refs else "block",
-        "p12_firewall_status": "pass" if record.replay_refs else "limit",
-        "p15_firewall_status": "pass",
-        "p26_firewall_status": "pass" if record.delegation_refs else "limit",
-    }
-
-
-def _machine_integrity_fields(record: ValueChoiceProvenanceRecord) -> dict[str, object]:
-    return {
-        "integrity_status": record.integrity_status,
-        "replay_refs": list(record.replay_refs),
-        "authority_boundary": record.authority_boundary.model_dump(mode="json"),
-    }
 
 
 def _row_has_value_provenance(row: Mapping[str, object]) -> bool:

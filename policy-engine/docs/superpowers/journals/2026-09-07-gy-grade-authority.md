@@ -263,8 +263,93 @@ supplied verifier callback, or a differently named manifest producer is refused.
 
 ### GGA-PA1 — implementation and closure evidence
 
-S8 mechanism and its removal controls are in progress. Its full PA1 closure is
-not asserted: the separate N8 production chain remains missing.
+**GGA-PA1-S8-01 — the bounded schedule capability is built and exercised.**
+The existing `value_choice_provenance.py` owner now produces a persisted admission
+from a content-bound external `NormativeAuthorizationRecord`, resolves its signed
+schedule and frontier, consumes that admission for the recorded selection, and
+revalidates it at CAS persistence and projection. `NormativeDecisionRequest` is a
+real persisted refusal output. There is no private signing key in the verifier.
+The deployment trust slot defaults to empty; candidate payloads cannot populate it.
+
+Cryptographic identity, content hashes, schema/rule version, purpose, decision role,
+case, scope, mandate grant and validity interval are checked against configured
+trust and bound artifacts. The private admission freezes the identities, key IDs,
+input refs, trust epoch and admission time; resolve recomputes the complete record.
+Separate configured identities and keys establish cryptographic separation, **not
+an institutional appointment or a proof that two real-world organizations are
+independent**. No real deployment trust or appointment was supplied in this lane.
+The favorable tests use explicit fixture keys and grants. Empirical adequacy,
+legal competence, legitimacy, optimality and wider publication authority remain
+outside that verified permission and cannot be inferred from it.
+
+The local authorization status composes narrowly: an exact verified selection
+has `authorization_status=authorized`; missing, wrong-role, wrong-purpose,
+wrong-scope, stale, self-signed, damaged or unresolved evidence yields `blocked`,
+zero ranked recommendations, the candidate frontier and a typed request. Changing
+only that status in either direction is refused. Candidate alternatives remain
+available while their authorization is blocked; no policy publishability status
+is promoted by this local result.
+
+**GGA-PA1-S8-02 — the first repair was insufficient at emission.** The first
+40-case green suite did not establish the whole property. Independent review
+kept genuine separate signatures and a valid ranking admission, then falsified
+unsigned mandate/delegation/replay references, tampered an actual disclosure DTO,
+and attached broader publication/outcome authority to the signed frontier.
+All six cases were red (four in 27.41 s, two in 22.12 s, exit 1). These were the
+**same grade-emission class one level deeper**, not six new findings or rounds.
+Under P40 the mechanism was widened once: the owner now constructs the entire
+authority ceiling and the entire reviewer/machine assessment. Raw candidate
+premises cannot produce P12/P15/P20/P22/P26 or integrity `pass`; those remain
+`not_established`. Only independently resolved selection permission is `verified`.
+
+One typed intake serves CAS persistence, hash-only persistence and owner projection.
+It admits complete `NormativeRankingResult` mappings or standalone canonical
+`ValueTradeoffDisclosureRecord` mappings. It refuses arbitrary wrappers, mixed
+bundles and other raw S8 DTO families; no field-name detector purports to recognize
+an authority vocabulary. The public projection uses the same normalization.
+A valid standalone advisory disclosure still persists without an authority owner,
+and the regression test mutates **every assessment field derived from the emitted
+contract**, requiring refusal. Candidate text, rows and refs may still contain
+unverified assertions, under the explicit candidate ceiling; this capability does
+not substantiate them. The missing capability for wider grades is the respective
+mandate/delegation/replay/evidence owner's substantive verifier, not more S8 flags.
+
+The unchanged original six review falsifiers then passed: **6 passed, 20.61 s,
+exit 0**. Delta-only review found no remaining present escape in that bounded
+class; no recursive hypothetical-verifier review was added. Implementer final
+source/test wave: **54 passed, six observed Pydantic warnings, 21.08 s, exit 0**
+(the mirrored file plus the six independent scratch cases). Final coordinator
+blast-radius and validator receipts are recorded separately below.
+
+The three actual property-removal controls below each returned **exit 1**. Each
+removes only a substantive process-local enforcement function while the DTOs,
+source markers, genuine CAS artifacts and cryptographic test fixture remain.
+No source file is edited by these commands. The first fails the zero-ranked
+assertion with a damaged signature; the second and third fail `DID NOT RAISE`
+for a forged assessment and a wrong-role `blocked` → `authorized` status.
+Per-command elapsed time is `not_established`: `timeit` exits on the intended
+assertion before printing a timing, so partial PTY yields are not substituted.
+
+```sh
+PYTHONPATH=src .venv/bin/python -m timeit -n 1 -r 1 -s 'import runpy; from pathlib import Path; from tempfile import TemporaryDirectory; from polisyos.runtime.quality.design_axes import value_choice_provenance as s8; checks = runpy.run_path("tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py"); s8.NormativeValueScheduleOwner._require_signature = staticmethod(lambda signature: None)' 'with TemporaryDirectory(dir="tests") as root: checks["test_invalid_authority_keeps_frontier_and_persists_typed_request"](Path(root), "signature", "p20_normative_signature_unverified")'
+```
+
+```sh
+PYTHONPATH=src .venv/bin/python -m timeit -n 1 -r 1 -s 'import runpy; from pathlib import Path; from tempfile import TemporaryDirectory; from polisyos.runtime.quality.design_axes import value_choice_provenance as s8; checks = runpy.run_path("tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py"); s8._admit_normative_emission = lambda value, **kwargs: dict(value)' 'with TemporaryDirectory(dir="tests") as root: checks["test_registered_advisory_disclosure_rejects_all_modified_assessment_fields"](Path(root), "REVIEWER")'
+```
+
+```sh
+PYTHONPATH=src .venv/bin/python -m timeit -n 1 -r 1 -s 'import runpy; from pathlib import Path; from tempfile import TemporaryDirectory; from polisyos.runtime.quality.design_axes import value_choice_provenance as s8; checks = runpy.run_path("tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py"); s8._admit_normative_emission = lambda value, **kwargs: dict(value)' 'with TemporaryDirectory(dir="tests") as root: checks["test_persisted_authorization_status_is_derived_from_the_verified_result"](Path(root), "role")'
+```
+
+Capability reality: typed record/request + producer + persisted admission/result
++ local recommendation/consumer bridge + current independent verification +
+audience projection + substantive negative/round-trip tests are present. There
+is **no production composition-root invocation or configured appointed signer**:
+S8 is `implemented_but_not_orchestrated`. API/dashboard deployment is
+`surface_out_of_scope` for this bounded source slice (Atlas owns the dashboard);
+the callable audience projection is exercised locally. Full PA1 closure is not
+asserted, because the separate empirical N8 production chain below remains missing.
 
 **GGA-PA1-N8-01:** the complete tracked source Python set and an independent
 filesystem walk (excluding caches) both contain 2,621 files; both directional
@@ -399,6 +484,107 @@ Cheapest honest disposition: preserve the existing grade boundary, hand back the
 appointment and report the current verification prerequisites. No tracked
 Foundry implementation was changed.
 
+## Final verification and delivery boundary
+
+The corrected source was frozen before independent delta review and the final
+coordinator wave. Source SHA256:
+`97483776baca0e398d04270fa5968b6aff0374d5de804c517c6928d334d7b76e`;
+mirrored test SHA256:
+`df8b6b7abe23cca1d8b36d91264b0cc9293f9304fb64c804fc509dbb6d53331e`.
+No source changes followed that review. The complete changed mechanism path set
+is the existing S8 owner and its mirrored unit file; plan/journal are mandatory
+companions. No forbidden tracked path or stale branch was changed.
+
+Coordinator blast-radius gate, **exit 0, 50 passed, six observed warnings, 23.11 s**:
+
+```sh
+PYTHONPATH=src .venv/bin/python -m pytest tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py tests/repo_quality/tools/test_policy_design_case_layer2_s8_value_choice.py::test_layer2_s8_ranked_admission_fails_closed_while_schedule_resolver_is_absent tests/repo_quality/tools/test_policy_design_case_layer2_s8_value_choice.py::test_layer2_s8_arrow_disclosure_rows_are_required_for_multi_principal_conflict -q --override-ini addopts=''
+```
+
+Readiness validator, **exit 0**; its persisted JSON was read back with `status=pass`
+and the complete finding identity set empty:
+
+```sh
+PYTHONPATH=.:src .venv/bin/python -m tools.quality.validation.check_policy_design_case_layer2_readiness --repo-root . --json-output _build/gy-grade-authority/layer2-readiness-final.json
+```
+
+The existing readiness validator's real S8 runtime subpath was then exercised
+with only `build_pareto_archive` refusal removed; all source markers remain.
+The before identity set is empty. After removal, **exit 1**, added identity exactly
+`layer2_s8_value_schedule_resolver_absence_firewall_failed`, message
+`S8 must refuse ranked admission while no value-schedule resolver exists.`;
+removed identity set empty. This is a real runtime-property red, not a field-name
+or count comparison. Complete station source is preserved below.
+
+```sh
+PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.s8_validator_removal_probe
+```
+
+Ruff on the two changed Python paths is **exit 0**. It runs as a module using the
+existing dependency runtime; that reads no other worktree's source. Formatting and
+`git diff --check` also pass. No directory-wide pytest, backend verify, or CI-parity
+wave was run, in accordance with this task's targeted-only requirement.
+
+```sh
+/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/runtime/quality/design_axes/value_choice_provenance.py tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py
+```
+
+**GGA-GATE-01 — architecture remains red, not excluded as inherited.** The scoped
+architecture gate below returned **exit 1**. Generated OpenAPI/client export waves
+are intentionally omitted: they are outside this change's blast radius and the
+user requires targeted checks. The readiness owner above is checked separately.
+No debt/ledger checker is called, directly or indirectly.
+
+```sh
+PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check --skip-generated-checks
+```
+
+Complete finding set: deep-import baseline drift, plus these three creep edges
+from `polisyos.runtime.http.services.acquisition_admission_bundle` at
+`src/polisyos/runtime/http/services/acquisition_admission_bundle.py`:
+
+- `polisyos.core.artifacts.manifest`
+- `polisyos.core.artifacts.signing`
+- `polisyos.core.artifacts.write_contract`
+
+The emitted baseline diff contains those same three edge records. This gate's
+input denominator includes source inventory, including our changed source, so a
+zero changed-path intersection is not established; no exact slice-base isolation
+replay is claimed. **Inheritance is `not_established`**, not inferred from the
+foreign source path or matching failure names. These are recorded failures, not
+suppressed findings and not a green architecture receipt.
+
+Exact proposed handback to the runtime HTTP owner (outside this lane's allowed
+source set): replace its three deep imports with the existing public facade,
+which already re-exports these exact symbols:
+
+```python
+from polisyos.core.artifacts import (
+    ArtifactGovernanceInfo,
+    ArtifactManifest,
+    ArtifactWriteOptions,
+    Ed25519Signer,
+    Ed25519Verifier,
+    ProducerInfo,
+    SchemaInfo,
+    SignatureVerificationResult,
+    SignatureVerificationStatus,
+)
+```
+
+This edit is **not applied or test-verified here**. It is a proposed incidental
+row `gy-acquisition-admission-deep-import-creep`, proposed owner runtime HTTP.
+It requires no architecture baseline acceptance if the facade route suffices.
+It does not obstruct the S8 mechanism measured above.
+
+The failure/repair register was reopened before closeout. P31/P32/P37/P38 are
+addressed by the bounded independent intake and emission; P01/P02 remain explicit
+at the missing N8/production-composition boundary. P35/P36 census bindings were
+independently reconciled; P40 governed the single structural review correction;
+P41 prevents the architecture and DEF22 failures from becoming invented inherited
+exclusions. Debt/register transcription and institutional appointments are left
+to the architect. Stop at local commits and branch readback; no push is performed.
+
 ## Proposed rows and boundary handbacks
 
 - `gy-foundry-profile-pins-drift-after-toolchain-update` — proposed owner Foundry
@@ -486,6 +672,220 @@ Normal hooks then passed/skipped their scoped checks and created investigation
 commit `4082cd490`. Its journal was read back with `git show` from the named
 branch immediately after commit. No hook bypass or ledger checker was used.
 
+## Durable investigation station sources
+
+The sources below preserve the local investigation stations in the branch.
+They are diagnostic falsifiers, not a new passing product suite. Recreate each
+at its stated path beneath `policy-engine/` and use the sole-command module
+invocations recorded with its finding above. This avoids treating ignored local
+scratch as the only copy of a handback's evidence. The adjudication station
+reuses the existing test helper at the pinned slice base; its second case never
+calls Scientist adjudication.
+
+### `_build/gy-grade-authority/test_census_judge_station.py`
+
+```python
+from polisyos.runtime.quality.workspace.spine_repair_gates import GovernanceTailVerifier
+from polisyos.scientist.nodes.builtins.governance.run_governance import _PHASE2_REQUIRED_SIX_JUDGES
+import pytest
+
+@pytest.mark.parametrize("judgment", [{}, {"verdict":"reject"}, {"verified":False}])
+def test_task_c2_named_judges_do_not_issue_their_own_grade(judgment):
+    # Derive the complete named-judge denominator from the runtime owner.
+    # Keep every judge name, promote marker and declared completeness. Remove
+    # the actual favorable verdict or replace it with an unfavorable one.
+    verdict=GovernanceTailVerifier().verify(
+        workspace_id="grade-station",invocation_id="forged-judge-tail",
+        normative_result={"warnings":[],"model_completeness":"declared_complete"},
+        judge_verdict={"composite_decision":"promote","per_judge":{
+            name:judgment for name in _PHASE2_REQUIRED_SIX_JUDGES}},
+    )
+    assert verdict.applicability.status=="repair_required", verdict
+    assert verdict.blocker is not None
+```
+
+### `_build/gy-grade-authority/test_forged_authority_station.py`
+
+```python
+from pathlib import Path
+import importlib.util
+import pytest
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.scientist.methods.autotune import ChampionRegistry
+from polisyos.scientist.methods.autotune.claim_adjudication_runtime import ClaimAdjudicationRuntime
+from polisyos.data_forge.domains.academic.batch.claim_adjudicator import materialize_claim_adjudication_result
+
+spec=importlib.util.spec_from_file_location("gy_claim_helpers",Path(__file__).resolve().parents[2]/"tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py")
+helper=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helper)
+
+@pytest.mark.asyncio
+async def test_self_stamped_evaluation_does_not_emit_publishability(tmp_path):
+    store=FileSystemCAS(tmp_path/"cas")
+    registry=ChampionRegistry(root=tmp_path/"registry",store=store)
+    _,raw_ref=helper._input_ref(tmp_path,store)
+    helper._promote_champion(store,registry)
+    client=helper._FakeClient(helper._positive_candidate())
+    result=await ClaimAdjudicationRuntime(store=store,registry=registry).adjudicate(raw_ref,client=client,model="candidate")
+    assert result.status=="blocked", result
+    assert result.result_ref is None
+    assert client.calls==0
+
+def test_same_forged_chain_cannot_materialize_without_scientist(tmp_path):
+    from polisyos.core.artifacts import ArtifactWriteOptions, InputRef, ProducerInfo, SchemaInfo
+    from polisyos.core.canon import CanonSpec
+    from polisyos.ir.analytics.literature import AdmittedClaimAdjudicationBatch, ClaimAdjudicationResult
+    store=FileSystemCAS(tmp_path/"cas")
+    registry=ChampionRegistry(root=tmp_path/"registry",store=store)
+    config,raw_ref=helper._input_ref(tmp_path,store)
+    candidate_ref,evaluation_ref=helper._promote_champion(store,registry)
+    # Construct every claimant-supplied marker, including complete CAS lineage,
+    # without ever calling the Scientist adjudication runtime.
+    batch=AdmittedClaimAdjudicationBatch(
+        raw_input_ref=str(raw_ref.artifact_id),candidate_ref=str(candidate_ref.artifact_id),
+        evaluation_ref=str(evaluation_ref.artifact_id),champion_pointer_sha256="0"*64,
+        input_claim_ids=["claim-1"],results=[ClaimAdjudicationResult(
+            claim_id="claim-1",openalex_id="W1",cause_variable="policy treatment",
+            effect_variable="school attendance",**helper._positive_candidate())])
+    result_ref=store.put_json(batch,ArtifactWriteOptions(
+        kind="scientist.claim_adjudication.admitted_batch",media_type="application/json",
+        schema=SchemaInfo(name="polisyos.ir.analytics.literature.AdmittedClaimAdjudicationBatch",version="1.0"),
+        producer=ProducerInfo(component="polisyos.scientist.methods.autotune.claim_adjudication_runtime",version="1.0"),
+        inputs=[InputRef(artifact_id=raw_ref.artifact_id,role="raw_input"),
+                InputRef(artifact_id=candidate_ref.artifact_id,role="candidate"),
+                InputRef(artifact_id=evaluation_ref.artifact_id,role="evaluation")]),
+        canon_spec=CanonSpec(forbid_floats=False))
+    with pytest.raises(ValueError,match="verification|appointment|authority"):
+        materialize_claim_adjudication_result(config,result_ref,store=store)
+    assert not config.claim_adjudications_path.exists()
+```
+
+### `_build/gy_grade_authority/def22_runtime_removal_probe.py`
+
+```python
+"""Standalone runtime property-removal witness; no production source is written."""
+
+import json
+import os
+
+from polisyos.foundry.methods.catalog import dependency_profile as p
+from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, domain_digest
+
+pyproject = b'[project]\nname="removal-probe-root"\nversion="1.0.0"\n'
+lock = b'''[[package]]
+name="removal-probe-root"
+version="1.0.0"
+source={virtual="."}
+optional-dependencies={}
+dependencies=[{name="probe-child"}]
+[[package]]
+name="probe-child"
+version="1.0.0"
+source={registry="https://example.invalid/simple"}
+'''
+declaration = p.MethodCatalogDependencyProfileDeclaration(
+    schema_version="polisyos.foundry.dependency-profile.v1",
+    profile_id="new-owner-data",
+    root_distribution="removal-probe-root",
+    extras=(),
+    python_constraint=">=3.14",
+    resolver_name="uv",
+    resolver_version="0.9.21",
+    pyproject_ref=domain_digest(DigestDomain.PYPROJECT, pyproject),
+    lockfile_ref=domain_digest(DigestDomain.UV_LOCK, lock),
+)
+discriminant = p.resolve_dependency_discriminant(
+    declaration,
+    pyproject_bytes=pyproject,
+    lockfile_bytes=lock,
+    marker_environment={},
+)
+assert isinstance(discriminant, p.DependencyProfileDiscriminant), discriminant
+observation = p.AmbientDependencyEnvironmentObservation(
+    observation_kind="ambient",
+    distributions=tuple(
+        p.InstalledDistributionObservation(
+            name=row.name,
+            version="9999.0" if index == 0 else row.version,
+        )
+        for index, row in enumerate(discriminant.distributions)
+    ),
+)
+removed = os.environ.get("GY_DEF22_REMOVE_CASES") == "1"
+if removed:
+    p._calculate_dependency_distribution_cases = lambda **kwargs: ()
+result = p.diagnose_dependency_environment(
+    discriminant=discriminant,
+    observed_distributions=observation,
+)
+print(json.dumps({
+    "source": p.__file__,
+    "property_removed": removed,
+    "observed_status": result.status,
+    "expected_status": "fail",
+    "schema_unchanged": discriminant.schema_version,
+    "rule_unchanged": discriminant.rule_version,
+    "discriminant_ref_unchanged": discriminant.discriminant_ref.value,
+}), flush=True)
+assert result.status == "fail", "dependency disagreement was not detected"
+```
+
+### `_build/gy_grade_authority/def22_grade_boundary_probe.py`
+
+```python
+"""Exercise the real Foundry root-access token intake against self-issued claims."""
+
+import json
+from typing import get_args
+
+from polisyos.foundry.methods.catalog import dependency_authority as a
+
+results = []
+for label, forged in (
+    ("self_issued_mapping", {"predicate_class": "independently_reconciled"}),
+    ("empty_object", object()),
+    ("unminted_exact_type", object.__new__(a.VerifiedProductionDataRootAccess)),
+):
+    try:
+        with a._unwrap_owner_capability(forged, a._ROOT_ACCESS_SPEC):
+            raise AssertionError("self-issued root-access evidence was admitted")
+    except a.OwnerCapabilityFault as fault:
+        results.append({"case": label, "code": fault.code.value})
+arms = get_args(a.RootAccessAttestationResult)
+assert a.RejectedAuthorityPredicate in arms
+assert a.UnestablishedAuthorityPredicate in arms
+assert results == [
+    {"case": "self_issued_mapping", "code": "wrong_token_type"},
+    {"case": "empty_object", "code": "wrong_token_type"},
+    {"case": "unminted_exact_type", "code": "unminted_token"},
+]
+print(json.dumps({"source": a.__file__, "refusals": results,
+                  "unfavourable_result_arms_representable": True}), flush=True)
+```
+
+### `_build/gy_grade_authority/s8_validator_removal_probe.py`
+
+```python
+"""Exercise the existing readiness validator with its real ranked-intake property removed."""
+import json
+from types import SimpleNamespace
+from tools.quality.validation.check_policy_design_case_layer2_readiness import _validate_s8_runtime_negative_firewalls
+from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+before = []
+_validate_s8_runtime_negative_firewalls(before)
+# Remove the ranked-intake refusal while all source DTOs, rules and markers stay.
+s8.build_pareto_archive = lambda **payload: SimpleNamespace(**payload)
+after = []
+_validate_s8_runtime_negative_firewalls(after)
+identity = lambda issue: (issue["code"], issue["message"])
+before_ids, after_ids = set(map(identity, before)), set(map(identity, after))
+print(json.dumps({"before": sorted(before_ids), "after": sorted(after_ids),
+                  "added": sorted(after_ids - before_ids),
+                  "removed": sorted(before_ids - after_ids)}, indent=2))
+raise SystemExit(1 if after else 0)
+```
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation
@@ -560,18 +960,34 @@ key/index identity (one complete JSON document per row):
 
 | Contract | Fork / stale / base leaves | Stale changed leaf identities | Current disposition |
 | --- | --- | --- | --- |
-| depth_n_universality | 16,586 / 36,083 / 43,032 | 22,960 | 22,600 changed values retained; real migration posture incorporated |
+| depth_n_universality | 16,586 / 36,083 / 43,032 | 26,302 | 22,578 changed values retained; real migration posture incorporated |
 | generation_cycle | 1,695 / 1,695 / 2,620 | 43 | All changes are sha256 identity strings, all subsequently replaced |
 | promotion | 1,873 / 1,873 / 2,915 | 67 | All changes are sha256 identity strings, all subsequently replaced |
 
 The Depth-N changed set partitions into one contract hash, 27 domain-run leaves
-and 22,932 proof-recording leaves. Every one of its three domain promotion rows
+and 26,274 proof-recording leaves. Every one of its three domain promotion rows
 has the same authority projection in stale and base: `contract_testing`,
 `authority_provenance=["verification"]`, all receipts non-consumer,
 `verification_n9_sequence_non_consumer`, `not_promoted`, no certified candidates.
 Receipt counts are education four, first_vertical three, unseen three.
 Current contracts additionally carry comparison projection v2/rule v3; promotion
 schema moved from stale v2 to base v3. Transplant would remove later semantics.
+
+**GGA-STALE-COUNT-01 — independent reconciliation caught an absent/null error.**
+The stale-branch investigator's first JSON diff reported 22,960 changes and
+22,600 retained values. The coordinator independently flattened the complete
+JSON documents to tuple key/index paths with an explicit missing-value sentinel;
+the investigator replayed that method and a corrected string-path method. Both
+now agree with the corrected table above. The initial `.get(path)` conflated
+absence with JSON null, omitting 2,908 added-null and 434 removed-null identities
+(3,342 changes), and counting 2,930 deleted non-null leaves as retained absence.
+Correct retention is `22,600 - 2,930 + 2,908 = 22,578`, and changed identities are
+`22,960 + 3,342 = 26,302`. The complete operations partition is 22,861 additions,
+3,364 removals and 77 value changes. This corrects the earlier committed journal
+by an append-only commit; no old receipt is silently rewritten or treated as
+independent proof. Generation and promotion identity sets were unchanged by this
+correction. Complete domain-key sets and the entire promotion mapping were also
+reconciled, not just selected fields.
 
 ### Why it stopped, and what cannot be inferred
 

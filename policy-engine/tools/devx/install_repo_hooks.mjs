@@ -5,6 +5,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   renameSync,
   writeFileSync,
 } from "node:fs";
@@ -21,6 +22,15 @@ const hooks = execFileSync(
   { cwd: repository, encoding: "utf8" },
 ).trim();
 const marker = "# PolicyOS checkout-local Lefthook dispatcher.";
+
+function isGeneratedHook(contents, name) {
+  const nativeInvocation = `call_lefthook run "${name}" "$@"`;
+  return (
+    contents.includes(marker) ||
+    (contents.includes("call_lefthook()") &&
+      contents.trimEnd().split(/\r?\n/).at(-1) === nativeInvocation)
+  );
+}
 
 // No installing checkout path is interpolated into these shared bytes.
 const dispatcher = `#!/bin/sh
@@ -43,7 +53,16 @@ exec "$binary" run "$(basename "$0")" --no-auto-install "$@"
 `;
 
 mkdirSync(hooks, { recursive: true });
-for (const name of ["pre-commit", "pre-push"]) {
+const managedHooks = new Set(["pre-commit", "pre-push"]);
+for (const entry of readdirSync(hooks, { withFileTypes: true })) {
+  // Git entrypoints have no suffix; .old, .sample and temporary files are preserved.
+  if (!entry.isFile() || entry.name.includes(".")) continue;
+  const contents = readFileSync(path.join(hooks, entry.name), "utf8");
+  if (isGeneratedHook(contents, entry.name)) {
+    managedHooks.add(entry.name);
+  }
+}
+for (const name of [...managedHooks].sort()) {
   const destination = path.join(hooks, name);
   if (existsSync(destination)) {
     const previous = readFileSync(destination, "utf8");
@@ -52,7 +71,7 @@ for (const name of ["pre-commit", "pre-push"]) {
       continue;
     }
     // Replace generated Lefthook hooks, but never destroy an unrecognized user hook.
-    if (!previous.includes(marker) && !previous.includes("call_lefthook()")) {
+    if (!isGeneratedHook(previous, name)) {
       const backup = `${destination}.old`;
       if (existsSync(backup)) {
         throw new Error(

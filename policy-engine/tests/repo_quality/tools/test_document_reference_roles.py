@@ -100,6 +100,16 @@ def test_historical_reference_roles_do_not_become_live_paths(
             "docs/reference/live.md",
             f"| Evidence | Live consumer |\n| --- | --- |\n| old | {OLD_DASHBOARD} |\n",
         ),
+        pytest.param(
+            "docs/live.md",
+            f"Read `{OLD_DASHBOARD}/archive.zip::member.md`.",
+            id="live_archive_container",
+        ),
+        pytest.param(
+            "architecture/live.json",
+            json.dumps({"ref": f"{OLD_DASHBOARD}/archive.zip::member.md"}),
+            id="live_archive_container_json",
+        ),
     ],
 )
 def test_live_or_unestablished_reference_roles_still_fail(

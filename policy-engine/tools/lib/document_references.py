@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 _JOURNAL_ROOT = ("docs", "superpowers", "journals")
-_ARCHIVE_REFERENCE = re.compile(r"[^\s`\"<>]+\.zip::[^\s`\"<>]+")
+_ARCHIVE_REFERENCE = re.compile(r"(?P<archive>[^\s`\"<>]+\.zip)::[^\s`\"<>]+")
 _SHA256 = re.compile(r"[a-fA-F0-9]{64}\Z")
 _COMMIT = re.compile(r"[a-fA-F0-9]{40}\Z")
 _ARCHIVE_COLUMNS = frozenset(
@@ -120,4 +120,4 @@ def reference_scan_text(relative: Path, text: str) -> str:
         text = _archive_table_text(text)
     elif suffix == ".json":
         text = _archive_map_text(text)
-    return _ARCHIVE_REFERENCE.sub("", text) if ".zip::" in text else text
+    return _ARCHIVE_REFERENCE.sub(r"\g<archive>", text) if ".zip::" in text else text

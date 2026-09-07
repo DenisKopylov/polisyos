@@ -450,3 +450,105 @@ The source/baseline candidate is being committed before provisioning the paired 
 One existing phase3 importer assertion about a checkpoint security route failed in the broader
 targeted run; the expected route is in excluded source. Its base replay and input-intersection
 receipt are pending, and it is not being relabeled inherited or changed to obtain green.
+
+### Append-only review correction and disposable candidate receipts
+
+The first implementation candidate was committed as
+`5c389e0397e83b1d482d679a3c8bcc6f6c87e9a7` (tree
+`db32f9697fbade353d1f7cd8b90a6883ab169918`). Its commit still used the old installed hooks,
+which printed the missing-config warning; that was not a hook-validation pass. Review then
+found concrete deeper instances of the same input-binding classes. Corrections append to
+that candidate rather than rewriting it.
+
+- Inventory: a raw architecture glob admitted an untracked `architecture/local-station-gate.toml`.
+  A complete AST census found 36 filesystem membership/enumeration sites across the original
+  module's 52 functions, including the explicit baseline check. The correction freezes one
+  NUL-delimited Git file census, derives directories from ancestors, and routes every collector
+  and optional/default-baseline reader through it. Lexical path identities are retained.
+  Explicitly supplied diagnostic baselines remain explicit inputs. The existing selected-root
+  test now initializes Git and tracks its fixture baseline; all its assertions are unchanged.
+  Seventeen selected inventory cases passed, and all seven newly added delta cases failed under
+  runtime removal of their respective properties. The complete fixture artifact is in
+  `_build/.tmp/instruments-inventory-probes/census-station-artifacts.json` (SHA-256
+  `4c5b1e173160af731e45cd3c7b06271e86d630868dfedbf90afe04facced35d3`), with 12 tracked
+  fixture files, 22 enumerated debris files, and a subsequent tracked positive control.
+- Documentary references: the ZIP-member projection initially removed the live archive
+  container as well. It now removes only the `::member` part. Both Markdown/JSON live-container
+  tests failed before correction and under a marker-preserving removal; the complete shared-role
+  test file now contains 23 parametrized cases. Its 23 cases plus the existing quoted-evidence
+  case passed. Unknown roles and neighboring live fields remain live.
+- Hooks: native Lefthook already hides unstaged changes; the staged-violation/unstaged-guard
+  falsifier was refused, so the contrary review inference was retracted. A different, real
+  escape remained: Prettier accepted staged `{"a":1}` after changing only working bytes to
+  `{ "a": 1 }`. One native `fail_on_changes: always` predicate now refuses any pre-commit
+  rewrite, with a staged formatted positive control. Changing only that setting to `never`
+  made the behavioral test fail again.
+- Hook inventory: the complete actual hook directory has 18 regular files. An undeclared,
+  generated `prepare-commit-msg` also retained the old config lookup. The installer now
+  discovers generated entrypoints by their own filename-bound native invocation or its
+  dispatcher marker, and normalizes them alongside the declared hooks. No command was invented
+  for the undeclared entrypoint. The actual three managed files are `pre-commit`, `pre-push`,
+  and `prepare-commit-msg`; each is 655 bytes with SHA-256
+  `45bfd5312ebc736ded74df4131cd00bb41abb0d4c0ddbc2473781d200ad64f66`. The other 15 of
+  18 hook files, including `pre-commit.old`, were preserved. Discovery and replacement share
+  one generated-ownership predicate so a custom hook merely naming a similar function cannot
+  lose its backup.
+
+Two disposable real Git worktrees were created with `git worktree add --detach` at that first
+candidate: `/Users/deniskopylov/polisyos/.worktrees/instruments-check-a` and
+`/Users/deniskopylov/polisyos/.worktrees/instruments-check-b`. Their product roots were each
+provisioned with `uv sync --frozen --extra lint --extra test --extra runtime` after the identical
+offline attempt failed on uncached pinned dependencies. Serial
+`CI=true corepack pnpm install --frozen-lockfile` succeeded on both. Each had the same complete
+166-distribution Python name/version set, three `@polisyos` workspace links, and identical
+uv/pnpm lock hashes. Local provisioning manifests are at each product root's
+`_build/.tmp/instruments-final/provision.json`. Native pnpm dependency build scripts, including
+Lefthook's postinstall, were ignored by the existing lock policy; dashboard prepare did execute.
+The producer was also tested after a real native forced install, so its overwrite repair does
+not depend on that ignored-postinstall setting. No workflow file changed.
+
+On disposable check-a only, the sole full command
+`uv run polisyos-tools architecture guardrails check` finished with exit 1 and no traceback.
+Its complete typed finding identity set at the first candidate was:
+
+```text
+deep_import_baseline | drift
+deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.manifest
+deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.signing
+deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.write_contract
+generated_artifact | runtime-openapi-snapshot | output_probe_worktree_escape
+generated_artifact | runtime-openapi-snapshot | generated_output_drift
+generated_artifact | runtime-api-client | output_probe_failed
+generated_artifact | trust-claim-posture-register | generated_output_drift
+```
+
+The full log is
+`/Users/deniskopylov/polisyos/.worktrees/instruments-check-a/policy-engine/_build/.tmp/instruments-final/guardrails.log`.
+It exposed two errors in this lane's first repair: the API-client
+generator requires `.venv/bin/python`, and uv's configured cache directory was written inside
+the measured source copy. These were not relabeled inherited. The correction prepares a real
+private environment and cache beside the source, links only that private environment at the
+required source path before snapshots, and provisions the frozen project before any family
+can run. The shared copy helper still never links the caller's environment. Preparation failure
+is itself a finding. Runtime CAS writes and generated-byte drift are not suppressed.
+
+On disposable check-b, the two specifically selected existing trust-consumer tests finished:
+one passed and one failed in 284.01 seconds. The real generator executed; the failing test's
+complete failure identity is `generated-family output differs from committed artifact:
+apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json`. Its traceback is a failed
+assertion path, not a clean measurement and not a cross-station finding-set comparison.
+The generated output path is outside the edit grant. Inherited attribution is `not_established`.
+
+Both disposable environments retained their complete two-file `.pth` sets after their respective
+real consumers, with changed-identity sets `[]` on check-a and `[]` on check-b. Each set contains
+`lib/python3.14/site-packages/_editable_impl_policy_engine.pth` (that station's product root,
+newline, then its `src` root) and `lib/python3.14/site-packages/_virtualenv.pth`
+(`import _virtualenv`). Direct `.venv/bin/python` imports, without resync, resolved to each
+station's own `src/polisyos/__init__.py`. This compares environment preservation, not the two
+different consumer finding sets. Before/after bytes are retained in the station receipts.
+
+After the inventory census and ZIP correction, the sole inventory `--check` and sole docs
+lifecycle command both exited 0 with complete gate finding sets `[]` and `[]`. The reconciled
+inventory baseline required no further edit. The named inventory/docs/ADR/structure test wave
+passed 84 of 85 collected cases in 30.93 seconds; the separately proven inherited docs-freshness
+case was explicitly deselected. Final candidate/station replay follows below.

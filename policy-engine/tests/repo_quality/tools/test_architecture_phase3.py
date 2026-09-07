@@ -396,6 +396,76 @@ def test_generated_probe_preserves_caller_editable_binding(
     assert findings == []
 
 
+def test_generated_probe_prepares_private_python_and_cache(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    caller = tmp_path / "caller"
+    caller.mkdir()
+    (caller / "uv.toml").write_text('cache-dir = "_cache/uv"\n', encoding="utf-8")
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "generated\n")
+    writer = textwrap.dedent("""\
+        import os
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        source = Path.cwd().resolve()
+        environment = Path(sys.prefix).resolve()
+        assert environment != Path(sys.base_prefix).resolve()
+        assert not environment.is_relative_to(source)
+        assert (source / '.venv').resolve() == environment
+        assert Path(os.environ['UV_PROJECT_ENVIRONMENT']).resolve() == environment
+        cache = Path(subprocess.run(
+            ['uv', 'cache', 'dir'], capture_output=True, text=True, check=True
+        ).stdout.strip()).resolve()
+        cache.mkdir(parents=True, exist_ok=True)
+        (cache / 'probe-cache-write').write_text('cache')
+        assert not cache.is_relative_to(source)
+        output = Path(sys.argv[1])
+        output.mkdir(parents=True)
+        (output / 'generated.txt').write_text('generated\\n')
+        """)
+    family = _generated_client_family(
+        caller,
+        family_id="private-python-cache-probe",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(),
+        output_probe_command=(".venv/bin/python", "-c", writer, "{output_root}"),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
+
+    findings = guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
+
+    assert findings == []
+    assert not (caller / ".venv").exists()
+    assert not (caller / "_cache").exists()
+
+
+def test_generated_probe_refuses_unprepared_project_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    caller = tmp_path / "caller"
+    caller.mkdir()
+    (caller / "pyproject.toml").write_text(
+        '[project]\nname = "missing-lock-probe"\nversion = "0.0.0"\n',
+        encoding="utf-8",
+    )
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "generated\n")
+    family = _generated_client_family(
+        caller,
+        family_id="unprepared-environment-probe",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(("generated.txt", "generated\n"),),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
+
+    findings = guardrails._run_required_generated_artifact_checks([family], expected_root=expected)
+
+    assert [finding.detail for finding in findings] == ["probe_environment_preparation_failed"]
+
+
 def test_guardrails_rejects_emitted_but_unregistered_output(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

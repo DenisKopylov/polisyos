@@ -1,6 +1,7 @@
 no_auto_install: true
 
 pre-commit:
+  fail_on_changes: always
   parallel: true
   commands:
     prettier:

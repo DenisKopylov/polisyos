@@ -68,6 +68,7 @@ def main(argv: list[str] | None = None) -> int:
                 uv_run(
                     "basedpyright runtime source",
                     "basedpyright",
+                    "--baselinemode=discard",
                     "--project",
                     "basedpyright.toml",
                     *RUNTIME_SOURCE_SCOPE,

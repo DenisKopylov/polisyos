@@ -120,6 +120,15 @@ def resolve_control_registry_providers(
             gy_catalog_graph = _default_gy_catalog_graph()
     resolved_discovery_providers = capability_discovery_providers
     if not registry_factory_overridden:
+        if not any(provider.resource_kind == "case" for provider in resolved_discovery_providers):
+            from polisyos.runtime.quality.capability_discovery import (
+                GlobalCaseIndexCapabilityDiscoveryProvider,
+            )
+
+            resolved_discovery_providers = (
+                *resolved_discovery_providers,
+                GlobalCaseIndexCapabilityDiscoveryProvider(),
+            )
         if not any(
             provider.resource_kind == "method" for provider in resolved_discovery_providers
         ):

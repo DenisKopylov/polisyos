@@ -488,6 +488,26 @@ _INDEPENDENT_C4_PROFILE_ROWS.update(
             (),
             (),
         ),
+        "claim_owner_event_bridge": (
+            "scientist.claims.owner_event_bridge",
+            "polisyos.claim-ledger.owner-event-bridge.v1",
+            b"polisyos.claim-ledger-owner-event-bridge.v1\0",
+            (
+                "schema_version",
+                "owner_key",
+                "owner_event_ref",
+                "owner_event_content_hash",
+                "appointment_ref",
+                "appointment_content_hash",
+                "decision_packet_ref",
+                "prior_ledger_ref",
+                "prior_ledger_content_hash",
+                "next_ledger_ref",
+                "next_ledger_content_hash",
+            ),
+            (),
+            (),
+        ),
     }
 )
 

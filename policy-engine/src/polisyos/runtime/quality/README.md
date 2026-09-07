@@ -18,6 +18,11 @@ closeout meaning.
 
 Boundary notes:
 
+- `global_case_index.py` recomputes a tenant/cell-scoped CAS inventory of canonical
+  persisted S2 case bindings. The default capability-discovery provider consumes
+  its verified snapshots and persists candidate-only search receipts. Coverage
+  is limited to that binding vocabulary; terminality and policy authority are
+  not established, and the authority appointment slot stays empty.
 - Prefer neutral contracts from `polisyos.core.contracts` when lower-level
   packages need DTOs or protocols.
 - Keep runtime-only persistence, ledger, replay, and validation wiring in this

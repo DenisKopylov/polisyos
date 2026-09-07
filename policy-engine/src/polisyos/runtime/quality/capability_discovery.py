@@ -136,6 +136,17 @@ class CapabilityIndexOwnerReceipt(_CapabilityOwnerReceipt):
         return self
 
 
+class GlobalCaseIndexOwnerReceipt(_CapabilityOwnerReceipt):
+    """Receipt for candidate discovery over the persisted canonical case index."""
+
+    schema_version: Literal["policyos.global_case_index_owner_receipt.v1"] = (
+        "policyos.global_case_index_owner_receipt.v1"
+    )
+    owner_type: Literal["global_case_index"] = "global_case_index"
+    resource_kind: Literal["case"] = "case"
+    authority_owner_ref: None = None
+
+
 class SourceProfileOwnerReceipt(_CapabilityOwnerReceipt):
     """SourceProfileRegistry plus connector-registry snapshot receipt."""
 
@@ -406,6 +417,7 @@ class _ScientistDiscoverySnapshot:
 
 type CapabilityOwnerReceipt = (
     CapabilityIndexOwnerReceipt
+    | GlobalCaseIndexOwnerReceipt
     | SourceProfileOwnerReceipt
     | LexOwnerReceipt
     | ScientistRegistryOwnerReceipt
@@ -452,6 +464,7 @@ class CapabilityProviderSearchResult(BaseModel):
                 "source": SourceProfileOwnerReceipt,
                 "legal_norm": LexOwnerReceipt,
                 "agent": ScientistRegistryOwnerReceipt,
+                "case": GlobalCaseIndexOwnerReceipt,
             }.get(self.resource_kind)
             if receipt_type is None or type(self.owner_receipt) is not receipt_type:
                 expected = (
@@ -522,6 +535,173 @@ class CapabilityDiscoveryProvider(Protocol):
     ) -> CapabilityProviderSearchResult:
         """Return owner-selected rows and the real owner ledger."""
         ...
+
+
+class GlobalCaseIndexCapabilityDiscoveryProvider:
+    """Bridge fresh, tenant-scoped canonical case snapshots into discovery."""
+
+    def __init__(self) -> None:
+        self._store: core.artifacts.ArtifactStore | None = None
+
+    @property
+    def resource_kind(self) -> Literal["case"]:
+        """Return the case vocabulary owned by this candidate index."""
+        return "case"
+
+    def bind_artifact_store(self, store: core.artifacts.ArtifactStore) -> None:
+        """Bind the runtime CAS once without enumerating tenant data at bootstrap."""
+        if self._store is not None and self._store is not store:
+            raise RuntimeError("case index artifact store is already bound")
+        self._store = store
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Persist a fresh index and owner receipt, then return candidate-only rows."""
+        from polisyos.runtime.quality.global_case_index import (
+            GLOBAL_CASE_INDEX_PRODUCER_REF,
+            GlobalCaseIndexError,
+            GlobalCaseIndexProducer,
+        )
+
+        store = self._store
+        if store is None:
+            raise CapabilityProviderUnavailableError("case_index_artifact_store_unbound")
+        try:
+            ref, snapshot = GlobalCaseIndexProducer(store).produce()
+        except GlobalCaseIndexError as exc:
+            raise CapabilityProviderUnavailableError(str(exc)) from exc
+        snapshot_ref = str(ref.artifact_id)
+        provenance = tuple(
+            dict.fromkeys(
+                (
+                    GLOBAL_CASE_INDEX_PRODUCER_REF,
+                    snapshot_ref,
+                    *snapshot.source_artifact_refs,
+                    *(entry.design_record_ref for entry in snapshot.entries),
+                    *(entry.search_ledger_ref for entry in snapshot.entries),
+                )
+            )
+        )
+        time = CapabilityTimeSemantics(
+            observed_at=snapshot.observed_at,
+            valid_from=snapshot.observed_at,
+            valid_until=None,
+            freshness="current",
+        )
+        rows = tuple(
+            CapabilityIndexDiscoveryRow(
+                capability_ref=f"case-binding:{entry.binding_ref}",
+                content_digest=entry.binding_ref,
+                resource_kind="case",
+                construct_refs=entry.instrument_families,
+                label=entry.case_id,
+                description=f"Persisted S2 candidate for run {entry.run_id}",
+                producer_ref=GLOBAL_CASE_INDEX_PRODUCER_REF,
+                snapshot_ref=snapshot_ref,
+                freshness_ref=snapshot_ref,
+                provenance_refs=provenance,
+                may_not_use_for=(
+                    "policy_authority",
+                    "terminal_run_completion",
+                    "global_case_population_claim",
+                ),
+                time=time,
+            )
+            for entry in snapshot.entries
+        )
+        terms = _owner_search_terms(request)
+        matches = tuple(row for row in rows if not terms or _row_match_count(row, terms))
+        limit = _owner_search_limit(request, fallback=len(matches))
+        selected = matches[:limit]
+        selected_refs = {row.capability_ref for row in selected}
+        cutoff = len(matches) > limit
+        status: SearchCompletenessStatus = "budget_cutoff" if cutoff else "recall_unmeasured"
+        reasons = (
+            *snapshot.limitation_codes,
+            *(("case_index_budget_cutoff",) if cutoff else ()),
+        )
+
+        def candidate(row: CapabilityIndexDiscoveryRow, *, rejected: bool) -> SearchCandidate:
+            return SearchCandidate(
+                candidate_ref=row.capability_ref,
+                source_layer="GlobalCaseIndex",
+                match_mode="lexical" if terms else "exact",
+                score=1.0 if not terms else float(bool(_row_match_count(row, terms))),
+                evidence_refs=row.provenance_refs,
+                limitation_refs=("not_selected",) if rejected else snapshot.limitation_codes,
+                authority_boundary={"authoritative_for": []},
+                may_not_use_for=row.may_not_use_for,
+            )
+
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={"match": "all_terms_over_canonical_s2_case_bindings"},
+            corpus_ref=snapshot_ref,
+            corpus_path="runtime/quality/global_case_index.py",
+            corpus_snapshot_hash=snapshot_ref,
+            corpus_kind="canonical",
+            indexes_used=("global_case_index",),
+            index_version_refs=(snapshot_ref,),
+            index_freshness={"global_case_index": {"state": "current"}},
+            candidates=tuple(candidate(row, rejected=False) for row in selected),
+            rejected_candidates=tuple(
+                candidate(row, rejected=True)
+                for row in rows
+                if row.capability_ref not in selected_refs
+            ),
+            no_hit_frontier=() if selected else ("case",),
+            incompleteness={"status": status, "reason_codes": list(reasons)},
+            replay_key=f"global-case-index:{snapshot_ref}",
+            replay_command="capability-discovery:global-case-index",
+            replay_expected_output_hash=snapshot_ref,
+        )
+        payload = {
+            "resource_kind": "case",
+            "producer_ref": GLOBAL_CASE_INDEX_PRODUCER_REF,
+            "rows": selected,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(rows),
+            "actual_cutoff": limit if cutoff else None,
+            "completeness_status": status,
+            "incompleteness_reasons": reasons,
+        }
+        receipt = GlobalCaseIndexOwnerReceipt(
+            owner_producer_ref=GLOBAL_CASE_INDEX_PRODUCER_REF,
+            search_snapshot_ref=snapshot_ref,
+            search_snapshot_digest=snapshot_ref,
+            result_digest="sha256:"
+            + _digest(
+                {
+                    **payload,
+                    "rows": [row.model_dump(mode="json") for row in selected],
+                    "ledger": ledger.model_dump(mode="json"),
+                }
+            ),
+            provenance_refs=provenance,
+        )
+        result = CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+        try:
+            store.put_json(
+                receipt.model_dump(mode="json"),
+                core.artifacts.PutOptions(
+                    kind="runtime.global_case_index_owner_receipt",
+                    media_type="application/json",
+                    schema=core.artifacts.SchemaInfo(
+                        name="polisyos.runtime.quality.GlobalCaseIndexOwnerReceipt",
+                        version=receipt.schema_version,
+                    ),
+                    inputs=[
+                        core.artifacts.InputRef(
+                            artifact_id=ref.artifact_id, role="global_case_index_snapshot"
+                        )
+                    ],
+                ),
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            raise CapabilityProviderUnavailableError(
+                "case_index_receipt_persistence_failed"
+            ) from exc
+        return result
 
 
 class AdapterCapabilityDiscoveryProvider:
@@ -2315,8 +2495,6 @@ class CapabilityDiscoveryComposer:
         provider_map = {provider.resource_kind: provider for provider in providers}
         if len(provider_map) != len(providers):
             raise ValueError("capability discovery providers must be unique by resource kind")
-        if "case" in provider_map:
-            raise ValueError("case capability provider is absent/unallocated at this base")
         self._providers = provider_map
         self._execution_resolver = execution_resolver
         self._authority_resolver = authority_resolver

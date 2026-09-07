@@ -16,6 +16,7 @@ from polisyos.core import canon
 from polisyos.core import contracts as core_contracts
 from polisyos.scientist.evidence.claims.head_index import (
     ClaimDependencyDenominatorResolver,
+    ClaimLedgerHeadAdvanceReceipt,
     ClaimLedgerOwnerPort,
     ClaimLifecycleBridgeAuthorityResult,
     ClaimLifecycleBridgeNonReceipt,
@@ -140,6 +141,68 @@ class EpochClaimLifecycleBridgeService:
             case_id=getattr(ledger, "run_id", None),
             occurred_at=persisted_event.event.occurred_at,
         )
+        from polisyos.scientist.evidence.claims.owner_events import (
+            find_claim_supersession_candidates,
+        )
+
+        # The signed act is a separate persisted object: detector metadata never
+        # becomes authority, and the candidate's owner key is rechecked by the owner.
+        candidates = find_claim_supersession_candidates(
+            store=self.artifacts,
+            monitor_event_ref=monitor_event_ref,
+        )
+        request = persisted_event.event.supersession_candidate
+        if request is not None and not candidates:
+            produced = self.claim_owner.produce_owner_event_candidate(
+                monitor_event_ref=monitor_event_ref,
+                predecessor_claim_id=request.predecessor_claim_id,
+                successor_claim_ref=request.successor_claim_ref,
+                effective_at=request.effective_at,
+            )
+            if not isinstance(produced, ArtifactRef):
+                result = result.model_copy(
+                    update={
+                        "metadata": {
+                            **result.metadata,
+                            "owner_event_production_result": produced.model_dump(mode="json"),
+                        }
+                    }
+                )
+            candidates = find_claim_supersession_candidates(
+                store=self.artifacts,
+                monitor_event_ref=monitor_event_ref,
+            )
+        if len(candidates) == 1:
+            owner_event_ref, candidate = candidates[0]
+            owner_result = self.claim_owner.append_verified_owner_event(
+                owner_key=candidate.owner_key,
+                owner_event_ref=owner_event_ref,
+            )
+            result = result.model_copy(
+                update={
+                    "owner_event_outcome": owner_result,
+                    "metadata": {
+                        **result.metadata,
+                        "owner_event_ref": owner_event_ref.model_dump(mode="json"),
+                    },
+                }
+            )
+        elif candidates:
+            result = result.model_copy(
+                update={
+                    "metadata": {
+                        **result.metadata,
+                        "owner_event_result": {
+                            "result_kind": "non_receipt",
+                            "status": "rejected",
+                            "code": "claim_owner_event_multiple_candidates",
+                        },
+                        "owner_event_candidate_refs": [
+                            ref.model_dump(mode="json") for ref, _ in candidates
+                        ],
+                    }
+                }
+            )
         result_ref = persist_lifecycle_bridge_result(self.artifacts, result)
         if load_lifecycle_bridge_result(self.artifacts, result_ref) != result:
             raise ValueError("monitor lifecycle bridge readback mismatch")
@@ -503,6 +566,8 @@ class LifecycleBridgeResult(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     schema_version: Literal["1.0"] = "1.0"
+    monitor_projection_authority: Literal["advisory"] = "advisory"
+    owner_event_outcome: ClaimLedgerHeadAdvanceReceipt | None = None
     bridge_id: str = Field(min_length=1)
     status: LifecycleBridgeStatus
     case_id: str | None = None
@@ -568,9 +633,7 @@ def bridge_governance_events_to_claim_lifecycle(
     projection-only surface over the affected claim ids.
     """
 
-    persisted_events = [
-        resolve_governance_monitor_event(store, ref) for ref in monitor_event_refs
-    ]
+    persisted_events = [resolve_governance_monitor_event(store, ref) for ref in monitor_event_refs]
     monitor_events = [row.event for row in persisted_events]
     _validate_bridge_inputs(
         ledger=ledger,

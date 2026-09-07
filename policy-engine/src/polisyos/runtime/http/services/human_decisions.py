@@ -470,7 +470,11 @@ def _pa2_packet_join_issues(
     }
     if (
         source.outcome != "refused"
-        or source.refusal_reasons != ("operation_out_of_envelope",)
+        or source.refusal_reasons
+        not in (
+            ("operation_out_of_envelope",),
+            ("operation_out_of_envelope", "human_decision_missing"),
+        )
         or source_checks != expected_source_checks
         or request.decision_class_id != "mandate_boundary"
         or request.interaction_mode != "request_driven"

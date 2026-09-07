@@ -6,6 +6,7 @@ import json
 import multiprocessing as mp
 import os
 from dataclasses import dataclass, replace
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -256,6 +257,47 @@ def test_profiled_helper_calls_use_only_registered_record_literals() -> None:
 
     assert observed
     assert observed <= set(C4_PERSISTED_PROFILE_SPECS)
+
+
+@pytest.mark.parametrize("repository_owner", [False, True])
+def test_owner_event_append_requires_an_explicit_authority(
+    tmp_path: Path,
+    repository_owner: bool,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    owner = (
+        _RepositoryClaimLedgerOwner(
+            store=store,
+            policy_resolver=head_index_module.NoClaimLedgerInitializationPolicyResolver(),
+        )
+        if repository_owner
+        else UnappointedClaimLedgerOwner(store=store)
+    )
+
+    result = owner.append_verified_owner_event(
+        owner_key=_owner_key(),
+        owner_event_ref=_ref("3", kind="scientist.claims.supersession_owner_event"),
+    )
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.status == "not_established"
+    assert result.code == "claim_owner_event_authority_unappointed"
+    assert store.iter_artifact_ids() == []
+
+
+def test_unappointed_owner_cannot_invent_a_candidate_root(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    result = UnappointedClaimLedgerOwner(store=store).produce_owner_event_candidate(
+        monitor_event_ref=_ref("1"),
+        predecessor_claim_id="predecessor",
+        successor_claim_ref=_ref("2"),
+        effective_at=datetime(2026, 9, 7, tzinfo=UTC),
+    )
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.status == "not_established"
+    assert result.code == "claim_head_absent"
+    assert store.iter_artifact_ids() == []
 
 
 def test_owner_scope_is_content_bound_to_base_claims_and_purpose() -> None:

@@ -16,6 +16,7 @@ import os
 import tempfile
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from types import UnionType
 from typing import (
@@ -41,6 +42,7 @@ if TYPE_CHECKING:
         ClaimLedgerExport,
     )
     from polisyos.scientist.evidence.claims.models import ClaimLedger
+    from polisyos.scientist.evidence.claims.owner_events import ClaimSupersessionAuthority
 
 Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 ArtifactRef = artifacts.ArtifactRef
@@ -243,6 +245,8 @@ class ClaimLedgerHeadResolutionNonReceipt(_StrictFrozenModel):
         "claim_head_issuance_unverified",
         "claim_head_content_mismatch",
         "claim_head_conflict",
+        "claim_owner_event_authority_unappointed",
+        "claim_owner_event_rejected",
     ]
 
 
@@ -2342,6 +2346,17 @@ class ClaimLedgerOwnerPort(Protocol):
         """Apply one independently resolved completed Decision Validity batch."""
         ...
 
+    def produce_owner_event_candidate(
+        self,
+        *,
+        monitor_event_ref: ArtifactRef,
+        predecessor_claim_id: str,
+        successor_claim_ref: ArtifactRef,
+        effective_at: datetime,
+    ) -> ArtifactRef | ClaimLedgerHeadResolutionNonReceipt:
+        """Produce an unsigned supersession candidate against the current owner head."""
+        ...
+
     def append_verified_owner_event(
         self,
         *,
@@ -2406,6 +2421,8 @@ def _resolve_claim_pending_projection(
 ) -> ClaimBridgePendingProjection:
     """Reconcile pending receipts against the exact verified current head."""
 
+    from polisyos.scientist.evidence.claims.owner_events import OWNER_EVENT_BRIDGE_KIND
+
     root = _read_profiled_statement(
         store=store,
         record="claim_ledger_root",
@@ -2427,6 +2444,9 @@ def _resolve_claim_pending_projection(
     resolved_pending_ids: set[str] = set()
     materialized_batch_packets: set[tuple[str, str]] = set()
     for bridge_ref in current.statement.bridge_result_refs:
+        if bridge_ref.kind == OWNER_EVENT_BRIDGE_KIND:
+            # The owner's complete head verifier has already replayed this profile.
+            continue
         bridge = _read_profiled_statement(
             store=store,
             record="claim_bridge_result",
@@ -2695,6 +2715,22 @@ class UnappointedClaimLedgerOwner:
             ),
         )
 
+    def produce_owner_event_candidate(
+        self,
+        *,
+        monitor_event_ref: ArtifactRef,
+        predecessor_claim_id: str,
+        successor_claim_ref: ArtifactRef,
+        effective_at: datetime,
+    ) -> ClaimLedgerHeadResolutionNonReceipt:
+        """Refuse to invent the owner/root required to bind a candidate."""
+
+        del monitor_event_ref, predecessor_claim_id, successor_claim_ref, effective_at
+        return ClaimLedgerHeadResolutionNonReceipt(
+            status="not_established",
+            code="claim_head_absent",
+        )
+
     def append_verified_owner_event(
         self,
         *,
@@ -2704,7 +2740,7 @@ class UnappointedClaimLedgerOwner:
         del owner_key, owner_event_ref
         return ClaimLedgerHeadResolutionNonReceipt(
             status="not_established",
-            code="claim_head_absent",
+            code="claim_owner_event_authority_unappointed",
         )
 
     def export_current(
@@ -2745,6 +2781,7 @@ class _RepositoryClaimLedgerOwner:
     issuance_evidence: ClaimLedgerIssuanceEvidenceIndex = field(
         default_factory=NoClaimLedgerIssuanceEvidenceIndex
     )
+    owner_event_authority: ClaimSupersessionAuthority | None = None
 
     def _head_cas(self) -> _LockedClaimLedgerHeadCAS:
         """Build the sole pointer mutator with the owner's closure verifier."""
@@ -2862,9 +2899,83 @@ class _RepositoryClaimLedgerOwner:
                 self.store,
                 basis.initial_ledger_ref,
             )
+            from polisyos.scientist.evidence.claims.owner_events import (
+                OWNER_EVENT_BRIDGE_KIND,
+                ClaimSupersessionBridgeStatement,
+                apply_claim_supersession_owner_event,
+                resolve_claim_supersession_owner_event,
+            )
+
+            applied_owner_events: set[str] = set()
             if head.statement.generation != len(head.statement.bridge_result_refs):
                 raise ValueError("claim_head_generation_bridge_count_mismatch")
             for bridge_result_ref in head.statement.bridge_result_refs:
+                if bridge_result_ref.kind == OWNER_EVENT_BRIDGE_KIND:
+                    owner_bridge = _read_profiled_statement(
+                        store=self.store,
+                        record="claim_owner_event_bridge",
+                        ref=bridge_result_ref,
+                        model=ClaimSupersessionBridgeStatement,
+                    )
+                    if (
+                        not isinstance(owner_bridge, ClaimSupersessionBridgeStatement)
+                        or self.owner_event_authority is None
+                        or owner_bridge.appointment_ref
+                        != self.owner_event_authority.appointment_ref
+                        or owner_bridge.appointment_content_hash
+                        != str(owner_bridge.appointment_ref.artifact_id)
+                        or str(owner_bridge.owner_event_ref.artifact_id) in applied_owner_events
+                        or owner_bridge.owner_key != head.statement.owner_key
+                        or owner_bridge.decision_packet_ref != basis.decision_packet_ref
+                        or owner_bridge.prior_ledger_ref != prior_ledger_ref
+                        or owner_bridge.prior_ledger_content_hash != prior_ledger_hash
+                        or owner_bridge.owner_event_content_hash
+                        != str(owner_bridge.owner_event_ref.artifact_id)
+                    ):
+                        raise ValueError("claim_head_owner_event_bridge_mismatch")
+                    owner_event = resolve_claim_supersession_owner_event(
+                        store=self.store,
+                        owner_event_ref=owner_bridge.owner_event_ref,
+                        authority=self.owner_event_authority,
+                        expected_owner_key=head.statement.owner_key,
+                    )
+                    if (
+                        owner_event.prior_ledger_ref != prior_ledger_ref
+                        or owner_event.prior_ledger_content_hash != prior_ledger_hash
+                        or owner_event.decision_packet_ref != basis.decision_packet_ref
+                    ):
+                        raise ValueError("claim_head_owner_event_input_mismatch")
+                    owner_next_raw = _read_exact_artifact(
+                        store=self.store,
+                        ref=owner_bridge.next_ledger_ref,
+                        expected_kind=CLAIM_LEDGER_V2_KIND,
+                        expected_media_type="application/json",
+                        expected_schema=artifacts.SchemaInfo(
+                            name=CLAIM_LEDGER_V2_SCHEMA_NAME,
+                            version=CLAIM_LEDGER_V2_SCHEMA_VERSION,
+                        ),
+                    )
+                    owner_next_ledger = _load_append_only_claim_ledger(
+                        self.store,
+                        owner_bridge.next_ledger_ref,
+                    )
+                    recomputed = apply_claim_supersession_owner_event(
+                        store=self.store,
+                        ledger=last_ledger,
+                        event=owner_event,
+                        owner_event_ref=owner_bridge.owner_event_ref,
+                    )
+                    if (
+                        _raw_content_hash(owner_next_raw) != owner_bridge.next_ledger_content_hash
+                        or to_canonical_bytes(recomputed, canon.CanonSpec(forbid_floats=False))
+                        != owner_next_raw
+                    ):
+                        raise ValueError("claim_head_owner_event_replay_mismatch")
+                    applied_owner_events.add(str(owner_bridge.owner_event_ref.artifact_id))
+                    prior_ledger_ref = owner_bridge.next_ledger_ref
+                    prior_ledger_hash = owner_bridge.next_ledger_content_hash
+                    last_ledger = owner_next_ledger
+                    continue
                 bridge_result = _read_profiled_statement(
                     store=self.store,
                     record="claim_bridge_result",
@@ -3697,8 +3808,13 @@ class _RepositoryClaimLedgerOwner:
         verified_batch: _VerifiedCompletedEpochValidityBatch,
         decision_packet_ref: ArtifactRef,
     ) -> PersistedClaimLifecycleBridgeResult | None:
+        from polisyos.scientist.evidence.claims.owner_events import OWNER_EVENT_BRIDGE_KIND
+
         matches: list[PersistedClaimLifecycleBridgeResult] = []
         for bridge_ref in current.statement.bridge_result_refs:
+            if bridge_ref.kind == OWNER_EVENT_BRIDGE_KIND:
+                # Owner-event bridges never settle Decision Validity batch pending state.
+                continue
             statement = _read_profiled_statement(
                 store=self.store,
                 record="claim_bridge_result",
@@ -3729,17 +3845,176 @@ class _RepositoryClaimLedgerOwner:
             raise ValueError("claim_batch_applied_more_than_once")
         return matches[0] if matches else None
 
+    def produce_owner_event_candidate(
+        self,
+        *,
+        monitor_event_ref: ArtifactRef,
+        predecessor_claim_id: str,
+        successor_claim_ref: ArtifactRef,
+        effective_at: datetime,
+    ) -> ArtifactRef | ClaimLedgerHeadResolutionNonReceipt:
+        """Bind a resolved monitor request to this owner's current ledger without signing."""
+
+        from polisyos.scientist.evidence.claims.owner_events import (
+            produce_claim_supersession_owner_event,
+        )
+        from polisyos.scientist.governance.continuous.monitors import (
+            resolve_governance_monitor_event,
+        )
+
+        try:
+            monitor = resolve_governance_monitor_event(self.store, monitor_event_ref).event
+            owner_key = self._resolve_owner_key_for_packet(
+                decision_packet_ref=monitor.decision_packet_ref,
+            )
+            if isinstance(owner_key, ClaimLedgerHeadResolutionNonReceipt):
+                return owner_key
+            current = self.resolve_current(owner_key=owner_key)
+            if isinstance(current, ClaimLedgerHeadResolutionNonReceipt):
+                return current
+            return produce_claim_supersession_owner_event(
+                store=self.store,
+                owner_key=owner_key,
+                monitor_event_ref=monitor_event_ref,
+                prior_ledger_ref=current.statement.ledger_artifact_ref,
+                predecessor_claim_id=predecessor_claim_id,
+                successor_claim_ref=successor_claim_ref,
+                effective_at=effective_at,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return ClaimLedgerHeadResolutionNonReceipt(
+                status="rejected",
+                code="claim_owner_event_rejected",
+            )
+
     def append_verified_owner_event(
         self,
         *,
         owner_key: ClaimLedgerOwnerKey,
         owner_event_ref: ArtifactRef,
     ) -> ClaimLedgerHeadAdvanceReceipt:
-        del owner_key, owner_event_ref
-        return ClaimLedgerHeadResolutionNonReceipt(
-            status="not_established",
-            code="claim_head_absent",
+        """Append a signed exact-prior supersession through the sole head CAS."""
+
+        if self.owner_event_authority is None:
+            return ClaimLedgerHeadResolutionNonReceipt(
+                status="not_established",
+                code="claim_owner_event_authority_unappointed",
+            )
+        from polisyos.scientist.evidence.claims.audit import (
+            _claim_ledger_v2_inputs,
+            _load_append_only_claim_ledger,
+            _persist_append_only_claim_ledger,
         )
+        from polisyos.scientist.evidence.claims.owner_events import (
+            OWNER_EVENT_BRIDGE_KIND,
+            ClaimSupersessionBridgeStatement,
+            apply_claim_supersession_owner_event,
+            resolve_claim_supersession_owner_event,
+        )
+
+        try:
+            current = self.resolve_current(owner_key=owner_key)
+            if isinstance(current, ClaimLedgerHeadResolutionNonReceipt):
+                return current
+            for bridge_ref in current.statement.bridge_result_refs:
+                if bridge_ref.kind != OWNER_EVENT_BRIDGE_KIND:
+                    continue
+                existing = _read_profiled_statement(
+                    store=self.store,
+                    record="claim_owner_event_bridge",
+                    ref=bridge_ref,
+                    model=ClaimSupersessionBridgeStatement,
+                )
+                if (
+                    isinstance(existing, ClaimSupersessionBridgeStatement)
+                    and existing.owner_event_ref == owner_event_ref
+                ):
+                    return self._head_cas().readback_existing_current(
+                        owner_key=owner_key,
+                        expected_bridge_result_ref=bridge_ref,
+                    )
+            event = resolve_claim_supersession_owner_event(
+                store=self.store,
+                owner_event_ref=owner_event_ref,
+                authority=self.owner_event_authority,
+                expected_owner_key=owner_key,
+            )
+            if (
+                event.prior_ledger_ref != current.statement.ledger_artifact_ref
+                or event.prior_ledger_content_hash != current.statement.ledger_raw_cas_hash
+            ):
+                raise ValueError("claim_owner_event_prior_head_mismatch")
+            ledger = _load_append_only_claim_ledger(
+                self.store,
+                current.statement.ledger_artifact_ref,
+            )
+            updated = apply_claim_supersession_owner_event(
+                store=self.store,
+                ledger=ledger,
+                event=event,
+                owner_event_ref=owner_event_ref,
+            )
+            next_ledger_ref = _persist_append_only_claim_ledger(
+                self.store,
+                updated,
+                inputs=_claim_ledger_v2_inputs(
+                    base_ledger_ref=current.statement.ledger_artifact_ref,
+                    source_artifact_refs=(owner_event_ref, event.successor_claim_ref),
+                ),
+            )
+            bridge_ref, _ = _persist_profiled_statement(
+                store=self.store,
+                record="claim_owner_event_bridge",
+                value=ClaimSupersessionBridgeStatement(
+                    owner_key=owner_key,
+                    owner_event_ref=owner_event_ref,
+                    owner_event_content_hash=str(owner_event_ref.artifact_id),
+                    appointment_ref=self.owner_event_authority.appointment_ref,
+                    appointment_content_hash=str(
+                        self.owner_event_authority.appointment_ref.artifact_id
+                    ),
+                    decision_packet_ref=event.decision_packet_ref,
+                    prior_ledger_ref=current.statement.ledger_artifact_ref,
+                    prior_ledger_content_hash=current.statement.ledger_raw_cas_hash,
+                    next_ledger_ref=next_ledger_ref,
+                    next_ledger_content_hash=str(next_ledger_ref.artifact_id),
+                ),
+            )
+            next_statement = ClaimLedgerHeadStatement(
+                root_identity=current.statement.root_identity,
+                root_receipt_ref=current.statement.root_receipt_ref,
+                root_receipt_content_hash=current.statement.root_receipt_content_hash,
+                owner_key=owner_key,
+                ledger_artifact_ref=next_ledger_ref,
+                ledger_raw_cas_hash=str(next_ledger_ref.artifact_id),
+                generation=current.statement.generation + 1,
+                predecessor_head_ref=current.head_ref,
+                bridge_result_refs=(*current.statement.bridge_result_refs, bridge_ref),
+                issuance_verifier_receipt_ref=current.statement.issuance_verifier_receipt_ref,
+                issuance_verifier_receipt_content_hash=(
+                    current.statement.issuance_verifier_receipt_content_hash
+                ),
+            )
+            next_ref, next_hash = _persist_profiled_statement(
+                store=self.store,
+                record="claim_ledger_head",
+                value=next_statement,
+            )
+            return self._head_cas().advance(
+                owner_key=owner_key,
+                expected_prior_head_ref=current.head_ref,
+                new_head=PersistedClaimLedgerHead(
+                    head_ref=next_ref,
+                    head_content_hash=next_hash,
+                    statement=next_statement,
+                ),
+                permit=_CLAIM_LEDGER_MUTATION_PERMIT,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return ClaimLedgerHeadResolutionNonReceipt(
+                status="rejected",
+                code="claim_owner_event_rejected",
+            )
 
     def export_current(
         self,

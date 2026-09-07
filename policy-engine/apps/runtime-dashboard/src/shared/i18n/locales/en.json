@@ -3019,7 +3019,6 @@
     "title": "Publication preview",
     "body": "Decision, model card, coverage caveat, threshold contract, argument map, glossary and explanations are shown as an unsigned preview.",
     "publicBody": "Decision, model card, coverage caveat, threshold contract, argument map, glossary and explanations are shown as an unsigned preview.",
-    "openPublicViewer": "Open public viewer",
     "trust": {
       "eyebrow": "Trust framing",
       "title": "Authority caveats"
@@ -3080,6 +3079,20 @@
       "title": "Glossary lens"
     },
     "viewer": {
+      "recordAuthenticated": "Verification record authenticated",
+      "candidateCaveat": "This authenticated record contains a candidate document preview. It does not establish publication authority or verify the decision.",
+      "recordId": "Verification record ID",
+      "documentDigest": "Document digest",
+      "dimensionsTitle": "Decision verification",
+      "dimensions": {
+        "issuer_issuance": "Issuer authorization to publish",
+        "projection_faithfulness": "Faithfulness to the governed source",
+        "public_history_establishment": "Public record history",
+        "durable_verifiability": "Continuing ability to verify",
+        "current_authority": "Current decision authority",
+        "status_snapshot_selection": "Status and snapshot selection",
+        "public_evidence_obtainability": "Public access to verification evidence"
+      },
       "unavailable": "Verification unavailable",
       "unavailableTitle": "No verified public decision is available here",
       "unavailableBody": "This link does not provide a server-verified public record. Browser-generated packets cannot establish publication authority.",

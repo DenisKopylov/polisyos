@@ -1262,6 +1262,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/public-decisions/verification": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Verify Public Decision Record
+     * @description Verify an issued locator without admitting any browser-provided document.
+     */
+    get: operations["verify_public_decision_record"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs": {
     parameters: {
       query?: never;
@@ -1648,6 +1668,30 @@ export interface paths {
     put?: never;
     /** Create Run Production Approval */
     post: operations["create_run_production_approval"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/public-verification-record": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Issue Public Decision Record
+     * @description Redact the persisted run packet, then issue a report about those exact bytes.
+     *
+     *     The caller selects an owned run, never supplies a document, key or authority
+     *     verdict. The existing public-export producer owns disclosure and projection
+     *     limits; its refusal is propagated before any record or public link is issued.
+     */
+    post: operations["issue_public_decision_record"];
     delete?: never;
     options?: never;
     head?: never;
@@ -3919,64 +3963,7 @@ export interface components {
      * BureaucraticBlock
      * @description Canonical document AST block independent of HTML/PDF/DOCX renderers.
      */
-    BureaucraticBlock: {
-      authorship?: components["schemas"]["BureaucraticAuthorship"];
-      /** Children */
-      children?: components["schemas"]["BureaucraticBlock"][];
-      /**
-       * Epistemic Origin
-       * @enum {string}
-       */
-      epistemic_origin:
-        | "evidence_filled"
-        | "model_generated"
-        | "operator_filled"
-        | "imported";
-      /** Id */
-      id: string;
-      /** Items */
-      items?: string[];
-      /**
-       * Kind
-       * @enum {string}
-       */
-      kind:
-        | "header"
-        | "requisites"
-        | "preamble"
-        | "legal_basis"
-        | "section"
-        | "article"
-        | "clause"
-        | "subclause"
-        | "paragraph"
-        | "list"
-        | "table"
-        | "quantity"
-        | "annex"
-        | "signature"
-        | "appendix";
-      /**
-       * Level
-       * @default 1
-       */
-      level: number;
-      /** Metadata */
-      metadata?: {
-        [key: string]: unknown;
-      };
-      /** Number */
-      number?: string | null;
-      /** Provenance */
-      provenance?: components["schemas"]["LineageCompactSummaryItem"][];
-      quantity?: components["schemas"]["QuantityValue-Output"] | null;
-      /** Raw Source Refs */
-      raw_source_refs?: string[];
-      /** Text */
-      text?: string | null;
-      /** Title */
-      title?: string | null;
-    };
+    BureaucraticBlock: _RuntimeApiRecursiveSchema_BureaucraticBlock;
     /**
      * BureaucraticDocument
      * @description Machine-checkable bureaucratic document AST rendered from a decision packet.
@@ -13849,6 +13836,135 @@ export interface components {
       /** Reason */
       reason: string;
     };
+    PublicDecisionJsonValue: _RuntimeApiRecursiveSchema_PublicDecisionJsonValue;
+    /**
+     * PublicDecisionVerificationDimensions
+     * @description PV-K01 dimensions withheld until their actual owners provide evidence.
+     */
+    PublicDecisionVerificationDimensions: {
+      /**
+       * Current Authority
+       * @default not_established
+       * @constant
+       */
+      current_authority: "not_established";
+      /**
+       * Durable Verifiability
+       * @default not_established
+       * @constant
+       */
+      durable_verifiability: "not_established";
+      /**
+       * Issuer Issuance
+       * @default not_established
+       * @constant
+       */
+      issuer_issuance: "not_established";
+      /**
+       * Projection Faithfulness
+       * @default not_established
+       * @constant
+       */
+      projection_faithfulness: "not_established";
+      /**
+       * Public Evidence Obtainability
+       * @default not_established
+       * @constant
+       */
+      public_evidence_obtainability: "not_established";
+      /**
+       * Public History Establishment
+       * @default not_established
+       * @constant
+       */
+      public_history_establishment: "not_established";
+      /**
+       * Status Snapshot Selection
+       * @default not_established
+       * @constant
+       */
+      status_snapshot_selection: "not_established";
+    };
+    /**
+     * PublicDecisionVerificationIssued
+     * @description Opaque locator returned only after durable issuance and verifier readback.
+     */
+    PublicDecisionVerificationIssued: {
+      /** Promoted Record */
+      promoted_record?: null;
+      /** Public Path */
+      public_path: string;
+      /**
+       * Publication Class
+       * @default verification_report_only
+       * @constant
+       */
+      publication_class: "verification_report_only";
+      /** Record Id */
+      record_id: string;
+    };
+    /**
+     * PublicDecisionVerificationResponse
+     * @description Authentication result with document bytes exposed only after verification.
+     */
+    PublicDecisionVerificationResponse: {
+      /**
+       * Cryptographic Signature
+       * @default not_established
+       * @enum {string}
+       */
+      cryptographic_signature: "valid" | "invalid" | "not_established";
+      /** Decision Id */
+      decision_id?: string | null;
+      dimensions?: components["schemas"]["PublicDecisionVerificationDimensions"];
+      /** Issued At */
+      issued_at?: string | null;
+      /** Issuer Id */
+      issuer_id?: string | null;
+      /** Promoted Record */
+      promoted_record?: null;
+      /** Public Document */
+      public_document?: {
+        [key: string]: components["schemas"]["PublicDecisionJsonValue"];
+      } | null;
+      /** Public Document Digest */
+      public_document_digest?: string | null;
+      /** Reason Codes */
+      reason_codes: (
+        | "promoted_public_record_not_established"
+        | "client_token_not_server_issued"
+        | "record_not_issued"
+        | "issuance_index_invalid"
+        | "issuance_index_write_failed"
+        | "verification_issuer_not_configured"
+        | "public_document_invalid"
+        | "record_evidence_unavailable"
+        | "record_signature_missing"
+        | "record_signature_invalid"
+        | "record_key_untrusted"
+        | "record_key_revoked"
+        | "record_issuer_purpose_untrusted"
+        | "record_binding_invalid"
+        | "public_document_binding_invalid"
+      )[];
+      /** Record Id */
+      record_id: string;
+      /**
+       * Report Authentication
+       * @enum {string}
+       */
+      report_authentication: "verified" | "invalid" | "not_established";
+      /**
+       * Report Key Status
+       * @default not_established
+       * @enum {string}
+       */
+      report_key_status:
+        | "trusted"
+        | "revoked"
+        | "untrusted"
+        | "not_established";
+    };
     /**
      * QualityRef
      * @description Quality evidence reference embedded in a Fabric trust envelope.
@@ -23621,6 +23737,113 @@ export interface operations {
       };
     };
   };
+  verify_public_decision_record: {
+    parameters: {
+      query: {
+        record_id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "cryptographic_signature": "not_established",
+           *       "dimensions": {
+           *         "current_authority": "not_established",
+           *         "durable_verifiability": "not_established",
+           *         "issuer_issuance": "not_established",
+           *         "projection_faithfulness": "not_established",
+           *         "public_evidence_obtainability": "not_established",
+           *         "public_history_establishment": "not_established",
+           *         "status_snapshot_selection": "not_established"
+           *       },
+           *       "reason_codes": [
+           *         "record_not_issued",
+           *         "promoted_public_record_not_established"
+           *       ],
+           *       "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "report_authentication": "not_established",
+           *       "report_key_status": "not_established"
+           *     }
+           */
+          "application/json": components["schemas"]["PublicDecisionVerificationResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   list_runs: {
     parameters: {
       query?: {
@@ -25817,6 +26040,99 @@ export interface operations {
       };
     };
   };
+  issue_public_decision_record: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "public_path": "/public/decisions/pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "publication_class": "verification_report_only",
+           *       "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+           *     }
+           */
+          "application/json": components["schemas"]["PublicDecisionVerificationIssued"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_quantities: {
     parameters: {
       query?: {
@@ -26833,3 +27149,73 @@ export interface operations {
     };
   };
 }
+
+// Guarded recursive schema aliases; generated from components.schemas.
+type _RuntimeApiRecursiveSchema_BureaucraticBlock = {
+  authorship?: components["schemas"]["BureaucraticAuthorship"];
+  /** Children */
+  children?: _RuntimeApiRecursiveSchema_BureaucraticBlock[];
+  /**
+   * Epistemic Origin
+   * @enum {string}
+   */
+  epistemic_origin:
+    | "evidence_filled"
+    | "model_generated"
+    | "operator_filled"
+    | "imported";
+  /** Id */
+  id: string;
+  /** Items */
+  items?: string[];
+  /**
+   * Kind
+   * @enum {string}
+   */
+  kind:
+    | "header"
+    | "requisites"
+    | "preamble"
+    | "legal_basis"
+    | "section"
+    | "article"
+    | "clause"
+    | "subclause"
+    | "paragraph"
+    | "list"
+    | "table"
+    | "quantity"
+    | "annex"
+    | "signature"
+    | "appendix";
+  /**
+   * Level
+   * @default 1
+   */
+  level: number;
+  /** Metadata */
+  metadata?: {
+    [key: string]: unknown;
+  };
+  /** Number */
+  number?: string | null;
+  /** Provenance */
+  provenance?: components["schemas"]["LineageCompactSummaryItem"][];
+  quantity?: components["schemas"]["QuantityValue-Output"] | null;
+  /** Raw Source Refs */
+  raw_source_refs?: string[];
+  /** Text */
+  text?: string | null;
+  /** Title */
+  title?: string | null;
+};
+
+type _RuntimeApiRecursiveSchema_PublicDecisionJsonValue =
+  | string
+  | number
+  | boolean
+  | _RuntimeApiRecursiveSchema_PublicDecisionJsonValue[]
+  | {
+      [key: string]: _RuntimeApiRecursiveSchema_PublicDecisionJsonValue;
+    }
+  | null;

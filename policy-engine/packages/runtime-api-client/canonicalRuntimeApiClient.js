@@ -501,6 +501,14 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async verifyPublicDecisionRecord(params) {
+    const path = `/api/v1/public-decisions/verification`;
+    const query = this.buildQuery({
+      record_id: params?.record_id,
+    });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
   async listRuns(params) {
     const path = `/api/v1/runs`;
     const query = this.buildQuery({

@@ -4702,6 +4702,44 @@ export type ProvingGroundRuntimeOutcomes = {
   reason: string;
 };
 
+export type PublicDecisionJsonValue = string | number | boolean | Array<PublicDecisionJsonValue> | {
+  [key: string]: PublicDecisionJsonValue;
+} | null;
+
+export type PublicDecisionVerificationDimensions = {
+  current_authority?: string;
+  durable_verifiability?: string;
+  issuer_issuance?: string;
+  projection_faithfulness?: string;
+  public_evidence_obtainability?: string;
+  public_history_establishment?: string;
+  status_snapshot_selection?: string;
+};
+
+export type PublicDecisionVerificationIssued = {
+  promoted_record?: null;
+  public_path: string;
+  publication_class?: string;
+  record_id: string;
+};
+
+export type PublicDecisionVerificationResponse = {
+  cryptographic_signature?: "valid" | "invalid" | "not_established";
+  decision_id?: string | null;
+  dimensions?: PublicDecisionVerificationDimensions;
+  issued_at?: string | null;
+  issuer_id?: string | null;
+  promoted_record?: null;
+  public_document?: {
+  [key: string]: PublicDecisionJsonValue;
+} | null;
+  public_document_digest?: string | null;
+  reason_codes: Array<"promoted_public_record_not_established" | "client_token_not_server_issued" | "record_not_issued" | "issuance_index_invalid" | "issuance_index_write_failed" | "verification_issuer_not_configured" | "public_document_invalid" | "record_evidence_unavailable" | "record_signature_missing" | "record_signature_invalid" | "record_key_untrusted" | "record_key_revoked" | "record_issuer_purpose_untrusted" | "record_binding_invalid" | "public_document_binding_invalid">;
+  record_id: string;
+  report_authentication: "verified" | "invalid" | "not_established";
+  report_key_status?: "trusted" | "revoked" | "untrusted" | "not_established";
+};
+
 export type QualityRef = {
   quality_surface?: string | null;
   reason_code?: string | null;
@@ -6642,6 +6680,16 @@ export class RuntimeApiClient {
     const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/diagnostics`;
     const query = undefined;
     return this.request<MobilityDiagnosticsResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async verifyPublicDecisionRecord(params: {
+    record_id: string;
+  }): Promise<PublicDecisionVerificationResponse> {
+    const path = `/api/v1/public-decisions/verification`;
+    const query = this.buildQuery({
+      record_id: params.record_id,
+    });
+    return this.request<PublicDecisionVerificationResponse>("GET", path, query, undefined, undefined);
   }
 
   async listRuns(params: {

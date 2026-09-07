@@ -64,6 +64,22 @@ class PersistedPublicSignaturePopulation(BaseModel):
     snapshot: PublicSignaturePopulationSnapshot
 
 
+class PublicRecordPopulationInspection(BaseModel):
+    """Diagnostic report observation, never evidence of a governed policy signature."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    record_id: str = Field(min_length=1, max_length=128)
+    report_authentication: Literal["verified", "invalid", "not_established"]
+    reason: Literal[
+        "promoted_record_missing",
+        "record_not_authenticated",
+        "record_binding_mismatch",
+        "promoted_record_not_admitted",
+        "record_verification_error",
+    ]
+
+
 class PublicSignaturePopulationNonReceipt(BaseModel):
     """Fail-closed population result for an unappointed or unresolved provider."""
 
@@ -72,6 +88,105 @@ class PublicSignaturePopulationNonReceipt(BaseModel):
     status: Literal["not_established"] = "not_established"
     predicate_provenance: Literal["not_established"] = "not_established"
     reason: str = Field(min_length=1)
+    record_inspections: tuple[PublicRecordPopulationInspection, ...] = ()
+
+
+class PublicVerificationRecordObservation(Protocol):
+    """Read only the report result needed to refuse unsupported population admission."""
+
+    @property
+    def record_id(self) -> str:
+        """Return the exact ID whose report was verified."""
+
+    @property
+    def report_authentication(self) -> Literal["verified", "invalid", "not_established"]:
+        """Return authentication of the verifier report, not publication authority."""
+
+    @property
+    def promoted_record(self) -> None:
+        """Return the typed-empty governed public-record slot."""
+
+
+class PublicVerificationRecordSource(Protocol):
+    """Inspect the report owner's local issued inventory without an HTTP dependency."""
+
+    def issued_record_ids(self) -> tuple[str, ...]:
+        """Return the controlled local report inventory or raise on unresolved storage."""
+
+    def verify(self, record_id: str) -> PublicVerificationRecordObservation:
+        """Reverify one persisted report; no report result grants policy authority."""
+
+
+class PublicVerificationRecordPopulationProvider:
+    """Consume issued report evidence while keeping governed signature admission closed.
+
+    The current record owner issues authenticated verifier reports with an empty
+    promoted-record slot. Inspecting them is useful diagnostic work; neither their
+    signatures nor enumeration establish a governed policy-signature population.
+    """
+
+    def __init__(self, *, source: PublicVerificationRecordSource) -> None:
+        self._source = source
+
+    def resolve(self) -> PublicSignaturePopulationNonReceipt:
+        """Record each available report result without manufacturing population members."""
+
+        try:
+            record_ids = self._source.issued_record_ids()
+            if (
+                not isinstance(record_ids, tuple)
+                or any(
+                    not isinstance(record_id, str) or not 0 < len(record_id) <= 128
+                    for record_id in record_ids
+                )
+                or len(set(record_ids)) != len(record_ids)
+            ):
+                raise ValueError("invalid local public report inventory")
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return PublicSignaturePopulationNonReceipt(
+                reason="public_record_inventory_unresolvable"
+            )
+
+        inspections: list[PublicRecordPopulationInspection] = []
+        for record_id in sorted(record_ids):
+            authentication: Literal["verified", "invalid", "not_established"] = "not_established"
+            reason: Literal[
+                "promoted_record_missing",
+                "record_not_authenticated",
+                "record_binding_mismatch",
+                "promoted_record_not_admitted",
+                "record_verification_error",
+            ] = "record_verification_error"
+            try:
+                report = self._source.verify(record_id)
+                authentication = report.report_authentication
+                if authentication not in ("verified", "invalid", "not_established"):
+                    raise ValueError("unknown report authentication")
+                if report.record_id != record_id:
+                    reason = "record_binding_mismatch"
+                elif authentication != "verified":
+                    reason = "record_not_authenticated"
+                elif report.promoted_record is not None:
+                    reason = "promoted_record_not_admitted"
+                else:
+                    reason = "promoted_record_missing"
+            except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+                authentication = "not_established"
+                reason = "record_verification_error"
+            inspections.append(
+                PublicRecordPopulationInspection(
+                    record_id=record_id, report_authentication=authentication, reason=reason
+                )
+            )
+
+        return PublicSignaturePopulationNonReceipt(
+            reason=(
+                "public_record_verification_not_established"
+                if any(row.reason != "promoted_record_missing" for row in inspections)
+                else "governed_public_record_producer_missing"
+            ),
+            record_inspections=tuple(inspections),
+        )
 
 
 class PublicSignaturePopulationProvider(Protocol):
@@ -114,24 +229,37 @@ class PublishedSignatureCustodyScan(BaseModel):
     schema_version: Literal["1.0"] = "1.0"
     status: Literal["watched", "not_established", "blocked"]
     scanned_at: datetime
-    predicate_provenance: Literal[
-        "institutionally_supplied", "synthetic_test", "not_established"
-    ]
+    predicate_provenance: Literal["institutionally_supplied", "synthetic_test", "not_established"]
     population_ref: core_artifacts.ArtifactRef | None = None
     population_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
     population_provenance: Literal["institutionally_supplied", "synthetic_test"] | None = None
     member_count: int = Field(ge=0)
     monitor_event_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
     lifecycle_bridge_result_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
+    record_inspections: tuple[PublicRecordPopulationInspection, ...] = ()
     reason: str = Field(min_length=1)
 
     @model_validator(mode="after")
     def _validate_nonreceipt_boundary(self) -> PublishedSignatureCustodyScan:
-        if self.status == "not_established":
-            if self.predicate_provenance != "not_established" or self.member_count != 0:
-                raise ValueError("population nonreceipt cannot carry a watched denominator")
+        unresolved = self.population_ref is None and self.population_content_hash is None
+        if unresolved:
+            if (
+                self.status == "watched"
+                or self.predicate_provenance != "not_established"
+                or self.population_provenance is not None
+                or self.member_count != 0
+                or self.monitor_event_refs
+                or self.lifecycle_bridge_result_refs
+            ):
+                raise ValueError(
+                    "unresolved population cannot carry a watched denominator or effect"
+                )
             return self
-        if self.population_ref is None or self.population_content_hash is None:
+        if (
+            self.status == "not_established"
+            or self.population_ref is None
+            or self.population_content_hash is None
+        ):
             raise ValueError("watched custody scans require a persisted population")
         return self
 
@@ -152,9 +280,7 @@ class PublishedSignatureCustodyResult(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: Literal["watched", "not_established", "blocked"]
-    predicate_provenance: Literal[
-        "institutionally_supplied", "synthetic_test", "not_established"
-    ]
+    predicate_provenance: Literal["institutionally_supplied", "synthetic_test", "not_established"]
     population_provenance: Literal["institutionally_supplied", "synthetic_test"] | None = None
     scan_receipt_ref: core_artifacts.ArtifactRef | None = None
     monitor_event_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
@@ -179,7 +305,9 @@ class PublishedSignatureCustodyLifecyclePublisher(Protocol):
         """Persist the claim-lifecycle and control-outbox consequence for one event."""
 
 
-def _population_inputs(snapshot: PublicSignaturePopulationSnapshot) -> list[core_artifacts.InputRef]:
+def _population_inputs(
+    snapshot: PublicSignaturePopulationSnapshot,
+) -> list[core_artifacts.InputRef]:
     """Return the exact signature and packet inputs carried by a population snapshot."""
 
     inputs: list[core_artifacts.InputRef] = []
@@ -338,9 +466,7 @@ def persist_published_signature_custody_scan(
     raw = store.get_bytes(ref.artifact_id)
     report = store.verify(ref.artifact_id)
     manifest = store.get_manifest(ref.artifact_id)
-    persisted = PublishedSignatureCustodyScan.model_validate(
-        core_canon.from_canonical_bytes(raw)
-    )
+    persisted = PublishedSignatureCustodyScan.model_validate(core_canon.from_canonical_bytes(raw))
     if (
         not report.ok
         or persisted != scan
@@ -375,7 +501,9 @@ class PublishedSignatureCustodyWatcher:
         lifecycle_publisher: PublishedSignatureCustodyLifecyclePublisher,
     ) -> None:
         self._store = store
-        self._population_provider = population_provider or UnappointedPublicSignaturePopulationProvider()
+        self._population_provider = (
+            population_provider or UnappointedPublicSignaturePopulationProvider()
+        )
         self._lifecycle_publisher = lifecycle_publisher
 
     def scan_once(self, *, now: datetime | None = None) -> PublishedSignatureCustodyResult:
@@ -392,6 +520,7 @@ class PublishedSignatureCustodyWatcher:
                     predicate_provenance="not_established",
                     member_count=0,
                     reason=population.reason,
+                    record_inspections=population.record_inspections,
                 ),
             )
             return PublishedSignatureCustodyResult(
@@ -502,6 +631,10 @@ class PublishedSignatureCustodyWatcher:
 
 
 __all__ = [
+    "PublicRecordPopulationInspection",
+    "PublicVerificationRecordObservation",
+    "PublicVerificationRecordPopulationProvider",
+    "PublicVerificationRecordSource",
     "PersistedPublicSignaturePopulation",
     "PersistedPublishedSignatureCustodyScan",
     "PublicSignaturePopulationMember",

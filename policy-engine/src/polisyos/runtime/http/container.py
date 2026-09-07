@@ -21,6 +21,9 @@ from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
     resolve_control_registry_providers,
 )
+from polisyos.runtime.http.services.public_decision_verification_configuration import (
+    build_public_decision_verification_service,
+)
 from polisyos.runtime.http.services.review_collaboration import ReviewCollaborationHub
 from polisyos.runtime.quality.chronology_custody import (
     build_production_epoch_anchor_custody_provider,
@@ -33,7 +36,7 @@ from polisyos.scientist import (
     build_epoch_claim_lifecycle_bridge,
 )
 from polisyos.scientist.governance.continuous import (
-    UnappointedPublicSignaturePopulationProvider,
+    PublicVerificationRecordPopulationProvider,
 )
 
 if TYPE_CHECKING:
@@ -44,6 +47,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+    from polisyos.runtime.http.services.public_decision_verification import (
+        PublicDecisionVerificationService,
+    )
     from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
 
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
@@ -131,6 +137,7 @@ class RuntimeServiceContainer:
     claim_ledger_owner: ClaimLedgerOwnerPort
     epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService
     control_registry_providers: ControlRegistryProviders
+    public_decision_verification_service: PublicDecisionVerificationService
     control_service: ControlPlaneService | None = None
     human_decision_service: HumanDecisionService | None = None
     acquisition_action_service: AcquisitionActionService | None = None
@@ -266,6 +273,9 @@ class RuntimeServiceContainer:
             claim_ledger_owner=claim_ledger_owner,
             epoch_claim_lifecycle_bridge=epoch_claim_lifecycle_bridge,
             control_registry_providers=control_registry_providers,
+            public_decision_verification_service=build_public_decision_verification_service(
+                cas_root=config.cas_root
+            ),
             control_service=overrides.control_service,
         )
 
@@ -303,7 +313,9 @@ class RuntimeServiceContainer:
                     promotion_runtime=self.promotion_runtime,
                     epoch_claim_lifecycle_bridge=self.epoch_claim_lifecycle_bridge,
                     published_signature_population_provider=(
-                        UnappointedPublicSignaturePopulationProvider()
+                        PublicVerificationRecordPopulationProvider(
+                            source=self.public_decision_verification_service
+                        )
                     ),
                 )
                 self.control_service = control_service

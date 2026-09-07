@@ -43,5 +43,7 @@ fi
 
 mkdir -p "$(dirname "${OUT_FILE}")"
 "${PNPM[@]}" exec openapi-typescript "${OPENAPI_FILE}" --output "${OUT_FILE}"
+node "${PROJECT_ROOT}/packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs" \
+  --types "${OUT_FILE}"
 "${PNPM[@]}" exec prettier --write "${OUT_FILE}"
 echo "Generated ${OUT_FILE}"

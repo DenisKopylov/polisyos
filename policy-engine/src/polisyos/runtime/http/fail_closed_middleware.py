@@ -27,7 +27,9 @@ else:  # pragma: no cover - optional runtime dependency
         Response = cast("Any", None)
 
 
-_PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
+_PUBLIC_PATHS = frozenset(
+    {"/health", "/ready", "/metrics", "/auth/callback", "/api/v1/public-decisions/verification"}
+)
 _UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
 

@@ -35,6 +35,10 @@ __all__ = [
     "PublicSignaturePopulationNonReceipt",
     "PublicSignaturePopulationProvider",
     "PublicSignaturePopulationSnapshot",
+    "PublicRecordPopulationInspection",
+    "PublicVerificationRecordObservation",
+    "PublicVerificationRecordPopulationProvider",
+    "PublicVerificationRecordSource",
     "PublishedSignatureCustodyResult",
     "PublishedSignatureCustodyScan",
     "PublishedSignatureCustodyWatcher",
@@ -80,6 +84,22 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "PublicRecordPopulationInspection": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicRecordPopulationInspection",
+    ),
+    "PublicVerificationRecordObservation": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicVerificationRecordObservation",
+    ),
+    "PublicVerificationRecordPopulationProvider": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicVerificationRecordPopulationProvider",
+    ),
+    "PublicVerificationRecordSource": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicVerificationRecordSource",
+    ),
     "CONTINUOUS_GOVERNANCE_FLAG": (
         "polisyos.scientist.governance.continuous.monitors",
         "CONTINUOUS_GOVERNANCE_FLAG",

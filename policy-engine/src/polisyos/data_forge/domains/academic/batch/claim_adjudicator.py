@@ -21,6 +21,9 @@ from polisyos.core.artifacts import (
     SchemaInfo,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+    ClaimAdjudicationVerifier,
+)
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.kernel.io import atomic_write_json, atomic_write_text
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
@@ -134,9 +137,9 @@ def _input_items(
         for claim in result.causal_claims:
             claim_id = _claim_id(result, claim)
             claims.append((result, claim, claim_id))
-            directions[
-                (result.openalex_id, claim.cause_variable, claim.effect_variable)
-            ].add(claim.direction.value)
+            directions[(result.openalex_id, claim.cause_variable, claim.effect_variable)].add(
+                claim.direction.value
+            )
 
     items: list[ClaimAdjudicationInputItem] = []
     for result, claim, claim_id in claims:
@@ -287,6 +290,7 @@ def load_admitted_claim_adjudication_batch(
     *,
     result_ref: ArtifactRef | None = None,
     store: FileSystemCAS | None = None,
+    verifier: ClaimAdjudicationVerifier | None = None,
 ) -> tuple[AdmittedClaimAdjudicationBatch, ArtifactRef]:
     """Resolve and verify the sole authority-bearing adjudication receipt."""
     active_store = _active_store(config, store)
@@ -301,10 +305,21 @@ def load_admitted_claim_adjudication_batch(
     batch = AdmittedClaimAdjudicationBatch.model_validate(
         from_canonical_bytes(active_store.get_bytes(resolved_ref.artifact_id))
     )
+    actual_inputs = _strict_lineage(manifest.inputs)
+    if set(actual_inputs) != {
+        "raw_input",
+        "candidate",
+        "evaluation",
+        "evaluation_receipt",
+        "execution_receipt",
+    }:
+        raise ValueError("claim_adjudication_independent_verification_receipts_missing")
     expected_inputs = {
         "raw_input": batch.raw_input_ref,
         "candidate": batch.candidate_ref,
         "evaluation": batch.evaluation_ref,
+        "evaluation_receipt": actual_inputs["evaluation_receipt"],
+        "execution_receipt": actual_inputs["execution_receipt"],
     }
     actual_inputs = _strict_lineage(manifest.inputs)
     if actual_inputs != expected_inputs:
@@ -317,6 +332,17 @@ def load_admitted_claim_adjudication_batch(
     input_batch = _validate_input_batch(active_store, input_ref)
     if batch.input_claim_ids != [item.claim_id for item in input_batch.items]:
         raise ValueError("claim-adjudication result denominator mismatch")
+    active_verifier = verifier or ClaimAdjudicationVerifier(
+        store=active_store,
+        registry_root=config.claim_adjudication_registry_root,
+    )
+    if type(active_verifier) is not ClaimAdjudicationVerifier:
+        raise ValueError("claim_adjudication_verifier_type_invalid")
+    active_verifier.verify_batch(
+        batch,
+        evaluation_receipt_ref=actual_inputs["evaluation_receipt"],
+        execution_receipt_ref=actual_inputs["execution_receipt"],
+    )
     return batch, resolved_ref
 
 
@@ -325,6 +351,7 @@ def materialize_claim_adjudication_result(
     result_ref: ArtifactRef,
     *,
     store: FileSystemCAS | None = None,
+    verifier: ClaimAdjudicationVerifier | None = None,
 ) -> dict[str, int | float]:
     """Materialize a verified Scientist receipt for compatibility consumers."""
     started_at = datetime.now(UTC).isoformat()
@@ -333,6 +360,7 @@ def materialize_claim_adjudication_result(
         config,
         result_ref=result_ref,
         store=active_store,
+        verifier=verifier,
     )
     _write_ref(config.claim_adjudication_result_ref_path, verified_ref)
 

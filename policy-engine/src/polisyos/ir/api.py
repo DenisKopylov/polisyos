@@ -186,6 +186,10 @@ IR_NAMING_CONVENTIONS: dict[str, str] = {
 
 ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
+    "AdmittedClaimAdjudicationBatch": (
+        "polisyos.ir.analytics.literature",
+        "AdmittedClaimAdjudicationBatch",
+    ),
     "BacktestReport": ("polisyos.ir.analytics.backtest", "BacktestReport"),
     "BacktestScenario": ("polisyos.ir.analytics.backtest", "BacktestScenario"),
     "BiasDirection": ("polisyos.ir.analytics.backtest", "BiasDirection"),
@@ -223,6 +227,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "ABMResult": ("polisyos.ir.analytics.phase4_dynamics", "ABMResult"),
     "ABMResultRef": ("polisyos.ir.registry.refs", "ABMResultRef"),
+    "CausalCredibility": (
+        "polisyos.ir.analytics.literature",
+        "CausalCredibility",
+    ),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",
         "CausalDiscoveryReport",
@@ -250,6 +258,22 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "CausalEdge": ("polisyos.ir.analytics.causal_graph", "CausalEdge"),
     "CausalEffectReport": ("polisyos.ir.analytics.causal", "CausalEffectReport"),
     "CausalGraphModel": ("polisyos.ir.analytics.causal_graph", "CausalGraphModel"),
+    "ClaimAdjudicationInputBatch": (
+        "polisyos.ir.analytics.literature",
+        "ClaimAdjudicationInputBatch",
+    ),
+    "ClaimAdjudicationInputItem": (
+        "polisyos.ir.analytics.literature",
+        "ClaimAdjudicationInputItem",
+    ),
+    "ClaimAdjudicationResult": (
+        "polisyos.ir.analytics.literature",
+        "ClaimAdjudicationResult",
+    ),
+    "ClaimType": (
+        "polisyos.ir.analytics.literature",
+        "ClaimType",
+    ),
     "ClaimVocabularyAxisStatus": (
         "polisyos.ir.analytics.literature",
         "ClaimVocabularyAxisStatus",
@@ -308,6 +332,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.dependent_sensitivity",
         "DependentSensitivityResultRef",
     ),
+    "RiskOfBias": (
+        "polisyos.ir.analytics.literature",
+        "RiskOfBias",
+    ),
     "SensitivityAnalysisBundle": (
         "polisyos.ir.analytics.sensitivity",
         "SensitivityAnalysisBundle",
@@ -317,6 +345,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "SensitivityAnalysisIndex",
     ),
     "SourceBasis": ("polisyos.ir.analytics.literature", "SourceBasis"),
+    "SupportStatus": (
+        "polisyos.ir.analytics.literature",
+        "SupportStatus",
+    ),
     "load_dependent_sensitivity_result": (
         "polisyos.ir.analytics.dependent_sensitivity",
         "load_dependent_sensitivity_result",

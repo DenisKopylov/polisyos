@@ -15,6 +15,7 @@ import aiohttp
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon.hashing import content_hash
+from polisyos.data_forge.domains.academic.batch.claim_adjudicator import _input_items
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.domains.academic.batch.context_classifier import infer_context_from_article
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import (
@@ -1934,7 +1935,9 @@ def serialize_rich_claim_occurrence_vocabulary(
     del record_extraction_confidence
     fields_set = claim.model_fields_set
 
-    def _candidate_axis(field_name: str, value: Any) -> tuple[Any | None, ClaimVocabularyAxisStatus]:
+    def _candidate_axis(
+        field_name: str, value: Any
+    ) -> tuple[Any | None, ClaimVocabularyAxisStatus]:
         if field_name not in fields_set:
             return None, ClaimVocabularyAxisStatus.NOT_ESTABLISHED
         return value, ClaimVocabularyAxisStatus.CANDIDATE
@@ -2028,14 +2031,27 @@ def _to_work_record(
             )
         )
 
-    causal_claims = [
-        serialize_rich_claim_occurrence_vocabulary(
+    # Freeze the same complete subject as adjudication, using every sibling
+    # claim in this actual article for the contradiction denominator.
+    subjects = _input_items([result], retracted_ids=set())
+    causal_claims = []
+    for claim, subject in zip(result.causal_claims, subjects, strict=True):
+        transport = serialize_rich_claim_occurrence_vocabulary(
             claim,
             record_extraction_mode="resolve_extract",
             record_extraction_confidence=result.extraction_confidence,
         )
-        for claim in result.causal_claims
-    ]
+        current = subject.model_dump(mode="json")
+        # These axes already have their typed vocabulary transport. Their
+        # declared unknown must remain unknown at the consumer.
+        current.pop("source_basis")
+        current.pop("design_family_hint")
+        causal_claims.append(
+            ClaimOccurrenceVocabularyTransport(
+                occurrence={**transport.occurrence, **current},
+                vocabulary=transport.vocabulary,
+            )
+        )
 
     boundary_conditions = [
         {

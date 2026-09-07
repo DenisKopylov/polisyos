@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -9,6 +11,7 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.data_forge.read_api import academic
 
 from .models import (
     BenchmarkEvaluation,
@@ -21,6 +24,10 @@ from .models import (
     load_json_artifact,
     load_model_artifact,
 )
+
+claim_promotion_policy = academic.claim_promotion_policy
+metric_is_improved = academic.metric_is_improved
+read_claim_promotion_predecessor = academic.read_claim_promotion_predecessor
 
 
 class ChampionRegistry:
@@ -78,6 +85,20 @@ class ChampionRegistry:
         if not isinstance(evaluation, BenchmarkEvaluation):
             raise TypeError("Expected BenchmarkEvaluation")
         current = self.get(loop_id)
+        if loop_id == "claim_adjudication":
+            if policy.model_dump(mode="json") != claim_promotion_policy():
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason="claim_promotion_policy_mismatch",
+                    champion=current,
+                    previous_champion=current,
+                )
+            basis_path = self._root / loop_id / "promotion_basis.json"
+            if current is not None:
+                read_claim_promotion_predecessor(self._root, current.model_dump(mode="json"))
+            elif basis_path.exists():
+                raise ValueError("claim_adjudication_promotion_basis_current_pointer_missing")
         if current is not None:
             if (
                 current.candidate_ref.artifact_id == candidate_ref.artifact_id
@@ -168,6 +189,31 @@ class ChampionRegistry:
                 "compare_split": policy.compare_split.value,
             },
         )
+        if loop_id == "claim_adjudication":
+            # Record the actual comparator before the pointer transition. A crash
+            # between the two atomic writes leaves a mismatch and fails closed.
+            payload = pointer.model_dump(mode="json")
+            pointer_digest = hashlib.sha256(
+                json.dumps(
+                    payload,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode()
+            ).hexdigest()
+            basis = {
+                "schema_version": "claim-promotion-basis.v1",
+                "transition": "successor" if current is not None else "genesis",
+                "current_pointer_sha256": pointer_digest,
+                "previous_pointer": current.model_dump(mode="json")
+                if current is not None
+                else None,
+            }
+            self._write_json(
+                self._root / loop_id / "promotion_basis.json",
+                json.dumps(basis, sort_keys=True).encode(),
+            )
         self._write_pointer(loop_id, pointer)
         return PromotionDecision(
             loop_id=loop_id,
@@ -197,20 +243,26 @@ class ChampionRegistry:
         direction: MetricDirection,
         min_improvement: float,
     ) -> bool:
-        if direction == MetricDirection.MINIMIZE:
-            return new < (current - min_improvement)
-        return new > (current + min_improvement)
+        return metric_is_improved(
+            current=current, new=new, direction=direction.value, min_improvement=min_improvement
+        )
 
     def _pointer_path(self, loop_id: str) -> Path:
         return self._root / loop_id / "champion.json"
 
     def write_pointer(self, loop_id: str, pointer: ChampionPointer) -> None:
+        if loop_id == "claim_adjudication":
+            raise ValueError("claim_adjudication_manual_pointer_transition_unverified")
         self._write_pointer(loop_id, pointer)
 
     def _write_pointer(self, loop_id: str, pointer: ChampionPointer) -> None:
         path = self._pointer_path(loop_id)
-        path.parent.mkdir(parents=True, exist_ok=True)
         payload = pointer.model_dump_json(indent=2, exclude_none=True).encode("utf-8")
+        self._write_json(path, payload)
+
+    @staticmethod
+    def _write_json(path: Path, payload: bytes) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
         with NamedTemporaryFile(
             mode="wb",
             delete=False,

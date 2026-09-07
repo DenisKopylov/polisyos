@@ -17,6 +17,12 @@ from polisyos.core.artifacts import (
     SchemaInfo,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.data_forge.read_api.academic import (
+    ClaimAdjudicationVerifier,
+)
+from polisyos.data_forge.read_api.academic import (
+    claim_policy_publishable as _policy_publishable,
+)
 from polisyos.ir.analytics.literature import (
     AdmittedClaimAdjudicationBatch,
     CausalCredibility,
@@ -132,27 +138,6 @@ def _parsed_payload(response: object) -> dict[str, Any]:
     return payload
 
 
-def _policy_publishable(
-    item: ClaimAdjudicationInputItem,
-    result: ClaimAdjudicationResult,
-    config: ClaimAdjudicationSearchConfig,
-) -> bool:
-    """Compute publication authority only from admitted evidence and Scientist policy."""
-    return bool(
-        item.source_basis == SourceBasis.FULLTEXT
-        and not item.intra_paper_contradiction
-        and bool(item.supporting_spans)
-        and bool(item.method_spans)
-        and result.design_family.value in STRONG_DESIGN_FAMILIES
-        and result.causal_credibility in set(config.publishable_credibility_allowlist)
-        and result.risk_of_bias in {RiskOfBias.LOW, RiskOfBias.MODERATE}
-        and result.support_status == SupportStatus.SUPPORTED
-        and result.claim_validity_score >= config.high_confidence_validity_threshold
-        and result.adjudication_confidence
-        >= config.high_confidence_confidence_threshold
-    )
-
-
 def assert_claim_adjudication_authority_purpose(
     batch: AdmittedClaimAdjudicationBatch,
     *,
@@ -166,9 +151,20 @@ def assert_claim_adjudication_authority_purpose(
 class ClaimAdjudicationRuntime:
     """Admit a promoted champion and produce content-bound publishability receipts."""
 
-    def __init__(self, *, store: FileSystemCAS, registry: ChampionRegistry) -> None:
+    def __init__(
+        self,
+        *,
+        store: FileSystemCAS,
+        registry: ChampionRegistry,
+        verifier: ClaimAdjudicationVerifier | None = None,
+        evaluation_receipt_ref: ArtifactRef | None = None,
+        execution_receipt_ref: ArtifactRef | None = None,
+    ) -> None:
         self._store = store
         self._registry = registry
+        self._verifier = verifier
+        self._evaluation_receipt_ref = evaluation_receipt_ref
+        self._execution_receipt_ref = execution_receipt_ref
 
     def admit_champion(self) -> AdmittedClaimAdjudicationChampion:
         """Replay promotion predicates instead of trusting a registry declaration."""
@@ -180,6 +176,11 @@ class ClaimAdjudicationRuntime:
         if pointer.loop_id != CLAIM_ADJUDICATION_LOOP_ID:
             raise ValueError("claim_adjudication_pointer_loop_mismatch")
 
+        if type(self._verifier) is not ClaimAdjudicationVerifier:
+            raise ValueError("claim_adjudication_evaluator_appointment_missing")
+        if self._evaluation_receipt_ref is None:
+            raise ValueError("claim_adjudication_evaluator_receipt_missing")
+        self._verifier.replay_champion(str(self._evaluation_receipt_ref.artifact_id))
         candidate_manifest = self._store.get_manifest(pointer.candidate_ref.artifact_id)
         if candidate_manifest.kind != "scientist.autotune.claim_adjudication.candidate":
             raise ValueError("claim_adjudication_candidate_kind_mismatch")
@@ -198,9 +199,7 @@ class ClaimAdjudicationRuntime:
         ):
             raise ValueError("claim_adjudication_evaluation_provenance_missing")
         candidate_lineage = [
-            str(item.artifact_id)
-            for item in evaluation_manifest.inputs
-            if item.role == "candidate"
+            str(item.artifact_id) for item in evaluation_manifest.inputs if item.role == "candidate"
         ]
         if candidate_lineage != [str(pointer.candidate_ref.artifact_id)]:
             raise ValueError("claim_adjudication_evaluation_lineage_mismatch")
@@ -324,9 +323,7 @@ class ClaimAdjudicationRuntime:
                     SupportStatus.INSUFFICIENT,
                 ),
                 claim_validity_score=_score(parsed.get("claim_validity_score"), 0.0),
-                adjudication_confidence=_score(
-                    parsed.get("adjudication_confidence"), 0.0
-                ),
+                adjudication_confidence=_score(parsed.get("adjudication_confidence"), 0.0),
                 publishable_edge=False,
                 adjudication_notes=str(parsed.get("adjudication_notes") or "")[:800],
                 intra_paper_contradiction=item.intra_paper_contradiction,
@@ -376,6 +373,15 @@ class ClaimAdjudicationRuntime:
                 input_claim_ids=[item.claim_id for item in batch.items],
                 results=results,
             )
+            if self._execution_receipt_ref is None:
+                raise ValueError("claim_adjudication_execution_receipt_missing")
+            assert self._verifier is not None
+            assert self._evaluation_receipt_ref is not None
+            self._verifier.verify_batch(
+                admitted,
+                evaluation_receipt_ref=str(self._evaluation_receipt_ref.artifact_id),
+                execution_receipt_ref=str(self._execution_receipt_ref.artifact_id),
+            )
             result_ref = self._store.put_json(
                 admitted,
                 ArtifactWriteOptions(
@@ -385,6 +391,14 @@ class ClaimAdjudicationRuntime:
                     producer=ProducerInfo(component=_RESULT_PRODUCER, version="1.0"),
                     inputs=[
                         InputRef(artifact_id=raw_input_ref.artifact_id, role="raw_input"),
+                        InputRef(
+                            artifact_id=self._evaluation_receipt_ref.artifact_id,
+                            role="evaluation_receipt",
+                        ),
+                        InputRef(
+                            artifact_id=self._execution_receipt_ref.artifact_id,
+                            role="execution_receipt",
+                        ),
                         InputRef(
                             artifact_id=champion.candidate_ref.artifact_id,
                             role="candidate",
@@ -416,6 +430,9 @@ async def run_academic_claim_adjudication(
     client: ClaimAdjudicationJSONClient,
     store: FileSystemCAS | None = None,
     registry: ChampionRegistry | None = None,
+    verifier: ClaimAdjudicationVerifier | None = None,
+    evaluation_receipt_ref: ArtifactRef | None = None,
+    execution_receipt_ref: ArtifactRef | None = None,
 ) -> dict[str, int | float]:
     """Compose the supported DataForge transport with Scientist authority."""
     from polisyos.data_forge.read_api.academic import (
@@ -432,6 +449,9 @@ async def run_academic_claim_adjudication(
     outcome = await ClaimAdjudicationRuntime(
         store=active_store,
         registry=active_registry,
+        verifier=verifier,
+        evaluation_receipt_ref=evaluation_receipt_ref,
+        execution_receipt_ref=execution_receipt_ref,
     ).adjudicate(
         raw_input_ref,
         client=client,
@@ -439,13 +459,12 @@ async def run_academic_claim_adjudication(
         temperature=config.llm_temperature,
     )
     if outcome.status != "completed" or outcome.result_ref is None:
-        raise RuntimeError(
-            "claim adjudication blocked: " + "; ".join(outcome.blockers)
-        )
+        raise RuntimeError("claim adjudication blocked: " + "; ".join(outcome.blockers))
     return materialize_claim_adjudication_result(
         config,
         outcome.result_ref,
         store=active_store,
+        verifier=verifier,
     )
 
 

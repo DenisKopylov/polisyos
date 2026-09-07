@@ -13,14 +13,14 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ## Summary
 
 - Total IR types: `1586`.
-- Public/root-or-package facade types: `435`.
+- Public/root-or-package facade types: `443`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
 | `polisyos.ir` | 280 |
-| `polisyos.ir.analytics` | 266 |
+| `polisyos.ir.analytics` | 274 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
 
@@ -28,7 +28,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 976 | 244 | 37 |
+| `analytics` | 976 | 252 | 37 |
 | `artifacts` | 25 | 0 | 0 |
 | `governance` | 99 | 21 | 8 |
 | `kernel` | 47 | 38 | 0 |
@@ -12022,9 +12022,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.AdmittedClaimAdjudicationBatch` { #polisyos-ir-analytics-literature-admittedclaimadjudicationbatch }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:AdmittedClaimAdjudicationBatch`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.literature.ClaimAdjudicationResult`
@@ -12166,9 +12166,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.CausalCredibility` { #polisyos-ir-analytics-literature-causalcredibility }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:CausalCredibility`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -12205,9 +12205,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.ClaimAdjudicationInputBatch` { #polisyos-ir-analytics-literature-claimadjudicationinputbatch }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationInputBatch`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem`
@@ -12223,9 +12223,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem` { #polisyos-ir-analytics-literature-claimadjudicationinputitem }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationInputItem`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.literature.CausalDirection`, `polisyos.ir.analytics.literature.ClaimExplicitness`, `polisyos.ir.analytics.literature.ClaimType`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.EvidenceSpan`, `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.TextQuality`
@@ -12259,9 +12259,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.ClaimAdjudicationResult` { #polisyos-ir-analytics-literature-claimadjudicationresult }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationResult`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.literature.CausalCredibility`, `polisyos.ir.analytics.literature.ClaimType`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.RiskOfBias`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.SupportStatus`
@@ -12355,9 +12355,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.ClaimType` { #polisyos-ir-analytics-literature-claimtype }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:ClaimType`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -12846,9 +12846,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.RiskOfBias` { #polisyos-ir-analytics-literature-riskofbias }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:RiskOfBias`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -12905,9 +12905,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.SupportStatus` { #polisyos-ir-analytics-literature-supportstatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:SupportStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —

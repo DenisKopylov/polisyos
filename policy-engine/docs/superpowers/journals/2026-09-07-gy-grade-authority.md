@@ -1834,6 +1834,1276 @@ public facade export; the IR schema catalog is descriptive reflection, not a
 model resolver. That remaining file boundary is being handed back concretely,
 without dynamic import tricks or absorbing findings into a baseline.
 
+### GGA-SURFACE-01 — authorized public-surface expansion and coordination
+
+The architect has authorized eight existing IR types to become supported through
+the analytics facade via `polisyos.ir.api`, a declared supported entry point
+owned by **team-polisyos**. This is a backward-compatible public-surface expansion,
+not internal cleanup. The complete use census is retained in
+`_build/gy_grade_authority/ir-exports-before.json`; every proposed type is used by
+the shared verifier/policy/subject-replay mechanism. The existing definitions are
+frozen by hashes before publication; new definitions or shape changes are not
+authorized. The two IR reference pages will be written from the resulting live
+facade and compared with the prepared proposal, not patched from its values.
+
+The shared `architecture/public_surface/inventory.json` and
+`docs/reference/public-surface.md` are deliberately left untouched. A parallel
+lane is changing their inputs; the architect will regenerate once from the
+combined merged tree. No `guardrails sync` is run. This semantic surface change
+is an input to what those companions should describe; any observed stale-output
+consequence is an accepted coordination condition, not a new finding.
+
+**Additional hypothesis, recorded before its measurement:** the current global
+inventory implementation may not observe this expansion at all.
+`tools/devx/architecture/guardrails.py::_extract_exports` evaluates only literal
+`__all__` lists; the IR analytics facade derives its list from a map. If the
+read-only renderer reports no change while the runtime gains the eight types,
+that would be a distinct proxy-measurement finding, not the expected temporary
+companion staleness. I will compare both complete rendered outputs with their
+committed versions and reconcile actual runtime exports against the facade map.
+The scoped repair continues regardless; the renderer is outside this lane.
+
+### GGA-SURFACE-02 — read-only measurement of the coordinated companions
+
+The hypothesis in GGA-SURFACE-01 is confirmed, with a narrower and different
+result than the anticipated stale-output warning. Sole command, **exit 0**:
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.public_surface_readonly_probe > _build/gy_grade_authority/public-surface-readonly-probe.log 2>&1
+```
+
+Both complete global outputs (denominator: exactly the two coordinated companion
+files) render byte-identically to the untouched current files. Inventory SHA-256:
+`e083af735b7d0a5fc8a79aae5b52f57d0cfbdaf5607cdec9c7fc2884e30132d6`;
+global reference-page SHA-256:
+`7bbfc047903e053482deca8c6440ff18e88c78a451ba533cb850afc9ef325ac8`.
+The live analytics facade has **274 exports**, independently reconciled against
+all 274 keys of `ANALYTICS_FACADE_EXPORTS`, with both difference sets empty.
+The global inventory records **zero** for that same facade and omits all 274
+identities. This zero is the renderer's reported value, not an absence claim.
+The complete omitted identity set is in
+`_build/gy_grade_authority/public-surface-readonly-reconciliation.json`.
+
+The implementation observes literal `__all__` syntax, while the property is the
+callable public facade's actual exports. The eight newly supported types are a
+concrete divergent case. Proposed row:
+`public-surface-inventory-omits-derived-facade-exports`, proposed owner
+**team-polisyos / architecture tooling**, P38. It is not the accepted temporary
+staleness consequence and does not obstruct the current row. No renderer repair,
+baseline change or synchronization is made. The architect's combined-tree
+regeneration coordination remains in force; this observation explains why the
+current renderer cannot itself evidence these eight additions.
+
+### GGA-ADJ-04 — shared authentication and replay capability delivered
+
+The shared owner is
+`data_forge/domains/academic/batch/claim_adjudication_verifier.py::ClaimAdjudicationVerifier`.
+It is non-producing: it holds separately configured evaluator public-key
+appointments, CAS and the deployment registry root, and exposes verification,
+not a receipt signer. The trusted appointment tuple defaults empty. The verifier
+authenticates domain-bound Ed25519 receipts, resolves their complete benchmark
+and execution observation sets, recomputes consensus metrics, guardrails and
+the canonical promotion policy, and reconstructs every publishability result.
+Both Scientist and direct DataForge admission/materialization use that owner.
+Negative cases cover both entries with corrupted signatures, unappointed
+signers, missing observations, forged champion metrics and declared metric drift.
+A missing deployment appointment refuses both entries.
+
+Review showed that the first implementation's quantity was too narrow in two
+ways. A grade for claim ID `c-1` could be borrowed by another work or altered
+causal subject; the fixed consumer binds the complete **22-field** actual input
+schema and the real rich-producer transport, not a hand-maintained subset or
+default-filled reconstruction. Graph and conflict consumers share this lookup.
+An accurate challenger receipt could also omit its incumbent after replacement
+of the public pointer, and an alternate MINIMIZE policy could demote then restore
+an equal original champion. The registry now retains a deployment-owned promotion
+basis, verifies the incumbent's observations, and admits only the canonical claim
+policy. The baseline loader emits a candidate without creating an authority
+pointer. These are the same authority-premise class widened coherently, P40.
+
+The complete final call census walks **2,624 `src/**/*.py` files**, including the
+new PA1 source module. AST call identities are reconciled against an independent
+token-position derivation, with no parse errors, binding ambiguities or identity
+differences. Qualified facade calls and local aliases are included. Source and
+full identity sets are retained in `adjudication_final_census.py/.json`.
+
+After the public-surface change, the explicit six-file adjudication/IR delta gate
+reports **55 passed, exit 0, 31.41 seconds**. The broader preceding 143-test
+package's single form-based mirror failure remains recorded in GGA-ADJ-03.
+Actual shared-verifier removal was replayed through both entries after the source
+batch: Scientist **exit 1**, because the real path completed and published a
+claim; DataForge **exit 1**, because the forged batch materialized without the
+expected refusal. The signatures, CAS, markers and test assertions were retained.
+Station-body times were 0.188766 and 0.155928 seconds respectively; these exclude
+imports and are not total gate durations. The separate subject, baseline-loader,
+canonical-policy and retained-incumbent removal probes also go red as recorded
+in their preserved modules and earlier review receipts.
+
+This completes the capability repair within the configured verifier/CAS/registry
+trust boundary. It does not appoint a production evaluator or establish real
+production evaluation observations. Rewriting both registry files as a host
+administrator or replacing the trusted verifier configuration is outside this
+claim. Missing appointments and evidence continue to block authority.
+
+### GGA-SURFACE-03 — actual export expansion, page derivation and removal
+
+The eight existing types are `AdmittedClaimAdjudicationBatch`,
+`ClaimAdjudicationInputBatch`, `ClaimAdjudicationInputItem`,
+`ClaimAdjudicationResult`, `CausalCredibility`, `ClaimType`, `RiskOfBias` and
+`SupportStatus`. Their complete use census covers the three new verifier/policy/
+subject consumers; none is unused. All eight definition hashes and the entire
+`ir/analytics/literature.py` hash remain unchanged. The analytics facade expands
+266 to 274 exports, and its IR catalog's public type population 435 to 443.
+Both approved IR pages were derived from the actual changed facade and its owner
+catalog, then compared against the prepared pages: **both byte-identical, no
+differences**. Measurement: `ir-reference-generation.json`.
+
+The IR export probe resolves actual objects before consulting `__all__`.
+Removing actual resolution while preserving the complete manifest and `__all__`
+gives **one failure, exit 1, 0.28 seconds**, at `None is AdmittedClaimAdjudicationBatch`.
+The existing generator's read-only `--check` passes. No shared global companion,
+architecture baseline or type shape is changed.
+
+The page investigation found a generation-provenance gap: the actual owner
+`tools/quality/diagnostics/generate_ir_reference_catalog.py::render_ir_schema_catalog`
+renders `docs/reference/ir/schema-catalog.md`; its default CLI also writes
+`docs/reference/schemas.md`. Only the two approved IR pages were written here,
+and `schemas.md` was compared without writing. A complete walk of the one
+`architecture/generated_artifacts.toml` registry yields 61 output-bearing
+families and no matching output, prefix or glob for the IR schema-catalog page.
+Proposed row: `ir-schema-catalog-generator-provenance-unregistered`, proposed
+owner **team-polisyos / IR documentation**. This is evidence of an existing
+generator without the expected registration, not a reason to stop this row.
+
+### GGA-PA1-04 — source-identity component, with full producer work continuing
+
+The now-built DataForge component resolves an explicitly selected native
+numeric→claim→edge-evidence→edge→article→work→version chain against separately
+supplied snapshot bytes. It persists complete typed row projections to CAS and
+replays them against that same independently selected subject and snapshot.
+The supported academic read API exposes producer and audit/replay consumer.
+Its positive status means only `source_reference_identity_recomputed`;
+source authenticity, numeric semantics, native uncertainty, causal identification,
+world binding, target transport and calibration are explicitly `not_established`.
+N8 remains `blocked`, and `production_value_eligible` is type-constrained false.
+
+Independent review measured four scalar-fidelity failures: Decimal rounding,
+lost timestamp nanoseconds, and int→bool/float substitutions accepted by Python
+model equality. A distinct fifth failure used a stored view over mutable external
+CSV bytes outside the snapshot hash. The coherent correction encodes each live
+native column as typed text, checks its native database round trip, compares the
+entire canonical envelope, requires materialized columns in all seven base
+relations, refuses an unbound WAL, and disables external reads before queries.
+The guarantee is a complete native typed textual projection with a checked
+relational round trip and full snapshot hash, not physical SQL-cell byte identity.
+
+The mirrored behavioral gate reports **24 passed, 3.55 seconds**, and independent
+delta review reports **5 passed, 4.04 seconds**. Ruff and format pass. Source hash:
+`d305e73f8854faf647291ff3ad43215e076a7c774dbd37f7b338213955327603`;
+test hash: `18c3f7fe6b26404c90cc6f33840810fbbccaa5ce6d94c35783850d05566d13ae`.
+Removing joins gives **6 failed, 2 passed, exit 1, 2.26 seconds**; removing full
+replay comparison gives **2 failed, 5 passed, exit 1, 1.54 seconds**; restored
+selected controls give **15 passed, exit 0, 1.87 seconds**. Source hashes and
+markers remain unchanged in those process-local removals.
+
+The real retained snapshot produces and replays seven rows in **16.116321 seconds**,
+persisting 56,506 bytes as
+`sha256:e5025109ca9f1f09da335cefd4d05157bb94f9ef5250bbb7416016b4cc43de79`.
+This worked source is W1570787406, a goat-feed experiment, with a selected estimate
+25 g/day, no native CI/SE and unknown target context. It is a positive reference-
+identity witness; it cannot establish a Ukrainian `avg_income` effect. A single
+worked source also cannot establish insufficiency of the whole retained corpus.
+
+**This is a clean component boundary, not the PA1 handback.** Independent scope
+review rejected another premature inference: `_capture_skg` lives in the allowed
+`runtime/quality/acquisition_planner.py`, and the empty production CG2 store lives
+in allowed `grounding_bind.py`. Their missing wiring is engineering work, not an
+external file boundary. Full-positive producer feasibility remains unestablished.
+Work continues on exact-request grounding and complete independent calibration
+evidence, rather than treating an empty admitted table or this goat example as a
+reason to stop. No owner has been appointed.
+
+### Durable final continuation stations
+
+These are the exact local station modules, preserved because `_build` is ignored. They are invoked with `python -m`; removal stations intentionally return nonzero. No secret values are included. The prior stale-branch analysis remains the final section.
+
+#### `_build/gy_grade_authority/def22_recompute_pins.py`
+
+SHA-256 `ea13ccc6141eefc1c8f7153c6507a1f87acfeae02ff532cd9080e03fca63d963`; 4952 bytes.
+
+````python
+"""Recompute authored pins from named committed inputs, then compare proposal."""
+
+import difflib
+import hashlib
+import json
+import subprocess
+import tomllib
+from pathlib import Path
+
+from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, domain_digest
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    declaration_ref,
+    decode_dependency_profile_registry_toml,
+    resolve_profile_declaration_for_purpose,
+)
+
+root = Path.cwd()
+repo = root.parent
+base = subprocess.check_output(["git", "merge-base", "HEAD", "main"], cwd=repo, text=True).strip()
+assert base == "58f8073e44f44519003b5b10c1ccf0d38d7de43a"
+
+def committed(path: str) -> bytes:
+    return subprocess.check_output(["git", "show", f"{base}:policy-engine/{path}"], cwd=repo)
+
+profiles = "architecture/production_quality/method_catalog_dependency_profiles.toml"
+authority = "architecture/production_quality/method_catalog_dependency_authority.toml"
+before = {name: committed(name) for name in (profiles, authority)}
+for name, raw in before.items():
+    assert (root / name).read_bytes() == raw, name
+inputs = {name: committed(name) for name in ("pyproject.toml", "uv.lock")}
+for name, raw in inputs.items():
+    assert (root / name).read_bytes() == raw, name
+original = resolve_profile_declaration_for_purpose(
+    decode_dependency_profile_registry_toml(before[profiles]),
+    authority_registry_bytes=before[authority],
+    authority_purpose="n8_method_catalog_reconstruction",
+)
+computed = original.model_copy(update={
+    "pyproject_ref": domain_digest(DigestDomain.PYPROJECT, inputs["pyproject.toml"]),
+    "lockfile_ref": domain_digest(DigestDomain.UV_LOCK, inputs["uv.lock"]),
+})
+computed = type(original).model_validate(computed.model_dump(mode="python"))
+old_ref, computed_ref = declaration_ref(original), declaration_ref(computed)
+after = {name: raw.decode() for name, raw in before.items()}
+replacements = (
+    (profiles, original.pyproject_ref.value, computed.pyproject_ref.value),
+    (profiles, original.lockfile_ref.value, computed.lockfile_ref.value),
+    (authority, old_ref.artifact_id, computed_ref.artifact_id),
+    (authority, old_ref.semantic_hash.value, computed_ref.semantic_hash.value),
+)
+for name, old, new in replacements:
+    assert after[name].count(old) == 1
+    after[name] = after[name].replace(old, new)
+assert resolve_profile_declaration_for_purpose(
+    decode_dependency_profile_registry_toml(after[profiles].encode()),
+    authority_registry_bytes=after[authority].encode(),
+    authority_purpose="n8_method_catalog_reconstruction",
+) == computed
+old_capabilities = tomllib.loads(before[authority].decode())["capabilities"]
+assert tomllib.loads(after[authority])["capabilities"] == old_capabilities
+fresh_patch = "".join("".join(difflib.unified_diff(
+    before[name].decode().splitlines(keepends=True), text.splitlines(keepends=True),
+    fromfile="a/policy-engine/" + name, tofile="b/policy-engine/" + name,
+)) for name, text in after.items())
+# Only now read the earlier proposal, strictly as a comparison target.
+proposal = (root / "_build/gy_grade_authority/def22-owner-pins.proposed.patch").read_text()
+comparison = "".join(difflib.unified_diff(
+    proposal.splitlines(keepends=True), fresh_patch.splitlines(keepends=True),
+    fromfile="earlier-proposal", tofile="fresh-committed-input-derivation",
+))
+input_facts = {}
+for name, raw in inputs.items():
+    last_change = subprocess.check_output(
+        ["git", "log", "-1", "--format=%H", base, "--", "policy-engine/" + name],
+        cwd=repo, text=True,
+    ).strip()
+    input_facts[name] = {"commit": base, "bytes": len(raw),
+                        "sha256": hashlib.sha256(raw).hexdigest(), "last_change": last_change}
+upstream = {}
+for revision in ("753e0458a", "2021f81d6"):
+    full = subprocess.check_output(["git", "rev-parse", revision], cwd=repo, text=True).strip()
+    ancestor = subprocess.run(["git", "merge-base", "--is-ancestor", full, base], cwd=repo)
+    assert ancestor.returncode in (0, 1)
+    upstream[full] = {"ancestor_of_station_base": ancestor.returncode == 0}
+receipt = {"base": base, "inputs": input_facts, "upstream_changes_named_by_architect": upstream,
+           "pyproject_sha256": computed.pyproject_ref.value,
+           "uv_lock_sha256": computed.lockfile_ref.value,
+           "declaration_artifact_id": computed_ref.artifact_id,
+           "declaration_semantic_hash": computed_ref.semantic_hash.value,
+           "matches_earlier_proposal": proposal == fresh_patch,
+           "proposal_difference": comparison, "unchanged_capabilities": old_capabilities}
+# Write computed text, never apply/read values from the proposal.
+for name, text in after.items():
+    (root / name).write_text(text)
+    assert (root / name).read_text() == text
+destination = root / "_build/gy_grade_authority/def22-pin-recomputation.json"
+destination.write_text(json.dumps(receipt, indent=2) + "\n")
+print(json.dumps(receipt, indent=2))
+````
+
+#### `_build/gy_grade_authority/pa1_source_sufficiency.py`
+
+SHA-256 `9a7b60d775d413cf296fa1c5387d457260a2e9e8427f714b8570c76bca05b029`; 3760 bytes.
+
+````python
+"""Read-only retained-source station with worktree-local DuckDB scratch."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import duckdb
+
+
+def main() -> None:
+    root = Path("production_data")
+    paths = sorted(root.rglob("scholar_knowledge.duckdb"))
+    scratch = Path("_build/gy_grade_authority/duckdb_source_sufficiency")
+    scratch.mkdir(parents=True, exist_ok=True)
+    if len(paths) != 1:
+        raise ValueError(f"academic_holder_ambiguous:{paths}")
+    con = duckdb.connect(str(paths[0]), read_only=True)
+    con.execute("SET temp_directory = ?", [str(scratch.resolve())])
+    con.execute("SET threads = 2")
+    names = [row[0] for row in con.execute("SHOW TABLES").fetchall()]
+    selected = [name for name in names if name in {
+        "ac_works", "ac_article_extractions", "ac_skg_articles", "ac_skg_edge_evidence",
+        "ac_skg_edges", "ac_parameter_estimates",
+    }]
+    schema = {name: con.execute(
+        "SELECT column_name,data_type FROM information_schema.columns WHERE table_name=? ORDER BY ordinal_position",
+        [name],
+    ).fetchall() for name in selected}
+    relevant = sorted(path for path in root.rglob("*") if path.is_file()
+                      and any("academic" in part or "scholar" in part for part in path.parts))
+    print(json.dumps({"holder": str(paths[0].resolve()), "table_denominator": len(names),
+                      "selected_table_schemas": schema,
+                      "academic_file_denominator": len(relevant),
+                      "academic_files": [{"path": str(path), "size": path.stat().st_size}
+                                         for path in relevant]}, indent=2))
+    rows = con.execute("SELECT edge_id,src,dst,article_refs,meta_effect_size FROM ac_skg_edges "
+                       "WHERE (src='unemployment_rate' AND dst='poverty_rate') "
+                       "OR (src='gdp_growth' AND dst='poverty_rate')").fetchall()
+    print(json.dumps({"named_target_edges": rows}, indent=2))
+    work_ids = [work for row in rows for work in json.loads(row[3])]
+    print(json.dumps({"named_target_sources": con.execute(
+        "SELECT id,title,doi,abstract,year,full_text_url FROM ac_works WHERE id IN (SELECT unnest(?))",
+        [work_ids],
+    ).fetchall()}, indent=2))
+    print(json.dumps({"named_target_extractions": con.execute(
+        "SELECT extraction_id,work_id,extraction_json FROM ac_article_extractions WHERE work_id IN (SELECT unnest(?))",
+        [work_ids],
+    ).fetchall()}, indent=2))
+    print(json.dumps({"numeric_source_denominator": con.execute(
+        "SELECT count(*) estimate_rows,count(DISTINCT p.work_id) source_work_ids,"
+        "count(*) FILTER(WHERE w.id IS NOT NULL) matched_source_rows,"
+        "count(*) FILTER(WHERE length(trim(coalesce(w.abstract,'')))>0) with_retained_abstract,"
+        "count(*) FILTER(WHERE length(trim(coalesce(p.raw_context,'')))>0) with_candidate_context,"
+        "count(*) FILTER(WHERE length(trim(coalesce(p.raw_context,'')))>0 AND contains(w.abstract,p.raw_context)) exact_context_in_source "
+        "FROM ac_parameter_estimates p LEFT JOIN ac_works w ON p.work_id=w.id WHERE p.ci_low<p.ci_high"
+    ).fetchall()}, indent=2))
+    print(json.dumps({"candidate_numeric_sources": con.execute(
+        "SELECT p.id,p.work_id,p.variable_name,p.estimate,p.ci_low,p.ci_high,p.unit,p.raw_context,w.abstract,w.title "
+        "FROM ac_parameter_estimates p JOIN ac_works w ON p.work_id=w.id "
+        "WHERE p.ci_low<p.ci_high AND length(trim(coalesce(w.abstract,'')))>0 "
+        "ORDER BY CASE WHEN contains(w.abstract,p.raw_context) AND length(trim(coalesce(p.raw_context,'')))>0 THEN 0 ELSE 1 END,p.id LIMIT 4"
+    ).fetchall()}, indent=2))
+    con.close()
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_span_support_witness.py`
+
+SHA-256 `9a9f86f4146444ccf4b68d2e63f5a7c2edf98aef5fcec2fc9a37f0cd41ee093a`; 3562 bytes.
+
+````python
+"""Exercise the real span-support owner against retained academic source bytes."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+import duckdb
+
+from polisyos.ir.analytics.literature import (
+    CausalClaim, EvidenceSpan, OpenAlexWorkText, validate_causal_claim_span_grounding,
+)
+
+
+def main() -> None:
+    owner_config = "--owner-config" in sys.argv
+    if owner_config:
+        env_path = Path("/Users/deniskopylov/polisyos/policy-engine/.env")
+        for raw in env_path.read_text().splitlines():
+            if not raw.strip() or raw.lstrip().startswith("#") or "=" not in raw:
+                continue
+            name, value = raw.split("=", 1)
+            if name.strip() in {"POLISYOS_LLM_GATEWAY_API_KEY", "POLISYOS_LLM_GATEWAY_BASE_URL",
+                                "POLISYOS_LLM_GATEWAY_MODEL", "POLISYOS_LLM_GATEWAY_SPAN_SUPPORT_MODEL"}:
+                os.environ.setdefault(name.strip(), value.strip().strip('"').strip("'"))
+        os.environ["POLISYOS_LLM_GATEWAY_TIMEOUT_S"] = "25"
+        os.environ["POLISYOS_LLM_GATEWAY_MAX_RETRIES"] = "0"
+    holder = next(Path("production_data").rglob("scholar_knowledge.duckdb"))
+    con = duckdb.connect(str(holder), read_only=True)
+    row = con.execute(
+        "SELECT id,title,abstract FROM ac_works WHERE id=?",
+        ["https://openalex.org/W7124317257"],
+    ).fetchone()
+    con.close()
+    assert row is not None
+    work_id, title, abstract = row
+    source = title + "\n" + abstract
+    digest = hashlib.sha256(source.encode()).hexdigest()
+    sentence = abstract[abstract.index("Data pooling suggested"):abstract.index(" Synthesis without")]
+    start = source.index(sentence)
+    work = OpenAlexWorkText(openalex_id=work_id, title=title, abstract_text=abstract,
+                            source_text=source, content_sha256=digest)
+    claim = CausalClaim(
+        claim_id="retained-ivr-anxiety-source-witness",
+        cause_variable="IVR psychological intervention", effect_variable="anxiety symptoms",
+        direction="negative", claim_text="The cited review reports reduced anxiety after IVR interventions, with SMD -0.77 and 95% CI (-1.32, -0.22).",
+        claim_type="causal_assertion", claim_explicitness="explicit",
+        design_family_hint="rct", source_basis="abstract_only", effect_size=-0.77,
+        supporting_spans=[EvidenceSpan(span_id="retained-results", section="abstract",
+                                      text=sentence, source_ref=work_id,
+                                      start_char=start, end_char=start+len(sentence),
+                                      content_sha256=digest)],
+    )
+    result = validate_causal_claim_span_grounding(work, claim)
+    assert source[start:start + len(sentence)] == sentence
+    output = {"source_holder": str(holder.resolve()), "work_id": work_id,
+              "existing_owner_config_loaded_in_process": owner_config,
+              "source_sha256": digest, "span": sentence, "exact_span_dereference": True,
+              "candidate_claim": claim.model_dump(mode="json"),
+              "real_default_verifier_result": result.model_dump(mode="json"),
+              "scope": "paper statement support only; causal validity and UA transport not established"}
+    text = json.dumps(output, indent=2)
+    output_name = "pa1-span-support-owner-config-output.json" if owner_config else "pa1-span-support-witness-output.json"
+    Path("_build/gy_grade_authority", output_name).write_text(text+"\n")
+    print(text)
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_identity_real_replay.py`
+
+SHA-256 `7497e3a61e43e0354d96f63596362b187049b626a26fc8537b67e78f13bf8540`; 1831 bytes.
+
+````python
+"""Exercise the real source-reference producer; never a positive N8 witness."""
+import hashlib
+import json
+import time
+from pathlib import Path
+
+from polisyos.core import artifacts
+from polisyos.data_forge.read_api import academic
+
+
+def main():
+    start = time.monotonic()
+    path = next(Path('production_data').rglob('scholar_knowledge.duckdb'))
+    with path.open('rb') as stream:
+        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    source = academic.SourceSnapshot(path=path, reference=str(path.resolve()), sha256=digest)
+    selection = academic.SourceIdentitySelection(numeric_id='001fc1ad7237830ccb273e58',
+        work_id='https://openalex.org/W1570787406', claim_id='7fd2b1e8b7ee42f5d1f21c7d',
+        edge_id='66a2297da6ab82980a09e735', skg_version=1)
+    scratch = Path('_build/gy_grade_authority/pa1_identity_real')
+    store = artifacts.FileSystemCAS(scratch / 'cas')
+    ref = academic.produce_source_identity_bundle(source=source, selection=selection,
+        store=store, scratch=scratch / 'spill')
+    result = academic.replay_source_identity_bundle(ref=ref, source=source, selection=selection,
+        store=store, scratch=scratch / 'spill')
+    output = {'artifact_ref':ref.model_dump(mode='json'), 'bundle':result.model_dump(mode='json'),
+        'bundle_bytes':len(store.get_bytes(ref.artifact_id)), 'source_bytes':path.stat().st_size,
+        'elapsed_seconds':time.monotonic()-start}
+    Path('_build/gy_grade_authority/pa1-identity-real-replay-v2-output.json').write_text(json.dumps(output, indent=2)+'\n')
+    print(json.dumps({key:value for key,value in output.items() if key!='bundle'}))
+    print(json.dumps({'status':result.status, 'reasons':result.refusal_reasons,
+        'n8_admission':result.n8_admission, 'row_count':len(result.rows)}))
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_identity_removal.py`
+
+SHA-256 `5a4f4872712d73eadeba3eefd61767a1e272b0aa8821cc50b0833caf8f140e84`; 1268 bytes.
+
+````python
+"""Remove runtime identity checks in memory, retaining every source marker."""
+import hashlib
+import os
+from pathlib import Path
+
+import pytest
+
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+
+
+def main():
+    path = Path(bridge.__file__)
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+    mutation = os.environ.get('GY_PA1_REMOVE', '')
+    if mutation == 'joins':
+        bridge._require_joins = lambda rows, selection: None
+    elif mutation == 'replay':
+        bridge._require_same_bundle = lambda persisted, current: None
+    print({'mutation': mutation or 'restored', 'source_sha256': before}, flush=True)
+    result = pytest.main([
+        'tests/unit/data_forge/domains/academic/knowledge/test_skg_identity_bridge.py',
+        '-q', '--override-ini', 'addopts=',
+        '-k', ('source_join_mismatch' if mutation == 'joins' else
+               'new_valid_cas_object' if mutation == 'replay' else
+               'source_join_mismatch or new_valid_cas_object'),
+    ])
+    after = hashlib.sha256(path.read_bytes()).hexdigest()
+    print({'source_unchanged': before == after, 'source_sha256': after}, flush=True)
+    assert before == after
+    raise SystemExit(result)
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/test_skg_identity_scalar_review.py`
+
+SHA-256 `a92edfa325fb545d8ae58659b246ad74a0fa6634385bd90052fc94f323912bff`; 3335 bytes.
+
+````python
+"""Independent exact-source projection and replay witnesses."""
+
+from __future__ import annotations
+
+import json
+
+import duckdb
+import pytest
+
+from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS, ProducerInfo, SchemaInfo
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+from tests.unit.data_forge.domains.academic.knowledge.test_skg_identity_bridge import (
+    _owner,
+    source,
+)
+
+
+@pytest.mark.parametrize("kind", ["decimal", "timestamp_ns"])
+def test_native_scalar_is_exact_or_refused(source, tmp_path, kind):
+    path, selection = source
+    with duckdb.connect(str(path)) as con:
+        if kind == "decimal":
+            con.execute("ALTER TABLE ac_works ADD COLUMN exact_measure DECIMAL(21,20)")
+            con.execute("UPDATE ac_works SET exact_measure=CAST('1.12345678901234567890' AS DECIMAL(21,20))")
+            expected = {"1.12345678901234567890"}
+        else:
+            con.execute("ALTER TABLE ac_works ADD COLUMN exact_measure TIMESTAMP_NS")
+            con.execute("UPDATE ac_works SET exact_measure=CAST('2026-09-07 01:02:03.123456789' AS TIMESTAMP_NS)")
+            expected = {"2026-09-07 01:02:03.123456789", "2026-09-07T01:02:03.123456789"}
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = bridge.produce_source_identity_bundle(source=_owner(path), selection=selection,
+                                               store=store, scratch=tmp_path / "spill")
+    result = bridge.replay_source_identity_bundle(ref=ref, source=_owner(path), selection=selection,
+                                                 store=store, scratch=tmp_path / "spill")
+    if result.status == "refused":
+        assert result.refusal_reasons
+        return
+    row = next(row for row in result.rows if row.table == "ac_works")
+    cell = next(cell for cell in row.cells if cell.name == "exact_measure")
+    assert cell.value in expected, (kind, cell.database_type, cell.value)
+
+
+@pytest.mark.parametrize("changed", [True, 1.0])
+def test_replay_rejects_scalar_type_substitution_even_if_python_compares_equal(source, tmp_path, changed):
+    path, selection = source
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = bridge.produce_source_identity_bundle(source=_owner(path), selection=selection,
+                                               store=store, scratch=tmp_path / "spill")
+    payload = json.loads(store.get_bytes(ref.artifact_id))
+    row = next(row for row in payload["rows"] if row["table"] == "ac_skg_versions")
+    cell = next(cell for cell in row["cells"] if cell["name"] == "version_id")
+    assert type(cell["value"]) is int
+    assert cell["value"] == changed
+    cell["value"] = changed
+    # Keep the real row hash and all grade/scope markers; only its typed value changes.
+    forged = store.put_bytes(json.dumps(payload).encode(), ArtifactWriteOptions(
+        kind="academic.source_reference_identity", media_type="application/json",
+        schema=SchemaInfo(name="academic.source_reference_identity", version="1.0"),
+        producer=ProducerInfo(component="candidate", version="1")))
+    with pytest.raises(ValueError, match="replay_mismatch"):
+        bridge.replay_source_identity_bundle(ref=forged, source=_owner(path), selection=selection,
+                                             store=store, scratch=tmp_path / "spill")
+````
+
+#### `_build/gy_grade_authority/test_skg_identity_snapshot_review.py`
+
+SHA-256 `60427b8b8c1876afa7b2ce24469712aa5733bcacc9c0d59fb24ece950b732d6c`; 1965 bytes.
+
+````python
+"""Source identity cannot silently acquire unpinned external query inputs."""
+
+from __future__ import annotations
+
+import duckdb
+
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+from tests.unit.data_forge.domains.academic.knowledge.test_skg_identity_bridge import _owner, source
+
+
+def test_snapshot_only_claim_refuses_unbound_external_relation(source, tmp_path):
+    path, selection = source
+    external = tmp_path / "unbound_work.csv"
+    external.write_text("id,abstract\nW1,First unbound text\n")
+    with duckdb.connect(str(path)) as con:
+        con.execute("DROP TABLE ac_works")
+        quoted = str(external).replace("'", "''")
+        con.execute("CREATE VIEW ac_works AS SELECT * FROM read_csv('" + quoted + "', header=true)")
+    owner = _owner(path)
+    store = FileSystemCAS(tmp_path / "cas")
+    first_ref = bridge.produce_source_identity_bundle(source=owner, selection=selection,
+                                                     store=store, scratch=tmp_path / "spill")
+    first = bridge.replay_source_identity_bundle(ref=first_ref, source=owner, selection=selection,
+                                                 store=store, scratch=tmp_path / "spill")
+    if first.status == "refused":
+        assert first.refusal_reasons
+        return
+    external.write_text("id,abstract\nW1,Second unbound text\n")
+    assert _owner(path).sha256 == owner.sha256
+    second_ref = bridge.produce_source_identity_bundle(source=owner, selection=selection,
+                                                      store=store, scratch=tmp_path / "spill")
+    second = bridge.replay_source_identity_bundle(ref=second_ref, source=owner, selection=selection,
+                                                  store=store, scratch=tmp_path / "spill")
+    assert first.rows != second.rows
+    assert second.status == "refused", (first.status, second.status, owner.sha256)
+````
+
+#### `_build/gy_grade_authority/adjudication_final_census.py`
+
+SHA-256 `646a87bb7724057714018799951570fd9610b1e0adac0e9b588beadc9bcd84c7`; 4828 bytes.
+
+````python
+"""Complete Python census with bound facade routes and independent token call check."""
+from __future__ import annotations
+import ast
+import io
+import json
+import tokenize
+from collections import defaultdict
+from pathlib import Path
+
+TARGETS = {
+    'load_admitted_claim_adjudication_batch', 'load_verified_claim_adjudication_rows',
+    'materialize_claim_adjudication_result', 'resolve_current_claim_adjudication',
+    'aggregate_claim_rows', 'claim_metrics', 'claim_guardrails', 'claim_promotion_policy',
+    'metric_is_improved', 'claim_policy_publishable', 'read_claim_promotion_predecessor',
+}
+files = sorted(p for p in Path('src').rglob('*.py') if '__pycache__' not in p.parts)
+hits = {target: [] for target in TARGETS}
+errors, ambiguities, mismatches = [], [], []
+for file in files:
+    source = file.read_text()
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        errors.append([str(file), str(exc)])
+        continue
+    parts = list(file.with_suffix('').parts[1:])
+    module = '.'.join(parts[:-1] if parts[-1] == '__init__' else parts)
+    package = parts[:-1]
+    bindings = defaultdict(set)
+    nodes = list(ast.walk(tree))
+    for node in nodes:
+        if isinstance(node, ast.ImportFrom):
+            owner = '.'.join(package[:len(package)-node.level+1]) if node.level else ''
+            owner = '.'.join(part for part in (owner,node.module) if part)
+            for alias in node.names:
+                bindings[alias.asname or alias.name].add(f'{owner}.{alias.name}')
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                bindings[alias.asname or alias.name.split('.')[0]].add(alias.name if alias.asname else alias.name.split('.')[0])
+        elif isinstance(node, (ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+            bindings[node.name].add(f'{module}.{node.name}')
+    def resolve(node):
+        if isinstance(node, ast.Name):
+            return bindings.get(node.id,set())
+        if isinstance(node, ast.Attribute):
+            return {f'{owner}.{node.attr}' for owner in resolve(node.value)}
+        return set()
+    for _ in range(len(nodes)):
+        changed = False
+        for node in nodes:
+            if isinstance(node, ast.Assign):
+                values = resolve(node.value)
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and not values <= bindings[target.id]:
+                        bindings[target.id].update(values)
+                        changed = True
+        if not changed:
+            break
+    ast_positions = set()
+    for node in nodes:
+        if not isinstance(node,ast.Call) or not isinstance(node.func,(ast.Name,ast.Attribute)):
+            continue
+        leaf = node.func.id if isinstance(node.func,ast.Name) else node.func.attr
+        resolutions = resolve(node.func)
+        relevant = {value.rsplit('.',1)[-1] for value in resolutions} & TARGETS
+        if leaf in TARGETS:
+            relevant.add(leaf)
+        if not relevant:
+            continue
+        position = (node.func.lineno, node.func.col_offset if isinstance(node.func,ast.Name)
+                    else node.func.end_col_offset-len(leaf))
+        ast_positions.add(position)
+        item = {'file':str(file),'line':node.lineno,'call':ast.unparse(node.func),
+                'bound_routes':sorted(resolutions)}
+        if len(resolutions)!=1 or len(relevant)!=1:
+            ambiguities.append(item)
+        for target in relevant:
+            hits[target].append(item)
+    # A separate lexical walk settles whether the AST call filter omitted a
+    # named or qualified spelling; strings/comments are not code call sites.
+    spellings = TARGETS | {name for name,values in bindings.items()
+                          if any(value.rsplit('.',1)[-1] in TARGETS for value in values)}
+    tokens = [token for token in tokenize.generate_tokens(io.StringIO(source).readline)
+              if token.type not in {tokenize.NL,tokenize.NEWLINE,tokenize.INDENT,
+                                    tokenize.DEDENT,tokenize.COMMENT}]
+    token_positions = {token.start for index,token in enumerate(tokens[:-1])
+        if token.type==tokenize.NAME and token.string in spellings
+        and tokens[index+1].string=='('
+        and (index==0 or tokens[index-1].string not in {'def','class'})}
+    if ast_positions != token_positions:
+        mismatches.append({'file':str(file),'ast_only':sorted(ast_positions-token_positions),
+                           'token_only':sorted(token_positions-ast_positions)})
+result = {'denominator_file_type':'src/**/*.py excluding __pycache__',
+          'denominator_count':len(files),'parse_errors':errors,'binding_ambiguities':ambiguities,
+          'independent_token_mismatches':mismatches,'identity_set':hits}
+print(json.dumps(result,indent=2))
+````
+
+#### `_build/gy_grade_authority/adjudication_removal_stations.py`
+
+SHA-256 `bca6ac95a2c197ffdd1454c10c69e71469a1bf47155b9c5927ff4d83256a5e41`; 3845 bytes.
+
+````python
+"""Frozen marker-preserving adjudication removal controls.
+
+Run from policy-engine with the local Python and PYTHONPATH=.:src:
+  .venv/bin/python -m _build.gy_grade_authority.adjudication_removal_stations scientist
+  .venv/bin/python -m _build.gy_grade_authority.adjudication_removal_stations data_forge
+
+Both original timeit commands below were observed before this preservation.
+The frozen module was replayed after the source batch; see REPLAY_OBSERVED.
+"""
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from time import perf_counter
+
+ORIGINAL_COMMANDS = {
+    "scientist": '''PYTHONPATH=.:src .venv/bin/python -m timeit -n 1 -r 1 -s 'import asyncio; from pathlib import Path; from tempfile import TemporaryDirectory; from tests.unit.data_forge.domains.academic.batch import test_claim_adjudication_verifier as checks; from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import ClaimAdjudicationVerifier; ClaimAdjudicationVerifier.verify_batch = lambda *args, **kwargs: None' 'with TemporaryDirectory(dir="tests") as root: asyncio.run(checks.test_valid_champion_does_not_authorize_fabricated_run_result(Path(root), "scientist"))' ''',
+    "data_forge": '''PYTHONPATH=.:src .venv/bin/python -m timeit -n 1 -r 1 -s 'import asyncio; from pathlib import Path; from tempfile import TemporaryDirectory; from tests.unit.data_forge.domains.academic.batch import test_claim_adjudication_verifier as checks; from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import ClaimAdjudicationVerifier; ClaimAdjudicationVerifier.verify_batch = lambda *args, **kwargs: None' 'with TemporaryDirectory(dir="tests") as root: asyncio.run(checks.test_valid_champion_does_not_authorize_fabricated_run_result(Path(root), "data_forge"))' ''',
+}
+OBSERVED = {
+    "scientist": {
+        "exit": 1,
+        "duration": "not_established: timeit assertion exited before timing was printed",
+        "output": "AssertionError: expected blocked; actual status='completed', input_claims=1, published_claims=1; result_ref present",
+    },
+    "data_forge": {
+        "exit": 1,
+        "duration": "not_established: timeit assertion exited before timing was printed",
+        "output": "Failed: DID NOT RAISE <class 'ValueError'>; forged batch materialized",
+    },
+}
+
+
+REPLAY_OBSERVED = {
+    "scientist": {"exit": 1, "station_body_seconds": 0.036385417042765766,
+                  "output": "AssertionError: completed, result_ref present, published_claims=1"},
+    "data_forge": {"exit": 1, "station_body_seconds": 0.0357904169941321,
+                   "output": "Failed: DID NOT RAISE ValueError; forged batch materialized"},
+}
+# Station timing excludes import/setup before the timer; full process duration not_established.
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("station", choices=tuple(OBSERVED))
+    args = parser.parse_args()
+    from tests.unit.data_forge.domains.academic.batch import test_claim_adjudication_verifier as checks
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import ClaimAdjudicationVerifier
+    # The actual shared replay is removed; genuine signatures, CAS, schemas,
+    # owner names, enums, receipt refs and the full assertion remain unchanged.
+    ClaimAdjudicationVerifier.verify_batch = lambda *args, **kwargs: None
+    started = perf_counter()
+    try:
+        with TemporaryDirectory(dir="tests") as root:
+            asyncio.run(checks.test_valid_champion_does_not_authorize_fabricated_run_result(
+                Path(root), args.station,
+            ))
+    finally:
+        print(json.dumps({"station": args.station, "elapsed_seconds": perf_counter() - started}), flush=True)
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/test_adjudication_final_removals.py`
+
+SHA-256 `638eaedbd1201f2c3e5fe29b7675f4d0e75ed137ed40e200b9033c3b93db8e78`; 2459 bytes.
+
+````python
+"""Intentional red stations: remove runtime properties while keeping evidence/markers."""
+from __future__ import annotations
+
+import ast
+import inspect
+import textwrap
+
+from tests.unit.data_forge.domains.academic.batch import (
+    test_claim_adjudication_autotune as autotune_checks,
+    test_claim_adjudication_subject_binding as subject_checks,
+    test_claim_adjudication_verifier as intake_checks,
+)
+
+
+def test_subject_property_removed(tmp_path, monkeypatch):
+    from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import VerifiedClaimAdjudicationRows
+    # Actual signed rows are retained. Only current-subject comparison is removed.
+    monkeypatch.setattr(VerifiedClaimAdjudicationRows, "for_current_subject",
+                        lambda self, subject: self._read().get(subject.get("claim_id")))
+    subject_checks.test_every_current_input_field_is_required_and_content_bound(tmp_path)
+
+
+def test_baseline_property_removed(tmp_path, monkeypatch):
+    from polisyos.scientist.methods.autotune.claim_adjudication import ClaimAdjudicationRuntimeLoader
+    from polisyos.scientist.methods.autotune.runtime import ChampionBackedRuntimeLoader
+    # Preserve both classes and all markers; restore the old real seeding behavior.
+    monkeypatch.setattr(ClaimAdjudicationRuntimeLoader, "load", ChampionBackedRuntimeLoader.load)
+    autotune_checks.test_successful_claim_promotion_changes_runtime_selection(tmp_path)
+
+
+def test_canonical_policy_property_removed(tmp_path, monkeypatch):
+    from polisyos.scientist.methods.autotune import registry
+    original = registry.ChampionRegistry.consider_promotion
+    source = ast.parse(textwrap.dedent(inspect.getsource(original)))
+    removed = 0
+    for node in ast.walk(source):
+        if isinstance(node, ast.If) and ast.unparse(node.test) == "policy.model_dump(mode='json') != claim_promotion_policy()":
+            # Keep the original rejection branch, names and messages, but delete
+            # the deciding predicate in this process only.
+            node.test = ast.Constant(False)
+            removed += 1
+    assert removed == 1
+    namespace = dict(original.__globals__)
+    exec(compile(ast.fix_missing_locations(source), "<policy-property-removal>", "exec"), namespace)
+    monkeypatch.setattr(registry.ChampionRegistry, "consider_promotion", namespace[original.__name__])
+    intake_checks.test_claim_transition_rejects_alternate_policy_without_changing_basis(tmp_path)
+````
+
+#### `_build/gy_grade_authority/test_adjudication_incumbent_delta.py`
+
+SHA-256 `c0b1b10a5a86b6da5643f5bd88a4fc0aea713671ae0c94497e5b32a08d2158d0`; 3991 bytes.
+
+````python
+"""Delta review under a fixed deployment-owned verifier/root/appointment."""
+
+from __future__ import annotations
+
+import hashlib
+import os
+
+import pytest
+
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.data_forge.domains.academic.batch import claim_adjudication_verifier as owner
+from polisyos.scientist.methods.autotune import (
+    BenchmarkEvaluation,
+    persist_benchmark_evaluation,
+    persist_mutation_artifact,
+)
+from polisyos.scientist.methods.autotune.claim_adjudication import (
+    ClaimAdjudicationSearchConfig,
+    default_claim_adjudication_promotion_policy,
+)
+from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+    canonical,
+    put,
+    signed_receipt,
+)
+from tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier import (
+    setup_evidence,
+)
+
+
+def _challenger(f):
+    candidate = persist_mutation_artifact(
+        f.store, ClaimAdjudicationSearchConfig(passes=1, notes=["second equal-score candidate"])
+    )
+    evaluation = BenchmarkEvaluation.model_validate(
+        from_canonical_bytes(f.store.get_bytes(f.evaluation_ref.artifact_id))
+    ).model_copy(update={"candidate_ref": candidate})
+    return candidate, persist_benchmark_evaluation(f.store, evaluation)
+
+
+def test_real_first_promotion_replays(tmp_path):
+    _, f = setup_evidence(tmp_path)
+    pointer = f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+    assert pointer["candidate_ref"]["artifact_id"] == str(f.candidate_ref.artifact_id)
+
+
+def test_equal_challenger_cannot_change_current_or_basis(tmp_path):
+    _, f = setup_evidence(tmp_path)
+    basis_path = tmp_path / "registry/claim_adjudication/promotion_basis.json"
+    basis_before = basis_path.read_bytes()
+    pointer_before = f.registry.get("claim_adjudication")
+    candidate, evaluation = _challenger(f)
+    decision = f.registry.consider_promotion(
+        "claim_adjudication", candidate, evaluation,
+        default_claim_adjudication_promotion_policy(),
+    )
+    assert not decision.promoted
+    assert decision.reason == "not_better_than_champion"
+    assert f.registry.get("claim_adjudication") == pointer_before
+    assert basis_path.read_bytes() == basis_before
+    f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+
+
+def test_legacy_pointer_without_basis_is_not_genesis(tmp_path):
+    _, f = setup_evidence(tmp_path)
+    # Missing legacy state is a migration condition, not an administrator attack.
+    (tmp_path / "registry/claim_adjudication/promotion_basis.json").unlink()
+    with pytest.raises(ValueError, match="promotion_basis_missing"):
+        f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+
+
+def test_public_alias_pointer_replacement_cannot_erase_incumbent(tmp_path, monkeypatch):
+    _, f = setup_evidence(tmp_path)
+    candidate, evaluation = _challenger(f)
+    first = f.registry.get("claim_adjudication")
+    pointer = first.model_copy(update={"candidate_ref": candidate, "evaluation_ref": evaluation})
+    # Ordinary public API in the same fixed root: bypass its lexical loop guard.
+    f.registry.write_pointer("claim_adjudication/.", pointer)
+    observations_ref = put(f.store, {**f.observations, "candidate_ref": str(candidate.artifact_id)})
+    receipt = signed_receipt(f.store, {
+        **f.benchmark_payload,
+        "candidate_ref": str(candidate.artifact_id),
+        "evaluation_ref": str(evaluation.artifact_id),
+        "observations_ref": str(observations_ref.artifact_id),
+        "champion_pointer_sha256": hashlib.sha256(canonical(pointer.model_dump(mode="json"))).hexdigest(),
+    }, f.key)
+    if os.environ.get("GY_REVIEW_REMOVE_COMPARATOR") == "1":
+        # Delete the semantic admission-state resolution, keep its names/markers.
+        monkeypatch.setattr(owner, "read_claim_promotion_predecessor", lambda *_args: None)
+    with pytest.raises(ValueError, match="promotion_basis_pointer_mismatch"):
+        f.verifier.replay_champion(str(receipt.artifact_id))
+````
+
+#### `_build/gy_grade_authority/prepare_ir_exports.py`
+
+SHA-256 `583a827c31e5669d63bf06ca273f10b7a9e14b9c4dce40ac5e31797bcef4f2f8`; 5075 bytes.
+
+````python
+"""Build a review-only export patch; never mutate IR source or reference documents."""
+from __future__ import annotations
+import ast
+from dataclasses import replace
+import difflib
+import json
+from pathlib import Path
+
+from polisyos.ir import get_ir_schema_catalog, IRExportInfo, IRPublicStatus
+from tools.quality.diagnostics.generate_ir_reference_catalog import render_ir_schema_catalog, render_schema_reference
+
+NAMES = tuple(sorted(('AdmittedClaimAdjudicationBatch','ClaimAdjudicationInputBatch',
+    'ClaimAdjudicationInputItem','ClaimAdjudicationResult','CausalCredibility',
+    'ClaimType','RiskOfBias','SupportStatus')))
+module = 'polisyos.ir.analytics.literature'
+p=Path('src/polisyos/ir/api.py'); original=p.read_text(); tree=ast.parse(original)
+assignment=next(n for n in tree.body if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name) and n.target.id=='ANALYTICS_FACADE_EXPORTS')
+keys=[n.value for n in assignment.value.keys]
+assert not set(NAMES)&set(keys)
+lines=original.splitlines(keepends=True)
+insertions={}
+for name in NAMES:
+    nextkey=next((key for key in assignment.value.keys if key.value>name),None)
+    line=nextkey.lineno-1 if nextkey else assignment.end_lineno-1
+    insertions.setdefault(line,[]).append(name)
+for line,names in sorted(insertions.items(),reverse=True):
+    lines[line:line]=[f'    "{name}": (\n        "{module}",\n        "{name}",\n    ),\n' for name in names]
+changes={str(p): ''.join(lines)}
+p=Path('tests/unit/ir/test_public_surface.py'); original_test=p.read_text()
+changes[str(p)]=original_test+'''\n\ndef test_analytics_facade_exports_existing_adjudication_contracts() -> None:
+    """Resolve the actual existing runtime types through the supported facade."""
+    from polisyos.ir.analytics import literature
+
+    names = (
+'''+''.join(f'        "{name}",\n' for name in NAMES)+'''    )
+    for name in names:
+        assert getattr(analytics, name) is getattr(literature, name)
+        assert name in analytics.__all__
+'''
+p=Path('docs/reference/ir/public-surface.md'); page=p.read_text()
+old=f'| `polisyos.ir.analytics` | {len(keys)} | curated lazy facade |'
+new=f'| `polisyos.ir.analytics` | {len(keys)+len(NAMES)} | curated lazy facade |'
+assert old in page
+changes[str(p)]=page.replace(old,new)
+catalog=get_ir_schema_catalog()
+fqns={f'{module}.{name}' for name in NAMES}
+selected=[entry for entry in catalog.types if entry.fqn in fqns]
+assert len(selected)==len(NAMES)
+assert all(not entry.exported_from for entry in selected)
+modified=replace(catalog,types=tuple(replace(entry,
+    public_status=IRPublicStatus.PACKAGE_FACADE,
+    exported_from=(f'polisyos.ir.analytics:{entry.name}',)) if entry.fqn in fqns else entry
+    for entry in catalog.types), exports=tuple(sorted((*catalog.exports,*[
+        IRExportInfo(package='polisyos.ir.analytics', export_name=name,target_fqn=f'{module}.{name}')
+        for name in NAMES]),key=lambda entry:(entry.package,entry.export_name))))
+# Apply only the owner-rendered changed lines to the current docs, preserving unrelated drift.
+def transfer_delta(current, before, after):
+    old=before.splitlines(keepends=True);new=after.splitlines(keepends=True)
+    result=current
+    for tag,i,j,k,l in reversed(difflib.SequenceMatcher(a=old,b=new).get_opcodes()):
+        if tag=='equal':continue
+        assert tag=='replace'
+        context_start=i
+        previous=''.join(old[context_start:j])
+        while result.count(previous)>1 and context_start>0:
+            context_start-=1
+            previous=''.join(old[context_start:j])
+        desired=''.join(old[context_start:i])+''.join(new[k:l])
+        assert result.count(previous)==1,(previous,result.count(previous))
+        result=result.replace(previous,desired,1)
+    return result
+renderers={'docs/reference/ir/schema-catalog.md':render_ir_schema_catalog,
+           'docs/reference/schemas.md':render_schema_reference}
+render_status={}
+for name,render in renderers.items():
+    before=render(catalog);after=render(modified);current=Path(name).read_text()
+    render_status[name]={'current_matches_owner_render':current==before,
+                         'export_delta_changes_render':before!=after}
+    if before!=after:changes[name]=transfer_delta(current,before,after)
+patch=''
+for name,after in changes.items():
+    patch+=''.join(difflib.unified_diff(Path(name).read_text().splitlines(keepends=True),
+        after.splitlines(keepends=True),fromfile='a/policy-engine/'+name,tofile='b/policy-engine/'+name))
+Path('_build/gy_grade_authority/ir-adjudication-exports-proposal.patch').write_text(patch)
+result={'changed_paths':list(changes),'changed_path_count':len(changes),'new_exports':NAMES,
+        'analytics_exports_before':len(keys),'analytics_exports_after':len(keys)+len(NAMES),
+        'public_types_before':len(catalog.public_types),'public_types_after':len(modified.public_types),
+        'render_status':render_status,'ir_source_written':False}
+Path('_build/gy_grade_authority/ir-adjudication-exports-proposal.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))
+````
+
+#### `_build/gy_grade_authority/public_surface_readonly_probe.py`
+
+SHA-256 `4b23b72c874042387b8d7591819cd3fdd356f95fe6425dbcc690943a928c1aaf`; 1819 bytes.
+
+````python
+"""Read-only complete companion and live IR-facade reconciliation; never sync."""
+from pathlib import Path
+import hashlib
+import json
+from tools.devx.architecture import guardrails as g
+from polisyos.ir import analytics
+from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+
+manifest = g.REPO_ROOT / "architecture/public_surface/contract.toml"
+policies = g._parse_public_surface(manifest)
+inventory = g.build_public_surface_inventory(policies)
+families = g._parse_public_generated_artifact_families(manifest)
+outputs = {
+ "architecture/public_surface/inventory.json": g.render_public_surface_json(inventory, generated_artifact_families=families),
+ "docs/reference/public-surface.md": g.render_public_surface_markdown(inventory),
+}
+result = {"companion_denominator": len(outputs), "outputs": {}}
+for name, expected in outputs.items():
+ raw = Path(name).read_bytes(); computed = expected.encode()
+ result["outputs"][name] = {"matches_current": raw == computed,
+  "current_sha256": hashlib.sha256(raw).hexdigest(), "rendered_sha256": hashlib.sha256(computed).hexdigest()}
+entry = next(entry for package in inventory for entry in package.entrypoints if entry.module == "polisyos.ir.analytics")
+actual = set(analytics.__all__); independently_derived = set(ANALYTICS_FACADE_EXPORTS)
+result["analytics_export_reconciliation"] = {
+ "runtime_count": len(actual), "map_count": len(independently_derived),
+ "runtime_only": sorted(actual - independently_derived), "map_only": sorted(independently_derived - actual),
+ "inventory_count": entry.export_count, "omitted_identity_set": sorted(actual - set(entry.exports)),
+ "invented_identity_set": sorted(set(entry.exports) - actual),
+}
+text = json.dumps(result, indent=2) + "\n"
+Path("_build/gy_grade_authority/public-surface-readonly-reconciliation.json").write_text(text)
+print(text)
+````
+
+#### `_build/gy_grade_authority/write_ir_exposure_reference.py`
+
+SHA-256 `d25e2058233288c23a106a0dbd07bd8f58c3370b7bb27d3dd0f236fa35183430`; 2609 bytes.
+
+````python
+"""Write only the two granted reference pages from actual facade exposure."""
+from __future__ import annotations
+import ast
+import difflib
+import hashlib
+import json
+from pathlib import Path
+import re
+
+import polisyos.ir.analytics as analytics
+from polisyos.ir import get_ir_schema_catalog
+from polisyos.ir.api import PACKAGE_FACADE_IMPORT_POLICY
+from tools.quality.diagnostics.generate_ir_reference_catalog import (
+    render_ir_schema_catalog, render_schema_reference,
+)
+
+before=json.loads(Path('_build/gy_grade_authority/ir-exports-before.json').read_text())
+typefile=Path(before['existing_type_source'])
+assert hashlib.sha256(typefile.read_bytes()).hexdigest()==before['source_sha256']
+resolved={name:getattr(analytics,name) for name in analytics.__all__}
+catalog=get_ir_schema_catalog()
+page=Path('docs/reference/ir/public-surface.md')
+text=page.read_text()
+replacement=f'| `polisyos.ir.analytics` | {len(resolved)} | {PACKAGE_FACADE_IMPORT_POLICY["analytics"]} |'
+text,count=re.subn(r'^\| `polisyos\.ir\.analytics` \| \d+ \| [^\n]+$',replacement,text,flags=re.M)
+assert count==1
+outputs={str(page):text,'docs/reference/ir/schema-catalog.md':render_ir_schema_catalog(catalog)}
+report={'existing_types_unchanged':True,'actual_resolved_analytics_export_count':len(resolved),
+        'generator_path':'tools/quality/diagnostics/generate_ir_reference_catalog.py',
+        'generator_function':'render_ir_schema_catalog(get_ir_schema_catalog())',
+        'documented_cli':'PYTHONPATH=src .venv/bin/python -m tools.quality.diagnostics.generate_ir_reference_catalog',
+        'cli_write_scope_note':'Default CLI writes schema-catalog.md and schemas.md. This bounded invocation writes only granted schema-catalog.md; schemas.md is compared without writing.',
+        'public_surface_derivation':'Actual resolved analytics.__all__ exposure, with PACKAGE_FACADE_IMPORT_POLICY; authored narrative retained.',
+        'schemas_md_unchanged':render_schema_reference(catalog)==Path('docs/reference/schemas.md').read_text(),
+        'proposal_comparison':{}}
+for name,content in outputs.items():
+    proposal=Path('_build/gy_grade_authority/proposed-'+Path(name).name).read_text()
+    difference=''.join(difflib.unified_diff(proposal.splitlines(keepends=True),content.splitlines(keepends=True),fromfile='prepared/'+name,tofile='actual/'+name))
+    report['proposal_comparison'][name]={'identical':proposal==content,'difference':difference}
+    Path(name).write_text(content)
+Path('_build/gy_grade_authority/ir-reference-generation.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report,indent=2))
+````
+
+#### `_build/gy_grade_authority/test_ir_export_resolution_removal.py`
+
+SHA-256 `4e3a0b41868391ed1e8c0e7e5d3be0b5dc8ac35c4ef8213dfe87496ef86e1467`; 1116 bytes.
+
+````python
+"""Intentional red: facade names/manifest remain while actual resolution is removed."""
+import polisyos.ir.analytics as analytics
+from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+from tests.unit.ir import test_public_surface as checks
+
+
+def test_remove_actual_export_resolution_keep_all_markers(monkeypatch):
+    names = {
+        'AdmittedClaimAdjudicationBatch', 'CausalCredibility',
+        'ClaimAdjudicationInputBatch', 'ClaimAdjudicationInputItem',
+        'ClaimAdjudicationResult', 'ClaimType', 'RiskOfBias', 'SupportStatus',
+    }
+    original_names = tuple(analytics.__all__)
+    original_manifest = dict(ANALYTICS_FACADE_EXPORTS)
+    original_resolver = analytics.__getattr__
+    for name in names:
+        monkeypatch.delattr(analytics, name, raising=False)
+    def unavailable(name):
+        return None if name in names else original_resolver(name)
+    monkeypatch.setattr(analytics, '__getattr__', unavailable)
+    assert tuple(analytics.__all__) == original_names
+    assert ANALYTICS_FACADE_EXPORTS == original_manifest
+    checks.test_analytics_facade_exports_existing_adjudication_contracts()
+````
+
+#### `_build/gy_grade_authority/test_skg_identity_scalar_delta.py`
+
+SHA-256 `7f76fecdbf0c567245af122c73464616b125a8380fda4aa43ebcdd03bc9b1f7b`; 1777 bytes.
+
+````python
+"""Original scalar witnesses adapted only to the explicit native-text encoding."""
+
+import json
+
+import pytest
+
+from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS, ProducerInfo, SchemaInfo
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+from tests.unit.data_forge.domains.academic.knowledge.test_skg_identity_bridge import _owner, source
+from _build.gy_grade_authority.test_skg_identity_scalar_review import (
+    test_native_scalar_is_exact_or_refused,
+)
+
+
+@pytest.mark.parametrize("changed", [True, 1.0])
+def test_replay_rejects_nontext_scalar_substitution(source, tmp_path, changed):
+    path, selection = source
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = bridge.produce_source_identity_bundle(source=_owner(path), selection=selection,
+                                               store=store, scratch=tmp_path / "spill")
+    payload = json.loads(store.get_bytes(ref.artifact_id))
+    row = next(row for row in payload["rows"] if row["table"] == "ac_skg_versions")
+    cell = next(cell for cell in row["cells"] if cell["name"] == "version_id")
+    assert cell["value"] == "1"
+    assert cell["encoding"] == "duckdb_varchar_roundtrip"
+    cell["value"] = changed
+    forged = store.put_bytes(json.dumps(payload).encode(), ArtifactWriteOptions(
+        kind="academic.source_reference_identity", media_type="application/json",
+        schema=SchemaInfo(name="academic.source_reference_identity", version="1.0"),
+        producer=ProducerInfo(component="candidate", version="1")))
+    with pytest.raises(ValueError):
+        bridge.replay_source_identity_bundle(ref=forged, source=_owner(path), selection=selection,
+                                             store=store, scratch=tmp_path / "spill")
+````
+
+#### Exact proposed IR facade handback
+
+SHA-256 `c20a9be78c0ab94a5e23a25933725b00977ee4441982c290da3c7cefda6a03cc`. This is a proposed out-of-scope patch, not authorization to apply it.
+
+````json
+"--- a/policy-engine/src/polisyos/ir/api.py\n+++ b/policy-engine/src/polisyos/ir/api.py\n@@ -186,6 +186,10 @@\n \n ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {\n     \"AccessTier\": (\"polisyos.ir.analytics.data_views\", \"AccessTier\"),\n+    \"AdmittedClaimAdjudicationBatch\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"AdmittedClaimAdjudicationBatch\",\n+    ),\n     \"BacktestReport\": (\"polisyos.ir.analytics.backtest\", \"BacktestReport\"),\n     \"BacktestScenario\": (\"polisyos.ir.analytics.backtest\", \"BacktestScenario\"),\n     \"BiasDirection\": (\"polisyos.ir.analytics.backtest\", \"BiasDirection\"),\n@@ -223,6 +227,10 @@\n     ),\n     \"ABMResult\": (\"polisyos.ir.analytics.phase4_dynamics\", \"ABMResult\"),\n     \"ABMResultRef\": (\"polisyos.ir.registry.refs\", \"ABMResultRef\"),\n+    \"CausalCredibility\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"CausalCredibility\",\n+    ),\n     \"CausalDiscoveryReport\": (\n         \"polisyos.ir.analytics.causal_discovery\",\n         \"CausalDiscoveryReport\",\n@@ -250,6 +258,22 @@\n     \"CausalEdge\": (\"polisyos.ir.analytics.causal_graph\", \"CausalEdge\"),\n     \"CausalEffectReport\": (\"polisyos.ir.analytics.causal\", \"CausalEffectReport\"),\n     \"CausalGraphModel\": (\"polisyos.ir.analytics.causal_graph\", \"CausalGraphModel\"),\n+    \"ClaimAdjudicationInputBatch\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimAdjudicationInputBatch\",\n+    ),\n+    \"ClaimAdjudicationInputItem\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimAdjudicationInputItem\",\n+    ),\n+    \"ClaimAdjudicationResult\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimAdjudicationResult\",\n+    ),\n+    \"ClaimType\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimType\",\n+    ),\n     \"ClaimVocabularyAxisStatus\": (\n         \"polisyos.ir.analytics.literature\",\n         \"ClaimVocabularyAxisStatus\",\n@@ -308,6 +332,10 @@\n         \"polisyos.ir.analytics.dependent_sensitivity\",\n         \"DependentSensitivityResultRef\",\n     ),\n+    \"RiskOfBias\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"RiskOfBias\",\n+    ),\n     \"SensitivityAnalysisBundle\": (\n         \"polisyos.ir.analytics.sensitivity\",\n         \"SensitivityAnalysisBundle\",\n@@ -317,6 +345,10 @@\n         \"SensitivityAnalysisIndex\",\n     ),\n     \"SourceBasis\": (\"polisyos.ir.analytics.literature\", \"SourceBasis\"),\n+    \"SupportStatus\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"SupportStatus\",\n+    ),\n     \"load_dependent_sensitivity_result\": (\n         \"polisyos.ir.analytics.dependent_sensitivity\",\n         \"load_dependent_sensitivity_result\",\n--- a/policy-engine/tests/unit/ir/test_public_surface.py\n+++ b/policy-engine/tests/unit/ir/test_public_surface.py\n@@ -225,3 +225,22 @@\n     repo_root = Path(__file__).resolve().parents[3]\n     index_page = repo_root / \"docs\" / \"reference\" / \"ir\" / \"index.md\"\n     assert \"[Public Surface](public-surface.md)\" in index_page.read_text(encoding=\"utf-8\")\n+\n+\n+def test_analytics_facade_exports_existing_adjudication_contracts() -> None:\n+    \"\"\"Resolve the actual existing runtime types through the supported facade.\"\"\"\n+    from polisyos.ir.analytics import literature\n+\n+    names = (\n+        \"AdmittedClaimAdjudicationBatch\",\n+        \"CausalCredibility\",\n+        \"ClaimAdjudicationInputBatch\",\n+        \"ClaimAdjudicationInputItem\",\n+        \"ClaimAdjudicationResult\",\n+        \"ClaimType\",\n+        \"RiskOfBias\",\n+        \"SupportStatus\",\n+    )\n+    for name in names:\n+        assert getattr(analytics, name) is getattr(literature, name)\n+        assert name in analytics.__all__\n--- a/policy-engine/docs/reference/ir/public-surface.md\n+++ b/policy-engine/docs/reference/ir/public-surface.md\n@@ -17,7 +17,7 @@\n \n | Facade | Symbol count | Import policy |\n | --- | --- | --- |\n-| `polisyos.ir.analytics` | 266 | curated lazy facade |\n+| `polisyos.ir.analytics` | 274 | curated lazy facade |\n | `polisyos.ir.kernel` | 52 | full lazy facade |\n | `polisyos.ir.world` | 54 | full lazy facade |\n \n--- a/policy-engine/docs/reference/ir/schema-catalog.md\n+++ b/policy-engine/docs/reference/ir/schema-catalog.md\n@@ -13,14 +13,14 @@\n ## Summary\n \n - Total IR types: `1586`.\n-- Public/root-or-package facade types: `435`.\n+- Public/root-or-package facade types: `443`.\n - ABI snapshot-backed types: `95`.\n - Export enumeration covers these public packages:\n \n | Package | Export count |\n | ------- | ------------ |\n | `polisyos.ir` | 280 |\n-| `polisyos.ir.analytics` | 266 |\n+| `polisyos.ir.analytics` | 274 |\n | `polisyos.ir.kernel` | 52 |\n | `polisyos.ir.world` | 54 |\n \n@@ -28,7 +28,7 @@\n \n | Section | Type count | Public types | Snapshot-backed |\n | ------- | ---------- | ------------ | ---------------- |\n-| `analytics` | 976 | 244 | 37 |\n+| `analytics` | 976 | 252 | 37 |\n | `artifacts` | 25 | 0 | 0 |\n | `governance` | 99 | 21 | 8 |\n | `kernel` | 47 | 38 | 0 |\n@@ -12022,9 +12022,9 @@\n ### `polisyos.ir.analytics.literature.AdmittedClaimAdjudicationBatch` { #polisyos-ir-analytics-literature-admittedclaimadjudicationbatch }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n+- Public status: `package_facade`\n - Current version: `1.0`\n-- Exported from: —\n+- Exported from: `polisyos.ir.analytics:AdmittedClaimAdjudicationBatch`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.ClaimAdjudicationResult`\n@@ -12166,9 +12166,9 @@\n ### `polisyos.ir.analytics.literature.CausalCredibility` { #polisyos-ir-analytics-literature-causalcredibility }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:CausalCredibility`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n@@ -12205,9 +12205,9 @@\n ### `polisyos.ir.analytics.literature.ClaimAdjudicationInputBatch` { #polisyos-ir-analytics-literature-claimadjudicationinputbatch }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n+- Public status: `package_facade`\n - Current version: `1.0`\n-- Exported from: —\n+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationInputBatch`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem`\n@@ -12223,9 +12223,9 @@\n ### `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem` { #polisyos-ir-analytics-literature-claimadjudicationinputitem }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationInputItem`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.CausalDirection`, `polisyos.ir.analytics.literature.ClaimExplicitness`, `polisyos.ir.analytics.literature.ClaimType`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.EvidenceSpan`, `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.TextQuality`\n@@ -12259,9 +12259,9 @@\n ### `polisyos.ir.analytics.literature.ClaimAdjudicationResult` { #polisyos-ir-analytics-literature-claimadjudicationresult }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationResult`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.CausalCredibility`, `polisyos.ir.analytics.literature.ClaimType`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.RiskOfBias`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.SupportStatus`\n@@ -12355,9 +12355,9 @@\n ### `polisyos.ir.analytics.literature.ClaimType` { #polisyos-ir-analytics-literature-claimtype }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:ClaimType`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n@@ -12846,9 +12846,9 @@\n ### `polisyos.ir.analytics.literature.RiskOfBias` { #polisyos-ir-analytics-literature-riskofbias }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:RiskOfBias`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n@@ -12905,9 +12905,9 @@\n ### `polisyos.ir.analytics.literature.SupportStatus` { #polisyos-ir-analytics-literature-supportstatus }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:SupportStatus`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n"
+````
+
+### GGA-GATE-02 — verified local boundary, 2026-09-08
+
+The coordinator caught one remaining single-line literature import in
+`admitted_claim_adjudications.py` after the initial facade batch and changed it
+to the now-supported analytics facade. The final delta gate reports **19 passed,
+exit 0, 206.19 seconds**; delta Ruff passes. Its authority checks include full
+subject transport, real pipeline, IR resolution, both signed entry paths,
+empty appointments, legacy pointers and unminted tokens.
+
+Architecture now reports **exit 0, complete finding identity set empty**:
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check --skip-generated-checks > _build/gy_grade_authority/architecture-after-admitted-facade.log 2>&1
+```
+
+The saved whole finding-set differences remove the initial ten creep identities
+and baseline-drift identity, then the final remaining admitted-row import and
+drift identity; no identity is added. The guardrail owner's complete Python
+input set and a separate `os.walk` derivation both contain 2,624 paths and have
+empty set difference. Recomputed current deep-import creep is empty.
+`_build/gy_grade_authority/architecture-finding-identity-diff.json` retains the
+full sets. The scratch reconciler's first invocation misspelled the owner's
+constant and raised `AttributeError`; after correcting that station error the
+complete comparison ran successfully. No crashed output was counted as a zero.
+
+This is the local commit boundary for the shared publication verifier, authorized
+IR surface expansion and PA1 source-identity component. It is not a claim that
+all repository quality checks pass: the one static mirror failure and transformer
+Ruff identities remain recorded without inherited attribution. PA1 exact-request
+grounding and calibration work continues. The stale branch, global public-surface
+companions and all ungranted architecture files remain untouched; no push occurs.
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation

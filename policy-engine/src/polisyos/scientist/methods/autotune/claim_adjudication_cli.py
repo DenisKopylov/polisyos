@@ -8,7 +8,8 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+from polisyos.data_forge.read_api.academic import ClaimAdjudicationVerifier
 
 from .claim_adjudication_runtime import (
     ClaimAdjudicationJSONClient,
@@ -26,6 +27,9 @@ async def run_claim_adjudication_command(
     client: ClaimAdjudicationJSONClient | None = None,
     store: FileSystemCAS | None = None,
     registry: ChampionRegistry | None = None,
+    verifier: ClaimAdjudicationVerifier | None = None,
+    evaluation_receipt_ref: ArtifactRef | None = None,
+    execution_receipt_ref: ArtifactRef | None = None,
 ) -> dict[str, int | float]:
     """Execute the supported route, requiring an admitted Scientist champion."""
     if client is not None:
@@ -34,6 +38,9 @@ async def run_claim_adjudication_command(
             client=client,
             store=store,
             registry=registry,
+            verifier=verifier,
+            evaluation_receipt_ref=evaluation_receipt_ref,
+            execution_receipt_ref=execution_receipt_ref,
         )
 
     from polisyos.data_forge.read_api.academic import GonkaMultiKeyPool
@@ -44,6 +51,9 @@ async def run_claim_adjudication_command(
             client=pool,
             store=store,
             registry=registry,
+            verifier=verifier,
+            evaluation_receipt_ref=evaluation_receipt_ref,
+            execution_receipt_ref=execution_receipt_ref,
         )
 
 

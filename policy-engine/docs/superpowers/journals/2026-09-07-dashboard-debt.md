@@ -1026,3 +1026,22 @@ bounded residuals, and P41 actual-station versus disclosed-isolation receipts.
 
 Final handoff is an ordinary local commit on `codex/dashboard-debt`; branch attachment
 and committed file bytes are read back after writing. Stop at the push boundary.
+
+## Committed delivery receipt
+
+Source and journal commit: `a4bdb1369e08abe333cdee7f40b527665561cbdb`
+(`fix(dashboard): restore checks and disposition inherited debt`). Attachment was
+verified immediately before commit as `refs/heads/codex/dashboard-debt`.
+The enabled pre-commit hook completed all four declared commands: reduced motion
+0.22s, contrast 0.22s, Prettier 10.33s, ESLint 251.01s; total hook wall251.43s.
+Every command passed. Prettier reported unchanged for152/152 staged dashboard
+files, and ESLint emitted no diagnostic. No hook was skipped or bypassed.
+
+Read every one of153/153 delivered file bodies back from the named branch after
+commit (152 dashboard paths plus this journal), compared Git blob IDs with the
+saved staging manifest, and compared the committed bytes with the filesystem.
+All matched; the complete changed-path set matched the manifest. `git status -sb`
+then showed only `## codex/dashboard-debt`, with a clean tree. The final journal
+receipt is appended as a separate ordinary documentation commit; no history rewrite,
+GitHub action, or push was performed. Local scratch evidence remains under
+`policy-engine/.tmp/dashboard-debt/` and was not committed.

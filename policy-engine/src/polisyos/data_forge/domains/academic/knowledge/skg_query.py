@@ -22,6 +22,11 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     decode_edge_evidence_strength,
     parent_canonical_name,
 )
+from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+    ConfidenceLayerVintage,
+    confidence_layer_vintage,
+    require_forwardable_confidence,
+)
 from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
 from polisyos.data_forge.domains.academic.knowledge.types import (
     BoundaryConditionResult,
@@ -140,6 +145,21 @@ class SKGQuery:
         self._con = duckdb.connect(str(db_path), read_only=True)
         self._resolver: CanonicalVariableResolver | None = None
         self._transport_confidence_floor: float | None = None
+
+    @staticmethod
+    def confidence_layer_vintage(db_path: Path | str) -> ConfidenceLayerVintage | None:
+        """Expose a byte-bound snapshot limitation through the runtime read API."""
+        return confidence_layer_vintage(db_path)
+
+    @staticmethod
+    def require_forwardable_confidence(db_path: Path | str) -> None:
+        """Refuse known historical confidence; no restriction is not a currentness proof."""
+        require_forwardable_confidence(db_path)
+
+    def _confidence_connection(self) -> duckdb.DuckDBPyConnection:
+        """Guard the shared intake of confidence, weights and confidence-derived bounds."""
+        self.require_forwardable_confidence(self._db_path)
+        return self._con
 
     def query_prior(
         self,
@@ -843,7 +863,7 @@ class SKGQuery:
             return None
         placeholders = ", ".join(["?"] * len(linked_edge_refs))
         try:
-            row = self._con.execute(
+            row = self._confidence_connection().execute(
                 f"""
                 SELECT AVG(transport_confidence)
                 FROM ac_skg_transport_scores
@@ -879,7 +899,7 @@ class SKGQuery:
             if self._column_exists("ac_skg_transport_scores", "base_confidence")
             else "transport_confidence"
         )
-        rows = self._con.execute(
+        rows = self._confidence_connection().execute(
             f"""
             SELECT edge_id, target_context_id, transport_confidence, match_mode,
                    matched_moderators_json, generic_penalty, context_match_reward
@@ -1114,7 +1134,7 @@ class SKGQuery:
     ) -> list[EdgeSupportRecord]:
         if not self._table_exists("ac_skg_edges"):
             return []
-        rows = self._con.execute(
+        rows = self._confidence_connection().execute(
             """
             SELECT edge_id, src, dst, direction, n_articles, article_refs, evidence_strength, confidence
             FROM ac_skg_edges
@@ -1155,7 +1175,7 @@ class SKGQuery:
         if not self._table_exists("ac_skg_contested_edges"):
             return []
         has_weighted_columns = self._column_exists("ac_skg_contested_edges", "positive_weight")
-        rows = self._con.execute(
+        rows = self._confidence_connection().execute(
             f"""
             SELECT contested_edge_id, src_family, dst_family, n_articles, n_claims,
                    article_refs, claim_refs, dominant_direction, resolution_status,
@@ -1217,7 +1237,7 @@ class SKGQuery:
     ) -> list[EdgeSupportRecord]:
         if not self._table_exists("ac_skg_family_edges"):
             return []
-        rows = self._con.execute(
+        rows = self._confidence_connection().execute(
             """
             SELECT family_edge_id, src_family, dst_family, direction, n_articles, n_claims,
                    article_refs, claim_refs, evidence_strength, confidence, quality_signals_json
@@ -1504,13 +1524,14 @@ class SKGQuery:
     def _transport_confidence_floor_from_data(self) -> float:
         """Return the L2-derived floor for scope transport admissibility."""
 
+        confidence_con = self._confidence_connection()
         if self._transport_confidence_floor is not None:
             return self._transport_confidence_floor
         if not self._table_exists("ac_skg_transport_scores"):
             self._transport_confidence_floor = 1.0
             return self._transport_confidence_floor
         try:
-            row = self._con.execute(
+            row = confidence_con.execute(
                 """
                 SELECT COALESCE(QUANTILE_CONT(transport_confidence, 0.10), 1.0)
                 FROM ac_skg_transport_scores
@@ -2277,7 +2298,7 @@ class SKGQuery:
         dst_column = (
             "dst" if self._column_exists("ac_skg_contested_edges", "dst") else "dst_family"
         )
-        row = self._con.execute(
+        row = self._confidence_connection().execute(
             f"""
             SELECT {id_column}, {src_column}, {dst_column},
                    positive_weight, negative_weight, mixed_weight,
@@ -2651,7 +2672,7 @@ class SKGQuery:
             extra_select += ", candidate_layer"
         if has_quality_json:
             extra_select += ", quality_signals_json"
-        rows = self._con.execute(
+        rows = self._confidence_connection().execute(
             (
                 "SELECT edge_id, src, dst, direction, n_articles, article_refs, "
                 "evidence_strength, confidence, scope_conditions "
@@ -2715,7 +2736,7 @@ class SKGQuery:
             filters.append("(src_family ILIKE ? OR dst_family ILIKE ?)")
             params.extend([pattern, pattern])
         params.append(int(limit))
-        rows = self._con.execute(
+        rows = self._confidence_connection().execute(
             (
                 "SELECT family_edge_id, src_family, dst_family, direction, n_articles, article_refs, "
                 "evidence_strength, confidence, quality_signals_json "

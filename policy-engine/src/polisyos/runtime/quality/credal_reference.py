@@ -781,7 +781,10 @@ def edge_payload_sample(
 
 
 def _iter_l2_edges(repo_root: Path) -> Iterable[CredalReferenceEdge]:
+    from polisyos.data_forge.read_api import academic
+
     db_path = repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
+    academic.SKGQuery.require_forwardable_confidence(db_path)
     con = duckdb.connect(str(db_path), read_only=True)
     try:
         version = str(con.execute("SELECT MAX(version_id) FROM ac_skg_versions").fetchone()[0])
@@ -879,8 +882,6 @@ def _iter_l2_edges(repo_root: Path) -> Iterable[CredalReferenceEdge]:
                 version=version,
                 variable_names=variable_names,
             )
-
-        from polisyos.data_forge.read_api import academic
 
         for claim_result in academic.iter_causal_claim_results_v2(con):
             yield _derive_l2_causal_claim(

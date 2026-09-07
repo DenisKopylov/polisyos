@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import hashlib
+
 import duckdb
 
+from polisyos.data_forge.domains.academic.knowledge import skg_versioning
 from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
 from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBuildData
 from polisyos.ir.analytics.literature import (
@@ -85,6 +88,41 @@ def test_build_literature_prior_builds_prior_and_graph(tmp_path) -> None:
     assert graph.skg_version_id == 9
     assert len(graph.edges) == 1
     assert result["warnings"] == []
+
+
+def test_build_literature_prior_withholds_declared_historical_confidence(
+    tmp_path, monkeypatch
+) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_db(db_path)
+    with db_path.open("rb") as source:
+        digest = hashlib.file_digest(source, "sha256").hexdigest()
+    monkeypatch.setattr(
+        skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False
+    )
+    payload = LiteraturePriorBuildData(
+        variables=["tax", "employment"],
+        skg_db_path=str(db_path),
+        skg_index_dir=str(tmp_path / "idx"),
+        min_confidence=0.5,
+    )
+
+    result = BuildLiteraturePrior.pure_step(payload, params={})
+
+    prior = result["literature_prior"]
+    graph = result["literature_prior_graph"]
+    assert prior.edges == []
+    assert graph.edges == []
+    assert prior.metadata["build_status"] == "historical_confidence_blocked"
+    assert prior.metadata["skg_db_path"] == str(db_path)
+    declaration = prior.metadata["confidence_layer_vintage"]
+    assert declaration["snapshot_sha256"] == digest
+    assert declaration["claim_evidence_axis"] == "absent"
+    assert declaration["confidence_reproducibility"] == "not_reproducible_under_current_rule"
+    assert declaration["consumer_action"] == "withhold_confidence_forwarding"
+    assert graph.metadata["confidence_layer_vintage"] == declaration
+    assert graph.metadata["build_status"] == "historical_confidence_blocked"
+    assert result["warnings"]
 
 
 def test_build_literature_prior_decodes_persisted_declared_absence(tmp_path) -> None:

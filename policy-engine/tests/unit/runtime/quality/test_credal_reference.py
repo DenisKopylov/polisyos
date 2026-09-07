@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
 
+import duckdb
 import pytest
 
+from polisyos.data_forge.domains.academic.knowledge import skg_versioning
 from polisyos.data_forge.domains.academic.knowledge.types import (
     CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
     CausalClaimResultV2,
@@ -20,10 +23,12 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
 )
 from polisyos.runtime.quality.credal_reference import (
+    DEFAULT_L2_SCHOLAR_KG_PATH,
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
     _derive_l2_causal_claim,
+    _iter_l2_edges,
     all_essential_confirmed,
     bind_grounding_certificate_reference,
     build_credal_reference,
@@ -36,6 +41,43 @@ from polisyos.runtime.quality.credal_reference import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_credal_reference_consumes_bound_layer_vintage_before_first_yield(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db_path = tmp_path / DEFAULT_L2_SCHOLAR_KG_PATH
+    db_path.parent.mkdir(parents=True)
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
+        con.execute("INSERT INTO ac_skg_versions VALUES (1)")
+        con.execute(
+            "CREATE TABLE ac_skg_variables (canonical_name VARCHAR, "
+            "approved_canonical_name VARCHAR, is_approved_canonical BOOLEAN, "
+            "resolution_method VARCHAR, resolution_confidence DOUBLE, "
+            "mention_count INTEGER, parent_name VARCHAR, approved_parent_name VARCHAR)"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_variables VALUES "
+            "('cause', 'cause', TRUE, 'fixture', 0.9, 3, NULL, NULL)"
+        )
+    with db_path.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+
+    unregistered = iter(_iter_l2_edges(tmp_path))
+    try:
+        assert next(unregistered).edge_id == "cause"
+    finally:
+        unregistered.close()
+
+    monkeypatch.setattr(skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False)
+    registered = iter(_iter_l2_edges(tmp_path))
+    try:
+        with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+            next(registered)
+    finally:
+        registered.close()
 
 
 @pytest.fixture(scope="module")

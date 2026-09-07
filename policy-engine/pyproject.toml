@@ -215,6 +215,12 @@ ukraine-data = "polisyos.data_forge.domains.ukraine.cli:main"
 dev = [
   "libcst>=1.5.0",
 ]
+# Give uv a separate modern Pillow resolution while retaining Marker's older
+# branch. Keep this group non-default so `--all-extras --dev` remains compatible.
+ci = ["pillow>=12"]
+
+[tool.uv]
+conflicts = [[{extra = "table-extraction"}, {group = "ci"}]]
 
 [project.entry-points."polisyos.fabric_connectors"]
 "worldbank.wdi" = "polisyos.fabric.connectors.components:world_bank_connector_component"

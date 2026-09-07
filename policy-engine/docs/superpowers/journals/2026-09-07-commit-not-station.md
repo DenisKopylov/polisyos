@@ -636,7 +636,36 @@ A separate scratch Vite transform changed only `PERSISTENCE_TEST_TIMEOUT_MS`'s v
 - `corepack pnpm exec tsc --noEmit --module ESNext --moduleResolution Bundler --target ES2022 --skipLibCheck --esModuleInterop scripts/preserve-vitest-error-cause.ts scripts/preserve-vitest-error-cause.test.ts vitest.config.ts` — exit 0.
 - Repo cwd: `git diff --check` — exit 0.
 
-**Final suite wave pending the root's dependency/source checkpoint.** The actual two-suite invocation must follow the dependency integration and dashboard checkpoint because the live provenance binds source, pyproject, and lock bytes. No ordinary two-suite green is claimed in this draft.
+### Row A final checkpoint receipt
+
+Disposition: **repaired**, with the explicit finite-watchdog limitation recorded above. The ordinary two-suite command now reaches and passes every collected assertion at source checkpoint `753e0458ad41ef362a5dd9e8ee126621c2cd1c1c`. This is the delivered replay, not the earlier scratch timeout diagnostic. The actual station was macOS 26.6.2 arm64, Node 22.22.2, pnpm 10.33.2, Python 3.14.0, jsonschema 4.25.1, with the root's freshly frozen new-lock environment. `NODE_OPTIONS` was absent. Before and after the wave, `git status -sb` reported the attached `codex/commit-not-station` branch and a clean working tree; `git rev-parse HEAD` returned the checkpoint above.
+
+Exact gate, cwd `policy-engine/apps/runtime-dashboard`:
+
+```sh
+corepack pnpm exec vitest run --project unit src/test/evidence/atlasHealthMetrics.test.ts src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts --maxWorkers=1 --testTimeout=20000 --hookTimeout=20000 --reporter=json --outputFile=../../_cache/commit-not-station/continuation/row-a/evidence-final.json > ../../_cache/commit-not-station/continuation/row-a/evidence-final.log 2>&1
+```
+
+Exit **0**. Complete requested denominator: 2/2 files; `atlasHealthMetrics.test.ts` passed 28/28 cases and `atlasSurfaceReadinessReconciliation.test.ts` passed 33/33 cases, hence 61/61 passed cases. Failed, skipped, and ambiguous case sets are each empty over that complete 61-case denominator. Vitest's recorded span from its `startTime` to the final file's `endTime` is 64.794 seconds; this is the runner's reported span, not a separately measured OS process wall time. The complete stdout is `evidence-final.log`; the complete JSON is `evidence-final.json` in `_cache/commit-not-station/continuation/row-a/`.
+
+The full identity comparison was then run as its own gate from the product root:
+
+```sh
+node _cache/commit-not-station/continuation/row-a/compare-final-identities.mjs > _cache/commit-not-station/continuation/row-a/final-identity-comparison.json
+```
+
+Exit **0**. The comparator enumerated every file and case in the original ordinary run, original extended-child diagnostic, and final ordinary run. Neither compared complete report contained a Python traceback, and neither did the final log. Against the complete original diagnostic's 61-case identity set, added and removed sets are both empty. The original ordinary readiness collection remains explicitly **ambiguous**; the comparator never treats that unreadable file as a zero-case baseline. All four previously failing identities are now passed, with their unchanged assertions:
+
+| Complete prior-failure identity | Final status | Final case duration |
+| --- | --- | --- |
+| `atlasHealthMetrics.test.ts::Atlas health metrics does not inherit caller NODE_OPTIONS into the fixed producer` | passed | 7.354 s |
+| `atlasHealthMetrics.test.ts::Atlas health metrics ignores a caller PATH node that emits a schema-valid forged report` | passed | 7.404 s |
+| `atlasHealthMetrics.test.ts::Atlas health metrics persists a content-bound descriptive snapshot while recording its missing consumer` | passed | 7.185 s |
+| `atlasSurfaceReadinessReconciliation.test.ts::Atlas surface-readiness per-claim reconciliation ignores inherited process-selection controls on the closed path` | passed | 7.359 s |
+
+The comparison artifact retains all 61 final case identities, all 61 complete diagnostic identities, their statuses/durations/failure messages, and the original collection limitation. No assertions or dashboard source were changed after the checkpoint. The existing parser regression's 5/5 cases and new real reporter regression's 1/1 case had already passed on the exact dashboard source bytes admitted in that checkpoint; the nested reporter test's two deliberately slow cases retain their failed status and actual cause. Those successful checks are not confused with the markers-preserving removal probes, whose oracles deliberately exited 1.
+
+No further Row A source work remains. Future liveness failures outside the declared finite watchdog remain readable failed checks, not evidence that this lane proves a station performance benchmark. The failure/repair register was re-opened at closeout; P29, P35, P37, P38, P40, and P41 were checked. No ledger/register entry or workflow was changed, and no push was attempted.
 
 ## Continuation B — ds9-pa2-gateway-rebuild-fixture-uses-expired-mandate-evidence (2026-09-07)
 
@@ -874,3 +903,47 @@ production fallback probe was invoked for each through
 JSON/stdout and stderr, and exact finding comparison remain under `continuation/`
 and `continuation/row-c/presidio-*`. The failed import itself is preserved in
 `presidio-new-regex-import.log`; it is never counted as a zero-finding matching run.
+
+### Continuation closeout at the push boundary
+
+Source checkpoint: **753e0458ad41ef362a5dd9e8ee126621c2cd1c1c**.
+The installed pre-commit hook ran normally and passed contrast, reduced-motion,
+Prettier and ESLint in 16.89 seconds; all six dashboard files were unchanged by
+formatting. No hook was disabled. After commit, root read all **11/11** changed
+tracked files back from `codex/commit-not-station`; every file matched the tested
+working-tree bytes. The receipt is `continuation/source-checkpoint-readback.json`.
+
+After the frozen environment update and source commit, root replayed the complete
+union of B's five importers and six companions, including the named crash and
+reservation pair. The sole gate was `.venv/bin/python -m pytest` with exactly the
+11 node IDs enumerated in `continuation/integrated-ds9-identities.json`, `-q
+--tb=short`, an isolation-local `--basetemp`, and JUnit output. Full stdout and XML
+are `integrated-ds9-gate.log` and `integrated-ds9-gate.xml`. Exit **0**, **11/11**
+passed, no skipped/error/failure identities or Python traceback. The complete
+case-set difference from the earlier five-plus-six wave is empty in both
+directions. JUnit records 3.176 seconds; no performance conclusion is drawn from
+this separate warm-environment run. This replay was justified by the environment
+change after the earlier baseline-comparison wave, not by a larger test scope.
+
+Final disposition for all **3/3** continuation rows:
+
+| Row | Status | Closure and remaining limit |
+| --- | --- | --- |
+| A — evidence deadlines and timeout causes | **repaired** | Both requested suites pass 61/61 with unchanged case identities and assertions; genuine timeout causes remain visible, and both removal probes are red. The documented finite watchdog remains a liveness bound. |
+| B — `ds9-pa2-gateway-rebuild-fixture-uses-expired-mandate-evidence` | **repaired-with-a-limit** | All five importers, the named crash/reservation witnesses and three additional companions pass. Historical replay was performed; positive changed-input overlap defeats inherited attribution. Exported baseline identities survive, but the disappeared detached station's full raw receipts cannot be re-read. |
+| C — complete core wheels-only set | **repaired-with-a-limit** | All 113/113 selected core packages install with source builds disabled and an empty compiler PATH; regex, ODS and actual optional HNSW behavior have positive and negative witnesses. Broad all/research selections still build HNSW; Presidio matching remains blocked before its subject; cross-target Linux installation does not prove Linux runtime execution. |
+
+The two proposed incidental rows are recorded above with proposed owners, not
+appointments: measurement-receipt retention (`team-devx`) and Presidio/spaCy import
+compatibility (`team-devx` with the security owner). The remaining all/research CI
+capability-selection limit requires the architect to select the
+desired benchmark capability set; there is no verified exact replacement workflow
+edit to hand back, so none is invented. Neither of the two excluded capability
+construction rows was taken up.
+
+Original Rows 1 and 4 remain closed on the architect's named witnesses. This
+continuation changed no production source, schema snapshot, workflow, action,
+debt register, generated ledger, or other lane's branch/worktree. The normal
+pre-push hook was never invoked. No push, rebase, force operation, stash storage,
+GitHub plugin or debt-ledger checker was used. The final journal update is a
+separate appended commit after the tested source checkpoint.

@@ -1388,3 +1388,21 @@ commit and `git diff --cached --check` passed. The normal local pre-commit hook 
 kept enabled. No pre-push hook, push, debt-ledger check, rebase, stash, or mutation of
 another lane's worktree/branch is part of delivery. Commit attachment and committed
 file readback follow before the final handback.
+
+
+### Local commit readback
+
+Implementation commit `da73f861dbffc62db6a97a0013e4a0c99f59bede` was created on
+attached branch `codex/atlas-public-surface`. The normal pre-commit hook passed
+contrast, reduced-motion, Prettier and ESLint in 24.81 seconds. Every formatted
+frontend file was reported unchanged; ESLint emitted only its existing ignored-file
+warning for generated `src/api/types.ts` (zero errors). No hook was disabled.
+
+After commit, a script read every delivery file from the named branch using
+`git show codex/atlas-public-surface:<path>`. All 46 frozen source/companion hashes
+matched; the commit's complete 47-path set had `unexpected_paths=[]` and
+`missing_paths=[]`; the committed journal matched the working file. `git status -sb`
+reported the attached branch with no changes. Receipt:
+`_build/atlas-public-verification-probe/implementation-commit-readback.json`.
+This final journal receipt is an append-only documentation companion; implementation
+bytes remain frozen. Delivery stops locally at the push boundary. Nothing was pushed.

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.capability_discovery import (
     CapabilityDiscoveryRequest,
@@ -9,11 +11,18 @@ from polisyos.core.contracts.capability_discovery import (
 )
 from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.core.contracts.search import SearchLedger
+from polisyos.core.security import tenant_scope
+from polisyos.pdc import Layer2S2DesignSearchInput
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control.capability_discovery import (
     CapabilityDiscoveryService,
 )
 from polisyos.runtime.quality.capability_discovery import CapabilityProviderSearchResult
+from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+    S2_DESIGN_SEARCH_OPERATION_ID,
+    execute_s2_design_search_operation,
+)
+from tests.unit.runtime.http.test_runtime_api_authz import _AllowOPA, _build_secure_client, _claims
 
 
 def _search_body(*, resource_kinds: list[str] | None = None) -> dict[str, object]:
@@ -48,8 +57,8 @@ def test_capability_search_returns_typed_missing_owner_frontier(runtime_api_env)
     assert packet.frontier.completeness_status == "producer_missing"
     assert packet.frontier.incompleteness_reasons == (
         "dataset:producer_missing",
-        "case:producer_missing",
         "method:capability_index_release_path_unconfigured",
+        "case:case_index_source_invalid_or_scope_missing",
     )
 
 
@@ -256,3 +265,71 @@ def test_capability_search_rejects_audience_drift_as_422(runtime_api_env) -> Non
         response = client.post("/api/v1/control/capabilities/search", json=body)
 
     assert response.status_code == 422
+
+
+def test_case_provider_is_backed_by_canonical_global_index(runtime_api_env) -> None:
+    """A real production S2 emission reaches HTTP through a persisted case index."""
+    secure_client, cell, identity = _build_secure_client(
+        runtime_api_env, opa_client=_AllowOPA(), claims_by_token={}
+    )
+    bearer = "case-index-test-token"
+    identity.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id, jti="case-index-request"
+        ),
+    )
+    headers = {"Authorization": f"Bearer {bearer}", "X-Tenant-ID": runtime_api_env["tenant_a"]}
+    context = secure_client.app.state.runtime_container.runtime_api_context
+    with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id):
+        produced = execute_s2_design_search_operation(
+            operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+            search_input=Layer2S2DesignSearchInput(
+                case_id="case:missing-producers",
+                intent_ref="intent:employment",
+                grammar_ref="grammar:policy",
+                instrument_families=("subsidy", "tax", "regulation"),
+                parameter_space={"rate": ("low", "high")},
+                actor_ref="actor:policy-designer",
+                domain="employment",
+                objective_refs=("objective:employment",),
+                construct_refs=("construct:employment",),
+                authority_profile_ref="authority:shadow",
+                generated_at=datetime(2026, 9, 7, tzinfo=UTC),
+            ),
+            store=context.store,
+            core_runs_root=context.core_runs_root,
+            run_id="R_case_index_producer",
+        )
+    body = _search_body(resource_kinds=["case"])
+    body["search"]["budget"]["match_all"] = True
+    with secure_client as client:
+        response = client.post("/api/v1/control/capabilities/search", json=body, headers=headers)
+        body["search"]["budget"]["match_all"] = False
+        body["search"]["construct_refs"] = ["subsidy"]
+        body["search"]["allowed_modes"] = ["lexical"]
+        body["search"]["query_text"] = "subsidy"
+        vocabulary_hit = client.post("/api/v1/control/capabilities/search", json=body, headers=headers)
+        body["search"]["query_text"] = "instrument_family_coverage"
+        body["search"]["construct_refs"] = ["instrument_family_coverage"]
+        field_name_miss = client.post("/api/v1/control/capabilities/search", json=body, headers=headers)
+        assert response.status_code == 200
+        assert vocabulary_hit.status_code == field_name_miss.status_code == 200
+        assert len(vocabulary_hit.json()["results"]) == 1
+        assert field_name_miss.json()["results"] == []
+        packet = CapabilityDiscoveryResponse.model_validate(response.json())
+        assert len(packet.results) == 1
+        item = packet.results[0]
+        assert item.label == "case:missing-producers"
+        assert str(produced.binding_ref.artifact_id) in item.provenance_refs
+        assert item.authoritative_for == ()
+        assert item.authority_result.state != "admitted_authority"
+        assert item.execution_result.state != "executable"
+        assert packet.frontier.completeness_status == "recall_unmeasured"
+        with tenant_scope(
+            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id
+        ):
+            index = from_canonical_bytes(context.store.get_bytes(item.discovery_result.snapshot_ref))
+        assert index["source_artifact_refs"] == [str(produced.binding_ref.artifact_id)]
+        assert index["entries"][0]["run_id"] == "R_case_index_producer"
+        assert index["authority_owner_ref"] is None

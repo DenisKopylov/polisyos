@@ -7,9 +7,12 @@ import subprocess
 from functools import lru_cache
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MODULE_NAME = "tools.quality.validation.repository_last_mile_inventory"
 EXPECTED_FINDING_IDS = {f"LM-{index:03d}" for index in range(1, 27)}
+LEGACY_DASHBOARD_PATH = "frontend" + "/runtime-dashboard"
 REQUIRED_FINDING_FIELDS = {
     "path",
     "paths",
@@ -205,3 +208,112 @@ def test_json_output_cli_and_committed_baseline_are_machine_readable(tmp_path: P
         ).read_text(encoding="utf-8")
     )
     assert generated == baseline
+
+
+def test_unreadable_tracked_reference_is_ambiguous_instead_of_absent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    last_mile = _module()
+    path = tmp_path / "docs/live.md"
+    path.parent.mkdir()
+    path.write_text(f"Use {LEGACY_DASHBOARD_PATH}.\n", encoding="utf-8")
+    monkeypatch.setattr(last_mile, "_tracked_paths", lambda _root: {"docs/live.md"})
+    original = Path.read_text
+
+    def unreadable(current: Path, *args: object, **kwargs: object) -> str:
+        if current == path:
+            raise PermissionError(13, "Permission denied", str(current))
+        return original(current, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", unreadable)
+    assert last_mile.main(["--repo-root", str(tmp_path)]) == 1
+    assert "ambiguous inventory input: PermissionError" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("payload", [b"{", b"[]", b"\xff"])
+def test_invalid_json_inventory_input_is_not_an_empty_object(
+    tmp_path: Path, payload: bytes
+) -> None:
+    path = tmp_path / "inventory.json"
+    path.write_bytes(payload)
+    with pytest.raises((ValueError, UnicodeError)):
+        _module()._load_json(path)
+
+
+def test_invalid_utf8_tracked_text_is_not_silently_reduced(tmp_path: Path) -> None:
+    path = tmp_path / "live.md"
+    path.write_bytes(b"front\xffend/runtime-dashboard")
+    with pytest.raises(UnicodeError):
+        _module()._read_text(path)
+
+
+def test_missing_optional_sunset_metadata_remains_absent(tmp_path: Path) -> None:
+    assert _module()._extract_sunset(tmp_path / "README.md", tmp_path) == {
+        "metadata_present": False,
+        "sunset_date": None,
+        "source": None,
+    }
+
+
+def test_failed_git_census_cannot_fall_back_to_station_files(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert _module().main(["--repo-root", str(tmp_path)]) == 1
+    assert "ambiguous inventory input: CalledProcessError" in capsys.readouterr().err
+
+
+def test_selected_repository_owns_default_baseline_and_genuine_drift_stays_red(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    last_mile = _module()
+    selected = tmp_path / "selected"
+    baseline = selected / "architecture/baselines/repository_best_in_class_last_mile/inventory.json"
+    baseline.parent.mkdir(parents=True)
+    current = {"fixture": "selected repository"}
+    baseline.write_text(last_mile.dump_json(current), encoding="utf-8")
+    monkeypatch.setattr(last_mile, "collect_inventory", lambda _root: current)
+    assert last_mile.check_artifacts(selected) == []
+    baseline.write_text(last_mile.dump_json({"fixture": "different commit"}), encoding="utf-8")
+    assert last_mile.check_artifacts(selected) == [
+        "baseline drift: architecture/baselines/repository_best_in_class_last_mile/inventory.json"
+    ]
+
+
+def test_selected_repository_owns_phase0_4_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    last_mile = _module()
+    sections = (
+        "name_collisions", "cross_cutting_concerns", "scientist_parallel_implementations"
+    )
+    current = {section: {"fixture": section} for section in sections}
+    monkeypatch.setattr(last_mile, "collect_inventory", lambda *args, **kwargs: current)
+    monkeypatch.setattr(last_mile, "validate_inventory", lambda _inventory: [])
+    assert last_mile.main([
+        "--repo-root", str(tmp_path), "--write-phase0-4-baselines"
+    ]) == 0
+    baseline_dir = tmp_path / "architecture/baselines/repository_best_in_class_last_mile"
+    for section in sections:
+        assert json.loads((baseline_dir / f"{section}.json").read_text()) == current[section]
+    assert "Wrote Phase 0.4" in capsys.readouterr().out
+
+
+def test_new_journal_evidence_does_not_become_a_live_frontend_reference(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    last_mile = _module()
+    documents = {
+        "docs/live.md": f"Use {LEGACY_DASHBOARD_PATH}.\n",
+        "docs/superpowers/journals/new-independent-observation.md": (
+            f"Observed {LEGACY_DASHBOARD_PATH} at the recorded commit.\n"
+        ),
+        "docs/superpowers/journals/new-independent-observation.json": json.dumps({
+            "observed_reference": LEGACY_DASHBOARD_PATH
+        }),
+    }
+    for relative, text in documents.items():
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(last_mile, "_tracked_paths", lambda _root: set(documents))
+    assert last_mile._collect_frontend_mentions(tmp_path) == ["docs/live.md"]

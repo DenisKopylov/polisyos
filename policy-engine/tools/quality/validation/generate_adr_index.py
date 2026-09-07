@@ -10,6 +10,8 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
+from tools.lib.fs import iter_repository_files
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ADR_DIR = REPO_ROOT / "docs" / "adr"
 DEFAULT_TOML = ADR_DIR / "index.toml"
@@ -272,7 +274,11 @@ class StaleReference:
 
 
 def _markdown_files() -> list[Path]:
-    return sorted(path for path in ADR_DIR.glob("*.md") if path.name not in SKIP_FILENAMES)
+    return [
+        path
+        for path in iter_repository_files(REPO_ROOT)
+        if path.parent == ADR_DIR and path.suffix == ".md" and path.name not in SKIP_FILENAMES
+    ]
 
 
 def _display_path(path: Path) -> str:

@@ -4,12 +4,45 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+
+def iter_repository_files(repo_root: Path) -> Iterator[Path]:
+    """Enumerate tracked paths without admitting station-local ignore rules or files.
+
+    Args:
+        repo_root: Repository or product directory whose files should be enumerated.
+
+    Yields:
+        Tracked paths, including absent paths so callers can report unreadable input.
+        Standalone fixture directories without Git metadata use their complete file set.
+
+    Raises:
+        RuntimeError: Git metadata exists but its tracked paths cannot be enumerated.
+        OSError: Git cannot be executed or the fixture directory cannot be read.
+    """
+    listed = subprocess.run(
+        ["git", "ls-files", "--cached", "-z", "--", "."],
+        cwd=repo_root,
+        capture_output=True,
+        check=False,
+    )
+    if listed.returncode == 0:
+        yield from (
+            repo_root / relative
+            for relative in sorted(set(os.fsdecode(listed.stdout).split("\0")))
+            if relative
+        )
+        return
+    if any((parent / ".git").exists() for parent in (repo_root, *repo_root.parents)):
+        raise RuntimeError("committed file enumeration is ambiguous: git ls-files failed")
+    yield from sorted(path for path in repo_root.rglob("*") if path.is_file())
 
 
 def normalize_filesystem_path(

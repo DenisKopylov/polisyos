@@ -154,72 +154,116 @@ def _is_ignored(git_root: Path, path: Path) -> bool:
     return result.returncode == 0
 
 
-def _walk_dirs(root: Path) -> list[Path]:
+def _included(path: Path, tracked_paths: set[Path] | None) -> bool:
+    return tracked_paths is None or path.absolute() in tracked_paths
+
+
+def _tracked_entries(git_root: Path) -> set[Path]:
+    """Enumerate tracked files and their directories, refusing incomplete checkouts."""
+    completed = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=git_root,
+        check=True,
+        capture_output=True,
+    )
+    entries: set[Path] = {git_root}
+    for raw in completed.stdout.split(b"\0"):
+        if not raw:
+            continue
+        path = git_root / os.fsdecode(raw)
+        if not path.exists():
+            raise OSError(f"Tracked input is unavailable: {path.relative_to(git_root)}")
+        entries.add(path)
+        entries.update(parent for parent in path.parents if parent.is_relative_to(git_root))
+    return entries
+
+
+def _walk_dirs(root: Path, tracked_paths: set[Path] | None = None) -> list[Path]:
     dirs: list[Path] = []
     if not root.exists():
         return dirs
     for current, names, _files in os.walk(root):
         names[:] = [
-            name for name in names if name not in IGNORED_DIR_NAMES and not name.startswith(".")
+            name
+            for name in names
+            if name not in IGNORED_DIR_NAMES
+            and not name.startswith(".")
+            and _included(Path(current) / name, tracked_paths)
         ]
         dirs.append(Path(current))
     return dirs
 
 
-def _child_dirs(path: Path) -> list[Path]:
+def _child_dirs(path: Path, tracked_paths: set[Path] | None = None) -> list[Path]:
     if not path.exists():
         return []
     return sorted(
         child
         for child in path.iterdir()
-        if child.is_dir() and child.name not in IGNORED_DIR_NAMES and not child.name.startswith(".")
+        if child.is_dir()
+        and child.name not in IGNORED_DIR_NAMES
+        and not child.name.startswith(".")
+        and _included(child, tracked_paths)
     )
 
 
-def _meaningful_entries(path: Path) -> list[str]:
+def _meaningful_entries(path: Path, tracked_paths: set[Path] | None = None) -> list[str]:
     entries: list[str] = []
     for child in path.iterdir():
-        if child.name in IGNORED_DIR_NAMES or child.name.startswith("."):
+        if (
+            child.name in IGNORED_DIR_NAMES
+            or child.name.startswith(".")
+            or not _included(child, tracked_paths)
+        ):
             continue
         entries.append(child.name)
     return sorted(entries)
 
 
-def _line_count(path: Path) -> int:
-    try:
-        return len(path.read_text(encoding="utf-8", errors="ignore").splitlines())
-    except OSError:
-        return 0
+def _read_input(path: Path, tracked_paths: set[Path] | None = None) -> str:
+    if not _included(path, tracked_paths):
+        raise OSError(f"Required input is not tracked: {path.name}")
+    return path.read_text(encoding="utf-8")
 
 
-def _load_toml(path: Path) -> dict[str, Any]:
-    if not path.exists():
+def _line_count(path: Path, tracked_paths: set[Path] | None = None) -> int:
+    return len(_read_input(path, tracked_paths).splitlines())
+
+
+def _load_toml(path: Path, tracked_paths: set[Path] | None = None) -> dict[str, Any]:
+    if not path.exists() or not _included(path, tracked_paths):
         return {}
-    with path.open("rb") as stream:
-        return tomllib.load(stream)
+    return tomllib.loads(_read_input(path, tracked_paths))
 
 
-def _top_level_packages(src_root: Path) -> list[Path]:
+def _top_level_packages(src_root: Path, tracked_paths: set[Path] | None = None) -> list[Path]:
     if not src_root.exists():
         return []
     return sorted(
         path
         for path in src_root.iterdir()
-        if path.is_dir() and path.name not in IGNORED_DIR_NAMES and not path.name.startswith(".")
+        if path.is_dir()
+        and path.name not in IGNORED_DIR_NAMES
+        and not path.name.startswith(".")
+        and _included(path, tracked_paths)
     )
 
 
-def collect_inventory(repo_root: Path) -> dict[str, Any]:
+def collect_inventory(repo_root: Path, *, tracked_paths: set[Path] | None = None) -> dict[str, Any]:
     repo_root = repo_root.resolve()
     git_root = _git_root(repo_root)
     workspace_root = repo_root.parent
     src_root = repo_root / "src" / "polisyos"
-    top_packages = _top_level_packages(src_root)
+    top_packages = _top_level_packages(src_root, tracked_paths)
 
     empty_packages: list[dict[str, Any]] = []
-    for directory in _walk_dirs(src_root):
+    for directory in _walk_dirs(src_root, tracked_paths):
         init_file = directory / "__init__.py"
-        if init_file.exists() and _meaningful_entries(directory) == ["__init__.py"]:
+        if (
+            init_file.exists()
+            and _included(init_file, tracked_paths)
+            and _meaningful_entries(directory, tracked_paths) == ["__init__.py"]
+        ):
             empty_packages.append(
                 {
                     "path": _rel(directory, repo_root),
@@ -232,10 +276,17 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
     foundry_method_placeholders: list[dict[str, Any]] = []
     if foundry_methods.exists() and foundry_catalog.exists():
         for child in sorted(foundry_methods.iterdir()):
-            if not child.is_dir() or child.name in IGNORED_DIR_NAMES or child.name == "catalog":
+            if (
+                not child.is_dir()
+                or child.name in IGNORED_DIR_NAMES
+                or child.name == "catalog"
+                or not _included(child, tracked_paths)
+            ):
                 continue
             catalog_peer = foundry_catalog / child.name
-            if (child / "__init__.py").exists() and _meaningful_entries(child) == ["__init__.py"]:
+            if (child / "__init__.py").exists() and _meaningful_entries(child, tracked_paths) == [
+                "__init__.py"
+            ]:
                 foundry_method_placeholders.append(
                     {
                         "name": child.name,
@@ -243,14 +294,17 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
                         "catalog_peer": _rel(catalog_peer, repo_root)
                         if catalog_peer.exists()
                         else None,
-                        "catalog_peer_exists": catalog_peer.exists(),
+                        "catalog_peer_exists": catalog_peer.exists()
+                        and _included(catalog_peer, tracked_paths),
                     }
                 )
 
     loose_root_modules: list[dict[str, Any]] = []
     package_file_counts: list[dict[str, Any]] = []
     for package_dir in top_packages:
-        direct_py = sorted(package_dir.glob("*.py"))
+        direct_py = sorted(
+            path for path in package_dir.glob("*.py") if _included(path, tracked_paths)
+        )
         loose_root_modules.append(
             {
                 "package": package_dir.name,
@@ -261,14 +315,14 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
                 "modules": [
                     {
                         "path": _rel(path, repo_root),
-                        "lines": _line_count(path),
+                        "lines": _line_count(path, tracked_paths),
                         "facade_allowed": path.name in DEFAULT_ALLOWED_ROOT_PY,
                     }
                     for path in direct_py
                 ],
             }
         )
-        top_level_entries = _meaningful_entries(package_dir)
+        top_level_entries = _meaningful_entries(package_dir, tracked_paths)
         package_file_counts.append(
             {
                 "package": package_dir.name,
@@ -277,12 +331,16 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
                 "file_count": sum(
                     1
                     for path in package_dir.rglob("*")
-                    if path.is_file() and not any(part in IGNORED_DIR_NAMES for part in path.parts)
+                    if path.is_file()
+                    and not any(part in IGNORED_DIR_NAMES for part in path.parts)
+                    and _included(path, tracked_paths)
                 ),
                 "python_file_count": sum(
                     1
                     for path in package_dir.rglob("*.py")
-                    if path.is_file() and not any(part in IGNORED_DIR_NAMES for part in path.parts)
+                    if path.is_file()
+                    and not any(part in IGNORED_DIR_NAMES for part in path.parts)
+                    and _included(path, tracked_paths)
                 ),
             }
         )
@@ -290,7 +348,7 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
     directory_names: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
     for package_dir in top_packages:
         directory_names[package_dir.name][package_dir.name].append(_rel(package_dir, repo_root))
-        for directory in _walk_dirs(package_dir):
+        for directory in _walk_dirs(package_dir, tracked_paths):
             if directory == package_dir:
                 continue
             directory_names[directory.name][package_dir.name].append(_rel(directory, repo_root))
@@ -310,7 +368,7 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
     for name in CACHE_OR_ENV_NAMES:
         for root_label, root in (("workspace_root", workspace_root), ("product_root", repo_root)):
             path = root / name
-            if path.exists():
+            if path.exists() and _included(path, tracked_paths):
                 cache_and_env_paths.append(
                     {
                         "name": name,
@@ -332,7 +390,7 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
     for name in PRODUCT_BUILD_OUTPUT_NAMES:
         for root_label, root in (("workspace_root", workspace_root), ("product_root", repo_root)):
             path = root / name
-            if path.exists():
+            if path.exists() and _included(path, tracked_paths):
                 build_outputs.append(
                     {
                         "name": name,
@@ -343,11 +401,11 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
                 )
     for workspace_root in (repo_root / "apps", repo_root / "packages"):
         for app_dir in sorted(workspace_root.glob("*")) if workspace_root.exists() else []:
-            if not app_dir.is_dir():
+            if not app_dir.is_dir() or not _included(app_dir, tracked_paths):
                 continue
             for name in FRONTEND_BUILD_OUTPUT_NAMES:
                 path = app_dir / name
-                if path.exists():
+                if path.exists() and _included(path, tracked_paths):
                     build_outputs.append(
                         {
                             "name": name,
@@ -358,7 +416,7 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
                     )
 
     pyproject_path = repo_root / "pyproject.toml"
-    pyproject_lines = pyproject_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+    pyproject_lines = _read_input(pyproject_path, tracked_paths).splitlines()
     section_re = re.compile(r"^\[\[?([^\]\s]+)\]\]?$")
     section_headers: list[dict[str, Any]] = []
     for line_number, line in enumerate(pyproject_lines, start=1):
@@ -485,8 +543,8 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def _load_package_layout(repo_root: Path) -> dict[str, Any]:
-    payload = _load_toml(repo_root / "architecture" / "packages" / "layout.toml")
+def _load_package_layout(repo_root: Path, tracked_paths: set[Path] | None = None) -> dict[str, Any]:
+    payload = _load_toml(repo_root / "architecture" / "packages" / "layout.toml", tracked_paths)
     defaults = payload.get("defaults", {})
     return {
         "max_root_py_files": int(defaults.get("max_root_py_files", DEFAULT_MAX_ROOT_PY_FILES)),
@@ -502,8 +560,10 @@ def _load_package_layout(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def _load_registered_python_shim_sources(repo_root: Path) -> set[str]:
-    payload = _load_toml(repo_root / "architecture" / "shims.toml")
+def _load_registered_python_shim_sources(
+    repo_root: Path, tracked_paths: set[Path] | None = None
+) -> set[str]:
+    payload = _load_toml(repo_root / "architecture" / "shims.toml", tracked_paths)
     sources: set[str] = set()
     for shim in payload.get("shim", []):
         source_path = str(shim.get("source_path", "")).strip()
@@ -536,8 +596,8 @@ def _package_from_location(location: str) -> str | None:
     return package or None
 
 
-def _load_name_registry(repo_root: Path) -> dict[str, Any]:
-    payload = _load_toml(repo_root / "architecture" / "name_registry.toml")
+def _load_name_registry(repo_root: Path, tracked_paths: set[Path] | None = None) -> dict[str, Any]:
+    payload = _load_toml(repo_root / "architecture" / "name_registry.toml", tracked_paths)
     registry: dict[str, set[str]] = {}
     registry_findings: list[dict[str, Any]] = []
     seen_shared_names: set[str] = set()
@@ -613,9 +673,11 @@ def gate_empty_namespace(inventory: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
-def gate_loose_files(repo_root: Path, inventory: dict[str, Any]) -> list[dict[str, Any]]:
-    layout = _load_package_layout(repo_root)
-    registered_python_shims = _load_registered_python_shim_sources(repo_root)
+def gate_loose_files(
+    repo_root: Path, inventory: dict[str, Any], tracked_paths: set[Path] | None = None
+) -> list[dict[str, Any]]:
+    layout = _load_package_layout(repo_root, tracked_paths)
+    registered_python_shims = _load_registered_python_shim_sources(repo_root, tracked_paths)
     findings: list[dict[str, Any]] = []
     allowed = set(layout["allowed_root_py_files"])
     for entry in inventory["loose_root_modules"]:
@@ -651,8 +713,10 @@ def gate_loose_files(repo_root: Path, inventory: dict[str, Any]) -> list[dict[st
     return findings
 
 
-def gate_name_collision(repo_root: Path, inventory: dict[str, Any]) -> list[dict[str, Any]]:
-    decisions = _load_name_registry(repo_root)
+def gate_name_collision(
+    repo_root: Path, inventory: dict[str, Any], tracked_paths: set[Path] | None = None
+) -> list[dict[str, Any]]:
+    decisions = _load_name_registry(repo_root, tracked_paths)
     registry: dict[str, set[str]] = decisions["shared_names"]
     rename_backlog: dict[str, set[str]] = decisions["rename_backlog"]
     findings: list[dict[str, Any]] = list(decisions["registry_findings"])
@@ -743,12 +807,12 @@ def gate_build_output(inventory: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 GATE_FUNCTIONS = {
-    "empty_namespace": lambda repo_root, inventory: gate_empty_namespace(inventory),
+    "empty_namespace": lambda repo_root, inventory, tracked_paths: gate_empty_namespace(inventory),
     "loose_files": gate_loose_files,
     "name_collision": gate_name_collision,
-    "pyproject_size": lambda repo_root, inventory: gate_pyproject_size(inventory),
-    "cache_dir": lambda repo_root, inventory: gate_cache_dir(inventory),
-    "build_output": lambda repo_root, inventory: gate_build_output(inventory),
+    "pyproject_size": lambda repo_root, inventory, tracked_paths: gate_pyproject_size(inventory),
+    "cache_dir": lambda repo_root, inventory, tracked_paths: gate_cache_dir(inventory),
+    "build_output": lambda repo_root, inventory, tracked_paths: gate_build_output(inventory),
 }
 
 GATE_ALIASES = {
@@ -782,11 +846,13 @@ def _filter_gate_findings(
     return filtered
 
 
-def _load_structure_exceptions(repo_root: Path) -> list[dict[str, Any]]:
+def _load_structure_exceptions(
+    repo_root: Path, tracked_paths: set[Path] | None = None
+) -> list[dict[str, Any]]:
     path = repo_root / DEFAULT_EXCEPTION_REGISTRY
     if not path.exists():
         return []
-    payload = _load_toml(path)
+    payload = _load_toml(path, tracked_paths)
     return list(payload.get("exception", []))
 
 
@@ -893,12 +959,18 @@ def collect_gate_findings(
     scope: str = "all",
 ) -> list[dict[str, Any]]:
     gate = GATE_ALIASES.get(gate, gate)
-    inventory = collect_inventory(repo_root)
+    try:
+        tracked_paths = _tracked_entries(_git_root(repo_root.resolve()))
+        inventory = collect_inventory(repo_root, tracked_paths=tracked_paths)
+    except (OSError, UnicodeError, subprocess.CalledProcessError) as exc:
+        return [{"gate": "repository_input", "severity": "error", "message": str(exc)}]
     gates = GATE_FUNCTIONS.keys() if gate == "all" else (gate,)
     findings: list[dict[str, Any]] = []
     for gate_id in gates:
-        findings.extend(GATE_FUNCTIONS[gate_id](repo_root, inventory))
-    findings = _apply_structure_exceptions(findings, _load_structure_exceptions(repo_root))
+        findings.extend(GATE_FUNCTIONS[gate_id](repo_root, inventory, tracked_paths))
+    findings = _apply_structure_exceptions(
+        findings, _load_structure_exceptions(repo_root, tracked_paths)
+    )
     return _filter_gate_findings(findings, package=package, scope=scope)
 
 
@@ -1057,7 +1129,7 @@ def _parse_args() -> argparse.Namespace:
     gate.add_argument(
         "--mode",
         choices=("report-only", "fail-closed"),
-        default="report-only",
+        default="fail-closed",
     )
     gate.add_argument(
         "--package",

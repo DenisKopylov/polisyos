@@ -71,8 +71,6 @@ def test_phase7_structure_gates_run_fail_closed_with_registered_exceptions() -> 
             "gate",
             "--gate",
             "all",
-            "--mode",
-            "fail-closed",
         ],
         cwd=REPO_ROOT,
         check=False,

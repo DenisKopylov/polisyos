@@ -15,6 +15,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from tools.lib.document_references import reference_scan_text
 from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
@@ -24,7 +25,7 @@ PHASE = "0.1"
 GENERATED_AT = "2026-05-07T00:00:00Z"
 LAST_REVIEWED = "2026-05-07"
 DEFAULT_BASELINE_DIR = (
-    REPO_ROOT / "architecture" / "baselines" / "repository_best_in_class_last_mile"
+    Path("architecture") / "baselines" / "repository_best_in_class_last_mile"
 )
 DEFAULT_INVENTORY = DEFAULT_BASELINE_DIR / "inventory.json"
 PLAN_PATH = Path("docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md")
@@ -185,58 +186,41 @@ def _rel(path: Path, repo_root: Path) -> str:
 
 
 def _read_text(path: Path) -> str:
-    try:
-        return path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
-        return ""
+    return path.read_text(encoding="utf-8")
 
 
 def _load_toml(path: Path) -> dict[str, Any]:
-    if not path.exists():
+    try:
+        text = _read_text(path)
+    except FileNotFoundError:
         return {}
-    with path.open("rb") as stream:
-        payload = tomllib.load(stream)
-    return payload if isinstance(payload, dict) else {}
+    return tomllib.loads(text)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    if not path.exists():
-        return {}
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        text = _read_text(path)
+    except FileNotFoundError:
         return {}
-    return payload if isinstance(payload, dict) else {}
+    payload = json.loads(text)
+    if not isinstance(payload, dict):
+        raise ValueError(f"expected JSON object: {path}")
+    return payload
 
 
 def _git_lines(repo_root: Path, *args: str) -> list[str]:
-    try:
-        completed = subprocess.run(
-            ["git", *args],
-            cwd=repo_root,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return []
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     return [line for line in completed.stdout.splitlines() if line.strip()]
 
 
 def _tracked_paths(repo_root: Path) -> set[str]:
-    paths = _git_lines(repo_root, "ls-files")
-    if paths:
-        return set(paths)
-    measured: set[str] = set()
-    for current, dirnames, filenames in os.walk(repo_root):
-        dirnames[:] = [
-            name
-            for name in dirnames
-            if name not in IGNORED_DIR_NAMES and not name.startswith(".")
-        ]
-        for filename in filenames:
-            measured.add(_rel(Path(current) / filename, repo_root))
-    return measured
+    return set(_git_lines(repo_root, "ls-files"))
 
 
 def _existing_paths(repo_root: Path, paths: Sequence[str]) -> list[str]:
@@ -803,7 +787,10 @@ def _collect_schema_residue(repo_root: Path) -> list[str]:
 
 
 def _extract_sunset(readme_path: Path, repo_root: Path) -> dict[str, Any]:
-    text = _read_text(readme_path)
+    try:
+        text = _read_text(readme_path)
+    except FileNotFoundError:
+        text = ""
     date_match = None
     for line in text.splitlines():
         if "sunset" not in line.lower():
@@ -990,7 +977,7 @@ def _collect_frontend_mentions(repo_root: Path) -> list[str]:
         path = repo_root / rel_path
         if path.suffix not in TEXT_SUFFIXES:
             continue
-        text = _read_text(path)
+        text = reference_scan_text(Path(rel_path), _read_text(path))
         if "frontend/" in text or "`frontend`" in text or "frontend path" in text.lower():
             paths.append(rel_path)
     return paths
@@ -1419,7 +1406,7 @@ def dump_json(inventory: Mapping[str, Any]) -> str:
 
 def write_phase0_4_baselines(
     inventory: Mapping[str, Any],
-    baseline_dir: Path = DEFAULT_BASELINE_DIR,
+    baseline_dir: Path = REPO_ROOT / DEFAULT_BASELINE_DIR,
 ) -> None:
     baseline_dir.mkdir(parents=True, exist_ok=True)
     snapshots = {
@@ -1470,6 +1457,15 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
+    try:
+        return _run(args)
+    except (OSError, UnicodeError, ValueError, subprocess.CalledProcessError) as error:
+        detail = str(error).replace(f"{args.repo_root.resolve()}/", "")
+        print(f"ambiguous inventory input: {type(error).__name__}: {detail}", file=sys.stderr)
+        return 1
+
+
+def _run(args: argparse.Namespace) -> int:
     repo_root = args.repo_root.resolve()
     inventory = collect_inventory(
         repo_root,

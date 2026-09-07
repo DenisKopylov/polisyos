@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from tools.quality.validation import check_docs_lifecycle
@@ -54,7 +55,12 @@ def test_quoted_evidence_is_not_a_live_reference(tmp_path: Path) -> None:
     for finding in current_six[2:]:
         target = tmp_path / finding.path
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(OLD_FRONTEND_DASHBOARD, encoding="utf-8")
+        contents = (
+            json.dumps(OLD_FRONTEND_DASHBOARD)
+            if target.suffix == ".json"
+            else OLD_FRONTEND_DASHBOARD
+        )
+        target.write_text(contents, encoding="utf-8")
 
     live_findings = tuple(check_docs_lifecycle.check_removed_stub_references(tmp_path))
     assert current_six[:2] + live_findings == current_six

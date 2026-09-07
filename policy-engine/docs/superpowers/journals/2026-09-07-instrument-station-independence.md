@@ -2,7 +2,7 @@
 
 Date: 2026-09-07. Owner: instrument-station-independence lane.
 
-## Outcome and stopping decision
+## Initial handback: outcome and stopping decision (superseded below)
 
 Stopped under the user's explicit rule: **a repair needs a file outside the allowed list**.
 No measuring-instrument repair is claimed. This journal is the only intended tracked change.
@@ -365,3 +365,88 @@ append-only follow-up; final branch contents must be read back before handback.
 
 No push is authorized or performed. This is a scope-boundary handback, not a claim that the
 six instrument debts are closed.
+
+## Continuation: corrected stop rule and repair candidate
+
+The user superseded the lane-wide file-boundary stop: a boundary or architect decision now
+stops that row; the lane continues unless a shared systemic blocker or budget stops it.
+Ordinary `git merge main` completed at `4102e5db8`, preserving both original journal commits.
+The merge brought the architect's register/ledger/tool changes; this lane did not author or
+run the debt-ledger tool. The additional dashboard package/config and `tests/repo_quality/**`
+grants are explicit. Unit/integration tests, `.github/**`, source, and the generated-artifact
+manifest remain excluded. The original freshness and evidence-reference rows remain in scope,
+alongside the newly assigned unreadable-input and runtime-hook-config rows.
+
+Repair strategy is extend-existing: strict inventory I/O and repository-relative defaults;
+one documentary-reference classifier reused by inventory/docs; tracked input enumeration for
+docs and its ADR producer; tracked structure namespace/rule reads and a fail-closed default;
+one stable hook producer and runtime dispatcher; disposable uv generator environments.
+These changes all serve the original commit-versus-station property.
+
+The implementation candidate now has focused behavioral regression tests. Removal probes retain
+the marker strings and test bodies while removing the runtime properties, and go red. This is
+P29 evidence, not marker checking. P31/P40 review found that structure membership initially
+missed catalog-peer existence, optional rule files and the mandatory pyproject read. These are
+the SAME input-membership class. The repair was widened through the namespace predicates,
+every TOML rule loader, and a shared required-text reader; this is not a new row or a whitelist
+of the three originally reported directories.
+
+Deliberate existing-test changes:
+
+- `test_phase7_structure_gates_run_fail_closed_with_registered_exceptions`: before, passed
+  `--mode fail-closed`; now uses the documented default command with the same zero-exit
+  assertion. The default itself must enforce the rule. Ignored directories and tracked negative
+  controls are covered by the new real-Git station tests.
+- `test_quoted_evidence_is_not_a_live_reference`: before, wrote bare path text into `.json`
+  fixtures; strict JSON reading correctly rejected that as malformed. The fixture now writes a
+  valid JSON string containing the identical live obsolete path; Markdown bytes and all existing
+  assertions remain unchanged. The exact test went red before the fixture correction, green
+  afterward, and red again when documentary-reference classification was removed.
+- No other existing assertions were relaxed. Initial new-fixture setup failures (an uncached
+  build backend and Git removing an empty product directory) were corrected without weakening
+  assertions. The editable-install fixture now uses a stdlib-only build backend and works offline.
+
+CI interaction for the architect: `corepack pnpm install --frozen-lockfile` still triggers
+dashboard prepare. Prepare now writes stable dispatchers rather than native absolute-path shims.
+Dependency postinstall may temporarily write native shims; prepare restores the deterministic
+dispatchers. Subsequent Git operations explicitly load the calling checkout's dashboard config,
+execute its declared commands in dashboard context, and fail closed on missing config/binary.
+This intentionally changes clean-CI Git-operation behavior. `.github/**` was not edited.
+
+Local Python provisioning on A: `uv sync --offline --frozen --extra lint --extra test --extra
+runtime` failed because pinned dependencies were absent from cache. The same frozen profile was
+then provisioned online successfully; source/lockfiles were unchanged. Local shell tools were
+Python 3.14.0, uv 0.10.6, Node 22.22.2, and corepack pnpm 10.33.2. No required environment was
+used for a hazardous full freshness run. The new uv regression uses a disposable fixture caller.
+
+One long combined architecture/trust importer invocation overlapped later review edits and was
+terminated (exit 143, no output); it is a nonreceipt and contributes no finding set or pass.
+The old-helper inventory scan terminated during classifier development is also a nonreceipt.
+The frozen verification wave and final per-row dispositions will be appended after commit-based
+station replay. Baseline drift is still visible at this checkpoint and will be reconciled from
+the complete current inventory, not hidden by changing assertions.
+
+### Candidate freeze receipt
+
+Baseline reconciliation subsequently completed. The complete comparison traversed all 26
+inventory rows: LM-001 adds existing `common/llm_json.py` metadata; LM-011 records the current
+integration-test paths; LM-023 records the existing chronology helper; LM-025 records current
+live-reference matches after documentary evidence classification. The Scientist family no
+longer records the absent `scientist/methods/workflows` directory. Observation/review statuses
+are unchanged. Canonical serialization was checked before writing, so this is a content delta,
+not a JSON reformat. The scientist section and inventory baselines are the only baseline edits.
+The recomputed `--check` now exits 0 with complete gate finding set `[]`; a corrupted
+`summary.path_count` is rejected. The wrong-checkout default is a real bug, but does not by
+itself explain historical drift when callers already used their own default checkout.
+
+Structure has five new runtime removal probes, including the mandatory tracked configuration
+boundary. Final focused structure-station tests: five passed. Its initial three removal
+mutants, catalog/policy mutant, and required-reader mutant each produced assertion failures
+with marker text retained. The generated freshness regression passed after comparing the
+complete disposable caller `.pth` set and importing its own package again. Restoring the old
+environment sharing at runtime made that same test fail while the new source markers remained.
+
+The source/baseline candidate is being committed before provisioning the paired stations.
+One existing phase3 importer assertion about a checkpoint security route failed in the broader
+targeted run; the expected route is in excluded source. Its base replay and input-intersection
+receipt are pending, and it is not being relabeled inherited or changed to obtain green.

@@ -13,6 +13,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 import tomllib
 from collections.abc import Sequence
@@ -1456,7 +1457,6 @@ def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
     )
     shutil.copytree(repo_root, destination, symlinks=True, ignore=ignored)
     for relative in (
-        Path(".venv"),
         Path("node_modules"),
         Path("packages/runtime-api-client/node_modules"),
         Path("apps/runtime-dashboard/node_modules"),
@@ -1467,6 +1467,35 @@ def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
         linked = destination / relative
         linked.parent.mkdir(parents=True, exist_ok=True)
         linked.symlink_to(source, target_is_directory=True)
+
+
+def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
+    """Bind probe imports and uv's disposable environment to the copied source."""
+    environment = os.environ.copy()
+    for name in (
+        "VIRTUAL_ENV",
+        "CONDA_PREFIX",
+        "PYTHONHOME",
+        "UV_PROJECT_ENVIRONMENT",
+        "UV_NO_SYNC",
+        "UV_NO_CONFIG",
+        "UV_CONFIG_FILE",
+        "UV_ENV_FILE",
+    ):
+        environment.pop(name, None)
+    environment.update(
+        {
+            "UV_ISOLATED": "1",
+            "UV_FROZEN": "1",
+            "UV_PROJECT": str(source_root),
+            "UV_WORKING_DIR": str(source_root),
+            "UV_PYTHON": sys.executable,
+            "UV_NO_ENV_FILE": "1",
+            "PYTHONPATH": os.pathsep.join((str(source_root / "src"), str(source_root))),
+            "PYTHONDONTWRITEBYTECODE": "1",
+        }
+    )
+    return environment
 
 
 def _changed_snapshot_paths(
@@ -1558,6 +1587,7 @@ def _run_required_generated_artifact_checks(
             result = subprocess.run(
                 rendered_command,
                 cwd=isolated_repo_root,
+                env=_isolated_probe_environment(isolated_repo_root),
                 capture_output=True,
                 text=True,
                 check=False,

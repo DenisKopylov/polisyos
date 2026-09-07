@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import shutil
 import subprocess
 from pathlib import Path
@@ -46,7 +47,7 @@ def hook_env(tmp_path: Path) -> dict[str, str]:
     }
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    (bin_dir / "lefthook").symlink_to(binary.resolve())
+    _forward_binary(bin_dir / "lefthook", str(binary.resolve()))
     env["PATH"] = str(bin_dir) + os.pathsep + env["PATH"]
     env["GIT_CONFIG_NOSYSTEM"] = "1"
     env["GIT_CONFIG_GLOBAL"] = os.devnull
@@ -81,7 +82,14 @@ def _seed(repo: Path, env: dict[str, str]) -> Path:
 def _provision_binary(repo: Path, env: dict[str, str]) -> None:
     binary = repo / DASHBOARD / "node_modules/.bin/lefthook"
     binary.parent.mkdir(parents=True, exist_ok=True)
-    binary.symlink_to(env["POLISYOS_TEST_LEFTHOOK"])
+    _forward_binary(binary, env["POLISYOS_TEST_LEFTHOOK"])
+
+
+def _forward_binary(destination: Path, installed: str) -> None:
+    # pnpm's shell shim resolves its JS entrypoint relative to $0, not its realpath.
+    # Invoke it at its installed location instead of relocating it with a symlink.
+    destination.write_text(f'#!/bin/sh\nexec {shlex.quote(installed)} "$@"\n', encoding="utf-8")
+    destination.chmod(0o755)
 
 
 def _prepare(repo: Path, env: dict[str, str]) -> None:
@@ -143,7 +151,11 @@ def test_real_commit_refuses_a_declared_reduced_motion_violation(
     _run("git", "worktree", "add", "--detach", str(other), "HEAD", cwd=repo, env=hook_env)
     _provision_binary(other, hook_env)
     # Select the real declared command; unrelated frontend dependencies are outside this fixture.
-    env = {**hook_env, "LEFTHOOK_EXCLUDE": "prettier,eslint,check-contrast"}
+    env = {
+        **hook_env,
+        "LEFTHOOK_EXCLUDE": "prettier,eslint,check-contrast",
+        "LEFTHOOK_CONFIG": str(tmp_path / "config-from-another-installer.yml"),
+    }
     for station in (repo, other):
         src = station / DASHBOARD / "src"
         provider = src / "app/providers/AppProviders.tsx"
@@ -157,7 +169,10 @@ def test_real_commit_refuses_a_declared_reduced_motion_violation(
             'import { animate } from "motion/react";\nanimate(".target", {});\n', encoding="utf-8"
         )
         _run("git", "add", ".", cwd=station, env=hook_env)
-        result = _run("git", "commit", "-m", "must be refused", cwd=station, env=env, check=False)
+        # Git may be invoked below its root with another installer's environment.
+        result = _run(
+            "git", "commit", "-m", "must be refused", cwd=station / DASHBOARD, env=env, check=False
+        )
         output = result.stdout + result.stderr
         assert result.returncode != 0, output
         assert "Imperative motion calls without reduced-motion guards" in output
@@ -173,7 +188,7 @@ def test_real_commit_refuses_a_declared_reduced_motion_violation(
             encoding="utf-8",
         )
         _run("git", "add", ".", cwd=station, env=hook_env)
-        _run("git", "commit", "-m", "guarded motion", cwd=station, env=env)
+        _run("git", "commit", "-m", "guarded motion", cwd=station / DASHBOARD, env=env)
 
 
 @pytest.mark.parametrize("missing", ["binary", "config"])

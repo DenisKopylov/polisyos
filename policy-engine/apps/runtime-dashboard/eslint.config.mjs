@@ -179,9 +179,7 @@ export default tseslint.config(
     },
   },
   {
-    files: [
-      "src/**/*.{ts,tsx}",
-    ],
+    files: ["src/**/*.{ts,tsx}"],
     rules: {
       "policyos/quantity-must-be-wrapped": ["error", { classes: ["decision"] }],
     },

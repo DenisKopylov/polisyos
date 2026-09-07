@@ -57,7 +57,8 @@ const manualAuthoritySchema = z
       context.addIssue({
         code: "custom",
         path: ["may_not_use_for"],
-        message: "manual AT authority must preserve the complete C07 denial set",
+        message:
+          "manual AT authority must preserve the complete C07 denial set",
       });
     }
   });
@@ -133,11 +134,15 @@ const sessionSchema = z
       context,
     );
     if (session.observation_status === "unknown") {
-      if (session.observed_task_count !== null || session.task_results.length !== 0) {
+      if (
+        session.observed_task_count !== null ||
+        session.task_results.length !== 0
+      ) {
         context.addIssue({
           code: "custom",
           path: ["observed_task_count"],
-          message: "unknown observation status must retain a null count and no task claims",
+          message:
+            "unknown observation status must retain a null count and no task claims",
         });
       }
       return;
@@ -149,7 +154,8 @@ const sessionSchema = z
       context.addIssue({
         code: "custom",
         path: ["observed_task_count"],
-        message: "known observation count must equal the complete task result set",
+        message:
+          "known observation count must equal the complete task result set",
       });
     }
   });
@@ -253,7 +259,10 @@ function blocked(
   };
 }
 
-function stringSetsMatch(left: readonly string[], right: readonly string[]): boolean {
+function stringSetsMatch(
+  left: readonly string[],
+  right: readonly string[],
+): boolean {
   const leftSorted = [...left].sort();
   const rightSorted = [...right].sort();
   return (
@@ -309,7 +318,10 @@ export function evaluateManualAtMaturityPrerequisite(
   let payload: AtlasEvidencePayload;
   try {
     receipt = parseAtlasEvidenceReceipt(bundle.receipt);
-    payload = assertAtlasEvidencePayloadBinding(receipt, bundle.resolved_payload);
+    payload = assertAtlasEvidencePayloadBinding(
+      receipt,
+      bundle.resolved_payload,
+    );
   } catch {
     return blocked("manual_at_payload_unverified", "unverified");
   }

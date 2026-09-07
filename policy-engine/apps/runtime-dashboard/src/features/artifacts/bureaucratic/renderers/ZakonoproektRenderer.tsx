@@ -7,9 +7,6 @@ export function ZakonoproektRenderer({
   document: BureaucraticDocumentAST;
 }) {
   return (
-    <BaseBureaucraticRenderer
-      document={document}
-      variantTitle="Законопроект"
-    />
+    <BaseBureaucraticRenderer document={document} variantTitle="Законопроект" />
   );
 }

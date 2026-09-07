@@ -586,9 +586,9 @@
         },
         "backlog": {
           "title": "Interim residual ordering — ranking only, not VOI",
-          "zeroScoreBasis": "{scoreCount} of {total} ranking scores are 0.0; {confidenceCount} of {total} binding-confidence values are 0.0.",
+          "zeroScoreBasis": "{scoreCount, plural, one {{scoreCount} of {total, plural, one {{total} ranking score} other {{total} ranking scores}} is 0.0} other {{scoreCount} of {total, plural, one {{total} ranking score} other {{total} ranking scores}} are 0.0}}; {confidenceCount, plural, one {{confidenceCount} of {total, plural, one {{total} binding-confidence value} other {{total} binding-confidence values}} is 0.0} other {{confidenceCount} of {total, plural, one {{total} binding-confidence value} other {{total} binding-confidence values}} are 0.0}}.",
           "noGradient": "There is no nonzero priority gradient. VOI is not established.",
-          "demandSplit": "Route demand is 2.0 on {demandTwo} rows and 1.0 on {demandOne} rows.",
+          "demandSplit": "Route demand is 2.0 on {demandTwo, plural, one {{demandTwo} row} other {{demandTwo} rows}} and 1.0 on {demandOne, plural, one {{demandOne} row} other {{demandOne} rows}}.",
           "voiOwnerFit": "VOI owner fit",
           "voiOwnerIntegration": "VOI owner integration",
           "voiOwnerRef": "VOI owner",
@@ -605,7 +605,7 @@
         },
         "connector": {
           "title": "Connector acquisition scorecard",
-          "familyCount": "The census covers {count} connector families; this card shows the selected carrier's live disposition.",
+          "familyCount": "{count, plural, one {The census covers # connector family} other {The census covers # connector families}}; this card shows the selected carrier’s live disposition.",
           "connector": "Connector",
           "tier": "Declared execution tier",
           "disposition": "Measured carrier disposition"
@@ -621,7 +621,7 @@
         },
         "quarantine": {
           "title": "Acquisition quarantine ledger",
-          "counts": "{raw} raw responses · {admitted} admitted",
+          "counts": "{raw, plural, one {{raw} raw response} other {{raw} raw responses}} · {admitted} admitted",
           "worldGrowth": "World growth",
           "reentry": "Case re-entry",
           "terminal": "Terminal attempts"
@@ -1599,6 +1599,12 @@
       }
     },
     "platform": {
+      "candidateRowsLabel": "Candidate rows:",
+      "frontierLabel": "Frontier:",
+      "executionProfileLabel": "execution profile",
+      "loadingCandidateRows": "Loading candidate capability rows...",
+      "searchCapabilityRegistryError": "Unable to search capability registry",
+      "noCandidateRows": "No candidate rows",
       "title": "Platform Health",
       "subtitle": "Inspect runtime posture, capability coverage, and connector readiness without leaving the dashboard shell.",
       "heroTitle": "Runtime posture and capability contract",
@@ -2464,6 +2470,7 @@
     }
   },
   "commandPalette": {
+    "candidateFrontier": "Candidate frontier",
     "placeholder": "Type a command or search...",
     "noResults": "No results found.",
     "navigation": "Navigation",
@@ -3515,6 +3522,30 @@
     "qualityNeedsReview": "Quality evidence needs operator review."
   },
   "capabilityDiscovery": {
+    "resultAnnouncement": "{count, plural, one {Candidate search returned # result} other {Candidate search returned # results}}; {status}; {reasons}",
+    "requestSection": "Capability request",
+    "requestLabel": "Request:",
+    "referenceLabel": "ref:",
+    "candidateLabel": "Candidate",
+    "postureProofs": "Capability posture proofs",
+    "producerLabel": "producer:",
+    "freshnessLabel": "freshness:",
+    "reasonsLabel": "reasons:",
+    "proofRefsLabel": "proof refs:",
+    "provenanceLabel": "provenance:",
+    "requestedLabel": "requested",
+    "evaluatedLabel": "evaluated",
+    "returnedLabel": "returned",
+    "cutoffLabel": "cutoff",
+    "indexesLabel": "indexes:",
+    "versionsLabel": "versions:",
+    "noHitFrontierLabel": "no-hit frontier:",
+    "selectedLabel": "selected:",
+    "rejectedLabel": "rejected:",
+    "evidenceLabel": "evidence:",
+    "limitationsLabel": "limitations:",
+    "none": "none",
+    "packetBindings": "Full response packet bindings",
     "eyebrow": "Capability discovery",
     "title": "Capability search",
     "downloadMachine": "Download MACHINE JSON",

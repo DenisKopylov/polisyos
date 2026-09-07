@@ -19,14 +19,14 @@ imports must use public feature barrels.
 
 Feature modules use this convention:
 
-| Path | Role |
-| --- | --- |
-| `domain/` | Feature-owned view models, adapters, and pure domain helpers. |
-| `components/` | Feature-local UI components. |
-| `routes/` or `route.tsx` | Route shells and loader-facing UI. |
-| `hooks/` | Feature-local hooks that compose shared API hooks. |
-| `api/` | Feature adapters only; generated API clients stay in `src/api/`. |
-| `state/` | Feature-local Zustand or UI state. |
+| Path                     | Role                                                             |
+| ------------------------ | ---------------------------------------------------------------- |
+| `domain/`                | Feature-owned view models, adapters, and pure domain helpers.    |
+| `components/`            | Feature-local UI components.                                     |
+| `routes/` or `route.tsx` | Route shells and loader-facing UI.                               |
+| `hooks/`                 | Feature-local hooks that compose shared API hooks.               |
+| `api/`                   | Feature adapters only; generated API clients stay in `src/api/`. |
+| `state/`                 | Feature-local Zustand or UI state.                               |
 
 ## Extension Points
 

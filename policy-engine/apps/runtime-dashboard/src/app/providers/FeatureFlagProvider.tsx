@@ -136,12 +136,19 @@ function diagnosticFrom(error: unknown): FeatureFlagManifestDiagnostic {
 }
 
 function initialRemote(scope: FeatureFlagCacheScope, remoteUrl: string) {
-  const cached = sourceSnapshot("cache", readStrictCachedFeatureFlagManifest(scope));
+  const cached = sourceSnapshot(
+    "cache",
+    readStrictCachedFeatureFlagManifest(scope),
+  );
   return {
     diagnostic: cached.diagnostic,
     flags: cached.flags,
-    source: hasFeatureFlagOverrides(cached.flags) ? "cache" : "env" as FeatureFlagSource,
-    status: loadState(remoteUrl && !hasFeatureFlagOverrides(cached.flags) ? "loading" : "ready"),
+    source: hasFeatureFlagOverrides(cached.flags)
+      ? "cache"
+      : ("env" as FeatureFlagSource),
+    status: loadState(
+      remoteUrl && !hasFeatureFlagOverrides(cached.flags) ? "loading" : "ready",
+    ),
   };
 }
 
@@ -168,7 +175,10 @@ function ScopedFeatureFlagProvider({
   const [remote, setRemote] = useState(() => initialRemote(scope, remoteUrl));
 
   useEffect(() => {
-    const cached = sourceSnapshot("cache", readStrictCachedFeatureFlagManifest(scope));
+    const cached = sourceSnapshot(
+      "cache",
+      readStrictCachedFeatureFlagManifest(scope),
+    );
     if (!remoteUrl) {
       setRemote({
         diagnostic: cached.diagnostic,
@@ -193,9 +203,14 @@ function ScopedFeatureFlagProvider({
     })
       .then(async (response) => {
         if (!response.ok) {
-          throw new Error(`Feature flag manifest request failed with status ${response.status}`);
+          throw new Error(
+            `Feature flag manifest request failed with status ${response.status}`,
+          );
         }
-        const parsed = parseFeatureFlagManifest(await response.json(), "remote");
+        const parsed = parseFeatureFlagManifest(
+          await response.json(),
+          "remote",
+        );
         if (!parsed.ok) {
           throw new FeatureFlagManifestRejection(parsed.diagnostic);
         }
@@ -234,7 +249,10 @@ function ScopedFeatureFlagProvider({
           return;
         }
         const failureDiagnostic = diagnosticFrom(error);
-        const fallback = sourceSnapshot("cache", readStrictCachedFeatureFlagManifest(scope));
+        const fallback = sourceSnapshot(
+          "cache",
+          readStrictCachedFeatureFlagManifest(scope),
+        );
         if (hasFeatureFlagOverrides(fallback.flags)) {
           setRemote({
             diagnostic: failureDiagnostic,
@@ -266,11 +284,22 @@ function ScopedFeatureFlagProvider({
 
   const sources = [environment, injected, remote, props];
   const flags = useMemo(
-    () => Object.assign({}, DEFAULT_FEATURE_FLAGS, ...sources.map((source) => source.flags)),
+    () =>
+      Object.assign(
+        {},
+        DEFAULT_FEATURE_FLAGS,
+        ...sources.map((source) => source.flags),
+      ),
     [environment, injected, props, remote],
   );
-  const lastSource = [...sources].reverse().find((source) => hasFeatureFlagOverrides(source.flags));
-  const diagnostic = props.diagnostic ?? remote.diagnostic ?? injected.diagnostic ?? environment.diagnostic;
+  const lastSource = [...sources]
+    .reverse()
+    .find((source) => hasFeatureFlagOverrides(source.flags));
+  const diagnostic =
+    props.diagnostic ??
+    remote.diagnostic ??
+    injected.diagnostic ??
+    environment.diagnostic;
   const value = useMemo<FeatureFlagContextValue>(
     () => ({
       diagnostic,
@@ -282,7 +311,11 @@ function ScopedFeatureFlagProvider({
     [diagnostic, flags, lastSource?.source, remote.status],
   );
 
-  return <FeatureFlagContext.Provider value={value}>{children}</FeatureFlagContext.Provider>;
+  return (
+    <FeatureFlagContext.Provider value={value}>
+      {children}
+    </FeatureFlagContext.Provider>
+  );
 }
 
 /** Strict feature-flag boundary: rollout configuration never grants permissions. */
@@ -313,8 +346,14 @@ export function FeatureFlagProvider({
 
   if (!scope) {
     const sources = [environment, injected, props];
-    const flags = Object.assign({}, DEFAULT_FEATURE_FLAGS, ...sources.map((source) => source.flags));
-    const lastSource = [...sources].reverse().find((source) => hasFeatureFlagOverrides(source.flags));
+    const flags = Object.assign(
+      {},
+      DEFAULT_FEATURE_FLAGS,
+      ...sources.map((source) => source.flags),
+    );
+    const lastSource = [...sources]
+      .reverse()
+      .find((source) => hasFeatureFlagOverrides(source.flags));
     const identityDiagnostic: FeatureFlagManifestDiagnostic | null =
       remoteUrl && identityFailed
         ? {
@@ -335,7 +374,9 @@ export function FeatureFlagProvider({
           flags,
           isEnabled: (key) => flags[key],
           source: lastSource?.source ?? "env",
-          status: loadState(remoteUrl ? (identityFailed ? "error" : "loading") : "ready"),
+          status: loadState(
+            remoteUrl ? (identityFailed ? "error" : "loading") : "ready",
+          ),
         }}
       >
         {children}

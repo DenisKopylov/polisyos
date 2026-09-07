@@ -1152,10 +1152,9 @@ export const capabilityManifestSchema = z.object({
   worker_backend: z.string().default("embedded"),
   security_posture: z.record(z.string(), z.unknown()).default({}),
   fallback_rules: z
-    .object({
+    .looseObject({
       execution_policy: capabilityExecutionPolicySchema.optional(),
     })
-    .passthrough()
     .default({}),
   workspaces: z.array(z.string()).default([]),
   features: z.array(capabilityFeatureSchema).default([]),

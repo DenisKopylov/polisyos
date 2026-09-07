@@ -172,18 +172,21 @@ export function CapabilityDiscoveryPanel({
 function CapabilityDiscoveryContent({
   captured,
 }: Readonly<{ captured: CapturedCapabilitySearch }>) {
+  const { t } = useI18n();
   const { frontier, results } = captured.response;
   const { candidates, rejected_candidates: rejectedCandidates } = frontier;
   return (
     <div className="mt-4 space-y-3">
       <p aria-live="polite" role="status" className="sr-only">
-        Candidate search returned {results.length} results;{" "}
-        {frontier.completeness_status};{" "}
-        {frontier.incompleteness_reasons.join(", ")}
+        {t("capabilityDiscovery.resultAnnouncement", {
+          count: results.length,
+          status: frontier.completeness_status,
+          reasons: frontier.incompleteness_reasons.join(", "),
+        })}
       </p>
-      <section aria-label="Capability request">
+      <section aria-label={t("capabilityDiscovery.requestSection")}>
         <p className="text-sm font-medium">
-          Request:{" "}
+          {t("capabilityDiscovery.requestLabel")}{" "}
           <span data-capability-request-query>
             {captured.response.request.search.query_text}
           </span>
@@ -222,11 +225,11 @@ function CapabilityDiscoveryContent({
                   <span data-capability-incompleteness-reason>{reason}</span>
                 </span>
               ))
-            : "No incompleteness was reported."}
+            : t("capabilityDiscovery.complete")}
         </p>
       </div>
       {results.length === 0 ? (
-        <p className="text-muted text-sm">No capability matched this search.</p>
+        <p className="text-muted text-sm">{t("capabilityDiscovery.noHit")}</p>
       ) : null}
       <ul className="space-y-2">
         {results.map((item) => (
@@ -250,17 +253,22 @@ function CapabilityDiscoveryContent({
               {item.authority_result.state}
             </p>
             <p className="text-muted text-xs">
-              ref: <span data-capability-result-ref>{item.capability_ref}</span>
+              {t("capabilityDiscovery.referenceLabel")}{" "}
+              <span data-capability-result-ref>{item.capability_ref}</span>
             </p>
             <span
               className="[&>span]:text-foreground inline-flex rounded-[var(--radius-pill)] bg-[var(--paper)]"
               data-capability-candidate-backdrop="true"
             >
               <Badge kind="neutral">
-                Candidate · {item.authority_result.state}
+                {t("capabilityDiscovery.candidateLabel")} ·{" "}
+                {item.authority_result.state}
               </Badge>
             </span>
-            <ul aria-label="Capability posture proofs" className="mt-2">
+            <ul
+              aria-label={t("capabilityDiscovery.postureProofs")}
+              className="mt-2"
+            >
               {[
                 ["discovery", item.discovery_result],
                 ["execution", item.execution_result],
@@ -280,16 +288,16 @@ function CapabilityDiscoveryContent({
                   >
                     <strong>{name as string}</strong>:{" "}
                     <span data-capability-posture-state>{proof.state}</span> ·
-                    producer:{" "}
+                    {t("capabilityDiscovery.producerLabel")}{" "}
                     <span data-capability-posture-producer>
                       {proof.producer_ref}
                     </span>{" "}
-                    · freshness:{" "}
+                    · {t("capabilityDiscovery.freshnessLabel")}{" "}
                     <span data-capability-posture-freshness>
                       {proof.time.freshness}
                     </span>
                     <br />
-                    reasons:{" "}
+                    {t("capabilityDiscovery.reasonsLabel")}{" "}
                     {proof.reason_codes.length > 0
                       ? proof.reason_codes.map((reason, index) => (
                           <span key={`${reason}:${index}`}>
@@ -297,8 +305,8 @@ function CapabilityDiscoveryContent({
                             <span data-capability-posture-reason>{reason}</span>
                           </span>
                         ))
-                      : "none"}{" "}
-                    · proof refs:{" "}
+                      : t("capabilityDiscovery.none")}{" "}
+                    · {t("capabilityDiscovery.proofRefsLabel")}{" "}
                     {refs.length > 0
                       ? refs.map((ref, index) => (
                           <span key={`${ref}:${index}`}>
@@ -306,8 +314,8 @@ function CapabilityDiscoveryContent({
                             <span data-capability-posture-proof-ref>{ref}</span>
                           </span>
                         ))
-                      : "none"}{" "}
-                    · provenance:{" "}
+                      : t("capabilityDiscovery.none")}{" "}
+                    · {t("capabilityDiscovery.provenanceLabel")}{" "}
                     {proof.provenance_refs.length > 0
                       ? proof.provenance_refs.map((ref, index) => (
                           <span key={`${ref}:${index}`}>
@@ -317,7 +325,7 @@ function CapabilityDiscoveryContent({
                             </span>
                           </span>
                         ))
-                      : "none"}
+                      : t("capabilityDiscovery.none")}
                   </li>
                 );
               })}
@@ -325,28 +333,30 @@ function CapabilityDiscoveryContent({
           </li>
         ))}
       </ul>
-      <section aria-label="Search frontier">
-        <p className="text-sm font-medium">Search frontier</p>
+      <section aria-label={t("capabilityDiscovery.frontier")}>
+        <p className="text-sm font-medium">
+          {t("capabilityDiscovery.frontier")}
+        </p>
         <p className="text-muted text-xs">
-          requested{" "}
+          {t("capabilityDiscovery.requestedLabel")}{" "}
           <span data-capability-frontier-requested>
             {frontier.requested_count}
           </span>{" "}
-          · evaluated{" "}
+          · {t("capabilityDiscovery.evaluatedLabel")}{" "}
           <span data-capability-frontier-evaluated>
             {frontier.evaluated_count}
           </span>{" "}
-          · returned{" "}
+          · {t("capabilityDiscovery.returnedLabel")}{" "}
           <span data-capability-frontier-returned>
             {frontier.returned_count}
           </span>{" "}
-          · cutoff{" "}
+          · {t("capabilityDiscovery.cutoffLabel")}{" "}
           <span data-capability-frontier-cutoff>
             {String(frontier.actual_cutoff)}
           </span>
         </p>
         <p className="text-muted text-xs">
-          indexes:{" "}
+          {t("capabilityDiscovery.indexesLabel")}{" "}
           {frontier.indexes_used.length > 0
             ? frontier.indexes_used.map((indexRef, index) => (
                 <span key={`${indexRef}:${index}`}>
@@ -354,8 +364,8 @@ function CapabilityDiscoveryContent({
                   <span data-capability-frontier-index>{indexRef}</span>
                 </span>
               ))
-            : "none"}{" "}
-          · versions:{" "}
+            : t("capabilityDiscovery.none")}{" "}
+          · {t("capabilityDiscovery.versionsLabel")}{" "}
           {frontier.index_version_refs.length > 0
             ? frontier.index_version_refs.map((version, index) => (
                 <span key={`${version}:${index}`}>
@@ -363,14 +373,14 @@ function CapabilityDiscoveryContent({
                   <span data-capability-frontier-index-version>{version}</span>
                 </span>
               ))
-            : "none"}{" "}
-          · freshness:{" "}
+            : t("capabilityDiscovery.none")}{" "}
+          · {t("capabilityDiscovery.freshnessLabel")}{" "}
           <span data-capability-frontier-index-freshness>
             {JSON.stringify(frontier.index_freshness ?? null)}
           </span>
         </p>
         <p className="text-muted text-xs">
-          no-hit frontier:{" "}
+          {t("capabilityDiscovery.noHitFrontierLabel")}{" "}
           {frontier.no_hit_frontier.length > 0
             ? frontier.no_hit_frontier.map((reason, index) => (
                 <span key={`${reason}:${index}`}>
@@ -378,7 +388,7 @@ function CapabilityDiscoveryContent({
                   <span data-capability-frontier-no-hit>{reason}</span>
                 </span>
               ))
-            : "none"}
+            : t("capabilityDiscovery.none")}
         </p>
         <ul className="text-muted mt-1 text-xs">
           {candidates.map((candidate) => (
@@ -386,11 +396,11 @@ function CapabilityDiscoveryContent({
               key={`selected:${candidate.candidate_ref}`}
               data-capability-candidate="selected"
             >
-              selected:{" "}
+              {t("capabilityDiscovery.selectedLabel")}{" "}
               <span data-capability-candidate-ref>
                 {candidate.candidate_ref}
               </span>{" "}
-              · evidence:{" "}
+              · {t("capabilityDiscovery.evidenceLabel")}{" "}
               {candidate.evidence_refs.length > 0
                 ? candidate.evidence_refs.map((ref, index) => (
                     <span key={`${ref}:${index}`}>
@@ -398,8 +408,8 @@ function CapabilityDiscoveryContent({
                       <span data-capability-candidate-evidence-ref>{ref}</span>
                     </span>
                   ))
-                : "none"}{" "}
-              · limitations:{" "}
+                : t("capabilityDiscovery.none")}{" "}
+              · {t("capabilityDiscovery.limitationsLabel")}{" "}
               {candidate.limitation_refs.length > 0
                 ? candidate.limitation_refs.map((ref, index) => (
                     <span key={`${ref}:${index}`}>
@@ -409,7 +419,7 @@ function CapabilityDiscoveryContent({
                       </span>
                     </span>
                   ))
-                : "none"}
+                : t("capabilityDiscovery.none")}
             </li>
           ))}
           {rejectedCandidates.map((candidate) => (
@@ -417,11 +427,11 @@ function CapabilityDiscoveryContent({
               key={`rejected:${candidate.candidate_ref}`}
               data-capability-candidate="rejected"
             >
-              rejected:{" "}
+              {t("capabilityDiscovery.rejectedLabel")}{" "}
               <span data-capability-candidate-ref>
                 {candidate.candidate_ref}
               </span>{" "}
-              · evidence:{" "}
+              · {t("capabilityDiscovery.evidenceLabel")}{" "}
               {candidate.evidence_refs.length > 0
                 ? candidate.evidence_refs.map((ref, index) => (
                     <span key={`${ref}:${index}`}>
@@ -429,8 +439,8 @@ function CapabilityDiscoveryContent({
                       <span data-capability-candidate-evidence-ref>{ref}</span>
                     </span>
                   ))
-                : "none"}{" "}
-              · limitations:{" "}
+                : t("capabilityDiscovery.none")}{" "}
+              · {t("capabilityDiscovery.limitationsLabel")}{" "}
               {candidate.limitation_refs.length > 0
                 ? candidate.limitation_refs.map((ref, index) => (
                     <span key={`${ref}:${index}`}>
@@ -440,18 +450,18 @@ function CapabilityDiscoveryContent({
                       </span>
                     </span>
                   ))
-                : "none"}
+                : t("capabilityDiscovery.none")}
             </li>
           ))}
         </ul>
       </section>
       <details open className="text-muted text-xs">
         <summary className="cursor-pointer font-medium">
-          Full response packet bindings
+          {t("capabilityDiscovery.packetBindings")}
         </summary>
         {/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- This bounded scroll region must remain keyboard-focusable without replacing list semantics. */}
         <ul
-          aria-label="Full response packet bindings"
+          aria-label={t("capabilityDiscovery.packetBindings")}
           className="mt-1 max-h-64 space-y-1 overflow-auto font-mono"
           tabIndex={0}
         >

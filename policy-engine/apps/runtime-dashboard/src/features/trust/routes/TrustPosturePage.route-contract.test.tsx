@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -24,17 +26,18 @@ describe("trust public route contract", () => {
   });
 
   it("links exactly once from landing with a neutral interface label", async () => {
-    const { default: LandingPage } = await import(
-      "@/features/landing/routes/LandingPage"
-    );
+    const { landingRoute } = await import("@/features/landing");
     const view = render(
       <MemoryRouter>
         <LocaleProvider>
-          <LandingPage />
+          <Suspense fallback={null}>{landingRoute.element}</Suspense>
         </LocaleProvider>
       </MemoryRouter>,
     );
 
+    await screen.findByRole("link", { name: "Trust posture" });
+
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The route contract counts every exact href, including duplicate or hidden anchors.
     const links = view.container.querySelectorAll('a[href="/trust"]');
     expect(links).toHaveLength(1);
     expect(screen.getByRole("link", { name: "Trust posture" })).toBeVisible();

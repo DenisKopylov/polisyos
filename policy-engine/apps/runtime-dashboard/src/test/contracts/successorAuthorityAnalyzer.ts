@@ -133,7 +133,10 @@ function traceableRoot(expression: ts.Expression): string | null {
       current = current.expression;
       continue;
     }
-    if (ts.isNonNullExpression(current) || ts.isParenthesizedExpression(current)) {
+    if (
+      ts.isNonNullExpression(current) ||
+      ts.isParenthesizedExpression(current)
+    ) {
       current = current.expression;
       continue;
     }
@@ -435,7 +438,10 @@ export function panelEmissionMode(
  * adding a value-bearing key is a visible diff in this gate rather than a
  * silent change inside the panel.
  */
-export function renderedLabelKeys(text: string, componentName: string): string[] {
+export function renderedLabelKeys(
+  text: string,
+  componentName: string,
+): string[] {
   const source = parse(text, `${componentName}.tsx`);
   const declaration = componentDeclaration(source, componentName);
   if (!declaration?.body) return [];
@@ -674,7 +680,9 @@ export function mountGraphCensus(overrides: SourceOverrides = {}): MountCensus {
               ? property.name.text
               : property.name.getText();
             for (const reason of mountPropFindings(property.initializer)) {
-              findings.push(`minted-mount-prop:${relative}:${propName}:${reason}`);
+              findings.push(
+                `minted-mount-prop:${relative}:${propName}:${reason}`,
+              );
             }
           }
         }

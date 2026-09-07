@@ -10,8 +10,8 @@ describe("Glyph accessibility", () => {
       </div>,
     );
 
-    expect(
-      view.container.querySelector("[data-glyph-intent]") === null,
-    ).toBe(true);
+    expect(view.container.querySelector("[data-glyph-intent]") === null).toBe(
+      true,
+    );
   });
 });

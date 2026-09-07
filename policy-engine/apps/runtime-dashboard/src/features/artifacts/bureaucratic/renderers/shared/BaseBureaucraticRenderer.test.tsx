@@ -23,7 +23,7 @@ describe("BureaucraticBlockView Trust View authority", () => {
     );
   });
 
-  it("renders verification carried by generated owner metadata", () => {
+  it("preserves owner metadata without minting content-bound verification", () => {
     window.history.replaceState(null, "", "/?trust=expanded");
     const block = quantityBlock();
     if (!block.quantity) {
@@ -38,7 +38,8 @@ describe("BureaucraticBlockView Trust View authority", () => {
 
     renderWithProviders(<BureaucraticBlockView block={block} />);
 
-    expect(screen.getByText("verified")).toBeInTheDocument();
+    expect(screen.queryByText("verified")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Unknown" })).toBeInTheDocument();
     expect(screen.getByText("runtime-verifier")).toBeInTheDocument();
   });
 });

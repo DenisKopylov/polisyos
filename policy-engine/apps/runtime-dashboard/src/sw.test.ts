@@ -2,15 +2,17 @@ import { NavigationRoute, registerRoute } from "workbox-routing";
 import { createHandlerBoundToURL, precacheAndRoute } from "workbox-precaching";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { clientMatchAll, clientPostMessage, navigationHandler } = vi.hoisted(() => {
-  const clientPostMessage = vi.fn();
+const { clientMatchAll, clientPostMessage, navigationHandler } = vi.hoisted(
+  () => {
+    const clientPostMessage = vi.fn();
 
-  return {
-    clientMatchAll: vi.fn(async () => [{ postMessage: clientPostMessage }]),
-    clientPostMessage,
-    navigationHandler: vi.fn(async () => new Response("navigation shell")),
-  };
-});
+    return {
+      clientMatchAll: vi.fn(async () => [{ postMessage: clientPostMessage }]),
+      clientPostMessage,
+      navigationHandler: vi.fn(async () => new Response("navigation shell")),
+    };
+  },
+);
 
 vi.mock("workbox-core", () => ({ clientsClaim: vi.fn() }));
 
@@ -21,7 +23,8 @@ vi.mock("workbox-precaching", () => ({
 }));
 
 vi.mock("workbox-routing", async (importOriginal) => {
-  const workboxRouting = await importOriginal<typeof import("workbox-routing")>();
+  const workboxRouting =
+    await importOriginal<typeof import("workbox-routing")>();
 
   return { ...workboxRouting, registerRoute: vi.fn() };
 });
@@ -30,9 +33,14 @@ type WorkerEventListener = (event: Event) => void;
 
 const registeredWorkerEvents = new Map<string, WorkerEventListener>();
 const staticManifest = [{ revision: "r3", url: "/assets/app-r3.js" }];
-const originalSelfDescriptor = Object.getOwnPropertyDescriptor(globalThis, "self");
+const originalSelfDescriptor = Object.getOwnPropertyDescriptor(
+  globalThis,
+  "self",
+);
 
-function navigationOptions(pathname: string): Parameters<NavigationRoute["match"]>[0] {
+function navigationOptions(
+  pathname: string,
+): Parameters<NavigationRoute["match"]>[0] {
   return {
     event: {} as ExtendableEvent,
     request: { mode: "navigate" } as Request,
@@ -78,14 +86,26 @@ describe("service worker", () => {
     expect(vi.mocked(precacheAndRoute)).toHaveBeenCalledWith(staticManifest);
     expect(vi.mocked(registerRoute)).toHaveBeenCalledTimes(1);
     expect(route).toBeInstanceOf(NavigationRoute);
-    expect(vi.mocked(createHandlerBoundToURL)).toHaveBeenCalledWith("/index.html");
+    expect(vi.mocked(createHandlerBoundToURL)).toHaveBeenCalledWith(
+      "/index.html",
+    );
     expect((route as NavigationRoute).handler.handle).toBe(navigationHandler);
-    expect((route as NavigationRoute).match(navigationOptions("/workspace"))).toBe(true);
-    expect((route as NavigationRoute).match(navigationOptions("/api/runs"))).toBe(false);
-    expect((route as NavigationRoute).match(navigationOptions("/health"))).toBe(false);
-    expect((route as NavigationRoute).match(navigationOptions("/ready"))).toBe(false);
+    expect(
+      (route as NavigationRoute).match(navigationOptions("/workspace")),
+    ).toBe(true);
+    expect(
+      (route as NavigationRoute).match(navigationOptions("/api/runs")),
+    ).toBe(false);
+    expect((route as NavigationRoute).match(navigationOptions("/health"))).toBe(
+      false,
+    );
+    expect((route as NavigationRoute).match(navigationOptions("/ready"))).toBe(
+      false,
+    );
     await expect(
-      (route as NavigationRoute).handler.handle(navigationOptions("/workspace")),
+      (route as NavigationRoute).handler.handle(
+        navigationOptions("/workspace"),
+      ),
     ).resolves.toBeInstanceOf(Response);
     expect(navigationHandler).toHaveBeenCalledTimes(1);
     expect(clientMatchAll).not.toHaveBeenCalled();

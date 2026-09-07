@@ -57,9 +57,9 @@ describe("Atlas honesty-comprehension seed protocol", () => {
         predicate_provenance: "not_established",
       },
     });
-    expect(
-      ATLAS_HONESTY_COMPREHENSION_PROTOCOL.storage_convention,
-    ).toBe(ATLAS_EVIDENCE_STORAGE_CONVENTION);
+    expect(ATLAS_HONESTY_COMPREHENSION_PROTOCOL.storage_convention).toBe(
+      ATLAS_EVIDENCE_STORAGE_CONVENTION,
+    );
     expect(
       atlasHonestyComprehensionDetailsSchema.parse(
         ATLAS_HONESTY_COMPREHENSION_PROTOCOL,
@@ -68,9 +68,7 @@ describe("Atlas honesty-comprehension seed protocol", () => {
   });
 
   it("freezes the two seed tasks and the six research-owned metric identities", () => {
-    expect(
-      ATLAS_HONESTY_COMPREHENSION_PROTOCOL.active_profile.tasks,
-    ).toEqual([
+    expect(ATLAS_HONESTY_COMPREHENSION_PROTOCOL.active_profile.tasks).toEqual([
       {
         task_id: "find_weakest_link",
         instruction: "Find the weakest link.",
@@ -123,7 +121,10 @@ describe("Atlas honesty-comprehension seed protocol", () => {
         tasks: ATLAS_HONESTY_COMPREHENSION_PROTOCOL.active_profile.tasks.map(
           (task, index) =>
             index === 0
-              ? { ...task, instruction: "Markers preserved; seed content changed." }
+              ? {
+                  ...task,
+                  instruction: "Markers preserved; seed content changed.",
+                }
               : task,
         ),
       },
@@ -287,14 +288,16 @@ describe("Atlas honesty-comprehension seed protocol", () => {
     expect(atlasHonestyInstrumentProfileSchema.parse(replacement)).toEqual(
       replacement,
     );
-    expect(replacement.thresholds.every((row) => row.status === "not_established"))
-      .toBe(true);
+    expect(
+      replacement.thresholds.every((row) => row.status === "not_established"),
+    ).toBe(true);
   });
 
   it("rejects authority widening and a removed or reordered C07 denial", () => {
     const authority = ATLAS_HONESTY_COMPREHENSION_PROTOCOL.authority;
-    expect(authority.may_not_use_for.slice(0, ATLAS_EVIDENCE_DENIED_USES.length))
-      .toEqual(ATLAS_EVIDENCE_DENIED_USES);
+    expect(
+      authority.may_not_use_for.slice(0, ATLAS_EVIDENCE_DENIED_USES.length),
+    ).toEqual(ATLAS_EVIDENCE_DENIED_USES);
 
     for (const candidateAuthority of [
       { ...authority, blocking_permitted: true },
@@ -399,8 +402,10 @@ describe("Atlas honesty-comprehension seed protocol", () => {
 
     expect(classify({ status: "missing" }).observation_status).toBe("missing");
     expect(
-      classify({ status: "unknown", reason_code: "operator_result_unavailable" })
-        .observation_status,
+      classify({
+        status: "unknown",
+        reason_code: "operator_result_unavailable",
+      }).observation_status,
     ).toBe("unknown");
     expect(
       classify({ status: "observed", observation_count: 0 }).observation_status,

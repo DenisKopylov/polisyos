@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import {
   createMemoryRouter,
   MemoryRouter,
@@ -375,11 +381,7 @@ describe("causal draft persistence", () => {
 
     expect(persistence.write(null, "run-a", graph())).toBe(false);
     expect(
-      persistence.write(
-        { tenantId: "tenant-a", userId: "" },
-        "run-a",
-        graph(),
-      ),
+      persistence.write({ tenantId: "tenant-a", userId: "" }, "run-a", graph()),
     ).toBe(false);
     expect(storageResolver).not.toHaveBeenCalled();
   });
@@ -436,7 +438,11 @@ describe("causal draft persistence", () => {
     expect(persistence.write(SCOPE_A, "run-a", graph())).toBe(true);
     expect(persistence.remove(SCOPE_A, "run-a")).toBe(true);
     expect(persistence.read(SCOPE_A, "run-a")).toBeNull();
-    expect(storage.calls).toEqual([`set:${key}`, `remove:${key}`, `get:${key}`]);
+    expect(storage.calls).toEqual([
+      `set:${key}`,
+      `remove:${key}`,
+      `get:${key}`,
+    ]);
     expect(storage.values.has(key)).toBe(false);
   });
 });
@@ -476,7 +482,9 @@ describe("CausalTab", () => {
     expect(edges).not.toHaveTextContent('"status":"identified"');
     expect(edges).not.toHaveTextContent("estimate");
     expect(paths).not.toHaveTextContent("totalEffect");
-    expect(screen.queryByTestId("method-visualization")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("method-visualization"),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("phase32.causal.draft")).toBeInTheDocument();
   });
 
@@ -488,11 +496,7 @@ describe("CausalTab", () => {
       storage: () => window.localStorage,
     });
     expect(
-      persistence.write(
-        collidingScopeA,
-        "same-run",
-        graph("A private node"),
-      ),
+      persistence.write(collidingScopeA, "same-run", graph("A private node")),
     ).toBe(true);
     const aKey = persistence.key(collidingScopeA, "same-run")!;
     const bKey = persistence.key(collidingScopeB, "same-run")!;

@@ -69,7 +69,10 @@ describe("useLivePromotionDecision", () => {
         const candidates = [
           { promotion_id: input.promotionId, status: "pending" },
         ];
-        queryClient.setQueryData(queryKeys.dataPromotionCandidates(), candidates);
+        queryClient.setQueryData(
+          queryKeys.dataPromotionCandidates(),
+          candidates,
+        );
         const view = renderHook(() => useLivePromotionDecision(), { wrapper });
 
         await act(async () => {
@@ -77,17 +80,22 @@ describe("useLivePromotionDecision", () => {
         });
 
         await waitFor(() => {
-          expect(decision.request).toHaveBeenCalledWith(input, expect.anything());
+          expect(decision.request).toHaveBeenCalledWith(
+            input,
+            expect.anything(),
+          );
           expect(onError).toHaveBeenCalled();
           expect(onError.mock.calls[0]?.[0]).toEqual(error);
         });
         expect(
           queryClient.getQueryData(queryKeys.dataPromotionCandidates()),
         ).toEqual(candidates);
-        expect(
-          view.result.current.isDecisionPending(input.promotionId),
-        ).toBe(false);
-        expect(view.result.current).not.toHaveProperty("queuedStateByPromotionId");
+        expect(view.result.current.isDecisionPending(input.promotionId)).toBe(
+          false,
+        );
+        expect(view.result.current).not.toHaveProperty(
+          "queuedStateByPromotionId",
+        );
         expect(invalidatePromotionDecisionQueriesMock).not.toHaveBeenCalled();
       }
     }

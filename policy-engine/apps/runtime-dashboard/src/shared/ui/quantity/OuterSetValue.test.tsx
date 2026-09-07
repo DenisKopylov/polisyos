@@ -23,7 +23,11 @@ import {
 function member(metricId: string, point: number | null): QuantityValueOutput {
   return {
     label: metricId,
-    lineage: { freshness: "current", id: `lineage:${metricId}`, status: "verified" },
+    lineage: {
+      freshness: "current",
+      id: `lineage:${metricId}`,
+      status: "verified",
+    },
     metric_id: metricId,
     point,
     quantity_class: "decision",
@@ -75,7 +79,9 @@ describe("DS16-C07 set-valued viz family", () => {
     // Absent a verdict the surface says only what it may: nothing authorizes a ranking
     // here. Collapsing this into "incomparable" would have the glass assert a property
     // of the values it has no standing to assert.
-    renderWithProviders(<OuterSetValue comparison={null} members={[TAIL, BODY]} />);
+    renderWithProviders(
+      <OuterSetValue comparison={null} members={[TAIL, BODY]} />,
+    );
     expect(screen.getByTestId("ds16-order-statement")).toHaveTextContent(
       OUTER_SET_ORDER_UNAUTHORIZED_TOKEN,
     );
@@ -89,7 +95,9 @@ describe("DS16-C07 set-valued viz family", () => {
   });
 
   it("never shows a tail as a cancelling average", () => {
-    renderWithProviders(<OuterSetValue comparison={null} members={[TAIL, BODY]} />);
+    renderWithProviders(
+      <OuterSetValue comparison={null} members={[TAIL, BODY]} />,
+    );
 
     // The mean of -0.9 and 0.4 is -0.25; a family that averaged would render it and
     // would render one value where two were supplied.

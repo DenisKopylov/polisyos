@@ -73,7 +73,8 @@ test.describe("runtime-dashboard control resilience degradation", () => {
               },
               approval_state: "override_required",
               evidence_refs: {
-                resilience_report: "quality_evidence/runtime_resilience_matrix.json",
+                resilience_report:
+                  "quality_evidence/runtime_resilience_matrix.json",
               },
               performance_budget_issues: [
                 {
@@ -124,9 +125,15 @@ test.describe("runtime-dashboard control resilience degradation", () => {
     await expect(
       page.getByRole("region", { name: "Control quality" }),
     ).toHaveCount(0);
-    await expect(approvalPanel.getByText("performance_budget_warn")).toBeVisible();
-    await expect(approvalPanel.getByText("Performance", { exact: true })).toBeVisible();
-    await expect(approvalPanel.getByText("warn", { exact: true })).toBeVisible();
+    await expect(
+      approvalPanel.getByText("performance_budget_warn"),
+    ).toBeVisible();
+    await expect(
+      approvalPanel.getByText("Performance", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      approvalPanel.getByText("warn", { exact: true }),
+    ).toBeVisible();
     await expect(
       approvalPanel.getByText("dashboard.first_meaningful_route_render"),
     ).toBeVisible();

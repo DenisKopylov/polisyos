@@ -453,10 +453,7 @@ export function createCausalDraftPersistence(config?: {
     }
   }
 
-  function key(
-    scope: AuthorityLocalScope | null | undefined,
-    runId: string,
-  ) {
+  function key(scope: AuthorityLocalScope | null | undefined, runId: string) {
     return owner.key({ scope, slot: runId });
   }
 
@@ -960,9 +957,7 @@ export default function CausalTab() {
   const authz = useAuthz();
   const scope = useMemo<AuthorityLocalScope | null>(
     () =>
-      authz.status === "ready" &&
-      authz.user?.tenant_id &&
-      authz.user.user_id
+      authz.status === "ready" && authz.user?.tenant_id && authz.user.user_id
         ? {
             tenantId: authz.user.tenant_id,
             userId: authz.user.user_id,
@@ -987,11 +982,7 @@ export default function CausalTab() {
       resetKeys={[runId]}
       title={t("causal.title")}
     >
-      <CausalTabContent
-        key={persistenceBinding}
-        runId={runId}
-        scope={scope}
-      />
+      <CausalTabContent key={persistenceBinding} runId={runId} scope={scope} />
     </FeatureAsyncBoundary>
   );
 }

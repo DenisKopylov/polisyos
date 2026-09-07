@@ -72,7 +72,9 @@ async function renderSurface() {
       }),
     ),
   );
-  const view = renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
+  const view = renderWithProviders(
+    <PublicSectorReadinessPanel runId={RUN_ID} />,
+  );
   await screen.findByText(SERVED[0].reason);
   return view;
 }
@@ -157,11 +159,14 @@ describe("DS16-C06 authority value MACHINE twin", () => {
     const softenedCode = {
       ...twin,
       members: twin.members.map((member, index) =>
-        index === 0 ? { ...member, refusal_code: "no_runtime_producer" } : member,
+        index === 0
+          ? { ...member, refusal_code: "no_runtime_producer" }
+          : member,
       ),
     };
     expect(
-      checkAuthorityValueTwinParity(view.container, softenedCode).codeMismatches,
+      checkAuthorityValueTwinParity(view.container, softenedCode)
+        .codeMismatches,
     ).toEqual(["readiness.composite_verdict"]);
 
     const softenedReason = {
@@ -171,7 +176,8 @@ describe("DS16-C06 authority value MACHINE twin", () => {
       ),
     };
     expect(
-      checkAuthorityValueTwinParity(view.container, softenedReason).reasonMismatches,
+      checkAuthorityValueTwinParity(view.container, softenedReason)
+        .reasonMismatches,
     ).toEqual(["readiness.composite_verdict"]);
   });
 

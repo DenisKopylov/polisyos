@@ -1,6 +1,8 @@
 import type { AvailableGovernedProjectionPacket } from "@polisyos/runtime-api-client";
 
-const authoritySemanticCopyBrand: unique symbol = Symbol("polisyos.authority-semantic-copy");
+const authoritySemanticCopyBrand: unique symbol = Symbol(
+  "polisyos.authority-semantic-copy",
+);
 const authoritySemanticReviewReceiptBrand: unique symbol = Symbol(
   "polisyos.authority-semantic-review-receipt",
 );
@@ -14,7 +16,8 @@ const CLOSED_COPY_CONTENT_HASH =
   "sha256:28fb42a4a99f4293d47318a3cb821e26c3f83482583bbba7f12459d32db23a07";
 const CLOSED_COPY_REVIEWER_IDENTITY = "external-reviewer:policy-language";
 const CLOSED_COPY_REVIEWER_VERSION = "v1";
-const CLOSED_COPY_REVIEWER_SCOPE = "authority-copy.en.governed_projection.rights_bar";
+const CLOSED_COPY_REVIEWER_SCOPE =
+  "authority-copy.en.governed_projection.rights_bar";
 
 type MayNotUseForOwnerToken =
   AvailableGovernedProjectionPacket["may_not_use_for"][number];
@@ -88,7 +91,9 @@ function assertReviewReceipt(
     candidate.reviewerVersion !== input.reviewerVersion ||
     candidate.reviewerScope !== input.reviewerScope
   ) {
-    throw new TypeError("semantic review receipt is not admitted for this copy");
+    throw new TypeError(
+      "semantic review receipt is not admitted for this copy",
+    );
   }
   return receipt as AuthoritySemanticReviewReceipt;
 }
@@ -101,7 +106,9 @@ function assertContentBoundReviewInput(input: ReviewReceiptInput): void {
     input.reviewerVersion !== CLOSED_COPY_REVIEWER_VERSION ||
     input.reviewerScope !== CLOSED_COPY_REVIEWER_SCOPE
   ) {
-    throw new TypeError("semantic review receipt is not content-bound for this copy");
+    throw new TypeError(
+      "semantic review receipt is not content-bound for this copy",
+    );
   }
 }
 
@@ -113,16 +120,22 @@ export function admitAuthoritySemanticReviewReceipt(
   input: ReviewReceiptInput,
 ): AuthoritySemanticReviewReceipt {
   assertContentBoundReviewInput(input);
-  throw new TypeError("semantic review receipt is not accepted by the registry");
+  throw new TypeError(
+    "semantic review receipt is not accepted by the registry",
+  );
 }
 
 /** Issues only the unreviewed English baseline for the closed limited semantic. */
-export function presentSemanticCopy(input: ClosedSemanticCopyInput): AuthoritySemanticCopy {
+export function presentSemanticCopy(
+  input: ClosedSemanticCopyInput,
+): AuthoritySemanticCopy {
   if (
     input.semanticId !== CLOSED_LIMITED_SEMANTIC_ID ||
     input.sourceToken !== "harm_risk"
   ) {
-    throw new TypeError("semantic review receipt is required for localized authority copy");
+    throw new TypeError(
+      "semantic review receipt is required for localized authority copy",
+    );
   }
   if (input.scope !== RIGHTS_BAR_SCOPE) {
     throw new TypeError("authority semantic copy scope is not admitted");
@@ -136,14 +149,19 @@ export function presentSemanticCopy(input: ClosedSemanticCopyInput): AuthoritySe
       semanticId: CLOSED_LIMITED_SEMANTIC_ID,
     });
   }
-  return issueAuthoritySemanticCopy(input.semanticId, "Limited harm-risk authority");
+  return issueAuthoritySemanticCopy(
+    input.semanticId,
+    "Limited harm-risk authority",
+  );
 }
 
 /**
  * Presents generated owner tokens as opaque rights-bar limits without proposing
  * a vocabulary or converting a prohibition into a recommendation.
  */
-export function presentMayNotUseFor(input: MayNotUseForInput): AuthoritySemanticCopy {
+export function presentMayNotUseFor(
+  input: MayNotUseForInput,
+): AuthoritySemanticCopy {
   if (input.scope !== RIGHTS_BAR_SCOPE) {
     throw new TypeError("authority semantic copy scope is not admitted");
   }

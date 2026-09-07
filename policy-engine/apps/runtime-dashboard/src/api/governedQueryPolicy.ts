@@ -23,9 +23,11 @@ type QueryOptions<TData, TQueryKey extends QueryKey> = UseQueryOptions<
   TQueryKey
 >;
 
-type OwnerAsOfQueryOptions<TData extends OwnerAsOfData, TQueryKey extends QueryKey> =
-  Omit<QueryOptions<TData, TQueryKey>, "initialData" | "placeholderData"> &
-    Readonly<{ initialData?: never; placeholderData?: never }>;
+type OwnerAsOfQueryOptions<
+  TData extends OwnerAsOfData,
+  TQueryKey extends QueryKey,
+> = Omit<QueryOptions<TData, TQueryKey>, "initialData" | "placeholderData"> &
+  Readonly<{ initialData?: never; placeholderData?: never }>;
 
 type NeverCacheQueryOptions<TData, TQueryKey extends QueryKey> = Omit<
   QueryOptions<TData, TQueryKey>,
@@ -38,19 +40,24 @@ type NeverCacheQueryOptions<TData, TQueryKey extends QueryKey> = Omit<
     staleTime?: never;
   }>;
 
-const governedQueryOptionsBrand: unique symbol = Symbol("governed-query-options");
+const governedQueryOptionsBrand: unique symbol = Symbol(
+  "governed-query-options",
+);
 
-type IssuedBase<
+type IssuedBase<TData, TQueryKey extends QueryKey = QueryKey> = QueryOptions<
   TData,
-  TQueryKey extends QueryKey = QueryKey,
-> = QueryOptions<TData, TQueryKey> &
+  TQueryKey
+> &
   Readonly<{
     policy: GovernedQueryPolicy;
     readonly [governedQueryOptionsBrand]: true;
   }>;
 
 type OwnerAsOfIssuedOptions<TData, TQueryKey extends QueryKey> = Readonly<
-  Omit<IssuedBase<TData, TQueryKey>, "initialData" | "placeholderData" | "policy"> & {
+  Omit<
+    IssuedBase<TData, TQueryKey>,
+    "initialData" | "placeholderData" | "policy"
+  > & {
     initialData?: never;
     placeholderData?: never;
     policy: Readonly<{ kind: "owner_as_of" }>;
@@ -76,7 +83,10 @@ type OperationalIssuedOptions<TData, TQueryKey extends QueryKey> = Readonly<
   }
 >;
 
-export type GovernedQueryOptions<TData, TQueryKey extends QueryKey = QueryKey> =
+export type GovernedQueryOptions<
+  TData,
+  TQueryKey extends QueryKey = QueryKey,
+> =
   | OwnerAsOfIssuedOptions<TData, TQueryKey>
   | NeverCacheIssuedOptions<TData, TQueryKey>
   | OperationalIssuedOptions<TData, TQueryKey>;
@@ -101,7 +111,9 @@ function hasOwnerPacketAsOf(data: unknown): boolean {
   );
 }
 
-function assertNoRetainedAuthorityFields(options: QueryOptions<unknown, QueryKey>) {
+function assertNoRetainedAuthorityFields(
+  options: QueryOptions<unknown, QueryKey>,
+) {
   if (options.gcTime === Infinity || options.staleTime === Infinity) {
     throw new TypeError("governed query policy forbids infinite retention");
   }
@@ -157,7 +169,9 @@ export function governedQueryOptions(
     queryFn: async (...args: Parameters<typeof queryFn>) => {
       const data = await queryFn(...args);
       if (policy.kind === "owner_as_of" && !hasOwnerPacketAsOf(data)) {
-        throw new TypeError("governed query response lacks a valid packet as_of");
+        throw new TypeError(
+          "governed query response lacks a valid packet as_of",
+        );
       }
       return data;
     },
@@ -181,7 +195,13 @@ export function useGovernedQuery<TData, TQueryKey extends QueryKey>(
     ) {
       queryClient.removeQueries({ exact: true, queryKey: options.queryKey });
     }
-  }, [options.policy.kind, options.queryKey, query.isPaused, query.isRefetchError, queryClient]);
+  }, [
+    options.policy.kind,
+    options.queryKey,
+    query.isPaused,
+    query.isRefetchError,
+    queryClient,
+  ]);
 
   return query;
 }

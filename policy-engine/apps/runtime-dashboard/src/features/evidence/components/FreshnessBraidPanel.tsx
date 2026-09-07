@@ -45,9 +45,7 @@ export function FreshnessBraidPanel({ view }: { view: FreshnessBraidView }) {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <strong>{thread.label}</strong>
-                <span className="text-muted text-xs">
-                  {thread.state.label}
-                </span>
+                <span className="text-muted text-xs">{thread.state.label}</span>
                 {thread.governing ? (
                   <span className="text-muted text-xs">
                     {t("phase32.freshness.governing")}

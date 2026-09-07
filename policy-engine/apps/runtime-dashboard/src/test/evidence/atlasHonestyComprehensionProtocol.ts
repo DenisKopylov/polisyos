@@ -262,13 +262,15 @@ export const atlasHonestyInstrumentProfileSchema = z
       }
     }
     if (
-      JSON.stringify(profile.thresholds.map((threshold) => threshold.metric_id)) !==
-      JSON.stringify(profile.metric_ids)
+      JSON.stringify(
+        profile.thresholds.map((threshold) => threshold.metric_id),
+      ) !== JSON.stringify(profile.metric_ids)
     ) {
       context.addIssue({
         code: "custom",
         path: ["thresholds"],
-        message: "threshold rows must exactly match the ordered metric identity set",
+        message:
+          "threshold rows must exactly match the ordered metric identity set",
       });
     }
     if (profile.profile_id === SEED_PROFILE_ID) {
@@ -334,7 +336,8 @@ const authoritySchema = z
       context.addIssue({
         code: "custom",
         path: ["may_not_use_for"],
-        message: "honesty comprehension must retain the exact C07 denial prefix",
+        message:
+          "honesty comprehension must retain the exact C07 denial prefix",
       });
     }
   });
@@ -486,7 +489,12 @@ const observationSchema = z.discriminatedUnion("status", [
 export type HonestyComprehensionObservation = z.infer<typeof observationSchema>;
 
 export type HonestyComprehensionInterpretation = {
-  observation_status: "missing" | "unknown" | "zero" | "incomparable" | "recorded";
+  observation_status:
+    | "missing"
+    | "unknown"
+    | "zero"
+    | "incomparable"
+    | "recorded";
   observation_code:
     | "honesty_observation_missing"
     | "honesty_observation_unknown"

@@ -16,7 +16,9 @@ const workflowDraft: ComposerDraftRecord = {
     dataSourceRef: "artifact-1",
     dataSourceType: "snapshot",
     executionIntent: "Launch a verified run",
-    expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
+    expectedOutputs: [
+      { description: "Decision packet", kind: "decision_packet" },
+    ],
     governanceConstraints: [
       { rule: "legal review", scope: "legal", severity: "warning" },
     ],
@@ -34,7 +36,9 @@ const nlDraft: ComposerDraftRecord = {
     checkpointPolicy: "strict",
     domainHint: "custom",
     executionIntent: "Find constraints",
-    expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
+    expectedOutputs: [
+      { description: "Decision packet", kind: "decision_packet" },
+    ],
     governanceConstraints: [
       { rule: "legal review", scope: "legal", severity: "warning" },
     ],
@@ -91,7 +95,9 @@ describe("composerDraftRepository", () => {
 
     await expect(repository.load(null, workflowDraft.key)).resolves.toBeNull();
     await expect(repository.save(null, workflowDraft)).resolves.toBe(false);
-    await expect(repository.delete(null, workflowDraft.key)).resolves.toBe(false);
+    await expect(repository.delete(null, workflowDraft.key)).resolves.toBe(
+      false,
+    );
 
     expect(port.get).not.toHaveBeenCalled();
     expect(port.put).not.toHaveBeenCalled();
@@ -109,7 +115,9 @@ describe("composerDraftRepository", () => {
 
     await expect(repository.save(scope, workflowDraft)).resolves.toBe(true);
     await expect(repository.save(scope, nlDraft)).resolves.toBe(true);
-    await expect(repository.load(scope, workflowDraft.key)).resolves.toEqual(workflowDraft);
+    await expect(repository.load(scope, workflowDraft.key)).resolves.toEqual(
+      workflowDraft,
+    );
     await expect(repository.load(scope, nlDraft.key)).resolves.toEqual(nlDraft);
     const storedWorkflow = port.put.mock.calls[0]![0] as {
       envelope: { expiresAt: string; issuedAt: string };
@@ -171,7 +179,9 @@ describe("composerDraftRepository", () => {
       database: port,
     });
 
-    await expect(repository.save(scope, partialWorkflowDraft)).resolves.toBe(true);
+    await expect(repository.save(scope, partialWorkflowDraft)).resolves.toBe(
+      true,
+    );
     await expect(repository.save(scope, partialNlDraft)).resolves.toBe(true);
     await expect(
       repository.load(scope, partialWorkflowDraft.key),
@@ -270,7 +280,10 @@ describe("composerDraftRepository", () => {
         "extended ttl",
         {
           ...valid,
-          envelope: { ...valid.envelope, expiresAt: "2026-08-15T10:00:00.001Z" },
+          envelope: {
+            ...valid.envelope,
+            expiresAt: "2026-08-15T10:00:00.001Z",
+          },
         },
       ],
       [
@@ -287,7 +300,9 @@ describe("composerDraftRepository", () => {
 
     for (const [_label, raw] of cases) {
       port.records.set(physicalKey, raw);
-      await expect(repository.load(scope, workflowDraft.key)).resolves.toBeNull();
+      await expect(
+        repository.load(scope, workflowDraft.key),
+      ).resolves.toBeNull();
       expect(port.records.get(physicalKey)).toBe(raw);
     }
     expect(port.put).toHaveBeenCalledTimes(1);
@@ -312,7 +327,9 @@ describe("composerDraftRepository", () => {
 
     await expect(repository.load(scope, workflowDraft.key)).resolves.toBeNull();
     await expect(repository.save(scope, workflowDraft)).resolves.toBe(false);
-    await expect(repository.delete(scope, workflowDraft.key)).resolves.toBe(false);
+    await expect(repository.delete(scope, workflowDraft.key)).resolves.toBe(
+      false,
+    );
   });
 
   it("contains owner clock failures at the async composer boundary", async () => {
@@ -332,7 +349,9 @@ describe("composerDraftRepository", () => {
     await expect(
       clockFailureRepository.load(scope, workflowDraft.key),
     ).resolves.toBeNull();
-    await expect(clockFailureRepository.save(scope, workflowDraft)).resolves.toBe(false);
+    await expect(
+      clockFailureRepository.save(scope, workflowDraft),
+    ).resolves.toBe(false);
     expect(port.put).toHaveBeenCalledTimes(1);
   });
 

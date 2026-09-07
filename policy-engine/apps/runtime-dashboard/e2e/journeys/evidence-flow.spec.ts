@@ -65,7 +65,10 @@ test.describe("runtime-dashboard evidence flow", () => {
       .click();
     await expect(page).toHaveURL(/focus=artifact/);
 
-    await page.getByRole("link", { name: /^Open$/i }).first().click();
+    await page
+      .getByRole("link", { name: /^Open$/i })
+      .first()
+      .click();
     await waitForDashboardSurface(page, "artifact");
 
     await page.getByRole("button", { name: /Lineage/i }).click();

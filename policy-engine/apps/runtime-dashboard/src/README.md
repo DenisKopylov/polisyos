@@ -4,18 +4,18 @@
 
 ## Структура
 
-| Путь                  | Роль                                                                             |
-| --------------------- | -------------------------------------------------------------------------------- |
-| `src/main.tsx`        | Точка входа React и глобальные стили                                             |
-| `src/App.tsx`         | Вход в `app/` shell и data-router                                                |
-| `src/app/`            | Workspace registry, providers, layout, data-router, loaders, typed search params |
-| `src/features/`       | Вертикальные feature slices: route shells, domain helpers, local components      |
-| `src/shared/`         | Shared UI primitives, i18n, generic error boundaries, low-level reusable pieces  |
-| `src/shared/lib/`     | Общие утилиты, capability helpers и доменные адаптеры payload -> view model      |
-| `src/shared/charts/`  | Shared chart primitives, stories, uncertainty renderers, palettes                |
-| `src/shared/i18n/`    | Locale provider, catalogs, ICU messages, locale persistence                      |
-| `src/api/`            | HTTP-клиент, hooks, query keys, validators, generated OpenAPI types              |
-| `src/styles.css`      | Глобальные стили и токены темы                                                   |
+| Путь                 | Роль                                                                             |
+| -------------------- | -------------------------------------------------------------------------------- |
+| `src/main.tsx`       | Точка входа React и глобальные стили                                             |
+| `src/App.tsx`        | Вход в `app/` shell и data-router                                                |
+| `src/app/`           | Workspace registry, providers, layout, data-router, loaders, typed search params |
+| `src/features/`      | Вертикальные feature slices: route shells, domain helpers, local components      |
+| `src/shared/`        | Shared UI primitives, i18n, generic error boundaries, low-level reusable pieces  |
+| `src/shared/lib/`    | Общие утилиты, capability helpers и доменные адаптеры payload -> view model      |
+| `src/shared/charts/` | Shared chart primitives, stories, uncertainty renderers, palettes                |
+| `src/shared/i18n/`   | Locale provider, catalogs, ICU messages, locale persistence                      |
+| `src/api/`           | HTTP-клиент, hooks, query keys, validators, generated OpenAPI types              |
+| `src/styles.css`     | Глобальные стили и токены темы                                                   |
 
 ## Архитектурные принципы
 

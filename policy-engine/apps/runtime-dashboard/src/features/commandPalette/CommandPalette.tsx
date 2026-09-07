@@ -286,7 +286,9 @@ export function CommandPalette() {
                 >
                   <Database />
                   <span>
-                    {candidate.label} · Candidate · {candidate.resource_kind} ·{" "}
+                    {candidate.label} ·{" "}
+                    {t("capabilityDiscovery.candidateLabel")} ·{" "}
+                    {candidate.resource_kind} ·{" "}
                     {candidate.discovery_result.state} ·{" "}
                     {candidate.execution_result.state} ·{" "}
                     {candidate.authority_result.state}
@@ -297,7 +299,7 @@ export function CommandPalette() {
                 <CommandItem disabled>
                   <Database />
                   <span>
-                    Candidate frontier ·{" "}
+                    {t("commandPalette.candidateFrontier")} ·{" "}
                     {
                       capabilitySearch.data.response.frontier
                         .completeness_status

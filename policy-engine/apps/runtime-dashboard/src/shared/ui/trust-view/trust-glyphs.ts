@@ -28,7 +28,7 @@ type MetadataFields = Readonly<{
   verificationStatus: unknown;
 }>;
 
-const issuedTrustPresentations = new WeakSet<object>();
+const issuedTrustPresentations = new WeakSet();
 const issuedTrustPresentationData = new WeakMap<
   object,
   TrustPresentationData

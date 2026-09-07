@@ -6,10 +6,7 @@ import { describe, expect, it } from "vitest";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { TrustViewToggle } from "./TrustViewToggle";
-import {
-  TrustViewBridgeProvider,
-  type TrustViewMode,
-} from "./TrustViewBridge";
+import { TrustViewBridgeProvider, type TrustViewMode } from "./TrustViewBridge";
 
 function TestTrustViewProvider({ children }: PropsWithChildren) {
   const [mode, setMode] = useState<TrustViewMode>("off");

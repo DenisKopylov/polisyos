@@ -708,6 +708,7 @@ type ProjectionPurpose = NonNullable<
   ClaimPostureRegister["accessibility_document"]
 >["authoritative_for"][number];
 
+/* eslint-disable no-regex-spaces, policyos/quantity-must-be-wrapped -- These parsers verify exact frontmatter indentation and index captures/lines; none of these integers is a displayed quantity. */
 function parseProjectionPurposes(
   lines: readonly string[],
 ): ProjectionPurpose[] {
@@ -880,6 +881,8 @@ async function validateAccessibilityDocument(
   );
 }
 
+/* eslint-enable no-regex-spaces, policyos/quantity-must-be-wrapped */
+
 function objectValue(value: unknown): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     throw new TypeError("expected object");
@@ -893,6 +896,7 @@ function arrayValue(value: unknown): unknown[] {
 }
 
 function pageIssueSignature(message: string): string {
+  // eslint-disable-next-line no-control-regex -- Strip literal ANSI escape sequences from checker stderr before parsing its semantic issue.
   const plain = message.replace(/\u001b\[[0-9;]*m/gu, "");
   const axe = /"id"\s*:\s*"([^"]+)"/u.exec(plain);
   if (axe?.[1]) return `axe:${axe[1]}`;

@@ -1,0 +1,333 @@
+{
+  "accountable_owner": null,
+  "audiences": ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+  "authoritative_for": ["universal_custody_commitment"],
+  "blocker_codes": [],
+  "claim_id": "claim-posture:9c8096b4afac909d6b9b2793f4e9c3c3f9750259361a06e576ebe58cc34d0d8e",
+  "closure_signal": "uv run pytest tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit -q",
+  "effective_state": "planned",
+  "family": "custody",
+  "limitations": [
+    "Planned prerequisite: DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
+    "Planned prerequisite: DS11-PUBLIC-SIGNATURE-POPULATION",
+    "Planned prerequisite: DS11-PUBLISHED-SIGNATURE-WATCHER"
+  ],
+  "may_not_use_for": [
+    "capability_claim",
+    "jurisdiction_specific_legal_conclusion",
+    "task_execution_contract"
+  ],
+  "owner_basis": "closure_commitment",
+  "review_due": "2027-07-20",
+  "review_on": "2026-07-20",
+  "source_as_of": "2026-07-20",
+  "source_bindings": [
+    {
+      "authoritative_for": ["universal_custody_commitment"],
+      "authority_purpose": "universal_custody_commitment",
+      "closure_signal": "uv run pytest tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit -q",
+      "content_digest": "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332",
+      "coordinate": {
+        "column": 0,
+        "field_name": "authoritative_for",
+        "line": 26,
+        "path": "docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+        "symbol": "ratified_system_identity",
+        "use_kind": "declaration"
+      },
+      "declared_scope_assumption": null,
+      "evidence_bindings": [],
+      "evidence_refs": [],
+      "family": "custody",
+      "identity_boundary_ref": "docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "jurisdiction": "non_jurisdiction_specific",
+      "jurisdiction_establishment": "recomputed",
+      "limitation_refs": [
+        "Planned prerequisite: DS11-CLAIM-LIFECYCLE-ORCHESTRATION"
+      ],
+      "may_not_use_for": [
+        "capability_claim",
+        "task_execution_contract",
+        "jurisdiction_specific_legal_conclusion"
+      ],
+      "owner": {
+        "basis": "closure_commitment",
+        "establishment_class": "recomputed",
+        "owner": "team-scientist",
+        "source_ref": "docs/plans/active/DEBT-REGISTER.md#DS11-CLAIM-LIFECYCLE-ORCHESTRATION@sha256:342a3c4d5d6e4a582beab11582b595a978675fe427419b3eff32ac07e95767d5"
+      },
+      "predicates": [
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "accountable_owner",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "kind": "applicable_jurisdiction",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+          "kind": "content_bound_evidence",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "content_bound_source",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-REVIEW-MISSING-OR-STALE",
+          "kind": "current_review",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "identity_boundary",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-SOURCE-BLOCKER-PRESENT",
+          "kind": "no_blocker",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "purpose_permission",
+          "satisfied": true
+        }
+      ],
+      "prerequisite_refs": ["DS11-CLAIM-LIFECYCLE-ORCHESTRATION"],
+      "resolution": "resolved",
+      "review_due": "2027-07-20",
+      "review_on": "2026-07-20",
+      "source_as_of": "2026-07-20",
+      "source_state": "planned",
+      "subject": "universal_custody_commitment",
+      "superseded_by_ref": null,
+      "supersedes_ref": null
+    },
+    {
+      "authoritative_for": ["universal_custody_commitment"],
+      "authority_purpose": "universal_custody_commitment",
+      "closure_signal": "uv run pytest tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound -q",
+      "content_digest": "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332",
+      "coordinate": {
+        "column": 0,
+        "field_name": "authoritative_for",
+        "line": 26,
+        "path": "docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+        "symbol": "ratified_system_identity",
+        "use_kind": "declaration"
+      },
+      "declared_scope_assumption": null,
+      "evidence_bindings": [],
+      "evidence_refs": [],
+      "family": "custody",
+      "identity_boundary_ref": "docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "jurisdiction": "non_jurisdiction_specific",
+      "jurisdiction_establishment": "recomputed",
+      "limitation_refs": [
+        "Planned prerequisite: DS11-PUBLIC-SIGNATURE-POPULATION"
+      ],
+      "may_not_use_for": [
+        "capability_claim",
+        "task_execution_contract",
+        "jurisdiction_specific_legal_conclusion"
+      ],
+      "owner": {
+        "basis": "closure_commitment",
+        "establishment_class": "recomputed",
+        "owner": "team-design",
+        "source_ref": "docs/plans/active/DEBT-REGISTER.md#DS11-PUBLIC-SIGNATURE-POPULATION@sha256:0101f340511a186659b4fbedfb8c0a817b948537c217c7d4654936d78c90dafc"
+      },
+      "predicates": [
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "accountable_owner",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "kind": "applicable_jurisdiction",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+          "kind": "content_bound_evidence",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "content_bound_source",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-REVIEW-MISSING-OR-STALE",
+          "kind": "current_review",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "identity_boundary",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-SOURCE-BLOCKER-PRESENT",
+          "kind": "no_blocker",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "purpose_permission",
+          "satisfied": true
+        }
+      ],
+      "prerequisite_refs": ["DS11-PUBLIC-SIGNATURE-POPULATION"],
+      "resolution": "resolved",
+      "review_due": "2027-07-20",
+      "review_on": "2026-07-20",
+      "source_as_of": "2026-07-20",
+      "source_state": "planned",
+      "subject": "universal_custody_commitment",
+      "superseded_by_ref": null,
+      "supersedes_ref": null
+    },
+    {
+      "authoritative_for": ["universal_custody_commitment"],
+      "authority_purpose": "universal_custody_commitment",
+      "closure_signal": "uv run pytest tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness -q",
+      "content_digest": "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332",
+      "coordinate": {
+        "column": 0,
+        "field_name": "authoritative_for",
+        "line": 26,
+        "path": "docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+        "symbol": "ratified_system_identity",
+        "use_kind": "declaration"
+      },
+      "declared_scope_assumption": null,
+      "evidence_bindings": [],
+      "evidence_refs": [],
+      "family": "custody",
+      "identity_boundary_ref": "docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "jurisdiction": "non_jurisdiction_specific",
+      "jurisdiction_establishment": "recomputed",
+      "limitation_refs": [
+        "Planned prerequisite: DS11-PUBLISHED-SIGNATURE-WATCHER"
+      ],
+      "may_not_use_for": [
+        "capability_claim",
+        "task_execution_contract",
+        "jurisdiction_specific_legal_conclusion"
+      ],
+      "owner": {
+        "basis": "closure_commitment",
+        "establishment_class": "recomputed",
+        "owner": "team-runtime",
+        "source_ref": "docs/plans/active/DEBT-REGISTER.md#DS11-PUBLISHED-SIGNATURE-WATCHER@sha256:a2cb1f04f4799fe874e859ff956e8853809c6ad684668e2897f27599beeb3a86"
+      },
+      "predicates": [
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "accountable_owner",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "kind": "applicable_jurisdiction",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+          "kind": "content_bound_evidence",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "content_bound_source",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-REVIEW-MISSING-OR-STALE",
+          "kind": "current_review",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "identity_boundary",
+          "satisfied": true
+        },
+        {
+          "establishment_class": "not_established",
+          "evidence_refs": [],
+          "issue_code": "DS11-SOURCE-BLOCKER-PRESENT",
+          "kind": "no_blocker",
+          "satisfied": false
+        },
+        {
+          "establishment_class": "recomputed",
+          "evidence_refs": [],
+          "issue_code": null,
+          "kind": "purpose_permission",
+          "satisfied": true
+        }
+      ],
+      "prerequisite_refs": ["DS11-PUBLISHED-SIGNATURE-WATCHER"],
+      "resolution": "resolved",
+      "review_due": "2027-07-20",
+      "review_on": "2026-07-20",
+      "source_as_of": "2026-07-20",
+      "source_state": "planned",
+      "subject": "universal_custody_commitment",
+      "superseded_by_ref": null,
+      "supersedes_ref": null
+    }
+  ],
+  "subject": "universal_custody_commitment"
+}

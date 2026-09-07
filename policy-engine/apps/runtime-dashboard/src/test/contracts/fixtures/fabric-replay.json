@@ -21,6 +21,6 @@
       "retention_alternative": null
     }
   },
-  "status_counts": {"replayable": 1},
-  "coverage": {"decision": 1, "traced": 1, "untraced": 0}
+  "status_counts": { "replayable": 1 },
+  "coverage": { "decision": 1, "traced": 1, "untraced": 0 }
 }

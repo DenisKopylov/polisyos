@@ -14,13 +14,7 @@ const packagePatternsRoot = path.join(
 );
 const dashboardSharedRoot = path.join(dashboardRoot, "src/shared");
 const dashboardSharedUiRoot = path.join(dashboardSharedRoot, "ui");
-const supportedExtensions = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-  ".mjs",
-]);
+const supportedExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs"]);
 const migratedCompounds = new Set([
   "JsonPreview",
   "VirtualList",
@@ -246,16 +240,16 @@ describe("shared UI architecture", () => {
       text: [
         'import { useRuns } from "@/api/hooks/useRuns";',
         'import { DetailLayout } from "@polisyos/atlas-ui";',
-        'type PresentationProps = React.ComponentProps<typeof DetailLayout>;',
+        "type PresentationProps = React.ComponentProps<typeof DetailLayout>;",
         "export function PatternPresentationAdapter(props: PresentationProps) {",
         "  useRuns();",
         "  return <DetailLayout {...props} />;",
         "}",
       ].join("\n"),
     };
-    expect(
-      packagePatternDependencyViolations([...units, appAdapter]),
-    ).toEqual([]);
+    expect(packagePatternDependencyViolations([...units, appAdapter])).toEqual(
+      [],
+    );
 
     const corruptedPattern = path.join(
       packagePatternsRoot,

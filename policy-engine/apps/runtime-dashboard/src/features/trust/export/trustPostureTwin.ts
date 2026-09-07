@@ -65,11 +65,8 @@ export function expectedTrustPostureTwin(
     }));
 }
 
-function requiredElement<T extends HTMLElement>(
-  root: ParentNode,
-  selector: string,
-): T {
-  const element = root.querySelector<T>(selector);
+function requiredElement(root: ParentNode, selector: string): HTMLElement {
+  const element = root.querySelector<HTMLElement>(selector);
   if (!element) {
     throw new TypeError(`DS11-DOM-PARITY-DRIFT: missing ${selector}`);
   }

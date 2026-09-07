@@ -886,7 +886,8 @@ export function measureAtlasHealthMetrics(): AtlasHealthMetricReport {
   const primitiveAdoptionRow = {
     metric_id: "primitive_adoption",
     instrumentation_status: "instrumented",
-    definition: "Share of decision-bearing renders flowing through DS4 primitives.",
+    definition:
+      "Share of decision-bearing renders flowing through DS4 primitives.",
     honest_direction: "Rising; 100% for authority slots.",
     scope: {
       scope_id: "ds18-decision-time-semantics-roots",

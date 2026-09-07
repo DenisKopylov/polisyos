@@ -16,6 +16,7 @@ export default defineConfig({
     },
   },
   test: {
+    name: "confidence-ledger-browser",
     browser: {
       enabled: true,
       headless: true,

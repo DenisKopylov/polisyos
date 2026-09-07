@@ -15,7 +15,4 @@ export {
 } from "./TrustViewBridge";
 export { TrustViewToggle } from "./TrustViewToggle";
 export { VerificationStatus } from "./VerificationStatus";
-export {
-  truncateHash,
-  type VerificationMetadata,
-} from "./trust-glyphs";
+export { truncateHash, type VerificationMetadata } from "./trust-glyphs";

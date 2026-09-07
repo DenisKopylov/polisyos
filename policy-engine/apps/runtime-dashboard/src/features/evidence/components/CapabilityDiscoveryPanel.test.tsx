@@ -12,7 +12,8 @@ vi.mock("@/api/hooks/useCapabilitySearch", async () => {
   return { ...actual, useCapabilitySearch: useCapabilitySearchMock };
 });
 
-import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
+import { LocaleProvider, useI18n } from "@/shared/i18n/LocaleProvider";
+import { LOCALE_STORAGE_KEY } from "@/shared/i18n/locale";
 import { createCapabilitySearchRequest } from "@/api/hooks/useCapabilitySearch";
 
 import { CapabilityDiscoveryPanel } from "./CapabilityDiscoveryPanel";
@@ -229,5 +230,82 @@ describe("CapabilityDiscoveryPanel", () => {
       }),
       undefined,
     );
+  });
+});
+
+function LocaleSwitch() {
+  const { setLocale } = useI18n();
+  return <button onClick={() => setLocale("uk")}>Switch to Ukrainian</button>;
+}
+
+describe("capability discovery localization", () => {
+  beforeEach(() => window.localStorage.setItem(LOCALE_STORAGE_KEY, "en"));
+  afterEach(() => window.localStorage.removeItem(LOCALE_STORAGE_KEY));
+  it("translates the rendered labels while preserving the declared posture values", () => {
+    const request = createCapabilitySearchRequest(
+      "owner term",
+      "localized-panel",
+    );
+    useCapabilitySearchMock.mockReturnValue({
+      data: {
+        rawBytes: new Uint8Array(),
+        response: {
+          request,
+          results: [],
+          frontier: {
+            candidates: [],
+            rejected_candidates: [],
+            completeness_status: "bounded_unknown",
+            incompleteness_reasons: ["projection_epoch_unknown"],
+            evaluated_count: 0,
+            requested_count: 1,
+            returned_count: 0,
+            actual_cutoff: null,
+            indexes_used: [],
+            index_version_refs: [],
+            no_hit_frontier: [],
+          },
+        },
+      },
+      isError: false,
+      isLoading: false,
+    });
+
+    render(
+      <LocaleProvider>
+        <LocaleSwitch />
+        <CapabilityDiscoveryPanel request={request} />
+      </LocaleProvider>,
+    );
+    expect(
+      screen.getByRole("region", { name: "Capability request" }),
+    ).toBeVisible();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Candidate search returned 0 results; bounded_unknown; projection_epoch_unknown",
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Switch to Ukrainian" }),
+    );
+
+    expect(
+      screen.getByRole("region", { name: "Запит можливостей" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("list", { name: "Прив’язки повного пакета відповіді" }),
+    ).toBeVisible();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Пошук кандидатів повернув 0 результатів; bounded_unknown; projection_epoch_unknown",
+    );
+    expect(
+      screen.getByText("bounded_unknown", {
+        selector: "[data-capability-completeness-status]",
+      }),
+    ).toBeVisible();
+    expect(
+      screen.getByText("projection_epoch_unknown", {
+        selector: "[data-capability-incompleteness-reason]",
+      }),
+    ).toBeVisible();
   });
 });

@@ -37,7 +37,9 @@ test.describe("runtime-dashboard run flow", () => {
         method: "GET",
         body: ({ url }) => ({
           artifact: {
-            artifact_id: decodeURIComponent(url.pathname.split("/").at(-2) ?? "artifact"),
+            artifact_id: decodeURIComponent(
+              url.pathname.split("/").at(-2) ?? "artifact",
+            ),
             kind: "runtime.fixture_artifact",
             max_bytes: 262144,
             media_type: "application/json",

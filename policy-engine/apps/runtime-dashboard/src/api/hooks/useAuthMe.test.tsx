@@ -25,7 +25,11 @@ vi.mock("@/app/auth/authSession", () => ({
     authAwareRuntimeFetchMock(...args),
 }));
 
-import { authMeQueryOptions, useAuthMe, useSuspenseAuthMe } from "@/api/hooks/useAuthMe";
+import {
+  authMeQueryOptions,
+  useAuthMe,
+  useSuspenseAuthMe,
+} from "@/api/hooks/useAuthMe";
 
 const TEST_SUPPORT_AUTH_SOURCES = [
   "src/api/hooks/useAuthMe.test.tsx",

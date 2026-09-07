@@ -100,7 +100,10 @@ describe("featureFlags", () => {
   });
 
   it("treats an explicit null injected manifest as present invalid input", () => {
-    window.__RUNTIME_DASHBOARD_FLAGS__ = null as unknown as Record<string, unknown>;
+    window.__RUNTIME_DASHBOARD_FLAGS__ = null as unknown as Record<
+      string,
+      unknown
+    >;
 
     expect(readInjectedFeatureFlagManifest()).toMatchObject({
       state: "present",
@@ -130,7 +133,9 @@ describe("featureFlags", () => {
       ...cacheScope,
     };
 
-    expect(parseFeatureFlagManifest(cacheEntry, "cache", cacheScope)).toMatchObject({
+    expect(
+      parseFeatureFlagManifest(cacheEntry, "cache", cacheScope),
+    ).toMatchObject({
       ok: true,
       manifest: {
         flags: { enableScenarioComposer: false },
@@ -143,7 +148,10 @@ describe("featureFlags", () => {
         tenantId: "different-tenant",
         userId: cacheScope.userId,
       }),
-    ).toMatchObject({ ok: false, diagnostic: { code: "cache_scope_mismatch" } });
+    ).toMatchObject({
+      ok: false,
+      diagnostic: { code: "cache_scope_mismatch" },
+    });
     expect(
       parseFeatureFlagManifest(
         { ...cacheEntry, registryVersion: FEATURE_FLAG_MANIFEST_VERSION + 1 },
@@ -164,14 +172,20 @@ describe("featureFlags", () => {
         "cache",
         cacheScope,
       ),
-    ).toMatchObject({ ok: false, diagnostic: { code: "cache_manifest_expired" } });
+    ).toMatchObject({
+      ok: false,
+      diagnostic: { code: "cache_manifest_expired" },
+    });
     expect(
       parseFeatureFlagManifest(
         { ...cacheEntry, updatedAt: Date.now() + 1_000 },
         "cache",
         cacheScope,
       ),
-    ).toMatchObject({ ok: false, diagnostic: { code: "cache_manifest_future" } });
+    ).toMatchObject({
+      ok: false,
+      diagnostic: { code: "cache_manifest_future" },
+    });
     expect(
       parseFeatureFlagManifest(
         {
@@ -196,7 +210,9 @@ describe("featureFlags", () => {
       version: FEATURE_FLAG_MANIFEST_VERSION,
     };
 
-    expect(writeStrictCachedFeatureFlagManifest(manifest, cacheScope)).toMatchObject({
+    expect(
+      writeStrictCachedFeatureFlagManifest(manifest, cacheScope),
+    ).toMatchObject({
       ok: true,
       receipt: { cacheKey: FEATURE_FLAG_MANIFEST_CACHE_KEY },
     });
@@ -262,7 +278,9 @@ describe("featureFlags", () => {
     );
     expect(
       writeStrictCachedFeatureFlagManifest(
-        throwingManifest as Parameters<typeof writeStrictCachedFeatureFlagManifest>[0],
+        throwingManifest as Parameters<
+          typeof writeStrictCachedFeatureFlagManifest
+        >[0],
         cacheScope,
       ),
     ).toMatchObject({
@@ -317,8 +335,13 @@ describe("featureFlags", () => {
         manifest,
         changingScope as typeof cacheScope,
       ),
-    ).toMatchObject({ ok: false, diagnostic: { code: "cache_scope_untrusted" } });
-    expect(window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY)).toBeNull();
+    ).toMatchObject({
+      ok: false,
+      diagnostic: { code: "cache_scope_untrusted" },
+    });
+    expect(
+      window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY),
+    ).toBeNull();
   });
 
   it("contains hostile storage, window, and parser inputs as typed strict failures", () => {
@@ -345,7 +368,10 @@ describe("featureFlags", () => {
         },
         cacheScope,
       ),
-    ).toMatchObject({ ok: false, diagnostic: { code: "cache_storage_write_failed" } });
+    ).toMatchObject({
+      ok: false,
+      diagnostic: { code: "cache_storage_write_failed" },
+    });
     vi.restoreAllMocks();
 
     Object.defineProperty(window, "__RUNTIME_DASHBOARD_FLAGS__", {
@@ -356,11 +382,21 @@ describe("featureFlags", () => {
     });
     expect(readInjectedFeatureFlagManifest()).toMatchObject({
       state: "present",
-      result: { ok: false, diagnostic: { code: "untrusted_feature_flag_input" } },
+      result: {
+        ok: false,
+        diagnostic: { code: "untrusted_feature_flag_input" },
+      },
     });
     expect(
       parseFeatureFlagManifest(
-        new Proxy({}, { ownKeys: () => { throw new Error("proxy failed"); } }),
+        new Proxy(
+          {},
+          {
+            ownKeys: () => {
+              throw new Error("proxy failed");
+            },
+          },
+        ),
         "remote",
       ),
     ).toMatchObject({
@@ -382,7 +418,10 @@ describe("featureFlags", () => {
     });
     expect(readInjectedFeatureFlagManifest()).toMatchObject({
       state: "present",
-      result: { ok: true, manifest: { flags: { enableScenarioComposer: false } } },
+      result: {
+        ok: true,
+        manifest: { flags: { enableScenarioComposer: false } },
+      },
     });
     expect(injectedReads).toBe(1);
 
@@ -425,7 +464,10 @@ describe("featureFlags", () => {
     window.localStorage.setItem(FEATURE_FLAG_MANIFEST_CACHE_KEY, "");
     expect(readStrictCachedFeatureFlagManifest(cacheScope)).toMatchObject({
       state: "present",
-      result: { ok: false, diagnostic: { code: "invalid_feature_flag_manifest" } },
+      result: {
+        ok: false,
+        diagnostic: { code: "invalid_feature_flag_manifest" },
+      },
     });
   });
 
@@ -441,7 +483,10 @@ describe("featureFlags", () => {
       });
       expect(readStrictCachedFeatureFlagManifest(cacheScope)).toMatchObject({
         state: "present",
-        result: { ok: false, diagnostic: { code: "cache_storage_unavailable" } },
+        result: {
+          ok: false,
+          diagnostic: { code: "cache_storage_unavailable" },
+        },
       });
       expect(
         writeStrictCachedFeatureFlagManifest(
@@ -476,7 +521,10 @@ describe("featureFlags", () => {
         },
         cacheScope,
       ),
-    ).toMatchObject({ ok: false, diagnostic: { code: "cache_serialization_failed" } });
+    ).toMatchObject({
+      ok: false,
+      diagnostic: { code: "cache_serialization_failed" },
+    });
   });
 
   it("retires collaboration and exposes only the eleven wired manifest keys", () => {
@@ -519,7 +567,9 @@ describe("featureFlags", () => {
       ),
     ).toHaveLength(11);
     expect(
-      new Set(Object.values(FEATURE_FLAG_REGISTRY).map((entry) => entry.target)),
+      new Set(
+        Object.values(FEATURE_FLAG_REGISTRY).map((entry) => entry.target),
+      ),
     ).toEqual(new Set(["existing"]));
   });
 

@@ -12,7 +12,10 @@ const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN?.trim();
 const sentryOrg = process.env.SENTRY_ORG?.trim();
 const sentryProject = process.env.SENTRY_PROJECT?.trim();
 const sentryRelease = process.env.VITE_SENTRY_RELEASE?.trim();
-const buildRoot = path.resolve(__dirname, "../../_build/apps/runtime-dashboard");
+const buildRoot = path.resolve(
+  __dirname,
+  "../../_build/apps/runtime-dashboard",
+);
 const distDir = path.resolve(buildRoot, "dist");
 const shouldUploadSourcemaps = Boolean(
   sentryAuthToken && sentryOrg && sentryProject && sentryRelease,

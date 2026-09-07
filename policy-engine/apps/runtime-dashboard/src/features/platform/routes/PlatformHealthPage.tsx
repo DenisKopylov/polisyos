@@ -59,8 +59,12 @@ export default function PlatformHealth() {
               </Badge>
             ) : null}
             <DataFreshnessBadge />
-            <Badge kind="neutral">Candidate rows: {capabilityCount ?? 0}</Badge>
-            <Badge kind="warn">Frontier: {capabilityState}</Badge>
+            <Badge kind="neutral">
+              {t("pages.platform.candidateRowsLabel")} {capabilityCount ?? 0}
+            </Badge>
+            <Badge kind="warn">
+              {t("pages.platform.frontierLabel")} {capabilityState}
+            </Badge>
           </div>
         </div>
       </Card>
@@ -90,7 +94,7 @@ export default function PlatformHealth() {
           <p className="text-muted text-xs">
             {capabilitiesQuery.data?.default_execution_profile ??
               t("common.unknown")}{" "}
-            execution profile
+            {t("pages.platform.executionProfileLabel")}
           </p>
           {capabilitiesQuery.isError ? (
             <ApiErrorAlert
@@ -148,12 +152,12 @@ export default function PlatformHealth() {
           </div>
           {capabilitySearchQuery.isLoading ? (
             <p className="text-muted text-sm">
-              Loading candidate capability rows...
+              {t("pages.platform.loadingCandidateRows")}
             </p>
           ) : null}
           {capabilitySearchQuery.isError ? (
             <ApiErrorAlert
-              title="Unable to search capability registry"
+              title={t("pages.platform.searchCapabilityRegistryError")}
               error={capabilitySearchQuery.error}
             />
           ) : null}
@@ -174,7 +178,8 @@ export default function PlatformHealth() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Badge kind="neutral">
-                        Candidate · {candidate.discovery_result.state}
+                        {t("capabilityDiscovery.candidateLabel")} ·{" "}
+                        {candidate.discovery_result.state}
                       </Badge>
                       <span className="border-line bg-panel text-muted rounded-full border px-2 py-1 text-xs">
                         {candidate.resource_kind} ·{" "}
@@ -188,7 +193,7 @@ export default function PlatformHealth() {
               {capabilitySearchQuery.data &&
               capabilityCandidates.length === 0 ? (
                 <p className="text-muted text-sm">
-                  No candidate rows · {capabilityState}
+                  {t("pages.platform.noCandidateRows")} · {capabilityState}
                   {capabilitySearchQuery.data.response.frontier
                     .incompleteness_reasons.length > 0
                     ? " · " +

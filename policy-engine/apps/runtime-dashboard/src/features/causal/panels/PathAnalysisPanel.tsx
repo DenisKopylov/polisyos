@@ -118,9 +118,7 @@ export function PathAnalysisPanel({
             <p className="text-muted text-xs">
               {t("causal.pathAnalysis.total")}
             </p>
-            <p className="font-mono text-lg font-bold">
-              {formatEffect(total)}
-            </p>
+            <p className="font-mono text-lg font-bold">{formatEffect(total)}</p>
           </div>
         </div>
       </div>

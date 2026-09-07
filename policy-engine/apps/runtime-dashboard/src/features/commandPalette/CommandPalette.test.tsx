@@ -130,11 +130,19 @@ vi.mock("@/app/providers/DensityProvider", () => ({
   }),
 }));
 
-vi.mock("@/shared/i18n/LocaleProvider", () => ({
-  useI18n: () => ({
-    t: (key: string) => key,
-  }),
-}));
+vi.mock("@/shared/i18n/LocaleProvider", async () => {
+  const { default: en } = await import("@/shared/i18n/locales/en.json");
+  return {
+    useI18n: () => ({
+      // The candidate label is now translated in production. Preserve the
+      // existing assertion on its authored text while other fixture keys stay visible.
+      t: (key: string) =>
+        key === "capabilityDiscovery.candidateLabel"
+          ? en.capabilityDiscovery.candidateLabel
+          : key,
+    }),
+  };
+});
 
 vi.mock("@/shared/lib/hooks", () => ({
   useGlobalShortcut: (...args: unknown[]) => useGlobalShortcutMock(...args),
@@ -402,7 +410,7 @@ describe("CommandPalette", () => {
       screen.getByRole("button", { name: /pages\.runs\.tabs\.causal/i }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /pages\.runs\.tabs\.governance/i }),
+      screen.getByRole("button", { name: /pages\.runs\.tabs\.governance/i }),
     ).toBeInTheDocument();
   });
 
@@ -415,7 +423,7 @@ describe("CommandPalette", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /pages\.runs\.tabs\.evidence/i }),
+      screen.getByRole("button", { name: /pages\.runs\.tabs\.evidence/i }),
     ).toBeInTheDocument();
   });
 

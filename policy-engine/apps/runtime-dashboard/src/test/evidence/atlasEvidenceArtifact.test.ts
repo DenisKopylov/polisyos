@@ -101,8 +101,7 @@ function validPayload(): AtlasEvidencePayload {
 describe("Atlas evidence artifact contract", () => {
   it("freezes the Core CAS storage convention and accepts a complete receipt", () => {
     expect(ATLAS_EVIDENCE_STORAGE_CONVENTION).toEqual({
-      artifact_store_contract:
-        "polisyos.core.artifacts.ArtifactStore.put_json",
+      artifact_store_contract: "polisyos.core.artifacts.ArtifactStore.put_json",
       artifact_kind: "atlas_evidence_receipt",
       media_type: "application/json",
       default_local_root: ".polisyos/cas",
@@ -401,7 +400,9 @@ describe("Atlas evidence artifact contract", () => {
           ...receipt,
           result: {
             outcome,
-            findings: [{ code: `${outcome}_witness`, detail: "Observed result" }],
+            findings: [
+              { code: `${outcome}_witness`, detail: "Observed result" },
+            ],
           },
         }).success,
       ).toBe(true);

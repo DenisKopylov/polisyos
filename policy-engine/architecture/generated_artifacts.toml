@@ -536,7 +536,7 @@ check_command = [
   "pytest",
   "tests/unit/core/contracts/test_capability_resolution.py",
   "tests/unit/runtime/quality/test_capability_resolver.py",
-  "tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py",
+  "tests/unit/runtime/quality/test_design_axes_substrate_acquisition.py",
   "-q",
 ]
 

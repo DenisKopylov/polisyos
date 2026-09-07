@@ -1,0 +1,12 @@
+name: Setup ripgrep
+description: Provision the ripgrep binary required by CI scans.
+runs:
+  using: composite
+  steps:
+    - name: Install ripgrep
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq ripgrep
+        rg --version

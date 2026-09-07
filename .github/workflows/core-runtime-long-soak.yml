@@ -34,7 +34,6 @@ jobs:
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
           extras: "test runtime causal-discovery"
 
       - name: Run core-runtime long soak

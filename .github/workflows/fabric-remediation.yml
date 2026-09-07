@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - ".github/workflows/fabric-remediation.yml"
+      - ".github/actions/setup-ripgrep/**"
+      - ".github/scripts/require_no_matches.sh"
       - "policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md"
       - "policy-engine/docs/archive/reports/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
       - "policy-engine/pyproject.toml"
@@ -18,7 +20,7 @@ on:
       - "policy-engine/src/polisyos/core/security/db_backend.py"
       - "policy-engine/src/polisyos/fabric/**"
       - "policy-engine/tests/unit/fabric/**"
-      - "policy-engine/tests/tools/test_fabric_schema_governance.py"
+      - "policy-engine/tests/repo_quality/tools/test_fabric_schema_governance.py"
       - "policy-engine/tools/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
@@ -29,6 +31,8 @@ on:
       - main
     paths:
       - ".github/workflows/fabric-remediation.yml"
+      - ".github/actions/setup-ripgrep/**"
+      - ".github/scripts/require_no_matches.sh"
       - "policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md"
       - "policy-engine/docs/archive/reports/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
       - "policy-engine/pyproject.toml"
@@ -43,7 +47,7 @@ on:
       - "policy-engine/src/polisyos/core/security/db_backend.py"
       - "policy-engine/src/polisyos/fabric/**"
       - "policy-engine/tests/unit/fabric/**"
-      - "policy-engine/tests/tools/test_fabric_schema_governance.py"
+      - "policy-engine/tests/repo_quality/tools/test_fabric_schema_governance.py"
       - "policy-engine/tools/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
@@ -103,13 +107,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Setup ripgrep
+        uses: ./.github/actions/setup-ripgrep
+
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
           extras: "lint test"
 
       - name: Check broad-exception baseline
-        run: uv run python tools/quality/testing/check_fabric_exception_baseline.py
+        run: uv run python tools/quality/testing/check_fabric_exception_baseline.py --repo-root .
 
       - name: Run Fabric schema governance gate
         run: |
@@ -119,15 +126,15 @@ jobs:
 
       - name: Ban query.replace in Fabric connector and world paths
         run: |
-          ! rg -n "query\\.replace\\(" src/polisyos/fabric/connectors src/polisyos/fabric/world src/polisyos/fabric/quality.py
+          bash ../.github/scripts/require_no_matches.sh -n "query\\.replace\\(" src/polisyos/fabric/connectors src/polisyos/fabric/world src/polisyos/fabric/quality.py
 
       - name: Ban eval-style DataFrame filters
         run: |
-          ! rg -n "DataFrame\\.eval|\\.eval\\(" src/polisyos/fabric
+          bash ../.github/scripts/require_no_matches.sh -n "DataFrame\\.eval|\\.eval\\(" src/polisyos/fabric
 
       - name: Ban datetime.utcnow in Fabric
         run: |
-          ! rg -n "datetime\\.utcnow\\(" src/polisyos/fabric
+          bash ../.github/scripts/require_no_matches.sh -n "datetime\\.utcnow\\(" src/polisyos/fabric
 
       - name: Upload Fabric schema governance evidence
         if: always()

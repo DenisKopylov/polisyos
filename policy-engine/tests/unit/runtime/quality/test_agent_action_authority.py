@@ -527,6 +527,7 @@ def _prepare_gateway(
     bound_permission: object | None = None,
     artifact_store: object | None = None,
     mandate_authority_evidence: object | None = None,
+    mandate_authority_at: datetime = NOW,
     include_mandate_authority: bool = True,
 ) -> tuple[object, str, str | None]:
     authority = _authority_module()
@@ -573,7 +574,12 @@ def _prepare_gateway(
         admission_mapping[authority.agent_action_content_hash(invocation)] = admission_ref
     mandate_authority_mapping: dict[str, str] = {}
     if include_mandate_authority:
-        evidence = mandate_authority_evidence or _mandate_authority_evidence()
+        evidence = mandate_authority_evidence
+        if evidence is None:
+            evidence = _mandate_authority_evidence(
+                effective_from=mandate_authority_at - timedelta(hours=1),
+                effective_until=mandate_authority_at + timedelta(hours=2),
+            )
         mandate_authority_mapping[MANDATE_OWNER_REF] = _persist_signed(
             harness,
             evidence,
@@ -1280,6 +1286,9 @@ def test_agent_gateway_pa2_arm_re_resolves_s7_without_production_packet(
         delegation_envelope_ref=envelope.envelope_ref,
         delegation_envelope_digest=_authority_module().agent_action_content_hash(envelope),
     )
+    later = record.recorded_at + timedelta(seconds=1)
+    monkeypatch.setattr(fixture.service, "_clock", lambda: later)
+    monkeypatch.setattr(_authority_module(), "_utcnow", lambda: later)
     gateway, _, _ = _prepare_gateway(
         fixture.harness,
         contract=fixture.contract,
@@ -1290,10 +1299,8 @@ def test_agent_gateway_pa2_arm_re_resolves_s7_without_production_packet(
         contract_ref_override=record.basis_ref,
         human_decision_service=fixture.service,
         human_decision_adapters={record.human_decision_request_ref: adapter},
+        mandate_authority_at=later,
     )
-    later = record.recorded_at + timedelta(seconds=1)
-    monkeypatch.setattr(fixture.service, "_clock", lambda: later)
-    monkeypatch.setattr(_authority_module(), "_utcnow", lambda: later)
 
     assert (
         _dispatch(
@@ -1327,6 +1334,7 @@ def test_agent_gateway_rejects_changed_admission_under_same_request_ref(
         authority_input_payload={"independently_admitted_note": "changed"},
         human_decision_service=fixture.service,
         human_decision_adapters={record.human_decision_request_ref: adapter},
+        mandate_authority_at=record.recorded_at,
     )
 
     _assert_refused_with_zero_effect(
@@ -1363,6 +1371,7 @@ def test_agent_gateway_rejects_changed_live_permission_snapshot_under_same_reque
         contract_ref_override=record.basis_ref,
         human_decision_service=fixture.service,
         human_decision_adapters={record.human_decision_request_ref: adapter},
+        mandate_authority_at=record.recorded_at,
     )
 
     _assert_refused_with_zero_effect(
@@ -1569,8 +1578,9 @@ def test_envelope_expiring_after_decision_is_rechecked_before_effect(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     authority = _authority_module()
-    clock_values = iter((NOW - timedelta(hours=2), NOW))
-    monkeypatch.setattr(authority, "_utcnow", lambda: next(clock_values))
+    decision_time = NOW - timedelta(hours=2)
+    scenario_time = decision_time
+    monkeypatch.setattr(authority, "_utcnow", lambda: scenario_time)
     harness = _harness(tmp_path)
     operation = _operation()
     invocation = _invocation(operation)
@@ -1589,7 +1599,20 @@ def test_envelope_expiring_after_decision_is_rechecked_before_effect(
         invocation=invocation,
         intent=intent,
         bindings=(binding,),
+        mandate_authority_evidence=_mandate_authority_evidence(
+            effective_from=decision_time - timedelta(hours=1),
+            effective_until=NOW + timedelta(hours=2),
+        ),
     )
+    persist_decision = gateway.persist_decision
+
+    def persist_then_advance_clock(*args: Any, **kwargs: Any) -> Any:
+        nonlocal scenario_time
+        persisted = persist_decision(*args, **kwargs)
+        scenario_time = NOW
+        return persisted
+
+    monkeypatch.setattr(gateway, "persist_decision", persist_then_advance_clock)
     with pytest.raises(
         authority.AgentActionAuthorityRecordingError,
         match="envelope is no longer live",
@@ -2147,6 +2170,7 @@ def test_human_approval_cannot_replay_after_invocation_content_changes(
         contract_ref_override=record.basis_ref,
         human_decision_service=fixture.service,
         human_decision_adapters={record.human_decision_request_ref: adapter},
+        mandate_authority_at=record.recorded_at,
     )
     assert (
         _dispatch(
@@ -2170,6 +2194,7 @@ def test_human_approval_cannot_replay_after_invocation_content_changes(
         contract_ref_override=record.basis_ref,
         human_decision_service=fixture.service,
         human_decision_adapters={record.human_decision_request_ref: adapter},
+        mandate_authority_at=record.recorded_at,
     )
     decision = _assert_refused_with_zero_effect(
         fixture.harness,

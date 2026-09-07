@@ -1,4 +1,8 @@
-import { parsePersistenceProcessResult } from "./persistenceProcessResult";
+import {
+  parsePersistenceProcessResult,
+  PERSISTENCE_CHILD_TIMEOUT_MS,
+  PERSISTENCE_TEST_TIMEOUT_MS,
+} from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
@@ -126,7 +130,7 @@ function invokePersistence(
         POLISYOS_CAS_ROOT: casRoot,
         ...environment,
       },
-      timeout: 60_000,
+      timeout: PERSISTENCE_CHILD_TIMEOUT_MS,
     },
   );
   return parsePersistenceProcessResult(result);
@@ -965,89 +969,103 @@ describe("Atlas health metrics", () => {
     expect(audience.known_facts).not.toHaveProperty("passed_test_count");
   });
 
-  it("persists a content-bound descriptive snapshot while recording its missing consumer", () => {
-    const casRoot = mkdtempSync(path.join(tmpdir(), "atlas-health-cas-"));
-    try {
-      const result = invokePersistence(
-        { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
-        casRoot,
-      );
-      expect(result.status).toBe(0);
-      expectPersistedHealth(result, casRoot, report);
-    } finally {
-      rmSync(casRoot, { recursive: true, force: true });
-    }
-  });
+  it(
+    "persists a content-bound descriptive snapshot while recording its missing consumer",
+    () => {
+      const casRoot = mkdtempSync(path.join(tmpdir(), "atlas-health-cas-"));
+      try {
+        const result = invokePersistence(
+          { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
+          casRoot,
+        );
+        expect(result.status).toBe(0);
+        expectPersistedHealth(result, casRoot, report);
+      } finally {
+        rmSync(casRoot, { recursive: true, force: true });
+      }
+    },
+    PERSISTENCE_TEST_TIMEOUT_MS,
+  );
 
-  it("ignores a caller PATH node that emits a schema-valid forged report", () => {
-    const casRoot = mkdtempSync(path.join(tmpdir(), "atlas-health-path-cas-"));
-    const fakeRoot = mkdtempSync(
-      path.join(tmpdir(), "atlas-health-fake-node-"),
-    );
-    try {
-      const marker = path.join(fakeRoot, "fake-node-ran");
-      const forgedReport = clone(report) as unknown as {
-        measurements: Array<Record<string, unknown>>;
-      };
-      forgedReport.measurements[0].measurement = clone(
-        metric(report, "surface_missing_closure").measurement,
+  it(
+    "ignores a caller PATH node that emits a schema-valid forged report",
+    () => {
+      const casRoot = mkdtempSync(
+        path.join(tmpdir(), "atlas-health-path-cas-"),
       );
-      const reportPath = path.join(fakeRoot, "forged-report.json");
-      writeFileSync(reportPath, JSON.stringify(forgedReport), "utf8");
-      const fakeNode = path.join(fakeRoot, "node");
-      writeFileSync(
-        fakeNode,
-        [
-          "#!/usr/bin/python3",
-          "from pathlib import Path",
-          `Path(${JSON.stringify(marker)}).write_text("invoked")`,
-          `print(Path(${JSON.stringify(reportPath)}).read_text())`,
-          "",
-        ].join("\n"),
-        "utf8",
+      const fakeRoot = mkdtempSync(
+        path.join(tmpdir(), "atlas-health-fake-node-"),
       );
-      chmodSync(fakeNode, 0o755);
+      try {
+        const marker = path.join(fakeRoot, "fake-node-ran");
+        const forgedReport = clone(report) as unknown as {
+          measurements: Array<Record<string, unknown>>;
+        };
+        forgedReport.measurements[0].measurement = clone(
+          metric(report, "surface_missing_closure").measurement,
+        );
+        const reportPath = path.join(fakeRoot, "forged-report.json");
+        writeFileSync(reportPath, JSON.stringify(forgedReport), "utf8");
+        const fakeNode = path.join(fakeRoot, "node");
+        writeFileSync(
+          fakeNode,
+          [
+            "#!/usr/bin/python3",
+            "from pathlib import Path",
+            `Path(${JSON.stringify(marker)}).write_text("invoked")`,
+            `print(Path(${JSON.stringify(reportPath)}).read_text())`,
+            "",
+          ].join("\n"),
+          "utf8",
+        );
+        chmodSync(fakeNode, 0o755);
 
-      const result = invokePersistence(
-        { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
-        casRoot,
-        { PATH: fakeRoot },
-      );
-      expect(existsSync(marker)).toBe(false);
-      expectPersistedHealth(result, casRoot, report);
-    } finally {
-      rmSync(casRoot, { recursive: true, force: true });
-      rmSync(fakeRoot, { recursive: true, force: true });
-    }
-  });
+        const result = invokePersistence(
+          { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
+          casRoot,
+          { PATH: fakeRoot },
+        );
+        expect(existsSync(marker)).toBe(false);
+        expectPersistedHealth(result, casRoot, report);
+      } finally {
+        rmSync(casRoot, { recursive: true, force: true });
+        rmSync(fakeRoot, { recursive: true, force: true });
+      }
+    },
+    PERSISTENCE_TEST_TIMEOUT_MS,
+  );
 
-  it("does not inherit caller NODE_OPTIONS into the fixed producer", () => {
-    const casRoot = mkdtempSync(
-      path.join(tmpdir(), "atlas-health-node-options-cas-"),
-    );
-    const injectionRoot = mkdtempSync(
-      path.join(tmpdir(), "atlas-health-node-options-"),
-    );
-    try {
-      const marker = path.join(injectionRoot, "node-options-loaded");
-      const preload = path.join(injectionRoot, "preload.cjs");
-      writeFileSync(
-        preload,
-        `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "loaded");\n`,
-        "utf8",
+  it(
+    "does not inherit caller NODE_OPTIONS into the fixed producer",
+    () => {
+      const casRoot = mkdtempSync(
+        path.join(tmpdir(), "atlas-health-node-options-cas-"),
       );
-      const result = invokePersistence(
-        { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
-        casRoot,
-        { NODE_OPTIONS: `--require=${preload}` },
+      const injectionRoot = mkdtempSync(
+        path.join(tmpdir(), "atlas-health-node-options-"),
       );
-      expect(existsSync(marker)).toBe(false);
-      expectPersistedHealth(result, casRoot, report);
-    } finally {
-      rmSync(casRoot, { recursive: true, force: true });
-      rmSync(injectionRoot, { recursive: true, force: true });
-    }
-  });
+      try {
+        const marker = path.join(injectionRoot, "node-options-loaded");
+        const preload = path.join(injectionRoot, "preload.cjs");
+        writeFileSync(
+          preload,
+          `require("node:fs").writeFileSync(${JSON.stringify(marker)}, "loaded");\n`,
+          "utf8",
+        );
+        const result = invokePersistence(
+          { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
+          casRoot,
+          { NODE_OPTIONS: `--require=${preload}` },
+        );
+        expect(existsSync(marker)).toBe(false);
+        expectPersistedHealth(result, casRoot, report);
+      } finally {
+        rmSync(casRoot, { recursive: true, force: true });
+        rmSync(injectionRoot, { recursive: true, force: true });
+      }
+    },
+    PERSISTENCE_TEST_TIMEOUT_MS,
+  );
 
   it.each([
     "report",

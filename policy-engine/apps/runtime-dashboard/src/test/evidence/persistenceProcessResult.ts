@@ -1,5 +1,13 @@
 import type { SpawnSyncReturns } from "node:child_process";
 
+// These fixtures execute independent producer/admission replays and Core CAS
+// verification. The measured 127-second complete run plus 25% headroom rounds
+// up to three minutes. These are liveness watchdogs, not latency assertions.
+// The child must expire before the enclosing test so its cause survives.
+export const PERSISTENCE_CHILD_TIMEOUT_MS = 180_000;
+export const PERSISTENCE_TEST_TIMEOUT_MS =
+  PERSISTENCE_CHILD_TIMEOUT_MS + 60_000;
+
 export type PersistenceProcessResult = Readonly<{
   status: number | null;
   stderr: string;

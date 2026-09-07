@@ -2,6 +2,8 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
+import { preserveVitestErrorCause } from "./scripts/preserve-vitest-error-cause";
+
 const buildRoot = path.resolve(
   __dirname,
   "../../_build/apps/runtime-dashboard",
@@ -12,7 +14,7 @@ export default defineConfig({
     __dirname,
     "../../_cache/apps/runtime-dashboard/vitest",
   ),
-  plugins: [react()],
+  plugins: [react(), preserveVitestErrorCause()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

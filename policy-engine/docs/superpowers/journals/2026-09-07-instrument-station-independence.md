@@ -357,6 +357,11 @@ The worktree remains available at A on `codex/instrument-station-independence`; 
 detached diagnostic station at the base. The three deliberately created ignored directories
 remain on A for reproduction. There is no environment to repair or resync.
 
-This journal is to be committed on the attached branch and read back from that branch before
-handback. No push is authorized or performed. This is a scope-boundary handback, not a claim
-that the six instrument debts are closed.
+The initial journal was committed as `108fde771` after verifying branch attachment and the
+staged diff. The ordinary commit hook printed `No config files with names ["lefthook"
+".lefthook" ".config/lefthook"] have been found` for A and still allowed the commit to exit 0.
+That exit is a commit receipt, **not passing hook validation**. This delivery receipt is an
+append-only follow-up; final branch contents must be read back before handback.
+
+No push is authorized or performed. This is a scope-boundary handback, not a claim that the
+six instrument debts are closed.

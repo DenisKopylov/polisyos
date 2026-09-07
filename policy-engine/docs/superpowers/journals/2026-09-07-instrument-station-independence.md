@@ -1,6 +1,29 @@
-# Instrument station independence — investigation and scope stop
+# Instrument station independence — repairs and local handback
 
 Date: 2026-09-07. Owner: instrument-station-independence lane.
+
+## Current dispositions after the authorized continuation
+
+This table replaces the initial blocked dispositions; the original handback remains below as
+history. All eight owned rows are dispositioned: five repaired, three repaired-with-a-limit.
+The verified mechanism candidate is `6fa919b744c945f686a42ab746bbb3f5dbaa9b79`; the final
+follow-up changes only this journal. This is a local push-boundary handback, not a green claim
+for the entire architecture suite.
+
+| Owned row | Current disposition | Result and remaining boundary |
+| --- | --- | --- |
+| `last-mile-unreadable-input-becomes-an-empty-file` | repaired | Strict input reads and complete tracked census report missing, dangling, undecodable and invalid input as ambiguous; committed removal probes protect the behavior. |
+| `last-mile-inventory-baseline-drift-at-ci-candidate` | repaired | Default baseline binds to the selected root; every collector uses one tracked census; enumerated baseline reconciliation and both complete station artifacts agree. Historical inherited attribution stays `not_established`. |
+| `last-mile-inventory-treats-evidence-paths-as-live-references` | repaired | Shared role projection excludes documentary evidence and retains live references, including live ZIP containers. Both station inventories agree; live negative controls remain red. |
+| `docs-lifecycle-live-references-and-ledger-metadata` | repaired | Tracked reference/ADR enumeration and aggregate-ledger typing pass on both stations with ignored reference debris. The separate expired docs-freshness exception remains separately owned. |
+| `shared-git-hook-hardcodes-one-worktree-path` | repaired-with-a-limit | Producer and all recognized generated hooks are checkout-relative and stable across installs. An older checkout can still run its old producer until the repair is integrated there. |
+| `shared-hook-binds-its-config-at-install-time-and-validates-nothing` | repaired-with-a-limit | Runtime config/binary binding fails closed; real violating and autofixed commits are refused; stale generated entrypoints are normalized. Older checkout/config rollout remains an architect responsibility. |
+| `structure-gate-cli-defaults-to-report-only` | repaired | Documented default is fail-closed and agrees with explicit CI mode on both stations, including the three ignored directories. Tracked negative controls remain red. |
+| `generated-freshness-probe-rebinds-caller-venv` | repaired-with-a-limit | Both real consumers preserve caller bindings; the required runner provisions a private interpreter/cache. Final full guardrail still reports the explicit runtime/deep-import/generated-artifact findings below, whose reconciliation is outside this row's edit boundary. |
+
+No owned row is left not-started or blocked without a disposition. Neither the debt register
+nor ledger was authored or executed by this lane. The final receipt below distinguishes the
+recomputed successes from the remaining reds and their attribution.
 
 ## Initial handback: outcome and stopping decision (superseded below)
 
@@ -509,7 +532,7 @@ not depend on that ignored-postinstall setting. No workflow file changed.
 
 On disposable check-a only, the sole full command
 `uv run polisyos-tools architecture guardrails check` finished with exit 1 and no traceback.
-Its complete typed finding identity set at the first candidate was:
+Its complete normalized finding identity set at the first candidate was:
 
 ```text
 deep_import_baseline | drift
@@ -517,9 +540,9 @@ deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> pol
 deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.signing
 deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.write_contract
 generated_artifact | runtime-openapi-snapshot | output_probe_worktree_escape
-generated_artifact | runtime-openapi-snapshot | generated_output_drift
+generated_artifact | runtime-openapi-snapshot | schemas/runtime_api_v1.openapi.json
 generated_artifact | runtime-api-client | output_probe_failed
-generated_artifact | trust-claim-posture-register | generated_output_drift
+generated_artifact | trust-claim-posture-register | apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json
 ```
 
 The full log is
@@ -552,3 +575,259 @@ lifecycle command both exited 0 with complete gate finding sets `[]` and `[]`. T
 inventory baseline required no further edit. The named inventory/docs/ADR/structure test wave
 passed 84 of 85 collected cases in 30.93 seconds; the separately proven inherited docs-freshness
 case was explicitly deselected. Final candidate/station replay follows below.
+
+### Final paired candidate and recomputed validators
+
+The corrected source candidate is `6fa919b744c945f686a42ab746bbb3f5dbaa9b79`, tree
+`f9cb5e06814d6e32ea6f65b530266601c7c9c52a`. Its ordinary commit ran the actual repaired
+hook: contrast and reduced-motion checks passed; Prettier reported the dashboard config
+unchanged; ESLint had no matching staged source. There was no missing-config warning.
+The delivery worktree was attached to `codex/instrument-station-independence` before commit
+and clean afterward. Both owned detached diagnostic worktrees were clean before advancing
+from the first candidate using `git merge --ff-only`; neither diagnostic advance created a
+commit or rewrote history.
+
+Station names for the final comparison:
+
+- C2-A: `/Users/deniskopylov/polisyos/.worktrees/instruments-check-a/policy-engine`.
+- C2-B: `/Users/deniskopylov/polisyos/.worktrees/instruments-check-b/policy-engine`.
+
+Both are real detached worktrees at the full candidate SHA above. The same frozen offline
+Python sync audited all 166 installed distributions on each. Serial
+`CI=true corepack pnpm install --frozen-lockfile` reran prepare successfully on both. The
+complete 18-file hook hash sets after each install are equal. All three managed hook bytes
+remain identical to the dispatcher hash above. The entire Python name/version sets, Node
+and pnpm versions, three workspace-link mappings, both lock hashes, and tracked path sets
+were compared and agree. Station-specific editable source paths were recorded separately,
+not normalized into an apparent equality of their literal `.pth` bytes.
+
+C2-A contains `.benchmarks`, `.polisyos-tools`, `.tmp`, and the ignored
+`.tmp/instrument-reference.md` carrying a live obsolete-reference shape. C2-B lacks that
+four-item probe set. Provisioned environments, dependency caches, and ignored measurement
+logs exist on both. This is a clean tracked-tree comparison with the declared station delta.
+
+Each cell below is the **complete gate finding identity set**, not a total. Each command was
+the sole command in its shell invocation, with its actual tool exit code captured. All eight
+invocations exited 0 and none ended in or contained a traceback.
+
+| Sole command from the product root | C2-A complete set | C2-B complete set |
+| --- | --- | --- |
+| `uv run python tools/quality/validation/repository_structure_phase0.py gate --gate all --json` | `[]` | `[]` |
+| `uv run python tools/quality/validation/repository_structure_phase0.py gate --gate all --mode fail-closed --json` | `[]` | `[]` |
+| `.venv/bin/python -m tools.quality.validation.check_docs_lifecycle` | `[]` | `[]` |
+| `.venv/bin/python -m tools.quality.validation.repository_last_mile_inventory --json-output _build/.tmp/instruments-final/inventory-c2.json --check` | `[]` | `[]` |
+
+The complete inventory objects, not just their summary counts, are byte-identical on both
+stations and equal the committed baseline: SHA-256
+`d33b3205f8d9b553ff1133bec79cccb0b3c1f0d213e13aa6ccf6b2fb73168a77`.
+Each station retains its own `inventory-c2.json` at the path in the command. The complete
+structured observation rows are the baseline's 26 rows; their accepted observations are
+distinct from the gate's drift/invalid-input findings shown above. Every field participated
+in the comparison. The two complete observation-identity sets are also retained together at
+the delivery worktree's `_build/.tmp/instruments-final/paired-inventory-finding-sets.json`.
+That receipt has SHA-256 `ff7c1ccdd98b57b59593977dcc8ddff056839e6cb1a84e5ffec34df40a616d98`:
+each station supplies all 300 path observations across 26 rows plus seven explicit empty-path
+row identities. Both directional differences of these complete 307-identity sets are `[]`.
+
+The requested selected-root/default-baseline hypothesis was checked in both directions:
+the module loaded on C2-A checked C2-B, and the module loaded on C2-B checked C2-A. For each
+direction, a separate invocation of `check_artifacts(selected)` returned `[]`, exit 0, and a
+separate invocation of `check_artifacts(selected, selected / DEFAULT_INVENTORY)` returned
+`[]`, exit 0. Thus the complete default/resolved sets are A→B `[]`/`[]` and B→A `[]`/`[]`.
+The fixture regression distinguishes repositories with different baseline contents, so this
+real same-commit reading is not the only protection against module-checkout capture.
+An explicit scratch baseline with only `summary.path_count` corrupted was independently
+recomputed and refused, exit 1, complete set:
+
+```text
+baseline drift: _build/.tmp/instruments-final/inventory-corrupt.json
+```
+
+Complete final input denominators were enumerated on **each** station: 10,571 tracked files
+of every file type in the whole checkout and 1,273 inferred directories for structure;
+10,547 tracked product files for inventory; and 10,265 selected reference-scan files out of
+those 10,547 product paths for docs. Complete path lists and distributions are in
+`_build/.tmp/instruments-final/structure-denominators.json` on the delivery station and
+`_build/.tmp/instruments-final/provision-final.json` on each diagnostic station. The docs
+reference file-type denominator at both stations is:
+
+```json
+{".cfg":1,".cjs":9,".css":17,".csv":15,".cypher":2,".example":3,".html":3,".ini":11,".js":5,".json":1234,".jsonc":1,".jsonl":5,".lock":1,".md":1663,".mdc":1,".mjs":37,".py":5755,".pyi":5,".rego":23,".reproducible":1,".sh":45,".sql":6,".svg":18,".tf":1,".tmpl":7,".toml":222,".tpl":1,".ts":438,".tsx":577,".txt":5,".typed":2,".yaml":84,".yml":54,"<none>":13}
+```
+
+Final hook regression denominator: all eight collected cases in
+`tests/repo_quality/tools/test_repo_hooks.py` passed with real pinned Lefthook/Prettier,
+no skips. The two final cases protect a custom primary hook whose helper happens to have a
+Lefthook-like name: with no backup it is preserved as `.old`; with a preexisting `.old` the
+installer refuses and preserves both files. Both failed before central ownership was fixed
+and under replacement-only removal while discovery and its markers remained present.
+The other six cases cover install stability, real rule refusal across linked stations,
+missing config/binary, autofix refusal, and the stale generated entrypoint. No existing
+assertions were relaxed.
+
+Final architecture-phase3 test denominator: all 30 collected cases ran, with 29 passing and
+the checkpoint-route assertion below failing; exit 1, 42.04 seconds. The three new freshness
+cases all passed. Their four runtime removals (caller sharing, missing private interpreter,
+source-local cache, bypassed preparation) all went red while markers remained. Preparation
+and direct Python consumers are tested behaviorally, not by searching environment-variable
+names. No directory-wide pytest or debt-ledger command was run.
+
+### Attribution and incidental proposals for the architect
+
+The original baseline-drift, inventory-evidence, and docs-lifecycle rows retain historical
+`not_established` inherited attribution. They were repaired/reconciled, not excused as
+inherited. The journal was itself in the old docs scan; the additional continuation finding
+was `removed_stub_reference | docs/superpowers/journals/2026-09-07-instrument-station-independence.md`.
+
+A **separate** docs-freshness test was replayed exactly from the original slice base
+`edc104849a9830dd5249390aa5380bd49836490c` at `instruments-base/policy-engine`:
+`python3 -m pytest tests/repo_quality/tools/test_docs_lifecycle.py::test_phase6_4_docs_freshness_baseline_is_docs_only_and_stable -q --override-ini='addopts='`.
+Both the base and current readings failed. Complete base finding set:
+
+```text
+docs freshness exception baseline expired
+docs freshness violation count changed: expected 0, observed 7
+docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed a4133e28a03a4705beaf8aa36616725b0dba76e3fc7713fe7d94e4390da75b2b
+```
+
+Complete current finding set:
+
+```text
+docs freshness exception baseline expired
+docs freshness violation count changed: expected 0, observed 7
+docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed a4133e28a03a4705beaf8aa36616725b0dba76e3fc7713fe7d94e4390da75b2b
+```
+
+The conservative complete input union has 502 paths: 471 Markdown, six Python, five TOML,
+14 YML, two JSON and four extensionless paths, including checker/test implementations and
+absent consulted paths. The entire slice-change intersection is `[]`; both commands used
+the same system Python/pytest profile. This establishes **inherited** for this separate
+failure. Complete receipt: `.tmp/instruments-docs/freshness-inputs.json` on the delivery
+station. Proposed row/owner: expired and drifted docs-freshness exception baseline,
+team-docs/architecture. This lane did not renew that exception.
+
+The exact checkpoint test was also replayed at the original slice base:
+`python3 -m pytest tests/repo_quality/tools/test_architecture_phase3.py::test_checkpoint_scope_uses_candidate_security_route -q --override-ini='addopts='`.
+Its complete selected sets at base are `{"observed":[],"expected":["polisyos.core.security"]}`;
+at current they are `{"observed":[],"expected":["polisyos.core.security"]}`. Both failed.
+Each collector enumerated 2,619 `src/**/*.py` paths, read 2,618 Python artifacts plus the
+public-surface TOML contract, and completed without a collector traceback. Artifact inputs
+are disjoint from this slice, but conservative implementation/test dependencies intersect at:
+
+```text
+policy-engine/tests/repo_quality/tools/test_architecture_phase3.py
+policy-engine/tools/devx/architecture/guardrails.py
+```
+
+Therefore attribution remains **base-reproduced, `not_established`**, not inherited. The
+checkpoint imports a permitted public facade which the deep-import collector intentionally
+excludes; the test expects that allowed route among deep-import findings. No assertion was
+changed. Proposed row/owner: checkpoint-route test queries the wrong edge class,
+team-architecture / Scientist checkpoint maintainer. Full receipts are
+`.tmp/instruments-docs/checkpoint-instruments-base.json` and
+`.tmp/instruments-docs/checkpoint-instruments.json` on the delivery station.
+
+The original proposals have explicit dispositions: unreadable input became the owned row;
+wrong-checkout baseline ownership and untracked docs scanning became mechanisms of existing
+rows; the absent named closure test was correctly declined as a row and is now implemented.
+The deeper inventory, ZIP, hook, and private-environment findings above are repairs within
+those owned mechanisms, not new proposed rows.
+
+### Final full freshness receipt and bounded residual
+
+The corrected full sole command on disposable C2-A was again
+`uv run polisyos-tools architecture guardrails check`, with log
+`/Users/deniskopylov/polisyos/.worktrees/instruments-check-a/policy-engine/_build/.tmp/instruments-final/guardrails-c2.log`.
+It completed with exit 1 and no traceback. The required family denominator is the complete
+four-family selection from 61 manifest entries: `runtime-openapi-snapshot`,
+`runtime-api-client`, `runtime-dashboard-api-types`, `trust-claim-posture-register`.
+The final complete normalized finding identity set is:
+
+```text
+deep_import_baseline | drift
+deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.manifest
+deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.signing
+deep_import | polisyos.runtime.http.services.acquisition_admission_bundle -> polisyos.core.artifacts.write_contract
+generated_artifact | runtime-openapi-snapshot | output_probe_worktree_escape
+generated_artifact | runtime-openapi-snapshot | schemas/runtime_api_v1.openapi.json
+generated_artifact | trust-claim-posture-register | apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json
+```
+
+The complete final escaped-path set is:
+
+```text
+isolated-source/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob
+isolated-source/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json
+```
+
+The complete generated-byte-drift path set is:
+
+```text
+schemas/runtime_api_v1.openapi.json
+apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json
+```
+
+The API-client generator now executes without the missing-private-interpreter failure; the
+complete escape set contains no uv cache path. Runtime CAS writes remain findings. This is a
+correction of this lane's own first candidate, not an inherited-red claim. No generated output,
+exception, source implementation, or excluded manifest was altered to obtain a pass.
+There is no cross-station equality claim for the full guardrail: the second station exercised
+the other consumer, and its distinct failure is recorded above.
+
+After this final full run, the complete caller `.pth` identity set still contains exactly:
+
+```text
+lib/python3.14/site-packages/_editable_impl_policy_engine.pth
+lib/python3.14/site-packages/_virtualenv.pth
+```
+
+Before and after bytes of the first file are, without a trailing newline:
+
+```text
+/Users/deniskopylov/polisyos/.worktrees/instruments-check-a/policy-engine
+/Users/deniskopylov/polisyos/.worktrees/instruments-check-a/policy-engine/src
+```
+
+Before and after bytes of the second file are `import _virtualenv`, without a trailing newline.
+The complete changed-identity set is `[]`. A direct `.venv/bin/python` process, with no uv
+resync, imported
+`/Users/deniskopylov/polisyos/.worktrees/instruments-check-a/policy-engine/src/polisyos/__init__.py`.
+Full receipt: `guardrail-c2-environment-after.json` beside that station's log. The other real
+consumer's unchanged two-file caller set and local import were independently recorded on
+check-b. The shared helper did not change between its C1 receipt and C2.
+
+This closes caller-environment rebinding while declaring the limit honestly. The smallest
+remaining closure work is at the producers/committed generated outputs: route runtime CAS
+writes into an assigned output context, reconcile the two generated artifacts, and adjudicate
+the acquisition-bundle imports. This lane has no authority to edit the runtime source,
+generated manifest, OpenAPI schema or dashboard public artifact. Its instrument already
+detects these cases; no available in-scope switch can reconcile them without suppressing
+the property. Inherited attribution for this final red is `not_established`; no unsafe or
+unprovisioned base replay is presented as proof.
+
+Incidental proposals for architect association/allocation, not authoritative new register rows:
+
+| Proposed issue | Proposed owner | Concrete acceptance |
+| --- | --- | --- |
+| Runtime OpenAPI output probe writes CAS outside its assigned output root | runtime HTTP / artifact custody owner | The real generator's complete escaped-path set becomes `[]` without excluding CAS from measurement. |
+| Runtime OpenAPI and trust-posture committed bytes drift from their generators | runtime API / trust-posture generated-artifact owners | Reconcile the declared outputs and rerun their exact generator-byte checks. |
+| Acquisition admission bundle introduces deep imports beyond the baseline | runtime/core facade owner with architecture | Adjudicate the three exact import edges above and recompute the baseline or correct the source. |
+
+These proposals join the separately evidenced docs-freshness and checkpoint-test proposals
+above. P40 buckets were supplied during review; no hypothetical general refactor was added.
+
+### Delivery and final readback contract
+
+All 14 changed Python files passed Ruff together after source freeze. The Node installer
+passed its syntax check. The committed regression tests and their runtime-removal receipts
+are preserved; no assertion was quietly weakened. The source candidate's actual commit
+ran the repaired declared checks successfully, with no missing-config warning.
+After writing this final journal, the delivery station's sole docs, inventory `--check`, and
+documented default structure commands each exited 0 with complete finding sets `[]`, `[]`,
+and `[]`; source/baseline bytes were unchanged.
+
+The final follow-up commit records this journal only. Source and baseline bytes remain those
+of C2; final branch/file/hook hashes and attachment are read back after that commit. Diagnostic
+worktrees and ignored receipts remain available for local review. No other lane's branch or
+worktree was modified. No GitHub integration, push, rebase, force-push, reset or stash storage
+was used. The architect owns register/ledger transcription and cross-lane rollout.

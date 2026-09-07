@@ -119,6 +119,41 @@ def test_regeneration_elsewhere_does_not_make_a_warm_station_falsely_red(station
     assert warm.returncode == cold.returncode == 0
 
 
+@pytest.mark.parametrize("header", ["python_version", "pydantic_version"])
+def test_generator_provenance_does_not_change_verdict_or_rewrite_manifest(
+    station: Path, header: str
+) -> None:
+    path = station / "schemas/snapshots/ir/_manifest.json"
+    manifest = json.loads(path.read_text())
+    manifest[header] = "different-generator-station"
+    path.write_text(json.dumps(manifest))
+    before = path.read_bytes()
+
+    checked = _run(station, "--check")
+    assert checked.returncode == 0, checked.stdout + checked.stderr
+    generated = _run(station)
+    assert generated.returncode == 0, generated.stdout + generated.stderr
+    assert path.read_bytes() == before
+
+    # Provenance is ignored only in the header. The actual generated schema and
+    # both model hashes must still change when a transitive field changes.
+    _change_dependency(station)
+    changed = _run(station, "--check")
+    assert changed.returncode == 1, changed.stdout + changed.stderr
+    assert _findings(changed, station) == {
+        "schemas/snapshots/ir/envelope.schema.json",
+        "schemas/snapshots/ir/_manifest.json",
+    }
+    regenerated = _run(station)
+    assert regenerated.returncode == 0, regenerated.stdout + regenerated.stderr
+    updated = json.loads(path.read_text())
+    for field in ("sha256_full", "sha256_semantic"):
+        assert updated["models"]["envelope"][field] != manifest["models"]["envelope"][field]
+    assert updated[header] != "different-generator-station"
+    clean = _run(station, "--check")
+    assert clean.returncode == 0, clean.stdout + clean.stderr
+
+
 @pytest.mark.parametrize("hint", [(), ("--changed-only",), ("--skip-if-unchanged",)])
 def test_regeneration_consumes_changed_dependencies(station: Path, hint: tuple[str, ...]) -> None:
     _change_dependency(station)

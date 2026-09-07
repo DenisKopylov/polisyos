@@ -43,6 +43,10 @@ from tools.quality.diagnostics.generate_ir_reference_catalog import (  # noqa: E
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "schemas" / "snapshots"
 GENERATOR_VERSION = "1.0.0"
 METADATA_KEYS = {"title", "description", "$comment", "examples"}
+# These record where/when the snapshot was produced, not its ABI. If a supported
+# interpreter or Pydantic release changes a schema, the freshly generated payload
+# and its model hashes must expose that difference instead of the version header.
+MANIFEST_PROVENANCE_KEYS = {"generated_at", "python_version", "pydantic_version"}
 CACHE_NAMESPACE = "diagnostics.gen_schema"
 CACHE_VERSION = "2026.04.phase5"
 DEFAULT_BASELINE_LABEL = "default"
@@ -253,14 +257,16 @@ def _write_text_if_changed(path: Path, content: str) -> bool:
     return True
 
 
+def _manifest_content(payload: dict[str, Any]) -> dict[str, Any]:
+    # Top-level only: an identically named model field is still schema content.
+    return {key: value for key, value in payload.items() if key not in MANIFEST_PROVENANCE_KEYS}
+
+
 def _manifest_content_changed(path: Path, payload: dict[str, Any]) -> bool:
     if not path.exists():
         return True
     existing = json.loads(path.read_text("utf-8"))
-    existing.pop("generated_at", None)
-    candidate = dict(payload)
-    candidate.pop("generated_at", None)
-    return existing != candidate
+    return _manifest_content(existing) != _manifest_content(payload)
 
 
 def _build_manifest(
@@ -315,11 +321,7 @@ def _assert_manifest_equals(path: Path, expected: dict[str, Any], errors: list[s
     except json.JSONDecodeError:
         errors.append(f"invalid manifest JSON: {path}")
         return
-    current_clean = dict(current)
-    current_clean.pop("generated_at", None)
-    expected_clean = dict(expected)
-    expected_clean.pop("generated_at", None)
-    if current_clean != expected_clean:
+    if _manifest_content(current) != _manifest_content(expected):
         errors.append(f"snapshot out of date: {path}")
 
 

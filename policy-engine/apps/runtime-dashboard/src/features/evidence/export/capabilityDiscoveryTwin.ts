@@ -208,6 +208,7 @@ export function decodeCapabilityDiscoveryDom(
   }
   parseContainerSize(rootLeaves[0]);
 
+  // eslint-disable-next-line policyos/quantity-must-be-wrapped -- Index zero selects the sole validated packet root; it is not a displayed quantity.
   const rootValue = decodeLeafValue(rootLeaves[0]);
   const descendants = leaves
     .filter((leaf) => leaf.path.length > 0)

@@ -4,6 +4,11 @@ import { resolve } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+// Complete historical consumer fixture from dbdc4c809efa1c762bea7afef64316db2be70e77.
+// Live producer state may legitimately contain no planned claims; this test
+// exercises the renderer and does not claim current producer admission.
+import plannedClaim from "./__fixtures__/planned-claim.json";
+
 const artifactValue = JSON.parse(
   readFileSync(
     resolve(process.cwd(), "public/atlas/trust-claim-posture.v1.json"),
@@ -18,7 +23,10 @@ describe("ClaimPostureRegister free growth", () => {
         import("../domain/posture"),
         import("./ClaimPostureRegister"),
       ]);
-    const register = claimPostureRegisterSchema.parse(artifactValue);
+    const register = claimPostureRegisterSchema.parse({
+      ...artifactValue,
+      claims: [plannedClaim],
+    });
     const source = register.claims.find(
       (claim) => claim.effective_state === "planned",
     );
@@ -60,10 +68,12 @@ describe("ClaimPostureRegister free growth", () => {
     // consumer: no subject switch or central renderer enumeration is allowed.
     render(<ClaimPostureRegister audience="PUBLIC" register={grown} />);
 
+    /* eslint-disable testing-library/no-node-access -- Locate the generated row structurally without hardcoding a subject in the renderer. */
     const row = screen
       .getAllByText("free_growth_subject")
       .find((element) => element.hasAttribute("data-trust-subject"))
       ?.closest("[data-trust-claim-row]");
+    /* eslint-enable testing-library/no-node-access */
     expect(row).toHaveAttribute("data-claim-id", generated.claim_id);
     expect(row).toHaveTextContent("planned");
     expect(row).toHaveTextContent("methodology");

@@ -16,13 +16,13 @@ import implementation-only chart helpers unless they are promoted to the index.
 
 ## Internal Layout
 
-| Path | Role |
-| --- | --- |
-| `*.tsx` | Reusable chart components. |
-| `*.test.ts(x)` | Component and token tests. |
-| `*.stories.tsx` | Story fixtures retained for visual review. |
-| `patterns/` | Shared SVG/pattern helpers. |
-| `theme.ts`, `types.ts` | Shared chart tokens and types. |
+| Path                   | Role                                       |
+| ---------------------- | ------------------------------------------ |
+| `*.tsx`                | Reusable chart components.                 |
+| `*.test.ts(x)`         | Component and token tests.                 |
+| `*.stories.tsx`        | Story fixtures retained for visual review. |
+| `patterns/`            | Shared SVG/pattern helpers.                |
+| `theme.ts`, `types.ts` | Shared chart tokens and types.             |
 
 ## Extension Points
 

@@ -198,18 +198,16 @@ function acquisitionBoardPacket() {
           "execution_tier_decay:transport_ready:carrier_current_source_profile_mismatch",
         ],
       },
-      structural_routes: [
-        "first_vertical",
-        "education",
-        "unseen",
-      ].map((routeId) => ({
-        action_eligibility: "not_applicable",
-        gap_class: "structural_gap",
-        missing_link: "grounding_relation_missing",
-        route_class: "not_a_data_gap",
-        route_id: `capstone:${routeId}`,
-        witness_kind: "estimand_binding_refusal",
-      })),
+      structural_routes: ["first_vertical", "education", "unseen"].map(
+        (routeId) => ({
+          action_eligibility: "not_applicable",
+          gap_class: "structural_gap",
+          missing_link: "grounding_relation_missing",
+          route_class: "not_a_data_gap",
+          route_id: `capstone:${routeId}`,
+          witness_kind: "estimand_binding_refusal",
+        }),
+      ),
       summary: {
         ...opening.payload.summary,
         backlog_count: 15,
@@ -562,7 +560,9 @@ test.describe("DS15 acquisition route loop", () => {
     await installDashboardTestState(page, { theme: "light" });
     await page.emulateMedia({ reducedMotion: "reduce" });
     const runId = readFixtureMetadata().core_run_id;
-    await installAcquisitionFixture(page, runId, () => acquisitionBoardPacket());
+    await installAcquisitionFixture(page, runId, () =>
+      acquisitionBoardPacket(),
+    );
 
     await page.goto("/runs/cycle-board");
     const growth = page.getByTestId("acquisition-growth-surface");
@@ -584,7 +584,9 @@ test.describe("DS15 acquisition route loop", () => {
     await order.selectOption("server_rank");
     await expect(backlog).toHaveAttribute("data-local-order-override", "false");
 
-    const structural = growth.locator('[data-testid^="acquisition-structural-route-"]');
+    const structural = growth.locator(
+      '[data-testid^="acquisition-structural-route-"]',
+    );
     await expect(structural).toHaveCount(3);
     for (const card of await structural.all()) {
       await expect(card).toContainText("structural_gap");
@@ -598,10 +600,13 @@ test.describe("DS15 acquisition route loop", () => {
       .analyze();
     expect(accessibility.violations).toEqual([]);
 
-    await expect(growth).toHaveScreenshot("ds15-growth-board-honest-basis.png", {
-      animations: "disabled",
-      caret: "hide",
-      maxDiffPixels: 100,
-    });
+    await expect(growth).toHaveScreenshot(
+      "ds15-growth-board-honest-basis.png",
+      {
+        animations: "disabled",
+        caret: "hide",
+        maxDiffPixels: 100,
+      },
+    );
   });
 });

@@ -23,8 +23,7 @@ test.describe("runtime-dashboard control security quality gates", () => {
   }) => {
     const metadata = readFixtureMetadata();
     const jobId = "job_security_route_fixture";
-    const unsafeMessage =
-      '<img src=x onerror="window.__POLICYOS_XSS__=true">';
+    const unsafeMessage = '<img src=x onerror="window.__POLICYOS_XSS__=true">';
     const nextAction =
       "Block dashboard rendering and inspect security_assurance_report before approval.";
 
@@ -144,7 +143,9 @@ test.describe("runtime-dashboard control security quality gates", () => {
     });
     await expect(qualityPanel).toBeVisible();
     await expect(approvalPanel).toBeVisible();
-    await expect(qualityPanel.getByText("security", { exact: true })).toBeVisible();
+    await expect(
+      qualityPanel.getByText("security", { exact: true }),
+    ).toBeVisible();
     await expect(
       qualityPanel.getByText("unsafe_artifact_rendering_detected"),
     ).toBeVisible();
@@ -156,13 +157,15 @@ test.describe("runtime-dashboard control security quality gates", () => {
       ),
     ).toBeVisible();
     await expect(page.locator('img[src="x"]')).toHaveCount(0);
-    await expect(page.locator("script", { hasText: "POLICYOS_XSS" })).toHaveCount(
-      0,
-    );
+    await expect(
+      page.locator("script", { hasText: "POLICYOS_XSS" }),
+    ).toHaveCount(0);
     await expect
       .poll(() =>
         page.evaluate(
-          () => (window as Window & { __POLICYOS_XSS__?: boolean }).__POLICYOS_XSS__,
+          () =>
+            (window as Window & { __POLICYOS_XSS__?: boolean })
+              .__POLICYOS_XSS__,
         ),
       )
       .toBe(false);

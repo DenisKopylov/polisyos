@@ -9,10 +9,7 @@ const buildRoot = path.resolve(
   dashboardRoot,
   "../../_build/apps/runtime-dashboard",
 );
-const summaryPath = path.resolve(
-  buildRoot,
-  "coverage/coverage-summary.json",
-);
+const summaryPath = path.resolve(buildRoot, "coverage/coverage-summary.json");
 const baselinePath = path.resolve(dashboardRoot, "coverage-baseline.json");
 const tolerance = Number.parseFloat(
   process.env.COVERAGE_RATCHET_TOLERANCE ?? "0",

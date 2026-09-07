@@ -17,14 +17,14 @@ Feature code imports app shell through documented route registration only.
 
 ## Internal Layout
 
-| Path | Role |
-| --- | --- |
-| `auth/`, `authz/` | Session, authorization, and route gating. |
-| `layout/`, `surfaces/` | Shell layout and app-level surfaces. |
-| `offline/`, `realtime/` | Cross-feature runtime effects. |
-| `providers/` | React context composition. |
-| `routes/` | Route tree, loaders, prefetch, and search params. |
-| `state/` | App-wide persisted UI stores. |
+| Path                    | Role                                              |
+| ----------------------- | ------------------------------------------------- |
+| `auth/`, `authz/`       | Session, authorization, and route gating.         |
+| `layout/`, `surfaces/`  | Shell layout and app-level surfaces.              |
+| `offline/`, `realtime/` | Cross-feature runtime effects.                    |
+| `providers/`            | React context composition.                        |
+| `routes/`               | Route tree, loaders, prefetch, and search params. |
+| `state/`                | App-wide persisted UI stores.                     |
 
 ## Extension Points
 

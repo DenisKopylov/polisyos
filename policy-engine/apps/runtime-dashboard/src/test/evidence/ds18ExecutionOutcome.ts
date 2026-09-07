@@ -137,7 +137,8 @@ export function decodeDs18ExecutionOutcome(
     return nonEstablished("stdout_invalid_json", capture);
   }
 
-  const projection = ds18TimeSemanticsCoverageProjectionSchema.safeParse(packet);
+  const projection =
+    ds18TimeSemanticsCoverageProjectionSchema.safeParse(packet);
   if (!projection.success) {
     return nonEstablished("stdout_invalid_packet", capture);
   }
@@ -148,7 +149,9 @@ export function decodeDs18ExecutionOutcome(
 }
 
 /** Dynamic primitive-adoption fields derived solely from an admitted DS18 outcome. */
-export function primitiveAdoptionFromDs18Coverage(outcome: Ds18ExecutionOutcome) {
+export function primitiveAdoptionFromDs18Coverage(
+  outcome: Ds18ExecutionOutcome,
+) {
   if (outcome.kind === "not_established") {
     return {
       scope_description:

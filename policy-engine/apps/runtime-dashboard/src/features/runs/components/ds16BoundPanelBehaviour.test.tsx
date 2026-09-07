@@ -76,7 +76,8 @@ describe("DS16-C05 bound panel behaviour", () => {
   it("renders the producer's typed refusal, with its reason and code, on the glass", async () => {
     serve([
       refusal({
-        reason: "No governed artifact defines how a readiness verdict is composed.",
+        reason:
+          "No governed artifact defines how a readiness verdict is composed.",
         refusal_code: "no_runtime_composition_rule",
         value_id: "readiness.composite_verdict",
       }),
@@ -100,10 +101,18 @@ describe("DS16-C05 bound panel behaviour", () => {
       "data-refusal-code",
       "no_runtime_composition_rule",
     );
-    expect(verdict).toHaveAttribute("data-value-id", "readiness.composite_verdict");
+    expect(verdict).toHaveAttribute(
+      "data-value-id",
+      "readiness.composite_verdict",
+    );
 
-    const lens = screen.getByText("Stakeholder-lens projection is audience mapping.");
-    expect(lens).toHaveAttribute("data-refusal-code", "owned_by_another_surface");
+    const lens = screen.getByText(
+      "Stakeholder-lens projection is audience mapping.",
+    );
+    expect(lens).toHaveAttribute(
+      "data-refusal-code",
+      "owned_by_another_surface",
+    );
     expect(lens).toHaveAttribute(
       "data-owner-surface",
       "atlas audience mapping (DS0/DS3)",
@@ -136,7 +145,9 @@ describe("DS16-C05 bound panel behaviour", () => {
         value_id: "readiness.fairness_audit",
       }),
     ]);
-    const first = renderWithProviders(<PublicSectorReadinessPanel runId={RUN_ID} />);
+    const first = renderWithProviders(
+      <PublicSectorReadinessPanel runId={RUN_ID} />,
+    );
     await screen.findByText("first producer answer");
     expect(rowFor("readiness.fairness_audit")).toHaveAttribute(
       "data-refusal-code",
@@ -177,7 +188,9 @@ describe("DS16-C05 bound panel behaviour", () => {
     readiness.unmount();
 
     renderWithProviders(<ScientificDepthPanel runId={RUN_ID} />);
-    await waitFor(() => expect(rowFor("scientific.stress_ranking")).toBeDefined());
+    await waitFor(() =>
+      expect(rowFor("scientific.stress_ranking")).toBeDefined(),
+    );
     expect(rowFor("readiness.slow_review")).toBeUndefined();
   });
 

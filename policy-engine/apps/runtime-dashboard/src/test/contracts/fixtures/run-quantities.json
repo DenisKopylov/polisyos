@@ -16,17 +16,28 @@
   "quantities": [
     {
       "point": 100,
-      "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+      "unit": { "code": "[USD]", "system": "ucum", "display": "USD" },
       "metric_id": "policy_cost",
       "lineage": {
         "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "hash": null,
         "status": "verified",
         "freshness": "current",
-        "summary": {"source": "decision_packet", "artifact": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+        "summary": {
+          "source": "decision_packet",
+          "artifact": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
         "compact_summary": [
-          {"kind": "source", "label": "Fabric evidence", "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
-          {"kind": "result", "label": "policy_cost", "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+          {
+            "kind": "source",
+            "label": "Fabric evidence",
+            "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "kind": "result",
+            "label": "policy_cost",
+            "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
         ],
         "reason_code": null,
         "tracking_issue": null

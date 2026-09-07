@@ -119,7 +119,6 @@ export function ScenarioWorkbench({
           </div>
         </div>
       </div>
-
     </section>
   );
 }

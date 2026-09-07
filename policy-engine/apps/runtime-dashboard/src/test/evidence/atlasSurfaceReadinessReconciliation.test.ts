@@ -1,3 +1,4 @@
+import { parsePersistenceProcessResult } from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
@@ -78,11 +79,8 @@ function invokePersistence(
       timeout: 60_000,
     },
   );
-  return {
-    status: result.status,
-    stderr: result.stderr,
-    value: JSON.parse(result.stdout) as Record<string, unknown>,
-  };
+  const decoded = parsePersistenceProcessResult(result);
+  return { ...decoded, value: decoded.value as Record<string, unknown> };
 }
 
 function asProjectionResult(result: PersistenceResult): ProjectionResult {

@@ -324,9 +324,9 @@ describe("simulation domain", () => {
 
     for (const model of [belowThreshold, aboveThreshold]) {
       expect(model?.metrics).toHaveLength(2);
-      expect(
-        model?.metrics.every((metric) => !("severity" in metric)),
-      ).toBe(true);
+      expect(model?.metrics.every((metric) => !("severity" in metric))).toBe(
+        true,
+      );
     }
   });
 

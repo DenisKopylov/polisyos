@@ -218,12 +218,14 @@ describe("trust posture artifact admission", () => {
       headers: { Accept: "application/json" },
     });
     expect(result.status).toBe("available");
+    /* eslint-disable vitest/no-conditional-expect -- The preceding status assertion fails on unavailable; this guard narrows the admitted result before checking its bytes and schema. */
     if (result.status === "available") {
       expect(result.rawBytes).toEqual(new Uint8Array(artifactBytes));
       expect(result.register.schema_version).toBe(
         "policyos.trust.claim_posture_register.v1",
       );
     }
+    /* eslint-enable vitest/no-conditional-expect */
   });
 
   it("rejects a valid-enum effective-state relabel before and after payload rebinding", async () => {
@@ -457,6 +459,7 @@ describe("trust posture artifact admission", () => {
             )
             .map((row) => row.claim_id),
         );
+        // eslint-disable-next-line vitest/no-conditional-expect -- This table row must remove a real source; the other rows mutate different properties.
         expect(omittedIds.size).toBeGreaterThan(0);
         candidate.source_inventory = candidate.source_inventory.filter(
           (row) => row.path !== omittedPath,

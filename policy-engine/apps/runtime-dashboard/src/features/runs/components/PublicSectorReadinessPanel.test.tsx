@@ -33,11 +33,20 @@ describe("PublicSectorReadinessPanel", () => {
 
     const served = await screen.findByText("served refusal reason");
     expect(served).toHaveAttribute("data-value-id", "readiness.slow_review");
-    expect(screen.getByTestId("public-sector-readiness-panel")).toHaveTextContent("Unavailable");
+    expect(
+      screen.getByTestId("public-sector-readiness-panel"),
+    ).toHaveTextContent("Unavailable");
 
     // The DS4-C23 synthesis stays deleted: no verdict, remedy, E-value, cohort or
     // stress ranking is re-derived on the glass.
-    for (const retired of ["remedy", "e-value", "cohort", "stress", "ranking", "integrated"]) {
+    for (const retired of [
+      "remedy",
+      "e-value",
+      "cohort",
+      "stress",
+      "ranking",
+      "integrated",
+    ]) {
       expect(
         screen.queryByText(new RegExp(retired, "i")),
       ).not.toBeInTheDocument();

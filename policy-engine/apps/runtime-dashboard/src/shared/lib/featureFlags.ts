@@ -161,7 +161,12 @@ export type StrictFeatureFlagCacheWriteResult =
     }
   | { ok: false; diagnostic: FeatureFlagManifestDiagnostic };
 
-type FeatureFlagManifestSource = "cache" | "remote" | "env" | "window" | "props";
+type FeatureFlagManifestSource =
+  | "cache"
+  | "remote"
+  | "env"
+  | "window"
+  | "props";
 
 const AUTH_PSEUDO_KEY_PATTERN = /(?:permission|role|auth|entitlement)/i;
 
@@ -189,13 +194,17 @@ function snapshotCacheScope(
       ok: false,
       diagnostic: {
         code: "cache_scope_required",
-        message: "Feature flag cache reads and writes require a tenant and user scope.",
+        message:
+          "Feature flag cache reads and writes require a tenant and user scope.",
       },
     };
   }
 
   try {
-    const tenantDescriptor = Object.getOwnPropertyDescriptor(rawScope, "tenantId");
+    const tenantDescriptor = Object.getOwnPropertyDescriptor(
+      rawScope,
+      "tenantId",
+    );
     const userDescriptor = Object.getOwnPropertyDescriptor(rawScope, "userId");
     if (
       !tenantDescriptor ||
@@ -223,7 +232,8 @@ function snapshotCacheScope(
         ok: false,
         diagnostic: {
           code: "cache_scope_invalid",
-          message: "Feature flag cache scope tenantId and userId must be nonempty strings.",
+          message:
+            "Feature flag cache scope tenantId and userId must be nonempty strings.",
         },
       };
     }
@@ -240,7 +250,11 @@ function snapshotCacheScope(
 }
 
 function isRecord(rawValue: unknown): rawValue is Record<string, unknown> {
-  return typeof rawValue === "object" && rawValue !== null && !Array.isArray(rawValue);
+  return (
+    typeof rawValue === "object" &&
+    rawValue !== null &&
+    !Array.isArray(rawValue)
+  );
 }
 
 function isFeatureFlagKey(value: string): value is FeatureFlagKey {
@@ -259,7 +273,9 @@ function parseRawValue(rawValue: unknown): unknown {
   }
 }
 
-function parseFlags(rawValue: unknown):
+function parseFlags(
+  rawValue: unknown,
+):
   | { ok: true; flags: FeatureFlagOverrides }
   | { ok: false; diagnostic: FeatureFlagManifestDiagnostic } {
   if (!isRecord(rawValue)) {
@@ -336,7 +352,10 @@ function parseManifestEnvelope(
       "Feature flag manifest contains an unsupported schema field.",
     );
   }
-  if (payload.schemaVersion !== FEATURE_FLAG_MANIFEST_VERSION || !("flags" in payload)) {
+  if (
+    payload.schemaVersion !== FEATURE_FLAG_MANIFEST_VERSION ||
+    !("flags" in payload)
+  ) {
     return diagnostic(
       "unsupported_feature_flag_schema",
       "Feature flag manifest schemaVersion must match the canonical registry.",
@@ -428,7 +447,11 @@ function parseFeatureFlagManifestAt(
     );
   }
 
-  if ("flags" in parsedValue || "schemaVersion" in parsedValue || "version" in parsedValue) {
+  if (
+    "flags" in parsedValue ||
+    "schemaVersion" in parsedValue ||
+    "version" in parsedValue
+  ) {
     return parseManifestEnvelope(parsedValue, source, cacheScope, now);
   }
 
@@ -487,7 +510,10 @@ export function readEnvironmentFeatureFlagManifest(): FeatureFlagSourceReadResul
   if (rawValue === undefined) {
     return { state: "absent" };
   }
-  return { state: "present", result: parseFeatureFlagManifest(rawValue, "env") };
+  return {
+    state: "present",
+    result: parseFeatureFlagManifest(rawValue, "env"),
+  };
 }
 
 /** Reads injected flags through the strict feature-flag boundary. */
@@ -524,7 +550,10 @@ export function readStrictCachedFeatureFlagManifest(
   }
   const scopeSnapshot = snapshotCacheScope(cacheScope);
   if (!scopeSnapshot.ok) {
-    return { state: "present", result: { ok: false, diagnostic: scopeSnapshot.diagnostic } };
+    return {
+      state: "present",
+      result: { ok: false, diagnostic: scopeSnapshot.diagnostic },
+    };
   }
 
   let rawValue: string | null;
@@ -675,7 +704,10 @@ export function writeStrictCachedFeatureFlagManifest(
 }
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = Object.fromEntries(
-  FEATURE_FLAG_KEYS.map((key) => [key, FEATURE_FLAG_REGISTRY[key].defaultEnabled]),
+  FEATURE_FLAG_KEYS.map((key) => [
+    key,
+    FEATURE_FLAG_REGISTRY[key].defaultEnabled,
+  ]),
 ) as FeatureFlags;
 
 export function hasFeatureFlagOverrides(overrides?: FeatureFlagOverrides) {

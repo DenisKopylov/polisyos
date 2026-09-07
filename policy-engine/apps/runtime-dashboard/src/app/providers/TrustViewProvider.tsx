@@ -111,9 +111,7 @@ export function TrustViewProvider({ children }: PropsWithChildren) {
   );
 
   return (
-    <TrustViewBridgeProvider value={value}>
-      {children}
-    </TrustViewBridgeProvider>
+    <TrustViewBridgeProvider value={value}>{children}</TrustViewBridgeProvider>
   );
 }
 

@@ -127,18 +127,17 @@ const normalizedTestSchema = z
     title: nonEmptyString,
     outcome: z.enum(["pass", "fail", "incomplete"]),
     duration_ms: z.number().nonnegative(),
-    findings: z
-      .array(
-        z
-          .object({
-            code: z
-              .string()
-              .min(1)
-              .regex(/^[a-z0-9][a-z0-9._:@/-]*$/),
-            detail: nonEmptyString,
-          })
-          .strict(),
-      ),
+    findings: z.array(
+      z
+        .object({
+          code: z
+            .string()
+            .min(1)
+            .regex(/^[a-z0-9][a-z0-9._:@/-]*$/),
+          detail: nonEmptyString,
+        })
+        .strict(),
+    ),
   })
   .strict()
   .superRefine((test, context) => {
@@ -278,7 +277,9 @@ function compareExactPopulation(
   const expected = profile.exact_tests.map(testIdentity).sort();
   const actual = tests.map(testIdentity).sort();
   if (new Set(actual).size !== actual.length) {
-    throw new TypeError("automated evidence report contains duplicate test identities");
+    throw new TypeError(
+      "automated evidence report contains duplicate test identities",
+    );
   }
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     throw new TypeError(
@@ -304,7 +305,9 @@ function assertDeclaredCommand(
     candidate.pop();
   }
   if (JSON.stringify(candidate) !== JSON.stringify(expected)) {
-    throw new TypeError("automated evidence command does not match its declared runner");
+    throw new TypeError(
+      "automated evidence command does not match its declared runner",
+    );
   }
 }
 
@@ -330,7 +333,9 @@ function assertSummary(
     return "incomplete";
   }
   if (measured.total === 0 || measured.passed !== measured.total) {
-    throw new TypeError("automated evidence pass requires the complete declared population");
+    throw new TypeError(
+      "automated evidence pass requires the complete declared population",
+    );
   }
   return "pass";
 }
@@ -344,7 +349,9 @@ export function buildAtlasAutomatedEvidenceCapture(
 ): AtlasAutomatedCapturePair {
   const profile = ATLAS_AUTOMATED_RUNNER_PROFILES[input.profile_id];
   if (!profile) {
-    throw new TypeError(`undeclared automated evidence runner: ${input.profile_id}`);
+    throw new TypeError(
+      `undeclared automated evidence runner: ${input.profile_id}`,
+    );
   }
   const report = atlasNormalizedRunnerReportSchema.parse(
     input.normalized_report,
@@ -365,16 +372,19 @@ export function buildAtlasAutomatedEvidenceCapture(
   }
   const verifiedAt = utcTimestamp.parse(input.verified_at);
   if (Date.parse(verifiedAt) < Date.parse(report.finished_at)) {
-    throw new TypeError("evidence verification cannot precede report collection");
+    throw new TypeError(
+      "evidence verification cannot precede report collection",
+    );
   }
   compareExactPopulation(profile, report.tests);
   assertDeclaredCommand(profile, report.command_argv);
   const outcome = assertSummary(report);
-  const findings = report.tests.flatMap(({ file, title, findings: testFindings }) =>
-    testFindings.map((finding) => ({
-      code: finding.code,
-      detail: `${file} / ${title}: ${finding.detail}`,
-    })),
+  const findings = report.tests.flatMap(
+    ({ file, title, findings: testFindings }) =>
+      testFindings.map((finding) => ({
+        code: finding.code,
+        detail: `${file} / ${title}: ${finding.detail}`,
+      })),
   );
   if (outcome !== "pass" && findings.length === 0) {
     throw new TypeError("non-passing automated evidence must retain a finding");
@@ -422,7 +432,8 @@ export function buildAtlasAutomatedEvidenceCapture(
       tests: report.tests,
       atomic_observations: {
         declared: profile.atomic_observation_denominator,
-        admitted: outcome === "pass" ? profile.atomic_observation_denominator : 0,
+        admitted:
+          outcome === "pass" ? profile.atomic_observation_denominator : 0,
         mode: "all_or_nothing",
       },
       field_provenance: {
@@ -567,16 +578,20 @@ export function assertAtlasEvidencePersistenceResult(
   const rawReportId = result.raw_report_ref.artifact_id;
   const payloadId = result.payload_ref.artifact_id;
   const receiptId = result.receipt_ref.artifact_id;
-  const rawReportDigest = result.resolved_payload.payload.details.raw_report_sha256;
+  const rawReportDigest =
+    result.resolved_payload.payload.details.raw_report_sha256;
   if (
     typeof rawReportDigest !== "string" ||
     result.raw_report_verification.artifact_id !== rawReportId ||
-    result.raw_report_verification.expected_sha256_hex !== rawReportId.slice(7) ||
+    result.raw_report_verification.expected_sha256_hex !==
+      rawReportId.slice(7) ||
     result.raw_report_verification.actual_sha256_hex !== rawReportId.slice(7) ||
     rawReportDigest !== rawReportId.slice(7) ||
     result.payload_manifest_input.artifact_id !== rawReportId
   ) {
-    throw new TypeError("persisted raw runner report integrity binding mismatch");
+    throw new TypeError(
+      "persisted raw runner report integrity binding mismatch",
+    );
   }
   if (
     result.payload_verification.artifact_id !== payloadId ||
@@ -585,7 +600,9 @@ export function assertAtlasEvidencePersistenceResult(
     result.resolved_payload.artifact_id !== payloadId ||
     result.receipt_manifest_input.artifact_id !== payloadId
   ) {
-    throw new TypeError("persisted verification payload integrity binding mismatch");
+    throw new TypeError(
+      "persisted verification payload integrity binding mismatch",
+    );
   }
   if (
     result.receipt_verification.artifact_id !== receiptId ||
@@ -593,7 +610,9 @@ export function assertAtlasEvidencePersistenceResult(
     result.receipt_verification.actual_sha256_hex !== receiptId.slice(7) ||
     result.resolved_receipt.artifact_id !== receiptId
   ) {
-    throw new TypeError("persisted evidence receipt integrity binding mismatch");
+    throw new TypeError(
+      "persisted evidence receipt integrity binding mismatch",
+    );
   }
   const receipt = result.resolved_receipt.receipt;
   if (

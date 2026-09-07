@@ -95,14 +95,14 @@ function modelOutputStylingFindings(
 // -- negative 5 (`P10`) ------------------------------------------------------
 
 function renderedValueSignatures(container: HTMLElement): Findings {
-  return [...container.querySelectorAll('[data-testid="ds16-value-state"]')].map(
-    (cell) => {
-      const quantity = cell.querySelector("[data-quantity-presentation]");
-      const presentation =
-        quantity?.getAttribute("data-quantity-presentation") ?? "absent";
-      return `${presentation}:${(quantity?.textContent ?? "").trim()}`;
-    },
-  );
+  return [
+    ...container.querySelectorAll('[data-testid="ds16-value-state"]'),
+  ].map((cell) => {
+    const quantity = cell.querySelector("[data-quantity-presentation]");
+    const presentation =
+      quantity?.getAttribute("data-quantity-presentation") ?? "absent";
+    return `${presentation}:${(quantity?.textContent ?? "").trim()}`;
+  });
 }
 
 function collapsedStateFindings(
@@ -208,9 +208,7 @@ describe("DS16-C01 value-grammar negatives", () => {
     const asGap = markup(renderUnknownAsGap());
     expect(
       collapsedStateFindings(asGap.container, ["zero", "unknown", "gap"]),
-    ).toEqual([
-      `states-collapsed:unknown~gap:non-scalar:${GAP_STATE_TOKEN}`,
-    ]);
+    ).toEqual([`states-collapsed:unknown~gap:non-scalar:${GAP_STATE_TOKEN}`]);
     asGap.unmount();
 
     const gapAsZero = markup(renderGapAsZero());

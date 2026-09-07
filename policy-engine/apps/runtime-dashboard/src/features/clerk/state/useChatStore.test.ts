@@ -7,10 +7,7 @@ import type {
   ConversationSession,
   StructuredResponseData,
 } from "./useChatStore";
-import {
-  hydrateChatStoreForIdentity,
-  useChatStore,
-} from "./useChatStore";
+import { hydrateChatStoreForIdentity, useChatStore } from "./useChatStore";
 
 function createMessage(id: string, content: string): ChatMessage {
   return {
@@ -126,9 +123,7 @@ describe("useChatStore", () => {
         structured: {
           confidence: 0.7,
           confidenceLevel: "medium",
-          diff: [
-            { after: "new", before: "old", sectionLabel: "Section" },
-          ],
+          diff: [{ after: "new", before: "old", sectionLabel: "Section" }],
           keyFactors: [
             { direction: "positive", label: "Safe factor", magnitude: 0.8 },
           ],
@@ -186,9 +181,7 @@ describe("useChatStore", () => {
         structured: {
           confidence: 0.7,
           confidenceLevel: "medium",
-          diff: [
-            { after: "new", before: "old", sectionLabel: "Section" },
-          ],
+          diff: [{ after: "new", before: "old", sectionLabel: "Section" }],
           keyFactors: [
             { direction: "positive", label: "Safe factor", magnitude: 0.8 },
           ],
@@ -271,7 +264,9 @@ describe("useChatStore", () => {
         throw new Error("delete persistence failed");
       });
     try {
-      expect(() => useChatStore.getState().deleteSession(sessionId)).not.toThrow();
+      expect(() =>
+        useChatStore.getState().deleteSession(sessionId),
+      ).not.toThrow();
       expect(useChatStore.getState()).toMatchObject(originalState);
       expect(localStorage.getItem(physicalKey)).toBe(originalRaw);
       expect(setItem).toHaveBeenCalledTimes(1);
@@ -446,7 +441,9 @@ describe("useChatStore", () => {
   it("contains a hostile codec value and preserves prior state and bytes", () => {
     hydrateChatStoreForIdentity(identityA);
     useChatStore.getState().addUserMessage("Original message");
-    expect(useChatStore.getState().saveSession("Original session")).not.toBe("");
+    expect(useChatStore.getState().saveSession("Original session")).not.toBe(
+      "",
+    );
 
     const hostileMessage = {
       content: "Hostile message",
@@ -468,14 +465,18 @@ describe("useChatStore", () => {
     }).not.toThrow();
     expect(result).toBe("");
     expect(useChatStore.getState().sessions).toEqual(originalSessions);
-    expect(useChatStore.getState().activeSessionId).toBe(originalActiveSessionId);
+    expect(useChatStore.getState().activeSessionId).toBe(
+      originalActiveSessionId,
+    );
     expect(localStorage.getItem(physicalKey)).toBe(originalRaw);
   });
 
   it("contains hostile session-candidate getters before persistence", () => {
     hydrateChatStoreForIdentity(identityA);
     useChatStore.getState().addUserMessage("Original message");
-    expect(useChatStore.getState().saveSession("Original session")).not.toBe("");
+    expect(useChatStore.getState().saveSession("Original session")).not.toBe(
+      "",
+    );
 
     const roleGetter = {
       content: "Hostile role",
@@ -573,7 +574,9 @@ describe("useChatStore", () => {
   it("contains a throwing owner clock and preserves prior bytes", () => {
     hydrateChatStoreForIdentity(identityA);
     useChatStore.getState().addUserMessage("Original message");
-    expect(useChatStore.getState().saveSession("Original session")).not.toBe("");
+    expect(useChatStore.getState().saveSession("Original session")).not.toBe(
+      "",
+    );
     useChatStore.setState({
       messages: [createMessage("message-clock", "Clock failure")],
     });
@@ -599,11 +602,9 @@ describe("useChatStore", () => {
   it("persists at most the newest fifty sessions", () => {
     hydrateChatStoreForIdentity(identityA);
     const sessions = Array.from({ length: 51 }, (_, index) =>
-      createSession(
-        `session-${index}`,
-        `Session ${index}`,
-        [createMessage(`message-${index}`, `Message ${index}`)],
-      ),
+      createSession(`session-${index}`, `Session ${index}`, [
+        createMessage(`message-${index}`, `Message ${index}`),
+      ]),
     );
     useChatStore.setState({ sessions });
     hydrateChatStoreForIdentity(null);

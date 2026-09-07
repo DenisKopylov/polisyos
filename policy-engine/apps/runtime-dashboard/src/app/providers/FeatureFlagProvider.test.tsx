@@ -39,7 +39,9 @@ function FeatureFlagProbe() {
     <div>
       <span data-testid="feature-flag-status">{status.label}</span>
       <span data-testid="feature-flag-source">{source}</span>
-      <span data-testid="feature-flag-diagnostic">{diagnostic?.code ?? "none"}</span>
+      <span data-testid="feature-flag-diagnostic">
+        {diagnostic?.code ?? "none"}
+      </span>
       <span data-testid="feature-flag-lex">{String(lexEnabled)}</span>
       <span data-testid="feature-flag-composer">{String(composerEnabled)}</span>
     </div>
@@ -95,7 +97,11 @@ const strictManifest = (flags: Record<string, boolean>) => ({
   updatedAt: Date.now(),
 });
 
-const readyIdentity = (tenantId: string, userId: string, permissions: string[] = []) => ({
+const readyIdentity = (
+  tenantId: string,
+  userId: string,
+  permissions: string[] = [],
+) => ({
   data: {
     meta: {
       generated_at: "2026-08-16T00:00:00Z",
@@ -183,9 +189,9 @@ describe("FeatureFlagProvider", () => {
       "remote",
     );
     expect(screen.getByTestId("feature-flag-lex")).toHaveTextContent("false");
-    expect(window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY)).toContain(
-      '"tenantId":"tenant-a"',
-    );
+    expect(
+      window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY),
+    ).toContain('"tenantId":"tenant-a"');
     expect(trackMock).toHaveBeenCalledWith("feature-flags.remote.loaded", {
       flagCount: 1,
       source: "remote",
@@ -321,7 +327,9 @@ describe("FeatureFlagProvider", () => {
     useAuthMeMock.mockReturnValue(readyIdentity("tenant-a", "user-a"));
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
       new Response(
-        JSON.stringify(strictManifest({ enableLexKnowledge: false, permission: true })),
+        JSON.stringify(
+          strictManifest({ enableLexKnowledge: false, permission: true }),
+        ),
         { headers: { "Content-Type": "application/json" }, status: 200 },
       ),
     );
@@ -335,7 +343,9 @@ describe("FeatureFlagProvider", () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent("error"),
+      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent(
+        "error",
+      ),
     );
     expect(screen.getByTestId("feature-flag-lex")).toHaveTextContent("true");
     expect(screen.getByTestId("feature-flag-diagnostic")).toHaveTextContent(
@@ -356,7 +366,9 @@ describe("FeatureFlagProvider", () => {
     );
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
       new Response(
-        JSON.stringify(strictManifest({ enableLexKnowledge: true, permission: true })),
+        JSON.stringify(
+          strictManifest({ enableLexKnowledge: true, permission: true }),
+        ),
         { headers: { "Content-Type": "application/json" }, status: 200 },
       ),
     );
@@ -370,7 +382,9 @@ describe("FeatureFlagProvider", () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("feature-flag-source")).toHaveTextContent("cache"),
+      expect(screen.getByTestId("feature-flag-source")).toHaveTextContent(
+        "cache",
+      ),
     );
     expect(screen.getByTestId("feature-flag-lex")).toHaveTextContent("false");
     expect(screen.getByTestId("feature-flag-diagnostic")).toHaveTextContent(
@@ -380,18 +394,27 @@ describe("FeatureFlagProvider", () => {
 
   it("does not paint or write a scoped cache identity before Authz is ready", async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-      new Response(JSON.stringify(strictManifest({ enableLexKnowledge: false })), {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      }),
+      new Response(
+        JSON.stringify(strictManifest({ enableLexKnowledge: false })),
+        {
+          headers: { "Content-Type": "application/json" },
+          status: 200,
+        },
+      ),
     );
 
     renderFeatureFlags({ remoteUrl: "/flags.json" });
 
-    await waitFor(() => expect(screen.getByTestId("feature-flag-status")).toHaveTextContent("loading"));
+    await waitFor(() =>
+      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent(
+        "loading",
+      ),
+    );
     expect(fetch).not.toHaveBeenCalled();
     expect(screen.getByTestId("feature-flag-lex")).toHaveTextContent("true");
-    expect(window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY)).toBeNull();
+    expect(
+      window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY),
+    ).toBeNull();
   });
 
   it("snapshots the ready identity once before deriving the strict cache scope", () => {
@@ -428,7 +451,9 @@ describe("FeatureFlagProvider", () => {
     expect(() => renderFeatureFlags({ remoteUrl: "" })).not.toThrow();
     expect(tenantReads).toBe(1);
     expect(userReads).toBe(1);
-    expect(screen.getByTestId("feature-flag-status")).toHaveTextContent("ready");
+    expect(screen.getByTestId("feature-flag-status")).toHaveTextContent(
+      "ready",
+    );
   });
 
   it("snapshots a rejected remote diagnostic before projecting and tracking it", async () => {
@@ -455,7 +480,9 @@ describe("FeatureFlagProvider", () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent("error"),
+      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent(
+        "error",
+      ),
     );
     expect(messageReads).toBe(1);
     expect(screen.getByTestId("feature-flag-diagnostic")).toHaveTextContent(
@@ -488,7 +515,9 @@ describe("FeatureFlagProvider", () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent("error"),
+      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent(
+        "error",
+      ),
     );
     expect(screen.getByTestId("feature-flag-diagnostic")).toHaveTextContent(
       "invalid_feature_flag_manifest",
@@ -506,7 +535,9 @@ describe("FeatureFlagProvider", () => {
 
     renderFeatureFlags({ remoteUrl: "/flags.json" });
 
-    expect(screen.getByTestId("feature-flag-status")).toHaveTextContent("error");
+    expect(screen.getByTestId("feature-flag-status")).toHaveTextContent(
+      "error",
+    );
     expect(screen.getByTestId("feature-flag-diagnostic")).toHaveTextContent(
       "cache_scope_required",
     );
@@ -524,7 +555,9 @@ describe("FeatureFlagProvider", () => {
         userId: "user-a",
       }),
     );
-    (fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("offline"));
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("offline"),
+    );
 
     const first = render(
       <AuthzProvider>
@@ -547,7 +580,9 @@ describe("FeatureFlagProvider", () => {
       </AuthzProvider>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent("error"),
+      expect(screen.getByTestId("feature-flag-status")).toHaveTextContent(
+        "error",
+      ),
     );
     expect(screen.getByTestId("feature-flag-lex")).toHaveTextContent("true");
     expect(screen.getByTestId("feature-flag-diagnostic")).toHaveTextContent(
@@ -557,7 +592,9 @@ describe("FeatureFlagProvider", () => {
 
   it("does not paint tenant A flags for a delimiter-colliding tenant B identity", () => {
     const observed: boolean[] = [];
-    useAuthMeMock.mockReturnValue(readyIdentity("tenant\u0000segment", "user-a"));
+    useAuthMeMock.mockReturnValue(
+      readyIdentity("tenant\u0000segment", "user-a"),
+    );
     window.localStorage.setItem(
       FEATURE_FLAG_MANIFEST_CACHE_KEY,
       JSON.stringify({
@@ -591,16 +628,19 @@ describe("FeatureFlagProvider", () => {
 
     expect(observed.length).toBeGreaterThan(0);
     expect(observed).not.toContain(false);
-    expect(window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY)).toContain(
-      '"tenantId":"tenant\\u0000segment"',
-    );
+    expect(
+      window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY),
+    ).toContain('"tenantId":"tenant\\u0000segment"');
   });
 
   it("keeps rollout flags and Authz permissions on separate permission floors", () => {
     useAuthMeMock.mockReturnValue(readyIdentity("tenant-a", "user-a", []));
     const deniedByAuthz = render(
       <AuthzProvider>
-        <FeatureFlagProvider overrides={{ enableScenarioComposer: true }} remoteUrl="">
+        <FeatureFlagProvider
+          overrides={{ enableScenarioComposer: true }}
+          remoteUrl=""
+        >
           <PermissionFloorProbe />
         </FeatureFlagProvider>
       </AuthzProvider>,
@@ -611,10 +651,15 @@ describe("FeatureFlagProvider", () => {
     });
     deniedByAuthz.unmount();
 
-    useAuthMeMock.mockReturnValue(readyIdentity("tenant-a", "user-a", ["runs.launch"]));
+    useAuthMeMock.mockReturnValue(
+      readyIdentity("tenant-a", "user-a", ["runs.launch"]),
+    );
     render(
       <AuthzProvider>
-        <FeatureFlagProvider overrides={{ enableScenarioComposer: false }} remoteUrl="">
+        <FeatureFlagProvider
+          overrides={{ enableScenarioComposer: false }}
+          remoteUrl=""
+        >
           <PermissionFloorProbe />
         </FeatureFlagProvider>
       </AuthzProvider>,

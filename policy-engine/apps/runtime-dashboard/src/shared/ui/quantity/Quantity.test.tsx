@@ -246,7 +246,10 @@ describe("Quantity", () => {
     expect(screen.getByText("RiskReviewBot@2.0")).toBeInTheDocument();
     expect(screen.getByText("lineage_hash_match")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "verified" }));
+    expect(
+      screen.queryByRole("button", { name: "verified" }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Unknown" }));
     expect(
       screen.getByRole("dialog", { name: "Trust inspector" }),
     ).toHaveTextContent("Effect size");

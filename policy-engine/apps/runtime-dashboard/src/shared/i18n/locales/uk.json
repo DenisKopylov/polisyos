@@ -586,9 +586,9 @@
         },
         "backlog": {
           "title": "Проміжне впорядкування residual — лише ranking, не VOI",
-          "zeroScoreBasis": "{scoreCount} з {total} ranking scores дорівнюють 0.0; {confidenceCount} з {total} значень binding confidence дорівнюють 0.0.",
+          "zeroScoreBasis": "{scoreCount, plural, one {{scoreCount} з {total, plural, one {{total} оцінки ранжування} few {{total} оцінок ранжування} many {{total} оцінок ранжування} other {{total} оцінок ранжування}} дорівнює 0.0} few {{scoreCount} з {total, plural, one {{total} оцінки ранжування} few {{total} оцінок ранжування} many {{total} оцінок ранжування} other {{total} оцінок ранжування}} дорівнюють 0.0} many {{scoreCount} з {total, plural, one {{total} оцінки ранжування} few {{total} оцінок ранжування} many {{total} оцінок ранжування} other {{total} оцінок ранжування}} дорівнюють 0.0} other {{scoreCount} з {total, plural, one {{total} оцінки ранжування} few {{total} оцінок ранжування} many {{total} оцінок ранжування} other {{total} оцінок ранжування}} дорівнюють 0.0}}; {confidenceCount, plural, one {{confidenceCount} з {total, plural, one {{total} значення впевненості прив’язки} few {{total} значень впевненості прив’язки} many {{total} значень впевненості прив’язки} other {{total} значень впевненості прив’язки}} дорівнює 0.0} few {{confidenceCount} з {total, plural, one {{total} значення впевненості прив’язки} few {{total} значень впевненості прив’язки} many {{total} значень впевненості прив’язки} other {{total} значень впевненості прив’язки}} дорівнюють 0.0} many {{confidenceCount} з {total, plural, one {{total} значення впевненості прив’язки} few {{total} значень впевненості прив’язки} many {{total} значень впевненості прив’язки} other {{total} значень впевненості прив’язки}} дорівнюють 0.0} other {{confidenceCount} з {total, plural, one {{total} значення впевненості прив’язки} few {{total} значень впевненості прив’язки} many {{total} значень впевненості прив’язки} other {{total} значень впевненості прив’язки}} дорівнюють 0.0}}.",
           "noGradient": "Ненульового градієнта пріоритету немає. VOI не встановлено.",
-          "demandSplit": "Route demand дорівнює 2.0 для {demandTwo} rows і 1.0 для {demandOne} rows.",
+          "demandSplit": "Route demand дорівнює 2.0 для {demandTwo, plural, one {{demandTwo} рядка} few {{demandTwo} рядків} many {{demandTwo} рядків} other {{demandTwo} рядків}} і 1.0 для {demandOne, plural, one {{demandOne} рядка} few {{demandOne} рядків} many {{demandOne} рядків} other {{demandOne} рядків}}.",
           "voiOwnerFit": "Відповідність VOI owner",
           "voiOwnerIntegration": "Інтеграція VOI owner",
           "voiOwnerRef": "VOI owner",
@@ -605,7 +605,7 @@
         },
         "connector": {
           "title": "Scorecard connector acquisition",
-          "familyCount": "Census охоплює {count} сімейств connector; ця картка показує live disposition вибраного carrier.",
+          "familyCount": "{count, plural, one {Перепис охоплює # сімейство конекторів} few {Перепис охоплює # сімейства конекторів} many {Перепис охоплює # сімейств конекторів} other {Сімейства конекторів у переписі: #}}; ця картка показує поточний стан вибраного носія.",
           "connector": "Connector",
           "tier": "Заявлений execution tier",
           "disposition": "Виміряний disposition carrier"
@@ -621,7 +621,7 @@
         },
         "quarantine": {
           "title": "Ledger карантину acquisition",
-          "counts": "{raw} raw responses · {admitted} admitted",
+          "counts": "{raw, plural, one {{raw} необроблена відповідь} few {{raw} необроблені відповіді} many {{raw} необроблених відповідей} other {Необроблені відповіді: {raw}}} · {admitted} допущено",
           "worldGrowth": "Зростання world",
           "reentry": "Повторний вхід case",
           "terminal": "Terminal attempts"
@@ -1599,6 +1599,12 @@
       }
     },
     "platform": {
+      "candidateRowsLabel": "Рядки кандидатів:",
+      "frontierLabel": "Межі пошуку:",
+      "executionProfileLabel": "профіль виконання",
+      "loadingCandidateRows": "Завантаження рядків можливостей-кандидатів...",
+      "searchCapabilityRegistryError": "Не вдалося виконати пошук у реєстрі можливостей",
+      "noCandidateRows": "Рядків кандидатів немає",
       "title": "Стан платформи",
       "subtitle": "Переглядайте posture рантайму, покриття capability та готовність конекторів, не виходячи з shell-панелі.",
       "heroTitle": "Постава runtime та capability contract",
@@ -2464,6 +2470,7 @@
     }
   },
   "commandPalette": {
+    "candidateFrontier": "Межі пошуку кандидатів",
     "placeholder": "Введіть команду або пошук...",
     "noResults": "Результатів не знайдено.",
     "navigation": "Навігація",
@@ -3515,6 +3522,30 @@
     "qualityNeedsReview": "Докази якості потребують перевірки оператором."
   },
   "capabilityDiscovery": {
+    "resultAnnouncement": "{count, plural, one {Пошук кандидатів повернув # результат} few {Пошук кандидатів повернув # результати} many {Пошук кандидатів повернув # результатів} other {Результати пошуку кандидатів: #}}; {status}; {reasons}",
+    "requestSection": "Запит можливостей",
+    "requestLabel": "Запит:",
+    "referenceLabel": "посилання:",
+    "candidateLabel": "Кандидат",
+    "postureProofs": "Докази стану можливості",
+    "producerLabel": "виробник:",
+    "freshnessLabel": "актуальність:",
+    "reasonsLabel": "причини:",
+    "proofRefsLabel": "посилання на докази:",
+    "provenanceLabel": "походження:",
+    "requestedLabel": "запитано",
+    "evaluatedLabel": "оцінено",
+    "returnedLabel": "повернуто",
+    "cutoffLabel": "межа відбору",
+    "indexesLabel": "індекси:",
+    "versionsLabel": "версії:",
+    "noHitFrontierLabel": "межі пошуку без збігів:",
+    "selectedLabel": "відібрано:",
+    "rejectedLabel": "відхилено:",
+    "evidenceLabel": "свідчення:",
+    "limitationsLabel": "обмеження:",
+    "none": "немає",
+    "packetBindings": "Прив’язки повного пакета відповіді",
     "eyebrow": "Пошук спроможностей",
     "title": "Пошук спроможностей",
     "downloadMachine": "Завантажити MACHINE JSON",

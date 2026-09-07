@@ -67,7 +67,10 @@ test.describe("runtime-dashboard knowledge flow", () => {
     });
     await expect(page.getByRole("table").last()).toBeVisible();
 
-    await page.getByRole("link", { name: /^Evidence Fabric$/i }).last().click();
+    await page
+      .getByRole("link", { name: /^Evidence Fabric$/i })
+      .last()
+      .click();
     await waitForDashboardSurface(page, "evidence");
   });
 });

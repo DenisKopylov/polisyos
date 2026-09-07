@@ -25,8 +25,7 @@ function allTypeScriptSources(directory: string): string[] {
 
 function productionSources(directory: string): string[] {
   return allTypeScriptSources(directory).filter(
-    (filename) =>
-      !/(?:\.test|\.a11y\.test|\.stories)\.tsx?$/u.test(filename),
+    (filename) => !/(?:\.test|\.a11y\.test|\.stories)\.tsx?$/u.test(filename),
   );
 }
 
@@ -35,8 +34,13 @@ function ownerDecisionGradeValues(): string[] {
     components?: { schemas?: { DecisionGrade?: { enum?: unknown[] } } };
   };
   const values = schema.components?.schemas?.DecisionGrade?.enum;
-  if (!Array.isArray(values) || values.some((value) => typeof value !== "string")) {
-    throw new Error("generated OpenAPI DecisionGrade enum is missing or malformed");
+  if (
+    !Array.isArray(values) ||
+    values.some((value) => typeof value !== "string")
+  ) {
+    throw new Error(
+      "generated OpenAPI DecisionGrade enum is missing or malformed",
+    );
   }
   return values as string[];
 }
@@ -46,8 +50,7 @@ function decisionGradeVocabularyCopiesAcrossSources(
   ownerValues: readonly string[],
 ): { authorizedRecordCount: number; findings: string[] } {
   const ownerSet = new Set(ownerValues);
-  const authorizedFilename =
-    "shared/ui/compounds/decisionGradePresentation.ts";
+  const authorizedFilename = "shared/ui/compounds/decisionGradePresentation.ts";
   const authorizedName = "decisionGradePresentationByOwnerGrade";
   const findings: string[] = [];
   let authorizedRecordCount = 0;
@@ -660,8 +663,9 @@ type DashboardDecisionGrade =
 
 describe("decision-grade presentation", () => {
   it("binds recognized presentation to both generated DecisionGrade surfaces", () => {
-    expectTypeOf<RecognizedDecisionGradePresentation["ownerLabel"]>()
-      .toEqualTypeOf<DecisionGrade>();
+    expectTypeOf<
+      RecognizedDecisionGradePresentation["ownerLabel"]
+    >().toEqualTypeOf<DecisionGrade>();
     expectTypeOf<DecisionGrade>().toEqualTypeOf<DashboardDecisionGrade>();
     expect(
       decisionGradePresentation.presentDecisionGradeLabel("unsupported"),
@@ -723,7 +727,9 @@ describe("decision-grade presentation", () => {
             .join(", ")}] as const;\nconst upperDecisionGrades = [${ownerValues
             .slice(2)
             .map((value) => JSON.stringify(value))
-            .join(", ")}] as const;\nexport const spreadDecisionGrades = [...lowerDecisionGrades, ...upperDecisionGrades] as const;`,
+            .join(
+              ", ",
+            )}] as const;\nexport const spreadDecisionGrades = [...lowerDecisionGrades, ...upperDecisionGrades] as const;`,
         },
         ownerValues,
       ),
@@ -738,35 +744,31 @@ describe("decision-grade presentation", () => {
     });
   });
 
-  it(
-    "forbids sibling decision-grade classifiers and localization maps",
-    () => {
-      const allProduction = Object.fromEntries(
-        productionSources(dashboardSourceRoot)
-          .filter(
-            (file) =>
-              file !==
-              path.join(import.meta.dirname, "decisionGradePresentation.ts"),
-          )
-          .map((file) => [
-            path.relative(dashboardSourceRoot, file),
-            fs.readFileSync(file, "utf8"),
-          ]),
-      );
-      const production = decisionGradeRelevantSources(allProduction);
-      const offenders = [
-        ...Object.entries(production).flatMap(([relativePath, source]) =>
-          source.includes("evaluatorVerdicts")
-            ? [`${relativePath}: decision-grade localization map`]
-            : [],
-        ),
-        ...decisionGradeBypassesAcrossSources(production),
-      ];
+  it("forbids sibling decision-grade classifiers and localization maps", () => {
+    const allProduction = Object.fromEntries(
+      productionSources(dashboardSourceRoot)
+        .filter(
+          (file) =>
+            file !==
+            path.join(import.meta.dirname, "decisionGradePresentation.ts"),
+        )
+        .map((file) => [
+          path.relative(dashboardSourceRoot, file),
+          fs.readFileSync(file, "utf8"),
+        ]),
+    );
+    const production = decisionGradeRelevantSources(allProduction);
+    const offenders = [
+      ...Object.entries(production).flatMap(([relativePath, source]) =>
+        source.includes("evaluatorVerdicts")
+          ? [`${relativePath}: decision-grade localization map`]
+          : [],
+      ),
+      ...decisionGradeBypassesAcrossSources(production),
+    ];
 
-      expect(offenders).toEqual([]);
-    },
-    30_000,
-  );
+    expect(offenders).toEqual([]);
+  }, 30_000);
 
   it("catches renamed and destructured aliases, maps, sets, and helper-hidden classifiers", () => {
     const adversarialSource = `

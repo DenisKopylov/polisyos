@@ -160,7 +160,9 @@ function encodeStructured(
     ...(structured.keyFactors === undefined
       ? {}
       : { keyFactors: structured.keyFactors }),
-    ...(structured.sources === undefined ? {} : { sources: structured.sources }),
+    ...(structured.sources === undefined
+      ? {}
+      : { sources: structured.sources }),
     ...(structured.methodology === undefined
       ? {}
       : { methodology: structured.methodology }),
@@ -194,7 +196,9 @@ function encodeMessage(message: ChatMessage): ChatMessage {
   };
 }
 
-function encodePersistedChatState(value: PersistedChatState): PersistedChatState {
+function encodePersistedChatState(
+  value: PersistedChatState,
+): PersistedChatState {
   const encoded = {
     sessions: value.sessions.map((session) => ({
       createdAt: session.createdAt,
@@ -244,9 +248,7 @@ const chatPersistStorage: PersistStorage<PersistedChatState, boolean> = {
         scope: currentChatScope,
         slot: name,
       });
-      return state === null
-        ? null
-        : { state, version: CHAT_STORAGE_VERSION };
+      return state === null ? null : { state, version: CHAT_STORAGE_VERSION };
     } catch {
       return null;
     }

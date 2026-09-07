@@ -1,9 +1,11 @@
+import { parsePersistenceProcessResult } from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   chmodSync,
   existsSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -127,11 +129,146 @@ function invokePersistence(
       timeout: 60_000,
     },
   );
-  return {
-    status: result.status,
-    value: JSON.parse(result.stdout) as unknown,
-    stderr: result.stderr,
+  return parsePersistenceProcessResult(result);
+}
+
+function expectPersistedHealth(
+  result: ReturnType<typeof invokePersistence>,
+  casRoot: string,
+  expected: AtlasHealthMetricReport,
+): void {
+  expect(result).toMatchObject({ status: 0, stderr: "" });
+  expect(result.value).toMatchObject({
+    ok: true,
+    operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION,
+  });
+  const persisted = result.value as {
+    report_ref: { artifact_id: string };
+    snapshot_ref: { artifact_id: string };
+    report_verification: unknown;
+    snapshot_verification: unknown;
+    resolved_report: { artifact_id: string; report: unknown };
+    resolved_snapshot: { artifact_id: string; snapshot: unknown };
+    snapshot_manifest_input: unknown;
   };
+  function storedBytes(artifactId: string): Buffer {
+    const digest = artifactId.slice(7);
+    return readFileSync(
+      path.join(
+        casRoot,
+        "artifacts",
+        "sha256",
+        digest.slice(0, 2),
+        digest.slice(2, 4),
+        `${digest}.blob`,
+      ),
+    );
+  }
+  const reportBytes = storedBytes(persisted.report_ref.artifact_id);
+  const reportDigest = createHash("sha256").update(reportBytes).digest("hex");
+  expect(persisted.report_ref.artifact_id).toBe(`sha256:${reportDigest}`);
+  expect(persisted.resolved_report.artifact_id).toBe(
+    persisted.report_ref.artifact_id,
+  );
+  expect(persisted.resolved_report.report).toEqual(
+    JSON.parse(reportBytes.toString("utf8")),
+  );
+  const admittedReport = atlasHealthMetricReportSchema.parse(
+    persisted.resolved_report.report,
+  );
+  expect(admittedReport.measurements).toEqual(expected.measurements);
+  expect(admittedReport.interpretation).toEqual(expected.interpretation);
+  expect(persisted.report_verification).toMatchObject({
+    ok: true,
+    artifact_id: persisted.report_ref.artifact_id,
+    actual_sha256_hex: reportDigest,
+    expected_sha256_hex: reportDigest,
+    error: null,
+  });
+  const snapshotBytes = storedBytes(persisted.snapshot_ref.artifact_id);
+  const snapshotDigest = createHash("sha256")
+    .update(snapshotBytes)
+    .digest("hex");
+  expect(persisted.snapshot_ref.artifact_id).toBe(`sha256:${snapshotDigest}`);
+  expect(persisted.resolved_snapshot.artifact_id).toBe(
+    persisted.snapshot_ref.artifact_id,
+  );
+  expect(persisted.resolved_snapshot.snapshot).toEqual(
+    JSON.parse(snapshotBytes.toString("utf8")),
+  );
+  expect(persisted.snapshot_verification).toMatchObject({
+    ok: true,
+    artifact_id: persisted.snapshot_ref.artifact_id,
+    actual_sha256_hex: snapshotDigest,
+    expected_sha256_hex: snapshotDigest,
+    error: null,
+  });
+  const policyRoot = path.resolve(process.cwd(), "../..");
+  const canonical = spawnSync(
+    path.join(policyRoot, ".venv/bin/python"),
+    [
+      "-I",
+      path.join(process.cwd(), "scripts/validate_atlas_health_sources.py"),
+    ],
+    { cwd: policyRoot, encoding: "utf8" },
+  );
+  expect(canonical).toMatchObject({ status: 0, stderr: "" });
+  const canonicalValue = parsePersistenceProcessResult(canonical).value;
+  const canonicalJson = JSON.stringify(
+    canonicalValue,
+    (_key, value: unknown) =>
+      value !== null && typeof value === "object" && !Array.isArray(value)
+        ? Object.fromEntries(
+            Object.entries(value).sort(([left], [right]) =>
+              left < right ? -1 : left > right ? 1 : 0,
+            ),
+          )
+        : value,
+  );
+  expect(persisted.resolved_snapshot.snapshot).toMatchObject({
+    report_ref: { artifact_id: persisted.report_ref.artifact_id },
+    report_sha256: reportDigest,
+    measurements: admittedReport.measurements,
+    admission: {
+      verifier_id: "polisyos.atlas.health_metric_admission",
+      predicate_provenance: "recomputed",
+      source_projection_sha256: createHash("sha256")
+        .update(canonicalJson)
+        .digest("hex"),
+      source_validator_observation: {
+        stdout_sha256: createHash("sha256")
+          .update(canonical.stdout)
+          .digest("hex"),
+      },
+    },
+    authority: {
+      classification: "limited_descriptive_admission",
+      authoritative_for: ["descriptive_atlas_health_measurement"],
+      may_not_use_for: [
+        "component_maturity",
+        "design_authority",
+        "policy_authority",
+        "promotion",
+        "publication",
+        "runtime_authority",
+        "stable",
+      ],
+    },
+    interpretation: {
+      aggregate_status: null,
+      aggregate_ranking: null,
+      grants_stable: false,
+      blocking_permitted: false,
+    },
+    capability: {
+      label: "implemented_but_not_orchestrated",
+      missing: ["consumer_missing", "surface_missing"],
+    },
+  });
+  expect(persisted.snapshot_manifest_input).toEqual({
+    artifact_id: persisted.report_ref.artifact_id,
+    role: "measurement_report",
+  });
 }
 
 describe("Atlas health metrics", () => {
@@ -828,24 +965,15 @@ describe("Atlas health metrics", () => {
     expect(audience.known_facts).not.toHaveProperty("passed_test_count");
   });
 
-  it("registers the unchanged Python persistence adapter as consumer missing", () => {
+  it("persists a content-bound descriptive snapshot while recording its missing consumer", () => {
     const casRoot = mkdtempSync(path.join(tmpdir(), "atlas-health-cas-"));
     try {
       const result = invokePersistence(
         { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
         casRoot,
       );
-      expect(result).toMatchObject({ status: 1, stderr: "" });
-      expect(result.value).toEqual({
-        ok: false,
-        operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION,
-        error: {
-          code: "atlas_evidence_persistence_failed",
-          message:
-            "health-metric rows do not bind the recomputed canonical-source projection",
-          type: "AtlasEvidencePersistenceError",
-        },
-      });
+      expect(result.status).toBe(0);
+      expectPersistedHealth(result, casRoot, report);
     } finally {
       rmSync(casRoot, { recursive: true, force: true });
     }
@@ -885,11 +1013,8 @@ describe("Atlas health metrics", () => {
         casRoot,
         { PATH: fakeRoot },
       );
-      expect(result).toMatchObject({ status: 1, stderr: "" });
-      expect(result.value).toMatchObject({
-        error: { code: "atlas_evidence_persistence_failed" },
-      });
       expect(existsSync(marker)).toBe(false);
+      expectPersistedHealth(result, casRoot, report);
     } finally {
       rmSync(casRoot, { recursive: true, force: true });
       rmSync(fakeRoot, { recursive: true, force: true });
@@ -916,11 +1041,8 @@ describe("Atlas health metrics", () => {
         casRoot,
         { NODE_OPTIONS: `--require=${preload}` },
       );
-      expect(result).toMatchObject({ status: 1, stderr: "" });
-      expect(result.value).toMatchObject({
-        error: { code: "atlas_evidence_persistence_failed" },
-      });
       expect(existsSync(marker)).toBe(false);
+      expectPersistedHealth(result, casRoot, report);
     } finally {
       rmSync(casRoot, { recursive: true, force: true });
       rmSync(injectionRoot, { recursive: true, force: true });

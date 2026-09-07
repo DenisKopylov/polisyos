@@ -44,6 +44,12 @@ type ConfidenceLedgerOwnerPacketSchema =
   | "SourceBlockedConfidenceLedgerRiskSpendPacket";
 
 export type ConfidenceLedgerOwnerLiteralRule = Readonly<{
+  branches?: readonly Readonly<{
+    discriminator: string;
+    path: string;
+    value: string;
+  }>[];
+  nullablePaths?: readonly string[];
   path: string;
   rootSchema: ConfidenceLedgerOwnerPacketSchema;
   value: boolean | number | string;
@@ -188,10 +194,44 @@ const AVAILABLE_OWNER_LITERAL_VALUES = [
     "/replay_pins/projection_rule_version",
     "policyos.runtime.confidence_ledger_risk_spend.v1",
   ],
-  ["/source/related_artifact_bindings/*/relation", "semantic_projection"],
 ] as const;
 
 const AVAILABLE_ROOT = "AvailableConfidenceLedgerRiskSpendPacket" as const;
+const RELATED_BINDING_PATH = "/source/related_artifact_bindings/*";
+const DEPENDENCY_ENVIRONMENT_PATH = `${RELATED_BINDING_PATH}/dependency_environment`;
+
+function relatedBindingLiteralRule(
+  bindingName:
+    | "live_probe_journal_content_sha256"
+    | "foundry_dependency_discriminant",
+  path: string,
+  value: ConfidenceLedgerOwnerLiteralRule["value"],
+  nullablePaths?: readonly string[],
+): ConfidenceLedgerOwnerLiteralRule {
+  return Object.freeze({
+    ...ownerLiteralRule(
+      AVAILABLE_ROOT,
+      `${RELATED_BINDING_PATH}${path}`,
+      value,
+    ),
+    branches: Object.freeze([
+      Object.freeze({
+        discriminator: "binding_name",
+        path: RELATED_BINDING_PATH,
+        value: bindingName,
+      }),
+    ]),
+    ...(nullablePaths === undefined
+      ? {}
+      : { nullablePaths: Object.freeze(nullablePaths) }),
+  });
+}
+
+const DEPENDENCY_PROFILE_LITERAL_VALUES = [
+  ["resolver_name", "uv"],
+  ["rule_version", "polisyos.foundry.dependency_discriminant.v1"],
+  ["schema_version", "polisyos.foundry.dependency-discriminant.v1"],
+] as const;
 
 export const CONFIDENCE_LEDGER_OWNER_LITERAL_RULES = Object.freeze([
   ...commonOwnerLiteralRules("ArtifactMissingConfidenceLedgerRiskSpendPacket"),
@@ -209,6 +249,50 @@ export const CONFIDENCE_LEDGER_OWNER_LITERAL_RULES = Object.freeze([
   ownerLiteralRule(AVAILABLE_ROOT, "/availability", "available"),
   ...AVAILABLE_OWNER_LITERAL_VALUES.map(([path, value]) =>
     ownerLiteralRule(AVAILABLE_ROOT, path, value),
+  ),
+  ...(
+    [
+      "live_probe_journal_content_sha256",
+      "foundry_dependency_discriminant",
+    ] as const
+  ).flatMap((bindingName) => [
+    relatedBindingLiteralRule(bindingName, "/binding_name", bindingName),
+    relatedBindingLiteralRule(bindingName, "/relation", "semantic_projection"),
+  ]),
+  relatedBindingLiteralRule(
+    "foundry_dependency_discriminant",
+    "/relative_path",
+    "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
+  ),
+  relatedBindingLiteralRule(
+    "foundry_dependency_discriminant",
+    "/semantic_hash_rule_version",
+    "polisyos.foundry.dependency_discriminant.v1",
+  ),
+  relatedBindingLiteralRule(
+    "foundry_dependency_discriminant",
+    "/dependency_environment/decision_role",
+    "ambient_non_decisive",
+  ),
+  relatedBindingLiteralRule(
+    "foundry_dependency_discriminant",
+    "/dependency_environment/predicate_class",
+    "recomputed",
+    [`${DEPENDENCY_ENVIRONMENT_PATH}/predicate_class`],
+  ),
+  relatedBindingLiteralRule(
+    "foundry_dependency_discriminant",
+    "/dependency_environment/authority_boundary/authoritative_for/*",
+    "dependency_environment_diagnosis",
+    [`${DEPENDENCY_ENVIRONMENT_PATH}/authority_boundary`],
+  ),
+  ...DEPENDENCY_PROFILE_LITERAL_VALUES.map(([field, value]) =>
+    relatedBindingLiteralRule(
+      "foundry_dependency_discriminant",
+      `/dependency_environment/profile/${field}`,
+      value,
+      [`${DEPENDENCY_ENVIRONMENT_PATH}/profile`],
+    ),
   ),
   ...CONDITIONAL_AMOUNT_PATHS.flatMap((amountPath) =>
     CONDITIONAL_AMOUNT_LITERAL_VALUES.map(([field, value]) =>
@@ -902,22 +986,185 @@ const replayPins = z
   })
   .strict();
 
+// Mirror the owner transport and its cross-field invariants. These diagnostics
+// remain ambient: admitting their bytes never grants a protected policy use.
+const dependencyDigest = (domain: string) =>
+  z.object({ domain: z.literal(domain), value: z.string() }).strict();
+
+const dependencyProfile = z
+  .object({
+    declaration_ref: z
+      .object({
+        artifact_id: z.string(),
+        schema_version: z.string(),
+        semantic_hash: dependencyDigest("dependency-profile-declaration"),
+      })
+      .strict(),
+    discriminant_ref: dependencyDigest("dependency-discriminant"),
+    distribution_set: dependencyDigest("distribution-set"),
+    extras: z.array(z.string()),
+    lockfile_ref: dependencyDigest("uv-lock-blob"),
+    marker_environment: z.array(z.tuple([z.string(), z.string()])),
+    profile_id: z.string(),
+    pyproject_ref: dependencyDigest("pyproject-blob"),
+    python_constraint: z.string(),
+    resolved_distributions: z
+      .array(
+        z
+          .object({
+            name: z.string(),
+            selected_artifact: dependencyDigest(
+              "selected-distribution-artifact",
+            ),
+            source_kind: z.string(),
+            version: z.string(),
+          })
+          .strict(),
+      )
+      .min(1),
+    resolver_name: z.literal("uv"),
+    resolver_version: z.string(),
+    root_distribution: z.string(),
+    rule_version: z.literal("polisyos.foundry.dependency_discriminant.v1"),
+    schema_version: z.literal("polisyos.foundry.dependency-discriminant.v1"),
+  })
+  .strict();
+
+const dependencyDiagnosticCase = z
+  .object({
+    case_kind: z.enum([
+      "root_distribution_disagreement",
+      "missing_resolved_distribution",
+      "distribution_field_disagreement",
+      "unexpected_in_closure_identity",
+    ]),
+    coordinate: z.string(),
+    expected: z.string(),
+    field: z.enum(["version", "source_kind", "selected_artifact"]).nullish(),
+    observed: z.string(),
+    predicate_class: z.enum(["independently_reconciled", "recomputed"]),
+  })
+  .strict()
+  .refine(
+    (value) =>
+      (value.case_kind === "distribution_field_disagreement") ===
+      (value.field != null),
+    "dependency diagnostic field/case kind drifted",
+  );
+
+const dependencyEnvironment = z
+  .object({
+    artifact_content_ref: z.string().nullish(),
+    authority_boundary: z
+      .object({
+        authoritative_for: z.tuple([
+          z.literal("dependency_environment_diagnosis"),
+        ]),
+        may_not_use_for: z.tuple([
+          z.literal("n8_admission"),
+          z.literal("n10a_stage_gap_closure"),
+          z.literal("chronology_acceptance"),
+          z.literal("policy_publication"),
+          z.literal("policy_promotion"),
+        ]),
+      })
+      .strict()
+      .nullish(),
+    decision_role: z.literal("ambient_non_decisive"),
+    first_case: dependencyDiagnosticCase.nullish(),
+    predicate_class: z.literal("recomputed").nullish(),
+    profile: dependencyProfile.nullish(),
+    receipt_state: z.enum(["received", "not_received"]),
+    status: z.enum(["pass", "fail", "not_established"]),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const receivedFields = [
+      value.predicate_class,
+      value.authority_boundary,
+      value.artifact_content_ref,
+      value.profile,
+    ];
+    const received = value.receipt_state === "received";
+    if (
+      received
+        ? receivedFields.some((field) => field == null)
+        : receivedFields.some((field) => field != null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "dependency diagnostic receipt owner binding drifted",
+      });
+    }
+    if (!received && value.status !== "not_established") {
+      context.addIssue({
+        code: "custom",
+        message: "dependency diagnostic non-receipt is not established",
+      });
+    }
+    if ((value.status === "fail") !== (value.first_case != null)) {
+      context.addIssue({
+        code: "custom",
+        message: "only a failing dependency diagnostic carries a first case",
+      });
+    }
+  });
+
+const relatedArtifactBinding = z
+  .discriminatedUnion("binding_name", [
+    z
+      .object({
+        binding_name: z.literal("live_probe_journal_content_sha256"),
+        owner_semantic_hash: hash,
+        relation: z.literal("semantic_projection"),
+        relative_path: nonEmptyString,
+        resolved_artifact_content_hash: hash,
+        semantic_hash_rule_version: nonEmptyString,
+      })
+      .strict(),
+    z
+      .object({
+        binding_name: z.literal("foundry_dependency_discriminant"),
+        dependency_environment: dependencyEnvironment,
+        owner_semantic_hash: z.string().nullable(),
+        relation: z.literal("semantic_projection"),
+        relative_path: z.literal(
+          "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
+        ),
+        resolved_artifact_content_hash: z.string().nullable(),
+        semantic_hash_rule_version: z.literal(
+          "polisyos.foundry.dependency_discriminant.v1",
+        ),
+      })
+      .strict(),
+  ])
+  .superRefine((binding, context) => {
+    if (binding.binding_name !== "foundry_dependency_discriminant") return;
+    if (
+      binding.owner_semantic_hash !==
+      (binding.dependency_environment.artifact_content_ref ?? null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "dependency discriminant owner semantic hash drifted",
+      });
+    }
+    if (
+      binding.dependency_environment.receipt_state === "received" &&
+      binding.resolved_artifact_content_hash === null
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "received dependency discriminant requires resolved bytes",
+      });
+    }
+  });
+
 const sourceIdentity = z
   .object({
     artifact_content_hash: hash,
     declared_content_hash: nullableHash,
-    related_artifact_bindings: z.array(
-      z
-        .object({
-          binding_name: nonEmptyString,
-          owner_semantic_hash: hash,
-          relation: nonEmptyString.optional(),
-          relative_path: nonEmptyString,
-          resolved_artifact_content_hash: hash,
-          semantic_hash_rule_version: nonEmptyString,
-        })
-        .strict(),
-    ),
+    related_artifact_bindings: z.array(relatedArtifactBinding),
     relative_path: z.literal(
       "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
     ),
@@ -1076,7 +1323,21 @@ type OwnerLiteralPathValues = Readonly<{
 function valuesAtOwnerLiteralPath(
   value: unknown,
   segments: readonly string[],
+  rule: ConfidenceLedgerOwnerLiteralRule,
+  path = "",
 ): OwnerLiteralPathValues {
+  if (value == null && rule.nullablePaths?.includes(path)) {
+    return { matched: true, values: [] };
+  }
+  const branch = rule.branches?.find((selection) => selection.path === path);
+  if (
+    branch !== undefined &&
+    typeof value === "object" &&
+    value !== null &&
+    (value as Record<string, unknown>)[branch.discriminator] !== branch.value
+  ) {
+    return { matched: true, values: [] };
+  }
   if (segments.length === 0) return { matched: true, values: [value] };
   const [segment, ...remaining] = segments;
   if (segment === "*") {
@@ -1087,19 +1348,21 @@ function valuesAtOwnerLiteralPath(
         : null;
     if (children === null) return { matched: false, values: [] };
     const nested = children.map((item) =>
-      valuesAtOwnerLiteralPath(item, remaining),
+      valuesAtOwnerLiteralPath(item, remaining, rule, `${path}/*`),
     );
     return {
       matched: nested.every((result) => result.matched),
       values: nested.flatMap((result) => result.values),
     };
   }
-  if (typeof value !== "object" || value === null || !(segment in value)) {
+  if (typeof value !== "object" || value === null) {
     return { matched: false, values: [] };
   }
   return valuesAtOwnerLiteralPath(
     (value as Record<string, unknown>)[segment],
     remaining,
+    rule,
+    `${path}/${segment}`,
   );
 }
 
@@ -1112,6 +1375,7 @@ function verifyGeneratedOwnerLiterals(
     const result = valuesAtOwnerLiteralPath(
       packet,
       rule.path.split("/").filter(Boolean),
+      rule,
     );
     assertCondition(
       result.matched &&

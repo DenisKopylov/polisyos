@@ -118,7 +118,9 @@ const populatedLineage = {
 function OpaqueSource({
   children,
   sourceId,
-}: PropsWithChildren<{ sourceId: Exclude<OpaqueBackgroundContrastSourceId, "provenance-popover"> }>) {
+}: PropsWithChildren<{
+  sourceId: Exclude<OpaqueBackgroundContrastSourceId, "provenance-popover">;
+}>) {
   return (
     <section
       className="border-line text-foreground rounded-xl border p-4"
@@ -141,7 +143,10 @@ function RenderedContrastFixture() {
         <Badge kind="neutral">Neutral evidence state</Badge>
       </OpaqueSource>
 
-      <div className="border-line rounded-xl border p-4" style={OPAQUE_BACKGROUND_STYLE}>
+      <div
+        className="border-line rounded-xl border p-4"
+        style={OPAQUE_BACKGROUND_STYLE}
+      >
         <ProvenancePopover
           className="bg-white"
           onOpenChange={() => undefined}
@@ -242,7 +247,9 @@ export const SevenDeclaredSources: Story = {
       await expect(matches).toHaveLength(1);
       const element = matches[0];
       if (!(element instanceof HTMLElement)) {
-        throw new TypeError(`${source.sourceId} did not resolve to an HTMLElement.`);
+        throw new TypeError(
+          `${source.sourceId} did not resolve to an HTMLElement.`,
+        );
       }
 
       const opaqueBackdrop = hasOpaqueBackground(element);
@@ -282,7 +289,9 @@ export const SevenDeclaredSources: Story = {
   },
 };
 
-function requireCandidateNonTextGlyph(candidateFrame: HTMLElement): HTMLElement {
+function requireCandidateNonTextGlyph(
+  candidateFrame: HTMLElement,
+): HTMLElement {
   const textBearingAriaHidden = Array.from(
     candidateFrame.querySelectorAll<HTMLElement>('[aria-hidden="true"]'),
   ).filter((element) => element.textContent?.trim());
@@ -299,7 +308,9 @@ function requireCandidateNonTextGlyph(candidateFrame: HTMLElement): HTMLElement 
     content !== "⊙" ||
     /[\p{L}\p{N}]/u.test(content)
   ) {
-    throw new Error("The bounded CandidateFrame non-text decoration changed identity.");
+    throw new Error(
+      "The bounded CandidateFrame non-text decoration changed identity.",
+    );
   }
   return glyph;
 }
@@ -356,7 +367,9 @@ function runTextContrast(
   excludedGlyph?: HTMLElement,
 ): Promise<axe.AxeResults> {
   if (excludedGlyph && !element.contains(excludedGlyph)) {
-    throw new Error("The bounded non-text exclusion is outside its declared source.");
+    throw new Error(
+      "The bounded non-text exclusion is outside its declared source.",
+    );
   }
   assertNoUndeclaredAriaHiddenContent(element, excludedGlyph);
   if (!excludedGlyph) {

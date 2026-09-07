@@ -1,7 +1,4 @@
-import {
-  type PermissionKey,
-  WORKSPACE_PERMISSIONS,
-} from "@/app/authz/AuthzProvider";
+import { type PermissionKey } from "@/app/authz/AuthzProvider";
 import { RUN_DETAIL_TAB_REGISTRY, type RunDetailTab } from "@/features/runs";
 
 export {

@@ -88,9 +88,9 @@ vi.mock("@/features/runs", async () => {
 });
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -220,9 +220,9 @@ describe("DashboardPage", () => {
 
     const ownerLabel = screen.getByText("awaiting_external_attestation");
     expect(ownerLabel).toHaveClass("bg-white/65", "text-muted");
-    expect(screen.getAllByText("common.unavailable").length).toBeGreaterThanOrEqual(
-      3,
-    );
+    expect(
+      screen.getAllByText("common.unavailable").length,
+    ).toBeGreaterThanOrEqual(3);
   });
 
   it("renders an open health label neutrally without minting authority clothing", () => {

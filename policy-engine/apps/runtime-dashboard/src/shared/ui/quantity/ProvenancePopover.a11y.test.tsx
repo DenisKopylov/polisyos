@@ -35,8 +35,6 @@ describe("ProvenancePopover accessibility", () => {
       { includeDocumentBody: true },
     );
 
-    expect(
-      screen.getByRole("dialog", { name: "Provenance" }),
-    ).toBeVisible();
+    expect(screen.getByRole("dialog", { name: "Provenance" })).toBeVisible();
   });
 });

@@ -17,8 +17,16 @@
     "hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     "freshness": "current",
     "compact_summary": [
-      {"kind": "source", "label": "Fabric evidence", "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
-      {"kind": "result", "label": "Policy cost", "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+      {
+        "kind": "source",
+        "label": "Fabric evidence",
+        "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "kind": "result",
+        "label": "Policy cost",
+        "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
     ],
     "nodes": [
       {
@@ -26,7 +34,7 @@
         "kind": "scientist.decision_packet",
         "label": "scientist.decision_packet",
         "timestamp": null,
-        "metadata": {"status": "present", "depth": 0}
+        "metadata": { "status": "present", "depth": 0 }
       }
     ],
     "edges": [],
@@ -34,7 +42,7 @@
       "openlineage": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/openlineage",
       "prov": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/prov"
     },
-    "metadata": {"total_nodes": 1, "total_edges": 0},
+    "metadata": { "total_nodes": 1, "total_edges": 0 },
     "trust_metadata": {
       "hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       "verification_status": "verified",

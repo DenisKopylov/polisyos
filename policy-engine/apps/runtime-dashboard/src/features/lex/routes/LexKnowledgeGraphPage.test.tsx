@@ -45,9 +45,9 @@ vi.mock("@/app/providers/TelemetryProvider", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({

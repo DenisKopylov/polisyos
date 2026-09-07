@@ -52,11 +52,7 @@ export function DisputedMarker({
             }}
             aria-label={`${label}. ${summary}`}
           >
-            <Glyph
-              name="counterfactual"
-              size={12}
-              title={label}
-            />
+            <Glyph name="counterfactual" size={12} title={label} />
             <span style={{ color: uncertaintyTokens.disputed }}>{label}</span>
           </button>
         </TooltipTrigger>

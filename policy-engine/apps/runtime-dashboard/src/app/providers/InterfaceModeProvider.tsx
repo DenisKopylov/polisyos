@@ -46,8 +46,9 @@ export function InterfaceModeProvider({ children }: PropsWithChildren) {
   const canUseAnalyst =
     authzDecision.kind === "verified" && authzDecision.can("mode.analyst");
 
-  const [preferredMode, setPreferredMode] =
-    useState<InterfaceMode | null>(readStoredMode);
+  const [preferredMode, setPreferredMode] = useState<InterfaceMode | null>(
+    readStoredMode,
+  );
   const mode: InterfaceMode = !clerkModeEnabled
     ? "analyst"
     : preferredMode === "clerk"

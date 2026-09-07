@@ -29,7 +29,10 @@
     "policy_question": "What if the policy cost cap changes?",
     "author": "Fixture Analyst",
     "affected_population": "national",
-    "temporal_window": {"earliest": "2026-02-11T12:00:00Z", "latest": "2026-03-11T12:00:00Z"},
+    "temporal_window": {
+      "earliest": "2026-02-11T12:00:00Z",
+      "latest": "2026-03-11T12:00:00Z"
+    },
     "model_family": "operator-specified",
     "model_version": "1.0",
     "model_lineage": {
@@ -37,15 +40,24 @@
       "hash": null,
       "status": "verified",
       "freshness": "current",
-      "summary": {"source": "scenario_fixture"},
-      "compact_summary": [{"kind": "model", "label": "Scenario fixture", "id": "scn_fixture_001"}],
+      "summary": { "source": "scenario_fixture" },
+      "compact_summary": [
+        {
+          "kind": "model",
+          "label": "Scenario fixture",
+          "id": "scn_fixture_001"
+        }
+      ],
       "reason_code": null,
       "tracking_issue": null
     },
     "baseline_lineage": null,
     "baseline_hash": null,
     "computed_at": "2026-02-11T12:00:00Z",
-    "validity_window": {"earliest": "2026-02-11T12:00:00Z", "latest": "2026-03-11T12:00:00Z"},
+    "validity_window": {
+      "earliest": "2026-02-11T12:00:00Z",
+      "latest": "2026-03-11T12:00:00Z"
+    },
     "known_limitations": ["Fixture scenario for contract testing."],
     "stale_reasons": [],
     "interventions": [
@@ -54,15 +66,17 @@
         "operator": "set",
         "value": {
           "point": 95,
-          "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+          "unit": { "code": "[USD]", "system": "ucum", "display": "USD" },
           "metric_id": "policy_cost",
           "lineage": {
             "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "hash": null,
             "status": "verified",
             "freshness": "current",
-            "summary": {"source": "scenario_fixture"},
-            "compact_summary": [{"kind": "result", "label": "policy_cost", "id": "policy_cost"}],
+            "summary": { "source": "scenario_fixture" },
+            "compact_summary": [
+              { "kind": "result", "label": "policy_cost", "id": "policy_cost" }
+            ],
             "reason_code": null,
             "tracking_issue": null
           },
@@ -91,8 +105,14 @@
           "hash": null,
           "status": "verified",
           "freshness": "current",
-          "summary": {"source": "operator"},
-          "compact_summary": [{"kind": "source", "label": "Operator assumption", "id": "asm_no_external_shock"}],
+          "summary": { "source": "operator" },
+          "compact_summary": [
+            {
+              "kind": "source",
+              "label": "Operator assumption",
+              "id": "asm_no_external_shock"
+            }
+          ],
           "reason_code": null,
           "tracking_issue": null
         },
@@ -107,15 +127,17 @@
       "label": "Policy cost",
       "actual": {
         "point": 100,
-        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "unit": { "code": "[USD]", "system": "ucum", "display": "USD" },
         "metric_id": "policy_cost",
         "lineage": {
           "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "hash": null,
           "status": "verified",
           "freshness": "current",
-          "summary": {"source": "decision_packet"},
-          "compact_summary": [{"kind": "result", "label": "policy_cost", "id": "policy_cost"}],
+          "summary": { "source": "decision_packet" },
+          "compact_summary": [
+            { "kind": "result", "label": "policy_cost", "id": "policy_cost" }
+          ],
           "reason_code": null,
           "tracking_issue": null
         },
@@ -132,15 +154,21 @@
       },
       "counterfactual": {
         "point": 95,
-        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "unit": { "code": "[USD]", "system": "ucum", "display": "USD" },
         "metric_id": "policy_cost_counterfactual",
         "lineage": {
           "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "hash": null,
           "status": "verified",
           "freshness": "current",
-          "summary": {"source": "scenario_fixture"},
-          "compact_summary": [{"kind": "result", "label": "counterfactual", "id": "policy_cost_counterfactual"}],
+          "summary": { "source": "scenario_fixture" },
+          "compact_summary": [
+            {
+              "kind": "result",
+              "label": "counterfactual",
+              "id": "policy_cost_counterfactual"
+            }
+          ],
           "reason_code": null,
           "tracking_issue": null
         },
@@ -157,15 +185,21 @@
       },
       "delta": {
         "point": -5,
-        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "unit": { "code": "[USD]", "system": "ucum", "display": "USD" },
         "metric_id": "policy_cost_delta",
         "lineage": {
           "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "hash": null,
           "status": "verified",
           "freshness": "current",
-          "summary": {"method": "scenario_delta"},
-          "compact_summary": [{"kind": "method", "label": "scenario delta", "id": "policy_cost_delta"}],
+          "summary": { "method": "scenario_delta" },
+          "compact_summary": [
+            {
+              "kind": "method",
+              "label": "scenario delta",
+              "id": "policy_cost_delta"
+            }
+          ],
           "reason_code": null,
           "tracking_issue": null
         },
@@ -196,8 +230,14 @@
           "hash": null,
           "status": "verified",
           "freshness": "current",
-          "summary": {"source": "scenario_fixture"},
-          "compact_summary": [{"kind": "model", "label": "Scenario fixture", "id": "scn_fixture_001"}],
+          "summary": { "source": "scenario_fixture" },
+          "compact_summary": [
+            {
+              "kind": "model",
+              "label": "Scenario fixture",
+              "id": "scn_fixture_001"
+            }
+          ],
           "reason_code": null,
           "tracking_issue": null
         },

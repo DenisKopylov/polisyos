@@ -483,7 +483,11 @@ Case commit `d207b82f5f231fc0ea8653027b2576b33d6a71b2` was read back from
 `codex/missing-producers`: all seven committed paths matched the worktree bytes.
 A complete changed-path census before final commit found **17 paths**: source,
 own tests and this explicitly requested journal; **zero outside the user allowlist**.
-Final Claim/journal commit and committed-branch readback follow this entry.
+Claim mechanism commit `37caf67c35a3a24db15f8e9263b32bd18ad8ee7b` was then
+read back from the attached branch: all **17** changed paths matched worktree
+bytes, all **14** changed Python files parsed from branch bytes, no forbidden
+path appeared, and the worktree was clean. This final journal-only update records
+that completed readback; it changes no tested mechanism.
 The shared pre-commit hook reported no Lefthook config at this worktree root;
 ordinary `git commit` returned 0. No hook validation is claimed in place of the
 explicit gate receipts above.

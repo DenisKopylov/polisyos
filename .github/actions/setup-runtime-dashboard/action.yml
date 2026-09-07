@@ -22,12 +22,20 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Enable corepack
-      # setup-node's cache: "pnpm" computes its key by running pnpm, so pnpm must
-      # already be on PATH when that step starts. corepack ships with Node but is
-      # not enabled by default on the runner.
+    - name: Enable corepack and pin the pnpm store
+      # setup-node's cache: "pnpm" resolves the directory to cache by running
+      # `pnpm store path`, so pnpm has to be on PATH before that step: corepack
+      # ships with the runner's Node but is not enabled. That alone is not
+      # enough. The pnpm setup-node consults is not the one `corepack pnpm`
+      # activates from the packageManager pin, so the two pick different default
+      # stores; the install populates one and the post-run cache save looks in
+      # the other, which is why the job failed in "Post Setup" with a path that
+      # does not exist. Naming the store explicitly makes both sides agree.
       shell: bash
-      run: corepack enable
+      run: |
+        set -euo pipefail
+        corepack enable
+        printf 'npm_config_store_dir=%s\n' "${RUNNER_TEMP}/pnpm-store" >> "${GITHUB_ENV}"
 
     - name: Setup Node
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0

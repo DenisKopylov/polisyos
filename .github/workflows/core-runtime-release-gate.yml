@@ -405,9 +405,12 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check documentation links
+        # --offline checks only links this repository can resolve itself. External
+        # liveness is probed by external-link-liveness.yml, non-blocking, because a
+        # third party's expired certificate is not a defect in this tree.
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
-          args: "policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md --exclude-path policy-engine/docs/archive"
+          args: "--offline --config lychee.toml policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md"
 
   mutation-subset:
     name: Core Runtime / Mutation Subset

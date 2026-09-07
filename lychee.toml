@@ -1,0 +1,50 @@
+# Link checking is split by what a result can actually establish.
+#
+# An internal link is ours: `[a](../b.md)` either resolves in this tree or it does
+# not, deterministically, with no third party involved. That is a gate.
+#
+# An external link is not ours. A failure there is at least five different facts —
+# the URL was always wrong (our defect), the resource moved (link rot), the site is
+# down, its TLS is broken, or the publisher blocks robots — and only the first is
+# about this repository. Treating all five as a red build lets an expired
+# certificate on a foreign government site stop our release gate, which is the
+# silent substitution ratified `S0-K06` forbids: an unreachable source is a
+# declared unknown, never an established absence.
+#
+# So: the blocking gate runs with --offline (internal only). The full crawl runs
+# on a schedule, non-blocking, and reports dated observations. See
+# .github/workflows/external-link-liveness.yml.
+
+# Be a good citizen and reduce false negatives from rate limits.
+max_concurrency = 8
+timeout = 20
+retry_wait_time = 3
+max_retries = 2
+user_agent = "Mozilla/5.0 (compatible; polisyos-linkcheck/1.0; +https://github.com/DenisKopylov/polisyos)"
+
+# Publisher bot policies are not repository defects. A 403 or 429 says the crawler
+# was refused, not that the citation is wrong.
+accept = ["200..=299", "403", "429"]
+
+# Archived material is a historical record. A link from an archived plan to a file
+# that was later deleted is a fact about history, not a defect in the current tree.
+exclude_path = [
+  "policy-engine/docs/archive",
+  "policy-engine/docs/plans/archive",
+  "policy-engine/docs/superpowers/journals",
+  # A dated audit of the application as it stood. Its 30 source-file references
+  # rot by design as the DS19 strangle wave deletes what it audited; rewriting
+  # them to point at current files would falsify the historical record, which is
+  # the same violation as regenerating a baseline over a finding.
+  "policy-engine/docs/reference/frontend/atlas-live-application-audit.md",
+]
+
+# Local-only exclusions: mail, telephony and example hosts are never resolvable.
+exclude = [
+  "^mailto:",
+  "^tel:",
+  "example\\.com",
+  "example\\.org",
+  "localhost",
+  "127\\.0\\.0\\.1",
+]

@@ -13,9 +13,9 @@ stability: draft
 > SOTA based on the current consolidated audit bundle.
 > Created: 2026-04-09
 > Status: active implementation and release-gate hardening
-> Related docs: [Foundry Reference](reference/foundry/index.md),
-> [Methods Catalog](reference/foundry/methods-catalog.md),
-> [Archived Foundry SOTA Plan](archive/plans/FOUNDRY_SOTA_PLAN.md)
+> Related docs: [Foundry Reference](../../reference/foundry/index.md),
+> [Methods Catalog](../../reference/foundry/methods-catalog.md),
+> [Archived Foundry SOTA Plan](../archive/FOUNDRY_SOTA_PLAN.md)
 
 ---
 

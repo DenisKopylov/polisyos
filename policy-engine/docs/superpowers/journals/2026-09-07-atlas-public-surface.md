@@ -446,6 +446,31 @@ not been promoted into public authority. The complete changed-path walk, all fil
 types from the slice base, contains 25 files: 18 dashboard, six atlas-ui and this
 journal. Its intersection with forbidden/outside-grant paths is empty.
 
+### Local delivery receipt
+
+Source commits on attached branch `codex/atlas-public-surface`:
+
+- `2cd7a65582e80ac7296334ce3b37a0af5536773a` — governed print-token source and projections.
+- `f57aa60dfa77f16a54153f473987491e84d90ccb` — browser-authority strangle, adversarial tests and investigation journal.
+
+After the second commit, a complete `git show codex/atlas-public-surface:<path>`
+readback checked every one of the 25 changed files against disk and checked all
+24 code/test paths against the pre-verification SHA-256 freeze. Both comparisons
+had no drift. Branch attachment and clean status were read back, not inferred
+from the staging area. This journal-only receipt is appended after that readback.
+Pre-commit contrast, reduced-motion, Prettier and ESLint hooks all passed;
+Prettier reported the staged files unchanged. No hook was disabled. The pre-push
+hook was not invoked and no push was attempted. No GitHub plugin was used.
+
+Disposition: print projection is repaired with the protected assertion intact.
+The live browser-created verification claim and emitter are removed, with property
+and removal witnesses; full server-backed PUBLIC verification remains unimplemented.
+DS11 scope authority remains beyond the allowed canonical contract/Scientist paths.
+DS11 public-population closure still needs the actual governed record producer;
+the existing successor consumer demonstrably preserves its honest nonreceipt.
+These are not four claimed closures. No DEBT/LEDGER edit or debt-ledger checker was
+used to turn a nonclosure into a green status.
+
 ## Proposed incidental rows
 
 - Proposed follow-up `atlas-public-verification-record-bridge`: the browser strangle

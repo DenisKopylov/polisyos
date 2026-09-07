@@ -370,6 +370,11 @@ jobs:
 
       - name: Setup runtime dashboard
         uses: ./.github/actions/setup-runtime-dashboard
+        with:
+          # The suite this job exists to run includes Browser Mode tests, which
+          # were unreachable while it sat behind three red predecessors. They
+          # need Chromium.
+          install-playwright: "true"
 
       # Deliberately has no `needs` on lint, formatting or architecture. Those
       # three are all red today, and while the suite sat behind them in one

@@ -199,3 +199,183 @@ HC-R01's forbidden merge path and the explicitly falsified class of rewritten de
 architecture gate provenance is separately unresolved. Stop here for architect transcription
 and allocation of any follow-up. The original row's owner remains unallocated. Delivery is
 local ordinary git only, without push, rebase, force-push, stash, or a GitHub plugin.
+
+## Event 3 — granted shard-runner residual, closed by refusal
+
+Continuation on `codex/layer-vintage`: `git merge main` fast-forwarded the attached branch
+from `89e3e6083` to `f0e2bcbfc`. The architect had merged and verified the earlier delivery.
+The new grant covers exactly `tools/ops_runners/cloud/merge_shards.py`; this event supersedes
+the forbidden-path limitation above without rewriting that earlier record. No owner is appointed.
+
+Pattern pass: P01/P07 require a consumed, bound declaration; P29/P38 require behavior under
+removal, not marker presence; P31 requires guarding the complete input list before emission;
+P35/P41 require the complete verification denominator and an honest provenance attribution.
+Reuse-first extends the existing `SKGQuery.require_forwardable_confidence` boundary. No new
+declaration vocabulary, confidence value, per-row flag, or digest exception was introduced.
+
+The end-to-end path is now:
+
+1. Each normalized input database reaches `merge_duckdb`'s preflight, including later shards.
+2. The existing producer hashes its held bytes and resolves the accepted snapshot declaration.
+3. The existing read API guard consumes `withhold_confidence_forwarding` and raises the
+   machine-readable declaration, preserving the layer outcomes and the sharper adjudication
+   subset already recorded above.
+4. The merge refuses before destination database creation, replacement, or row insertion.
+   The CLI propagates refusal before JSONL/report publication and cleans its staging directory.
+   CLI staging/lock activity can precede refusal; the claim is protection of the destination,
+   not absence of all temporary filesystem activity.
+
+The input bytes remain the persisted binding artifact. The refusal payload is the audit/error
+surface. A new dashboard surface is `surface_out_of_scope`. The runner cannot carry an original
+whole-file digest through a row-wise rewrite, so it chooses the explicitly authorized refusal
+branch. It does not weaken the binding or silently attach the source digest to changed bytes.
+The specific sentence “row-wise merges can lose that binding” is discharged for this runner:
+an input bearing the registered declaration cannot enter its destination-producing path.
+
+All **5/5 HC-R01 sites named by the architect** are now reached: capability compiler, credal
+reference, best-snapshot copier, literature-prior DTO, and shard merger. HC-R01's query-only
+residual no longer applies to this declaration at those sites. Arbitrary external rewrites
+made before intake remain outside the immutable-snapshot guarantee; the earlier synthetic SQL
+rewrite witness still states that boundary. No claim of universal derivative recognition is made.
+
+### Constructed fixtures and removal receipts
+
+Every new test is a removal probe. The complete new denominator is **6/6 cases**: all three
+positions in the constructed input list, crossed with absent/existing destination. Each fixture
+keeps lookalike `confidence_layer_vintage`, `evidence_strength`, and conflicting forwarding
+metadata present. Each case pins the real producer to the fixture digest, requires the real
+merge to refuse, verifies destination preservation and every source digest, then removes only
+the producer and observes a destination containing the unchanged base confidence and markers.
+That control demonstrates destination production, not correctness of secondary-table merging.
+Only constructed fixtures were passed to the runner; no real shard inputs were used.
+
+Before the runner change, the exact new regression file exited **1**, with **6/6 cases** failing
+at `DID NOT RAISE`. Independent review of the final mechanism and probes found no blocker.
+The final exact-file wave used the same interpreter and worktree import roots as Event 2:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/tools/ops_runners/cloud/test_merge_shards.py tests/unit/data_forge/domains/academic/knowledge/test_skg_confidence_vintage.py --junitxml=_build/layer-vintage/merge-final.xml > _build/layer-vintage/merge-final.log 2>&1
+```
+
+**Exit 0; 21/21 selected tests passed; zero failures, errors, or skips; 3.155 seconds.** This
+includes the architect-verified earlier file plus the complete new six-case denominator.
+The only subsequent Python edit removed a blank line demanded by Ruff's import formatting.
+Ruff then checked **2/2 continuation Python files** and exited **0**:
+
+```sh
+/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check tools/ops_runners/cloud/merge_shards.py tests/unit/tools/ops_runners/cloud/test_merge_shards.py
+```
+
+The independent mutation removed the consumer's enforcement in memory, leaving the declaration
+producer, DTO definitions, guard call, fixture bytes and lookalike metadata intact:
+
+```python
+import pytest
+from polisyos.data_forge.read_api.academic import SKGQuery
+SKGQuery.require_forwardable_confidence = staticmethod(lambda db_path: None)
+raise SystemExit(pytest.main([
+    "-q", "-o", "cache_dir=_build/layer-vintage/merge-mutation-cache",
+    "tests/unit/tools/ops_runners/cloud/test_merge_shards.py",
+    "--junitxml=_build/layer-vintage/merge-removal.xml",
+]))
+```
+
+This ran as one Python heredoc gate with the same environment and interpreter, redirecting to
+`_build/layer-vintage/merge-removal.log`. **Exit 1; 6/6 selected cases failed at `DID NOT RAISE`,
+zero errors or skips.** The complete JUnit denominator was read back from both receipt files.
+No mutation was written to production code. Every gate was its invocation's sole command;
+exit statuses were read from the execution tool, with no trailing `echo`.
+
+### Incidental proposed row — attached catalog mistaken for schema
+
+**Proposed row:** `shard-merge-secondary-catalog-lookups-skip-retained-tables`.
+**Proposed owner:** cloud shard-runner maintainers; proposal only, not an appointment.
+**Bucket:** new class, unrelated to declaration enforcement. `_table_exists` compares an
+attached database alias to `information_schema.tables.table_schema`; the alias belongs to
+`table_catalog`. A constructed witness with **2/2 source files**, each containing one
+`main.ac_skg_edges` table and one distinct row, exposed both schema rows, returned false for
+the secondary lookup, and produced **1/2 source rows** in the destination. Complete witness:
+`_build/layer-vintage/merge-catalog-witness.json`. This is a fixture result, not a corpus count.
+Proposed repair: resolve catalog and schema distinctly and verify secondary-row contribution
+and deduplication behavior. It was not repaired in this residual patch, and the refusal probes
+do not depend on secondary rows being merged successfully.
+
+## Event 4 — architecture failure provenance established
+
+**The three `acquisition_admission_bundle` findings are inherited.** This supersedes Event 2's
+`not_established` attribution for those findings. It does not claim that the complete architecture
+gate is disjoint from our original source changes or that the gate passes.
+
+The exact Event 2 gate was replayed, alone in each invocation, at the true slice base
+`938ddc32a5e243267a8fcd578364ff7c8505df9e` and merged continuation base
+`f0e2bcbfc7012e8e5dafec3fa4b25772ca26fcd5`:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/devx/architecture/guardrails.py check --skip-generated-checks
+```
+
+The old tree was materialized with ordinary `git archive` in this worktree's ignored scratch,
+at `_build/layer-vintage/provenance/base-938ddc32a/policy-engine`. Referenced workflow existence
+inputs were included. Neither another lane's checkout nor any tracked architecture file was
+changed. **Both gates exited 1**, with byte-identical output, SHA-256
+`83222fcdf3ced06fdbdcf01c6f376ec616139b272b8167cb42617f8aae5e85f4`.
+The reports name imports from `core.artifacts.manifest`, `core.artifacts.signing`, and
+`core.artifacts.write_contract`, and the resulting baseline drift.
+
+The complete traced input denominator in **each of the 2/2 replays** is **3,210 paths**:
+**2,821 existing files + 340 directories + 49 proven-absent probes; 0/3,210 ambiguous**.
+Filesystem enumeration is included, including the root Python file enumerated but not parsed.
+File-type denominator: 2,665 `.py`, 68 `.json`, 34 `.md`, 19 `.toml`, 11 `.blob`, 7 `.yml`,
+5 `.sql`, 4 `.ts`, 3 `.yaml`, 2 `.js`, 2 `.mjs`, and 1 `.jsonl` = **2,821/2,821 files**.
+Every **2,821/2,821 archived base file inputs** was checked against its exact Git blob and matched.
+
+The original delivery intersects **7/2,821 file inputs**: `best_snapshot.py`, `skg_query.py`,
+`skg_versioning.py`, `store.py`, `literature_prior.py`, `capability_index_compiler.py`, and
+`credal_reference.py` at their full paths in the report. Thus **whole-gate zero intersection
+is false**. The continuation's runner, test and journal intersect **0/2,821 file inputs**.
+We did not substitute the nearer merge base to hide the original overlap.
+
+Finding attribution was established with the real collector, not inferred from a matching
+exit code. It enumerates **2,621/2,621 source `.py` candidates**, parses **2,620/2,621**, and
+collects **3,285/3,285 deep-import edges**. Its complete new-edge set has **3/3 edges** from
+`acquisition_admission_bundle.py`. Restricting the same collector to that source reproduces
+**3/3 new edges and all reported findings**, after the unchanged baseline and exception rules.
+The complete finding-support denominator is **15 files** (11 `.py`, 3 `.toml`, 1 `.json`),
+**15/15 byte-identical between base and current, 0/15 intersecting our changed paths**:
+
+- `src/polisyos/runtime/http/services/acquisition_admission_bundle.py`
+- `architecture/public_surface/contract.toml`
+- `architecture/baselines/imports/deep_import.json`
+- `architecture/exceptions/guardrails.toml`
+- `pyproject.toml` (root existence sentinel)
+- `tools/devx/architecture/guardrails.py`
+- `tools/__init__.py`
+- `tools/lib/__init__.py`, `fs.py`, `imports.py`, `output.py`, `preflight.py`, `runner.py`,
+  `sql.py`, and `timing.py` (all eight executed helper modules)
+
+The two additional finding-support directory predicates are existence of `src` and `tools`.
+All three import statements, at lines 16, 22 and 28, originate in
+`b346925ae9465ffc588763e326bf56a0dcc44868`, before the slice base. The source package's recorded
+owner in the public-surface contract is `team-polisyos`; this is attribution from the existing
+contract, not an appointment by this lane. No repair or baseline sync is needed from this patch.
+
+Complete path lists, file hashes, intersections, replay receipts and isolation results are in
+`_build/layer-vintage/provenance/provenance-summary.json` and its `.log` companion. Reproduction
+scripts in the same scratch directory are:
+
+- `trace_gate_inputs.py`, SHA-256
+  `14aee3f6cda3b8d5ab685bf3c9561c6e2457e6a408b0ac51a41c31fe32766b3d`;
+- `derive_finding.py`, SHA-256
+  `452a4ef1ec5e3e8d7cb39a78d5af7b3a98b1e530c8417d288199e198202e20aa`;
+- `summarize_provenance.py`, SHA-256
+  `947292dafabab737af4612904591a824d025e677b4839035c4e5023891ecc03f`.
+
+The failure/repair register was reopened at closeout. No debt register/ledger was consulted,
+and no debt checker, generated subprocess gate, or TypeScript scanner was run.
+
+**Continuation disposition: `repaired`.** The granted merge-shards residual is closed by
+refusal and the architecture finding attribution is established. This extends the already
+registered re-extraction requirement; it does not execute re-extraction, appoint an owner, or
+extend the declaration beyond the accepted immutable snapshot. The existing abstract-only /
+fulltext partition and the distinct adjudication-contradicting subset remain as recorded.
+Delivery is local ordinary git, without push, rebase, force-push, stash, or a GitHub plugin.

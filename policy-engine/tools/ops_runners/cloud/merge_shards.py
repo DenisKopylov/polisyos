@@ -208,7 +208,23 @@ def _print_preview(*, shard_dirs: list[Path], shard_paths: list[Path], output_di
 
 
 def merge_duckdb(shard_paths: list[Path], output_path: Path) -> dict[str, int]:
-    """Merge multiple DuckDB shards into one, deduplicating by primary key."""
+    """Merge shards, refusing declared historical confidence before any output write."""
+
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    # A row-wise merge destroys the snapshot digest that binds the declaration.
+    # Check every source before copying even the base: a later shard may be restricted.
+    safe_shard_paths = [
+        normalize_filesystem_path(
+            shard_path,
+            kind="shard database",
+            must_exist=True,
+            allow_directory=False,
+        )
+        for shard_path in shard_paths
+    ]
+    for safe_shard_path in safe_shard_paths:
+        SKGQuery.require_forwardable_confidence(safe_shard_path)
 
     safe_output_path = normalize_filesystem_path(
         output_path,
@@ -218,12 +234,7 @@ def merge_duckdb(shard_paths: list[Path], output_path: Path) -> dict[str, int]:
     )
     safe_output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    base_shard = normalize_filesystem_path(
-        shard_paths[0],
-        kind="base shard database",
-        must_exist=True,
-        allow_directory=False,
-    )
+    base_shard = safe_shard_paths[0]
     print(f"  Base shard: {base_shard}")
     shutil.copy2(base_shard, safe_output_path)
 
@@ -231,13 +242,7 @@ def merge_duckdb(shard_paths: list[Path], output_path: Path) -> dict[str, int]:
     stats: dict[str, int] = {}
 
     try:
-        for index, shard_db in enumerate(shard_paths[1:], start=2):
-            safe_shard_db = normalize_filesystem_path(
-                shard_db,
-                kind="shard database",
-                must_exist=True,
-                allow_directory=False,
-            )
+        for index, safe_shard_db in enumerate(safe_shard_paths[1:], start=2):
             alias = validate_sql_identifier(f"shard{index}", kind="alias")
             print(f"  Attaching shard {index}: {safe_shard_db}")
             con.execute(

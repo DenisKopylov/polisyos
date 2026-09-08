@@ -245,6 +245,44 @@ after canonical regeneration it must reach fetch. Removing this operation from
 the owner and regenerating is the falsifier. Backend authority decisions and
 receipt epochs are unchanged; only client generation/tests require delta review.
 
+**D4 / public surface integration, measured guardrail precheck:** the full actual
+import-edge owner reports new deep imports from the PA1 compiled-source service
+to `core.contracts.control`, and from the S3 manifest owner to
+`foundry.methods.selection`. Do not absorb either edge into a baseline or add an
+exception. Extend the existing lazy stable facades: export the already-owned
+`ControlJobResponse` from `polisyos.core.contracts`; export the already-owned
+`MethodRouteConstraint` and `method_accepts_input_contract` from
+`polisyos.foundry`. Switch these new consumer edges to those entrypoints. No
+second DTO, selector, wrapper algorithm or parser is added. Root owns the core
+facade/PA1 import; S3 owns its Foundry facade/import, serialized with root public
+inventory regeneration. The falsifier is the actual consumer import/call after
+removing the corresponding lazy export while retaining the implementation.
+Verify facade object identity, the actual owner input predicate through that
+facade, strict DTO usage and normal complete import-edge guardrails. Regenerate
+public inventories with `sync --skip-deep-import-baseline` and review the exact
+export delta; existing baselines and exception scope must remain unchanged.
+
+**D4 synchronization clarification:** the new Foundry public import can enter
+the existing catalog while the lazy facade resolves its first symbol. If a
+bounded Python caller-frame trace establishes same-thread recursive entry into
+that same facade while its non-reentrant lock is held, extend that existing
+lock to `RLock`; do not add a second resolver or bypass import ownership. This
+is introduced by our D4 public entrypoint, never inherited by assertion. The
+falsifier is a finite fresh-process import through the real owner, with a
+lock-removal regression restoring the non-reentrant lock and retaining exports.
+A timeout during normal import work is a harness nonreceipt and cannot establish
+this mechanism; obtain the actual recursive frames before changing the lock.
+
+**PA1-D3f / required OpenAPI success example:** the actual API contract check
+also refuses the new endpoint without a 2xx example. Extend the existing
+`openapi_contract.py` success-example owner using a response captured from the
+actual worker → later-signed HTTP positive, explicitly labeled fixture-only
+transport evidence. Preserve its run-emitted status and refs; do not hand-author
+an admitted head or call the fixture a canonical policy. The sample is a docs
+example, never a runtime authority resolver or receipt denominator. Verify through
+the normal strict OpenAPI response-example validator and endpoint test; removing
+the example registration must restore the exact missing-success-example finding.
+
 ## Ordered execution and exact owners
 
 Only one writer per source file. S3 owns `intervention_substrate.py`, `design_generation.py`, its part of `generation_cycle.py`, Foundry selection and S3 validator/tests. PA1 owns existing S8 plus HTTP control generation/lifecycle/container files and mirrored tests. The selected PA1 design needs no shared generation-cycle write. PR1 has no production edits. Root owns the plan/journals, commits, final review, generated-companion integration and verification wave.
@@ -286,7 +324,7 @@ assert resolution.mapping_predicate_provenance in {"consumer_asserted", "not_est
 
 - [ ] Implement typed candidate trace/current-epoch correspondence refusal in the existing owner. Preserve full knob/law trace, units, time and provision evidence. Read prior epoch as historical/candidate only.
 - [ ] Extend the single S3 report/validator with consumer probes, unknown mapping, complete data growth and actual property removals; preserve every old meaningful negative. Add run-emitted strangles for the N8 default, N4 default and law-admission default with complete caller census plus behavioral guards.
-- [ ] Use the canonical S3 writer to generate the v2 report; run `--check`, corrupt a decisive field and run the same check red, then restore by the writer. Capture exact identity-set drift. Existing source-base report drift is not silently attributed inherited; its source provenance stays `not_established` until P41 replay/disjoint proof.
+- [ ] Use the canonical S3 writer to generate the v2 report; run `--check`, corrupt a decisive field and run the same check red, then restore the exact writer-emitted bytes. Capture exact identity-set drift. Existing source-base report drift is not silently attributed inherited; its source provenance stays `not_established` until P41 replay/disjoint proof.
 - [ ] Commit only the coherent mechanism and mandatory companions. Record the still-empty independent mapping evidence as a residual, not a passed authority conjunct.
 
 ### Step PA1-A — source-aware owner and real production entry
@@ -339,3 +377,26 @@ Already discharged PR1 controls are reuse evidence, not newly built capability. 
 ## Independent architecture review before source edits
 
 PR1 researcher reviewed S3 and PA1 independently of their authors. Review accepts the buildable PA1 mechanism only with compiled-to-leaf association recomputed by the compiled DTO owner at every egress; this is incorporated above. The review confirms S3 cannot be marked executed from route repair while independent law correspondence and its positive free-growth path remain unestablished. The universal blocked mapping is an honest boundary repair, not a substitute happy path. Review record: `../journals/gy-phase5-evidence/pr1/architecture-review.md`.
+
+## Executed final integration decisions
+
+D4's single public-inventory transaction contains both Foundry exports and the
+already-owned Core `ControlJobResponse` facade export. Root lands these public
+companions with the S3 mechanism, before the remaining PA1 HTTP/client append;
+the Core class already exists, so this order introduces no unresolved export.
+The inventory is recomputed and exact export identity deltas are reconciled; no
+import baseline or exception is changed. D3f's captured transport example lands
+with PA1 and its canonical generated clients. These are dependency-order
+companions, not separate capability claims.
+
+The actual S3 writer plus independent live recomputation returns RC0. The drift
+probe changes only the record's substantive task-completion claim, then the
+unchanged full owner returns RC1 solely for artifact drift while its behavior
+remains pass. Exact writer-emitted bytes are restored and re-read by SHA256;
+there is no extra authored receipt or another expensive unchanged replay.
+
+The frozen full source Ruff gate retains DS18 C03 / DS15 C03's duplicate epoch
+example key as RC1. Those executed rows are outside repair scope by the user's
+explicit instruction. Their complete defining expressions and ownership are
+recorded in the completion journal. No ignore or smaller Ruff denominator is
+introduced, and P41 inherited provenance is not asserted.

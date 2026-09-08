@@ -342,3 +342,124 @@ Independent handback review identified the requirement-spec, Lex schema,
 alternate-CAS and PostgreSQL limitations for explicit routing above. Earlier PA1
 package recommendations are superseded by D3b–D3d and the final table below; D1a
 governs over the initial S3 closed-enum suggestion.
+
+## Final verification wave: measured records
+
+The frozen targeted S3 wave completed with RC1 in 1940.956 seconds.
+[Full command and streams](gy-phase5-evidence/s3/final-targeted.json) and
+[complete collection/JUnit identity reconciliation](gy-phase5-evidence/s3/final-test-identities.json)
+retain every collected/executed identity; both set differences are empty and no
+identity is ambiguous. The nonpassing set is exactly the two education registry
+rederive tests plus `test_reference_repair_stales_dependent_certificate`, whose
+full credal source refuses confidence forwarding under HC-F11–HC-F14. The latter
+is the same measured scientific dependency, not an assertion against a newly
+constructed reference. No node was excluded or rewritten to manufacture green.
+The education failures still lack the complete input-disjointness proof required
+by P41 and remain `not_established` for inherited provenance.
+
+The PA1 final targeted wave returns RC0 in 216.817 seconds; its independent
+[identity reconciliation](gy-phase5-evidence/pa1/final-test-identities.json) preserves
+the entire actual collection and JUnit execution set without missing, unexpected,
+duplicate or nonpassing cases. The subsequent public-surface delta is verified
+separately; that late integration does not reprice unrelated long scientific tests.
+
+**Surface integration findings and disposition:** canonical client generation
+initially omitted the new callable POST despite emitting its DTO. D3e extends the
+existing curated operation owner; actual raw/canonical fetch tests and the
+regenerate-after-removal probe decide closure. D4 extends existing Core/Foundry
+facades for exact owned objects rather than adding deep-import exceptions.
+[Independent client/Core delta review](gy-phase5-evidence/shared/independent-surface-delta-review.md)
+approves those changes; the Foundry delta and D3f example are still under verification.
+
+**DS17 dependency drift:** the actual unchanged example worker's complete
+dependency bindings and independent rehash are preserved in
+[worker observation](gy-phase5-evidence/shared/ds17-worker-observation.json),
+[dependency analysis](gy-phase5-evidence/shared/ds17-dependency-analysis.json) and
+[exact generator substitution](gy-phase5-evidence/shared/ds17-exact-generator-delta.json).
+Substituting only the pre-D3e generator bytes reproduces the old OpenAPI aggregate
+exactly; the dependency identity sets are unchanged. This was our legitimate
+source change between generation and verification, not an inherited DS17 defect
+or an OpenAPI self-reference. The original observer source is preserved verbatim
+as [executed script text](gy-phase5-evidence/shared/ds17_dependency_audit.py.txt).
+Regenerate once after the final source freeze, then verify the unchanged full gate.
+
+**Additional harness nonreceipts:** an OpenAPI strict-parse process imported the
+old Core facade before the new consumer was written and then failed on that
+mixed source state. A fresh process passes the actual current facade identity
+and consumer annotation test. A docs commit attempted while a generator wrote
+the worktree was rejected by lefthook's concurrent-change check; the subsequent
+readback against the old HEAD also failed. After the writer completed, the
+same commit succeeded as `432fcae02` and was read back from the attached branch.
+Neither failed attempt is a delivery receipt. The copied observer's original
+style and the new corruption harness produced an initial Ruff RC1; observer
+bytes remain historical evidence text and the executable harness was corrected.
+These are explicit nowhere product findings: lane harness/execution discipline.
+
+The exact public export identity delta is independently reconciled over both
+complete inventory JSON documents: `ControlJobResponse` under Core contracts,
+and `MethodRouteConstraint`/`method_accepts_input_contract` under Foundry; no
+export is removed. [Complete record](gy-phase5-evidence/shared/public-surface-identity-delta.json).
+The canonical sync used `--skip-deep-import-baseline`; the existing import baseline,
+exceptions, public contract, import policy and generated-family manifest remain
+byte-identical to the slice base. D4's original unmocked fresh-process import
+now returns RC0 in 53.641 seconds, with the same entrypoint and bound as the
+actual recursive-lock failure. [Deciding green](gy-phase5-evidence/s3/d4-facade-python-stack-green.json).
+
+The frozen complete slice source/test/tool Ruff command returns RC1 solely for
+`F601` at the duplicate `admit_epoch_validity_batch` example key.
+[Exact command and complete output](gy-phase5-evidence/shared/frozen-source-ruff.json).
+[The complete defining-expression/history audit](gy-phase5-evidence/pa1/openapi-epoch-duplicate-audit.json)
+shows DS18 C03's eager owner-derived example is overwritten by DS15 C03's later
+literal. This source is preserved because the user forbids repairs to already
+executed rows. Home: **DS18 C03 / epoch-staleness owner and DS15 C03 / acquisition
+API owner**, under P03/P29. Removing the earlier expression would also remove
+its eager construction, so it is not reported as a merely cosmetic duplicate.
+No Ruff ignore, denominator exclusion or P41 inherited label is used. The PA1
+transport/refusal mechanism tests remain separately deciding evidence.
+
+Normal architecture guardrails were statically traced before invocation: the
+default required output probes do not execute pytest or `check_debt_ledger.py`.
+DS11 reads the debt register as input without editing it or executing its command
+strings. Canonical internal probe scripts still invoke Python generators by
+file path, and the dashboard shell may prefer bare pnpm; this is existing
+internal owner behavior, not a claim of complete child-command compliance with
+the lane's invocation rule. The outer lane commands use `-m` and `corepack pnpm`.
+Home for that invocation mismatch: **architecture/generated artifact tool owners,
+module-invocation and station-PATH rules; explicit nowhere active task row**.
+No canonical probe is replaced or weakened.
+
+The canonical S3 **write plus check** returns RC0 in 653.707 seconds, with
+behavior pass and an empty issue set.
+[Exact owner execution](gy-phase5-evidence/s3/final-report-write-check.json).
+The separate surgical corruption changes only the report's claim that mechanism
+validation is full task completion. The same actual owner returns **RC1**, solely
+`intervention_substrate_contract_drift`, while live behavior remains pass. The
+probe wrapper returns RC0 because it confirms that expected refusal and restores
+the exact writer bytes; the two return codes are deliberately distinct.
+[Complete corrupt-field execution and byte restoration](gy-phase5-evidence/s3/final-report-corruption.json).
+Restored SHA256: `f1a742ebaefe3cdfec8ada7bb257d0807d00181c239014d36d340251360425f0`.
+This closes mechanism-proof freshness, not the missing law-correspondence
+authority or the full task's positive free-growth conjunct.
+
+Frozen OpenAPI and both client generators return RC0. Complete recursive and
+iterative JSON walks agree on the whole before/after identity sets; there is one
+new operation path and no removed node or operation. All changes to existing
+values belong to the DS17 source-bound example pins; the added values belong to
+the normative evidence DTOs and endpoint.
+[Complete JSON delta](gy-phase5-evidence/shared/runtime-openapi-frozen-delta.json).
+Actual generated raw/canonical client tests and client/dashboard typechecks
+return RC0 in their frozen records. The API contract and architecture gates are
+reported only after their own executions below.
+
+The frozen full Runtime API contract returns RC0 in 92.080 seconds:
+[runtime-api-contract-frozen.json](gy-phase5-evidence/shared/runtime-api-contract-frozen.json).
+D3f's independent [example review](gy-phase5-evidence/shared/independent-openapi-example-review.md)
+is approved; all source reviews are frozen. The current complete credal contract
+check returns RC1 in 53.256 seconds at the actual HC-F11–HC-F14 forwarding
+restriction, preserving the same declared scientific boundary:
+[full current-owner failure](gy-phase5-evidence/s3/final-credal-current-check.json).
+No old capture is restamped and no scoped reference replaces the full source.
+The final [epoch identity census](gy-phase5-evidence/s3/final-epoch-census.json)
+reconciles both complete enumerations without unreadable/ambiguous cases;
+historical v1 captures remain historical evidence, with current freshness withheld
+where the actual producer cannot currently run.

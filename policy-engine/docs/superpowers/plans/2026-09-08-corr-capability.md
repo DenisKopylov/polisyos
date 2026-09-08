@@ -84,6 +84,16 @@ event and head update. Removing admission-only charging or the pre-emptive cap
 must fail while the supported control remains valid. Publish the distinction
 between this mechanism proof and absent empirical calibration.
 
+The existing `check_grounding_bind_contract.py` still requires cold-start
+attempts to exceed their budget. A3 replaces that default, so its existing
+validator advances the current report from `grounding_bind_contract.v1` to v2.
+Preserve the complete original relation and mutation denominators; replace the
+old spend assertion with the new admission-only property and add its removal
+probes. Historical v1 certificates retain their own reader/serialization and
+the previous report is cited at its git revision. This is the required governed
+replacement companion for A3, not a reopening of the closed CG2 task. A second
+CG2 validator cannot be used to avoid the affected owner's red result.
+
 ## B — subject-aware legal recognition
 
 Foundry owns the new semantic comparison: use a concept-named
@@ -169,6 +179,16 @@ Historical absence stays absent, preserving its original hash. The decisive
 consumer test uses the real production CG2 owner against marked source support;
 unadjudicated non-emission alone is not evidence of synthetic refusal. This
 extends the existing owners and does not reopen the closed class-alias repair.
+
+The subsequent complete L2 consumer inspection found sibling variable, claim,
+and contested views. This is the same provenance-loss class, so C replaces the
+proposed helper-level fix with one `_iter_l2_edges` source boundary: an actual
+synthetic raw claim marks every L2 output from that snapshot synthetic. This is
+a declared conservative snapshot scope, including mixed-source snapshots; a
+mixed-source falsifier pins it. Per-edge metadata is also retained, but cannot
+silently narrow that source limitation. A historical snapshot with no synthetic
+column retains absence and its existing bytes. No further instance patches are
+used for this class.
 
 C2 retains `ShadowGeneratedCandidate.atom` and its actual parsed proposal, keyed
 by `(design_problem_ref, candidate_id, atom.content_hash)`, plus the enclosing

@@ -1,0 +1,21 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c3_eval_safety_prerequisite"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:45:03.700989+00:00",
+  "elapsed_seconds": 27.428,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\"cas_bindings\": [{\"byte_count\": 130, \"ref\": {\"artifact_id\": \"sha256:22d0797a496e6d2729b7068455e7ade1551b7fffde95cd1ff8f977501538ee33\", \"kind\": \"ir.observational_data\", \"media_type\": \"application/json\"}}, {\"byte_count\": 108, \"ref\": {\"artifact_id\": \"sha256:9f8043cd619577ef145ca088ad5c4b993923eca6378937d2aaf1e4c7f575042d\", \"kind\": \"gy.probe_document\", \"media_type\": \"application/json\"}}, {\"byte_count\": 113, \"ref\": {\"artifact_id\": \"sha256:4d9db7a2eba4d7e8f15e1c5c568d8f7fadc7a859a8c4b6758b3cb2c8ae6c5db6\", \"kind\": \"gy.probe_document\", \"media_type\": \"application/json\"}}, {\"byte_count\": 103, \"ref\": {\"artifact_id\": \"sha256:57057fbcb46414b525a0dda45abb136dca4445df363ff600a0351108d5ab0a3c\", \"kind\": \"gy.probe_document\", \"media_type\": \"application/json\"}}], \"context\": null, \"error\": {\"code\": \"foundry.execute_failed\", \"details\": {\"blocker_codes\": [\"polisyos.eval_safety.execution_context_missing@1.0.0\"]}, \"message\": \"Attempted-evaluation safety admission blocked causal evaluation.\"}, \"method_calls\": [], \"outcome_status\": \"fail\", \"produced_artifacts\": [], \"purpose\": \"pre-method missing-context refusal; probe docs are not valid institutional intake\", \"state_identity_preserved\": true, \"verifier\": null}\n",
+  "stderr": ""
+}

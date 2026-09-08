@@ -137,6 +137,218 @@ def validate(repo_root: Path, *, write: bool = False) -> dict[str, Any]:
     }
 
 
+def recompute_foundry_binding_vocabulary() -> dict[str, Any]:
+    """Classify the complete method vocabulary without claiming binding execution.
+
+    Registry identities are reconciled with both immutable snapshot views. Input
+    contracts come from each real signature and executable annotation; the
+    materializer's target registry is a capability map, never the denominator.
+    """
+    from collections import Counter
+    from dataclasses import is_dataclass
+    from typing import get_args, get_type_hints
+
+    from pydantic import BaseModel
+
+    from polisyos.foundry.data_plane.bindings import _METHOD_CONTRACT_ALLOW_REGISTRY
+    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+    from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+    from polisyos.foundry.methods.selection.advisor import method_accepts_input_contract
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+    def inspect_annotation(
+        annotation: object, contract_ids: set[str], typed_inputs: set[str]
+    ) -> None:
+        contract_id = getattr(annotation, "contract_id", None)
+        if isinstance(contract_id, str) and contract_id:
+            contract_ids.add(contract_id)
+        if isinstance(annotation, type) and (
+            issubclass(annotation, BaseModel) or is_dataclass(annotation)
+        ):
+            typed_inputs.add(f"{annotation.__module__}.{annotation.__qualname__}")
+        for argument in get_args(annotation):
+            inspect_annotation(argument, contract_ids, typed_inputs)
+
+    registry = MethodRegistry.get_instance()
+    bootstrap = ensure_all_methods_registered(registry)
+    methods: list[dict[str, Any]] = []
+    with registry.snapshot_scope() as snapshot:
+        signatures = registry.list_all()
+        entries = list(snapshot.entries())
+        snapshot_signatures = list(snapshot.signatures())
+        identities = {(item.fqn, item.abi_digest()) for item in signatures}
+        assert (
+            identities
+            == {(entry.fqn, entry.signature.abi_digest()) for entry in entries}
+            == {(item.fqn, item.abi_digest()) for item in snapshot_signatures}
+        )
+        assert len(identities) == len(signatures) == len(entries) == len(snapshot_signatures)
+        for signature in signatures:
+            contract_ids = {slot.contract_id for slot in signature.input_slots if slot.contract_id}
+            typed_inputs: set[str] = set()
+            errors: list[dict[str, str]] = []
+            slots = [
+                {"name": slot.name, "contract_id": slot.contract_id}
+                for slot in signature.input_slots
+            ]
+
+            accepts_panel: bool | None = None
+            try:
+                method = registry.get(signature.fqn)
+                for attribute, parameter in (
+                    ("materialize_input", "return"),
+                    ("pure_step", "state"),
+                ):
+                    function = getattr(method, attribute, None)
+                    if function is None:
+                        continue
+                    try:
+                        hints = get_type_hints(function)
+                        inspect_annotation(hints.get(parameter), contract_ids, typed_inputs)
+                    except Exception as exc:
+                        errors.append(
+                            {"surface": attribute, "error": f"{type(exc).__name__}: {exc}"}
+                        )
+                accepts_panel = method_accepts_input_contract(
+                    method, PanelObservationalData.contract_id
+                )
+            except Exception as exc:
+                errors.append({"surface": "registry.get", "error": f"{type(exc).__name__}: {exc}"})
+            targets: list[dict[str, Any]] = []
+            for contract_id in sorted(contract_ids):
+                target = _METHOD_CONTRACT_ALLOW_REGISTRY.get(contract_id)
+                if target is None:
+                    targets.append({"contract_id": contract_id, "state": "no_materializer_target"})
+                    continue
+                try:
+                    assert target.model_type.contract_id == contract_id
+                    target.model_type.model_json_schema()
+                    targets.append(
+                        {
+                            "contract_id": contract_id,
+                            "state": "target_schema_resolved",
+                            "target_fqn": target.contract_fqn,
+                        }
+                    )
+                except Exception as exc:
+                    errors.append({"surface": contract_id, "error": f"{type(exc).__name__}: {exc}"})
+                    targets.append({"contract_id": contract_id, "state": "ambiguous"})
+            support = (
+                "ambiguous"
+                if errors
+                else "recorded_panel_compatible"
+                if accepts_panel
+                else "other_typed_contract"
+                if contract_ids
+                else "typed_input_without_contract_id"
+                if typed_inputs
+                else "no_concrete_input_contract_declared"
+            )
+            methods.append(
+                {
+                    "method_fqn": signature.fqn,
+                    "signature_digest": signature.abi_digest(),
+                    "input_slots": slots,
+                    "typed_input_fqns": sorted(typed_inputs),
+                    "contract_targets": targets,
+                    "recorded_panel_compatible": accepts_panel,
+                    "support_state": support,
+                    "errors": errors,
+                }
+            )
+        primary_slots = {
+            (row["method_fqn"], slot["name"], slot["contract_id"])
+            for row in methods
+            for slot in row["input_slots"]
+        }
+        independent_slots = {
+            (entry.fqn, slot.name, slot.contract_id)
+            for entry in entries
+            for slot in entry.signature.input_slots
+        }
+        assert primary_slots == independent_slots
+        slot_count = sum(len(row["input_slots"]) for row in methods)
+        assert slot_count == len(independent_slots)
+        assert identities == {(item.fqn, item.abi_digest()) for item in registry.list_all()}, (
+            "Method vocabulary changed during executable-input resolution"
+        )
+    statuses = dict(sorted(Counter(row["support_state"] for row in methods).items()))
+    assert statuses == {
+        state: sum(row["support_state"] == state for row in methods) for state in statuses
+    }
+    return {
+        "coverage_claim": "full_vocabulary_classified_not_all_methods_executed",
+        "denominator_owner": "MethodRegistry after canonical all-method bootstrap",
+        "denominator": {
+            "list_all": len(signatures),
+            "snapshot_entries": len(entries),
+            "snapshot_signatures": len(snapshot_signatures),
+            "input_slots": slot_count,
+            "snapshot_input_slot_identities": len(independent_slots),
+        },
+        "bootstrap_errors": [str(error) for error in bootstrap.errors],
+        "discovery_errors": list(bootstrap.discovery_errors),
+        "support_states": statuses,
+        "methods": methods,
+    }
+
+
+def validate_foundry_binding_vocabulary(report: dict[str, Any]) -> list[dict[str, str]]:
+    """Recompute vocabulary and reject missing, extra, or changed identities/content."""
+    expected = recompute_foundry_binding_vocabulary()
+    issues: list[dict[str, str]] = []
+
+    def index(payload: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+        result: dict[tuple[str, str], dict[str, Any]] = {}
+        rows = payload.get("methods")
+        if not isinstance(rows, list):
+            issues.append({"code": "c3_method_vocabulary_rows_unreadable"})
+            return result
+        for row in rows:
+            if (
+                not isinstance(row, dict)
+                or not isinstance(row.get("method_fqn"), str)
+                or not isinstance(row.get("signature_digest"), str)
+            ):
+                issues.append({"code": "c3_method_vocabulary_row_unreadable"})
+                continue
+            identity = (row["method_fqn"], row["signature_digest"])
+            if identity in result:
+                issues.append(
+                    {
+                        "code": "c3_method_vocabulary_identity_duplicate",
+                        "method_fqn": identity[0],
+                        "signature_digest": identity[1],
+                    }
+                )
+            result[identity] = row
+        return result
+
+    actual_rows, expected_rows = index(report), index(expected)
+    for identities, code in (
+        (expected_rows.keys() - actual_rows.keys(), "c3_method_vocabulary_identity_missing"),
+        (actual_rows.keys() - expected_rows.keys(), "c3_method_vocabulary_identity_extra"),
+    ):
+        issues.extend(
+            {"code": code, "method_fqn": fqn, "signature_digest": digest}
+            for fqn, digest in sorted(identities)
+        )
+    for identity in sorted(actual_rows.keys() & expected_rows.keys()):
+        if actual_rows[identity] != expected_rows[identity]:
+            issues.append(
+                {
+                    "code": "c3_method_vocabulary_content_drift",
+                    "method_fqn": identity[0],
+                    "signature_digest": identity[1],
+                }
+            )
+    if {key: value for key, value in report.items() if key != "methods"} != {
+        key: value for key, value in expected.items() if key != "methods"
+    }:
+        issues.append({"code": "c3_method_vocabulary_basis_drift"})
+    return issues
+
+
 def build_live_proof_payloads(repo_root: Path) -> dict[str, dict[str, Any]]:
     """Recompute proof payloads from live Phase-2 runtime code."""
 

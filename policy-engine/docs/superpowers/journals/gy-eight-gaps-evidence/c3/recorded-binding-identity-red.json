@@ -1,0 +1,24 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_data_forge_binding.py",
+    "-k",
+    "recorded_panel"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:45:20.899304+00:00",
+  "elapsed_seconds": 97.39,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "....F..                                                                  [100%]\n=================================== FAILURES ===================================\n_______________ test_recorded_panel_binding_ref_kind_is_consumed _______________\n\nrecorded_panel_owner = (<module 'polisyos.runtime.quality.data_forge_binding' from '/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-en...est-of-deniskopylov/pytest-28/test_recorded_panel_binding_re0/calibration_bundle_v1/calibration_bundle_manifest.json'))\n\n    def test_recorded_panel_binding_ref_kind_is_consumed(recorded_panel_owner):\n        owner, store, _, _ = recorded_panel_owner\n        result = _produce_recorded(recorded_panel_owner)\n        wrong_ref = result.binding_receipt_ref.model_copy(update={\"kind\": \"unrelated.document\"})\n>       with pytest.raises(owner.MeasurementRootBindingError, match=\"artifact_identity_mismatch\"):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'polisyos.runtime.quality.data_forge_binding.MeasurementRootBindingError'>\n\ntests/unit/runtime/quality/test_data_forge_binding.py:143: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_binding_ref_kind_is_consumed\n1 failed, 6 passed, 13 deselected in 91.59s (0:01:31)\n",
+  "stderr": ""
+}

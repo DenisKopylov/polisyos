@@ -1,0 +1,24 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c3_binding_vocabulary_uses_every_real_method_and_signature",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c3_binding_vocabulary_rejects_a_removed_method_identity"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:39:31.030181+00:00",
+  "elapsed_seconds": 2.697,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n_______ test_c3_binding_vocabulary_uses_every_real_method_and_signature ________\n\n    def test_c3_binding_vocabulary_uses_every_real_method_and_signature() -> None:\n        from polisyos.foundry.methods.selection.registry import MethodRegistry\n    \n>       report = check_layer3_gy_phase2_artifacts.recompute_foundry_binding_vocabulary()\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: module 'tools.quality.validation.check_layer3_gy_phase2_artifacts' has no attribute 'recompute_foundry_binding_vocabulary'\n\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:2080: AttributeError\n_________ test_c3_binding_vocabulary_rejects_a_removed_method_identity _________\n\n    def test_c3_binding_vocabulary_rejects_a_removed_method_identity() -> None:\n>       report = check_layer3_gy_phase2_artifacts.recompute_foundry_binding_vocabulary()\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: module 'tools.quality.validation.check_layer3_gy_phase2_artifacts' has no attribute 'recompute_foundry_binding_vocabulary'\n\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:2096: AttributeError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c3_binding_vocabulary_uses_every_real_method_and_signature\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c3_binding_vocabulary_rejects_a_removed_method_identity\n",
+  "stderr": ""
+}

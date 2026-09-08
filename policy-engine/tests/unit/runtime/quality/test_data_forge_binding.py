@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from datetime import UTC, datetime
+
+import pytest
 
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
 from polisyos.data_forge.kernel.snapshot import finalize_snapshot
@@ -13,6 +16,234 @@ from polisyos.runtime.quality.data_forge_binding import (
     official_data_forge_snapshot_for_claim,
 )
 from polisyos.runtime.quality.scorecard import build_quality_scorecard, normalize_quality_evidence
+
+
+@pytest.fixture
+def recorded_panel_owner(tmp_path, monkeypatch):
+    """Create a small owner cassette; this is never a canonical rate population."""
+    import duckdb
+
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality import data_forge_binding as owner
+
+    bundle = tmp_path / "calibration_bundle_v1"
+    bundle.mkdir()
+    parquet = bundle / "observation_panel_monthly.parquet"
+    with duckdb.connect() as connection:
+        connection.execute(
+            "CREATE TABLE observations(entity_id VARCHAR, period_start DATE, "
+            "observed_value DOUBLE, family VARCHAR, metric_id VARCHAR)"
+        )
+        connection.executemany(
+            "INSERT INTO observations VALUES (?, ?, ?, ?, ?)",
+            [
+                (entity, f"2018-{month:02d}-01", float(index * 10 + month),
+                 "budget_flows", "amount")
+                for index, entity in enumerate(("alpha", "beta", "gamma"))
+                for month in range(5, 9)
+            ],
+        )
+        connection.execute("COPY observations TO ? (FORMAT PARQUET)", [str(parquet)])
+    manifest = bundle / "calibration_bundle_manifest.json"
+    manifest.write_text(json.dumps({
+        "artifact_name": manifest.name,
+        "outputs": {parquet.name: {
+            "path": f"/recorded/owner/{parquet.name}",
+            "sha256": hashlib.sha256(parquet.read_bytes()).hexdigest(),
+            "size_bytes": parquet.stat().st_size,
+        }},
+        "metrics": {"families_present": ["budget_flows"]},
+        "validation": [],
+    }))
+    monkeypatch.setattr(owner, "_recorded_panel_bundle_dir", lambda: bundle, raising=False)
+    return owner, artifacts.FileSystemCAS(tmp_path / "cas"), parquet, manifest
+
+
+def _recorded_recipe(owner):
+    return owner.RecordedPanelRecipe(
+        entity_ids=("alpha", "beta", "gamma"),
+        period_start="2018-05-01", period_end="2018-08-01", period_count=4,
+        treatment=(1, 0, 0), time_treatment=2,
+    )
+
+
+def _produce_recorded(recorded_panel_owner):
+    owner, store, _, _ = recorded_panel_owner
+    return owner.produce_recorded_panel_method_input(
+        store=store, method_fqn="causal.inference.synthetic_control@1.0.0",
+        recipe=_recorded_recipe(owner),
+    )
+
+
+def test_recorded_panel_method_input_roundtrips_measured_and_assumed_fields(recorded_panel_owner):
+    owner, store, parquet, manifest = recorded_panel_owner
+    result = _produce_recorded(recorded_panel_owner)
+    verified = owner.verify_recorded_panel_method_input(
+        store=store, binding_receipt_ref=result.binding_receipt_ref,
+    )
+    assert verified == result
+    assert result.contract_payload["outcome"] == [
+        [5.0, 6.0, 7.0, 8.0], [15.0, 16.0, 17.0, 18.0], [25.0, 26.0, 27.0, 28.0],
+    ]
+    receipt = result.receipt
+    assert receipt.source_sha256 == hashlib.sha256(parquet.read_bytes()).hexdigest()
+    assert receipt.manifest_sha256 == hashlib.sha256(manifest.read_bytes()).hexdigest()
+    assert receipt.measured_fields == ("outcome", "unit_ids", "time_index")
+    assert receipt.assumed_fields == ("treatment", "time_treatment")
+    assert receipt.decision_grade == "descriptive_only"
+    assert receipt.causal_identification_established is False
+
+
+def test_recorded_panel_source_mutation_invalidates_cached_extraction(recorded_panel_owner):
+    owner, _, parquet, _ = recorded_panel_owner
+    _produce_recorded(recorded_panel_owner)
+    parquet.write_bytes(parquet.read_bytes() + b"source mutation")
+    with pytest.raises(owner.MeasurementRootBindingError, match="source_hash_mismatch"):
+        _produce_recorded(recorded_panel_owner)
+
+
+def test_recorded_panel_manifest_mutation_invalidates_existing_receipt(recorded_panel_owner):
+    owner, store, _, manifest = recorded_panel_owner
+    original = _produce_recorded(recorded_panel_owner)
+    payload = json.loads(manifest.read_text())
+    payload["metrics"]["custody_epoch"] = "changed"
+    manifest.write_text(json.dumps(payload))
+    with pytest.raises(owner.MeasurementRootBindingError, match="manifest_hash_mismatch"):
+        owner.verify_recorded_panel_method_input(
+            store=store, binding_receipt_ref=original.binding_receipt_ref,
+        )
+    refreshed = _produce_recorded(recorded_panel_owner)
+    assert refreshed.receipt.manifest_sha256 != original.receipt.manifest_sha256
+    assert refreshed.binding_receipt_ref != original.binding_receipt_ref
+
+
+def test_recorded_panel_data_only_recipe_growth_uses_real_source_values(recorded_panel_owner):
+    owner, store, _, _ = recorded_panel_owner
+    original = _produce_recorded(recorded_panel_owner)
+    recipe = _recorded_recipe(owner).model_copy(update={
+        "entity_ids": ("gamma", "alpha"), "treatment": (0, 1),
+    })
+    changed = owner.produce_recorded_panel_method_input(
+        store=store, method_fqn=original.receipt.method_fqn, recipe=recipe,
+    )
+    assert changed.contract_payload["outcome"] == [
+        original.contract_payload["outcome"][2], original.contract_payload["outcome"][0],
+    ]
+    assert changed.receipt.source_sha256 == original.receipt.source_sha256
+    assert changed.receipt.selected_rows_sha256 != original.receipt.selected_rows_sha256
+    assert owner.verify_recorded_panel_method_input(
+        store=store, binding_receipt_ref=changed.binding_receipt_ref,
+    ) == changed
+
+
+def test_recorded_panel_binding_ref_kind_is_consumed(recorded_panel_owner):
+    owner, store, _, _ = recorded_panel_owner
+    result = _produce_recorded(recorded_panel_owner)
+    wrong_ref = result.binding_receipt_ref.model_copy(update={"kind": "unrelated.document"})
+    with pytest.raises(owner.MeasurementRootBindingError, match="artifact_identity_mismatch"):
+        owner.verify_recorded_panel_method_input(store=store, binding_receipt_ref=wrong_ref)
+
+
+def test_recorded_panel_registered_method_does_not_repeat_discovery(recorded_panel_owner, monkeypatch):
+    from polisyos.foundry import methods
+
+    owner, store, _, _ = recorded_panel_owner
+    _produce_recorded(recorded_panel_owner)
+    bootstrap_calls = []
+    monkeypatch.setattr(methods, "ensure_all_methods_registered", lambda: bootstrap_calls.append(True))
+    result = _produce_recorded(recorded_panel_owner)
+    assert owner.verify_recorded_panel_method_input(
+        store=store, binding_receipt_ref=result.binding_receipt_ref,
+    ) == result
+    assert bootstrap_calls == []
+
+
+def test_recorded_panel_receipt_manifest_has_observation_ancestry(recorded_panel_owner):
+    _, store, _, _ = recorded_panel_owner
+    result = _produce_recorded(recorded_panel_owner)
+    manifest = store.get_manifest(result.binding_receipt_ref.artifact_id)
+    assert [(str(item.artifact_id), item.role) for item in manifest.inputs] == [
+        (str(result.observational_data_ref.artifact_id), "observational_data"),
+    ]
+
+
+@pytest.mark.parametrize("wrong_schema_artifact", ["root", "receipt"])
+def test_recorded_panel_actual_manifest_schema_is_consumed(
+    recorded_panel_owner, tmp_path, wrong_schema_artifact,
+):
+    from polisyos.core import artifacts, canon
+
+    owner, _, _, _ = recorded_panel_owner
+    result = _produce_recorded(recorded_panel_owner)
+    alternate_store = artifacts.FileSystemCAS(tmp_path / "wrong-schema-cas")
+    alternate_store.put_json(result.contract_payload, artifacts.PutOptions(
+        kind=result.observational_data_ref.kind, media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name=("unrelated.schema.v1" if wrong_schema_artifact == "root"
+                  else owner.WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION), version="2.0",
+        ),
+    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    receipt_ref = alternate_store.put_json(result.receipt.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind=result.binding_receipt_ref.kind, media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=("unrelated.schema.v1" if wrong_schema_artifact == "receipt"
+                      else owner.RECORDED_PANEL_BINDING_SCHEMA_VERSION), version="1.0",
+            ),
+            inputs=[artifacts.InputRef(
+                artifact_id=result.observational_data_ref.artifact_id, role="observational_data",
+            )],
+        ), canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+    with pytest.raises(owner.MeasurementRootBindingError, match="artifact_identity_mismatch"):
+        owner.verify_recorded_panel_method_input(
+            store=alternate_store, binding_receipt_ref=receipt_ref,
+        )
+
+
+def test_recorded_panel_fabricated_values_are_refused_with_all_markers(recorded_panel_owner):
+    from polisyos.core import artifacts, canon
+
+    owner, store, _, _ = recorded_panel_owner
+    original = _produce_recorded(recorded_panel_owner)
+    fabricated = copy.deepcopy(original.contract_payload)
+    fabricated["outcome"][0][0] = 987654.0
+    root_manifest = store.get_manifest(original.observational_data_ref.artifact_id)
+    fake_ref = store.put_json(fabricated, artifacts.PutOptions(
+        kind="ir.observational_data", media_type="application/json",
+        schema=root_manifest.artifact_schema, producer=root_manifest.producer,
+    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    receipt = original.receipt.model_dump(mode="json")
+    receipt["observational_data_ref"] = fake_ref.model_dump(mode="json")
+    receipt_manifest = store.get_manifest(original.binding_receipt_ref.artifact_id)
+    fake_receipt_ref = store.put_json(receipt, artifacts.PutOptions(
+        kind=original.binding_receipt_ref.kind, media_type="application/json",
+        schema=receipt_manifest.artifact_schema, producer=receipt_manifest.producer,
+        inputs=[artifacts.InputRef(artifact_id=fake_ref.artifact_id, role="observational_data")],
+    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    with pytest.raises(owner.MeasurementRootBindingError, match="extraction_mismatch"):
+        owner.verify_recorded_panel_method_input(store=store, binding_receipt_ref=fake_receipt_ref)
+
+
+def test_recorded_panel_novel_entities_and_unknown_owner_fail_closed(recorded_panel_owner, tmp_path):
+    owner, store, parquet, manifest = recorded_panel_owner
+    recipe = _recorded_recipe(owner).model_copy(update={"entity_ids": ("absent", "beta", "gamma")})
+    with pytest.raises(owner.MeasurementRootBindingError, match="incomplete_recorded_panel"):
+        owner.produce_recorded_panel_method_input(
+            store=store, method_fqn="causal.inference.synthetic_control@1.0.0", recipe=recipe,
+        )
+    counterfeit = tmp_path / "counterfeit"
+    counterfeit.mkdir()
+    (counterfeit / parquet.name).write_bytes(parquet.read_bytes())
+    (counterfeit / manifest.name).write_bytes(manifest.read_bytes())
+    with pytest.raises(owner.MeasurementRootBindingError, match="unrecognized_recorded_source_owner"):
+        owner.produce_recorded_panel_method_input(
+            store=store, method_fqn="causal.inference.synthetic_control@1.0.0",
+            source=owner.RecordedPanelSource(
+                parquet_path=counterfeit / parquet.name,
+                manifest_path=counterfeit / manifest.name,
+            ), recipe=_recorded_recipe(owner),
+        )
 
 
 def _sha(char: str) -> str:

@@ -72,11 +72,13 @@ from polisyos.runtime.quality.adapter_contracts import (
 from polisyos.runtime.quality.authority import ProductionLoopRunProof
 from polisyos.runtime.quality.data_forge_binding import (
     CatalogGraphProtocol,
+    MeasurementRootBindingError,
     MeasurementRootProducer,
     build_default_workspace_catalog_graph,
     canonical_catalog_result_for_workspace_loop,
     measurement_rows_for_catalog_payload,
     produce_phase2_recorded_panel_measurement_root,
+    produce_recorded_panel_method_input,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingGraph,
@@ -1106,13 +1108,28 @@ class WorkspaceLoop:
         )
         method_fqn = str(method_selection.get("selected_method_fqn") or "")
         causal_variables = self._phase2_causal_variables(intent=intent)
-        observational_data_ref = self._phase2_observational_data_ref(intent=intent)
+        binding_receipt_ref = None
+        if intent.get("observational_data_ref") is None:
+            try:
+                binding = produce_recorded_panel_method_input(
+                    store=self._phase2_store(), method_fqn=method_fqn,
+                )
+            except MeasurementRootBindingError as exc:
+                raise MeasurementRootBindingError(f"{method_fqn}: {exc}") from exc
+            observational_data_ref = binding.observational_data_ref
+            binding_receipt_ref = binding.binding_receipt_ref
+        else:
+            observational_data_ref = self._phase2_observational_data_ref(intent=intent)
         return ExperimentState(
             run_id=f"run-{_slug(workspace_id)}",
             observational_data_ref=observational_data_ref,
             causal_method_fqn=method_fqn,
             causal_method_params={},
             execution_profile="gy_phase2",
+            artifacts_index=(
+                {"foundry_input_binding_receipt_ref": binding_receipt_ref}
+                if binding_receipt_ref is not None else {}
+            ),
             params={
                 "policy_question": intent.get("policy_question"),
                 "causal_variables": causal_variables,
@@ -1376,11 +1393,45 @@ class WorkspaceLoop:
             )
 
         ctx, _bundle_ref = self._phase2_context(workspace_id=workspace_id)
-        state = self._phase2_state(
-            workspace_id=workspace_id,
-            intent=projected_intent,
-            design_problem=intent,
-        )
+        try:
+            state = self._phase2_state(
+                workspace_id=workspace_id,
+                intent=projected_intent,
+                design_problem=intent,
+            )
+        except MeasurementRootBindingError as exc:
+            blocker = SearchBlockerRecord(
+                blocker_id="blocker-foundry-method-input-binding",
+                workspace_id=workspace_id,
+                operation_class=OperationClass.BIND,
+                blocked_port="foundry_method_input_binding",
+                missing_input="verified_foundry_method_input",
+                reason=str(exc)[:800],
+                producer_missing_label="verification_missing",
+                severity="blocks_execution",
+                repair_options=[{
+                    "operation_class": OperationClass.ACQUIRE.value,
+                    "reason": (
+                        "Supply recorded input satisfying the selected method's actual contract."
+                    ),
+                }],
+            )
+            return WorkspaceIntentRunResult(
+                workspace_id=workspace_id,
+                terminal_state=SearchTerminalState(
+                    kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED,
+                    reason="The recorded input owner refused the selected method binding.",
+                    blocking_obligations=[blocker.blocker_id],
+                ),
+                phase2_playbook_trace=trace_playbook_execution(
+                    selection=selection, executed_operation_classes=[],
+                    deviated_from_default=True, deviation_operation=OperationClass.REFINE,
+                    deviation_reason="foundry_method_input_binding_refused", blockers=[blocker],
+                    executed_legacy_aliases=[], out_of_scope_steps=[],
+                ),
+                search_blockers=[blocker],
+                legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
+            )
         required_inputs = ["observational_data_ref", "causal_variables", "data_causal_graph"]
         state_facts = {
             "observational_data_ref": state.observational_data_ref,
@@ -1486,18 +1537,22 @@ class WorkspaceLoop:
                     break
                 execution_state = execution.outcome.state
                 if step.legacy_alias == "run_causal_evaluation":
-                    foundry = FoundryMethodOutputConsumer()
+                    foundry_store = self._phase2_store()
+                    foundry = FoundryMethodOutputConsumer(store=foundry_store)
                     consumed = foundry.consume_from_state(
                         workspace_id=workspace_id,
                         operation_invocation_id=execution.invocation.invocation_id,
                         operation_class=OperationClass.ESTIMATE,
                         state=execution.outcome.state,
                         measurement_root_ref=state.observational_data_ref,
+                        binding_receipt_ref=state.artifacts_index.get(
+                            "foundry_input_binding_receipt_ref"
+                        ),
                         constraint_store_ref=None,
                     )
                     method_output_consumption_record = consumed.record
                     method_output_consumption_ref = foundry.persist_consumption(
-                        store=self._phase2_store(),
+                        store=foundry_store,
                         consumption=consumed,
                     )
                     authority_boundary = consumed.authority_boundary

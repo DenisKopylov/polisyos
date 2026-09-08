@@ -2074,6 +2074,44 @@ def test_c1_strangle_finds_new_aliased_admission_bypass(tmp_path: Path, source: 
     assert {row["path"] for row in receipt["unexpected_callers"]} == {"src/new_owner.py"}
 
 
+def test_c3_binding_vocabulary_uses_every_real_method_and_signature() -> None:
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+    report = check_layer3_gy_phase2_artifacts.recompute_foundry_binding_vocabulary()
+    registry = MethodRegistry.get_instance()
+    expected = {(row.fqn, row.abi_digest()) for row in registry.list_all()}
+    observed = {(row["method_fqn"], row["signature_digest"]) for row in report["methods"]}
+    with registry.snapshot_scope() as snapshot:
+        independent = {(row.fqn, row.signature.abi_digest()) for row in snapshot.entries()}
+    assert observed == expected == independent
+    assert report["denominator"]["list_all"] == len(expected)
+    assert {row["support_state"] for row in report["methods"]} <= {
+        "recorded_panel_compatible",
+        "other_typed_contract",
+        "typed_input_without_contract_id",
+        "no_concrete_input_contract_declared",
+        "ambiguous",
+    }
+    assert report["coverage_claim"] == "full_vocabulary_classified_not_all_methods_executed"
+
+
+def test_c3_binding_vocabulary_rejects_a_removed_method_identity() -> None:
+    report = check_layer3_gy_phase2_artifacts.recompute_foundry_binding_vocabulary()
+    assert report["methods"]
+    removed = report["methods"].pop()
+    issues = check_layer3_gy_phase2_artifacts.validate_foundry_binding_vocabulary(report)
+    print(
+        json.dumps(
+            {"probe": "removed_method_identity_markers_retained", "issues": issues}, sort_keys=True
+        )
+    )
+    assert {
+        "code": "c3_method_vocabulary_identity_missing",
+        "method_fqn": removed["method_fqn"],
+        "signature_digest": removed["signature_digest"],
+    } in issues
+
+
 def test_layer3_gy_phase2_proof_artifacts_are_committed_and_semantic() -> None:
     live_payloads = check_layer3_gy_phase2_artifacts.build_live_proof_payloads(REPO_ROOT)
     _assert_live_payloads_match_declared_outputs(

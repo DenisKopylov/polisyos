@@ -75,3 +75,18 @@ outputs. It remains `not_executed` until C3 supplies the real input/consumption
 chain needed by the shared Phase-2 proof producer. This is not a narrowed proof
 gate or a final blocked verdict. C3 proceeds next, then the lane returns to the
 pending controlled Phase-2 proof reissue.
+
+C1 landed at `34852d5b2b3b511b7f0583a6316b2156e4e2dcb9`; its complete committed
+file set was read back from the attached branch before C3. That readback is
+retained under `gy-eight-gaps-evidence/c1/branch-readback.json`.
+
+C3's engineering checkpoint closes actual recorded-input/content verification
+and immutable authority emission, with each final removal still red and its
+positive control intact. C3 remains `blocked` at the independently admitted
+EvalSafety authority/appointment prerequisite. The actual canonical run stops
+earlier at a selected-method/recorded-input incompatibility; staged intake,
+method-specific outputs, real ceiling consumption and canonical reissue remain
+explicit missing conjuncts. No closed guard or full vocabulary denominator was
+weakened. Its task journal routes each remainder. C1 stays `not_executed` because
+the shared Phase-2 canonical proof cannot yet be reissued. This stops C3 only;
+D1, F1, K, L and J continue in order.

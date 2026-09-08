@@ -1,0 +1,26 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "--show-capture=no",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_replays_actual_method_owner_and_preserves_raw_byte_custody",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_refuses_unverified_or_changed_consumption"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T17:17:46.883925+00:00",
+  "elapsed_seconds": 61.744,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": ".FFFFF                                                                   [100%]\n=================================== FAILURES ===================================\n__ test_foundry_emission_refuses_unverified_or_changed_consumption[authority] __\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:223: in test_foundry_emission_refuses_unverified_or_changed_consumption\n    with pytest.raises(ValueError, match=\"foundry_consumption_verification_required\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n___ test_foundry_emission_refuses_unverified_or_changed_consumption[record] ____\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:223: in test_foundry_emission_refuses_unverified_or_changed_consumption\n    with pytest.raises(ValueError, match=\"foundry_consumption_verification_required\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_ test_foundry_emission_refuses_unverified_or_changed_consumption[constructed] _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:223: in test_foundry_emission_refuses_unverified_or_changed_consumption\n    with pytest.raises(ValueError, match=\"foundry_consumption_verification_required\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_ test_foundry_emission_refuses_unverified_or_changed_consumption[new_consumer] _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:223: in test_foundry_emission_refuses_unverified_or_changed_consumption\n    with pytest.raises(ValueError, match=\"foundry_consumption_verification_required\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n____ test_foundry_emission_refuses_unverified_or_changed_consumption[store] ____\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:223: in test_foundry_emission_refuses_unverified_or_changed_consumption\n    with pytest.raises(ValueError, match=\"foundry_consumption_verification_required\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_refuses_unverified_or_changed_consumption[authority]\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_refuses_unverified_or_changed_consumption[record]\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_refuses_unverified_or_changed_consumption[constructed]\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_refuses_unverified_or_changed_consumption[new_consumer]\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_refuses_unverified_or_changed_consumption[store]\n",
+  "stderr": ""
+}

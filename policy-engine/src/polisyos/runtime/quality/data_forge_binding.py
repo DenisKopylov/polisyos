@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol, Self
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon, scan_secret_and_pii
 from polisyos.data_forge import read_api
@@ -16,9 +19,9 @@ from polisyos.data_forge.read_api.surfaces import available_surfaces, surface_mo
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
 from polisyos.pdc import ArtifactEnvelope, ArtifactRef, gy_content_hash
 from polisyos.runtime.quality.adapter_contracts import (
+    WORKSPACE_SOURCE_CONTRACT_FACETS,
     ConnectorAdmissionGate,
     DataRequirementAdmissionGate,
-    WORKSPACE_SOURCE_CONTRACT_FACETS,
 )
 
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = (
@@ -32,8 +35,13 @@ DATA_FORGE_SNAPSHOT_BINDING_PHASE = "data_forge_snapshot_binding"
 DEFAULT_DATA_FORGE_SNAPSHOT_TTL_SECONDS = 60 * 60 * 24 * 90
 WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
 WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION = (
-    "policyos.gy.phase2.recorded_panel_measurement_root.v1"
+    "policyos.gy.phase2.recorded_panel_measurement_root.v2"
 )
+RECORDED_PANEL_BINDING_SCHEMA_VERSION = "policyos.gy.phase2.recorded_panel_method_binding.v1"
+_RECORDED_PANEL_TARGET = {
+    "contract_id": "foundry.causal.panel_observational_data.v1",
+    "contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
+}
 REQUIRED_DATA_FORGE_SNAPSHOT_ROLES = ("legal", "catalog", "academic", "domain")
 DATA_FORGE_SNAPSHOT_ROLE_SURFACES = {
     "legal": "legal",
@@ -182,6 +190,84 @@ class _WorkspaceFixtureManifestProtocol(Protocol):
 
 class MeasurementRootBindingError(RuntimeError):
     """Raised when a workspace measurement-root catalog binding cannot be produced."""
+
+
+class RecordedPanelSource(BaseModel):
+    """Paths to the recorded calibration owner's source and custody manifest."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    parquet_path: Path
+    manifest_path: Path
+
+
+class RecordedPanelRecipe(BaseModel):
+    """Data-only row selection with an explicitly assumed treatment assignment."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    entity_ids: tuple[str, ...] = ("42032422", "41865032", "41433726")
+    period_start: date = date(2018, 5, 1)
+    period_end: date = date(2019, 2, 1)
+    period_count: int = Field(default=10, ge=2)
+    family: str = "budget_flows"
+    metric_id: str = "amount"
+    treatment: tuple[Literal[0, 1], ...] = (1, 0, 0)
+    time_treatment: int = Field(default=5, ge=0)
+    aggregation: Literal["sum_observed_value_by_entity_and_period_round_6"] = (
+        "sum_observed_value_by_entity_and_period_round_6"
+    )
+
+    @model_validator(mode="after")
+    def validate_panel(self) -> Self:
+        """Require a nonempty, unique panel and a matching assignment shape."""
+        if len(self.entity_ids) < 2 or len(set(self.entity_ids)) != len(self.entity_ids):
+            raise ValueError("recorded panel requires distinct entities")
+        if any(not value.strip() for value in (*self.entity_ids, self.family, self.metric_id)):
+            raise ValueError("recorded panel selectors must not be empty")
+        if len(self.treatment) != len(self.entity_ids) or self.time_treatment >= self.period_count:
+            raise ValueError("recorded panel assignment shape mismatch")
+        if self.period_start > self.period_end:
+            raise ValueError("recorded panel period order mismatch")
+        return self
+
+
+class RecordedPanelBindingReceipt(BaseModel):
+    """Recomputable custody of measured values, without causal identification."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.gy.phase2.recorded_panel_method_binding.v1"] = (
+        RECORDED_PANEL_BINDING_SCHEMA_VERSION
+    )
+    source: RecordedPanelSource
+    source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_size_bytes: int = Field(gt=0)
+    manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    recipe: RecordedPanelRecipe
+    selected_rows_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    selected_row_count: int = Field(gt=0)
+    method_fqn: str
+    method_signature_digest: str
+    contract_target: dict[str, str]
+    observational_data_ref: artifacts.ArtifactRef
+    measured_fields: tuple[Literal["outcome"], Literal["unit_ids"], Literal["time_index"]] = (
+        "outcome", "unit_ids", "time_index"
+    )
+    assumed_fields: tuple[Literal["treatment"], Literal["time_treatment"]] = (
+        "treatment", "time_treatment"
+    )
+    decision_grade: Literal["descriptive_only"] = "descriptive_only"
+    causal_identification_established: Literal[False] = False
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+
+
+class RecordedPanelMethodInput(BaseModel):
+    """Validated method payload and the CAS receipt the consumer must recheck."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    contract_target: dict[str, str]
+    contract_payload: dict[str, Any]
+    observational_data_ref: artifacts.ArtifactRef
+    binding_receipt_ref: artifacts.ArtifactRef
+    receipt: RecordedPanelBindingReceipt
 
 
 class MeasurementRootProducer:
@@ -408,78 +494,85 @@ def produce_phase2_recorded_panel_measurement_root(
     *,
     store: artifacts.FileSystemCAS,
 ) -> artifacts.ArtifactRef:
-    """Persist a deterministic Foundry panel from recorded production rows.
-
-    This bridge stays with the Data Forge binding owner. It samples a fixed
-    three-entity, ten-period panel from the recorded Ukraine calibration
-    observation cassette and persists it as ``ir.observational_data`` so the
-    existing Foundry causal node can consume a real measurement root.
-    """
-
-    extracted = _phase2_recorded_panel_payload()
-    panel_payload = {
-        "outcome": extracted["outcome"],
-        "treatment": [1, 0, 0],
-        "time_treatment": 5,
-        "unit_ids": extracted["unit_ids"],
-        "time_index": extracted["time_index"],
-        "metadata": {
-            "input_provenance": "measurement_rooted",
-            "source": "recorded_rows",
-            "source_path": extracted["source_path"],
-            "source_manifest": extracted["source_manifest"],
-            "row_count": extracted["row_count"],
-            "metric_id": extracted["metric_id"],
-            "family": extracted["family"],
-            "aggregation": extracted["aggregation"],
-            "producer": (
-                "polisyos.runtime.quality.data_forge_binding."
-                "produce_phase2_recorded_panel_measurement_root"
-            ),
-        },
-    }
-    return store.put_json(
-        panel_payload,
-        artifacts.PutOptions(
-            kind="ir.observational_data",
-            media_type="application/json",
-            schema=artifacts.SchemaInfo(
-                name=WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION,
-                version="1.0",
-            ),
-            producer=artifacts.ProducerInfo(
-                component=(
-                    "polisyos.runtime.quality.data_forge_binding."
-                    "produce_phase2_recorded_panel_measurement_root"
-                ),
-                version="phase2.v1",
-            ),
-        ),
-        canon_spec=canon.CanonSpec(forbid_floats=False),
-    )
+    """Persist the canonical measured panel with its assumption boundary."""
+    return produce_recorded_panel_method_input(
+        store=store, method_fqn="causal.inference.synthetic_control@1.0.0",
+    ).observational_data_ref
 
 
-@lru_cache(maxsize=1)
-def _phase2_recorded_panel_payload() -> dict[str, Any]:
-    try:
-        import duckdb
-    except ModuleNotFoundError as exc:  # pragma: no cover - dependency is expected locally
-        raise MeasurementRootBindingError("duckdb is required for recorded-row binding") from exc
-
-    root = Path(__file__).resolve().parents[4]
-    bundle_dir = (
-        root
+def _recorded_panel_bundle_dir() -> Path:
+    return (
+        Path(__file__).resolve().parents[4]
         / "production_data"
         / "ukraine_agent_simulation_baseline_20260410"
         / "production_bundle"
         / "bundles"
         / "calibration_bundle_v1"
     )
-    parquet_path = bundle_dir / "observation_panel_monthly.parquet"
-    manifest_path = bundle_dir / "calibration_bundle_manifest.json"
-    if not parquet_path.exists():
-        raise MeasurementRootBindingError(f"recorded-row panel not found: {parquet_path}")
-    entity_order = ["42032422", "41865032", "41433726"]
+
+
+def _recorded_file_sha256(path: Path) -> str:
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def _recorded_json_sha256(payload: object) -> str:
+    return hashlib.sha256(canon.to_canonical_bytes(
+        payload, spec=canon.CanonSpec(forbid_floats=False),
+    )).hexdigest()
+
+
+def _validated_recorded_source(
+    source: RecordedPanelSource | None,
+) -> tuple[RecordedPanelSource, str, int, str]:
+    from polisyos.data_forge.domains.ukraine.manifests import CalibrationBundleManifest
+
+    bundle_dir = _recorded_panel_bundle_dir().resolve()
+    source = RecordedPanelSource.model_validate((source or RecordedPanelSource(
+        parquet_path=bundle_dir / "observation_panel_monthly.parquet",
+        manifest_path=bundle_dir / "calibration_bundle_manifest.json",
+    )).model_dump(mode="python"))
+    parquet_path = source.parquet_path.resolve()
+    manifest_path = source.manifest_path.resolve()
+    if (
+        parquet_path.parent != bundle_dir
+        or parquet_path.name != "observation_panel_monthly.parquet"
+        or manifest_path != bundle_dir / "calibration_bundle_manifest.json"
+    ):
+        raise MeasurementRootBindingError("unrecognized_recorded_source_owner")
+    try:
+        manifest_bytes = manifest_path.read_bytes()
+        manifest = CalibrationBundleManifest.model_validate_json(manifest_bytes)
+        record = manifest.outputs.get(parquet_path.name)
+        if (
+            manifest.artifact_name != manifest_path.name
+            or record is None
+            or Path(record.path).name != parquet_path.name
+            or any(
+                finding.severity.lower() in {"error", "fatal"}
+                for finding in manifest.validation
+            )
+        ):
+            raise MeasurementRootBindingError("recorded_source_manifest_invalid")
+        source_hash = _recorded_file_sha256(parquet_path)
+        size = parquet_path.stat().st_size
+        if record.sha256 != source_hash or record.size_bytes != size:
+            raise MeasurementRootBindingError("recorded_source_hash_mismatch")
+    except (OSError, ValueError) as exc:
+        raise MeasurementRootBindingError("recorded_source_unreadable") from exc
+    return (
+        RecordedPanelSource(parquet_path=parquet_path, manifest_path=manifest_path),
+        source_hash, size, hashlib.sha256(manifest_bytes).hexdigest(),
+    )
+
+
+@lru_cache(maxsize=16)
+def _extract_recorded_panel_rows(
+    parquet_path: str, source_sha256: str, manifest_sha256: str, recipe_json: str,
+) -> tuple[tuple[str, str, float], ...]:
+    import duckdb
+
+    recipe = RecordedPanelRecipe.model_validate_json(recipe_json)
     query = """
         WITH filtered AS (
             SELECT
@@ -487,51 +580,215 @@ def _phase2_recorded_panel_payload() -> dict[str, Any]:
                 CAST(period_start AS DATE) AS period_start,
                 SUM(CAST(observed_value AS DOUBLE)) AS observed_value
             FROM read_parquet(?)
-            WHERE family = 'budget_flows'
-              AND metric_id = 'amount'
+            WHERE family = ?
+              AND metric_id = ?
               AND observed_value IS NOT NULL
-              AND CAST(entity_id AS VARCHAR) IN ('42032422', '41865032', '41433726')
-              AND CAST(period_start AS DATE) >= DATE '2018-05-01'
-              AND CAST(period_start AS DATE) <= DATE '2019-02-01'
+              AND CAST(entity_id AS VARCHAR) IN (SELECT UNNEST(?))
+              AND CAST(period_start AS DATE) >= CAST(? AS DATE)
+              AND CAST(period_start AS DATE) <= CAST(? AS DATE)
             GROUP BY 1, 2
         ),
         complete_periods AS (
             SELECT period_start
             FROM filtered
             GROUP BY period_start
-            HAVING COUNT(*) = 3
+            HAVING COUNT(*) = ?
             ORDER BY period_start
-            LIMIT 10
+            LIMIT ?
         )
         SELECT entity_id, CAST(period_start AS VARCHAR) AS period_start, observed_value
         FROM filtered
         JOIN complete_periods USING (period_start)
         ORDER BY period_start, entity_id
     """
-    rows = duckdb.connect(database=":memory:").execute(query, [str(parquet_path)]).fetchall()
-    if len(rows) != 30:
+    with duckdb.connect(database=":memory:") as connection:
+        rows = connection.execute(query, [
+            parquet_path, recipe.family, recipe.metric_id, list(recipe.entity_ids),
+            str(recipe.period_start), str(recipe.period_end), len(recipe.entity_ids),
+            recipe.period_count,
+        ]).fetchall()
+    if _recorded_file_sha256(Path(parquet_path)) != source_sha256:
+        raise MeasurementRootBindingError("recorded_source_hash_mismatch_during_extraction")
+    if len(rows) != len(recipe.entity_ids) * recipe.period_count:
         raise MeasurementRootBindingError(
-            f"recorded-row panel expected 30 entity-period rows, got {len(rows)}"
+            "incomplete_recorded_panel: expected "
+            f"{len(recipe.entity_ids) * recipe.period_count} rows, got {len(rows)}"
         )
+    return tuple(
+        (str(entity), str(period), round(float(value), 6)) for entity, period, value in rows
+    )
+
+
+def _recorded_panel_payload(
+    source: RecordedPanelSource | None, recipe: RecordedPanelRecipe,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    source, source_hash, size, manifest_hash = _validated_recorded_source(source)
+    rows = _extract_recorded_panel_rows(
+        str(source.parquet_path), source_hash, manifest_hash, recipe.model_dump_json(),
+    )
     period_order = sorted({str(row[1]) for row in rows})
-    values = {
-        (str(entity), str(period)): round(float(value), 6)
-        for entity, period, value in rows
+    values = {(entity, period): value for entity, period, value in rows}
+    provenance = {
+        "source": source, "source_sha256": source_hash, "source_size_bytes": size,
+        "manifest_sha256": manifest_hash, "recipe": recipe,
+        "selected_rows_sha256": _recorded_json_sha256(rows), "selected_row_count": len(rows),
     }
-    return {
+    payload = {
         "outcome": [
             [values[(entity_id, period)] for period in period_order]
-            for entity_id in entity_order
+            for entity_id in recipe.entity_ids
         ],
-        "unit_ids": entity_order,
+        "treatment": list(recipe.treatment), "time_treatment": recipe.time_treatment,
+        "unit_ids": list(recipe.entity_ids),
         "time_index": period_order,
-        "row_count": len(rows),
-        "source_path": str(parquet_path.relative_to(root)),
-        "source_manifest": str(manifest_path.relative_to(root)),
-        "metric_id": "amount",
-        "family": "budget_flows",
-        "aggregation": "sum observed_value by entity_id and month",
+        "metadata": {
+            "input_provenance": "measurement_rooted", "source": "recorded_rows",
+            "source_path": str(source.parquet_path), "source_manifest": str(source.manifest_path),
+            "source_sha256": source_hash, "manifest_sha256": manifest_hash,
+            "recipe": recipe.model_dump(mode="json"),
+            "selected_rows_sha256": provenance["selected_rows_sha256"],
+            "row_count": len(rows), "measured_fields": ["outcome", "unit_ids", "time_index"],
+            "assumed_fields": ["treatment", "time_treatment"],
+            "decision_grade": "descriptive_only", "causal_identification_established": False,
+        },
     }
+    return payload, provenance
+
+
+def _materialize_recorded_method_input(
+    method_fqn: str, payload: dict[str, Any],
+) -> tuple[dict[str, Any], str]:
+    from polisyos.foundry.data_plane import materialize_method_contract
+    from polisyos.foundry.methods import MethodRegistry, ensure_all_methods_registered
+    from polisyos.foundry.methods.selection import method_accepts_input_contract
+
+    try:
+        registry = MethodRegistry.get_instance()
+        if registry.get_signature(method_fqn) is None:
+            ensure_all_methods_registered()
+        method = registry.get(method_fqn)
+        signature = registry.get_signature(method_fqn)
+        if signature is None or not method_accepts_input_contract(
+            method, _RECORDED_PANEL_TARGET["contract_id"],
+        ):
+            raise MeasurementRootBindingError("recorded_input_method_contract_incompatible")
+        typed = materialize_method_contract(
+            contract_target=_RECORDED_PANEL_TARGET, contract_payload=payload,
+        )
+        return typed.model_dump(mode="json"), signature.stable_digest()
+    except (ValueError, KeyError, TypeError) as exc:
+        raise MeasurementRootBindingError("recorded_input_method_contract_invalid") from exc
+
+
+def _put_recorded_artifact(
+    store: artifacts.FileSystemCAS, payload: object, *, kind: str, schema: str,
+    inputs: Sequence[artifacts.InputRef] = (),
+) -> artifacts.ArtifactRef:
+    return store.put_json(payload, artifacts.PutOptions(
+        kind=kind, media_type="application/json",
+        inputs=list(inputs),
+        schema=artifacts.SchemaInfo(name=schema, version=schema.rsplit(".v", 1)[-1] + ".0"),
+        producer=artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.data_forge_binding.produce_recorded_panel_method_input",
+            version="phase2.v2",
+        ),
+    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+
+
+def produce_recorded_panel_method_input(
+    *, store: artifacts.FileSystemCAS, method_fqn: str,
+    source: RecordedPanelSource | None = None, recipe: RecordedPanelRecipe | None = None,
+) -> RecordedPanelMethodInput:
+    """Bind recorded rows to an accepted method DTO and persist recomputation custody.
+
+    The canonical calibration owner supplies outcome observations. Treatment and
+    intervention time remain declared assumptions, so this grants no causal
+    identification, calibration or publication authority.
+    """
+    recipe = RecordedPanelRecipe.model_validate((recipe or RecordedPanelRecipe()).model_dump())
+    payload, provenance = _recorded_panel_payload(source, recipe)
+    payload, signature_digest = _materialize_recorded_method_input(method_fqn, payload)
+    data_ref = _put_recorded_artifact(
+        store, payload, kind="ir.observational_data",
+        schema=WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION,
+    )
+    receipt = RecordedPanelBindingReceipt(
+        **provenance, method_fqn=method_fqn, method_signature_digest=signature_digest,
+        contract_target=dict(_RECORDED_PANEL_TARGET), observational_data_ref=data_ref,
+    )
+    receipt_ref = _put_recorded_artifact(
+        store, receipt.model_dump(mode="json"), kind="runtime.recorded_panel_method_binding",
+        schema=RECORDED_PANEL_BINDING_SCHEMA_VERSION,
+        inputs=[artifacts.InputRef(artifact_id=data_ref.artifact_id, role="observational_data")],
+    )
+    return RecordedPanelMethodInput(
+        contract_target=dict(_RECORDED_PANEL_TARGET), contract_payload=payload,
+        observational_data_ref=data_ref, binding_receipt_ref=receipt_ref, receipt=receipt,
+    )
+
+
+def verify_recorded_panel_method_input(
+    *, store: artifacts.FileSystemCAS, binding_receipt_ref: artifacts.ArtifactRef,
+) -> RecordedPanelMethodInput:
+    """Resolve and rederive the complete panel before granting measured-input custody."""
+    try:
+        binding_receipt_ref = artifacts.ArtifactRef.model_validate(
+            binding_receipt_ref.model_dump(mode="python")
+        )
+        binding_manifest = store.get_manifest(binding_receipt_ref.artifact_id)
+        if (
+            binding_receipt_ref.kind != "runtime.recorded_panel_method_binding"
+            or binding_receipt_ref.media_type != "application/json"
+            or binding_manifest.kind != binding_receipt_ref.kind
+            or binding_manifest.media_type != binding_receipt_ref.media_type
+            or binding_manifest.artifact_schema != artifacts.SchemaInfo(
+                name=RECORDED_PANEL_BINDING_SCHEMA_VERSION, version="1.0",
+            )
+        ):
+            raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
+        receipt = RecordedPanelBindingReceipt.model_validate_json(
+            store.get_bytes(binding_receipt_ref.artifact_id),
+        )
+        if binding_manifest.inputs != [artifacts.InputRef(
+            artifact_id=receipt.observational_data_ref.artifact_id, role="observational_data",
+        )]:
+            raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
+        payload, provenance = _recorded_panel_payload(receipt.source, receipt.recipe)
+        if provenance["manifest_sha256"] != receipt.manifest_sha256:
+            raise MeasurementRootBindingError("recorded_manifest_hash_mismatch")
+        if provenance["source_sha256"] != receipt.source_sha256:
+            raise MeasurementRootBindingError("recorded_source_hash_mismatch")
+        payload, signature_digest = _materialize_recorded_method_input(receipt.method_fqn, payload)
+        data_manifest = store.get_manifest(receipt.observational_data_ref.artifact_id)
+        if (
+            receipt.observational_data_ref.kind != "ir.observational_data"
+            or receipt.observational_data_ref.media_type != "application/json"
+            or data_manifest.kind != receipt.observational_data_ref.kind
+            or data_manifest.media_type != receipt.observational_data_ref.media_type
+            or data_manifest.artifact_schema != artifacts.SchemaInfo(
+                name=WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION, version="2.0",
+            )
+        ):
+            raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
+        actual_payload = canon.from_canonical_bytes(
+            store.get_bytes(receipt.observational_data_ref.artifact_id)
+        )
+        if actual_payload != payload:
+            raise MeasurementRootBindingError("recorded_extraction_mismatch")
+        expected = RecordedPanelBindingReceipt(
+            **provenance, method_fqn=receipt.method_fqn, method_signature_digest=signature_digest,
+            contract_target=dict(_RECORDED_PANEL_TARGET),
+            observational_data_ref=receipt.observational_data_ref,
+        )
+        if receipt != expected:
+            raise MeasurementRootBindingError("recorded_binding_receipt_mismatch")
+        return RecordedPanelMethodInput(
+            contract_target=dict(_RECORDED_PANEL_TARGET), contract_payload=payload,
+            observational_data_ref=receipt.observational_data_ref,
+            binding_receipt_ref=binding_receipt_ref, receipt=receipt,
+        )
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise MeasurementRootBindingError("recorded_binding_unreadable") from exc
 
 
 def build_default_workspace_catalog_graph() -> CatalogGraphProtocol:
@@ -2266,16 +2523,23 @@ __all__ = [
     "DATA_FORGE_SNAPSHOT_BINDING_GATE",
     "DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY",
     "DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION",
+    "RECORDED_PANEL_BINDING_SCHEMA_VERSION",
+    "REQUIRED_DATA_FORGE_SNAPSHOT_ROLES",
     "WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION",
     "WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION",
-    "REQUIRED_DATA_FORGE_SNAPSHOT_ROLES",
     "CatalogGraphProtocol",
     "MeasurementRootBindingError",
     "MeasurementRootProducer",
+    "RecordedPanelBindingReceipt",
+    "RecordedPanelMethodInput",
+    "RecordedPanelRecipe",
+    "RecordedPanelSource",
     "build_default_workspace_catalog_graph",
     "data_forge_snapshot_binding_scorecard_gates",
     "normalize_data_forge_snapshot_binding_report",
     "official_data_forge_snapshot_for_claim",
     "produce_phase2_recorded_panel_measurement_root",
+    "produce_recorded_panel_method_input",
     "source_requirement_for_catalog_binding",
+    "verify_recorded_panel_method_input",
 ]

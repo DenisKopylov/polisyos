@@ -384,6 +384,52 @@ def test_phase2_value_advisor_receives_the_owner_design_problem(
     assert observed == [problem]
 
 
+def test_phase2_state_carries_the_real_recorded_binding_without_faking_stage_intake(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.workspace import loop as owner
+
+    problem = _design_problem(causal_variables=["credit_access", "firm_survival"])
+    observed: list[dict[str, object]] = []
+    original = owner.WorkspaceLoop._phase2_observational_data_ref
+
+    def produce(**kwargs: object) -> object:
+        observed.append(kwargs)
+        root = original(owner.WorkspaceLoop(), intent={"observational_data_ref": "probe"})
+        return SimpleNamespace(observational_data_ref=root, binding_receipt_ref=root)
+
+    monkeypatch.setattr(owner, "produce_recorded_panel_method_input", produce, raising=False)
+    monkeypatch.setattr(owner, "_phase2_value_method_selection", lambda *a, **k: {
+        "selected_method_fqn": "causal.inference.synthetic_control@1.0.0",
+    })
+    state = WorkspaceLoop()._phase2_state(
+        workspace_id="binding-transport", intent=problem.to_workspace_intent(),
+        design_problem=problem,
+    )
+    assert len(observed) == 1
+    assert observed[0]["method_fqn"] == state.causal_method_fqn
+    assert state.artifacts_index["foundry_input_binding_receipt_ref"] == state.observational_data_ref
+    assert "ukraine_foundry_intake_receipt_ref" not in state.artifacts_index
+
+
+def test_phase2_recorded_binding_refusal_is_a_typed_terminal(monkeypatch) -> None:
+    from polisyos.runtime.quality.data_forge_binding import MeasurementRootBindingError
+
+    def refuse(*args, **kwargs):
+        raise MeasurementRootBindingError("selected.method: recorded_input_method_contract_incompatible")
+
+    monkeypatch.setattr(WorkspaceLoop, "_phase2_context", lambda *a, **k: (None, None))
+    monkeypatch.setattr(WorkspaceLoop, "_phase2_state", refuse)
+    result = WorkspaceLoop().run_intent(_design_problem())
+    assert result.terminal_state.kind is SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED
+    assert result.authority_boundary is None
+    assert result.operation_invocations == []
+    assert result.search_blockers[0].producer_missing_label == "verification_missing"
+    assert "recorded_input_method_contract_incompatible" in result.search_blockers[0].reason
+
+
 def test_workspace_loop_phase2_playbook_can_deviate_to_refine_blocker(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

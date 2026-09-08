@@ -89,6 +89,17 @@ not their blocker. A real input yielding even a substantive refusal would
 require wiring immediately. The lane does not replace missing source evidence
 with empty authored inputs or call the engineering finished.
 
+**PR1-SBC01–03:** a second independent [source-bridge challenge](gy-phase5-evidence/pr1/source-bridge-challenge.md)
+executes the full retained N6 fallback population and corrects a possible zero-generation
+inference: fallback candidates do exist. Their actual objects fail the canonical
+atom owner on missing substantive fields; an existing real WMR still cannot yield
+a forwardable full reference under HC-F11–HC-F14. No scoped replacement reference,
+convenient catalog atom, or simulation row relabeled as an empirical measurement is
+used. Source preservation/pre-admission engineering remains inside PR1 and
+`bridge_missing`; generic adapter impossibility is not established. The complete
+corrected command returns RC0; the earlier unsupported cleanup-call RC1 is retained
+as a harness nonreceipt.
+
 Station: the shared Python dependency path contained Ruff's module but lacked
 the lane's executable. The lane now has a read-only link to the existing Ruff
 binary; `.venv/bin/python -m ruff --version` returns RC0, `0.14.10`, in

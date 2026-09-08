@@ -85,6 +85,18 @@ catalog adapter remains `not_established`, not externally impossible. We do not
 add a default provider that supplies manufactured empty inputs to restate the
 existing missing-evidence result.
 
+The independently executed PR1 challenge `pr1/source-bridge-challenge.md`
+(PR1-SBC01–03) also tests the actual nonempty N6 fallback. Its objects are
+candidate-search atoms and fail the existing canonical atom validator on missing
+substantive source/operator/estimand fields. A real existing WMR does not remove
+the full reference owner's HC forwarding refusal. The measured source gap is
+therefore narrower than "no candidates": no usable atom/proposal **and**
+forwardable reference were established for this writer path. A source-preserving
+N4/N6 adapter and earlier evidence stage remain engineering within PR1; their
+impossibility is not claimed. No new always-empty carrier or fabricated canonical
+atom is accepted. This challenge reinforces D2a's bounded result, not a claim
+that every independently useful PR1 adapter has been implemented.
+
 ### D3 — GY-PA1 default production bridge with both outcomes
 
 Adopt `../journals/gy-phase5-evidence/pa1/design.md` (PA1-R05) as the exact PA1 design. It supersedes the earlier tentative GenerationCycleRun field change. The actual default seam is `runtime/http/services/control/run_lifecycle.py::_process_control_job`, immediately after persisting the compiled recursive generation run and before completed progress/event publication.

@@ -3380,12 +3380,12 @@ wheels = [
 [[package]]
 name = "odfpy"
 version = "1.4.1"
-source = { url = "https://www.piwheels.org/simple/odfpy/odfpy-1.4.1-py2.py3-none-any.whl" }
+source = { path = "vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl" }
 dependencies = [
     { name = "defusedxml" },
 ]
 wheels = [
-    { url = "https://www.piwheels.org/simple/odfpy/odfpy-1.4.1-py2.py3-none-any.whl", hash = "sha256:1d1c3ea36a422d3c5cd4c2457ea0e0be59841d6c26d28bd3d5e43f060565d11b" },
+    { filename = "odfpy-1.4.1-py2.py3-none-any.whl", hash = "sha256:1d1c3ea36a422d3c5cd4c2457ea0e0be59841d6c26d28bd3d5e43f060565d11b" },
 ]
 
 [package.metadata]
@@ -4294,7 +4294,7 @@ requires-dist = [
     { name = "mutmut", marker = "extra == 'mutation'", specifier = ">=2.0" },
     { name = "mypy", marker = "extra == 'lint'", specifier = ">=1.19.1" },
     { name = "numpyro", marker = "extra == 'bayesian'", specifier = ">=0.20.0" },
-    { name = "odfpy", url = "https://www.piwheels.org/simple/odfpy/odfpy-1.4.1-py2.py3-none-any.whl" },
+    { name = "odfpy", path = "vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl" },
     { name = "onnxruntime", marker = "extra == 'rag-local'", specifier = ">=1.18.0,<2.0" },
     { name = "openai" },
     { name = "openpyxl", specifier = ">=3.1.0" },

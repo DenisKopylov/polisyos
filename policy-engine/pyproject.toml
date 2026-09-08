@@ -226,7 +226,8 @@ conflicts = [[{extra = "table-extraction"}, {group = "ci"}]]
 
 [tool.uv.sources]
 # The universal wheel packages the unchanged upstream 1.4.1 Python sources.
-odfpy = { url = "https://www.piwheels.org/simple/odfpy/odfpy-1.4.1-py2.py3-none-any.whl" }
+# Vendored; provenance and verification in vendor/wheels/README.md.
+odfpy = { path = "vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl" }
 
 [project.entry-points."polisyos.fabric_connectors"]
 "worldbank.wdi" = "polisyos.fabric.connectors.components:world_bank_connector_component"

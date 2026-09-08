@@ -233,6 +233,18 @@ refusal; rebound progress must refuse with the canonical frontier. Removal probe
 assert both readers' decisive status/rankings before inspecting reference markers.
 This is the same structural invariant, not another per-fixture exception.
 
+**PA1-D3e / generated companion bridge:** executing the canonical client generator
+emits the endpoint's DTOs but omits its callable method: the existing generator's
+explicit POST-operation set does not contain `submit_run_normative_evidence`.
+Extend that existing curated operation owner with this exact public operation;
+do not replace its general method-selection policy or hand-edit generated clients.
+Root owns this mandatory surface companion. A red-first JavaScript test must call
+the actual generated method with an encoded run path and exact evidence/head body,
+then assert the real fetch method/path/body. Before the repair the method is absent;
+after canonical regeneration it must reach fetch. Removing this operation from
+the owner and regenerating is the falsifier. Backend authority decisions and
+receipt epochs are unchanged; only client generation/tests require delta review.
+
 ## Ordered execution and exact owners
 
 Only one writer per source file. S3 owns `intervention_substrate.py`, `design_generation.py`, its part of `generation_cycle.py`, Foundry selection and S3 validator/tests. PA1 owns existing S8 plus HTTP control generation/lifecycle/container files and mirrored tests. The selected PA1 design needs no shared generation-cycle write. PR1 has no production edits. Root owns the plan/journals, commits, final review, generated-companion integration and verification wave.

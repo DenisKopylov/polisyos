@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pa1.d3b_head_absence",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.pa1.d3b_head_absence"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 94.16000058397185,
+  "stdout": "{\n  \"scope\": \"Actual worker, admitted signed fixture S8 evidence, real persisted progress copy; event owner omission injected only in process, no production source edits\",\n  \"job_id\": \"9cc78b22f0ce40f3875f0784736fc078\",\n  \"initial_disposition_ref\": \"sha256:4453121b4e978b5af0908c62d84cfca006635d39b3e62c60696e2ffd3508e229\",\n  \"initial_status\": \"blocked\",\n  \"admitted_head_ref\": \"sha256:d6f25df4b435876d7e720e615ec9105d5a049ff9aacc7a0ff6c425eafa2f2a37\",\n  \"copied_disposition_ref\": \"sha256:1f36a0fa56baa1c08db9c0ab4ae99828d1bdbf212c68cab6e5124abe365c9fb0\",\n  \"current_status_without_event\": \"authorized\",\n  \"current_rankings_without_event\": [\n    \"candidate_cgf_shadow\"\n  ],\n  \"current_head_ref_without_event\": \"sha256:d6f25df4b435876d7e720e615ec9105d5a049ff9aacc7a0ff6c425eafa2f2a37\"\n}\n",
+  "stderr": "2026-09-08 13:40:25.667 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/d3b_head_absence.py\", line 46, in <module>\n    assert output['current_status_without_event'] == 'blocked', 'copied progress bypasses absent admitted head'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: copied progress bypasses absent admitted head\n"
+}

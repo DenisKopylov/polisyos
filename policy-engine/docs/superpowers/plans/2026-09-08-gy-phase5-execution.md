@@ -217,6 +217,22 @@ execution-manifest epoch unchanged. Removing canonical publication while keeping
 the completed job/sidecar markers must make the actual later-evidence endpoint
 test red. A missing institution still leaves the default signed slot empty.
 
+**D3d / P40 same current-emission and head-arrival class:** the executed
+`d3b-head-absence-challenge.json` keeps a genuine admitted sidecar copied into job
+progress but omits the event owner's head. Both current readers must derive their
+initial compiled source and initial sidecar from immutable canonical core outputs,
+independently of mutable progress. A current sidecar acquires authority only through
+its admitted event; copied progress cannot stand in for that arrival predicate.
+Widen the existing shared reader once for both head and no-head branches. Preserve
+the independently resolved canonical source when progress is rebound, so refusal
+can retain its actual candidate frontier instead of calling known source unknown.
+No new source, event store, signature authority or receipt epoch is introduced.
+The unchanged actual-worker → later-signed-intake positive must still rank through
+both readers. Event omission plus copied progress must return the original honest
+refusal; rebound progress must refuse with the canonical frontier. Removal probes
+assert both readers' decisive status/rankings before inspecting reference markers.
+This is the same structural invariant, not another per-fixture exception.
+
 ## Ordered execution and exact owners
 
 Only one writer per source file. S3 owns `intervention_substrate.py`, `design_generation.py`, its part of `generation_cycle.py`, Foundry selection and S3 validator/tests. PA1 owns existing S8 plus HTTP control generation/lifecycle/container files and mirrored tests. The selected PA1 design needs no shared generation-cycle write. PR1 has no production edits. Root owns the plan/journals, commits, final review, generated-companion integration and verification wave.

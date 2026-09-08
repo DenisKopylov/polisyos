@@ -24,6 +24,15 @@ or directory/full Python suite is authorized or used.
 
 ## Execution record
 
+**PA1-D3d:** `d3b-head-absence-challenge.json` executes a genuine later evidence
+admission, copies its current projection through the real progress writer, then
+omits the event owner's head. The reader incorrectly returns authorized rankings.
+This is the same P31/P37 head-arrival/current-emission class. The plan now binds
+both event and no-event reader branches to immutable core source outputs and
+requires canonical-frontier refusal on rebound progress. That decision precedes
+the batched source correction. Independent review also requires semantic reader
+assertions before head-reference markers in the removal gate.
+
 **S3-RV02 / D1c:** independent execution accepted the completed RV01 omission
 invariant, then established a NEW P01/P02 configuration bridge gap. A full manifest
 plus explicit budget family selects through the owner, while the actual port

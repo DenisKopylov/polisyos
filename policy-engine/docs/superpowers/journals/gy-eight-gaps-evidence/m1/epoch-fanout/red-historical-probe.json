@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.m1.epoch-fanout.epoch_probe",
+    "--historical-ref",
+    "43580c80b"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:27:45.581658+00:00",
+  "elapsed_seconds": 38.301,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\n  \"status\": \"fail\",\n  \"checks\": {\n    \"current_projection_admitted\": false,\n    \"current_worker_passed\": false,\n    \"current_global_signal_available\": false,\n    \"historical_projection_refused_at_schema\": false,\n    \"historical_worker_refused_at_schema\": false,\n    \"historical_global_signal_invalid\": false,\n    \"historical_contract_remains_readable\": true,\n    \"historical_lifecycle_remains_readable\": true\n  },\n  \"current\": {\n    \"projection\": {\n      \"accepted\": false,\n      \"reason\": \"acquisition_growth_source_schema_mismatch\"\n    },\n    \"worker_issues\": [\n      \"acquisition_growth_source_schema_mismatch\"\n    ],\n    \"global_signal\": {\n      \"availability\": \"invalid_source\",\n      \"source_ref\": \"architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json\",\n      \"source_content_hash\": \"sha256:16a69256bf6f1746ce591d87163d90acb282718d4a3a9aa189d89c4f02fe0757\",\n      \"reason\": \"N13b owner schema, rule, or producer identity is not admitted\"\n    }\n  },\n  \"historical\": {\n    \"source_bindings\": [\n      {\n        \"source\": \"policy-engine/architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json@43580c80b8761d4aecb34ee3300f64d389be80c8\",\n        \"raw_sha256\": \"217c5995e0ffe75016c664e0d825b667dc40db64e2a59c0a831f96aa1143604c\"\n      },\n      {\n        \"source\": \"policy-engine/architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json@43580c80b8761d4aecb34ee3300f64d389be80c8\",\n        \"raw_sha256\": \"c4fdd968121a31944e6c6f5cdbb0d1fae7a2bbc700ed4a23acece73aa22aafcb\"\n      }\n    ],\n    \"historical_contract_reader\": \"N13bAcquisitionExecutorContractV4\",\n    \"historical_lifecycle_reader\": \"N13bLifecycleManifestV2\",\n    \"projection\": {\n      \"accepted\": true,\n      \"admission\": \"not_reached\",\n      \"world_growth\": \"no_growth\"\n    },\n    \"worker_issues\": [\n      \"acquisition_growth_lifecycle_content_binding_mismatch\"\n    ],\n    \"global_signal\": {\n      \"availability\": \"available\",\n      \"source_ref\": \"architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json\",\n      \"source_content_hash\": \"sha256:217c5995e0ffe75016c664e0d825b667dc40db64e2a59c0a831f96aa1143604c\",\n      \"schema_version\": \"policyos.layer3.gy.n13b.acquisition_executor_contract.v4\",\n      \"rule_version\": \"GY-plan-rev18+3.5.12-D1-D6\",\n      \"producer\": \"tools.quality.validation.layer3_gy_n13b_acquisition_contract.derive_n13b_acquisition_executor_contract\",\n      \"demonstration_status\": \"typed_deeper_terminal\"\n    }\n  }\n}\n",
+  "stderr": ""
+}

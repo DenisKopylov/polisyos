@@ -48,9 +48,9 @@ def build_acquisition_growth_projection(
     )
     _require_schema(
         executor_contract,
-        "policyos.layer3.gy.n13b.acquisition_executor_contract.v4",
+        "policyos.layer3.gy.n13b.acquisition_executor_contract.v5",
     )
-    _require_schema(lifecycle_manifest, "policyos.layer3.gy.n13b.lifecycle_manifest.v2")
+    _require_schema(lifecycle_manifest, "policyos.layer3.gy.n13b.lifecycle_manifest.v3")
     _require_schema(reentry_trace, "policyos.layer3.gy.n13b.reentry_trace.v1")
     scorecards = _records(census, "family_scorecards")
     metric_resolutions = _records(census, "metric_resolutions")

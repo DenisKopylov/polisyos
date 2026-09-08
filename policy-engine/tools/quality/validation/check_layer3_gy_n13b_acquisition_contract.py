@@ -58,6 +58,16 @@ DERIVATION_TEST_PATH = Path("tests/unit/runtime/quality/test_derived_observation
 EVIDENCE_JOURNAL_TEST_PATH = Path("tests/unit/fabric/data_plane/test_live_attempt_terminal.py")
 
 
+def declared_outputs() -> list[str]:
+    """Return the committed JSON write closure, excluding frozen owner inputs."""
+
+    return [
+        DEFAULT_N13B_CONTRACT.as_posix(),
+        DEFAULT_N13B_LIFECYCLE_MANIFEST.as_posix(),
+        DEFAULT_UNIVERSALITY_RECEIPT.as_posix(),
+    ]
+
+
 @dataclass(frozen=True)
 class _SourceFlipCase:
     mutation_id: str

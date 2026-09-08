@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_inventory_registration_is_recomputed_from_custody",
+    "-q"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T14:34:13.667091+00:00",
+  "elapsed_seconds": 2.108,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": ".F                                                                       [100%]\n=================================== FAILURES ===================================\n_________ test_inventory_registration_is_recomputed_from_custody[True] _________\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-1/test_inventory_registration_is1')\nregistered = True\n\n    @pytest.mark.parametrize(\"registered\", [False, True])\n    def test_inventory_registration_is_recomputed_from_custody(\n        tmp_path: Path, registered: bool\n    ) -> None:\n        \"\"\"The inventory's own custody is a measured registry fact, not a constant.\"\"\"\n        architecture = tmp_path / \"architecture\"\n        (architecture / \"policy_design_case\").mkdir(parents=True)\n        (architecture / \"public_surface\").mkdir()\n        (architecture / \"generated_artifacts.toml\").write_text(\n            '[[family]]\\nid = \"pdc-source\"\\noutputs = '\n            + ('[\"architecture/policy_design_case/inventory.json\"]' if registered else \"[]\")\n            + \"\\n\",\n            encoding=\"utf-8\",\n        )\n        (architecture / \"policy_design_case/inventory.json\").write_text(\n            '{\"artifacts\": []}\\n', encoding=\"utf-8\"\n        )\n        (architecture / \"public_surface/contract.toml\").write_text(\"\", encoding=\"utf-8\")\n        report = {\n            \"discovered_artifacts\": [],\n            \"registered_outputs\": [],\n            \"producer_declared_outputs\": [],\n            \"source_committed_outputs\": [],\n            \"output_root_files\": [],\n            \"unaccounted_output_root_files\": [],\n            \"registered_artifact_count\": 0,\n            \"orphan_count\": 0,\n            \"phantom_output_count\": 0,\n            \"duplicate_claim_count\": 0,\n        }\n        facts = _validator()._lifecycle_facts(tmp_path, report)\n>       assert facts[\"policy_design_case_inventory_registered_in_generated_artifacts\"] is registered\nE       assert False is True\n\ntests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py:90: AssertionError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_inventory_registration_is_recomputed_from_custody[True]\n",
+  "stderr": ""
+}

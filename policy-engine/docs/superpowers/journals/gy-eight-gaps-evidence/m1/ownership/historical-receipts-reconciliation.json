@@ -1,0 +1,6 @@
+{
+  "command": ".venv/bin/python -m _build.gy-gaps.m1.ownership.verify_historical_receipts",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "returncode": 0,
+  "output": "{\n  \"denominator\": \"Every tracked .json/.md/.toml/.blob/.jsonl file in the historical PR1 directory, independently reconciled against a complete pathlib walk.\",\n  \"family_id\": \"policy-design-case-layer3-gy-historical-comparison-observation\",\n  \"tracked_count\": 87,\n  \"walked_count\": 87,\n  \"registered_count\": 87,\n  \"missing\": [],\n  \"unexpected\": [],\n  \"walk_difference\": [],\n  \"duplicate_outputs\": [],\n  \"source_integrity_issues\": [],\n  \"unreadable_cases\": []\n}\n"
+}

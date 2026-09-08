@@ -578,6 +578,56 @@ outputs = [
   "architecture/policy_design_case/layer3_gx_validation_authority_boundary.json",
   "architecture/policy_design_case/layer3_gx_expected_red_checks.json",
   "architecture/policy_design_case/layer3_gx_human_approval_receipts.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_concept_alias_graph.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_concept_alias_seed_rows.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_demand_pull_request.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_pinned_request.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_scope_seed_rows.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_concept_alias_graph.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_concept_alias_seed_rows.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_demand_pull_request.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_pinned_request.json",
+  "architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_scope_seed_rows.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_correction_retraction_log.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_data_mutation_free_growth_test_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_expected_red_checks.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_final_blocker_audit_record.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_final_pinned_route_outcome_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_g4_g5_dereference_waist_court_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_human_approval_receipts.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_independent_audit_sample.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_measurement_replay_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_persisted_status_recompute_drift.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_positive_status_provenance.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_producer_registry.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_producer_root_chain_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_provisional_blocker_audit_record.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_provisional_pinned_route_outcome_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_reducer_integrity_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_runtime_literal_lint.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_status_vocabulary_delta.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_validation_authority_boundary.json",
+  "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_vertical_pinned_route_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_correction_retraction_log.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_data_mutation_free_growth_test_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_expected_red_checks.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_final_blocker_audit_record.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_final_pinned_route_outcome_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_g4_g5_dereference_waist_court_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_human_approval_receipts.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_independent_audit_sample.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_measurement_replay_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_persisted_status_recompute_drift.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_positive_status_provenance.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_producer_registry.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_producer_root_chain_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_provisional_blocker_audit_record.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_provisional_pinned_route_outcome_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_reducer_integrity_report.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_runtime_literal_lint.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_status_vocabulary_delta.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_validation_authority_boundary.json",
+  "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_vertical_pinned_route_report.json",
 ]
 regenerate_commands = [
   "uv run python tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py --repo-root . --write --output-format json",
@@ -1903,6 +1953,7 @@ check_command = [
 
 [[family]]
 id = "policy-design-case-layer3-gy-n10-cg1-l2-relation-census"
+lifecycle_schema_prefixes = ["policyos.gy_n10.cg1_l2_prior_census"]
 label = "Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census"
 owner = "team-runtime-quality"
 approval_owner = "team-runtime-quality"
@@ -1933,6 +1984,7 @@ check_command = [
 
 [[family]]
 id = "policy-design-case-layer3-gy-n13a-acquisition-census"
+lifecycle_schema_prefixes = ["policyos.policy_design_case.gy_n13a.acquisition_census"]
 label = "Policy Design Case Layer 3 GY-N13a acquisition-layer reality census"
 owner = "team-runtime-quality"
 approval_owner = "team-runtime-quality"
@@ -1945,8 +1997,6 @@ stale_output_behavior = "fail"
 source_of_truth = "the content-bound production dataset catalog, narrow N10 capstone/L6/value-gate projections, data-derived connector family table, architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json, and tools/quality/validation/layer3_gy_n13a_acquisition_census.py"
 outputs = [
   "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
-  "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
-  "architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
 ]
 regenerate_commands = [
   "uv run --extra test python tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
@@ -1970,6 +2020,7 @@ check_command = [
 
 [[family]]
 id = "policy-design-case-layer3-gy-n13b-acquisition-executor"
+lifecycle_schema_prefixes = ["policyos.layer3.gy.n13b"]
 label = "Policy Design Case Layer 3 GY-N13b acquisition executor contract"
 owner = "team-runtime-quality"
 approval_owner = "team-runtime-quality"
@@ -1981,49 +2032,9 @@ promotion_target = "Phase-6 acquisition/derivation audit evidence and typed deep
 stale_output_behavior = "fail"
 source_of_truth = "the content-bound dataset catalog baseline, N13a narrow route/backlog projections, canonical acquisition provision/registry, append-only raw journal plus quarantine CAS, derived-observation owner, and demanding-stage re-entry trace"
 outputs = [
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.blob",
-  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.manifest.json",
-  "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl",
-  "architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json",
-  "architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json",
-  "architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json",
   "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json",
-  "architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json",
-  "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json",
-  "architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json",
-  "architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json",
-  "architecture/policy_design_case/layer3_gy_n13b_derivation_universality.json",
-  "architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json",
   "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json",
-  "architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json",
-  "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json",
-  "architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json",
-  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json",
-  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json",
-  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json",
-  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json",
-  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json",
-  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json",
+  "architecture/policy_design_case/layer3_gy_n13b_derivation_universality.json",
 ]
 regenerate_commands = [
   "uv run --extra test python tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb --l5-path production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
@@ -2141,7 +2152,7 @@ outputs = [
   "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
   "architecture/policy_design_case/layer3_gy_n0_investigation.md",
 ]
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:a9ebf0d27ef48d505d1504fb3ad703f0a98983eacb6097cb3bedcb75d04a8121"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:69757955ac4797e916a439bd19484278cfee5fa7da732c52e75f0b2e76e57e10"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_n0_investigation.md" = "sha256:925bad2de30d87cc73a31c6d7870928076d3677f2f2e952bc9d793a4bd46adae"
 regenerate_commands = [
   "uv run python tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --repo-root . --check --output-format json",
@@ -2204,3 +2215,1639 @@ output_probe_command = [
   "--output-root",
   "{output_root}",
 ]
+
+[[family]]
+id = "policy-design-case-layer3-gy-n13a-frozen-acquisition-evidence"
+label = "policy design case layer3 gy n13a frozen acquisition evidence"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Explicit acquisition capture and evidence owners; the lifecycle writer only reads these frozen inputs"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "the content-bound production dataset catalog, narrow N10 capstone/L6/value-gate projections, data-derived connector family table, architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json, and tools/quality/validation/layer3_gy_n13a_acquisition_census.py"
+source_committed_rationale = "Immutable acquisition inputs and recorded quarantine evidence consumed by the current frozen writer, not outputs of that writer. Raw journals, CAS blobs/manifests, capture epochs and authority limitations retain their original custody."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+  "architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json" = "sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json" = "sha256:57acedd6d7488896e796869df7bef39ed226d24db1c2268f3cac55e657cc0907"
+regenerate_commands = [
+  "uv run --extra test python -m tools.quality.validation.check_layer3_gy_n13a_acquisition_census --check --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "--extra",
+  "test",
+  "python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_n13a_acquisition_census",
+  "--check",
+  "--catalog-path",
+  "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-n13b-frozen-acquisition-evidence"
+label = "policy design case layer3 gy n13b frozen acquisition evidence"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Explicit acquisition capture and evidence owners; the lifecycle writer only reads these frozen inputs"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "the content-bound dataset catalog baseline, N13a narrow route/backlog projections, canonical acquisition provision/registry, append-only raw journal plus quarantine CAS, derived-observation owner, and demanding-stage re-entry trace"
+source_committed_rationale = "Immutable acquisition inputs and recorded quarantine evidence consumed by the current frozen writer, not outputs of that writer. Raw journals, CAS blobs/manifests, capture epochs and authority limitations retain their original custody."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.blob",
+  "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.manifest.json",
+  "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl",
+  "architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json",
+  "architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json",
+  "architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json",
+  "architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json",
+  "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json",
+  "architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json",
+  "architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json",
+  "architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json",
+  "architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json",
+  "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json",
+  "architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json",
+  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json",
+  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json",
+  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json",
+  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json",
+  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json",
+  "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.blob" = "sha256:13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.manifest.json" = "sha256:123e29fe6b44a87a4a2070281cc19b31f00689a8f65b214054a6568e967dec8c"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob" = "sha256:244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json" = "sha256:8690c2640658984a6c6e76a9e0cb7c300d1672b42514aa5b5fc4ff48e7db9603"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob" = "sha256:2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json" = "sha256:efc5fd7b4b378b8f728e903ef032accc922a671289dfa40fcfa893d3ed2efd34"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.blob" = "sha256:2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.manifest.json" = "sha256:350674e460769bf8f98570f79bfacdf2d2cf55a66d130612f0ef70b83e6e346e"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.blob" = "sha256:3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.manifest.json" = "sha256:2535ce16a28a5ac8ca2ad2d9dd316babf2dcb81535232a42320d191c6c9e7480"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.blob" = "sha256:5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.manifest.json" = "sha256:aa23b718be25e0302c5343b8e01da6c87c0aacbb696b231be45b90db02c29fb0"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.blob" = "sha256:9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.manifest.json" = "sha256:9415f181ad40cc4833c492be5275af533acaab8eea5486f18ea9acc98bfec8cd"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.blob" = "sha256:d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.manifest.json" = "sha256:1363ec4c695723d0b6e6822115553066a2b9bb6060ff25ab991f495d68d671d4"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.blob" = "sha256:e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.manifest.json" = "sha256:75c45253cb3b9ccf68af1102d0cc838b701bfdde1f7236d439b5b6be7488b63d"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.blob" = "sha256:f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.manifest.json" = "sha256:e7fb33f0725bbb5b276545e57e97fab6cffae4b22c6dac7e5eb4695532018e31"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.blob" = "sha256:f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.manifest.json" = "sha256:9abcabbd426bb2fdcb8472f3e6b702670d404fad6a41711884b38ffd394a3e99"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl" = "sha256:7dc382b08355301968643b09982940029f4caa2c2b60419268940b5b7a4d4635"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json" = "sha256:09d0a7e92f84e266eff29ce4e62bbb2eb2ffe88e69cbb8d7939aa7bc89334dd4"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json" = "sha256:ca0be2a9759b269595b45fb808c8e10e6b2cc44f3b3ac0a1c190ea4f8abf5437"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json" = "sha256:4a76c447a096045b0fced8bcd0e1950db4ec3c3e12de0027235b9ad1ba7e2409"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json" = "sha256:badf773a676ca23797f130f8592d8b3adc362be1dbccf172173102bed3ddbfca"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json" = "sha256:f0bfb74f14e8346581b34871914e0ba17d6e89069c1051ea5bfbc08a524f7076"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json" = "sha256:378ea6f9573cfc7a59824cfcf98494901ec5666c6ba6c3fcfa9c505e95c31007"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json" = "sha256:65d94852f4acbe0c782db45d19e7ba0e5cd2df4aca0b664ebc6bb03b94c6e2ac"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json" = "sha256:67190201635d5cd24baebba73080d3b00b3211f6c95c29706b97fc69255259bd"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json" = "sha256:98081bf5fffd9affbbc5d09331ef6041c9e91384c22a6a8bdfc2c21c62661139"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json" = "sha256:fae23f18b2902d626fa9a3badc4bba1eb6949302e1d71baeb0a17019750c8d96"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json" = "sha256:f9c63d62c69934e8968c788ce370645461a71eaa3f7a796d90c4e90243e9e7c3"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json" = "sha256:ee1d1bef74a22714329ed3fbd362a2e0ceb3cabc73b5c322e969602d4c6e69bf"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json" = "sha256:24b5835c62e1cae4fd776439f7fd7b174d4fa56325ace3aa700fd37937af7ebf"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json" = "sha256:60fd4d9eb6d06e255a4e2b89730cbd0a982253daa5a0f1f0de25d50df1cdb33a"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json" = "sha256:a8cf2fc6ae709ba2b389267cb3ffda69ce79a7d322f40bb2ad34f5b752b064b0"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json" = "sha256:a39d6a15129fd53c06e16cd8ff757d3bc345f75964664a5089cc560e529796d3"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json" = "sha256:c07d6a752a184d553a1a0f4961598034f7ccb3d040da75ae2162b1caee9b8e0e"
+regenerate_commands = [
+  "uv run --extra test python -m tools.quality.validation.check_layer3_gy_n13b_acquisition_contract --check --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb --l5-path production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "--extra",
+  "test",
+  "python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_n13b_acquisition_contract",
+  "--check",
+  "--catalog-path",
+  "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+  "--l5-path",
+  "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-loop-artifacts"
+label = "policy design case layer3 gy loop artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_loop_artifacts"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json",
+  "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json",
+  "architecture/policy_design_case/layer3_gy_outcome_run.json",
+  "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_loop_artifacts --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_loop_artifacts",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-phase2-artifacts"
+label = "policy design case layer3 gy phase2 artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_phase2_artifacts"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_phase2_artifacts.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json",
+  "architecture/policy_design_case/layer3_gy_phase2_spine_repair_proofs.json",
+  "architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json",
+  "architecture/policy_design_case/layer3_gy_phase2_agent_event_audit.json",
+  "architecture/policy_design_case/layer3_gy_phase2_lex_bounds_strangle_receipt.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_phase2_artifacts --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_phase2_artifacts.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_phase2_artifacts",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-openalex-artifacts"
+label = "policy design case layer3 gy openalex artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_openalex_artifacts"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json",
+  "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_openalex_artifacts --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_openalex_artifacts",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-artifact-surface-safety"
+label = "policy design case layer3 artifact surface safety"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_artifact_surface_safety"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_artifact_surface_safety.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_cas_integrity_reports.json",
+  "architecture/policy_design_case/layer3_gy_secret_pii_scan_reports.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_artifact_surface_safety --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_artifact_surface_safety.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_artifact_surface_safety",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-time-source-authority"
+label = "policy design case layer3 time source authority"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_time_source_authority"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_time_source_authority.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json",
+  "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_time_source_authority --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_time_source_authority.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_time_source_authority",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-workflow-failure-authority"
+label = "policy design case layer3 workflow failure authority"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_workflow_failure_authority"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_workflow_failure_authority.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_workflow_failure_authority --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_workflow_failure_authority.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_workflow_failure_authority",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-design-problem-contract"
+label = "policy design case layer3 gy design problem contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_design_problem_contract"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_design_problem_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_design_problem_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_design_problem_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_design_problem_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_design_problem_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-intervention-atom-binding-contract"
+label = "policy design case layer3 gy intervention atom binding contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_intervention_atom_binding_contract"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_intervention_atom_binding_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_intervention_atom_binding_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_intervention_atom_binding_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-world-model-record-contract"
+label = "policy design case layer3 gy world model record contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_world_model_record_contract"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_world_model_record_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_world_model_record_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_world_model_record_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_world_model_record_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_world_model_record_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-acquisition-contract"
+label = "policy design case layer3 gy acquisition contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_acquisition_contract"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_acquisition_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_acquisition_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_acquisition_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_acquisition_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_acquisition_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-design-generation-contract"
+label = "policy design case layer3 gy design generation contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_design_generation_contract"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_design_generation_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_design_generation_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-generation-cycle-contract"
+label = "policy design case layer3 gy generation cycle contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_generation_cycle_contract"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_generation_cycle_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-joint-simulation-horizon-contract"
+label = "policy design case layer3 gy joint simulation horizon contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-grounding-active-controller-contract"
+label = "policy design case grounding active controller contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_grounding_active_controller_contract"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_grounding_active_controller_contract.py"
+outputs = [
+  "architecture/policy_design_case/grounding_active_controller_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_grounding_active_controller_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_active_controller_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_grounding_active_controller_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-grounding-admission-contract"
+label = "policy design case grounding admission contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_grounding_admission_contract"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_grounding_admission_contract.py"
+outputs = [
+  "architecture/policy_design_case/grounding_admission_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_grounding_admission_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_admission_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_grounding_admission_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-grounding-benchmark-contract"
+label = "policy design case grounding benchmark contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_grounding_benchmark_contract"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_grounding_benchmark_contract.py"
+outputs = [
+  "architecture/policy_design_case/grounding_benchmark_scoreboard.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_grounding_benchmark_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_benchmark_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_grounding_benchmark_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-grounding-bind-contract"
+label = "policy design case grounding bind contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_grounding_bind_contract"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_grounding_bind_contract.py"
+outputs = [
+  "architecture/policy_design_case/grounding_bind_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_grounding_bind_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_bind_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_grounding_bind_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-grounding-credal-reference-contract"
+label = "policy design case grounding credal reference contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_grounding_credal_reference_contract"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_grounding_credal_reference_contract.py"
+outputs = [
+  "architecture/policy_design_case/grounding_credal_reference_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_grounding_credal_reference_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_credal_reference_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_grounding_credal_reference_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-grounding-phrasing-defense-contract"
+label = "policy design case grounding phrasing defense contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_grounding_phrasing_defense_contract"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_grounding_phrasing_defense_contract.py"
+outputs = [
+  "architecture/policy_design_case/grounding_phrasing_defense_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_grounding_phrasing_defense_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_phrasing_defense_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_grounding_phrasing_defense_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-grounding-relation-contract"
+label = "policy design case grounding relation contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing canonical producer tools.quality.validation.check_grounding_relation_contract"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_grounding_relation_contract.py"
+outputs = [
+  "architecture/policy_design_case/grounding_relation_contract.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_grounding_relation_contract --write",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_relation_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_grounding_relation_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-task0-audit-artifacts"
+label = "policy design case layer3 gy task0 audit artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Task0 reviewers and existing registry-derived snapshot helpers"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/public_surface/contract.toml and the Task0 semantic validators"
+source_committed_rationale = "Human-authored Task0 audit and design records, including the lifecycle audit itself. Its current registry-derived fields are checked by the existing live owner; historical measured rows are not restamped as current runtime proof."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_task0_audit/README.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_repair_design_grounding.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_inventory.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_system_audit_gap_map.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_consolidation_analysis.md",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_audit.json",
+  "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_findings.md",
+  "architecture/policy_design_case/layer3_gy_task0_global_review.md",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/README.md" = "sha256:bdca1b7f9380604768a9ba390fcd3e56e5fd19329c28976c484e5f1a2fb724af"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_audit.json" = "sha256:dca0edad64a7ce4b791e5c97a1f2911e5c6bc620a752cb243a6030ba95ddff1c"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_findings.md" = "sha256:90b29a5030d1964b8a9748f7d8837478834f553648eb74579ffd5e2027ed1add"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix.json" = "sha256:95a0d8710c7f132acc1747ccc3bd230f31ccf232b2e969b94bb04de412e867fc"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix_findings.md" = "sha256:ee80485a9c58e3f5759b8a79efd2e5f87f447a3e03acff823a2ce1eba6b9a51e"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit.json" = "sha256:7ccb9933166e5177a61514c1bbb64acc37978a67618e8d066cd2fd5e5dd13fe7"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit_findings.md" = "sha256:4f6524cda1f6b1ddde26bcaf5e594ef55f48875d404fd87db5475edc76fe7e56"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_audit.json" = "sha256:00f721af35559b0720e2207ab07b9b25debc3f4d2c952a89be5b784da8bab0c1"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_findings.md" = "sha256:1b4c67f8153fe3a780295d4d470d1e5ac98daf286c5858774b885528e72d3f17"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_audit.json" = "sha256:9f34b7701aaef21e0eb5bb4c3d49dd95a653e0ec947d26d733cb90b1aeefcb37"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_findings.md" = "sha256:092bb210dfeb399112291f20292e065887c8b988e4444dc0a3a2431a4325347a"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json" = "sha256:ca72e8bb9eda519b9da9f2c81d0069e2b7cb940308ad8c012b99f241f2652dd3"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census_findings.md" = "sha256:5854948a136a59e40fc662cb358f1ed9575366de1c33ecfc52daab67191f7d50"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_audit.json" = "sha256:bb8778202eaa76e2e6aa8e14df614a3f8dadf5b832d3a95a4ed7ae7c59141e3b"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_findings.md" = "sha256:f9bae6d4c9bfe5eed418d472be7ba357ec75dc569c2e2e391d0b56257c841ec7"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json" = "sha256:ea02c383df15ce7bd48dab33a851459480f4f47cba17d7d864ba541b8e3ef285"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_findings.md" = "sha256:4b9c73cf13d64b7d44df549307f230f43df728a236cb1f5bb1c0177a8b9a4cce"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_audit.json" = "sha256:ce3ac8f8902e768e814d31994c74ab4017be5620c365fc7e6cfcb67a86620377"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_findings.md" = "sha256:dde5a6e4a3691eb9fb8048289ed17036b54e42afd43bf9c02b0c07fc531491c0"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_audit.json" = "sha256:85b484319ca03a86a4729c603353ba5cb20e97a62e225e97e27160725408e947"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_findings.md" = "sha256:6433b91e1e31b7c40abfc996e3f93101d22c41b4be150dfcabb36d8be0a50c56"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_audit.json" = "sha256:d23ad2c39c32b32ecd5a98b0ee96b390a8c3b4f6f024199f2620ea9e53d2cca4"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_findings.md" = "sha256:bdca74e210bf0831172acd384444764cf16b00289a39981480d8dad3aab2fb7a"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_audit.json" = "sha256:3a161646a1d7e394f964b2965d686f2c7fb26aa748193d88495aadc235ceecf3"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_findings.md" = "sha256:2f54bfd39e8a1236b1119b1bde5ad71f63f4ee93dbe78bee00cde81e481334f7"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_repair_design_grounding.md" = "sha256:bec30d8b8d05ec9c896f82bfcd5a664f6f868c0c81a41e64f10bc1b1b626fbd9"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit.json" = "sha256:f1fe4e51f7bebe8da7af5fdd71ff3b5dcdb6b08d655f266f38bc79ed1227ad96"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit_findings.md" = "sha256:a27da08bf9d7c8f5302dbcfdd99c35974a7afb1c320103deee3513d46703b8bc"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_audit.json" = "sha256:2b685ca413704b68feac121e3515ba5a5754e6b162faf2ab5ed11066b57ab747"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_findings.md" = "sha256:1f55a1a92a9dc345420ac433afffb25cfa65f0704058608b40e6417304bfcf2b"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_findings.md" = "sha256:180b1c674486124be5778a9cc60633854b42927f3b56be4f988b247dea7eed20"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_inventory.json" = "sha256:edcfc46146ca5de5c28d46348ad2858e3ce1426f50bd3e2515cb4e4ce7d189fd"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_system_audit_gap_map.md" = "sha256:c15e969eb9d249d36894fead97c2111e93f6bf88c9242c94710f41a1886cee6a"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_consolidation_analysis.md" = "sha256:509cedbefacf4ad6da8b5679f0a3293f5e47a9920b8316041a918821994abf17"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_audit.json" = "sha256:08a9f4bd43e747dc60d99cef4edf7f8803136104f31c419c2a8085882636f036"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_findings.md" = "sha256:8360f4dbb1ae5dde485dfa943f06e187e226708ad906641c328653ea0a7d1dc6"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_global_review.md" = "sha256:4e1ae9021560a71015b5137fea6dc362663d2c4dce7ccecef6b6b291a4d7253b"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit --check --json",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit",
+  "--check",
+  "--json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-loop-source-artifacts"
+label = "policy design case layer3 gy loop source artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
+source_committed_rationale = "Declared cases and benchmark inputs consumed by the loop producer; fixture cases cannot be promoted into its production metric population."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json",
+  "architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json" = "sha256:cdf2a9c584d9102726c9598d72b9be315b9641bc0cc7f895aed7176c8b32b089"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_semantic_benchmark.json" = "sha256:28d3ee28963c7d678a58320c05f0989d0240cee979ba766485a54da6c08aaeb2"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_loop_artifacts --check",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_loop_artifacts",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-openalex-source-artifacts"
+label = "policy design case layer3 gy openalex source artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
+source_committed_rationale = "Declared provider configuration and frozen recorded evaluation inputs; these are not emitted accuracy or ingestion results and grant no positive accuracy claim."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_openalex_provider_config.json",
+  "architecture/policy_design_case/layer3_gy_openalex_claim_span_gold.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_openalex_provider_config.json" = "sha256:1bd6906111bbc8f4610175b152d78adf7abc4b23d78cf751a359a9df8577fcaf"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_openalex_claim_span_gold.json" = "sha256:56e1f255a8e8bcff2922bec9ab842c1a29b9e598385d551ae5920d50b24868ed"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_openalex_artifacts --check",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_openalex_artifacts",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-substrate-source-registries"
+label = "policy design case layer3 gy substrate source registries"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
+source_committed_rationale = "Governed source vocabularies read by lifecycle_bridge, acquisition_executor, substrate_registry and intervention_substrate; no current producer emits these registry definitions."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json",
+  "architecture/policy_design_case/layer3_gy_epoch_boundary_source_registry.json",
+  "architecture/policy_design_case/layer3_gy_l5_schema_regime_registry.json",
+  "architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json",
+  "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+  "architecture/policy_design_case/layer3_gy_semantic_facet_registry.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json" = "sha256:1bdc2e1005b5ee2fc78cda31353b78dfe5447704445bb3238eb072cca1300deb"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_epoch_boundary_source_registry.json" = "sha256:54595732e5155e932434d950d80177d1ff65a8d6f239a26a0cef06e77fc6ac9e"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_l5_schema_regime_registry.json" = "sha256:d73926566e533f32aa3348c86a92270824942ba221f51ece0ebddcf39d79cfe3"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json" = "sha256:eaba46821d5ab53109e8cc1174940994606e091fef90adb64f63046b1d1834d0"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json" = "sha256:3347976276700016a99d47301fd22a8e897678dfd7aef6a926561e9a4a044378"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_semantic_facet_registry.json" = "sha256:e24d8a8a1a0b2f8c774625f0bda16b6e3735fb23adcaf81cf09c3763c64bcc7e"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit --check --json",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit",
+  "--check",
+  "--json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-design-generation-recordings"
+label = "policy design case layer3 gy design generation recordings"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+source_committed_rationale = "Frozen recorded gateway responses are content-bound inputs to the design-generation replay producer. Preserve original capture epochs and candidate-only authority; the generated contract remains a separate output."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json" = "sha256:db5f892c19412e74ff78683901dd81e49ebb446f75eb394d254cc75d7c74ae71"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_design_generation_contract --check",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_design_generation_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-frozen-value-gate-contract"
+label = "policy design case layer3 gy frozen value gate contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_layer3_gy_value_gate_contract.py"
+source_committed_rationale = "The current N8 producer explicitly declares the dependency discriminant companion only. This frozen value-gate contract is its governed historical input, verified under its original epoch."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_value_gate_contract.json" = "sha256:c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_value_gate_contract --check",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_value_gate_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_value_gate_contract",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-historical-credal-test-input"
+label = "policy design case layer3 gy historical credal test input"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md and its preserved capture"
+source_committed_rationale = "Verbatim prior canonical capture retained as a test input for governed credal epoch reissue and refusal probes. It remains historical, never a current production output."
+outputs = [
+  "tests/repo_quality/tools/fixtures/layer3_gy_promotion_contract_credal_v1.json",
+]
+source_integrity_sha256."tests/repo_quality/tools/fixtures/layer3_gy_promotion_contract_credal_v1.json" = "sha256:4825fd7adac74ef35a351d023dbd0069952b602b26b1c124c7795ef696f1a59a"
+regenerate_commands = [
+  ".venv/bin/python -m pytest tests/repo_quality/tools/test_layer3_gy_promotion_contract.py -q",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-historical-comparison-observation"
+label = "policy design case layer3 gy historical comparison observation"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Historical process-local promotion_compare_observer and promotion_compare_archive, retained under their recorded command and old epoch; not imported by lifecycle validation"
+gy_lifecycle_family = true
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md and promotion-comparison-command.json"
+source_committed_rationale = "Immutable recorded Phase5 PR1 diagnostic evidence and review notes, each bound to its archived command, source epoch and individual content hash. Includes the pre-reissue comparison observation and every tracked receipt sibling under that historical root. These are historical records, not current generated proof outputs, and are never rerun under a later runtime to rewrite history."
+outputs = [
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-comparison-complete-observation.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/architecture-review.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/coupling-bridge.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/coupling-removal.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-artifact-readback-command.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-artifact-readback.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-check.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-corruption.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-write.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-command-recorder-imports.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-command-recorder-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-final-ruff-v2.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-final-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-format-check.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-governing-comparison-removal.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-harness-format.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-harness-import-format.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-harness-ruff-initial.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-identity-execution.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-initial-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-readback-harness-format.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-readback-harness-ruff-v2.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-readback-harness-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-reissue-final-tests.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-reissue-green.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-reissue-red.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-removal-harness-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-test-identities.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-transition-removal.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-base-complete.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-baseline-audit.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-complete-delta.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-current-complete.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-delta-archive.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-format.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-ruff-final-v2.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-ruff-final.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-owner-base.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-owner-current.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/effect-positive-locked.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/effect-positive-solvers.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/final-safety-integrity.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/findings.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/gate-core-ready.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/gate-core.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/n8-owner-assignment.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/o0-persistence.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-audit-format.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-audit-ruff-final.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-audit-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-audit.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-command.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-complete.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-comparison-command.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-comparison-identity-reconciliation.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/runtime-snapshot-complete-modes.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/runtime-snapshot-ready.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/runtime-snapshot.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/safety-semantic-owner.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge-v2.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/source-census-safety.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/source-census.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-catalog.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-credal-source.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-harness-format.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-harness-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-independence-sources-v2.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-independence-sources.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-inventory.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-n4-recorded.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-scope-audit.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-complete-delta.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-delta-command.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-delta-format.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-delta-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-harness-ruff-final-v2.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-harness-ruff-final.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-harness-ruff.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-refresh-audit.md",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-scratch-write.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-semantic-summary-command.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-semantic-summary.json",
+  "docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-summary-format.json",
+]
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-comparison-complete-observation.json" = "sha256:7d8da6840453491a3194a8830ca4a5f732324b42e8511a731450c086b82eb979"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/architecture-review.md" = "sha256:b60bc932b3bad61736c4ff2b1a15b161d77058872e518819e105236d47e1147f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/coupling-bridge.json" = "sha256:9fad826779f125b0bc06691e38be8f4625af378bd3671f47b49be39d2dd71b64"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/coupling-removal.json" = "sha256:ad301bd74e869c12c4e463b1a00efbf4f4b408f45d387cf92356fc5d6091720f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-artifact-readback-command.json" = "sha256:7a7913d9cd225913c135425191b43e492a2864279c851c8362e544df57c01c10"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-artifact-readback.json" = "sha256:bbad49d8898db2f91b6804b644877d96dad3ddb11bc7d363076f6000f8e21b5a"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-check.json" = "sha256:a323161a8de937a27cc13b7c61c6cc8f41dd8e331db503c1cb45b1a5a16505ac"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-corruption.json" = "sha256:07cf50a8806de988ea10817935ddf05050b52fd66669bdc0106e6b01836fbc32"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-write.json" = "sha256:7ed0a3459743746d1e3f6e0ec6054abd22c98a8fb68b5a7be6ad8351ac4b4cc7"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-command-recorder-imports.json" = "sha256:a397b8a73c74ef049b08b3d28d81192d8c538ec8eee0bf5e6e2bb6fa503dfdae"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-command-recorder-ruff.json" = "sha256:393f107334f83be2dcae5c0097ae41b3304af0147273e9ea07d9106dc24fc7d9"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-final-ruff-v2.json" = "sha256:39d076a24256ea98f319f6cba3f19b2dcabbc642504c59564ded93dc8daeaa1a"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-final-ruff.json" = "sha256:3afa640666640a9680ee49ad4720c6a1f1d50ef159978f2c022ad8aa801010fa"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-format-check.json" = "sha256:4c2cacfdc40d2bc4223a6b8d89446536bf83440145cbf6550b3876f6264c715f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-governing-comparison-removal.json" = "sha256:38bb6d56df611560bdaab05c66fb3eae5ef3d86555b1404ab37a125578b09f62"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-harness-format.json" = "sha256:f0245aa9cdc634f28800528d29f9032012fa680fce8af066fac309daa6225fe7"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-harness-import-format.json" = "sha256:763dc566ebeb6b1fff585e7e467bf24f00c5aeca66ee181d0df51071ef64fa5a"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-harness-ruff-initial.json" = "sha256:9003e3ddd42e98bc99e1ee51a84a10e40bb2471572696dfdfcea0ec7de207efc"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-identity-execution.json" = "sha256:e536d05c738f5661a1bbf8555314d768a597d256c7cbb3ff6e70aff9449d555f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-initial-ruff.json" = "sha256:af76228d045b32c769cfc01aab042f55f201a1fd79c508ab1d6a92522ab36c71"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-readback-harness-format.json" = "sha256:81773268a3a598e7f2a0d89218149a9aae35c850fefd43d9e0e163a098c406dc"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-readback-harness-ruff-v2.json" = "sha256:c7e6703236215e2c3ff56d9bc3e63b13839e0c824184619c97eae35c1e8c903f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-readback-harness-ruff.json" = "sha256:7a0bd69c1eec936f441f9c8f7b8f8a1a4ee576a46805bfeb9b70b34e1ccd0bf7"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-reissue-final-tests.json" = "sha256:ae41a8640966ec6d5663268970ed14efa875d2328d0eef677756557a843f4a07"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-reissue-green.json" = "sha256:e5b84f0edd85be1828f71511fa8aba3d6f276d0e2d864830cb8a65cdb75fb7cf"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-reissue-red.json" = "sha256:8cb4dfcd5864035bb95b1794b38492d83a4643850e3aae1536bf364899f2e645"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-removal-harness-ruff.json" = "sha256:57598dec625db3744d49bf74fdf75bece772f06b80c554c2f8199d2caf947b3a"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-test-identities.json" = "sha256:34bf97dc2891da15b94745ba890110eaf32a0152e38e9674d43ce153ee2dfa06"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-transition-removal.json" = "sha256:3b7ca759bdb51fbc5d9614ce5a471bfc95c3feb73223eec71c74e99ec27bfbf7"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-base-complete.json" = "sha256:f68e8f9041fb323d838da7e11aae739a3eefa09963ca1ae5a1c997a34c7c6c9e"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-baseline-audit.md" = "sha256:65e5abc7d23a672da815edb35f30b60750db7677c58e8902e7c5d811ddb7e524"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-complete-delta.json" = "sha256:39089332d68404c820babcc49b563fb18ab5b812d14a1b9c5194a8df07444a07"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-current-complete.json" = "sha256:3038a93db51efc8b3281cc82fc4c935073576ae25c7f0c20a62ab7cbce731811"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-delta-archive.json" = "sha256:08ccbd07e97497ce63c64f89b65619e37ca68bdd1a2509598349476610bfa276"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-format.json" = "sha256:d470606f985851dbb9310e31c7d03df3ce25b5f915c789564508e3b5c24bf6cd"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-ruff-final-v2.json" = "sha256:b14941a0cc5658a1859d496140dca792b5266f79eaf15eb0676d5804b0cf19f6"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-ruff-final.json" = "sha256:e26126fc190ebec2d4bffc80458e6c86362e2c92b87261002e9b644a921bbf78"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-harness-ruff.json" = "sha256:a0fe58909249c7a8bd6cda0bcd8a08b47bdeff9ade8396d9b16f6fa8302adb27"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-owner-base.json" = "sha256:2b07e68de18ee8dbc9618b95a090a35e1447ca5c3099def0f39acc77851fb9db"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-owner-current.json" = "sha256:339f788f12a88e883fcd0e82cbeb85c5bbec44d6ab7962c2b118f29c5a23a1d0"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/effect-positive-locked.json" = "sha256:5eeb96d3f7dae70199fe5772c457e7fad9abc39b3f42dc735d9b614611aba599"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/effect-positive-solvers.json" = "sha256:9a05e2775a5929efe3f0aeb250973d1a3d8c428bbd202bd064bbcbbff968afc6"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/final-safety-integrity.json" = "sha256:81c8040564db4b48c119e1def38a0beeb49c7ca2433a41dc8eb4c95efadde676"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/findings.md" = "sha256:fec5069ab373391738bf9f96eeef39488f498619f170fb4e36e82f470a28356e"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/gate-core-ready.json" = "sha256:8a167037d950016df69598d963ffc9c9e3fc9d59541835fb935a6d5fb4a6c8d8"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/gate-core.json" = "sha256:4f89fddf5753dfe5ef3a701af71caf5d465e789343d13b1b0eb248e91fb475d7"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/n8-owner-assignment.json" = "sha256:b100576e5deb6361858ed586db86e4d4caf3bc6d8b24977aa88ad3e92c956fb7"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/o0-persistence.json" = "sha256:4bb2775523c283d274b66071a890c537a7c56f86d26ac792b21a2f10134af1b6"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-audit-format.json" = "sha256:542c75b9da8ed644a359521f160269002b43c5285aa7e98f961d1ccd7a91f8c8"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-audit-ruff-final.json" = "sha256:6f3f093953c37e82f55db3f5a36724d38d8a1223e446e78acb6ae04443605051"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-audit-ruff.json" = "sha256:9f567b298907d512e9df6814aca6263cf2aa306ea9558aff36f49797d3edb74b"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-audit.md" = "sha256:4b8ad091f9a4489f68881cd64222ecc808a401e559d85c87fd02103ee55606c3"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-command.json" = "sha256:d9d0ae1c70d63884b2f889386a1ec0c7b3d70b7f601ded7f1544edfc078bdffd"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-complete.json" = "sha256:50a55a5a0af7d1cdb74236dc0353f4e6af9a66a8fc3ee40cf3c7604e84bc98b0"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-comparison-command.json" = "sha256:5e0fa888365d581faab68aad1811138a252235338de691d8a4f087a59dd462c4"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-comparison-identity-reconciliation.json" = "sha256:7775e9040bd778d27f8e18dadb512e51510e9c3a782c2eb16a11a61d0acf9867"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md" = "sha256:f20528cde1eba5f1b476c208d3f1120ca63cadddcde13aaafb47fbc589d3a0bf"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/runtime-snapshot-complete-modes.json" = "sha256:90a6adb4733a04ef3bf1c53762045d3943cc9e9763bd308507dc5939d07969ab"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/runtime-snapshot-ready.json" = "sha256:132c9cd096384198b3f0f594a9c910f417c395f8bc60a732c989a8c5f7e4959e"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/runtime-snapshot.json" = "sha256:2125e521d298309ac332a987d1e4f48312588746a73359400479721050ca57be"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/safety-semantic-owner.json" = "sha256:7a9d80979101113e85280bd63796e1e47ba860f48c58261c392e00881d95d2f3"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge-v2.json" = "sha256:5bb6e269271e96c767c68d45347cd24810b3675b33085a03d94008c18b302764"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge.json" = "sha256:54b8fb1adc3f2780741624527d24ff915e3976842184255d5a57f8afe187361f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge.md" = "sha256:50b78180044a697f4367e004bd87de870f7899e9f5c147da54d26a05e3eb0ff6"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/source-census-safety.json" = "sha256:b5799c96b9372da87dc43a3770b9372515ae680bee806081b0709ca3ca4d5527"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/source-census.json" = "sha256:75478b18c06f3d6f65f9df66cdff84bb6994097e6175f3d08f007534a7a6e053"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-catalog.json" = "sha256:537b1d40b4eba23da0214de808a52a279695fecaacc5d8479d005165c50886e3"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-credal-source.json" = "sha256:b9d8f6e7b950ab2989ede1b8b1cdbcf20354363aafec7d8dcb803d5d20a0c1c6"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-harness-format.json" = "sha256:650b2934eb0b555008d31d5c31bf2e966cdc02c023b4d6938c07ddf2dcb4d7f0"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-harness-ruff.json" = "sha256:36269d02fb8782b676a1ccb640ec45ca87b0f106b397ba78b107dcaa15f1692e"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-independence-sources-v2.json" = "sha256:9051142dc839f9cfa6fc317c01c4784603be67d5c05375f74315875f5e2dfc8c"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-independence-sources.json" = "sha256:6aed8b281f124f894a5c8a0cc0bca4eeda2ce894e0eaa5b2d7937c0a7c942805"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-inventory.json" = "sha256:ed0b1fc2057e58d69d9c13d8d3055c7bb771b378c535b7ac12e115412c97a76f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-n4-recorded.json" = "sha256:ac7e33f3df996852fec278286f3a8dcfd6a5d02e7087900f7e3d50a1e4712b17"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-scope-audit.md" = "sha256:f3e02bc3aced40498d2101f6b3ab9d30ce797e3b40427ef764e1e0f5877c1916"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-complete-delta.json" = "sha256:8601ed72f6ee644c70a6e42e7fedaac000285b97e5975cae94376d7a9d4c7949"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-delta-command.json" = "sha256:8880e30488f59169112260044720877d39449fbb739293906177fe3020bfd3b1"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-delta-format.json" = "sha256:ddb8970b16c275047e1e7fa4f934b701dcfa8d576fa772b72f31989fbf8c4441"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-delta-ruff.json" = "sha256:d3df89bb6dcf267f1eed48a04eafeb8c2c61e29b38ef955e3042bc1200b5d9e0"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-harness-ruff-final-v2.json" = "sha256:4ac16fe3e270b91a7f4607bcd2e12de510823ae40dbf967f936e355c13d9612c"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-harness-ruff-final.json" = "sha256:af38810edcfcb3bcbb0b506db347c555b3079a88ff96f55f7f71ba225a11dcfe"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-harness-ruff.json" = "sha256:78e1d79acfd0270f5dbb536e662593aa6a25ed8aab75ae47bc95e1bb97209f6f"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-refresh-audit.md" = "sha256:b9a0a3adc618e7f5765730c80e7e7c6ffc10fed8565cd70aa4f3476ba7ca8c0b"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-scratch-write.json" = "sha256:b57cb15b121811d9add3e2c1778e8f1ff3c06839aaca8b80b83225a116d55526"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-semantic-summary-command.json" = "sha256:a4d7bc53d0f6b0ee08b08b1254f6788edd120fb578e087881823709f68024576"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-semantic-summary.json" = "sha256:8885e6d1f95ef201af82e0655c78944096d4d5381db330bc03a84d566aef57db"
+source_integrity_sha256."docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-summary-format.json" = "sha256:5487b55ada5561e6b0059e5a96f64f8644d94a244ff6cb645b9eb0f91e51c713"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit --check --json",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit",
+  "--check",
+  "--json",
+]
+
+[[family]]
+id = "policy-design-case-governed-source-records"
+label = "policy design case governed source records"
+owner = "team-architecture"
+approval_owner = "team-architecture"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/README.md, formal invariant owner and case-demand-home owner"
+source_committed_rationale = "Governed architecture documentation, inventory, formal invariant definitions and case selector registry are source records, not generated run results."
+outputs = [
+  "architecture/policy_design_case/README.md",
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "architecture/policy_design_case/layer3_gx_data_home/cases.json",
+]
+source_integrity_sha256."architecture/policy_design_case/README.md" = "sha256:9246f99b6ad41854bc67392ae4dbe94ff15136dcb4fc9f7cf20336ad49a70c7d"
+source_integrity_sha256."architecture/policy_design_case/formal_invariant_specs.toml" = "sha256:86b1aac8d88bc786b61f4eb78fabf81d37317ecdf267f8fd0764638be3747dbf"
+source_integrity_sha256."architecture/policy_design_case/layer3_gx_data_home/cases.json" = "sha256:b5e81969ff23dd64631dc2771c5392f8b5c42441bae21a50e8cc8fcc26803cd7"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_policy_design_formal_invariants",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_policy_design_formal_invariants.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_policy_design_formal_invariants",
+]
+
+[[family]]
+id = "policy-design-case-historical-governance-records"
+label = "policy design case historical governance records"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Governed source custody; no current runtime output is reclassified"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "The explicit owner, source-plan and accepted closeout references in each historical record"
+source_committed_rationale = "Historical architecture/closeout records and the emitted Wave1 reader-smoke capture are immutable inputs to capability ratchet review. Their recorded statuses are not current execution receipts and are not regenerated or promoted under a later owner."
+outputs = [
+  "architecture/policy_design_case/wave12_capability_graph_archive_diff_manifest.json",
+  "architecture/policy_design_case/wave1_baseline_smoke_corpus.json",
+  "architecture/policy_design_case/wave1_closeout_reader_smoke.json",
+  "architecture/policy_design_case/wave3_i3_producer_adapter_checkpoint/manifest.json",
+  "architecture/policy_design_case/wave3_producer_adapter_corpus_coverage.json",
+  "architecture/policy_design_case/wave4_i4_runtime_closeout_manifest.json",
+  "architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json",
+  "architecture/policy_design_case/wave6e_llm_formulator_critic_ensemble_manifest.json",
+]
+source_integrity_sha256."architecture/policy_design_case/wave12_capability_graph_archive_diff_manifest.json" = "sha256:ff24adac1718d53a3e8d36d5d2d27e20e98de70ea010a0845a9965b967dea7ad"
+source_integrity_sha256."architecture/policy_design_case/wave1_baseline_smoke_corpus.json" = "sha256:646e79a4602888258aa74ca357f4863dec74a93b5549fac70eca44d177c04fa0"
+source_integrity_sha256."architecture/policy_design_case/wave1_closeout_reader_smoke.json" = "sha256:20a74057fe67762418c74548c5c3a1bd73f73dbe523a265bc9fc94ed6faa0522"
+source_integrity_sha256."architecture/policy_design_case/wave3_i3_producer_adapter_checkpoint/manifest.json" = "sha256:f6370da3c8767eeda5e578a20f7b3b3ce805588cd177aef4bed9307b2a96fc12"
+source_integrity_sha256."architecture/policy_design_case/wave3_producer_adapter_corpus_coverage.json" = "sha256:49ac02e681b859dc47dc8c0b07a86c22e7a7dc0e13f695e63f891cfba15298dd"
+source_integrity_sha256."architecture/policy_design_case/wave4_i4_runtime_closeout_manifest.json" = "sha256:84bd25e97da3dbcaaf7aafa353d0e13980f303431384ea9e2f9d80d20673a7ed"
+source_integrity_sha256."architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json" = "sha256:a1ecd3ccbce72bb4b19d4c07d9f59878025fa0e456dbcf5df4f058c3b86cd095"
+source_integrity_sha256."architecture/policy_design_case/wave6e_llm_formulator_critic_ensemble_manifest.json" = "sha256:d93a6d3bc592d2156a8f7b311f080603ba1d2d7c1dbeb7a3adc3a5e2e852e497"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_policy_design_case_capability_ratchet",
+]
+commit_policy = "committed"
+freshness_rule = "Explicitly review and rebind a changed source under its own epoch; historical records remain historical."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_policy_design_case_capability_ratchet.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_policy_design_case_capability_ratchet",
+]
+
+[[family]]
+id = "policy-design-case-wave2-walking-skeleton"
+label = "policy design case wave2 walking skeleton"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "build_wave2_policy_design_case_walking_skeleton and persist_wave2_policy_design_case_walking_skeleton emit the complete artifact map and negative controls"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"
+outputs = [
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/claim_registry.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/closeout_verdict.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/concept_spine.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/cost_degradation_telemetry.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/deterministic_producer_fixture.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/evidence_spine_handoff_ledger.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/historical_prior_firewall.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/manifest.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/memory_influence_firewall.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/policy_design_case.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/producer_handshake_ledger.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/projection_closeout_negative.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/request.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/rule_evolution_registry.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/semantic_negative.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/soft_gate_telemetry.json",
+  "architecture/policy_design_case/wave2_i2_walking_skeleton/typed_projection.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -c \"from pathlib import Path; from polisyos.runtime.quality.policy_design_case_integration_skeleton import build_wave2_policy_design_case_walking_skeleton, persist_wave2_policy_design_case_walking_skeleton; persist_wave2_policy_design_case_walking_skeleton(build_wave2_policy_design_case_walking_skeleton(include_projection_closeout_negative=True), output_dir=Path('architecture/policy_design_case/wave2_i2_walking_skeleton'))\"",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/unit/runtime/quality/test_policy_design_case_integration_skeleton.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-wave12b-compilation-truthfulness-audit-manifest"
+label = "policy design case wave12b compilation truthfulness audit manifest"
+owner = "team-evaluation"
+approval_owner = "team-evaluation"
+lifecycle = "generated_committed"
+generator = "Existing manifest builder/writer in run_compilation_truthfulness_audit; registration does not rerun its recorded evidence"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/run_compilation_truthfulness_audit.py"
+outputs = [
+  "architecture/policy_design_case/wave12b_compilation_truthfulness_audit_manifest.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.run_compilation_truthfulness_audit --write-manifest",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/run_compilation_truthfulness_audit.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_w12b_compilation_truthfulness_audit.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-wave12c-domain-coverage-critic-diversity-audit-manifest"
+label = "policy design case wave12c domain coverage critic diversity audit manifest"
+owner = "team-evaluation"
+approval_owner = "team-evaluation"
+lifecycle = "generated_committed"
+generator = "Existing manifest builder/writer in run_domain_coverage_critic_diversity_audit; registration does not rerun its recorded evidence"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/run_domain_coverage_critic_diversity_audit.py"
+outputs = [
+  "architecture/policy_design_case/wave12c_domain_coverage_critic_diversity_audit_manifest.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.run_domain_coverage_critic_diversity_audit --write-manifest",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/run_domain_coverage_critic_diversity_audit.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_w12c_domain_coverage_critic_diversity_audit.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-wave12d-universal-outcome-corpus-run-manifest"
+label = "policy design case wave12d universal outcome corpus run manifest"
+owner = "team-evaluation"
+approval_owner = "team-evaluation"
+lifecycle = "generated_committed"
+generator = "Existing manifest builder/writer in run_universal_outcome_corpus; registration does not rerun its recorded evidence"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/run_universal_outcome_corpus.py"
+outputs = [
+  "architecture/policy_design_case/wave12d_universal_outcome_corpus_run_manifest.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.run_universal_outcome_corpus --write-manifest",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/run_universal_outcome_corpus.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-wave12e-bundle-replay-inspection-manifest"
+label = "policy design case wave12e bundle replay inspection manifest"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing manifest builder/writer in run_policy_design_case_bundle_replay_inspection; registration does not rerun its recorded evidence"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py"
+outputs = [
+  "architecture/policy_design_case/wave12e_bundle_replay_inspection_manifest.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.run_policy_design_case_bundle_replay_inspection --write-manifest",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_w12e_bundle_replay_inspection.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-wave12f-cloud-one-lane-revalidation-manifest"
+label = "policy design case wave12f cloud one lane revalidation manifest"
+owner = "team-runtime-platform"
+approval_owner = "team-runtime-platform"
+lifecycle = "generated_committed"
+generator = "Existing manifest builder/writer in run_policy_design_case_cloud_one_lane_revalidation; registration does not rerun its recorded evidence"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py"
+outputs = [
+  "architecture/policy_design_case/wave12f_cloud_one_lane_revalidation_manifest.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.run_policy_design_case_cloud_one_lane_revalidation --write-manifest",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_w12f_cloud_one_lane_revalidation.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-wave12g-rollout-decision-manifest"
+label = "policy design case wave12g rollout decision manifest"
+owner = "team-release-governance"
+approval_owner = "team-release-governance"
+lifecycle = "generated_committed"
+generator = "Existing manifest builder/writer in run_policy_design_case_rollout_decision; registration does not rerun its recorded evidence"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/run_policy_design_case_rollout_decision.py"
+outputs = [
+  "architecture/policy_design_case/wave12g_rollout_decision_manifest.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.run_policy_design_case_rollout_decision --write-manifest",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/run_policy_design_case_rollout_decision.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_w12g_rollout_decision.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-wave6-local-validation-ladder-manifest"
+label = "policy design case wave6 local validation ladder manifest"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing manifest builder/writer in run_policy_design_case_local_validation_ladder; registration does not rerun its recorded evidence"
+verifier = "Existing semantic owner and generated artifact lifecycle accounting"
+promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/run_policy_design_case_local_validation_ladder.py"
+outputs = [
+  "architecture/policy_design_case/wave6_local_validation_ladder_manifest.json",
+]
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.run_policy_design_case_local_validation_ladder --write-manifest",
+]
+commit_policy = "committed"
+freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/run_policy_design_case_local_validation_ladder.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "pytest",
+  "tests/repo_quality/tools/test_policy_design_case_local_validation_ladder.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-control-plane-inventory"
+label = "GY control-plane inventory source custody"
+owner = "team-architecture"
+approval_owner = "team-architecture"
+lifecycle = "source_committed"
+gy_lifecycle_family = true
+generator = "Governed source inventory, amended with registered lifecycle members"
+verifier = "Real GY lifecycle source-integrity consumer"
+promotion_target = "Lifecycle custody only; no runtime or publication authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/inventory.json and architecture/generated_artifacts.toml"
+source_committed_rationale = "The authored control-plane inventory has its own hash-checked custody; it does not assert completion of the capabilities it lists."
+outputs = ["architecture/policy_design_case/inventory.json"]
+source_integrity_sha256."architecture/policy_design_case/inventory.json" = "sha256:72b8048b010e5592aff5ef696861584f00d8f98a2586a995b5c0796a59d8459c"
+regenerate_commands = ["Review inventory membership against real owners, then rebind its source integrity; python -m tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit --check --json"]
+commit_policy = "committed"
+freshness_rule = "A byte change must be reviewed and independently bound by the registered source digest."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
+check_cwd = "."
+check_command = [".venv/bin/python", "-m", "tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit", "--check", "--json"]

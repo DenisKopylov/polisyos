@@ -5,10 +5,10 @@ from hashlib import sha256
 from pathlib import Path
 
 import pytest
+
 from polisyos.runtime.http.services.cycle_board_projection import (
     load_n13b_global_movement_signal,
 )
-
 from tests.unit.runtime.http.test_cycle_board_projection_service import (
     N10_ORDER,
     REPO_ROOT,
@@ -18,7 +18,7 @@ from tests.unit.runtime.http.test_cycle_board_projection_service import (
 _N13B_RELATIVE_PATH = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json"
 )
-_EXPECTED_SCHEMA_VERSION = "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
+_EXPECTED_SCHEMA_VERSION = "policyos.layer3.gy.n13b.acquisition_executor_contract.v5"
 _EXPECTED_RULE_VERSION = "GY-plan-rev18+3.5.12-D1-D6"
 _EXPECTED_PRODUCER = (
     "tools.quality.validation.layer3_gy_n13b_acquisition_contract."
@@ -105,6 +105,19 @@ def test_n13b_loader_binds_exact_raw_bytes_and_declared_owner_identity(tmp_path:
     assert crlf_source.rule_version == source.rule_version
     assert crlf_source.producer == source.producer
     assert crlf_source.demonstration_status == source.demonstration_status
+
+
+def test_n13b_loader_refuses_previous_epoch_at_current_admission(tmp_path: Path) -> None:
+    payload = json.loads((REPO_ROOT / _N13B_RELATIVE_PATH).read_bytes())
+    payload["schema_version"] = "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
+    raw_bytes = json.dumps(payload).encode()
+    _write_owner_bytes(tmp_path, raw_bytes)
+
+    source = load_n13b_global_movement_signal(tmp_path)
+
+    assert source.availability == "invalid_source"
+    assert "demonstration_status" not in source.model_dump(mode="json")
+    assert source.source_content_hash == _content_hash(raw_bytes)
 
 
 @pytest.mark.parametrize(

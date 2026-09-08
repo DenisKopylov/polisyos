@@ -1,0 +1,26 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_layer3_gy_n13b_acquisition_contract",
+    "--corrupt-field-drift-check",
+    "--catalog-path",
+    "/Users/deniskopylov/polisyos/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "--l5-path",
+    "/Users/deniskopylov/polisyos/policy-engine/production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:12:01.539597+00:00",
+  "elapsed_seconds": 143.698,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\"issues\": [], \"results\": [{\"error_type\": \"ValidationError\", \"mutation_id\": \"world_growth_status_relabel\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"terminal_relabel\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"journal_raw_persistence_forged\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"derivation_recipe_parameter_tamper\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"derivation_recipe_input_tamper\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"derived_as_observed\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"capstone_route_laundering\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"lifecycle_registration_removed\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"source_owner_hash_tamper\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"local_lift_terminal_relabel\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"d2_connector_backlog_reordered\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"universality_family_proof_tamper\", \"result\": \"RED\"}, {\"error_type\": \"ValidationError\", \"mutation_id\": \"universality_family_version_tamper\", \"result\": \"RED\"}], \"status\": \"pass\"}\n",
+  "stderr": ""
+}

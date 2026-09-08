@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_inventory_byte_drift_reaches_its_registered_verifier",
+    "-q"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T14:56:10.046027+00:00",
+  "elapsed_seconds": 2.459,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________ test_inventory_byte_drift_reaches_its_registered_verifier ___________\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-1/test_inventory_byte_drift_reac0')\n\n    def test_inventory_byte_drift_reaches_its_registered_verifier(tmp_path: Path) -> None:\n        \"\"\"Exercise the real registry's inventory owner through M1's actual consumer.\"\"\"\n        relative = \"architecture/policy_design_case/inventory.json\"\n        registry = (REPO_ROOT / \"architecture/generated_artifacts.toml\").read_text()\n        blocks = [\"[[family]]\" + block for block in registry.split(\"[[family]]\")[1:]]\n        owners = [block for block in blocks if relative in tomllib.loads(block)[\"family\"][0].get(\"outputs\", [])]\n        assert len(owners) == 1\n        inventory = tmp_path / relative\n        inventory.parent.mkdir(parents=True)\n        inventory.write_bytes((REPO_ROOT / relative).read_bytes())\n        digest = \"sha256:\" + hashlib.sha256(inventory.read_bytes()).hexdigest()\n        block = re.sub(\n            r'(source_integrity_sha256\\.\"' + re.escape(relative) + r'\" = \")[^\"]+(\"\\s*)',\n            lambda match: match[1] + digest + match[2],\n            owners[0],\n        )\n        (tmp_path / \"architecture/generated_artifacts.toml\").write_text(block)\n        validator = _validator()\n        before = validator.validate_gy_lifecycle_registry(tmp_path)\n        assert not any(issue[\"code\"] == \"layer3_gy_source_output_integrity_drift\" for issue in before[\"issues\"])\n        inventory.write_bytes(inventory.read_bytes() + b\"\\n\")\n        after = validator.validate_gy_lifecycle_registry(tmp_path)\n>       assert any(\n            issue[\"code\"] == \"layer3_gy_source_output_integrity_drift\" and issue.get(\"path\") == relative\n            for issue in after[\"issues\"]\n        )\nE       assert False\nE        +  where False = any(<generator object test_inventory_byte_drift_reaches_its_registered_verifier.<locals>.<genexpr> at 0x10c413300>)\n\ntests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py:160: AssertionError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_inventory_byte_drift_reaches_its_registered_verifier\n",
+  "stderr": ""
+}

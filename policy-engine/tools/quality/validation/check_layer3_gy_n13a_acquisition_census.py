@@ -75,6 +75,12 @@ TEST_MODULE_PATH = Path(
 )
 
 
+def declared_outputs() -> list[str]:
+    """Return the committed census; frozen journals remain writer inputs."""
+
+    return [DEFAULT_OUTPUT_PATH.relative_to(POLICY_ENGINE_ROOT).as_posix()]
+
+
 @dataclass(frozen=True)
 class _RecomputedCensus:
     """All recomputed workstream evidence for one offline census pass."""

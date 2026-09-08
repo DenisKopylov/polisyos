@@ -265,7 +265,7 @@ def test_lifecycle_manifest_derives_registered_outputs_and_no_phantom_snapshot()
 
 def test_generated_registry_update_derives_full_cas_graph_and_preserves_other_families() -> None:
     from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
-        N13B_FAMILY_ID,
+        N13B_SOURCE_FAMILY_ID,
         derive_n13b_generated_registry_update,
     )
 
@@ -280,13 +280,13 @@ def test_generated_registry_update_derives_full_cas_graph_and_preserves_other_fa
     assert {
         family_id: family
         for family_id, family in before_by_id.items()
-        if family_id != N13B_FAMILY_ID
+        if family_id != N13B_SOURCE_FAMILY_ID
     } == {
         family_id: family
         for family_id, family in after_by_id.items()
-        if family_id != N13B_FAMILY_ID
+        if family_id != N13B_SOURCE_FAMILY_ID
     }
-    n13b_outputs = tuple(after_by_id[N13B_FAMILY_ID]["outputs"])
+    n13b_outputs = tuple(after_by_id[N13B_SOURCE_FAMILY_ID]["outputs"])
     assert tuple(sorted(n13b_outputs)) == n13b_outputs
     assert (
         tuple(path for path in n13b_outputs if "layer3_gy_acquisition_cas/artifacts/sha256" in path)
@@ -346,6 +346,7 @@ def test_lifecycle_missing_universality_cannot_be_forged_closed(tmp_path: Path) 
         DEFAULT_N13B_LIFECYCLE_MANIFEST,
         DEFAULT_N13B_PROVISION,
         N13B_FAMILY_ID,
+        N13B_SOURCE_FAMILY_ID,
         _cas_blob_relative,
         derive_lifecycle_manifest,
     )
@@ -366,9 +367,21 @@ def test_lifecycle_missing_universality_cannot_be_forged_closed(tmp_path: Path) 
             (
                 "[[family]]",
                 f'id = "{N13B_FAMILY_ID}"',
+                'lifecycle = "generated_committed"',
                 "outputs = [",
-                *(f'  "{path}",' for path in outputs),
+                *(f'  "{path}",' for path in outputs[:2]),
                 "]",
+                "[[family]]",
+                f'id = "{N13B_SOURCE_FAMILY_ID}"',
+                'lifecycle = "source_committed"',
+                "outputs = [",
+                *(f'  "{path}",' for path in outputs[2:]),
+                "]",
+                *(
+                    f"source_integrity_sha256.{json.dumps(path)} = "
+                    f'"sha256:{hashlib.sha256(path.encode()).hexdigest()}"'
+                    for path in outputs[2:]
+                ),
             )
         )
         + "\n",

@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 import tomllib
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -64,6 +65,7 @@ from tools.quality.validation.layer3_gy_n13b_reentry import N13bReentryTrace
 
 SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
 N13B_FAMILY_ID = "policy-design-case-layer3-gy-n13b-acquisition-executor"
+N13B_SOURCE_FAMILY_ID = "policy-design-case-layer3-gy-n13b-frozen-acquisition-evidence"
 DEFAULT_N13B_CONTRACT = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json"
 )
@@ -122,6 +124,7 @@ _SOURCE_OWNER_PATHS = (
     "src/polisyos/runtime/quality/acquisition_planner.py",
     "src/polisyos/runtime/quality/data_state_substrate.py",
     "src/polisyos/runtime/quality/derived_observations.py",
+    "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
     "tools/quality/validation/layer3_gy_n13b_derivation_universality.py",
 )
 _SOURCE_GROWTH_REQUIREMENT_SCHEMA_VERSION = "policyos.layer3.gy.n13b.connector_request_lever_gap.v1"
@@ -906,7 +909,8 @@ def derive_n13b_generated_registry_update(repo_root: Path) -> N13bGeneratedRegis
         parsed = tomllib.loads(original.decode("utf-8"))
     except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError) as exc:
         raise N13bContractError("generated_artifact_registry_unreadable") from exc
-    family, other_output_paths = _n13b_generated_family(parsed)
+    _n13b_lifecycle_families(parsed)
+    family, other_output_paths = _n13b_generated_family(parsed, family_id=N13B_SOURCE_FAMILY_ID)
     output_values = family.get("outputs")
     if not isinstance(output_values, list) or not output_values:
         raise N13bContractError("n13b_generated_outputs_missing")
@@ -914,7 +918,33 @@ def derive_n13b_generated_registry_update(repo_root: Path) -> N13bGeneratedRegis
     cas_prefix = (DEFAULT_N13B_CAS / "artifacts/sha256").as_posix() + "/"
     non_cas_outputs = tuple(path for path in current_outputs if not path.startswith(cas_prefix))
     next_outputs = tuple(sorted((*non_cas_outputs, *required_paths)))
-    registry_bytes = _replace_n13b_generated_outputs(original, next_outputs)
+    original_integrity = family.get("source_integrity_sha256")
+    if not isinstance(original_integrity, dict):
+        raise N13bContractError("n13b_source_integrity_missing")
+    cas_integrity = {
+        path: (
+            str(original_integrity[path])
+            if path in original_integrity
+            else _file_sha256(root / path)
+        )
+        for path in required_paths
+    }
+    next_integrity = {
+        path: digest
+        for path, digest in original_integrity.items()
+        if not path.startswith(cas_prefix)
+    }
+    next_integrity.update(cas_integrity)
+    _verify_n13b_source_integrity(
+        root,
+        {**family, "outputs": list(next_outputs), "source_integrity_sha256": next_integrity},
+    )
+    registry_bytes = _replace_n13b_generated_outputs(
+        original,
+        next_outputs,
+        family_id=N13B_SOURCE_FAMILY_ID,
+        cas_integrity=cas_integrity,
+    )
     stale = set(current_outputs) - set(next_outputs)
     removable_stale = tuple(
         sorted(
@@ -931,27 +961,67 @@ def derive_n13b_generated_registry_update(repo_root: Path) -> N13bGeneratedRegis
 
 def _n13b_generated_family(
     parsed: Mapping[str, Any],
+    *,
+    family_id: str = N13B_FAMILY_ID,
 ) -> tuple[Mapping[str, Any], frozenset[str]]:
+    unresolved_code = (
+        "n13b_source_family_unresolved"
+        if family_id == N13B_SOURCE_FAMILY_ID
+        else "n13b_generated_family_unresolved"
+    )
     families = parsed.get("family")
     if not isinstance(families, list):
-        raise N13bContractError("n13b_generated_family_unresolved")
-    matches = [row for row in families if isinstance(row, dict) and row.get("id") == N13B_FAMILY_ID]
+        raise N13bContractError(unresolved_code)
+    matches = [row for row in families if isinstance(row, dict) and row.get("id") == family_id]
     if len(matches) != 1:
-        raise N13bContractError("n13b_generated_family_unresolved")
+        raise N13bContractError(unresolved_code)
     other_outputs = frozenset(
         str(output)
         for row in families
-        if isinstance(row, dict) and row.get("id") != N13B_FAMILY_ID
+        if isinstance(row, dict) and row.get("id") != family_id
         for output in (row.get("outputs") or ())
     )
     return matches[0], other_outputs
 
 
+def _n13b_lifecycle_families(
+    parsed: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], Mapping[str, Any]]:
+    """Resolve both custody owners and reject loss of exact single ownership."""
+
+    generated, _ = _n13b_generated_family(parsed)
+    source, _ = _n13b_generated_family(parsed, family_id=N13B_SOURCE_FAMILY_ID)
+    for family, expected_lifecycle, label in (
+        (generated, "generated_committed", "generated"),
+        (source, "source_committed", "source"),
+    ):
+        if family.get("lifecycle") != expected_lifecycle:
+            raise N13bContractError(f"n13b_{label}_family_lifecycle_invalid")
+        outputs = family.get("outputs")
+        if not isinstance(outputs, list) or not outputs or any(
+            not isinstance(output, str) or not output for output in outputs
+        ):
+            raise N13bContractError("n13b_generated_outputs_missing")
+    output_counts = Counter(
+        str(output)
+        for row in parsed["family"]
+        if isinstance(row, dict)
+        for output in (row.get("outputs") or ())
+    )
+    owned_outputs = (*generated["outputs"], *source["outputs"])
+    if any(output_counts[output] != 1 for output in owned_outputs):
+        raise N13bContractError("n13b_lifecycle_output_multiple_owners")
+    return generated, source
+
+
 def _replace_n13b_generated_outputs(
     registry_bytes: bytes,
     outputs: Sequence[str],
+    *,
+    family_id: str = N13B_FAMILY_ID,
+    cas_integrity: Mapping[str, str] | None = None,
 ) -> bytes:
-    """Replace only the N13b family output list while preserving all other bytes."""
+    """Replace one resolved N13b owner output list, preserving all other bytes."""
 
     try:
         text = registry_bytes.decode("utf-8")
@@ -961,7 +1031,7 @@ def _replace_n13b_generated_outputs(
     starts = [index for index, line in enumerate(lines) if line.strip() == "[[family]]"]
     starts.append(len(lines))
     matching_blocks: list[tuple[int, int]] = []
-    id_pattern = re.compile(r'id\s*=\s*"' + re.escape(N13B_FAMILY_ID) + r'"\s*')
+    id_pattern = re.compile(r'id\s*=\s*"' + re.escape(family_id) + r'"\s*')
     for start, end in pairwise(starts):
         if any(id_pattern.fullmatch(line.strip()) for line in lines[start:end]):
             matching_blocks.append((start, end))
@@ -984,27 +1054,97 @@ def _replace_n13b_generated_outputs(
     replacement = [lines[output_start]]
     replacement.extend(f"  {json.dumps(path)}," + newline for path in outputs)
     replacement.append(lines[output_end])
-    rewritten = "".join((*lines[:output_start], *replacement, *lines[output_end + 1 :])).encode()
+    family_lines = [*lines[start:output_start], *replacement, *lines[output_end + 1 : end]]
+    if cas_integrity is not None:
+        if family_id != N13B_SOURCE_FAMILY_ID:
+            raise N13bContractError("n13b_generated_registry_update_scope_drift")
+        cas_prefix = (DEFAULT_N13B_CAS / "artifacts/sha256").as_posix() + "/"
+        original_family, _ = _n13b_generated_family(tomllib.loads(text), family_id=family_id)
+        expected_existing = {
+            path
+            for path in original_family["source_integrity_sha256"]
+            if path.startswith(cas_prefix)
+        }
+        expected_required = {path for path in outputs if path.startswith(cas_prefix)}
+        if set(cas_integrity) != expected_required:
+            raise N13bContractError("n13b_generated_cas_output_denominator_drift")
+        retained_lines: list[str] = []
+        seen: set[str] = set()
+        for line in family_lines:
+            if line.lstrip().startswith("source_integrity_sha256."):
+                try:
+                    bindings = tomllib.loads(line)["source_integrity_sha256"]
+                except (KeyError, tomllib.TOMLDecodeError) as exc:
+                    raise N13bContractError("n13b_source_integrity_layout_invalid") from exc
+                if len(bindings) != 1:
+                    raise N13bContractError("n13b_source_integrity_layout_invalid")
+                path, digest = next(iter(bindings.items()))
+                if path.startswith(cas_prefix):
+                    seen.add(path)
+                    if path not in cas_integrity:
+                        continue
+                    if digest != cas_integrity[path]:
+                        raise N13bContractError("n13b_source_integrity_drift", path)
+            retained_lines.append(line)
+        if seen != expected_existing:
+            raise N13bContractError("n13b_source_integrity_layout_invalid")
+        retained_lines.extend(
+            f"source_integrity_sha256.{json.dumps(path)} = {json.dumps(cas_integrity[path])}"
+            + newline
+            for path in sorted(set(cas_integrity) - seen)
+        )
+        family_lines = retained_lines
+    rewritten = "".join((*lines[:start], *family_lines, *lines[end:])).encode()
     try:
         before = tomllib.loads(text)
         after = tomllib.loads(rewritten.decode("utf-8"))
     except tomllib.TOMLDecodeError as exc:
         raise N13bContractError("generated_artifact_registry_unreadable") from exc
-    before_family, _before_other = _n13b_generated_family(before)
-    after_family, _after_other = _n13b_generated_family(after)
+    before_family, _before_other = _n13b_generated_family(before, family_id=family_id)
+    after_family, _after_other = _n13b_generated_family(after, family_id=family_id)
+    mutable = {"outputs"}
+    if cas_integrity is not None:
+        mutable.add("source_integrity_sha256")
+        before_non_cas = {
+            path: digest
+            for path, digest in before_family["source_integrity_sha256"].items()
+            if not path.startswith(cas_prefix)
+        }
+        expected_integrity = {**before_non_cas, **cas_integrity}
+        if after_family.get("source_integrity_sha256") != expected_integrity:
+            raise N13bContractError("n13b_generated_registry_update_scope_drift")
     before_without_outputs = {
-        key: value for key, value in before_family.items() if key != "outputs"
+        key: value for key, value in before_family.items() if key not in mutable
     }
-    after_without_outputs = {key: value for key, value in after_family.items() if key != "outputs"}
+    after_without_outputs = {
+        key: value for key, value in after_family.items() if key not in mutable
+    }
     if before_without_outputs != after_without_outputs or after_family.get("outputs") != list(
         outputs
     ):
         raise N13bContractError("n13b_generated_registry_update_scope_drift")
-    before_others = [row for row in before["family"] if row.get("id") != N13B_FAMILY_ID]
-    after_others = [row for row in after["family"] if row.get("id") != N13B_FAMILY_ID]
+    before_others = [row for row in before["family"] if row.get("id") != family_id]
+    after_others = [row for row in after["family"] if row.get("id") != family_id]
     if before_others != after_others:
         raise N13bContractError("n13b_generated_registry_update_scope_drift")
     return rewritten
+
+
+def _verify_n13b_source_integrity(repo_root: Path, source_family: Mapping[str, Any]) -> None:
+    """Consult the lifecycle integrity owner before accepting frozen evidence."""
+
+    from tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit import (
+        _validate_source_integrity,
+    )
+
+    if not isinstance(source_family.get("source_integrity_sha256"), dict):
+        raise N13bContractError("n13b_source_integrity_missing")
+    issues: list[dict[str, Any]] = []
+    _validate_source_integrity(
+        repo_root, dict(source_family), list(source_family["outputs"]), issues
+    )
+    if issues:
+        raise N13bContractError("n13b_source_integrity_drift", json.dumps(issues, sort_keys=True))
 
 
 def _require_artifact_id(artifact_id: str) -> None:
@@ -1356,8 +1496,8 @@ class LifecycleRegistration(_StrictModel):
         return self
 
 
-class N13bLifecycleManifest(_StrictModel):
-    """Acyclic lifecycle registration for all materialized N13b outputs."""
+class N13bLifecycleManifestV2(_StrictModel):
+    """Historical lifecycle epoch with the original combined registry family."""
 
     schema_version: Literal["policyos.layer3.gy.n13b.lifecycle_manifest.v2"] = (
         "policyos.layer3.gy.n13b.lifecycle_manifest.v2"
@@ -1421,6 +1561,15 @@ class N13bLifecycleManifest(_StrictModel):
         return value
 
 
+class N13bLifecycleManifest(N13bLifecycleManifestV2):
+    """Current custody union of generated outputs and frozen source evidence."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.lifecycle_manifest.v3"] = (
+        "policyos.layer3.gy.n13b.lifecycle_manifest.v3"
+    )
+    source_family_id: Literal["policy-design-case-layer3-gy-n13b-frozen-acquisition-evidence"]
+
+
 def derive_lifecycle_manifest(
     repo_root: Path,
     *,
@@ -1430,7 +1579,7 @@ def derive_lifecycle_manifest(
     generated_artifacts_bytes: bytes | None = None,
     required_cas_artifact_ids: Sequence[str] | None = None,
 ) -> N13bLifecycleManifest:
-    """Derive lifecycle registrations from the real generated-artifact family."""
+    """Derive full custody registrations from both real lifecycle owner families."""
 
     root = Path(repo_root)
     if derived_artifact_id is None or certificate_artifact_id is None:
@@ -1450,20 +1599,9 @@ def derive_lifecycle_manifest(
         payload = tomllib.loads(registry_bytes.decode("utf-8"))
     except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError) as exc:
         raise N13bContractError("generated_artifact_registry_unreadable") from exc
-    families = [
-        row
-        for row in payload.get("family", [])
-        if isinstance(row, dict) and row.get("id") == N13B_FAMILY_ID
-    ]
-    if len(families) != 1:
-        raise N13bContractError("n13b_generated_family_unresolved")
-    family = families[0]
-    output_values = family.get("outputs")
-    if not isinstance(output_values, list) or not output_values:
-        raise N13bContractError("n13b_generated_outputs_missing")
-    outputs = tuple(sorted(str(value) for value in output_values))
-    if len(outputs) != len(set(outputs)):
-        raise N13bContractError("n13b_generated_outputs_duplicate")
+    families = _n13b_lifecycle_families(payload)
+    _verify_n13b_source_integrity(root, families[1])
+    outputs = tuple(sorted(str(value) for family in families for value in family["outputs"]))
     if required_cas_artifact_ids is not None:
         expected_cas_outputs = {
             path
@@ -1533,25 +1671,31 @@ def derive_lifecycle_manifest(
     )
     materialized_snapshots = tuple(path for path in snapshots if (root / path).is_file())
     family_projection = {
-        key: family.get(key)
-        for key in (
-            "id",
-            "lifecycle",
-            "gy_lifecycle_family",
-            "generator",
-            "verifier",
-            "promotion_target",
-            "stale_output_behavior",
-            "source_of_truth",
-            "outputs",
-            "regenerate_commands",
-            "workflow",
-            "check_command",
-        )
+        str(family["id"]): {
+            key: family.get(key)
+            for key in (
+                "id",
+                "lifecycle",
+                "gy_lifecycle_family",
+                "generator",
+                "verifier",
+                "promotion_target",
+                "stale_output_behavior",
+                "source_of_truth",
+                "source_committed_rationale",
+                "source_integrity_sha256",
+                "outputs",
+                "regenerate_commands",
+                "workflow",
+                "check_command",
+            )
+        }
+        for family in families
     }
     values = {
-        "schema_version": "policyos.layer3.gy.n13b.lifecycle_manifest.v2",
+        "schema_version": "policyos.layer3.gy.n13b.lifecycle_manifest.v3",
         "generated_family_id": N13B_FAMILY_ID,
+        "source_family_id": N13B_SOURCE_FAMILY_ID,
         "generated_family_projection_sha256": content_sha256(family_projection),
         "registrations": tuple(sorted(registrations, key=lambda row: row.path)),
         "registered_output_count": len(registrations),
@@ -1858,8 +2002,8 @@ class ResidualClosureProjection(_StrictModel):
         }
 
 
-class N13bAcquisitionExecutorContract(_StrictModel):
-    """Frozen N13b contract recomputed from canonical data-plane owners."""
+class N13bAcquisitionExecutorContractV4(_StrictModel):
+    """Historical acquisition contract retaining its original lifecycle epoch."""
 
     schema_version: Literal["policyos.layer3.gy.n13b.acquisition_executor_contract.v4"] = (
         "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
@@ -1885,7 +2029,7 @@ class N13bAcquisitionExecutorContract(_StrictModel):
     derivation_universality: DerivationUniversalityProjection
     reentry: ReentryProjection
     capstone_routes: CapstoneRoutePreservation
-    lifecycle: N13bLifecycleManifest
+    lifecycle: N13bLifecycleManifestV2
     quarantine: QuarantineProjection
     world_growth: WorldGrowthProjection
     resumption_budget: ResumptionBudgetProjection
@@ -1970,6 +2114,61 @@ class N13bAcquisitionExecutorContract(_StrictModel):
         ]
         value["lifecycle"] = self.lifecycle.identity_payload()
         return value
+
+
+class N13bAcquisitionExecutorContract(N13bAcquisitionExecutorContractV4):
+    """Current acquisition contract with the complete split lifecycle custody."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.acquisition_executor_contract.v5"] = (
+        "policyos.layer3.gy.n13b.acquisition_executor_contract.v5"
+    )
+    lifecycle: N13bLifecycleManifest
+
+
+def read_n13b_lifecycle_manifest(path: Path) -> N13bLifecycleManifestV2 | N13bLifecycleManifest:
+    """Read either recorded lifecycle epoch without promoting historical evidence."""
+
+    receipt = _read_epoch_model(
+        path,
+        {
+            "policyos.layer3.gy.n13b.lifecycle_manifest.v2": N13bLifecycleManifestV2,
+            "policyos.layer3.gy.n13b.lifecycle_manifest.v3": N13bLifecycleManifest,
+        },
+    )
+    assert isinstance(receipt, N13bLifecycleManifestV2)
+    return receipt
+
+
+def read_n13b_acquisition_executor_contract(
+    path: Path,
+) -> N13bAcquisitionExecutorContractV4 | N13bAcquisitionExecutorContract:
+    """Read a recorded contract epoch; current admission still requires v5."""
+
+    receipt = _read_epoch_model(
+        path,
+        {
+            "policyos.layer3.gy.n13b.acquisition_executor_contract.v4": (
+                N13bAcquisitionExecutorContractV4
+            ),
+            "policyos.layer3.gy.n13b.acquisition_executor_contract.v5": (
+                N13bAcquisitionExecutorContract
+            ),
+        },
+    )
+    assert isinstance(receipt, N13bAcquisitionExecutorContractV4)
+    return receipt
+
+
+def _read_epoch_model(path: Path, models: Mapping[str, type[BaseModel]]) -> BaseModel:
+    try:
+        data = Path(path).read_bytes()
+        payload = json.loads(data)
+        model = models.get(str(payload.get("schema_version"))) if isinstance(payload, dict) else None
+        if model is None:
+            raise N13bContractError("n13b_receipt_epoch_unsupported", path.as_posix())
+        return model.model_validate_json(data)
+    except (OSError, ValueError) as exc:
+        raise N13bContractError("n13b_source_artifact_invalid", path.as_posix()) from exc
 
 
 def derive_n13b_acquisition_executor_contract(
@@ -2257,7 +2456,7 @@ def derive_n13b_acquisition_executor_contract(
         for path in _SOURCE_OWNER_PATHS
     )
     values = {
-        "schema_version": "policyos.layer3.gy.n13b.acquisition_executor_contract.v4",
+        "schema_version": "policyos.layer3.gy.n13b.acquisition_executor_contract.v5",
         "rule_version": "GY-plan-rev18+3.5.12-D1-D6",
         "producer": (
             "tools.quality.validation.layer3_gy_n13b_acquisition_contract."
@@ -2530,6 +2729,8 @@ def _json_value(value: Any) -> Any:
 __all__ = [
     "DEFAULT_N13B_CONTRACT",
     "DEFAULT_N13B_LIFECYCLE_MANIFEST",
+    "N13B_FAMILY_ID",
+    "N13B_SOURCE_FAMILY_ID",
     "CapstoneRoutePreservation",
     "D2CarrierReceiptProjection",
     "D2ConnectorGapRow",
@@ -2540,9 +2741,11 @@ __all__ = [
     "JournalEvidenceProjection",
     "LocalLiftRefusal",
     "N13bAcquisitionExecutorContract",
+    "N13bAcquisitionExecutorContractV4",
     "N13bContractError",
     "N13bGeneratedRegistryUpdate",
     "N13bLifecycleManifest",
+    "N13bLifecycleManifestV2",
     "derive_capstone_route_preservation",
     "derive_cas_artifact_closure",
     "derive_d2_source_growth_backlog",
@@ -2553,4 +2756,6 @@ __all__ = [
     "derive_local_lift_refusal",
     "derive_n13b_acquisition_executor_contract",
     "derive_n13b_generated_registry_update",
+    "read_n13b_acquisition_executor_contract",
+    "read_n13b_lifecycle_manifest",
 ]

@@ -1,0 +1,21 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.m1.ownership.reconcile_registry"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:12:29.086762+00:00",
+  "elapsed_seconds": 0.263,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\n  \"base_commit\": \"43580c80b\",\n  \"current_registry_sha256\": \"sha256:7329540c9c3649a404d3adc42d137541507b80ff56800660ea439b1492c35e60\",\n  \"denominator\": \"Complete family/output arrays in base and current generated_artifacts.toml; complete baseline violation array for not_registered identity claims. TOML parsed output sets reconciled with independent Python literal parsing; family counts reconciled with table headers.\",\n  \"base\": {\n    \"families\": 61,\n    \"unique_output_paths\": 442,\n    \"output_occurrences\": 446\n  },\n  \"current\": {\n    \"families\": 102,\n    \"unique_output_paths\": 695,\n    \"output_occurrences\": 699\n  },\n  \"baseline_not_registered_path_count\": 181,\n  \"baseline_missing_or_duplicate_claims\": {},\n  \"original_output_paths_removed\": [],\n  \"new_output_path_count\": 253,\n  \"nonfamily_scope_changes\": [],\n  \"ownership_splits\": [\n    {\n      \"generated_family\": \"policy-design-case-layer3-gy-n13a-acquisition-census\",\n      \"source_family\": \"policy-design-case-layer3-gy-n13a-frozen-acquisition-evidence\",\n      \"original\": 3,\n      \"generated\": 1,\n      \"source\": 2,\n      \"lost_identities\": [],\n      \"gained_identities\": []\n    },\n    {\n      \"generated_family\": \"policy-design-case-layer3-gy-n13b-acquisition-executor\",\n      \"source_family\": \"policy-design-case-layer3-gy-n13b-frozen-acquisition-evidence\",\n      \"original\": 43,\n      \"generated\": 3,\n      \"source\": 40,\n      \"lost_identities\": [],\n      \"gained_identities\": []\n    }\n  ],\n  \"new_source_family_ids\": [\n    \"policy-design-case-layer3-gy-n13a-frozen-acquisition-evidence\",\n    \"policy-design-case-layer3-gy-n13b-frozen-acquisition-evidence\",\n    \"policy-design-case-layer3-gy-task0-audit-artifacts\",\n    \"policy-design-case-layer3-gy-loop-source-artifacts\",\n    \"policy-design-case-layer3-gy-openalex-source-artifacts\",\n    \"policy-design-case-layer3-gy-substrate-source-registries\",\n    \"policy-design-case-layer3-gy-design-generation-recordings\",\n    \"policy-design-case-layer3-gy-frozen-value-gate-contract\",\n    \"policy-design-case-layer3-gy-historical-credal-test-input\",\n    \"policy-design-case-layer3-gy-historical-comparison-observation\",\n    \"policy-design-case-governed-source-records\",\n    \"policy-design-case-historical-governance-records\",\n    \"policy-design-case-layer3-gy-control-plane-inventory\"\n  ],\n  \"source_integrity_issues\": [],\n  \"gy_metadata_issues\": [],\n  \"unreadable_cases\": []\n}\n",
+  "stderr": ""
+}

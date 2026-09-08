@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.m1.probes.probe_runner",
+    "--source",
+    ".",
+    "--run-directory",
+    "_build/gy-gaps/m1/probes/precommit",
+    "--timeout",
+    "300"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:38:13.330908+00:00",
+  "elapsed_seconds": 155.189,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\"receipt\": \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/receipts/baseline.json\", \"returncode\": 0, \"elapsed_seconds\": 37.287}\n{\"receipt\": \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/receipts/named-lifecycle-tests.json\", \"returncode\": 0, \"elapsed_seconds\": 43.763}\n{\"receipt\": \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/receipts/registration-removal.json\", \"returncode\": 1, \"elapsed_seconds\": 35.166}\n{\"receipt\": \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/receipts/marked-orphan.json\", \"returncode\": 1, \"elapsed_seconds\": 34.483}\n{\"status\": \"pass\", \"evidence_directory\": \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/receipts\", \"registration_removal\": {\"baseline_distinct_identities\": 0, \"mutant_distinct_identities\": 11, \"added_distinct_identities\": 11, \"lost_baseline_identities\": 0, \"required_exact_path_findings_added\": true, \"complete_identity_sets_compared\": true, \"identity_preserves_absent_vs_null\": true, \"family_id\": \"policy-design-case-layer3-gy-task0-audit-artifacts\", \"artifact_bytes_and_markers_preserved\": true}, \"marked_orphan\": {\"baseline_distinct_identities\": 0, \"mutant_distinct_identities\": 9, \"added_distinct_identities\": 9, \"lost_baseline_identities\": 0, \"required_exact_path_findings_added\": true, \"complete_identity_sets_compared\": true, \"identity_preserves_absent_vs_null\": true}}\n",
+  "stderr": ""
+}

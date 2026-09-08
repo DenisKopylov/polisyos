@@ -1,0 +1,21 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.n13b_reissue_readback"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:10:13.726207+00:00",
+  "elapsed_seconds": 0.493,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\n  \"status\": \"pass\",\n  \"contract\": {\n    \"path\": \"architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json\",\n    \"base\": \"43580c80b\",\n    \"before_sha256\": \"sha256:217c5995e0ffe75016c664e0d825b667dc40db64e2a59c0a831f96aa1143604c\",\n    \"after_sha256\": \"sha256:16a69256bf6f1746ce591d87163d90acb282718d4a3a9aa189d89c4f02fe0757\"\n  },\n  \"changed_top_level_identities\": [\n    \"contract_sha256\",\n    \"lifecycle\",\n    \"schema_version\",\n    \"source_owners\"\n  ],\n  \"execution_and_authority_projections_unchanged\": true,\n  \"lifecycle_registration_union_preserved\": 43,\n  \"independent_registration_row_count\": 43,\n  \"frozen_source_files_byte_identical\": 40,\n  \"source_owner_rows_verified\": 12,\n  \"added_verified_source_owner\": \"tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py\",\n  \"refreshed_inherited_source_owner_bindings\": [\n    \"src/polisyos/data_forge/domains/catalog/knowledge/overlay.py\",\n    \"src/polisyos/runtime/quality/acquisition_executor.py\",\n    \"src/polisyos/runtime/quality/acquisition_planner.py\",\n    \"src/polisyos/runtime/quality/data_state_substrate.py\",\n    \"src/polisyos/runtime/quality/derived_observations.py\"\n  ],\n  \"existing_source_owner_files_unchanged_from_lane_base\": true\n}\n",
+  "stderr": ""
+}

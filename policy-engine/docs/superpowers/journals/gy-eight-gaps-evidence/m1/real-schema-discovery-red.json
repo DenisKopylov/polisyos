@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_real_alternative_namespaces_are_discovered_without_registration",
+    "-q"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T14:58:55.722186+00:00",
+  "elapsed_seconds": 2.626,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____ test_real_alternative_namespaces_are_discovered_without_registration _____\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-3/test_real_alternative_namespac0')\n\n    def test_real_alternative_namespaces_are_discovered_without_registration(tmp_path: Path) -> None:\n        \"\"\"Removing an entire family cannot hide its real producer's schema markers.\"\"\"\n        family_ids = {\n            \"policy-design-case-layer3-gy-n10-cg1-l2-relation-census\",\n            \"policy-design-case-layer3-gy-n13a-acquisition-census\",\n            \"policy-design-case-layer3-gy-n13b-acquisition-executor\",\n        }\n        families = tomllib.loads((REPO_ROOT / \"architecture/generated_artifacts.toml\").read_text())[\"family\"]\n        selected = [family for family in families if family[\"id\"] in family_ids]\n        assert {family[\"id\"] for family in selected} == family_ids\n        expected = set()\n        for family in selected:\n            for relative in family[\"outputs\"]:\n                destination = tmp_path / \"new-location\" / Path(relative).name\n                destination.parent.mkdir(exist_ok=True)\n                destination.write_bytes((REPO_ROOT / relative).read_bytes())\n                expected.add(destination.relative_to(tmp_path).as_posix())\n        assert expected == {path.relative_to(tmp_path).as_posix() for path in tmp_path.rglob(\"*.json\")}\n>       assert set(_validator()._iter_gy_marked_artifact_files(tmp_path, (set(), set()))) == expected\nE       AssertionError: assert set() == {'new-locatio...anifest.json'}\nE         \nE         Extra items in the right set:\nE         'new-location/layer3_gy_n13b_acquisition_executor_contract.json'\nE         'new-location/layer3_gy_n13a_acquisition_census.json'\nE         'new-location/layer3_gy_n13b_lifecycle_manifest.json'\nE         'new-location/layer3_gy_n13b_derivation_universality.json'\nE         'new-location/layer3_gy_n10_cg1_l2_relation_census.json'\nE         Use -v to get more diff\n\ntests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py:184: AssertionError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_real_alternative_namespaces_are_discovered_without_registration\n",
+  "stderr": ""
+}

@@ -1,0 +1,28 @@
+{
+  "named_lifecycle_tests": {
+    "returncode": 0,
+    "registry_and_audit_unchanged": true
+  },
+  "registration_removal": {
+    "baseline_distinct_identities": 0,
+    "mutant_distinct_identities": 11,
+    "added_distinct_identities": 11,
+    "lost_baseline_identities": 0,
+    "required_exact_path_findings_added": true,
+    "complete_identity_sets_compared": true,
+    "identity_preserves_absent_vs_null": true,
+    "family_id": "policy-design-case-layer3-gy-task0-audit-artifacts",
+    "artifact_bytes_and_markers_preserved": true
+  },
+  "marked_orphan": {
+    "baseline_distinct_identities": 0,
+    "mutant_distinct_identities": 9,
+    "added_distinct_identities": 9,
+    "lost_baseline_identities": 0,
+    "required_exact_path_findings_added": true,
+    "complete_identity_sets_compared": true,
+    "identity_preserves_absent_vs_null": true
+  },
+  "restored_registry_and_audit_bytes": true,
+  "preparation_receipt": "preparation.json"
+}

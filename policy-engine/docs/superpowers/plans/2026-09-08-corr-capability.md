@@ -101,6 +101,12 @@ authority: source ancestry overlap rejects circularity, and actual legal truth
 remains unestablished. Synthetic annotations of real identifiers are explicitly
 synthetic controls, never claimed institutional legal identities.
 
+Source provenance requires an explicit boolean synthetic marker, without a
+false default. The synthetic producer requires marked inputs; the generic reader
+can substitute independently addressed real source bytes under the same schema.
+A typed source-authority reference remains unverified here. Flipping the marker
+or supplying an unsupported authority reference cannot grant governed authority.
+
 Recognition has passed/rejected/ambiguous outcomes relative to the addressed
 source. Governed authority remains blocked for synthetic input. Missing subject
 returns ambiguous **before** units/threshold evaluation, with numeric evaluation
@@ -153,6 +159,16 @@ uncertainty. Synthetic timing cannot masquerade as measured provider time.
 Self-verification is not independent entailment authority. A credential failure
 does not stop construction, and is reported as a measurement limitation rather
 than a fabricated full-pass price.
+
+The C1 provenance measurement requires extending the existing raw-claim ingress
+in `graph_builder.py` and the existing quality metadata in `edge_synthesize.py`.
+Carry each source's explicit synthetic marker into raw rows and exact/family/
+contested edge provenance. C also owns the conditional L2 exact-edge provenance
+handoff in `credal_reference.py`; the family edge already retains quality signals.
+Historical absence stays absent, preserving its original hash. The decisive
+consumer test uses the real production CG2 owner against marked source support;
+unadjudicated non-emission alone is not evidence of synthetic refusal. This
+extends the existing owners and does not reopen the closed class-alias repair.
 
 C2 retains `ShadowGeneratedCandidate.atom` and its actual parsed proposal, keyed
 by `(design_problem_ref, candidate_id, atom.content_hash)`, plus the enclosing

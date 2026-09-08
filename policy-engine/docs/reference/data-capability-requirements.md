@@ -207,6 +207,19 @@ here**: constructed mismatches bound the sensitivity of refusal, never the corre
 acceptance. Register rows `delta-ground-composition-and-stratum-budget` and
 `adversarial-refusal-sensitivity-is-publishable-today` carry the decisions.
 
+**Architect decision applied by CORR, 2026-09-08.** The preceding seven-key
+stratum description is superseded by `delta-ground-composition-and-stratum-budget`:
+the stratum is `operator_family × target_type × domain × difficulty_tier`, with
+the tier derived from inputs before outcomes. Proposer model, prompt version,
+atom birth cohort and reference epoch scope the certificate; a change stales it.
+The run's configured relation-admission reserve is 0.04, with a per-admission
+ceiling of 0.01; candidate exploration consumes none. These are planning
+parameters, not calibrated correctness bounds. The remaining construction
+reserve is shared, without a new component allocation in this lane. The frame
+and refusal-sensitivity mechanism are engineering deliverables; neither supplies
+the missing adjudicated positive observations. Execution evidence is maintained
+in `docs/superpowers/journals/2026-09-08-corr-a.md`.
+
 ---
 
 ## `snapshot-schema-generation-discriminator`
@@ -391,3 +404,17 @@ status, and non-emission; P35/P36 preserve the cited denominators; P29/P38 requi
 validation of the vocabulary and consumer outcome, rather than field-name presence. The data
 requirement remains `absent` (`artifact_missing`) until the pass supplies and validates the
 claim-level axis; registering it does not supply those artifacts.
+
+**CORR correction before the bounded pass, 2026-09-08.** The normalizer prerequisite
+above is historical: `evidence-class-normalizer-zeroes-two-canonical-classes` is
+closed at `f876c26f2`, and its current owner tests passed on the CORR base. No
+normalizer repair is included in this lane. The full held-work frame was
+reconciled by a Python walk and independent SQL selection: 310,710 nonblank
+abstracts out of 310,829 works, with equal eligible identity sets and no unreadable
+cases in that measurement. A dated subset declaration freezes six input-selected
+works before provider calls; it does not replace the complete corpus denominator.
+The bounded pipeline and its cost measurement belong to `GY-PR1 / CORR-C1`;
+authorization for a full pass remains a separate architect budget decision.
+The declaration and current-normalizer evidence are linked from
+`docs/superpowers/journals/2026-09-08-corr-c.md`. This correction does not claim
+that re-extraction has supplied the corpus-wide missing axis.

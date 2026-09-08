@@ -110,6 +110,14 @@ Full statements: GY plan §3.5.7 (E11–E14) and §3.5.13; Atlas plan Execution 
 - **Serialize only the contended resource** (shared owner scratch/DuckDB, Playwright/Storybook,
   fixed-port server, same governed artifact) — name it in the task plan. Lint, typecheck, logic
   tests, builds and read-only censuses run in parallel with a long replay.
+- **A receipt records what a reader cannot recompute.** Retain the complete output of every
+  deciding gate and every removal probe — those are the evidence. Do not retain what the reader can
+  derive: cite a tracked file as `path@sha` instead of embedding a copy, cite two shas plus the
+  delta instead of embedding both sides of a comparison, and never store a derived view (field
+  identities, sorted key sets) beside the data it was derived from. One lane wrote **2.05M lines,
+  of which 30.5k were the work**; a single file held five representations of the same 2.4MB
+  artifact whose both versions were already in git, with their shas 66 bytes away. Nothing was
+  wrong except the volume, and the diff became unreadable.
 - **Measure each suite's wall time once, then set explicit timeouts** (an unmeasured default that
   kills a healthy run is a harness finding). **Delta-only re-review** after the first full package.
   **Poll silently** — state changes only; heartbeat evidence, never heartbeat prose.

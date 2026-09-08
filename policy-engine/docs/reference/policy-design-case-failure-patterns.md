@@ -94,6 +94,13 @@ Notes:
 - Build-time validity without runtime enforcement is a P01/P10 variant. A
   proof, benchmark, or offline validator is not runtime authority until the
   runtime path consumes it and fails closed when it is absent or failing.
+- P01/P02 also have a temporal handshake: can evidence created **after** its
+  bound source exists enter the current lifecycle, or does the producer persist
+  a new result while every current reader keeps the old head? Exercise source
+  production, later evidence receipt and current consumption in that order.
+  Extend the existing intake and conditionally append the new head; a fixture
+  that knows the future source hash does not prove this bridge. Diagnostic:
+  `docs/superpowers/journals/gy-phase5-evidence/pa1/independent-review.md`, PA1-R01.
 - P27 is the net-new sibling of P06 and P12. P06 covers drift toward a
   deprecated compatibility path; P12 covers producers that do not coordinate;
   P27 covers building a *fresh* type/engine/gate beside a live canonical owner
@@ -229,6 +236,15 @@ Notes:
   without its measure, which moved materially once fenced blocks were excluded. The cheap general
   defence is the **denominator check**: before reporting a count, confirm it sums to a total the
   document already states.
+  **Input/scope corollary:** removing an artifact's discriminator must not turn
+  a supplied malformed artifact into absence and activate a permissive default.
+  Determine supplied-input presence before schema validation, and carry its
+  refusal through selection and replay. Likewise, an uncertain dependency must
+  retain its declared identity in the consumer's scope: deleting the association
+  can make an all-confirmed test vacuously green. Run the actual downstream
+  consumer after each mutation. Diagnostics: S3-CC01 in
+  `docs/superpowers/journals/gy-phase5-evidence/s3/credal-consumer-audit.md`
+  and S3-RV01 in that directory's `independent-review.md`.
 
 **`P39` is an architect-side pattern, and its signature is a histogram, not an incident.** One
 cluster overrunning its cap is an estimate; sixteen clusters overrunning by **exactly one** is a

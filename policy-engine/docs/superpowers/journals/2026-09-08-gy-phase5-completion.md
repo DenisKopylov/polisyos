@@ -38,6 +38,14 @@ The first package is not full closeout. An existing-owner evidence intake and
 conditional current-head transition is the next coherent append, governed in D3b
 before its source edits.
 
+**D3c:** the real route exposed the same temporal bridge class at source
+publication: the owned-run resolver returned `authorization_binding_run_unresolved`
+because the natural-language worker had no canonical terminal core run manifest.
+The P40 second-finding decision widens to the complete producer/publication/intake/
+head/reader lifecycle. Reuse canonical `RunContext` publication under the exact
+job scope; do not weaken authorization or hide the missing producer in a fixture.
+The agent's red gate is retained, and the plan decision precedes this extra seam.
+
 **S3-D1a:** the existing IR route's closed `ObservationFamily` rejects a novel
 data-only family. The runtime artifact owner retains its generic parser and
 complete target checks; the advisor receives only the owner projection. The

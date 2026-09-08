@@ -164,6 +164,27 @@ to their owned source before current S8 replay. Invalid attempts have durable
 refusal/audit evidence without advancing the admitted head. These details extend
 the D3b decision; they do not reopen any executed promotion or institutional role.
 
+**D3c / P40 same temporal bridge class, second finding:** the real owned-run
+resolver refuses the new intake with `authorization_binding_run_unresolved`:
+the natural-language worker publishes compiled CAS/job progress but no canonical
+core run source. Widen the mechanism to the actual complete lifecycle, rather
+than bypassing resource ownership: source production → canonical owned run
+publication → later signed evidence receipt → conditional head → current replay.
+The actual endpoint test must execute this whole chain; preinstalling a fake run
+manifest in its fixture is not closure.
+
+Extend the existing worker terminal-publication seam using canonical
+`RunContext.start/add_output/finalize`, as the adjacent evaluation-safety terminal
+path already does. Retain exact run/job tenant and cell bindings, register the
+compiled and normative outputs, and use an explicitly candidate-only execution
+manifest. Completion of generation grants no recommendation, evidence, legal or
+promotion authority. Reuse the same ambient CAS and terminal source owner;
+validate any existing terminal run before replay rather than overwriting it.
+This is a mandatory source-publication companion to D3b, with the existing core
+execution-manifest epoch unchanged. Removing canonical publication while keeping
+the completed job/sidecar markers must make the actual later-evidence endpoint
+test red. A missing institution still leaves the default signed slot empty.
+
 ## Ordered execution and exact owners
 
 Only one writer per source file. S3 owns `intervention_substrate.py`, `design_generation.py`, its part of `generation_cycle.py`, Foundry selection and S3 validator/tests. PA1 owns existing S8 plus HTTP control generation/lifecycle/container files and mirrored tests. The selected PA1 design needs no shared generation-cycle write. PR1 has no production edits. Root owns the plan/journals, commits, final review, generated-companion integration and verification wave.

@@ -1438,3 +1438,46 @@ def test_control_worker_shutdown_suppresses_heartbeat_store_unavailable_logs(
 
     assert warnings == []
     assert exceptions == []
+
+
+def test_normative_head_compare_and_append_has_one_sqlite_winner(tmp_path) -> None:
+    """The event owner serializes two independent connections on the actual predecessor."""
+    path = tmp_path / "normative.sqlite3"
+    stores = tuple(ControlPlaneStore(backend="sqlite", sqlite_path=path) for _ in range(2))
+    source = "sha256:" + "a" * 64
+    stores[0].create_job(
+        job_id="job", kind="natural_language_run", run_id="run", pipeline_id=None,
+        requested_execution_profile=None, effective_execution_profile="dev", policy_flags={},
+        capability_manifest_ref=None, payload_ref=None, submitted_by=None,
+    )
+    stores[0].complete_job(
+        job_id="job", run_id="run", capability_manifest_ref=None,
+        progress={"compiled_recursive_generation_cycle_ref": source},
+    )
+    barrier = threading.Barrier(2)
+
+    def append(index):
+        barrier.wait(timeout=10)
+        return stores[index].append_normative_evidence_head(
+            job_id="job", run_id="run", compiled_run_ref=source,
+            expected_prior_head_ref=None, head_ref="sha256:" + str(index + 1) * 64,
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = tuple(executor.map(append, range(2)))
+    assert sorted(results) == [False, True]
+    winner = "sha256:" + str(results.index(True) + 1) * 64
+    assert stores[0].get_normative_evidence_head("job")["head_ref"] == winner
+    assert stores[1].append_normative_evidence_head(
+        job_id="job", run_id="run", compiled_run_ref=source,
+        expected_prior_head_ref=winner, head_ref="sha256:" + "3" * 64,
+    )
+    assert stores[0].get_normative_evidence_head("job")["previous_head_ref"] == winner
+    for invalid in ({"run_id": "foreign"}, {"compiled_run_ref": "sha256:" + "f" * 64}):
+        with pytest.raises(ValueError, match="normative_evidence_job"):
+            stores[0].append_normative_evidence_head(**{
+                "job_id": "job", "run_id": "run", "compiled_run_ref": source,
+                "expected_prior_head_ref": "sha256:" + "3" * 64,
+                "head_ref": "sha256:" + "4" * 64, **invalid,
+            })
+    assert stores[0].get_job("job").progress["compiled_recursive_generation_cycle_ref"] == source

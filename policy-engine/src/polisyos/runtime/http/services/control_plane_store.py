@@ -2620,6 +2620,91 @@ class ControlPlaneStore:
             raise RuntimeError("acquisition_action_head_readback_failed")
         return loaded
 
+    def get_normative_evidence_head(self, job_id: str) -> dict[str, Any] | None:
+        """Resolve the latest immutable normative admission event for one exact job."""
+        row = self._fetchone(
+            "SELECT payload_json FROM control_job_events "
+            "WHERE job_id = ? AND event_type = 'normative_evidence_admitted' "
+            "ORDER BY event_id DESC LIMIT 1",
+            (job_id,),
+        )
+        if row is None:
+            return None
+        payload = json.loads(str(row["payload_json"] if isinstance(row, Mapping) else row[0]))
+        if not isinstance(payload, dict) or not _is_sha256_ref(payload.get("head_ref")):
+            raise ValueError("normative_head_event_invalid")
+        return payload
+
+    def append_normative_evidence_head(
+        self,
+        *,
+        job_id: str,
+        run_id: str,
+        compiled_run_ref: str,
+        expected_prior_head_ref: str | None,
+        head_ref: str,
+    ) -> bool:
+        """Compare and append under the owning-job transaction; never rewrite job progress."""
+        if not _is_sha256_ref(head_ref) or not _is_sha256_ref(compiled_run_ref):
+            raise ValueError("normative_head_ref_invalid")
+        if expected_prior_head_ref is not None and not _is_sha256_ref(expected_prior_head_ref):
+            raise ValueError("normative_head_predecessor_invalid")
+
+        def append(cur: Any, *, postgres: bool) -> bool:
+            def execute(sql: str, params: tuple[object, ...]) -> Any:
+                return cur.execute(self._translate_sql(sql) if postgres else sql, params)
+
+            execute(
+                "SELECT run_id, job_kind, state FROM control_jobs WHERE job_id = ?"
+                + (" FOR UPDATE" if postgres else ""),
+                (job_id,),
+            )
+            job = cur.fetchone()
+            if job is None or tuple(job) != (run_id, "natural_language_run", "completed"):
+                raise ValueError("normative_evidence_job_mismatch")
+            execute("SELECT progress_json FROM control_job_progress WHERE job_id = ?", (job_id,))
+            progress = cur.fetchone()
+            if progress is None or json.loads(str(progress[0])).get(
+                "compiled_recursive_generation_cycle_ref"
+            ) != compiled_run_ref:
+                raise ValueError("normative_evidence_job_source_mismatch")
+            execute(
+                "SELECT payload_json FROM control_job_events "
+                "WHERE job_id = ? AND event_type = 'normative_evidence_admitted' "
+                "ORDER BY event_id DESC LIMIT 1",
+                (job_id,),
+            )
+            current = cur.fetchone()
+            prior = None if current is None else json.loads(str(current[0]))["head_ref"]
+            if prior != expected_prior_head_ref:
+                return False
+            payload = {
+                "head_ref": head_ref,
+                "previous_head_ref": expected_prior_head_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "compiled_run_ref": compiled_run_ref,
+            }
+            execute(
+                "INSERT INTO control_job_events (job_id, event_type, payload_json, created_at) "
+                "VALUES (?, ?, ?, ?)",
+                (job_id, "normative_evidence_admitted", json.dumps(payload, sort_keys=True), _iso(_utc_now())),
+            )
+            return True
+
+        if self.backend == "sqlite":
+            with self._lock, self._sqlite_connection() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                try:
+                    admitted = append(conn.cursor(), postgres=False)
+                    conn.commit()
+                    return admitted
+                except Exception:
+                    conn.rollback()
+                    raise
+        with self._postgres_cursor() as cur:
+            return append(cur, postgres=True)
+
     def append_event(self, *, job_id: str, event_type: str, payload: dict[str, Any]) -> None:
         """Append one immutable job lifecycle/progress event row."""
         self._execute(

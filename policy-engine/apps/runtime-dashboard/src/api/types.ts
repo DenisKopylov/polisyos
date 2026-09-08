@@ -786,6 +786,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/control/runs/{run_id}/normative-evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Attach signed value-choice evidence to an exact completed generation job
+     * @description Receive evidence under the existing run-ownership and evidence-resolve authorization.
+     */
+    post: operations["submit_run_normative_evidence"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/control/runs/{run_id}/reissue": {
     parameters: {
       query?: never;
@@ -12316,6 +12336,63 @@ export interface components {
       timeline_events?: components["schemas"]["RunTimelineEvent"][];
     };
     /**
+     * NormativeEvidenceSubmissionRequest
+     * @description Attach external evidence to one exact completed job, without source or trust overrides.
+     */
+    NormativeEvidenceSubmissionRequest: {
+      evidence: components["schemas"]["NormativeRunEvidenceRefs"];
+      /** Expected Prior Head Ref */
+      expected_prior_head_ref: string | null;
+      /** Job Id */
+      job_id: string;
+    };
+    /**
+     * NormativeEvidenceSubmissionResponse
+     * @description Durable intake outcome and the shared current job projection after compare-and-append.
+     */
+    NormativeEvidenceSubmissionResponse: {
+      /** Attempted Disposition Ref */
+      attempted_disposition_ref: string;
+      /** Head Ref */
+      head_ref: string | null;
+      job: components["schemas"]["ControlJobResponse"];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "admitted" | "refused" | "conflict";
+    };
+    /**
+     * NormativeGenerationEvidenceRefs
+     * @description Untrusted references to an existing frontier and external signed permission.
+     */
+    NormativeGenerationEvidenceRefs: {
+      /** Authorization Ref */
+      authorization_ref: string;
+      /** Frontier Ref */
+      frontier_ref: string;
+      /** Scope Ref */
+      scope_ref: string;
+    };
+    /**
+     * NormativeRunEvidenceRefs
+     * @description Data-only external evidence references, keyed by the actual source node.
+     */
+    NormativeRunEvidenceRefs: {
+      /** By Node */
+      by_node?: {
+        [key: string]: components["schemas"]["NormativeGenerationEvidenceRefs"];
+      };
+      /** Input Limitation */
+      input_limitation?:
+        | (
+            | "p20_normative_evidence_invalid"
+            | "p20_normative_generation_disposition_missing"
+            | "p20_normative_sidecar_replay_failed"
+          )
+        | null;
+    };
+    /**
      * ObligationBudgetPool
      * @description Exact delta pool over the N9 obligation taxonomy.
      */
@@ -21151,6 +21228,96 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["FeedbackActionResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  submit_run_normative_evidence: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["NormativeEvidenceSubmissionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NormativeEvidenceSubmissionResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

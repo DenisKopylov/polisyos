@@ -79,6 +79,7 @@ class _ResolverKind(StrEnum):
 
 
 _OWNED_PATH_RESOLVERS = {
+    ("runtime.run.normative_evidence", "run_id"): _ResolverKind.RUN,
     ("runtime.run.epoch_staleness", "run_id"): _ResolverKind.RUN,
     ("runtime.run.feedback_evaluation", "run_id"): _ResolverKind.RUN,
     ("runtime.run.reissue", "run_id"): _ResolverKind.RUN,

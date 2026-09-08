@@ -145,3 +145,27 @@ The sidecar contracts are internal Python owner surfaces; the existing HTTP
 Existing generation DTOs and standalone S8 authorization v1 artifacts retain their
 epochs. Targeted replay and removal controls live in
 `tests/unit/runtime/http/test_normative_generation_bridge.py`.
+
+After the worker completes, `POST /api/v1/control/runs/{run_id}/normative-evidence`
+accepts the exact `job_id`, required nullable `expected_prior_head_ref`, and typed
+`evidence.by_node` references. The existing owned-run resolver and `evidence.resolve`
+permission govern this intake. The worker publishes its candidate computation
+through the canonical core `RunContext`, preserving tenant/cell ownership; a core
+`ok` execution manifest does not confer policy promotion authority.
+
+Successful admission appends an immutable `policyos.normative_generation_head.v1`
+CAS record and a `normative_evidence_admitted` job event. The store compares the exact
+prior head inside a SQLite write transaction or a PostgreSQL owning-job row lock.
+A signed but invalid input persists a refusal and returns HTTP 422; a stale expected
+head returns HTTP 409. Neither replaces the admitted head. The response carries the
+attempted disposition, current head and current job projection. Both job readers
+bind the head to the exact job, run and immutable compiled output, then replay S8
+source/signature/scope/time checks. General progress updates cannot rewrite this
+append-only head. Requests accept no source, deployment-trust or signature overrides.
+
+The immutable core-run outputs own both the initial default and later head lookup.
+A copied `progress` projection cannot supply a current head or change its source.
+A missing event or mismatched progress reference produces a fresh refusal using the
+known canonical source, preserving its candidate fronts and typed request. If that
+owned source itself cannot be resolved, current authority is `blocked` with an
+explicit source limitation; standalone historical sidecar replay remains available.

@@ -27,6 +27,7 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
         "search_capabilities",
         "request_run_acquisition_decision",
         "execute_run_acquisition_route",
+        "submit_run_normative_evidence",
     }
 )
 ResponseMode = Literal["json", "array_buffer"]

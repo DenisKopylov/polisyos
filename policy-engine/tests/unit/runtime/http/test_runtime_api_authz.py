@@ -227,6 +227,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/runs"),
     ("POST", "/api/v1/control/runs/nl"),
     ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"),
+    ("POST", "/api/v1/control/runs/{run_id}/normative-evidence"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"),
     ("POST", "/api/v1/fabric/impact"),
     ("POST", "/api/v1/fabric/quality/batch"),
@@ -286,6 +287,7 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "/api/v1/control/runs/{run_id}/feedback/evaluate",
     ): RuntimePermission.RUNS_FEEDBACK_EVALUATE,
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): RuntimePermission.RUNS_REISSUE,
+    ("POST", "/api/v1/control/runs/{run_id}/normative-evidence"): RuntimePermission.EVIDENCE_RESOLVE,
     ("POST", "/api/v1/fabric/impact"): RuntimePermission.FABRIC_IMPACT_ANALYZE,
     ("POST", "/api/v1/fabric/quality/batch"): RuntimePermission.FABRIC_QUALITY_READ,
     ("POST", "/api/v1/fabric/trust/batch"): RuntimePermission.FABRIC_TRUST_READ,
@@ -338,6 +340,7 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/control/runs/nl"): "launch-nl-run",
     ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"): ("evaluate-run-feedback"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): "reissue-run",
+    ("POST", "/api/v1/control/runs/{run_id}/normative-evidence"): "submit-normative-evidence",
     ("POST", "/api/v1/fabric/impact"): "analyze-fabric-impact",
     ("POST", "/api/v1/fabric/quality/batch"): "get-fabric-quality-batch",
     ("POST", "/api/v1/fabric/trust/batch"): "get-fabric-trust-batch",
@@ -787,6 +790,15 @@ def _authorized_mutation_request(
             "request": "Study healthcare policy effects",
             "llm_model": "claude-sonnet-4-5-20250929",
         }
+    if case_id == "submit-normative-evidence":
+        owned_run_id = _create_authorized_matrix_run(
+            runtime_api_env, cell_id=cell_id, run_id="R_normative_authz_matrix"
+        )
+        client.app.state.runtime_container.runtime_api_context.run_index.refresh(force=True)
+        return f"/api/v1/control/runs/{owned_run_id}/normative-evidence", {
+            "job_id": "absent-matrix-job", "expected_prior_head_ref": None,
+            "evidence": {"by_node": {}},
+        }
     if case_id in {"evaluate-run-feedback", "reissue-run"}:
         synthetic_run_id = _create_authorized_matrix_run(
             runtime_api_env,
@@ -1176,6 +1188,7 @@ def test_mutating_operation_authorized_request_reaches_handler(
         )
 
     expected_status, expected_code = {
+        "submit-normative-evidence": (400, "normative_evidence_binding_invalid"),
         "admit-epoch-validity-batch": (422, "verifier_not_configured"),
         "create-run-human-decision": (409, "DS9-DECISION-ARTIFACT-MISSING"),
         "create-run-production-approval": (503, "DS9-DECISION-PRODUCER-MISSING"),

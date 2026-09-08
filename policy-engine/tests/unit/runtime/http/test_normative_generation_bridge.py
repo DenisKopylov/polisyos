@@ -349,6 +349,12 @@ def test_every_current_job_reader_replays_persisted_authority(station, monkeypat
             "normative_disposition": result.model_dump(mode="json"),
         },
     )
+    service._publish_generation_run(
+        job=record,
+        payload={"run_id": record.run_id, "tenant_id": "tenant-fixture", "cell_id": "cell-fixture"},
+        compiled_run_ref=source_ref,
+        normative_disposition_ref=result.disposition_ref,
+    )
     monkeypatch.setattr(service._control_store, "get_job", lambda _: record)
     monkeypatch.setattr(service._control_store, "get_latest_job_by_run", lambda _: record)
     response = getattr(service, reader)("fixture:key")

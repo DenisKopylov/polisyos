@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
+from polisyos.core.contracts import ControlJobResponse  # noqa: TC001 - Pydantic DTO
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.http.resilience import GuardedDependencyProxy
 from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -44,7 +46,6 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from datetime import datetime
     from pathlib import Path
 
     from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -84,6 +85,74 @@ class NormativeRunEvidenceRefs(BaseModel):
         ]
         | None
     ) = None
+
+
+NORMATIVE_GENERATION_HEAD_KIND = "runtime.normative_generation_head"
+NORMATIVE_GENERATION_HEAD_SCHEMA = "policyos.normative_generation_head.v1"
+
+
+class NormativeEvidenceSubmissionRequest(BaseModel):
+    """Attach external evidence to one exact completed job, without source or trust overrides."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    job_id: str = Field(min_length=1)
+    expected_prior_head_ref: str | None = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    evidence: NormativeRunEvidenceRefs
+
+
+class NormativeEvidenceHeadStrangleReceipt(BaseModel):
+    """Run-emitted replacement witness for the current job's original worker-only sidecar."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    status: Literal["strangled"] = "strangled"
+    default_entrypoint: Literal["ControlPlaneService._current_normative_job_record"] = (
+        "ControlPlaneService._current_normative_job_record"
+    )
+    predecessor: Literal["worker_only_normative_disposition"] = "worker_only_normative_disposition"
+    default_flipped: Literal[True] = True
+    original_disposition_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    current_disposition_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class NormativeGenerationHead(BaseModel):
+    """Immutable source-bound transition admitted by the existing job event owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.normative_generation_head.v1"] = (
+        NORMATIVE_GENERATION_HEAD_SCHEMA
+    )
+    job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    compiled_run_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    previous_head_ref: str | None = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    disposition_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    evidence: NormativeRunEvidenceRefs
+    evaluated_at: datetime
+    strangle_receipt: NormativeEvidenceHeadStrangleReceipt
+
+
+class NormativeEvidenceSubmissionResponse(BaseModel):
+    """Durable intake outcome and the shared current job projection after compare-and-append."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    status: Literal["admitted", "refused", "conflict"]
+    head_ref: str | None
+    attempted_disposition_ref: str
+    job: ControlJobResponse
+
+
+def load_normative_generation_head(
+    store: artifacts.ArtifactStore, head_ref: str
+) -> NormativeGenerationHead:
+    """Resolve one head's real CAS bytes and governed artifact epoch before projection."""
+    payload = _read_normative_source(store, head_ref, kind=NORMATIVE_GENERATION_HEAD_KIND)
+    manifest = store.get_manifest(artifacts.ArtifactID.model_validate(head_ref))
+    if (
+        manifest.artifact_schema is None
+        or manifest.artifact_schema.version != NORMATIVE_GENERATION_HEAD_SCHEMA
+    ):
+        raise ValueError("normative_head_schema_epoch_mismatch")
+    return NormativeGenerationHead.model_validate(payload)
 
 
 def parse_normative_run_evidence(value: object) -> NormativeRunEvidenceRefs | None:

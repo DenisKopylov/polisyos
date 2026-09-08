@@ -365,7 +365,7 @@ class PublishedSignatureCustodyLifecyclePublication:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Protocol
+    from typing import Literal, Protocol
 
     from polisyos.core import contracts as core_contracts
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
@@ -376,6 +376,8 @@ if TYPE_CHECKING:
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
+        NormativeEvidenceSubmissionRequest,
+        NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
         NormativeRunEvidenceRefs,
     )
@@ -1471,8 +1473,128 @@ class ControlPlaneService(
             evaluated_at=evaluated_at,
         )
 
+    def _normative_owned_job_source(self, record: ControlJobRecord) -> tuple[str, str]:
+        """Bind the job source to the immutable outputs of its canonical owned run."""
+        if record.run_id is None:
+            raise ValueError("normative_evidence_job_run_missing")
+        terminal = load_terminal_core_run_source(
+            store=self._artifact_store,
+            core_runs_root=self._core_runs_root,
+            run_id=record.run_id,
+        )
+        outputs = terminal.manifest.outputs
+        compiled = [
+            str(ref.artifact_id) for ref in outputs
+            if ref.kind == "runtime.compiled_recursive_generation_cycle"
+        ]
+        normative = [
+            str(ref.artifact_id) for ref in outputs
+            if ref.kind == "runtime.normative_generation_composition"
+        ]
+        if (
+            terminal.manifest.status != "ok"
+            or len(outputs) != 2 or len(compiled) != 1 or len(normative) != 1
+        ):
+            raise ValueError("normative_evidence_owned_run_source_mismatch")
+        return compiled[0], normative[0]
+
+    def submit_normative_evidence(
+        self,
+        *,
+        run_id: str,
+        submission: NormativeEvidenceSubmissionRequest,
+        request_id: str | None = None,
+    ) -> NormativeEvidenceSubmissionResponse:
+        """Admit post-source evidence for the exact owned job and atomically attach its head."""
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            NORMATIVE_GENERATION_HEAD_KIND,
+            NORMATIVE_GENERATION_HEAD_SCHEMA,
+            NormativeEvidenceHeadStrangleReceipt,
+            NormativeEvidenceSubmissionResponse,
+            NormativeGenerationHead,
+            NormativeRunEvidenceRefs,
+        )
+
+        record = self._control_store.get_job(submission.job_id)
+        if record is None or record.run_id != run_id:
+            raise ValueError("normative_evidence_job_run_mismatch")
+        if record.kind != "natural_language_run" or record.state != "completed":
+            raise ValueError("normative_evidence_job_not_completed")
+        compiled_ref, original_ref = self._normative_owned_job_source(record)
+        now = datetime.now(UTC)
+        evidence = submission.evidence
+        if compiled_ref != record.progress.get("compiled_recursive_generation_cycle_ref"):
+            evidence = NormativeRunEvidenceRefs(
+                input_limitation="p20_normative_sidecar_replay_failed"
+            )
+        disposition = self.resolve_generation_value_choices(
+            compiled_run_ref=compiled_ref, evidence=evidence, evaluated_at=now
+        )
+        if disposition.disposition_ref is None:
+            raise RuntimeError("normative_evidence_disposition_not_persisted")
+        status: Literal["admitted", "refused", "conflict"] = "refused"
+        if disposition.authorization_status == "authorized":
+            head = NormativeGenerationHead(
+                job_id=record.job_id,
+                run_id=run_id,
+                compiled_run_ref=compiled_ref,
+                previous_head_ref=submission.expected_prior_head_ref,
+                disposition_ref=disposition.disposition_ref,
+                evidence=submission.evidence,
+                evaluated_at=now,
+                strangle_receipt=NormativeEvidenceHeadStrangleReceipt(
+                    original_disposition_ref=original_ref,
+                    current_disposition_ref=disposition.disposition_ref,
+                ),
+            )
+            persisted_head = self._artifact_store.put_json(
+                head.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind=NORMATIVE_GENERATION_HEAD_KIND,
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name=NORMATIVE_GENERATION_HEAD_KIND,
+                        version=NORMATIVE_GENERATION_HEAD_SCHEMA,
+                    ),
+                ),
+            )
+            head_ref = str(persisted_head.artifact_id)
+            status = (
+                "admitted"
+                if self._control_store.append_normative_evidence_head(
+                    job_id=record.job_id,
+                    run_id=run_id,
+                    compiled_run_ref=compiled_ref,
+                    expected_prior_head_ref=submission.expected_prior_head_ref,
+                    head_ref=head_ref,
+                )
+                else "conflict"
+            )
+        if status != "admitted":
+            self._control_store.append_event(
+                job_id=record.job_id,
+                event_type="normative_evidence_" + status,
+                payload={
+                    "job_id": record.job_id,
+                    "run_id": run_id,
+                    "compiled_run_ref": compiled_ref,
+                    "expected_prior_head_ref": submission.expected_prior_head_ref,
+                    "attempted_disposition_ref": disposition.disposition_ref,
+                    "evidence": submission.evidence.model_dump(mode="json"),
+                    "evaluated_at": now.isoformat(),
+                },
+            )
+        current = self._current_normative_job_record(record)
+        return NormativeEvidenceSubmissionResponse(
+            status=status,
+            head_ref=current.progress.get("normative_head_ref"),
+            attempted_disposition_ref=disposition.disposition_ref,
+            job=current.to_response(request_id=request_id),
+        )
+
     def _current_normative_generation_projection(
-        self, *, disposition_ref: str | None, compiled_run_ref: str | None, evaluated_at: datetime
+        self, *, disposition_ref: str | None, compiled_run_ref: str | None, evaluated_at: datetime,
+        refusal_reason: str | None = None,
     ) -> dict[str, object]:
         from polisyos.runtime.http.services.control.generation_cycle import (
             NormativeRunEvidenceRefs,
@@ -1481,6 +1603,8 @@ class ControlPlaneService(
         )
 
         try:
+            if refusal_reason is not None:
+                raise P20NormativeChoiceError(refusal_reason)
             if disposition_ref is None or compiled_run_ref is None:
                 raise P20NormativeChoiceError("p20_normative_generation_disposition_missing")
             owner = normative_owner_for_runtime_store(
@@ -1506,7 +1630,7 @@ class ControlPlaneService(
                         evidence=NormativeRunEvidenceRefs(
                             input_limitation=(
                                 "p20_normative_generation_disposition_missing"
-                                if disposition_ref is None
+                                if disposition_ref is None and refusal_reason is None
                                 else "p20_normative_sidecar_replay_failed"
                             )
                         ),
@@ -2089,12 +2213,95 @@ class ControlPlaneService(
         """Replay normative authority once for every outward job-record reader."""
         if record.kind == "natural_language_run" and record.state == "completed":
             progress = dict(record.progress)
-            disposition_ref = progress.get("normative_disposition_ref")
-            compiled_ref = progress.get("compiled_recursive_generation_cycle_ref")
-            progress["normative_disposition"] = self._current_normative_generation_projection(
-                disposition_ref=disposition_ref if isinstance(disposition_ref, str) else None,
-                compiled_run_ref=compiled_ref if isinstance(compiled_ref, str) else None,
+            stored_disposition_ref = progress.get("normative_disposition_ref")
+            stored_compiled_ref = progress.get("compiled_recursive_generation_cycle_ref")
+            copied_head_ref = progress.pop("normative_head_ref", None)
+            progress.pop("normative_head_strangle_receipt", None)
+            progress.pop("normative_head_limitation", None)
+            disposition_ref: str | None = None
+            compiled_ref: str | None = None
+            refusal_reason: str | None = None
+            from polisyos.runtime.http.services.control.generation_cycle import (
+                NormativeEvidenceHeadStrangleReceipt,
+                load_normative_generation_head,
+                normative_owner_for_runtime_store,
+                project_normative_run_disposition,
+            )
+
+            try:
+                compiled_ref, original_disposition_ref = self._normative_owned_job_source(record)
+                progress["compiled_recursive_generation_cycle_ref"] = compiled_ref
+                if stored_compiled_ref != compiled_ref:
+                    raise ValueError("normative_head_owned_source_mismatch")
+                event = self._control_store.get_normative_evidence_head(record.job_id)
+                if event is None:
+                    if (
+                        copied_head_ref is not None
+                        or stored_disposition_ref != original_disposition_ref
+                    ):
+                        raise ValueError("normative_admitted_head_missing")
+                    disposition_ref = original_disposition_ref
+                else:
+                    head = load_normative_generation_head(self._artifact_store, event["head_ref"])
+                    expected = {
+                        "head_ref": event["head_ref"],
+                        "previous_head_ref": head.previous_head_ref,
+                        "job_id": record.job_id,
+                        "run_id": record.run_id,
+                        "compiled_run_ref": compiled_ref,
+                    }
+                    if event != expected or (head.job_id, head.run_id, head.compiled_run_ref) != (
+                        record.job_id, record.run_id, compiled_ref
+                    ):
+                        raise ValueError("normative_head_source_binding_mismatch")
+                    owner = normative_owner_for_runtime_store(
+                        self._artifact_store, self._normative_authority_trust
+                    )
+                    historical = project_normative_run_disposition(
+                        store=self._artifact_store,
+                        owner=owner,
+                        disposition_ref=head.disposition_ref,
+                        compiled_run_ref=head.compiled_run_ref,
+                        evaluated_at=head.evaluated_at,
+                    )
+                    actual_evidence = {
+                        node: leaf.evidence for node, leaf in historical.leaf_dispositions.items()
+                        if leaf.evidence is not None
+                    }
+                    if (
+                        historical.authorization_status != "authorized"
+                        or head.evidence.input_limitation is not None
+                        or head.evidence.by_node != actual_evidence
+                        or any(
+                            leaf.admitted_at != head.evaluated_at
+                            for leaf in historical.leaf_dispositions.values()
+                        )
+                        or head.strangle_receipt != NormativeEvidenceHeadStrangleReceipt(
+                            original_disposition_ref=original_disposition_ref,
+                            current_disposition_ref=head.disposition_ref,
+                        )
+                    ):
+                        raise ValueError("normative_head_evidence_binding_mismatch")
+                    disposition_ref = head.disposition_ref
+                    progress["normative_head_ref"] = event["head_ref"]
+                    progress["normative_disposition_ref"] = disposition_ref
+                    progress["normative_head_strangle_receipt"] = head.strangle_receipt.model_dump(
+                        mode="json"
+                    )
+            except (ValueError, TypeError, OSError, KeyError) as exc:
+                # The canonical source survives projection/head failure. Mutable progress
+                # never supplies authority when the immutable owner cannot resolve it.
+                refusal_reason = str(exc)
+                progress["normative_head_limitation"] = refusal_reason
+            projection = self._current_normative_generation_projection(
+                disposition_ref=disposition_ref,
+                compiled_run_ref=compiled_ref,
                 evaluated_at=datetime.now(UTC),
+                refusal_reason=refusal_reason,
+            )
+            progress["normative_disposition"] = projection
+            progress["normative_disposition_ref"] = projection.get(
+                "refusal_disposition_ref", disposition_ref
             )
             return replace(record, progress=progress)
         return record
@@ -2665,6 +2872,71 @@ class ControlPlaneService(
             blocking_status="blocking",
         )
 
+    def _publish_generation_run(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+        compiled_run_ref: str,
+        normative_disposition_ref: str,
+    ) -> str:
+        """Publish the candidate computation through the existing owned core-run index."""
+        run_id = str(job.run_id or "")
+        tenant_id = _clean_runtime_text(payload.get("tenant_id"))
+        cell_id = _clean_runtime_text(payload.get("cell_id"))
+        if not run_id or not tenant_id or run_id != payload.get("run_id"):
+            raise ValueError("normative_generation_run_identity_unbound")
+        outputs = [
+            ArtifactRef(
+                artifact_id=artifacts.ArtifactID.model_validate(ref),
+                kind=kind,
+                media_type="application/json",
+            )
+            for ref, kind in (
+                (compiled_run_ref, "runtime.compiled_recursive_generation_cycle"),
+                (normative_disposition_ref, "runtime.normative_generation_composition"),
+            )
+        ]
+        run_dir = derive_core_run_dir(self._core_runs_root, run_id)
+        if run_dir.exists():
+            terminal = load_terminal_core_run_source(
+                store=self._artifact_store,
+                core_runs_root=self._core_runs_root,
+                run_id=run_id,
+            )
+            if (
+                terminal.manifest.status != "ok"
+                or terminal.manifest.outputs != outputs
+                or terminal.manifest.tenant_id != tenant_id
+                or terminal.manifest.cell_id != cell_id
+            ):
+                raise ValueError("normative_generation_terminal_source_mismatch")
+            return str(terminal.manifest_ref.artifact_id)
+        registry_bundle = registry.build_default_registry_bundle(self._artifact_store).bundle_ref
+        context = run.RunContext.start(
+            self._artifact_store,
+            registry_bundle,
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.http.control.candidate_generation",
+                version="1.0.0",
+            ),
+            run_dir=run_dir,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        for output in outputs:
+            context.add_output(output)
+        # Core `ok` records completed computation only. The two outputs retain
+        # candidate-only generation and independently replayed normative authority.
+        manifest = context.finalize(status="ok")
+        terminal = load_terminal_core_run_source(
+            store=self._artifact_store, core_runs_root=self._core_runs_root, run_id=run_id
+        )
+        if terminal.manifest_ref != manifest or terminal.manifest.outputs != outputs:
+            raise ValueError("normative_generation_terminal_readback_failed")
+        return str(manifest.artifact_id)
+
     def _process_control_job(self, job: ControlJobRecord) -> None:
         payload: dict[str, Any] = {}
         try:
@@ -2838,9 +3110,16 @@ class ControlPlaneService(
                         for receipt in (leaf.cycle_run.promotion_port,)
                         if receipt.reason is not None
                     )
+                    manifest_ref = self._publish_generation_run(
+                        job=job,
+                        payload=payload,
+                        compiled_run_ref=compiled_ref,
+                        normative_disposition_ref=str(normative.disposition_ref),
+                    )
                     progress = {
                         "state": "completed",
                         "phase": "natural_language_run",
+                        "manifest_ref": manifest_ref,
                         "run_id": str(job.run_id or payload.get("run_id") or ""),
                         "compiled_recursive_generation_cycle_ref": compiled_ref,
                         "normative_disposition_ref": normative.disposition_ref,

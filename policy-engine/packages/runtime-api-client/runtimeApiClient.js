@@ -253,6 +253,12 @@ export class RuntimeApiClient {
     return this.request('GET', path, query, undefined, undefined);
   }
 
+  async submitRunNormativeEvidence(params) {
+    const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/normative-evidence`;
+    const query = undefined;
+    return this.request('POST', path, query, params?.body, undefined);
+  }
+
   async listControlWorkers(params) {
     const path = `/api/v1/control/workers`;
     const query = this.buildQuery({

@@ -33,6 +33,82 @@ from polisyos.core.contracts.foundry import (
 )
 
 
+def test_route_constraint_facade_reuses_actual_input_contract_owner() -> None:
+    """The stable boundary exports the existing candidate owner without wrappers."""
+    from polisyos.foundry import MethodRouteConstraint, method_accepts_input_contract
+    from polisyos.foundry.methods.catalog.ml.survival import SurvivalAnalysisEstimator
+    from polisyos.foundry.methods.selection import advisor
+
+    assert MethodRouteConstraint is advisor.MethodRouteConstraint
+    assert method_accepts_input_contract is advisor.method_accepts_input_contract
+    assert method_accepts_input_contract(
+        SurvivalAnalysisEstimator, "foundry.ml.survival_data.v1",
+    )
+    assert not method_accepts_input_contract(
+        SurvivalAnalysisEstimator, "foundry.ml.nonexistent_survival_data.v1",
+    )
+
+
+def test_route_constraint_facade_allows_same_owner_lazy_reentry() -> None:
+    """Real resolver reentry completes; removing only reentrancy deadlocks."""
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, "-m", "tests.contract.test_foundry_facade_contracts"],
+        capture_output=True, text=True, timeout=180,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "same_owner_reentry_passed_and_nonreentrant_removal_timed_out" in result.stdout
+
+
+def _facade_reentry_probe() -> None:
+    import signal
+    import threading
+
+    import polisyos.foundry as facade
+    from polisyos.foundry.methods.backends.protocol import EmbedderProtocol
+    from polisyos.foundry.methods.selection import advisor
+
+    # Warm the real objects before timing synchronization. The loader probe
+    # makes an existing public dependency reenter the same real facade owner.
+    facade._RESOLVED_EXPORTS["EmbedderProtocol"] = EmbedderProtocol
+    facade._RESOLVED_EXPORTS.pop("MethodRouteConstraint", None)
+    original_import = facade.importlib.import_module
+    target_module = facade._LAZY_IMPORTS["MethodRouteConstraint"][0]
+
+    def reenter(module_name: str):
+        if module_name == target_module:
+            assert facade._resolve_lazy_export("EmbedderProtocol") is EmbedderProtocol
+        return original_import(module_name)
+
+    def expired(_signum, _frame):
+        raise TimeoutError("same_owner_lazy_reentry_deadlocked")
+
+    facade.importlib.import_module = reenter
+    signal.signal(signal.SIGALRM, expired)
+
+    def check_real_export() -> None:
+        facade._RESOLVED_EXPORTS.pop("MethodRouteConstraint", None)
+        signal.setitimer(signal.ITIMER_REAL, 2)
+        try:
+            assert facade._resolve_lazy_export("MethodRouteConstraint") is advisor.MethodRouteConstraint
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+
+    try:
+        check_real_export()
+        facade._RESOLVE_LOCK = threading.Lock()
+        try:
+            check_real_export()
+        except TimeoutError:
+            print("same_owner_reentry_passed_and_nonreentrant_removal_timed_out")
+        else:
+            raise AssertionError("removing_reentrancy_did_not_break_same_owner_reentry")
+    finally:
+        facade.importlib.import_module = original_import
+
+
 def _dummy_ref(kind: str, media_type: str = "application/json") -> ArtifactRef:
     return ArtifactRef(
         artifact_id=ArtifactID.from_sha256_hex("0" * 64),
@@ -174,3 +250,7 @@ def test_simulation_result_with_welfare_bound_refs_canonical() -> None:
         },
     )
     to_canonical_bytes(result)
+
+
+if __name__ == "__main__":
+    _facade_reentry_probe()

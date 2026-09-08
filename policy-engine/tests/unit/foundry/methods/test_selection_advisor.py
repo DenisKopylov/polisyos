@@ -468,6 +468,38 @@ def test_value_advisor_builds_content_bound_selection_receipt_from_real_trace() 
     assert sum(row.selected for row in receipt.ranked_alternatives) == 1
 
 
+def test_phase5_unprojected_nested_manifest_does_not_become_empty_hints() -> None:
+    """Raw owner vocabulary requires its owner projection before selection."""
+    result = select_value_method_for_problem(
+        candidate={"candidate_id": "phase5_manifest"}, problem={},
+        observation_to_contract_manifest={
+            "routes": [{"family": "novel", "target_contract": {
+                "contract_id": "phase5.nonexistent.contract",
+            }}],
+        },
+    )
+    assert result["status"] == "blocked"
+    assert result["blockers"] == ("value_method_manifest_projection_required",)
+
+
+def test_phase5_only_explicit_flat_advisory_shape_can_supply_manifest_hints() -> None:
+    from polisyos.foundry.methods.selection.advisor import method_selection_context_hash
+
+    for malformed in ({"artifact_name": "source", "artifacts": {}}, {}, [], "", 0,
+                      {"contracts": []}, {"contracts": [{"unknown_target": "panel"}]}):
+        assert select_value_method_for_problem(
+            candidate={}, problem={}, observation_to_contract_manifest=malformed,
+        )["status"] == "blocked", malformed
+        with pytest.raises(ValueError):
+            method_selection_context_hash(
+                candidate={}, problem={}, observation_to_contract_manifest=malformed,
+            )
+    assert select_value_method_for_problem(
+        candidate={}, problem={},
+        observation_to_contract_manifest={"contracts": [{"data_modality": "panel"}]},
+    )["status"] == "selected"
+
+
 def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -> None:
     profile_hash = "sha256:" + "a" * 64
     candidate = {
@@ -507,7 +539,8 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
         )
     )
     expected_payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v3",
+        "schema_version": "policyos.foundry.method_selection_context.v4",
+        "route_constraint": None,
         "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": "candidate_selection_context posterior tabular effect",
         "problem_signal": (

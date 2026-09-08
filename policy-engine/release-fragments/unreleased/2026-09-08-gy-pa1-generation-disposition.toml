@@ -1,0 +1,17 @@
+id = "2026-09-08-gy-pa1-generation-disposition"
+title = "Persist and replay source-bound normative generation decisions"
+type = "added"
+component = "runtime"
+owner = "team-runtime"
+summary = "Natural-language runs now preserve generated candidate fronts and persist an S8 decision request or independently authorized selection, with current source and authorization replay at both job readers."
+evidence = ["tests/unit/runtime/http/test_normative_generation_bridge.py", "tests/unit/runtime/http/test_control_service_di.py", "docs/superpowers/journals/gy-phase5-evidence/pa1/stage3.md"]
+compatibility = "Existing generation and promotion DTO epochs remain unchanged. Standalone S8 authorization v1 remains supported. The source-aware generation path uses authorization/admission v2 and additive generation disposition/composition v1 sidecars."
+change_class = "additive"
+surface_classification = "public: additive create_runtime_api_app keyword and ControlJobResponse.progress projection; internal: S8 generation disposition and compiled membership owners"
+migration = "No storage rewrite. Deployment code may supply typed NormativeAuthorityTrust; the default authority slot remains empty. Request context supplies signed evidence references only."
+api = "Optional normative_authority_trust application-factory keyword; additive normative_disposition_ref and normative_disposition progress keys."
+limitations = "The bridge authorizes exact selection only; it proves neither Pareto dominance nor empirical or publication authority. The canonical ambient filesystem CAS is supported; other backends require a verified signed-store adapter. Canonical production appointment/scientific identity and N8 evidence remain separately governed prerequisites."
+generated_client_compatibility = "unchanged"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

@@ -526,7 +526,7 @@ def _intervention_bundle() -> InterventionSubstrateBundle:
         **fields,
         content_hash=gy_content_hash(
             {
-                "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+                "schema_version": "policyos.runtime.intervention_substrate_lift.v2",
                 "policy_scenario_templates": {},
                 "slot_family_manifest": {},
                 "world_mechanism_manifest": {},

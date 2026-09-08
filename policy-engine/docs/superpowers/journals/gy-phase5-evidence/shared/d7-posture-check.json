@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_trust_claim_posture --repo-root . --check",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_trust_claim_posture",
+    "--repo-root",
+    ".",
+    "--check"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 59.07916483399458,
+  "stdout": "{\n  \"ast\": {\n    \"consuming_file_count\": 41,\n    \"declaring_file_count\": 110,\n    \"direct_empty_site_count\": 10,\n    \"direct_literal_file_count\": 21,\n    \"direct_literal_site_count\": 46,\n    \"direct_literal_subject_count\": 28,\n    \"exact_field_file_count\": 121,\n    \"may_not_use_for_literal_file_count\": 29,\n    \"may_not_use_for_literal_site_count\": 45,\n    \"may_not_use_for_literal_subject_count\": 57,\n    \"may_not_use_for_raw_file_count\": 135,\n    \"method\": \"ast\",\n    \"raw_candidate_count\": 122,\n    \"role_counts\": {\n      \"ambiguous\": 0,\n      \"carries_only\": 5,\n      \"consumes_only\": 6,\n      \"declares_and_consumes\": 35,\n      \"declares_only\": 75,\n      \"substring_collision\": 1\n    },\n    \"row_digest\": \"sha256:1590c03d68680fa22edd7f56b75e6071c9fd036a2bebbdf49130ccc89b8b14a9\",\n    \"scanned_python_count\": 138,\n    \"wrapper_literal_file_count\": 33,\n    \"wrapper_literal_site_count\": 71,\n    \"wrapper_literal_subject_count\": 35\n  },\n  \"declared_outputs\": [],\n  \"issue_codes\": [\n    \"DS11-SOURCE-COLLISION\",\n    \"DS11-SOURCE-RUNTIME-BOUND\"\n  ],\n  \"payload_digest\": \"sha256:74a1fd09557bb9537ea62771df8c06ae570acfba315cc76f182218e52f21e8c2\",\n  \"schema_version\": \"policyos.trust.claim_posture_register.v1\",\n  \"source_set_digest\": \"sha256:e089caf58bfb148d23ad2c8151eef95c8c05a1f0dad4134d0d84df763aa08304\",\n  \"tokenize\": {\n    \"consuming_file_count\": 41,\n    \"declaring_file_count\": 110,\n    \"direct_empty_site_count\": 10,\n    \"direct_literal_file_count\": 21,\n    \"direct_literal_site_count\": 46,\n    \"direct_literal_subject_count\": 28,\n    \"exact_field_file_count\": 121,\n    \"may_not_use_for_literal_file_count\": 29,\n    \"may_not_use_for_literal_site_count\": 45,\n    \"may_not_use_for_literal_subject_count\": 57,\n    \"may_not_use_for_raw_file_count\": 135,\n    \"method\": \"tokenize\",\n    \"raw_candidate_count\": 122,\n    \"role_counts\": {\n      \"ambiguous\": 0,\n      \"carries_only\": 5,\n      \"consumes_only\": 6,\n      \"declares_and_consumes\": 35,\n      \"declares_only\": 75,\n      \"substring_collision\": 1\n    },\n    \"row_digest\": \"sha256:eac33e2c55bde0dacdc740885ffd7f903f2428c97252dddb2c80164f3b78a481\",\n    \"scanned_python_count\": 138,\n    \"wrapper_literal_file_count\": 33,\n    \"wrapper_literal_site_count\": 71,\n    \"wrapper_literal_subject_count\": 35\n  },\n  \"write_set\": []\n}\n",
+  "stderr": ""
+}

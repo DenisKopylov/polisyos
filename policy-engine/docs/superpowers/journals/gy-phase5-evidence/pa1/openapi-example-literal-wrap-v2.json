@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pa1.openapi_wrap_literal",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.pa1.openapi_wrap_literal"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 0,
+  "elapsed_seconds": 0.15751708403695375,
+  "stdout": "{\n  \"formatter_argv\": [\n    \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin/python\",\n    \"-m\",\n    \"ruff\",\n    \"format\",\n    \"--stdin-filename\",\n    \"src/polisyos/runtime/http/openapi_contract.py\",\n    \"-\"\n  ],\n  \"formatter_returncode\": 0,\n  \"formatter_stderr\": \"\",\n  \"source_outside_captured_literal_unchanged\": true,\n  \"all_captured_values_unchanged\": true\n}\n",
+  "stderr": ""
+}

@@ -1,0 +1,17 @@
+{
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pr1.deep_import_baseline_probe /Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck/policy-engine /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-base-complete.json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.pr1.deep_import_baseline_probe",
+    "/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck/policy-engine",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-base-complete.json"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 39.664,
+  "stdout": "{\n  \"evidence\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-base-complete.json\",\n  \"owner_module\": \"/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck/policy-engine/tools/devx/architecture/guardrails.py\",\n  \"ambiguous\": [],\n  \"actual_owner_baseline_equal\": false,\n  \"expected_absent_from_frozen\": [],\n  \"frozen_absent_from_expected\": [\n    \"polisyos.runtime.quality.acquisition_planner->polisyos.data_forge.domains.academic.knowledge\"\n  ],\n  \"actual_owner_creep_findings\": []\n}\n",
+  "stderr": ""
+}

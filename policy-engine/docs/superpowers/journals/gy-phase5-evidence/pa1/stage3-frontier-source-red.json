@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_normative_generation_bridge.py::test_signed_frontier_must_bind_actual_source_not_same_candidate_names -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/http/test_normative_generation_bridge.py::test_signed_frontier_must_bind_actual_source_not_same_candidate_names",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 34.726307334029116,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____ test_signed_frontier_must_bind_actual_source_not_same_candidate_names _____\n\nstation = (<polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x140810d70>, CompiledRecursiveGe...c1ab7c67c329bfef47fc979b47c555dfd041ee113'), 'sha256:fa0fa0cc6a1abde0401161a73926aecc49998c5ab3be7076eb20af0675406b1f')\n\n    def test_signed_frontier_must_bind_actual_source_not_same_candidate_names(station):\n        service, compiled, source_ref = station\n        evidence = bridge.NormativeRunEvidenceRefs.model_validate(\n            _signed_generation_evidence(service, compiled, fault=\"wrong_frontier_source\")\n        )\n        result = service.resolve_generation_value_choices(\n            compiled_run_ref=source_ref, evidence=evidence, evaluated_at=datetime.now(UTC)\n        )\n>       assert result.authorization_status == \"blocked\"\nE       AssertionError: assert 'authorized' == 'blocked'\nE         \nE         - blocked\nE         + authorized\n\ntests/unit/runtime/http/test_normative_generation_bridge.py:252: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/http/test_normative_generation_bridge.py::test_signed_frontier_must_bind_actual_source_not_same_candidate_names\n",
+  "stderr": ""
+}

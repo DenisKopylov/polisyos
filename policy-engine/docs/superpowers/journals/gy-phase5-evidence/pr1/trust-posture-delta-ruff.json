@@ -1,0 +1,17 @@
+{
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_delta.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_delta.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 0.068,
+  "stdout": "E501 Line too long (213 > 100)\n   --> docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_delta.py:164:101\n    |\n162 | \u2026\n163 | \u2026\n164 | \u2026d recursive/iterative walks; every member of typed claims/admitted_sources/source_inventory keyed by its owner identity.\",\n    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n165 | \u2026,\n166 | \u2026,\n    |\n\nFound 1 error.\n",
+  "stderr": ""
+}

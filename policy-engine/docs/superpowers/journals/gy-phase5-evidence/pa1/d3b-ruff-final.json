@@ -1,0 +1,24 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/runtime/http/services/control/generation_cycle.py src/polisyos/runtime/http/services/control/run_lifecycle.py src/polisyos/runtime/http/services/control_plane_store.py src/polisyos/runtime/http/routes/control.py src/polisyos/runtime/http/resource_binding.py tests/unit/runtime/http/test_normative_evidence_intake.py tests/unit/runtime/http/test_control_plane_store.py tests/unit/runtime/http/test_runtime_api_authz.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "src/polisyos/runtime/http/services/control_plane_store.py",
+    "src/polisyos/runtime/http/routes/control.py",
+    "src/polisyos/runtime/http/resource_binding.py",
+    "tests/unit/runtime/http/test_normative_evidence_intake.py",
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "tests/unit/runtime/http/test_runtime_api_authz.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 0.04282208398217335,
+  "stdout": "E501 Line too long (112 > 100)\n   --> src/polisyos/runtime/http/services/control/generation_cycle.py:150:101\n    |\n148 |     payload = _read_normative_source(store, head_ref, kind=NORMATIVE_GENERATION_HEAD_KIND)\n149 |     manifest = store.get_manifest(artifacts.ArtifactID.model_validate(head_ref))\n150 |     if manifest.artifact_schema is None or manifest.artifact_schema.version != NORMATIVE_GENERATION_HEAD_SCHEMA:\n    |                                                                                                     ^^^^^^^^^^^^\n151 |         raise ValueError(\"normative_head_schema_epoch_mismatch\")\n152 |     return NormativeGenerationHead.model_validate(payload)\n    |\n\nFound 1 error.\n",
+  "stderr": ""
+}

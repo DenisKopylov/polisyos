@@ -1,0 +1,15 @@
+{
+  "purpose": "P41 exact slice-base station",
+  "worktree": "/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck",
+  "branch": "refs/heads/codex/gyphase5-lane-basecheck",
+  "head": "3d572c146f9d021cb6daad64ebb7b093121ed124",
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck/policy-engine/.venv/bin/python",
+    "-c",
+    "import sys,importlib.metadata as m,json; print(json.dumps({\"version\":sys.version,\"packages\":{p:m.version(p) for p in [\"pytest\",\"pydantic\",\"numpy\",\"pandas\",\"ortools\",\"protobuf\"]}}))"
+  ],
+  "returncode": 0,
+  "stdout": "{\"version\": \"3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]\", \"packages\": {\"pytest\": \"9.0.2\", \"pydantic\": \"2.12.5\", \"numpy\": \"2.3.5\", \"pandas\": \"2.3.3\", \"ortools\": \"9.15.6755\", \"protobuf\": \"6.33.2\"}}\n",
+  "stderr": "",
+  "production_data_read_only_use": "/Users/deniskopylov/polisyos/policy-engine/production_data"
+}

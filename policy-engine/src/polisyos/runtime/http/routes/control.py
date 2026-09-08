@@ -72,6 +72,10 @@ from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.security import is_fixture_identity_claims
+from polisyos.runtime.http.services.control.generation_cycle import (
+    NormativeEvidenceSubmissionRequest,
+    NormativeEvidenceSubmissionResponse,
+)
 from polisyos.runtime.http.services.control.lex_search_projection import LexSearchResponse
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
@@ -129,6 +133,14 @@ _REISSUE_RUN_AUTHZ = require_action_permission(
         resource_kind="runtime.run.reissue",
         path_parameter="run_id",
         allow_empty_body=True,
+    ),
+)
+_SUBMIT_NORMATIVE_EVIDENCE_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_RESOLVE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.normative_evidence",
+        path_parameter="run_id",
     ),
 )
 _PUBLISH_DECISION_VALIDITY_AUTHZ = require_action_permission(
@@ -426,6 +438,30 @@ def reissue_run(
         reissued_run_id=payload.get("run_id"),
         message=str(payload.get("message") or f"Reissue for run {run_id} accepted."),
     )
+
+
+@router.post(
+    "/runs/{run_id}/normative-evidence",
+    response_model=NormativeEvidenceSubmissionResponse,
+    operation_id="submit_run_normative_evidence",
+    summary="Attach signed value-choice evidence to an exact completed generation job",
+    dependencies=[Depends(_SUBMIT_NORMATIVE_EVIDENCE_AUTHZ)],
+)
+def submit_run_normative_evidence(
+    run_id: str,
+    body: NormativeEvidenceSubmissionRequest,
+    request: Request,
+    response: Response,
+) -> NormativeEvidenceSubmissionResponse:
+    """Receive evidence under the existing run-ownership and evidence-resolve authorization."""
+    try:
+        result = _get_control_service(request).submit_normative_evidence(
+            run_id=run_id, submission=body, request_id=ensure_request_id(request)
+        )
+    except ValueError as exc:
+        raise bad_request(str(exc), code="normative_evidence_binding_invalid") from exc
+    response.status_code = {"admitted": 200, "refused": 422, "conflict": 409}[result.status]
+    return result
 
 
 if router is not None:

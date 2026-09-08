@@ -94,7 +94,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 11 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 13 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
@@ -196,7 +196,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 488 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 489 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
@@ -353,7 +353,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (488)</summary>
+<details><summary>Entrypoint exports (489)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
@@ -462,6 +462,7 @@ ContinuationBranch
 ContinuationBranchPoint
 ContinuationBranchRef
 ControlFailureEnvelope
+ControlJobResponse
 ControlOutboxEventInfo
 ControlOutboxEventsResponse
 ControlWorkerLeaseInfo
@@ -2280,7 +2281,7 @@ world
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 11 |
+| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 13 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
@@ -2291,12 +2292,13 @@ world
 - Facade: `lazy_facade`
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
-<details><summary>Entrypoint exports (11)</summary>
+<details><summary>Entrypoint exports (13)</summary>
 
 ```text
 DependencyProfileResolutionFailure
 EmbedderProtocol
 MethodCatalogDependencyAuthorityRequest
+MethodRouteConstraint
 SentenceTransformerEmbedder
 TFIDFEmbedder
 build_method_catalog_provenance_manifest
@@ -2304,6 +2306,7 @@ build_method_catalog_runtime_identity
 compile
 compile_program
 execute
+method_accepts_input_contract
 select_method_candidates_for_requirements
 ```
 
@@ -2355,12 +2358,13 @@ resolve_execution_posture
 
 </details>
 
-<details><summary>Supported exports (11)</summary>
+<details><summary>Supported exports (13)</summary>
 
 ```text
 DependencyProfileResolutionFailure
 EmbedderProtocol
 MethodCatalogDependencyAuthorityRequest
+MethodRouteConstraint
 SentenceTransformerEmbedder
 TFIDFEmbedder
 build_method_catalog_provenance_manifest
@@ -2368,6 +2372,7 @@ build_method_catalog_runtime_identity
 compile
 compile_program
 execute
+method_accepts_input_contract
 select_method_candidates_for_requirements
 ```
 

@@ -24150,6 +24150,139 @@
         "title": "NodeDebugView",
         "type": "object"
       },
+      "NormativeEvidenceSubmissionRequest": {
+        "additionalProperties": false,
+        "description": "Attach external evidence to one exact completed job, without source or trust overrides.",
+        "properties": {
+          "evidence": {
+            "$ref": "#/components/schemas/NormativeRunEvidenceRefs"
+          },
+          "expected_prior_head_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Prior Head Ref"
+          },
+          "job_id": {
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "expected_prior_head_ref",
+          "evidence"
+        ],
+        "title": "NormativeEvidenceSubmissionRequest",
+        "type": "object"
+      },
+      "NormativeEvidenceSubmissionResponse": {
+        "additionalProperties": false,
+        "description": "Durable intake outcome and the shared current job projection after compare-and-append.",
+        "properties": {
+          "attempted_disposition_ref": {
+            "title": "Attempted Disposition Ref",
+            "type": "string"
+          },
+          "head_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Head Ref"
+          },
+          "job": {
+            "$ref": "#/components/schemas/ControlJobResponse"
+          },
+          "status": {
+            "enum": [
+              "admitted",
+              "refused",
+              "conflict"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "head_ref",
+          "attempted_disposition_ref",
+          "job"
+        ],
+        "title": "NormativeEvidenceSubmissionResponse",
+        "type": "object"
+      },
+      "NormativeGenerationEvidenceRefs": {
+        "additionalProperties": false,
+        "description": "Untrusted references to an existing frontier and external signed permission.",
+        "properties": {
+          "authorization_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Authorization Ref",
+            "type": "string"
+          },
+          "frontier_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Frontier Ref",
+            "type": "string"
+          },
+          "scope_ref": {
+            "minLength": 1,
+            "title": "Scope Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "frontier_ref",
+          "authorization_ref",
+          "scope_ref"
+        ],
+        "title": "NormativeGenerationEvidenceRefs",
+        "type": "object"
+      },
+      "NormativeRunEvidenceRefs": {
+        "additionalProperties": false,
+        "description": "Data-only external evidence references, keyed by the actual source node.",
+        "properties": {
+          "by_node": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/NormativeGenerationEvidenceRefs"
+            },
+            "title": "By Node",
+            "type": "object"
+          },
+          "input_limitation": {
+            "anyOf": [
+              {
+                "enum": [
+                  "p20_normative_evidence_invalid",
+                  "p20_normative_generation_disposition_missing",
+                  "p20_normative_sidecar_replay_failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Limitation"
+          }
+        },
+        "title": "NormativeRunEvidenceRefs",
+        "type": "object"
+      },
       "ObligationBudgetPool": {
         "additionalProperties": false,
         "description": "Exact delta pool over the N9 obligation taxonomy.",
@@ -48851,6 +48984,566 @@
         }
       }
     },
+    "/api/v1/control/runs/{run_id}/normative-evidence": {
+      "post": {
+        "description": "Receive evidence under the existing run-ownership and evidence-resolve authorization.",
+        "operationId": "submit_run_normative_evidence",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NormativeEvidenceSubmissionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "positive_fixture_only_transport": {
+                    "description": "Documentation transport captured from the actual worker and later-signed HTTP intake using declared fixture sources, signers and trust; not production authority or a canonical denominator. Captured references and times describe that fixture run and must not be submitted as reusable authority evidence.",
+                    "summary": "Actual post-source fixture admission",
+                    "value": {
+                      "attempted_disposition_ref": "sha256:5feaacea427178b78e4c1a56f748060d2bb27b728ac0062470d7655ffa087bb0",
+                      "head_ref": "sha256:d7d43f5969fe8c96c135717ccc6772cab4a7ddfe36de6ceea2601a50830a6100",
+                      "job": {
+                        "approval_projection": {
+                          "authority_level": "projection_only",
+                          "eligible": false,
+                          "reasons": [
+                            "authority_surface_signal_missing"
+                          ],
+                          "source_surface": "runtime.control_job",
+                          "state": null
+                        },
+                        "authoritative_scorecard_ref": null,
+                        "blocking_quality_failures": [],
+                        "capability_manifest_ref": {
+                          "artifact_id": "sha256:ba4ce3c08d828641c6d4c09c4610961af2b3c59330632ea769750559302474f6",
+                          "kind": "runtime.capability_manifest",
+                          "media_type": "application/json"
+                        },
+                        "effective_execution_profile": "dev",
+                        "error_message": null,
+                        "execution_status": "completed",
+                        "failure": null,
+                        "finished_at": "2026-09-08T11:14:32Z",
+                        "job_id": "1c4fa4a02a7f48bcb1b91be75093a229",
+                        "kind": "natural_language_run",
+                        "meta": {
+                          "generated_at": "2026-09-08T11:14:34.701964Z",
+                          "request_id": "ee06ef9ea7974052b729bb8962bd0874",
+                          "source_kinds": []
+                        },
+                        "next_diagnostic_commands": [
+                          "python3 tools/quality/validation/check_layer3_workflow_failure_authority.py --check --repo-root ."
+                        ],
+                        "operator_diagnostic": null,
+                        "pipeline_id": null,
+                        "policy_design_case_projection": null,
+                        "progress": {
+                          "compiled_recursive_generation_cycle_ref": "sha256:65cefea4386572f6255089d2418cc43f9736c41227eb1352a351a80815b17458",
+                          "manifest_ref": "sha256:c40e352f285fc6c9064f93ea1756815c2265f5ed5c0c2e5a214cc8e900141c84",
+                          "normative_disposition": {
+                            "authorization_status": "authorized",
+                            "compiled_run_ref": "sha256:65cefea4386572f6255089d2418cc43f9736c41227eb1352a351a80815b17458",
+                            "leaf_disposition_refs": {
+                              "design-problem://f59c8f38958da3790dff02aae047ee5e0b86c3a5599535f0d6da93e73dfce57d": "sha256:bd8a730b5b2578439a8375ddbab1df52f432bac9b2bc0e65a8e09709c353f324"
+                            },
+                            "leaf_dispositions": {
+                              "design-problem://f59c8f38958da3790dff02aae047ee5e0b86c3a5599535f0d6da93e73dfce57d": {
+                                "admitted_at": "2026-09-08T11:14:34.435182Z",
+                                "authoritative_for": "value_schedule_for_ranking",
+                                "authorization_status": "authorized",
+                                "candidate_fronts": {
+                                  "decision": [],
+                                  "portfolio": [],
+                                  "quarantine": [],
+                                  "research": [
+                                    "candidate_cgf_shadow"
+                                  ]
+                                },
+                                "case_id": "worker_epoch_strangle_a05d9018aa114533b6af8df3cd71969a",
+                                "compiled_membership_status": "not_established",
+                                "decision_request": null,
+                                "dominance_status": "not_established",
+                                "evidence": {
+                                  "authorization_ref": "sha256:f772e62af8cb9b7fbb53b87902ae5d28efa9f7bee167be3dbc94559848fa8329",
+                                  "frontier_ref": "sha256:8c31c36b85d97b882b117a8e3e505b27817de4a2e4666a93ce84e3b1338e1988",
+                                  "scope_ref": "fixture:explicit-value-scope"
+                                },
+                                "generation_binding": {
+                                  "compiled_run_ref": "sha256:65cefea4386572f6255089d2418cc43f9736c41227eb1352a351a80815b17458",
+                                  "node_ref": "design-problem://f59c8f38958da3790dff02aae047ee5e0b86c3a5599535f0d6da93e73dfce57d",
+                                  "source_run_ref": "sha256:7339ca4100810a689fb1c0afbdbc441d557348f6db92842736e07099aef37f10"
+                                },
+                                "input_limitation": null,
+                                "may_not_use_for": [
+                                  "compiled_run_membership",
+                                  "pareto_dominance",
+                                  "empirical_value_authority",
+                                  "legal_competence",
+                                  "democratic_legitimacy",
+                                  "claim_evidence",
+                                  "publication_authority"
+                                ],
+                                "ranked_recommendations": [
+                                  "candidate_cgf_shadow"
+                                ],
+                                "ranking_bundle_ref": "sha256:d1370363e62e579bcd7084baf56cf36a486b2ab041f422819f36661010819eae",
+                                "schema_version": "policyos.normative_generation_disposition.v1",
+                                "trust_epoch": "explicit-test-deployment"
+                              }
+                            },
+                            "ranked_recommendations": [
+                              "candidate_cgf_shadow"
+                            ],
+                            "schema_version": "policyos.normative_generation_composition.v1",
+                            "strangle_receipt": {
+                              "compiled_run_ref": "sha256:65cefea4386572f6255089d2418cc43f9736c41227eb1352a351a80815b17458",
+                              "default_entrypoint": "ControlPlaneService.resolve_generation_value_choices",
+                              "default_flipped": true,
+                              "disposition_node_refs": [
+                                "design-problem://f59c8f38958da3790dff02aae047ee5e0b86c3a5599535f0d6da93e73dfce57d"
+                              ],
+                              "predecessor": "compiled_run_completion_without_normative_disposition",
+                              "source_node_refs": [
+                                "design-problem://f59c8f38958da3790dff02aae047ee5e0b86c3a5599535f0d6da93e73dfce57d"
+                              ],
+                              "status": "strangled"
+                            }
+                          },
+                          "normative_disposition_ref": "sha256:5feaacea427178b78e4c1a56f748060d2bb27b728ac0062470d7655ffa087bb0",
+                          "normative_head_ref": "sha256:d7d43f5969fe8c96c135717ccc6772cab4a7ddfe36de6ceea2601a50830a6100",
+                          "normative_head_strangle_receipt": {
+                            "current_disposition_ref": "sha256:5feaacea427178b78e4c1a56f748060d2bb27b728ac0062470d7655ffa087bb0",
+                            "default_entrypoint": "ControlPlaneService._current_normative_job_record",
+                            "default_flipped": true,
+                            "original_disposition_ref": "sha256:a697451cb06119ac48ac011bcc7e4e893d43458f1f89701bc823d7c83497ac6d",
+                            "predecessor": "worker_only_normative_disposition",
+                            "status": "strangled"
+                          },
+                          "phase": "natural_language_run",
+                          "promotion_refusal_reasons": [
+                            "epoch_validity_refused:policy_admission_missing"
+                          ],
+                          "quality_scorecard": {
+                            "run_id": "R_9bfa9624a0a11eef"
+                          },
+                          "run_id": "R_9bfa9624a0a11eef",
+                          "state": "completed"
+                        },
+                        "projection_source": {
+                          "authority_level": "projection_only",
+                          "projection_policy": "projection_only",
+                          "source_detail": "control_store_progress",
+                          "source_surface": "runtime.control_job"
+                        },
+                        "quality_evidence_bundle_path": null,
+                        "quality_gates": [
+                          {
+                            "blocking": false,
+                            "code": "normative_applicability_report_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "lex",
+                            "message": "Normative applicability evidence is present. Runtime-owned normative_applicability_report_ref is missing.",
+                            "name": "normative_evidence_present",
+                            "next_action": "Persist normative_applicability_report_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "fabric_retrieval_trace_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "fabric_retrieval",
+                            "message": "Fabric source-selection evidence is present. Runtime-owned fabric_retrieval_trace_ref is missing.",
+                            "name": "fabric_retrieval_trace_present",
+                            "next_action": "Persist fabric_retrieval_trace_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "foundry_method_report_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "foundry_methods",
+                            "message": "Foundry method validity evidence is present. Runtime-owned foundry_method_report_ref is missing.",
+                            "name": "foundry_method_evidence_present",
+                            "next_action": "Persist foundry_method_report_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "policy_grounding_matrix_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "scientist_policy_artifacts",
+                            "message": "Policy grounding matrix is present. Runtime-owned policy_grounding_matrix_ref is missing.",
+                            "name": "policy_grounding_matrix_present",
+                            "next_action": "Persist policy_grounding_matrix_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "conflict_check_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "normative_conflict",
+                            "message": "Policy conflict check is present. Runtime-owned conflict_check_ref is missing.",
+                            "name": "conflict_check_present",
+                            "next_action": "Persist conflict_check_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "causal_statistical_validity_report_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "foundry_causal_validity",
+                            "message": "Causal/statistical validity benchmark evidence is present. Runtime-owned causal_statistical_validity_report_ref is missing.",
+                            "name": "causal_statistical_validity_present",
+                            "next_action": "Persist causal_statistical_validity_report_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "replay_manifest_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "runtime_replay",
+                            "message": "Deterministic replay manifest is present. Runtime-owned replay_manifest_ref is missing.",
+                            "name": "replay_manifest_present",
+                            "next_action": "Persist replay_manifest_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "drift_explanation_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "runtime_replay",
+                            "message": "Replay drift explanation evidence is present. Runtime-owned drift_explanation_ref is missing.",
+                            "name": "drift_explanation_present",
+                            "next_action": "Persist drift_explanation_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "resilience_report_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "runtime_resilience",
+                            "message": "Load, soak, and resilience matrix evidence is present. Runtime-owned resilience_report_ref is missing.",
+                            "name": "resilience_matrix_present",
+                            "next_action": "Persist resilience_report_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "human_review_calibration_report_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "human_review_calibration",
+                            "message": "Human-review calibration evidence is present. Runtime-owned human_review_calibration_report_ref is missing.",
+                            "name": "human_review_calibration_present",
+                            "next_action": "Persist human_review_calibration_report_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "privacy_compliance_report_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "privacy_compliance",
+                            "message": "Privacy, licensing, and compliance evidence is present. Runtime-owned privacy_compliance_report_ref is missing.",
+                            "name": "privacy_compliance_report_present",
+                            "next_action": "Persist privacy_compliance_report_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          },
+                          {
+                            "blocking": false,
+                            "code": "decision_artifact_quality_report_ref_optional_missing",
+                            "evidence_ref": null,
+                            "layer": "scientist_decision_artifact",
+                            "message": "Decision-artifact quality evidence is present. Runtime-owned decision_artifact_quality_report_ref is missing.",
+                            "name": "decision_artifact_quality_present",
+                            "next_action": "Persist decision_artifact_quality_report_ref from the owning runtime layer before production approval.",
+                            "next_diagnostic_command": null,
+                            "operator_diagnostic": null,
+                            "phase": "quality_evidence",
+                            "status": "warn"
+                          }
+                        ],
+                        "quality_scorecard_ref": null,
+                        "quality_status": "warn",
+                        "requested_execution_profile": null,
+                        "run_id": "R_9bfa9624a0a11eef",
+                        "runtime_state": "completed",
+                        "started_at": null,
+                        "state": "completed",
+                        "submitted_at": "2026-09-08T11:14:32Z",
+                        "unresolved_authority_gaps": [
+                          {
+                            "code": "authority_surface_signal_missing",
+                            "evidence_ref": null,
+                            "layer": "runtime_authority_surface",
+                            "message": "Run status consumed AuthorityBoundary and cannot be treated as authority for runtime_closeout_authority: blocked.",
+                            "next_action": "Repair workflow failure or rerun through the workspace loop authority path.",
+                            "next_diagnostic_command": "python3 tools/quality/validation/check_layer3_workflow_failure_authority.py --check --repo-root .",
+                            "owner": "team-runtime-quality",
+                            "phase": "run_status"
+                          }
+                        ]
+                      },
+                      "status": "admitted"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/NormativeEvidenceSubmissionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/runs/{run_id}/normative-evidence",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/runs/{run_id}/normative-evidence",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/runs/{run_id}/normative-evidence",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/runs/{run_id}/normative-evidence",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/runs/{run_id}/normative-evidence",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/runs/{run_id}/normative-evidence",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/runs/{run_id}/normative-evidence",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Attach signed value-choice evidence to an exact completed generation job",
+        "tags": [
+          "control-plane"
+        ],
+        "x-polisyos-action-permission": "evidence.resolve",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.normative_evidence",
+          "source": "owned_existing_path"
+        }
+      }
+    },
     "/api/v1/control/runs/{run_id}/reissue": {
       "post": {
         "operationId": "reissue_run",
@@ -55311,18 +56004,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:e3b9f6f8b9207ece3f63c7cf535119f81ada82c6d6976dbba500206517322d9f",
+                      "projection_hash": "sha256:d3cd596709dc5ffe05ebc0cdc72ac48697f9740f3df9e65d6e9f7858312c8cb8",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ae3b9f6f8b9207ece3f63c7cf535119f81ada82c6d6976dbba500206517322d9f&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ad3cd596709dc5ffe05ebc0cdc72ac48697f9740f3df9e65d6e9f7858312c8cb8&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A5f4e91dd734300207c8775e98379f882dddcc225b16ba12e5d3bf517fc819852",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:e3b9f6f8b9207ece3f63c7cf535119f81ada82c6d6976dbba500206517322d9f",
+                        "projection_hash": "sha256:d3cd596709dc5ffe05ebc0cdc72ac48697f9740f3df9e65d6e9f7858312c8cb8",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb"
+                        "source_dependency_hash": "sha256:5f4e91dd734300207c8775e98379f882dddcc225b16ba12e5d3bf517fc819852"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -55331,8 +56024,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb",
-                          "bound_dependency_count": 6315,
+                          "bound_dependency_aggregate_identity": "sha256:5f4e91dd734300207c8775e98379f882dddcc225b16ba12e5d3bf517fc819852",
+                          "bound_dependency_count": 6337,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -55347,16 +56040,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:bf674ce2e94643002f12db8880cc42f96a77b18c4236425958f313360536aa2f"
+                          "worker_validation_receipt_hash": "sha256:9c43c6a485be2efb831bc6254d88783db1515943700229b70a9073a4510b158c"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb",
+                      "source_dependency_hash": "sha256:5f4e91dd734300207c8775e98379f882dddcc225b16ba12e5d3bf517fc819852",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:bf674ce2e94643002f12db8880cc42f96a77b18c4236425958f313360536aa2f",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:bf674ce2e94643002f12db8880cc42f96a77b18c4236425958f313360536aa2f"
+                      "worker_validation_receipt_hash": "sha256:9c43c6a485be2efb831bc6254d88783db1515943700229b70a9073a4510b158c",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:9c43c6a485be2efb831bc6254d88783db1515943700229b70a9073a4510b158c"
                     }
                   }
                 },

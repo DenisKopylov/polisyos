@@ -1,0 +1,67 @@
+{
+  "content_hash": "sha256:c280bf996f20dd58edaf6def52a0aa440b51303eb192f46bd3e8c61ba2f41033",
+  "knob": {
+    "content_hash": "sha256:fb321650e525c9f7ba62b5e7ace10ac974dbb29e1b6765c9a26b45d35267652e",
+    "domain": {
+      "kind": "range",
+      "max_value": 2.0,
+      "min_value": 0.0,
+      "unit": null,
+      "value_type": "float"
+    },
+    "operator_kind": "budget_allocation_multiplier",
+    "owner_resolution": {
+      "atom_content_hash": "sha256:219ed3bd6a7be6c9ca9b8e9c73ec5f420e6b3b3ac22876e771b069d1a1cdcc57",
+      "atom_id": "atom_219ed3bd6a7be6c9",
+      "target_slot_bindings": [
+        {
+          "entity_scope": "global",
+          "slot_id": "government.balance",
+          "state_path": "government_balance",
+          "temporal_granularity": "stock",
+          "unit": "usd"
+        }
+      ],
+      "world_model_record_content_hash": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf",
+      "world_model_record_id": "world_model_record_11c3b1cb30a20018"
+    },
+    "parameter_value": 0.24,
+    "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+    "source_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+    "target_world_slots": [
+      "government.balance"
+    ]
+  },
+  "law_token": "budget_law",
+  "legal_threshold_evaluation": {
+    "applies_to": "25 percent",
+    "canonical_unit": "percent",
+    "fact_id": "ef64d4844594c3112281",
+    "metric": "percent",
+    "normalized_candidate_value": 24.0,
+    "normalized_threshold_value": 25.0,
+    "obligation_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+    "operator": "lte",
+    "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+    "reason": "threshold_satisfied",
+    "status": "admitted",
+    "temporal_status": "in_force",
+    "threshold_id": "a5429abb6621acb11ed10b20",
+    "threshold_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+  },
+  "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+  "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+  "status": "admissible",
+  "temporal_competence": {
+    "amendment_id": "",
+    "amendment_type": "",
+    "as_of": "1998-01-01",
+    "effective_from": "1997-09-01",
+    "effective_to": "1999-06-14",
+    "reason": "threshold_version_in_force",
+    "stale_after": "",
+    "status": "in_force",
+    "subject_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+  },
+  "threshold_id": "a5429abb6621acb11ed10b20"
+}

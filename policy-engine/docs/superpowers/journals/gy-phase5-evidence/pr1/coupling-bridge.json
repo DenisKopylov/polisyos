@@ -1,0 +1,9 @@
+{
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_generation_cycle.py::test_real_unsupported_n5_result_is_serialized_as_simulation_blocked tests/unit/runtime/quality/test_generation_cycle.py::test_n5_coupling_blocker_survives_selected_summary_projection -q",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "returncode": 0,
+  "duration_seconds": 95.023,
+  "stdout": "..                                                                       [100%]\n",
+  "stderr": ""
+}

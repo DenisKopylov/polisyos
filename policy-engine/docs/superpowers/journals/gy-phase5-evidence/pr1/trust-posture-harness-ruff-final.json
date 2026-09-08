@@ -1,0 +1,18 @@
+{
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_delta.py docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_semantic_summary.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_delta.py",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_semantic_summary.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 0.06,
+  "stdout": "E501 Line too long (102 > 100)\n  --> docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_semantic_summary.py:67:101\n   |\n65 |     \"denominator\": (\n66 |         \"All complete claim identity sets, all shared decision-field changes, every changed \"\n67 |         \"admitted source, every custody source row in the previously reconciled full artifact packet.\"\n   |                                                                                                     ^^\n68 |     ),\n69 |     \"frozen_claim_identities\": sorted(old),\n   |\n\nFound 1 error.\n",
+  "stderr": ""
+}

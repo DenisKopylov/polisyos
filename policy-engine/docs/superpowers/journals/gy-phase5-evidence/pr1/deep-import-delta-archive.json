@@ -1,0 +1,15 @@
+{
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pr1.deep_import_baseline_reconcile",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.pr1.deep_import_baseline_reconcile"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 12.363,
+  "stdout": "{\n  \"evidence\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-complete-delta.json\",\n  \"stale_identities\": [\n    \"polisyos.runtime.quality.acquisition_planner->polisyos.data_forge.domains.academic.knowledge\"\n  ],\n  \"complete_actual_expected_sets_equal\": true,\n  \"tightening_falsifier\": [\n    {\n      \"check\": \"deep_import\",\n      \"subject\": \"polisyos.runtime.quality.acquisition_planner\",\n      \"message\": \"New deep-import creep detected: polisyos.runtime.quality.acquisition_planner -> polisyos.data_forge.domains.academic.knowledge (src/polisyos/runtime/quality/acquisition_planner.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.\",\n      \"detail\": \"polisyos.data_forge.domains.academic.knowledge\",\n      \"source_module\": \"polisyos.runtime.quality.acquisition_planner\",\n      \"target_module\": \"polisyos.data_forge.domains.academic.knowledge\"\n    }\n  ],\n  \"complete_observed_source_denominator_intersection\": [\n    \"src/polisyos/core/contracts/__init__.py\",\n    \"src/polisyos/foundry/__init__.py\",\n    \"src/polisyos/foundry/methods/selection/__init__.py\",\n    \"src/polisyos/foundry/methods/selection/advisor.py\",\n    \"src/polisyos/runtime/http/app.py\",\n    \"src/polisyos/runtime/http/container.py\",\n    \"src/polisyos/runtime/http/openapi_contract.py\",\n    \"src/polisyos/runtime/http/resource_binding.py\",\n    \"src/polisyos/runtime/http/routes/control.py\",\n    \"src/polisyos/runtime/http/services/control/generation_cycle.py\",\n    \"src/polisyos/runtime/http/services/control/run_lifecycle.py\",\n    \"src/polisyos/runtime/http/services/control_plane_store.py\",\n    \"src/polisyos/runtime/quality/credal_reference.py\",\n    \"src/polisyos/runtime/quality/design_axes/value_choice_provenance.py\",\n    \"src/polisyos/runtime/quality/design_generation.py\",\n    \"src/polisyos/runtime/quality/generation_cycle.py\",\n    \"src/polisyos/runtime/quality/intervention_substrate.py\"\n  ]\n}\n",
+  "stderr": ""
+}

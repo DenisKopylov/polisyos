@@ -1,0 +1,83 @@
+[
+  {
+    "capture_provenance": "append-only transcription of direct exec tool invocation and exit status; original complete output preserved; wall time not measured at that invocation",
+    "log_path": "docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-worker-red.log",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/runtime/http/test_control_service_di.py::test_process_nl_job_enters_persisted_tenant_scope",
+      "-q"
+    ],
+    "environment_overrides": {
+      "PATH": "lane .venv/bin first followed by inherited PATH; full inherited value not_established for original invocation",
+      "PYTHONPATH": "src"
+    },
+    "returncode": 1,
+    "elapsed_seconds": "not_established",
+    "stdout_stderr_combined": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________ test_process_nl_job_enters_persisted_tenant_scope _______________\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13b982190>\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1301/test_process_nl_job_enters_per0')\n\n    @pytest.mark.asyncio\n    async def test_process_nl_job_enters_persisted_tenant_scope(\n        monkeypatch: pytest.MonkeyPatch,\n        tmp_path,\n    ) -> None:\n        from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module\n        from tests.unit.runtime.quality.test_generation_cycle import (\n            REPO_ROOT,\n            _budget,\n            _CgfGenerationPort,\n            _problem,\n        )\n    \n        service = _build_control_service(tmp_path)\n        try:\n            monkeypatch.setattr(\n                promotion_sequence_module,\n                \"_legacy_policy_promotion_callers\",\n                lambda repo_root: (),\n            )\n            problem = _problem(f\"worker_epoch_strangle_{uuid4().hex}\")\n    \n            async def compile_problem(**kwargs):\n                del kwargs\n                return problem\n    \n            class _CanonicalFixtureN4Port(N4GenerationPort):\n                def __init__(self) -> None:\n                    super().__init__(model_id=\"fixture-model\")\n                    self._delegate = _CgfGenerationPort()\n    \n                async def __call__(self, problem, *, cycle_index):\n                    return await self._delegate(problem, cycle_index=cycle_index)\n    \n            monkeypatch.setattr(\n                generation_cycle_service,\n                \"build_design_problem_from_nl_request\",\n                compile_problem,\n            )\n            recursive_budget = RecursiveCycleBudget(\n                max_depth=0,\n                max_nodes=1,\n                min_cycles_per_leaf=1,\n                max_cycles_per_leaf=1,\n            )\n            compiled_fixture = (\n                await generation_cycle_service.compile_and_run_recursive_generation_cycle(\n                    raw_request=problem.nl_provenance.raw_request,\n                    context={},\n                    model_name=\"fixture-model\",\n                    compiler_gateway=object(),  # type: ignore[arg-type]\n                    budget_state=_budget(),\n                    recursive_budget=recursive_budget,\n                    root_n4_generation_port=_CanonicalFixtureN4Port(),\n                    promotion_runtime=service._promotion_runtime,\n                    root_evaluation_context=_explicit_simulation_execution_context(problem),\n                    eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),\n                    repo_root=REPO_ROOT,\n                )\n            )\n    \n            launch = await service.launch_nl_run(\n                NaturalLanguageRunRequest(\n                    request=problem.nl_provenance.raw_request,\n                    llm_model=\"simulated-qwen\",\n                ),\n                principal=RuntimePrincipal.from_user_claims(_fixture_claims()),\n            )\n            record = service._control_store.get_job(launch.job_id)\n            assert record is not None\n    \n            async def _compile_worker_request(**kwargs):\n                assert get_current_tenant_id_or_none() == \"tenant-fixture\"\n                assert get_current_cell_id() == \"cell-fixture\"\n                assert kwargs[\"raw_request\"] == problem.nl_provenance.raw_request\n                assert kwargs[\"promotion_runtime\"] is service._promotion_runtime\n                assert service._promotion_runtime.store is service._artifact_store\n                return compiled_fixture\n    \n            monkeypatch.setattr(\n                generation_cycle_service,\n                \"compile_and_run_recursive_generation_cycle\",\n                _compile_worker_request,\n            )\n    \n            service._process_control_job(record)\n    \n            completed = service._control_store.get_job(launch.job_id)\n            assert completed is not None\n            assert completed.state == \"completed\"\n            assert completed.progress[\"promotion_refusal_reasons\"] == [\n                \"epoch_validity_refused:policy_admission_missing\"\n            ]\n            compiled_ref = ArtifactID.model_validate(\n                completed.progress[\"compiled_recursive_generation_cycle_ref\"]\n            )\n            assert service._artifact_store.get_manifest(compiled_ref).kind == (\n                \"runtime.compiled_recursive_generation_cycle\"\n            )\n            persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(\n                canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))\n            )\n            leaf = persisted.recursive_run.leaf_nodes[0]\n            assert leaf.cycle_run is not None\n            assert leaf.cycle_run.promotion_port.reason == (\n                \"epoch_validity_refused:policy_admission_missing\"\n            )\n            # PA1: the real worker must persist an owner-replayable normative refusal.\n>           assert completed.progress.get(\"normative_disposition_ref\"), (\n                \"default worker omitted the source-bound normative decision request\"\n            )\nE           AssertionError: default worker omitted the source-bound normative decision request\nE           assert None\nE            +  where None = <built-in method get of dict object at 0x13c16db00>('normative_disposition_ref')\nE            +    where <built-in method get of dict object at 0x13c16db00> = {'compiled_recursive_generation_cycle_ref': 'sha256:8b6a04c4514c3cb9486f127e6bae02b0ceea363f24b6892ddd78ee6f5f179914',...sons': ['epoch_validity_refused:policy_admission_missing'], 'quality_scorecard': {'run_id': 'R_8d4f2a8cf691182a'}, ...}.get\nE            +      where {'compiled_recursive_generation_cycle_ref': 'sha256:8b6a04c4514c3cb9486f127e6bae02b0ceea363f24b6892ddd78ee6f5f179914',...sons': ['epoch_validity_refused:policy_admission_missing'], 'quality_scorecard': {'run_id': 'R_8d4f2a8cf691182a'}, ...} = ControlJobRecord(job_id='5736556d435c495ca0ccc819e0da2082', kind='natural_language_run', state='completed', run_id='R_...issing'], 'quality_scorecard': {'run_id': 'R_8d4f2a8cf691182a'}, 'run_id': 'R_8d4f2a8cf691182a', 'state': 'completed'}).progress\n\ntests/unit/runtime/http/test_control_service_di.py:747: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/http/test_control_service_di.py::test_process_nl_job_enters_persisted_tenant_scope\n",
+    "output_sha256": "92d121e78347f587cc12cd9fc842f9cd8fc2922fd566c5fdb80b909436e46b43"
+  },
+  {
+    "capture_provenance": "append-only transcription of direct exec tool invocation and exit status; original complete output preserved; wall time not measured at that invocation",
+    "log_path": "docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-initial-green.log",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/runtime/http/test_control_service_di.py::test_process_nl_job_enters_persisted_tenant_scope",
+      "tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py",
+      "-q"
+    ],
+    "environment_overrides": {
+      "PATH": "lane .venv/bin first followed by inherited PATH; full inherited value not_established for original invocation",
+      "PYTHONPATH": "src"
+    },
+    "returncode": 0,
+    "elapsed_seconds": "not_established",
+    "stdout_stderr_combined": ".................................................                        [100%]\n=============================== warnings summary ===============================\ntests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[model_construct]\ntests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]\n  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:\n    PydanticSerializationUnexpectedValue(Expected `AuthorityBoundary` - serialized value may not be as expected [field_name='authority_boundary', input_value={'authoritative_for': ['p...r2.s8.value_choice.v1']}, input_type=dict])\n    return self.__pydantic_serializer__.to_python(\n\ntests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[copy]\ntests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[copy]\n  /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py:317: PydanticDeprecatedSince20: The `copy` method is deprecated; use `model_copy` instead. See the docstring of `BaseModel.copy` for details about how to handle `include` and `exclude`. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/\n    copied = super().copy(\n\ntests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]\n  /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py:356: PydanticDeprecatedSince20: The `construct` method is deprecated; use `model_construct` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/\n    archive_model.construct(**{**unranked_payload, **ranked_update})\n\ntests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]\n  /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py:371: PydanticDeprecatedSince20: The `construct` method is deprecated; use `model_construct` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/\n    safe_copy = archive_model.construct(**unranked_payload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+    "output_sha256": "f3240fd6bef245f930cbb681670d563aa01f8edbf5b6de93e1ec42cb73f27f9e"
+  },
+  {
+    "capture_provenance": "append-only transcription of direct exec tool invocation and exit status; original complete output preserved; wall time not measured at that invocation",
+    "log_path": "docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-worker-outcomes.log",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/runtime/http/test_control_service_di.py::test_process_nl_job_enters_persisted_tenant_scope",
+      "-q"
+    ],
+    "environment_overrides": {
+      "PATH": "lane .venv/bin first followed by inherited PATH; full inherited value not_established for original invocation",
+      "PYTHONPATH": "src"
+    },
+    "returncode": 0,
+    "elapsed_seconds": "not_established",
+    "stdout_stderr_combined": "....                                                                     [100%]\n",
+    "output_sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+  },
+  {
+    "capture_provenance": "append-only transcription of direct exec tool invocation and exit status; original complete output preserved; wall time not measured at that invocation",
+    "log_path": "docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-semantic-gates.log",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "-q"
+    ],
+    "environment_overrides": {
+      "PATH": "lane .venv/bin first followed by inherited PATH; full inherited value not_established for original invocation",
+      "PYTHONPATH": "src"
+    },
+    "returncode": 1,
+    "elapsed_seconds": "not_established",
+    "stdout_stderr_combined": "....F.........                                                           [100%]\n=================================== FAILURES ===================================\n______ test_same_display_ids_do_not_bind_another_current_compiled_source _______\n\nstation = (<polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x140e94440>, CompiledRecursiveGe...211f0aeaa24af97263144888ed8e1d26d085633c7'), 'sha256:bebd42bae3af3165c39d4fc11863441444ff0cea69cfe0c2efa38284f7fdd155')\n\n    def test_same_display_ids_do_not_bind_another_current_compiled_source(station):\n        service, compiled, source_ref = station\n        now = datetime.now(UTC)\n        evidence = bridge.NormativeRunEvidenceRefs.model_validate(\n            _signed_generation_evidence(service, compiled, fault=\"authorized\")\n        )\n        authorized = service.resolve_generation_value_choices(\n            compiled_run_ref=source_ref, evidence=evidence, evaluated_at=now\n        )\n        assert authorized.authorization_status == \"authorized\"\n        payload = gy_artifact_self_identity_projection(compiled)\n        payload[\"recursive_run\"].pop(\"leaf_nodes\", None)\n        payload[\"cycle_substrate_context_ref\"] = \"sha256:\" + \"a\" * 64\n        other = bridge.CompiledRecursiveGenerationCycleRun.model_validate(\n            {\n                **payload,\n                \"content_hash\": gy_content_hash(payload),\n            }\n        )\n        other_ref = service._put_json_artifact(\n            other.model_dump(mode=\"json\"),\n            kind=\"runtime.compiled_recursive_generation_cycle\",\n            schema_name=\"polisyos.runtime.CompiledRecursiveGenerationCycleRun\",\n        )\n        assert other_ref != source_ref\n>       assert other.recursive_run == compiled.recursive_run\nE       AssertionError: assert RecursiveGene...ff52a0f22fb5') == RecursiveGene...ff52a0f22fb5')\nE         \nE         Use -v to get more diff\n\ntests/unit/runtime/http/test_normative_generation_bridge.py:165: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/http/test_normative_generation_bridge.py::test_same_display_ids_do_not_bind_another_current_compiled_source\n",
+    "output_sha256": "a02def098205196b8c4f7aab6a8ccc61a744317c6c6ac3a7718089db74c535a2"
+  }
+]

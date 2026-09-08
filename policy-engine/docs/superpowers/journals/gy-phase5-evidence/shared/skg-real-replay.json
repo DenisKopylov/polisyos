@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m _build.gy_phase5_shared.skg_real_replay",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_phase5_shared.skg_real_replay"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 36.90229829202872,
+  "stdout": "{\"request_source\": \"test_value_gate exact avg_income candidate/problem/world fixture\", \"source_sha256\": \"583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967\", \"resolution_ref\": {\"artifact_id\": \"sha256:73a84409f361f0c1d8da8412c8c7fbc6fc4f663ecb510debfd9b9c1f279cbac7\", \"kind\": \"runtime.production_grounding_source_resolution\", \"media_type\": \"application/json\"}, \"resolution_bytes\": 1676572, \"request_sha256\": \"0e9d63f3751eb3dce61d3bed3244ab166a2bad188f7547ad53c2e3fb024efe47\", \"population_status\": \"reference_population_recomputed\", \"row_count\": 5124, \"distinct_numeric_id_count\": 5124, \"distinct_variable_name_count\": 4050, \"literal_target_match_count\": 0, \"semantic_target_coverage\": \"not_established\", \"projection_sha256\": \"4151ade1789cb779259ebcb6064d301a9a61f5396d3e7928cfc3df46fb9e4e33\", \"relation_acceptance\": {\"purpose\": \"cg1_proposal_reference_relation\", \"status\": \"not_established\", \"relation_gold_context\": null, \"accepted_relation_adjudicator\": null, \"outcome_sensitive_calibration_rule\": null}, \"cg2_status\": \"cold_start\", \"cg2_owner_ledger_id\": \"cg2_production_calibration_empty\", \"refusal_reasons\": [\"relation_gold_context_not_established\", \"accepted_relation_adjudicator_not_established\", \"outcome_sensitive_calibration_rule_not_established\", \"candidate_operator_not_established\", \"reference_epoch_not_established\", \"literal_target_reference_absent_semantic_coverage_unestablished\"], \"receipt_status\": \"completed_no_results\", \"world_write_statuses\": [\"no_result\"], \"real_grounding_result_count\": 0, \"n8_admission\": \"blocked\", \"network_calls\": 0, \"receipt_path\": \"_build/gy_phase5_shared/pa1_n7_real/n7-receipt.json\", \"receipt_sha256\": \"764d7e5805c6b6c30ca96f4c1d880bb0362ea50b5e0220df62407cf47af9e1a6\", \"elapsed_seconds\": 9.908786999993026}\n",
+  "stderr": ""
+}

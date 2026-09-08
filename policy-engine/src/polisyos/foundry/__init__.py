@@ -11,6 +11,8 @@ compile/execute and W7 method selection, it exposes three generic text-embedding
 surfaces plus the Foundry-owned N8 dependency-authority request, its
 negative-only result union, and the two catalog boundaries that resolve that
 authority before reading candidate runtime posture.
+Candidate method route constraints and their input-contract relation predicate
+also cross this stable facade; their implementation stays with method selection.
 """
 
 from __future__ import annotations
@@ -27,11 +29,16 @@ if TYPE_CHECKING:
         SentenceTransformerEmbedder,
         TFIDFEmbedder,
     )
+    from polisyos.foundry.methods.selection import (
+        MethodRouteConstraint,
+        method_accepts_input_contract,
+    )
 
 __all__ = [
     "DependencyProfileResolutionFailure",
     "EmbedderProtocol",
     "MethodCatalogDependencyAuthorityRequest",
+    "MethodRouteConstraint",
     "SentenceTransformerEmbedder",
     "TFIDFEmbedder",
     "build_method_catalog_provenance_manifest",
@@ -39,6 +46,7 @@ __all__ = [
     "compile",
     "compile_program",
     "execute",
+    "method_accepts_input_contract",
     "select_method_candidates_for_requirements",
 ]
 
@@ -54,6 +62,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "MethodCatalogDependencyAuthorityRequest": (
         "polisyos.foundry.methods.catalog.dependency_authority",
         "MethodCatalogDependencyAuthorityRequest",
+    ),
+    "MethodRouteConstraint": (
+        "polisyos.foundry.methods.selection",
+        "MethodRouteConstraint",
     ),
     "SentenceTransformerEmbedder": (
         "polisyos.foundry.methods.backends.protocol",
@@ -74,13 +86,18 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "compile": ("polisyos.foundry.api", "compile"),
     "compile_program": ("polisyos.foundry.api", "compile_program"),
     "execute": ("polisyos.foundry.api", "execute"),
+    "method_accepts_input_contract": (
+        "polisyos.foundry.methods.selection",
+        "method_accepts_input_contract",
+    ),
     "select_method_candidates_for_requirements": (
         "polisyos.foundry.methods.selection",
         "select_method_candidates_for_requirements",
     ),
 }
 _RESOLVED_EXPORTS: dict[str, object] = {}
-_RESOLVE_LOCK = threading.Lock()
+# An exported module can import another export from this same facade.
+_RESOLVE_LOCK = threading.RLock()
 
 
 def _resolve_lazy_export(name: str) -> object:

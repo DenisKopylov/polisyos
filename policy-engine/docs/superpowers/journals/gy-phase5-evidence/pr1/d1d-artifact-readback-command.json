@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pr1.credal_reissue_readback",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 0.127,
+  "stdout": "{\n  \"output\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-artifact-readback.json\",\n  \"receipts\": [\n    {\n      \"identity\": \"contract_lane_anytime_refusal\",\n      \"receipt_schema\": \"policyos.policy_design_case.layer3_gy.n9_promotion.v6\",\n      \"credal_schema\": \"policyos.runtime.grounding_credal_reference.v2\",\n      \"promoted\": false,\n      \"consumer_promotable\": false\n    },\n    {\n      \"identity\": \"production_honest_shadow\",\n      \"receipt_schema\": \"policyos.policy_design_case.layer3_gy.n9_promotion.v6\",\n      \"credal_schema\": null,\n      \"promoted\": false,\n      \"consumer_promotable\": false\n    },\n    {\n      \"identity\": \"non_promotable_contract_stamp\",\n      \"receipt_schema\": \"policyos.policy_design_case.layer3_gy.n9_promotion.v6\",\n      \"credal_schema\": \"policyos.runtime.grounding_credal_reference.v2\",\n      \"promoted\": false,\n      \"consumer_promotable\": false\n    }\n  ],\n  \"current_sha256\": \"3925c1e9f2474d6c950877f27860c3e8409b57ae2f37f088b40aebb4742b36e9\"\n}\n",
+  "stderr": ""
+}

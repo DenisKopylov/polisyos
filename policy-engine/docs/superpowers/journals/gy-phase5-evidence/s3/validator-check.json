@@ -1,0 +1,19 @@
+{
+  "label": "validator-check",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_layer3_gy_intervention_substrate_contract",
+    "--check",
+    "--output-format",
+    "json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "started_at": "2026-09-08T08:44:49.216454+00:00",
+  "elapsed_seconds": 44.41240995901171,
+  "return_code": 1,
+  "stdout": "{\n  \"artifact\": \"architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json\",\n  \"behavior_status\": \"pass\",\n  \"issues\": [\n    {\n      \"code\": \"intervention_substrate_contract_drift\",\n      \"path\": \"architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json\"\n    }\n  ],\n  \"outputs\": [\n    \"architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json\"\n  ],\n  \"status\": \"fail\"\n}\n",
+  "stderr": "2026-09-08 11:45:25.668 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gy-s-composed-wmr-world/fabric-world.duckdb\n2026-09-08 11:45:25.728 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: :memory:\n"
+}

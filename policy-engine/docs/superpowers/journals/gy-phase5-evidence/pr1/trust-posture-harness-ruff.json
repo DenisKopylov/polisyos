@@ -1,0 +1,18 @@
+{
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_delta.py docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_semantic_summary.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_delta.py",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_semantic_summary.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 0.058,
+  "stdout": "E501 Line too long (197 > 100)\n  --> docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_semantic_summary.py:65:101\n   |\n63 | \u2026\n64 | \u2026\n65 | \u2026anges, every changed admitted source, every custody source row in the previously reconciled full artifact packet.\",\n   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n66 | \u2026\n67 | \u2026\n   |\n\nFound 1 error.\n",
+  "stderr": ""
+}

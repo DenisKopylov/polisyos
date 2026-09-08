@@ -9,7 +9,7 @@ import re
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field, is_dataclass, replace
-from typing import Any, Literal
+from typing import Any, Literal, get_args, get_type_hints
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -412,6 +412,73 @@ class MethodSelectionAlternative(BaseModel):
     advisor_score: float | None = None
     selected: bool = False
     loss_reasons: tuple[str, ...] = ()
+
+
+class MethodRouteConstraint(BaseModel):
+    """Candidate routing constraint projected by an observation-manifest owner.
+
+    This record is a search constraint, not a certificate of observed data or
+    method validity. The consumer rechecks its method/contract relationship.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, revalidate_instances="always")
+    schema_version: Literal["policyos.foundry.method_route_constraint.v1"] = (
+        "policyos.foundry.method_route_constraint.v1"
+    )
+    family: str = Field(min_length=1)
+    target_contract_id: str = Field(min_length=1)
+    allowed_method_fqns: tuple[str, ...] = Field(min_length=1)
+    manifest_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    route_content_hashes: tuple[str, ...] = Field(min_length=1)
+
+
+def method_accepts_input_contract(method: object, contract_id: str) -> bool:
+    """Resolve a contract against a method's input slots and executable type hints."""
+
+    signature = getattr(method, "signature", None)
+    if isinstance(signature, MethodSignature) and any(
+        slot.contract_id == contract_id for slot in signature.input_slots
+    ):
+        return True
+
+    def matches(annotation: object) -> bool:
+        return getattr(annotation, "contract_id", None) == contract_id or any(
+            matches(argument) for argument in get_args(annotation)
+        )
+
+    for attribute, parameters in (
+        ("materialize_input", ("return",)),
+        ("pure_step", ("state",)),
+    ):
+        function = getattr(method, attribute, None)
+        if function is None:
+            continue
+        try:
+            hints = get_type_hints(function)
+        except (NameError, TypeError, AttributeError):
+            continue
+        if any(matches(hints.get(parameter)) for parameter in parameters):
+            return True
+    return False
+
+
+def _validated_route_constraint(
+    constraint: MethodRouteConstraint | None,
+    registry: MethodRegistry,
+) -> MethodRouteConstraint | None:
+    if constraint is None:
+        return None
+    validated = MethodRouteConstraint.model_validate(constraint)
+    if validated.allowed_method_fqns != tuple(sorted(set(validated.allowed_method_fqns))):
+        raise ValueError("value_method_route_denominator_not_canonical")
+    for fqn in validated.allowed_method_fqns:
+        try:
+            method = registry.get(fqn)
+        except Exception as exc:
+            raise ValueError("value_method_route_method_unresolved") from exc
+        if not method_accepts_input_contract(method, validated.target_contract_id):
+            raise ValueError("value_method_route_contract_mismatch")
+    return validated
 
 
 class MethodSelectionReceipt(BaseModel):
@@ -846,6 +913,7 @@ def method_selection_context_hash(
     requested_method_fqn: str | None = None,
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
     runtime_budget_ms: float | None = None,
+    route_constraint: MethodRouteConstraint | None = None,
 ) -> str:
     """Hash the complete canonical context used for Foundry value-method selection.
 
@@ -856,11 +924,13 @@ def method_selection_context_hash(
         requested_method_fqn: Optional explicitly requested registry method.
         observation_to_contract_manifest: Optional method-contract target manifest.
         runtime_budget_ms: Optional runtime budget applied by the advisor.
+        route_constraint: Source-bound candidate route constraint, never authority evidence.
 
     Returns:
         A deterministic SHA-256 digest over the canonical JSON selector context.
     """
 
+    _manifest_targets(observation_to_contract_manifest)
     reg = registry or MethodRegistry.get_instance()
     from polisyos.foundry.methods import ensure_all_methods_registered
 
@@ -874,6 +944,7 @@ def method_selection_context_hash(
         requested_method_fqn=requested_method_fqn,
         observation_to_contract_manifest=observation_to_contract_manifest,
         runtime_budget_ms=runtime_budget_ms,
+        route_constraint=_validated_route_constraint(route_constraint, reg),
     )
 
 
@@ -902,6 +973,7 @@ def _method_selection_context_hash_for_catalog(
     requested_method_fqn: str | None,
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
     runtime_budget_ms: float | None,
+    route_constraint: MethodRouteConstraint | None = None,
 ) -> str:
     """Hash one effective value-advisor query and its catalog snapshot."""
 
@@ -914,31 +986,26 @@ def _method_selection_context_hash_for_catalog(
         candidate=candidate,
         problem=problem,
         value_entries=value_entries,
+        catalog_entries=catalog.entries,
         observation_to_contract_manifest=observation_to_contract_manifest,
         runtime_budget_ms=runtime_budget_ms,
+        route_constraint=route_constraint,
     )
-    profile_hash = _problem_runtime_hints(problem).get(
-        "value_data_profile_content_hash"
-    )
+    profile_hash = _problem_runtime_hints(problem).get("value_data_profile_content_hash")
     value_catalog_projection_hash = _value_catalog_projection_hash(value_entries)
     payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v3",
+        "schema_version": "policyos.foundry.method_selection_context.v4",
         "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": _candidate_selection_signal(candidate),
         "problem_signal": _problem_selection_signal(problem),
-        "value_data_profile_content_hash": (
-            None if profile_hash is None else str(profile_hash)
-        ),
+        "value_data_profile_content_hash": (None if profile_hash is None else str(profile_hash)),
         "effective_query": asdict(query),
-        "requested_method_fqn": (
-            str(requested_method_fqn) if requested_method_fqn else None
+        "requested_method_fqn": (str(requested_method_fqn) if requested_method_fqn else None),
+        "manifest_targets": tuple(sorted(set(_manifest_targets(observation_to_contract_manifest)))),
+        "route_constraint": (
+            route_constraint.model_dump(mode="json") if route_constraint is not None else None
         ),
-        "manifest_targets": tuple(
-            sorted(set(_manifest_targets(observation_to_contract_manifest)))
-        ),
-        "runtime_budget_ms": (
-            float(runtime_budget_ms) if runtime_budget_ms is not None else None
-        ),
+        "runtime_budget_ms": (float(runtime_budget_ms) if runtime_budget_ms is not None else None),
     }
     return _method_selection_receipt_content_hash(payload)
 
@@ -951,9 +1018,17 @@ def select_value_method_for_problem(
     requested_method_fqn: str | None = None,
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
     runtime_budget_ms: float | None = None,
+    route_constraint: MethodRouteConstraint | None = None,
 ) -> dict[str, Any]:
     """Select a value method through the real Foundry registry/advisor surface."""
 
+    try:
+        _manifest_targets(observation_to_contract_manifest)
+    except ValueError as exc:
+        return _blocked_value_selection(
+            code=str(exc),
+            reason="Only explicit flat advisory hints are accepted; source manifests require their owner projection.",
+        )
     reg = registry or MethodRegistry.get_instance()
     try:
         from polisyos.foundry.methods import ensure_all_methods_registered
@@ -973,9 +1048,7 @@ def select_value_method_for_problem(
             reason=str(exc),
         )
     value_entries = tuple(
-        entry
-        for entry in catalog.entries
-        if _catalog_entry_is_value_method(entry, registry=reg)
+        entry for entry in catalog.entries if _catalog_entry_is_value_method(entry, registry=reg)
     )
     if not value_entries:
         return _blocked_value_selection(
@@ -985,6 +1058,24 @@ def select_value_method_for_problem(
         )
     denominator = tuple(sorted(entry.fqn for entry in value_entries))
     entry_by_fqn = {entry.fqn: entry for entry in value_entries}
+    try:
+        route_constraint = _validated_route_constraint(route_constraint, reg)
+    except ValueError as exc:
+        return _blocked_value_selection(code=str(exc), reason=str(exc), denominator=denominator)
+    if route_constraint is not None:
+        allowed = set(route_constraint.allowed_method_fqns)
+        if requested_method_fqn and requested_method_fqn not in allowed:
+            return _blocked_value_selection(
+                code="value_method_request_outside_manifest_route",
+                reason="The requested method does not consume the selected observation route.",
+                denominator=denominator,
+            )
+        if not allowed.intersection(denominator):
+            return _blocked_value_selection(
+                code="value_method_route_no_native_value_output",
+                reason="Registered route methods have no owner-verified native value output.",
+                denominator=denominator,
+            )
     selection_context_hash = _method_selection_context_hash_for_catalog(
         catalog=catalog,
         registry=reg,
@@ -993,6 +1084,7 @@ def select_value_method_for_problem(
         requested_method_fqn=requested_method_fqn,
         observation_to_contract_manifest=observation_to_contract_manifest,
         runtime_budget_ms=runtime_budget_ms,
+        route_constraint=route_constraint,
     )
     if requested_method_fqn:
         requested = str(requested_method_fqn)
@@ -1026,8 +1118,7 @@ def select_value_method_for_problem(
             "denominator": denominator,
             "score_trace": (),
             "ranked_alternatives": tuple(
-                row.model_dump(mode="python")
-                for row in selection_receipt.ranked_alternatives
+                row.model_dump(mode="python") for row in selection_receipt.ranked_alternatives
             ),
             "selection_receipt": selection_receipt.model_dump(mode="json"),
             "blockers": (),
@@ -1037,8 +1128,10 @@ def select_value_method_for_problem(
         candidate=candidate,
         problem=problem,
         value_entries=value_entries,
+        catalog_entries=catalog.entries,
         observation_to_contract_manifest=observation_to_contract_manifest,
         runtime_budget_ms=runtime_budget_ms,
+        route_constraint=route_constraint,
     )
     advised = advise_methods(catalog, query)
     value_score_trace = tuple(item for item in advised.score_trace if item.fqn in denominator)
@@ -1276,8 +1369,10 @@ def _value_method_advisor_query(
     candidate: object,
     problem: object,
     value_entries: Sequence[MethodCatalogEntry],
+    catalog_entries: Sequence[MethodCatalogEntry] = (),
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
     runtime_budget_ms: float | None,
+    route_constraint: MethodRouteConstraint | None = None,
 ) -> MethodAdvisorQuery:
     """Build the exact effective query used by value-method selection."""
 
@@ -1286,7 +1381,9 @@ def _value_method_advisor_query(
             candidate=candidate,
             problem=problem,
             value_entries=value_entries,
+            catalog_entries=catalog_entries,
             observation_to_contract_manifest=observation_to_contract_manifest,
+            route_constraint=route_constraint,
         ),
         data=_value_data_characteristics(candidate=candidate, problem=problem),
         runtime_budget_ms=runtime_budget_ms,
@@ -1301,7 +1398,9 @@ def _value_selection_criteria(
     candidate: object,
     problem: object,
     value_entries: Sequence[MethodCatalogEntry],
+    catalog_entries: Sequence[MethodCatalogEntry] = (),
     observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
+    route_constraint: MethodRouteConstraint | None = None,
 ) -> MethodSelectionCriteria:
     family_prefixes = _value_family_prefixes(candidate=candidate, problem=problem)
     modalities = _required_modalities(candidate=candidate, problem=problem)
@@ -1309,16 +1408,25 @@ def _value_selection_criteria(
     if manifest_targets:
         modalities = tuple(dict.fromkeys((*modalities, *manifest_targets)))
     available_modalities = {
-        modality
-        for entry in value_entries
-        for modality in entry.data_modalities
-        if modality
+        modality for entry in value_entries for modality in entry.data_modalities if modality
     }
     required_modalities = tuple(item for item in modalities if item in available_modalities)
     return MethodSelectionCriteria(
-        family_prefixes=family_prefixes,
+        family_prefixes=family_prefixes if route_constraint is None else (),
         required_data_modalities=required_modalities,
         runnable_only=True,
+        exclude_fqns=(
+            tuple(
+                sorted(
+                    entry.fqn
+                    for entry in catalog_entries
+                    if entry.fqn not in route_constraint.allowed_method_fqns
+                    or entry.fqn not in {value.fqn for value in value_entries}
+                )
+            )
+            if route_constraint is not None
+            else ()
+        ),
     )
 
 
@@ -1390,20 +1498,31 @@ def _manifest_targets(
 ) -> tuple[str, ...]:
     if manifest is None:
         return ()
-    rows: list[Mapping[str, Any]]
+    # This is the declared legacy advisory grammar, never a parser for source
+    # artifacts. A supplied unsupported shape must not become absent hints.
+    target_fields = {"data_modality", "method_contract_target", "contract_target"}
+    raw: object = manifest
     if isinstance(manifest, Mapping):
-        raw = manifest.get("contracts") or manifest.get("contract_targets") or manifest
-        rows = [raw] if isinstance(raw, Mapping) else list(raw) if isinstance(raw, Sequence) else []
+        if set(manifest) == {"contracts"}:
+            raw = manifest["contracts"]
+        elif set(manifest) == {"contract_targets"}:
+            raw = manifest["contract_targets"]
+    if isinstance(raw, Mapping):
+        rows = [raw]
+    elif isinstance(raw, Sequence) and not isinstance(raw, str | bytes | bytearray):
+        rows = list(raw)
     else:
-        rows = list(manifest)
+        raise ValueError("value_method_manifest_projection_required")
+    if not rows:
+        raise ValueError("value_method_manifest_projection_required")
     targets: list[str] = []
     for row in rows:
-        if not isinstance(row, Mapping):
-            continue
-        for key in ("data_modality", "method_contract_target", "contract_target"):
-            value = str(row.get(key) or "").strip()
-            if value:
-                targets.append(value)
+        if not isinstance(row, Mapping) or not row or not set(row).issubset(target_fields):
+            raise ValueError("value_method_manifest_projection_required")
+        for value in row.values():
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError("value_method_manifest_projection_required")
+            targets.append(value.strip())
     return tuple(dict.fromkeys(targets))
 
 
@@ -3915,6 +4034,8 @@ __all__ = [
     "MethodScoreTraceEntry",
     "MethodSelectionAlternative",
     "MethodSelectionReceipt",
+    "MethodRouteConstraint",
+    "method_accepts_input_contract",
     "MethodSelectionCriteria",
     "advise_methods",
     "advise_methods_for_analyst",

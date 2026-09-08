@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": "corepack pnpm --filter @polisyos/runtime-api-client run generate",
+  "argv": [
+    "corepack",
+    "pnpm",
+    "--filter",
+    "@polisyos/runtime-api-client",
+    "run",
+    "generate"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 9.407086082966998,
+  "stdout": "\n> @polisyos/runtime-api-client@0.1.0 generate /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client\n> bash ./scripts/generate-runtime-api-client.sh\n\n✨ openapi-typescript 7.13.0\n🚀 schemas/runtime_api_v1.openapi.json → /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/types.ts [1.6s]\n/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/runtimeApiClient.ts\n/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/runtimeApiClient.js\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/types.ts\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/runtimeApiClient.ts\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/runtimeApiClient.js\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js\n",
+  "stderr": ""
+}

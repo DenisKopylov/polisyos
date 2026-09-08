@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_normative_generation_bridge.py::test_app_factory_passes_typed_deployment_trust_to_default_service -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/http/test_normative_generation_bridge.py::test_app_factory_passes_typed_deployment_trust_to_default_service",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 30.79528170800768,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______ test_app_factory_passes_typed_deployment_trust_to_default_service _______\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1309/test_app_factory_passes_typed_0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13202ec40>\n\n    def test_app_factory_passes_typed_deployment_trust_to_default_service(tmp_path, monkeypatch):\n        from fastapi.testclient import TestClient\n        from polisyos.runtime.http.app import create_runtime_api_app\n    \n        monkeypatch.setenv(\"POLISYOS_RUNTIME_EXECUTION_PROFILE\", \"dev\")\n        trust = s8.NormativeAuthorityTrust(epoch=\"fixture:deployment-epoch\")\n>       app = create_runtime_api_app(\n            cas_root=tmp_path / \"cas\", core_runs_root=tmp_path / \"runs\",\n            normative_authority_trust=trust,\n        )\nE       TypeError: create_runtime_api_app() got an unexpected keyword argument 'normative_authority_trust'\n\ntests/unit/runtime/http/test_normative_generation_bridge.py:405: TypeError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/http/test_normative_generation_bridge.py::test_app_factory_passes_typed_deployment_trust_to_default_service\n",
+  "stderr": ""
+}

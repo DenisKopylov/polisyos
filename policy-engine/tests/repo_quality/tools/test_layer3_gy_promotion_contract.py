@@ -1,14 +1,181 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from tools.quality.validation import check_layer3_gy_promotion_contract as checker
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _historical_credal_v1_contract_bytes() -> bytes:
+    recorded = (
+        Path(__file__).parent / "fixtures/layer3_gy_promotion_contract_credal_v1.json"
+    ).read_bytes()
+    assert hashlib.sha256(recorded).hexdigest() == (
+        "4825fd7adac74ef35a351d023dbd0069952b602b26b1c124c7795ef696f1a59a"
+    )
+    return recorded
+
+
+@pytest.fixture(scope="module")
+def live_credal_epoch_comparison() -> tuple[dict[str, Any], checker.GyComparisonProjectionPlan]:
+    """Keep one actual live owner replay for the bounded reconciliation negatives."""
+    return checker._build_payload_with_comparison_plan(POLICY_ENGINE_ROOT)
+
+
+def test_n9_writer_reissues_only_the_governed_credal_input_epoch(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    historical = _historical_credal_v1_contract_bytes()
+    previous = json.loads(historical)
+    for admission in previous["comparison_admission_manifest"]:
+        key = admission["json_pointer"].removeprefix("/")
+        assert (
+            checker.CanonicalPromotionReceipt.model_validate(previous[key]).model_dump(mode="json")
+            == previous[key]
+        )
+    output = tmp_path / "current_n9_contract.json"
+    output.write_bytes(historical)
+    monkeypatch.setattr(checker, "OUTPUT_PATH", str(output))
+
+    checker.write(POLICY_ENGINE_ROOT)
+
+    current = json.loads(output.read_bytes())
+    report = checker.validate(POLICY_ENGINE_ROOT)
+    assert report["status"] == "pass", report
+    assert report["issues"] == []
+    assert _historical_credal_v1_contract_bytes() == historical
+    expected = {
+        "contract_lane_anytime_refusal": "policyos.runtime.grounding_credal_reference.v2",
+        "production_honest_shadow": None,
+        "non_promotable_contract_stamp": "policyos.runtime.grounding_credal_reference.v2",
+    }
+    actual = {}
+    for admission in current["comparison_admission_manifest"]:
+        key = admission["json_pointer"].removeprefix("/")
+        receipt = current[key]
+        reference = receipt["owner_projection"]["credal_reference"]
+        actual[key] = reference["schema_version"] if reference is not None else None
+        assert receipt["consumer_promotable"] is False
+        assert receipt["promoted"] is False
+        assert receipt["schema_version"] == checker.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "wrong_epoch",
+        "governing_value",
+        "governing_receipt",
+        "comparison_epoch",
+        "fake_inner_hash",
+        "fake_old_hash",
+    ],
+)
+def test_n9_credal_epoch_reissue_refuses_other_frozen_drift(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    mutation: str,
+    live_credal_epoch_comparison: tuple[dict[str, Any], checker.GyComparisonProjectionPlan],
+) -> None:
+    frozen: dict[str, Any] = json.loads(_historical_credal_v1_contract_bytes())
+    if mutation == "wrong_epoch":
+        frozen["contract_lane_anytime_refusal"]["owner_projection"]["credal_reference"][
+            "schema_version"
+        ] = "policyos.runtime.grounding_credal_reference.v0"
+    elif mutation == "governing_value":
+        frozen["scope_insufficient_promotion_policy"]["production"] += " hidden weakening"
+    elif mutation == "governing_receipt":
+        frozen["contract_lane_anytime_refusal"]["cg2_resolution_reason"] = "hidden weakening"
+    elif mutation == "comparison_epoch":
+        frozen["comparison_rule_version"] = "policyos.gy.non_authority_verification.v0"
+    elif mutation == "fake_inner_hash":
+        frozen["comparison_content_hash"] = "sha256:" + "0" * 64
+    else:
+        frozen["contract_content_hash"] = "sha256:" + "0" * 64
+    if mutation not in {"fake_old_hash", "fake_inner_hash", "comparison_epoch"}:
+        owner_projection = frozen["contract_lane_anytime_refusal"]["owner_projection"]
+        owner_projection["projection_hash"] = checker.gy_content_hash(
+            {key: value for key, value in owner_projection.items() if key != "projection_hash"}
+        )
+        comparison_plan = checker.build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=frozen["comparison_admission_manifest"],
+            owner_rule_registry=(
+                checker.canonical_promotion_verification_comparison_owner_rule_registry()
+            ),
+        )
+        checker._set_comparison_identity(frozen, comparison_plan)
+    if mutation != "fake_old_hash":
+        frozen["contract_content_hash"] = checker._contract_content_hash(frozen)
+    output = tmp_path / "refused_n9_contract.json"
+    before = json.dumps(frozen, indent=2, sort_keys=True) + "\n"
+    output.write_text(before, encoding="utf-8")
+    monkeypatch.setattr(checker, "OUTPUT_PATH", str(output))
+
+    expected = (
+        "promotion_legacy_contract_content_hash_drift"
+        if mutation == "fake_old_hash"
+        else "promotion_legacy_comparison_semantic_mismatch"
+    )
+    with pytest.raises(ValueError, match=expected):
+        checker._reconcile_frozen_contract(POLICY_ENGINE_ROOT, *live_credal_epoch_comparison)
+
+    assert output.read_text(encoding="utf-8") == before
+
+
+@pytest.mark.parametrize("shape", ["absent", "null", "empty", "duplicate", "novel", "scalar"])
+def test_n9_credal_reissue_requires_the_complete_admitted_identity_set(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    shape: str,
+    live_credal_epoch_comparison: tuple[dict[str, Any], checker.GyComparisonProjectionPlan],
+) -> None:
+    frozen = json.loads(_historical_credal_v1_contract_bytes())
+    manifest = frozen["comparison_admission_manifest"]
+    if shape == "absent":
+        del frozen["comparison_admission_manifest"]
+    elif shape == "null":
+        frozen["comparison_admission_manifest"] = None
+    elif shape == "empty":
+        frozen["comparison_admission_manifest"] = []
+    elif shape == "duplicate":
+        manifest.append(copy.deepcopy(manifest[0]))
+    elif shape == "novel":
+        manifest[0]["json_pointer"] = "/unadmitted_sibling"
+    else:
+        frozen["comparison_admission_manifest"] = "unresolved"
+    frozen["contract_content_hash"] = checker._contract_content_hash(frozen)
+    output = tmp_path / "unadmitted_n9_contract.json"
+    output.write_text(json.dumps(frozen), encoding="utf-8")
+    monkeypatch.setattr(checker, "OUTPUT_PATH", str(output))
+
+    with pytest.raises(ValueError, match=r"promotion_.*(?:drift|mismatch)"):
+        checker._reconcile_frozen_contract(POLICY_ENGINE_ROOT, *live_credal_epoch_comparison)
+
+
+def test_n9_credal_epoch_reissue_removal_restores_governing_refusal(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "historical_n9_contract.json"
+    historical = _historical_credal_v1_contract_bytes()
+    output.write_bytes(historical)
+    monkeypatch.setattr(checker, "OUTPUT_PATH", str(output))
+    monkeypatch.setattr(checker, "_is_authorized_credal_input_epoch_reissue", lambda *_: False)
+
+    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
+        checker.write(POLICY_ENGINE_ROOT)
+
+    assert output.read_bytes() == historical
 
 
 def test_n9_reissue_predicate_accepts_only_complete_v3_to_v6_transition() -> None:

@@ -1,0 +1,17 @@
+{
+  "label": "statute-content",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.s3.measure",
+    "statute_content"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "started_at": "2026-09-08T08:41:19.498469+00:00",
+  "elapsed_seconds": 47.55324133299291,
+  "return_code": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/measure.py\", line 216, in <module>\n    {\"routing\": routing, \"behavior\": behavior, \"law_registry\": law_registry, \"decisive_removal\": decisive_removal, \"n4_routing\": n4_routing, \"source_census\": source_census, \"statute_content\": statute_content}[sys.argv[1]]()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/measure.py\", line 210, in statute_content\n    provisions = lex.load_provisions_by_anchor(details[\"doc_id\"], [details[\"provision_anchor\"]])\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src/polisyos/lex/knowledge/store.py\", line 1968, in load_provisions_by_anchor\n    rows = self._con.execute(\n           ~~~~~~~~~~~~~~~~~^\n        f\"\"\"\n        ^^^^\n    ...<15 lines>...\n        [doc_id, *anchors],\n        ^^^^^^^^^^^^^^^^^^^\n    ).fetchall()\n    ^\n_duckdb.BinderException: Binder Error: Referenced column \"version_id\" not found in FROM clause!\nCandidate bindings: \"provision_id\", \"provision_text\", \"section_role\", \"threshold_bearing\", \"doc_id\"\n\nLINE 4:                 COALESCE(version_id, ''),\n                                 ^\n"
+}

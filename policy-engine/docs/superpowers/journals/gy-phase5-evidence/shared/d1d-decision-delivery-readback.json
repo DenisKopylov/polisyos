@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.delivery_readback check .tmp/gyphase5-d1d-decision-delivery.json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.shared.delivery_readback",
+    "check",
+    ".tmp/gyphase5-d1d-decision-delivery.json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 0.09129608300281689,
+  "stdout": "{\n  \"branch\": \"codex/gy-phase5-execution\",\n  \"commit\": \"33efaade30089e8ef5a08c8fde9e76e6e01d9610\",\n  \"parent\": \"7839a6b9f8e83f78af1d840bd2cf5935f1dac7df\",\n  \"prepared_parent_matches\": true,\n  \"complete_commit_path_set_matches\": true,\n  \"every_branch_blob_matches_prepared_staged_bytes\": true,\n  \"branch_blob_sha256\": {\n    \"policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md\": \"e70320d14d86cfb8ea9ccbb7d471d745311d9b95ba8230448d679ef5df884722\"\n  },\n  \"expected_staged_file_sha256\": {\n    \"policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md\": \"e70320d14d86cfb8ea9ccbb7d471d745311d9b95ba8230448d679ef5df884722\"\n  }\n}\n",
+  "stderr": ""
+}

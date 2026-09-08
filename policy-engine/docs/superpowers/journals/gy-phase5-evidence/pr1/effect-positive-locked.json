@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_exact_or_bounded_entailment_satisfies_without_minting tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2 -q",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 59.678,
+  "stdout": "...                                                                      [100%]\n",
+  "stderr": ""
+}

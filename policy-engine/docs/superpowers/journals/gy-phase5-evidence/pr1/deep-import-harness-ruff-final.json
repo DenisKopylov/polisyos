@@ -1,0 +1,18 @@
+{
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/pr1/deep_import_baseline_probe.py docs/superpowers/journals/gy-phase5-evidence/pr1/deep_import_baseline_reconcile.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/deep_import_baseline_probe.py",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/deep_import_baseline_reconcile.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 0.057,
+  "stdout": "E501 Line too long (161 > 100)\n   --> docs/superpowers/journals/gy-phase5-evidence/pr1/deep_import_baseline_probe.py:113:101\n    |\n111 | \u2026\n112 | \u2026\n113 | \u2026dependent os.walk and NodeVisitor; public entrypoints from the full contract.toml package set.\",\n    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n114 | \u2026th in source_files],\n115 | \u2026or path in walk_files],\n    |\n\nFound 1 error.\n",
+  "stderr": ""
+}

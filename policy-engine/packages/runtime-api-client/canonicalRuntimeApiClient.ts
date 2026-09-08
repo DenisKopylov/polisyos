@@ -1066,6 +1066,18 @@ export type NodeDebugResponse =
 
 export type NodeDebugView = RuntimeApiComponents["schemas"]["NodeDebugView"];
 
+export type NormativeEvidenceSubmissionRequest =
+  RuntimeApiComponents["schemas"]["NormativeEvidenceSubmissionRequest"];
+
+export type NormativeEvidenceSubmissionResponse =
+  RuntimeApiComponents["schemas"]["NormativeEvidenceSubmissionResponse"];
+
+export type NormativeGenerationEvidenceRefs =
+  RuntimeApiComponents["schemas"]["NormativeGenerationEvidenceRefs"];
+
+export type NormativeRunEvidenceRefs =
+  RuntimeApiComponents["schemas"]["NormativeRunEvidenceRefs"];
+
 export type ObligationBudgetPool =
   RuntimeApiComponents["schemas"]["ObligationBudgetPool"];
 
@@ -2053,6 +2065,21 @@ export class RuntimeApiClient {
       path,
       query,
       undefined,
+      undefined,
+    );
+  }
+
+  async submitRunNormativeEvidence(params: {
+    run_id: string;
+    body: NormativeEvidenceSubmissionRequest;
+  }): Promise<NormativeEvidenceSubmissionResponse> {
+    const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/normative-evidence`;
+    const query = undefined;
+    return this.request<NormativeEvidenceSubmissionResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
       undefined,
     );
   }

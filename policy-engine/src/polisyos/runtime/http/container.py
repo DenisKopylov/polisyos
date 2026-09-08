@@ -28,6 +28,7 @@ from polisyos.runtime.http.services.review_collaboration import ReviewCollaborat
 from polisyos.runtime.quality.chronology_custody import (
     build_production_epoch_anchor_custody_provider,
 )
+from polisyos.runtime.quality.design_axes.value_choice_provenance import NormativeAuthorityTrust
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.scientist import (
     ClaimLedgerOwnerPort,
@@ -91,6 +92,9 @@ class RuntimeContainerConfig:
     metrics_factory: Callable[[], Any] | None = None
     tracer_factory: Callable[[], Any] | None = None
     overrides: RuntimeContainerOverrides = field(default_factory=RuntimeContainerOverrides)
+    normative_authority_trust: NormativeAuthorityTrust = field(
+        default_factory=NormativeAuthorityTrust
+    )
 
 
 @dataclass
@@ -190,6 +194,12 @@ class RuntimeServiceContainer:
             overrides.control_service, ControlPlaneService
         ):
             raise ValueError("control_service_owner_invalid")
+        if type(config.normative_authority_trust) is not NormativeAuthorityTrust:
+            raise TypeError("normative_deployment_trust_must_be_typed")
+        if overrides.control_service is not None and (
+            overrides.control_service._normative_authority_trust != config.normative_authority_trust
+        ):
+            raise ValueError("normative_deployment_trust_owner_mismatch")
         inherited_claim_owner = (
             overrides.control_service._epoch_claim_lifecycle_bridge.claim_owner
             if overrides.control_service is not None
@@ -312,6 +322,7 @@ class RuntimeServiceContainer:
                     decision_validity_service=self.decision_validity_service,
                     promotion_runtime=self.promotion_runtime,
                     epoch_claim_lifecycle_bridge=self.epoch_claim_lifecycle_bridge,
+                    normative_authority_trust=self.config.normative_authority_trust,
                     published_signature_population_provider=(
                         PublicVerificationRecordPopulationProvider(
                             source=self.public_decision_verification_service

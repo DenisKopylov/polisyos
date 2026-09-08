@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m gyphase5_pa1_openapi_example_capture",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "gyphase5_pa1_openapi_example_capture"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src:.tmp",
+  "returncode": 0,
+  "elapsed_seconds": 99.90884874999756,
+  "stdout": ".                                                                        [100%]\n=============================== warnings summary ===============================\n../../../policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n{\n  \"pytest_returncode\": 0,\n  \"captures\": [\n    {\n      \"method\": \"POST\",\n      \"path\": \"/api/v1/control/runs/R_9bfa9624a0a11eef/normative-evidence\",\n      \"status_code\": 200,\n      \"content_type\": \"application/json\",\n      \"body_file\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5-pa1-openapi-example/response-1.json\",\n      \"body_sha256\": \"becbcde583102a388069266d50e0dbee946b7c642223a958f8234652b8e4ed65\",\n      \"body_bytes\": 11502,\n      \"scope\": \"fixture_only_transport_example\",\n      \"authority_limitation\": \"Emitted by the actual worker, later fixture-signed evidence intake and current-reader replay. Fixture principals, fixture trust and fixture source are not an institutional appointment, production candidate, canonical denominator, or a reusable admitted authority receipt.\"\n    }\n  ]\n}\n",
+  "stderr": ""
+}

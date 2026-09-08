@@ -3456,6 +3456,36 @@ def test_surrogate_score_below_certified_cannot_promote() -> None:
         )
 
 
+def test_phase5_surrogate_rejects_fake_route_targets_without_certifying_candidates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Names of observation families cannot substitute for owner route validation."""
+    import copy
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    bundle = owner.load_l6_intervention_substrate(REPO_ROOT)
+    atom, _binding = owner._resolve_owner_atom_world_binding(
+        bundle=bundle, operator_kind="budget_allocation_multiplier",
+        raw_knob=bundle.knob_dictionary["budget_allocation_multiplier"], parameter_value=1.25,
+    )
+    candidate = SimpleNamespace(candidate_id="phase5_owner_atom", atom=atom)
+    manifest = copy.deepcopy(bundle.observation_manifest)
+    for row in manifest["routes"]:
+        row["target_contract"] = {"contract_id": "phase5.nonexistent.contract"}
+    broken = owner.replace_intervention_substrate_bundle(
+        bundle, update={"observation_manifest": manifest},
+    )
+    monkeypatch.setattr(dg, "load_l6_intervention_substrate", lambda root: broken)
+    result = dg.rank_shadow_candidates_with_graph_causal_surrogate(
+        [candidate], design_problem=_test_design_problem(), repo_root=REPO_ROOT,
+    )
+    assert result[0].trust_level == "proposal_only"
+    assert result[0].promotion_allowed is False
+    assert not any(ref.startswith("observation_family:") for ref in result[0].feature_refs)
+
+
 def test_fake_surrogate_owner_ref_resolver_rejects() -> None:
     with pytest.raises(DesignGenerationError, match="surrogate_owner_ref_unresolved"):
         dg._resolve_owner_symbol("polisyos.fake.DoesNotExist")

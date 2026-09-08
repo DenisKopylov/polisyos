@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -637,9 +637,11 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("normative_mode", ["missing", "authorized", "wrong_role", "wrong_source"])
 async def test_process_nl_job_enters_persisted_tenant_scope(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
+    normative_mode: str,
 ) -> None:
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
     from tests.unit.runtime.quality.test_generation_cycle import (
@@ -697,10 +699,16 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
             )
         )
 
+        normative_context = {}
+        if normative_mode != "missing":
+            normative_context["normative_evidence"] = _signed_generation_evidence(
+                service, compiled_fixture, fault=normative_mode
+            )
         launch = await service.launch_nl_run(
             NaturalLanguageRunRequest(
                 request=problem.nl_provenance.raw_request,
                 llm_model="simulated-qwen",
+                context=normative_context,
             ),
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
         )
@@ -743,8 +751,176 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         assert leaf.cycle_run.promotion_port.reason == (
             "epoch_validity_refused:policy_admission_missing"
         )
+        # PA1: the real worker must persist an owner-replayable normative refusal.
+        assert completed.progress.get("normative_disposition_ref"), (
+            "default worker omitted the source-bound normative decision request"
+        )
+        status = service.get_job_status(launch.job_id)
+        disposition = status.progress["normative_disposition"]
+        projected_leaf = next(iter(disposition["leaf_dispositions"].values()))
+        assert projected_leaf["candidate_fronts"] == {
+            name: list(ids) for name, ids in leaf.cycle_run.fronts.candidate_ids_by_front().items()
+        }
+        assert projected_leaf["dominance_status"] == "not_established"
+        assert disposition["strangle_receipt"]["default_flipped"] is True
+        if normative_mode == "authorized":
+            assert disposition["authorization_status"] == "authorized"
+            assert disposition["ranked_recommendations"]
+            expired = service._current_normative_generation_projection(
+                disposition_ref=completed.progress["normative_disposition_ref"],
+                compiled_run_ref=str(compiled_ref),
+                evaluated_at=datetime.now(UTC) + timedelta(days=2),
+            )
+            assert expired["authorization_status"] == "blocked"
+            assert expired["ranked_recommendations"] == []
+            assert next(iter(expired["leaf_dispositions"].values()))["decision_request"][
+                "reason_codes"
+            ] == ["p20_normative_authorization_stale"]
+        else:
+            assert disposition["authorization_status"] == "blocked"
+            assert disposition["ranked_recommendations"] == []
+            expected = {
+                "missing": "p20_normative_authorization_missing",
+                "wrong_role": "p20_normative_authority_scope_mismatch",
+                "wrong_source": "p20_normative_generation_binding_mismatch",
+            }[normative_mode]
+            assert projected_leaf["decision_request"]["reason_codes"] == [expected]
     finally:
         service.close()
+
+
+def _signed_generation_evidence(service, compiled, *, fault: str):
+    """Explicit fixture principals permit selection only; this is no governed promotion."""
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+    from tests.unit.runtime.quality.test_design_axes_value_choice_provenance import (
+        _authorized_schedule_payload,
+        _pareto_archive_payload,
+    )
+
+    now = datetime.now(UTC)
+    claimant_key, authorizer_key = artifacts.KeyPair.generate(), artifacts.KeyPair.generate()
+    claimant, authorizer = "fixture:claimant", "fixture:authorizer"
+    case_id = compiled.design_problem.design_problem_id
+    scope_ref = "fixture:explicit-value-scope"
+    mandate_ref = "fixture:mandate"
+    store = service._artifact_store
+
+    def put_signed(payload, kind, schema, *, key, identity):
+        ref = store.put_json(
+            payload,
+            artifacts.PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(name=kind, version=schema),
+            ),
+        )
+        store.sign_artifact(
+            ref.artifact_id, artifacts.Ed25519Signer(key.private_key), signer_identity=identity
+        )
+        return str(ref.artifact_id)
+
+    compiled_ref = service._put_json_artifact(
+        compiled.model_dump(mode="json"),
+        kind="runtime.compiled_recursive_generation_cycle",
+        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+    )
+    bindings = generation_cycle_service._normative_generation_sources(
+        store, compiled_ref, persist=True
+    )
+    node_ref, binding = next(iter(bindings.items()))
+    leaf = compiled.recursive_run.leaf_nodes[0].cycle_run
+    assert leaf is not None
+    candidates = tuple(dict.fromkeys(row.candidate_id for row in leaf.candidate_summaries))
+    assert candidates
+    schedule = s8.build_authorized_value_schedule(
+        **_authorized_schedule_payload(
+            case_id=case_id,
+            mandate_record_ref=mandate_ref,
+            principal_refs=[authorizer],
+            effective_at=now - timedelta(days=1),
+        )
+    )
+    schedule_ref = put_signed(
+        schedule.model_dump(mode="json"),
+        s8.NORMATIVE_SCHEDULE_KIND,
+        s8.LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        key=claimant_key,
+        identity=claimant,
+    )
+    frontier = s8.build_pareto_archive(
+        **_pareto_archive_payload(
+            case_id=case_id,
+            ranking_mode="unranked_frontier_only",
+            archive_status="frontier_available",
+            value_schedule_ref=None,
+            nondominated_alternative_ids=candidates,
+            rejected_nondominated_alternative_ids=[],
+            frontier_refs=[
+                "sha256:" + "f" * 64 if fault == "wrong_frontier_source" else binding.source_run_ref
+            ],
+        )
+    )
+    frontier_ref = put_signed(
+        frontier.model_dump(mode="json"),
+        s8.NORMATIVE_FRONTIER_KIND,
+        s8.LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+        key=claimant_key,
+        identity=claimant,
+    )
+    if fault == "wrong_source":
+        binding = binding.model_copy(update={"source_run_ref": "sha256:" + "e" * 64})
+    authorization = s8.NormativeAuthorizationRecordV2(
+        authorizer_identity=authorizer,
+        authority_purpose="value_schedule_for_ranking",
+        case_id=case_id,
+        scope_ref=scope_ref,
+        mandate_ref=mandate_ref,
+        decision_class_id="value_authorization",
+        decision_role="legal_reviewer" if fault == "wrong_role" else "principal",
+        source_schedule_ref=schedule_ref,
+        frontier_ref=frontier_ref,
+        selected_alternative_id=candidates[0],
+        effective_at=now - timedelta(days=1),
+        expires_at=now + timedelta(days=1),
+        rule_version_ref=s8.LAYER2_S8_VALUE_CHOICE_RULE_VERSION,
+        generation_binding=binding,
+    )
+    authorization_ref = put_signed(
+        authorization.model_dump(mode="json"),
+        s8.NORMATIVE_AUTHORIZATION_KIND,
+        s8.NORMATIVE_GENERATION_AUTHORIZATION_SCHEMA_VERSION,
+        key=authorizer_key,
+        identity=authorizer,
+    )
+    # The deployment slot is populated explicitly by this fixture, never by context evidence.
+    service._normative_authority_trust = s8.NormativeAuthorityTrust(
+        epoch="explicit-test-deployment",
+        principals=(
+            s8.NormativeAuthorityPrincipal(
+                identity=claimant,
+                public_key_pem=claimant_key.public_pem().decode(),
+            ),
+            s8.NormativeAuthorityPrincipal(
+                identity=authorizer,
+                public_key_pem=authorizer_key.public_pem().decode(),
+                decision_roles=("principal",),
+                authority_purposes=("value_schedule_for_ranking",),
+                case_ids=(case_id,),
+                scope_refs=(scope_ref,),
+                mandate_refs=(mandate_ref,),
+            ),
+        ),
+    )
+    return {
+        "by_node": {
+            node_ref: {
+                "frontier_ref": frontier_ref,
+                "authorization_ref": authorization_ref,
+                "scope_ref": scope_ref,
+            }
+        }
+    }
 
 
 def _build_registry_providers() -> ControlRegistryProviders:

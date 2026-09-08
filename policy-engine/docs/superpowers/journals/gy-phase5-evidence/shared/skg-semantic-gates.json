@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest -q -o addopts= tests/unit/runtime/quality/test_production_grounding_calibration.py tests/unit/runtime/quality/test_acquisition_source_replay.py tests/unit/runtime/quality/test_grounding_benchmark.py::test_must_negative_wrong_atom_identification_counts_false_bind",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "addopts=",
+    "tests/unit/runtime/quality/test_production_grounding_calibration.py",
+    "tests/unit/runtime/quality/test_acquisition_source_replay.py",
+    "tests/unit/runtime/quality/test_grounding_benchmark.py::test_must_negative_wrong_atom_identification_counts_false_bind"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 70.74540212500142,
+  "stdout": ".............................                                            [100%]\n29 passed in 66.27s (0:01:06)\n",
+  "stderr": ""
+}

@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m tools.quality.validation.check_layer3_gy_promotion_contract --corrupt-field-drift-check --output-format json",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 63.478,
+  "stdout": "{\n  \"issues\": [\n    {\n      \"code\": \"corrupt_field_drift_detected\"\n    },\n    {\n      \"code\": \"comparison_admission_manifest_invalid\",\n      \"error\": \"1 validation error for CanonicalPromotionReceipt\\nconfidence_ledger_projection.conditionality_clause\\n  Field required [type=missing, input_value={'authority_provenance': ..., 'within_budget': True}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\"\n    },\n    {\n      \"actual\": \"sha256:395cc00e65ec805fcda6af69950de5bfa7a3a0c6a0459d05ab2f3e7af92b06c1\",\n      \"code\": \"contract_content_hash_drift\",\n      \"expected\": \"sha256:46e9f42fdfa33f16dfbd0b2d21b8e90fba4f59a3291404681c0035bd9192db5a\"\n    },\n    {\n      \"code\": \"contract_lane_anytime_refusal_invalid\",\n      \"error\": \"1 validation error for CanonicalPromotionReceipt\\nconfidence_ledger_projection.conditionality_clause\\n  Field required [type=missing, input_value={'authority_provenance': ..., 'within_budget': True}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\"\n    }\n  ],\n  \"status\": \"fail\",\n  \"wall_time_seconds\": 0.048722\n}\n",
+  "stderr": ""
+}

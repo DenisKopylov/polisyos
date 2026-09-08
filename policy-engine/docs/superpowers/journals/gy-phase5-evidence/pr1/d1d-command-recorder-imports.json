@@ -1,0 +1,20 @@
+{
+  "command": ".venv/bin/python -m ruff check --select I --fix docs/superpowers/journals/gy-phase5-evidence/pr1/run_measurement.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "--select",
+    "I",
+    "--fix",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/run_measurement.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 0.103,
+  "stdout": "Found 1 error (1 fixed, 0 remaining).\n",
+  "stderr": ""
+}

@@ -1,0 +1,17 @@
+id = "2026-09-08-gy-pa1-normative-evidence-intake"
+title = "Admit signed value-choice evidence after generation completes"
+type = "added"
+component = "runtime"
+owner = "team-runtime"
+summary = "The owned-run normative-evidence endpoint conditionally appends a source-bound current job head after signed evidence arrives, with current replay at both job readers. Natural-language workers publish their candidate outputs through the existing canonical core-run owner."
+evidence = ["tests/unit/runtime/http/test_normative_evidence_intake.py", "tests/unit/runtime/http/test_control_plane_store.py", "tests/unit/runtime/http/test_runtime_api_authz.py", "docs/superpowers/journals/gy-phase5-evidence/pa1/stage3.md", "packages/runtime-api-client/runtimeApiClient.test.mjs", "tests/repo_quality/architecture/test_public_api_facades.py", "tests/unit/runtime/http/test_runtime_api_contract_hardening.py"]
+compatibility = "Additive normative-generation-head v1 and HTTP request/response DTOs. Existing generation, promotion, S8 and core execution-manifest epochs remain unchanged. Historical sidecars remain readable."
+change_class = "additive"
+surface_classification = "public: POST /api/v1/control/runs/{run_id}/normative-evidence and generated callable client; public_stable: existing ControlJobResponse through core.contracts facade; internal: conditional head event and current projection owners"
+migration = "Submit exact job_id, nullable expected_prior_head_ref, and typed evidence refs after source-bound evidence exists. No table migration or historical progress rewrite."
+api = "submit_run_normative_evidence; admitted 200, typed refused 422, predecessor conflict 409. Existing evidence.resolve permission and owned run binding apply."
+limitations = "Selection authority remains independently signed and source-bound; no empirical, Pareto, legal or promotion authority is conferred. Canonical filesystem CAS signature support remains required."
+generated_client_compatibility = "additive operation and DTOs; generated through existing OpenAPI/client owners"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

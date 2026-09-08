@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m tools.cli architecture guardrails check",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 30.3151571250055,
+  "stdout": "Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.\nArchitecture guardrail check FAILED:\n- Deep-import baseline drift detected. Re-run `uv run polisyos-tools architecture guardrails sync` only when intentionally accepting the new baseline.\n--- architecture/baselines/imports/deep_import.json (current)\n+++ architecture/baselines/imports/deep_import.json (expected)\n@@ -11906,13 +11906,6 @@\n       \"source_module\": \"polisyos.runtime.quality.acquisition_planner\",\n       \"source_root\": \"runtime\",\n       \"source_file\": \"src/polisyos/runtime/quality/acquisition_planner.py\",\n-      \"target_module\": \"polisyos.data_forge.domains.academic.knowledge\",\n-      \"target_root\": \"data_forge\"\n-    },\n-    {\n-      \"source_module\": \"polisyos.runtime.quality.acquisition_planner\",\n-      \"source_root\": \"runtime\",\n-      \"source_file\": \"src/polisyos/runtime/quality/acquisition_planner.py\",\n       \"target_module\": \"polisyos.data_forge.domains.academic.openalex.client\",\n       \"target_root\": \"data_forge\"\n     },\n- Required freshness environment preparation failed: error: Querying Python at `/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/bin/python3` failed with exit status signal: 6 (SIGABRT)\n\n[stderr]\ndyld[39266]: Library not loaded: @rpath/libpython3.14.dylib\n  Referenced from: <4C4C44BD-5555-3144-A182-492C989DFDAF> /private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/bin/python3\n  Reason: tried: '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/lib/libpython3.14.dylib' (no such file), '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/lib/libpython3.14.dylib' (no such file)\n",
+  "stderr": ""
+}

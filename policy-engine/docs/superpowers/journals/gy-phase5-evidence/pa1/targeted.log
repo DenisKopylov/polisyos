@@ -1,0 +1,23 @@
+................................................                         [100%]
+=============================== warnings summary ===============================
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[model_construct]
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `AuthorityBoundary` - serialized value may not be as expected [field_name='authority_boundary', input_value={'authoritative_for': ['p...r2.s8.value_choice.v1']}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[copy]
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[copy]
+  /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py:313: PydanticDeprecatedSince20: The `copy` method is deprecated; use `model_copy` instead. See the docstring of `BaseModel.copy` for details about how to handle `include` and `exclude`. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    copied = super().copy(
+
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]
+  /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py:356: PydanticDeprecatedSince20: The `construct` method is deprecated; use `model_construct` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    archive_model.construct(**{**unranked_payload, **ranked_update})
+
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]
+  /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py:371: PydanticDeprecatedSince20: The `construct` method is deprecated; use `model_construct` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    safe_copy = archive_model.construct(**unranked_payload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+48 passed, 6 warnings in 35.64s

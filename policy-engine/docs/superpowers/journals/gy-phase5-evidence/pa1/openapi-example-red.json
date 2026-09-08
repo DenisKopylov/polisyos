@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_normative_evidence_openapi_example_preserves_actual_fixture_response -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_normative_evidence_openapi_example_preserves_actual_fixture_response",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 60.72720429202309,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__ test_normative_evidence_openapi_example_preserves_actual_fixture_response ___\n\n    def test_normative_evidence_openapi_example_preserves_actual_fixture_response() -> None:\n        from polisyos.runtime.http.openapi_contract import augment_runtime_openapi\n        from polisyos.runtime.http.services.control.generation_cycle import (\n            NormativeEvidenceSubmissionResponse,\n        )\n    \n        schema = augment_runtime_openapi(_normative_evidence_schema_without_example())\n>       assert validate_runtime_openapi_contract(schema) == []\nE       AssertionError: assert ['POST /api/v...onse example'] == []\nE         \nE         Left contains one more item: 'POST /api/v1/control/runs/{run_id}/normative-evidence: missing 2xx success response example'\nE         Use -v to get more diff\n\ntests/unit/runtime/http/test_runtime_api_contract_hardening.py:96: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_normative_evidence_openapi_example_preserves_actual_fixture_response\n",
+  "stderr": ""
+}

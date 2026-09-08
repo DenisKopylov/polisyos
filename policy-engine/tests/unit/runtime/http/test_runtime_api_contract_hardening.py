@@ -7,7 +7,7 @@ import subprocess
 import sys
 from importlib.util import find_spec
 from pathlib import Path
-from typing import get_args
+from typing import Any, get_args
 
 import pytest
 
@@ -70,6 +70,63 @@ def test_epoch_validity_batch_success_example_matches_its_wire_contract() -> Non
     assert response.state == "completed"
     assert response.completion_receipt.batch_id == response.batch_id
     assert response.affected_packet_refs == response.completion_receipt.affected_packet_refs
+
+
+def _normative_evidence_schema_without_example() -> dict[str, Any]:
+    """Keep the complete schema while requiring this owner to supply its example."""
+    repository_root = Path(__file__).resolve().parents[4]
+    schema = json.loads(
+        (repository_root / "schemas/runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    operation = schema["paths"]["/api/v1/control/runs/{run_id}/normative-evidence"]["post"]
+    assert operation["operationId"] == "submit_run_normative_evidence"
+    content = operation["responses"]["200"]["content"]["application/json"]
+    content.pop("example", None)
+    content.pop("examples", None)
+    return schema
+
+
+def test_normative_evidence_openapi_example_preserves_actual_fixture_response() -> None:
+    from polisyos.runtime.http.openapi_contract import augment_runtime_openapi
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        NormativeEvidenceSubmissionResponse,
+    )
+
+    schema = augment_runtime_openapi(_normative_evidence_schema_without_example())
+    assert validate_runtime_openapi_contract(schema) == []
+    operation = schema["paths"]["/api/v1/control/runs/{run_id}/normative-evidence"]["post"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"][
+        "positive_fixture_only_transport"
+    ]
+    repository_root = Path(__file__).resolve().parents[4]
+    captured = json.loads(
+        (repository_root / "docs/superpowers/journals/gy-phase5-evidence/pa1/"
+         "openapi-response-capture.json").read_text(encoding="utf-8")
+    )
+    assert example["value"] == captured
+    response = NormativeEvidenceSubmissionResponse.model_validate_json(
+        json.dumps(example["value"]), strict=True
+    )
+    assert response.model_dump(mode="json") == captured
+    assert response.status == "admitted"
+    assert response.job.progress["normative_disposition"]["ranked_recommendations"]
+    assert "fixture" in example["summary"].lower()
+    assert "not production authority or a canonical denominator" in example["description"]
+
+
+def test_normative_evidence_openapi_registration_removal_restores_exact_refusal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http import openapi_contract
+
+    monkeypatch.delitem(
+        openapi_contract._SUCCESS_EXAMPLE_SETS_BY_OPERATION, "submit_run_normative_evidence"
+    )
+    schema = openapi_contract.augment_runtime_openapi(_normative_evidence_schema_without_example())
+    assert validate_runtime_openapi_contract(schema) == [
+        "POST /api/v1/control/runs/{run_id}/normative-evidence: "
+        "missing 2xx success response example"
+    ]
 
 
 def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None:

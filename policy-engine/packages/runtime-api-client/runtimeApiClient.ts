@@ -4131,6 +4131,32 @@ export type NodeDebugView = {
   timeline_events?: Array<RunTimelineEvent>;
 };
 
+export type NormativeEvidenceSubmissionRequest = {
+  evidence: NormativeRunEvidenceRefs;
+  expected_prior_head_ref: string | null;
+  job_id: string;
+};
+
+export type NormativeEvidenceSubmissionResponse = {
+  attempted_disposition_ref: string;
+  head_ref: string | null;
+  job: ControlJobResponse;
+  status: "admitted" | "refused" | "conflict";
+};
+
+export type NormativeGenerationEvidenceRefs = {
+  authorization_ref: string;
+  frontier_ref: string;
+  scope_ref: string;
+};
+
+export type NormativeRunEvidenceRefs = {
+  by_node?: {
+  [key: string]: NormativeGenerationEvidenceRefs;
+};
+  input_limitation?: "p20_normative_evidence_invalid" | "p20_normative_generation_disposition_missing" | "p20_normative_sidecar_replay_failed" | null;
+};
+
 export type ObligationBudgetPool = {
   obligation_classes: Array<PromotionObligationClass>;
   pool_id: string;
@@ -6323,6 +6349,15 @@ export class RuntimeApiClient {
       export_projection_hash: params.export_projection_hash,
     });
     return this.request<DecisionValiditySummaryResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async submitRunNormativeEvidence(params: {
+    run_id: string;
+    body: NormativeEvidenceSubmissionRequest;
+  }): Promise<NormativeEvidenceSubmissionResponse> {
+    const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/normative-evidence`;
+    const query = undefined;
+    return this.request<NormativeEvidenceSubmissionResponse>("POST", path, query, params.body, undefined);
   }
 
   async listControlWorkers(params: {

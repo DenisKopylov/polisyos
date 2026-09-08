@@ -4,3 +4,6 @@ test-results
 node_modules
 coverage
 .tmp
+
+# Exact canonical bytes belong to check_trust_claim_posture and its freshness check.
+/public/atlas/trust-claim-posture.v1.json

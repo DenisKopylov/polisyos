@@ -1,0 +1,14 @@
+2026-09-08 11:52:14.345 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-09-08 11:52:14.345 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+{
+  "python": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin/python",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "mode": "deployed_store"
+}
+{
+  "deployed_store_type": "polisyos.runtime.http.resilience.GuardedDependencyProxy",
+  "canonical_target_type": "polisyos.core.artifacts.store.FileSystemCAS",
+  "guarded_constructor_refusal": "normative authority requires the concrete CAS and deployment trust",
+  "same_backend_object_reused": true
+}

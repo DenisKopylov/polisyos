@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/shared/probe_framework_python.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/gy-phase5-evidence/shared/probe_framework_python.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.5867283749976195,
+  "stdout": "E501 Line too long (102 > 100)\n  --> docs/superpowers/journals/gy-phase5-evidence/shared/probe_framework_python.py:24:101\n   |\n22 |         venv.EnvBuilder(with_pip=False).create(private)\n23 |         python = str(private / \"bin/python3\")\n24 |         expression = \"import json,sys; print(json.dumps({'version':sys.version,'prefix':sys.prefix}))\"\n   |                                                                                                     ^^\n25 |         commands = [\n26 |             [python, \"-c\", expression],\n   |\n\nFound 1 error.\n",
+  "stderr": ""
+}

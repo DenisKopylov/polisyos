@@ -1,0 +1,15 @@
+{
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pr1.private_interpreter_owner_audit",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.pr1.private_interpreter_owner_audit"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 23.594,
+  "stdout": "{\n  \"output\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-complete.json\",\n  \"ambiguous\": [],\n  \"direct_environment_constructor_calls\": [\n    {\n      \"path\": \"tools/devx/architecture/guardrails.py\",\n      \"line\": 1509,\n      \"resolved_owner\": \"venv.EnvBuilder\",\n      \"actual_call\": \"venv.EnvBuilder(with_pip=False)\"\n    }\n  ],\n  \"actual_base_executable\": \"/Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14\"\n}\n",
+  "stderr": ""
+}

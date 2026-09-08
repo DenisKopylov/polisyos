@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/runtime/http/app.py src/polisyos/runtime/http/container.py src/polisyos/runtime/http/services/control/generation_cycle.py src/polisyos/runtime/http/services/control/run_lifecycle.py src/polisyos/runtime/quality/design_axes/value_choice_provenance.py tests/unit/runtime/http/test_control_service_di.py tests/unit/runtime/http/test_normative_generation_bridge.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/http/app.py",
+    "src/polisyos/runtime/http/container.py",
+    "src/polisyos/runtime/http/services/control/generation_cycle.py",
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+    "tests/unit/runtime/http/test_control_service_di.py",
+    "tests/unit/runtime/http/test_normative_generation_bridge.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 0,
+  "elapsed_seconds": 0.04583645798265934,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

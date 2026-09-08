@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_normative_evidence_intake.py::test_post_source_signature_advances_both_current_job_readers -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/http/test_normative_evidence_intake.py::test_post_source_signature_advances_both_current_job_readers",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 37.75508054200327,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________ test_post_source_signature_advances_both_current_job_readers _________\n\ncompleted_worker = (<polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x12f281400>, ControlJobResponse(...application/octet-stream')),), content_hash='sha256:0d1827d9e1b9bbe8a53707aa2f10a0ef878571649b940af3abf5b79944b269ac'))\n\n    def test_post_source_signature_advances_both_current_job_readers(completed_worker):\n        service, before, compiled = completed_worker\n        assert before.progress[\"normative_disposition\"][\"authorization_status\"] == \"blocked\"\n        evidence = _signed_generation_evidence(service, compiled, fault=\"authorized\")\n>       client, opa = _secure_client(service)\n                      ^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/unit/runtime/http/test_normative_evidence_intake.py:86: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nservice = <polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x12f281400>\n\n    def _secure_client(service):\n        from fastapi.testclient import TestClient\n    \n        registry = CellRegistry()\n>       cell = CellSpec(cell_id=\"cell-fixture\", tier=CellTier.SHARED, region=\"test\")\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       pydantic_core._pydantic_core.ValidationError: 1 validation error for CellSpec\nE       cell_id\nE         Value error, badly formed hexadecimal UUID string [type=value_error, input_value='cell-fixture', input_type=str]\nE           For further information visit https://errors.pydantic.dev/2.12/v/value_error\n\ntests/unit/runtime/http/test_normative_evidence_intake.py:62: ValidationError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/http/test_normative_evidence_intake.py::test_post_source_signature_advances_both_current_job_readers\n",
+  "stderr": ""
+}

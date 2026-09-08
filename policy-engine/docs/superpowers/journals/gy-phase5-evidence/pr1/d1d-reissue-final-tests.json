@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m pytest tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_writer_reissues_only_the_governed_credal_input_epoch tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_credal_epoch_reissue_refuses_other_frozen_drift tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_credal_reissue_requires_the_complete_admitted_identity_set tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_credal_epoch_reissue_removal_restores_governing_refusal tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_reissue_predicate_accepts_only_complete_v3_to_v6_transition -q",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 292.919,
+  "stdout": "...............                                                          [100%]\n",
+  "stderr": ""
+}

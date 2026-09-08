@@ -1,0 +1,1380 @@
+{
+  "python": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin/python",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "mode": "refusals"
+}
+{
+  "control": "positive_signed_fixture_not_production_denominator",
+  "bundle_ref": "sha256:388a7df0d123c602cabb4e3e7b9ee4f9704aec3a62a81e52577323ea8e2eadc1",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [
+        "cash_transfer"
+      ],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": "sha256:60201972a80958d0fa802c53291eac01d65386c446502ababdfda16b5489d109",
+      "ranking_mode": "ranked_with_authorized_values",
+      "archive_status": "ranked_with_authorized_values",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "value_schedule_for_ranking"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "governed",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": "sha256:a0c4db083ad5754e941e1dfd641dffc7aca5ce0e74d834f6f99dfe25a2b1b948",
+      "selected_alternative_ref": "targeted_credit"
+    },
+    "authorization_status": "authorized",
+    "ranked_recommendations": [
+      "targeted_credit"
+    ],
+    "decision_request": null
+  }
+}
+{"refusal_identity_set": ["case", "empty", "missing", "missing_schedule", "purpose", "role", "scope", "self_grading", "shadow", "signature", "stale"]}
+{
+  "fault": "missing",
+  "bundle_ref": "sha256:818d767ee6fb3add75074aca226861f067a780179a952b82d7e6f17e2d2a2d7f",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": null,
+      "reason_codes": [
+        "p20_normative_authorization_missing"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "missing_schedule",
+  "bundle_ref": "sha256:c53db66c4de438e932fe7fe9fa3db5c6f867a0d7e54b9a8ca3c9e6e9d7082f6b",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:72d74faca153934a594cf24de084437f5c9e44e524278b5831c8403b320c967a",
+      "reason_codes": [
+        "p20_value_schedule_ref_unresolvable"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "empty",
+  "bundle_ref": "sha256:280bbaeec6d4e4a1f980d41f7bfbe8b2f454715d94f82ed753692eab7e7e8b8c",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:24d76c0cf170f1cb0449f4af93e572e5d02715e1f19321c6d5bf7dc473c208a3",
+      "reason_codes": [
+        "p20_normative_authority_slot_empty"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "self_grading",
+  "bundle_ref": "sha256:ac0c1dde6218f85eccbb09047f01af5fb0cb79419953d73d603f2b6b926065eb",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:849ced8816c76c9bbb1fee7e388779779906c1e5042441aabb2116f8f94b3d9f",
+      "reason_codes": [
+        "p20_normative_self_grading"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "role",
+  "bundle_ref": "sha256:3284963fc10cc786e8d05e0b9a73a055902f3118261b30f03bf001e0b93be68a",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:60d8dc71fc436575b0088f25bbe48d90441542006dd94fd6e1a84a79edb4e7a9",
+      "reason_codes": [
+        "p20_normative_authority_scope_mismatch"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "purpose",
+  "bundle_ref": "sha256:bcaf016c42a4f5ea932fbf9d548981afcac0c958b4bb3b40dc6d78fdcb373beb",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:aeaa62ee98c80805a6870115188ee04efd10095607d381c9385952ba39530ce9",
+      "reason_codes": [
+        "p20_normative_authority_scope_mismatch"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "scope",
+  "bundle_ref": "sha256:26d71b5adb516ff3881ac638c3ddc21e59dccd5b88b4aed3c358ee371f39ae4b",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:d9b63b4e6df389154d0bab7684e2be95adf58a0d6695d024be2b0f2ed9e22e77",
+      "reason_codes": [
+        "p20_normative_authority_scope_mismatch"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "case",
+  "bundle_ref": "sha256:b55e2858c91ec7d21486b04a9f7f09ea87c79c3a9f26417c9d85fe34967a2e01",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:3948009c60f5727f28bedd32207ac3897a6116cc4759ff5399a8f3eed340fc65",
+      "reason_codes": [
+        "p20_normative_authority_scope_mismatch"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "stale",
+  "bundle_ref": "sha256:e475322602fe6f264c9e2c292733fc161a5df6f8947229d2f28b9dd6b1ba3e12",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:38a6af418f248bd39b677446aeef229b2f8ea8a6aa6f09f9c5cd7180716db816",
+      "reason_codes": [
+        "p20_normative_authorization_stale"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "shadow",
+  "bundle_ref": "sha256:7393fd5bd0ca6f84fb0161854c73f610b72252e1b34f4a5ddbb0a582fd7bab98",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:b8c3f03e514bf394939e748a94f6dc62abd0ea904dc603d34517e0063bef2e27",
+      "reason_codes": [
+        "p20_resolved_schedule_not_authorized"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}
+{
+  "fault": "signature",
+  "bundle_ref": "sha256:c54863b3bf80bd9cb4f647dfa023c04d662d2cc571cef07512f852cb4f4f9c27",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": null,
+      "ranking_mode": "unranked_frontier_only",
+      "archive_status": "candidate_frontier_available",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "candidate_value_disclosure"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": null,
+      "selected_alternative_ref": null
+    },
+    "authorization_status": "blocked",
+    "ranked_recommendations": [],
+    "decision_request": {
+      "schema_version": "policyos.normative_decision_request.v1",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "scope_ref": "value-scope://credit-and-budget",
+      "frontier_ref": "sha256:de53e2b564aed632062a99b906f3377e3e2b5d36110355729ec569ddffa03d4b",
+      "authorization_ref": "sha256:f92ccd482556b859e37c23ce568a62d2106048c3e1c63dd887bd3614dfea4299",
+      "reason_codes": [
+        "p20_normative_signature_unverified"
+      ],
+      "requested_at": "2026-06-01T00:00:00Z",
+      "authoritative_for": "value_authorization_request"
+    }
+  }
+}

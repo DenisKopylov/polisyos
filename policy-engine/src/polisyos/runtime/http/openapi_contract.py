@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Callable  # noqa: TC003 - public map type is introspected
 from copy import deepcopy
@@ -1075,7 +1076,492 @@ def _epoch_validity_batch_example() -> dict[str, Any]:
     ).model_dump(mode="json")
 
 
-_SUCCESS_EXAMPLE_SETS_BY_OPERATION = {
+# Captured from the actual worker -> later-signed HTTP fixture, without changing
+# response values. See the PA1 openapi-response-capture command and provenance.
+# This documentation sample is never read by runtime evidence admission.
+_NORMATIVE_EVIDENCE_FIXTURE_RESPONSE: dict[str, Any] = {
+    "status": "admitted",
+    "head_ref": ("sha256:d7d43f5969fe8c96c135717ccc6772cab4a7ddfe36de6ceea2601a50830a6100"),
+    "attempted_disposition_ref": (
+        "sha256:5feaacea427178b78e4c1a56f748060d2bb27b728ac0062470d7655ffa087bb0"
+    ),
+    "job": {
+        "meta": {
+            "request_id": "ee06ef9ea7974052b729bb8962bd0874",
+            "generated_at": "2026-09-08T11:14:34.701964Z",
+            "source_kinds": [],
+        },
+        "job_id": "1c4fa4a02a7f48bcb1b91be75093a229",
+        "kind": "natural_language_run",
+        "state": "completed",
+        "run_id": "R_9bfa9624a0a11eef",
+        "pipeline_id": None,
+        "requested_execution_profile": None,
+        "effective_execution_profile": "dev",
+        "capability_manifest_ref": {
+            "artifact_id": (
+                "sha256:ba4ce3c08d828641c6d4c09c4610961af2b3c59330632ea769750559302474f6"
+            ),
+            "kind": "runtime.capability_manifest",
+            "media_type": "application/json",
+        },
+        "submitted_at": "2026-09-08T11:14:32Z",
+        "started_at": None,
+        "finished_at": "2026-09-08T11:14:32Z",
+        "error_message": None,
+        "failure": None,
+        "execution_status": "completed",
+        "quality_status": "warn",
+        "quality_scorecard_ref": None,
+        "authoritative_scorecard_ref": None,
+        "projection_source": {
+            "source_surface": "runtime.control_job",
+            "source_detail": "control_store_progress",
+            "authority_level": "projection_only",
+            "projection_policy": "projection_only",
+        },
+        "runtime_state": "completed",
+        "approval_projection": {
+            "state": None,
+            "eligible": False,
+            "reasons": ["authority_surface_signal_missing"],
+            "source_surface": "runtime.control_job",
+            "authority_level": "projection_only",
+        },
+        "unresolved_authority_gaps": [
+            {
+                "code": "authority_surface_signal_missing",
+                "layer": "runtime_authority_surface",
+                "phase": "run_status",
+                "message": (
+                    "Run status consumed AuthorityBoundary and cannot"
+                    " be treated as authority for runtime_closeout_au"
+                    "thority: blocked."
+                ),
+                "owner": "team-runtime-quality",
+                "evidence_ref": None,
+                "next_action": (
+                    "Repair workflow failure or rerun through the workspace loop authority path."
+                ),
+                "next_diagnostic_command": (
+                    "python3 tools/quality/validation/check_layer3_wo"
+                    "rkflow_failure_authority.py --check --repo-root "
+                    "."
+                ),
+            }
+        ],
+        "next_diagnostic_commands": [
+            (
+                "python3 tools/quality/validation/check_layer3_wo"
+                "rkflow_failure_authority.py --check --repo-root "
+                "."
+            )
+        ],
+        "policy_design_case_projection": None,
+        "quality_evidence_bundle_path": None,
+        "quality_gates": [
+            {
+                "name": "normative_evidence_present",
+                "code": ("normative_applicability_report_ref_optional_missing"),
+                "status": "warn",
+                "layer": "lex",
+                "phase": "quality_evidence",
+                "message": (
+                    "Normative applicability evidence is present. Run"
+                    "time-owned normative_applicability_report_ref is"
+                    " missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist normative_applicability_report_ref from "
+                    "the owning runtime layer before production appro"
+                    "val."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "fabric_retrieval_trace_present",
+                "code": "fabric_retrieval_trace_ref_optional_missing",
+                "status": "warn",
+                "layer": "fabric_retrieval",
+                "phase": "quality_evidence",
+                "message": (
+                    "Fabric source-selection evidence is present. Run"
+                    "time-owned fabric_retrieval_trace_ref is missing"
+                    "."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist fabric_retrieval_trace_ref from the owni"
+                    "ng runtime layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "foundry_method_evidence_present",
+                "code": "foundry_method_report_ref_optional_missing",
+                "status": "warn",
+                "layer": "foundry_methods",
+                "phase": "quality_evidence",
+                "message": (
+                    "Foundry method validity evidence is present. Run"
+                    "time-owned foundry_method_report_ref is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist foundry_method_report_ref from the ownin"
+                    "g runtime layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "policy_grounding_matrix_present",
+                "code": "policy_grounding_matrix_ref_optional_missing",
+                "status": "warn",
+                "layer": "scientist_policy_artifacts",
+                "phase": "quality_evidence",
+                "message": (
+                    "Policy grounding matrix is present. Runtime-owne"
+                    "d policy_grounding_matrix_ref is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist policy_grounding_matrix_ref from the own"
+                    "ing runtime layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "conflict_check_present",
+                "code": "conflict_check_ref_optional_missing",
+                "status": "warn",
+                "layer": "normative_conflict",
+                "phase": "quality_evidence",
+                "message": (
+                    "Policy conflict check is present. Runtime-owned conflict_check_ref is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist conflict_check_ref from the owning runti"
+                    "me layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "causal_statistical_validity_present",
+                "code": ("causal_statistical_validity_report_ref_optional_missing"),
+                "status": "warn",
+                "layer": "foundry_causal_validity",
+                "phase": "quality_evidence",
+                "message": (
+                    "Causal/statistical validity benchmark evidence i"
+                    "s present. Runtime-owned causal_statistical_vali"
+                    "dity_report_ref is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist causal_statistical_validity_report_ref f"
+                    "rom the owning runtime layer before production a"
+                    "pproval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "replay_manifest_present",
+                "code": "replay_manifest_ref_optional_missing",
+                "status": "warn",
+                "layer": "runtime_replay",
+                "phase": "quality_evidence",
+                "message": (
+                    "Deterministic replay manifest is present. Runtim"
+                    "e-owned replay_manifest_ref is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist replay_manifest_ref from the owning runt"
+                    "ime layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "drift_explanation_present",
+                "code": "drift_explanation_ref_optional_missing",
+                "status": "warn",
+                "layer": "runtime_replay",
+                "phase": "quality_evidence",
+                "message": (
+                    "Replay drift explanation evidence is present. Ru"
+                    "ntime-owned drift_explanation_ref is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist drift_explanation_ref from the owning ru"
+                    "ntime layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "resilience_matrix_present",
+                "code": "resilience_report_ref_optional_missing",
+                "status": "warn",
+                "layer": "runtime_resilience",
+                "phase": "quality_evidence",
+                "message": (
+                    "Load, soak, and resilience matrix evidence is pr"
+                    "esent. Runtime-owned resilience_report_ref is mi"
+                    "ssing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist resilience_report_ref from the owning ru"
+                    "ntime layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "human_review_calibration_present",
+                "code": ("human_review_calibration_report_ref_optional_missing"),
+                "status": "warn",
+                "layer": "human_review_calibration",
+                "phase": "quality_evidence",
+                "message": (
+                    "Human-review calibration evidence is present. Ru"
+                    "ntime-owned human_review_calibration_report_ref "
+                    "is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist human_review_calibration_report_ref from"
+                    " the owning runtime layer before production appr"
+                    "oval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "privacy_compliance_report_present",
+                "code": "privacy_compliance_report_ref_optional_missing",
+                "status": "warn",
+                "layer": "privacy_compliance",
+                "phase": "quality_evidence",
+                "message": (
+                    "Privacy, licensing, and compliance evidence is p"
+                    "resent. Runtime-owned privacy_compliance_report_"
+                    "ref is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist privacy_compliance_report_ref from the o"
+                    "wning runtime layer before production approval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+            {
+                "name": "decision_artifact_quality_present",
+                "code": ("decision_artifact_quality_report_ref_optional_missing"),
+                "status": "warn",
+                "layer": "scientist_decision_artifact",
+                "phase": "quality_evidence",
+                "message": (
+                    "Decision-artifact quality evidence is present. R"
+                    "untime-owned decision_artifact_quality_report_re"
+                    "f is missing."
+                ),
+                "evidence_ref": None,
+                "next_action": (
+                    "Persist decision_artifact_quality_report_ref fro"
+                    "m the owning runtime layer before production app"
+                    "roval."
+                ),
+                "next_diagnostic_command": None,
+                "blocking": False,
+                "operator_diagnostic": None,
+            },
+        ],
+        "blocking_quality_failures": [],
+        "operator_diagnostic": None,
+        "progress": {
+            "compiled_recursive_generation_cycle_ref": (
+                "sha256:65cefea4386572f6255089d2418cc43f9736c41227eb1352a351a80815b17458"
+            ),
+            "manifest_ref": (
+                "sha256:c40e352f285fc6c9064f93ea1756815c2265f5ed5c0c2e5a214cc8e900141c84"
+            ),
+            "normative_disposition": {
+                "schema_version": "policyos.normative_generation_composition.v1",
+                "compiled_run_ref": (
+                    "sha256:65cefea4386572f6255089d2418cc43f9736c41227eb1352a351a80815b17458"
+                ),
+                "leaf_disposition_refs": {
+                    (
+                        "design-problem://f59c8f38958da3790dff02aae047ee5"
+                        "e0b86c3a5599535f0d6da93e73dfce57d"
+                    ): ("sha256:bd8a730b5b2578439a8375ddbab1df52f432bac9b2bc0e65a8e09709c353f324")
+                },
+                "leaf_dispositions": {
+                    (
+                        "design-problem://f59c8f38958da3790dff02aae047ee5"
+                        "e0b86c3a5599535f0d6da93e73dfce57d"
+                    ): {
+                        "schema_version": "policyos.normative_generation_disposition.v1",
+                        "generation_binding": {
+                            "compiled_run_ref": (
+                                "sha256:65cefea4386572f6255089d2418cc43f9736c4122"
+                                "7eb1352a351a80815b17458"
+                            ),
+                            "source_run_ref": (
+                                "sha256:7339ca4100810a689fb1c0afbdbc441d557348f6d"
+                                "b92842736e07099aef37f10"
+                            ),
+                            "node_ref": (
+                                "design-problem://f59c8f38958da3790dff02aae047ee5"
+                                "e0b86c3a5599535f0d6da93e73dfce57d"
+                            ),
+                        },
+                        "compiled_membership_status": "not_established",
+                        "case_id": ("worker_epoch_strangle_a05d9018aa114533b6af8df3cd71969a"),
+                        "candidate_fronts": {
+                            "decision": [],
+                            "research": ["candidate_cgf_shadow"],
+                            "quarantine": [],
+                            "portfolio": [],
+                        },
+                        "dominance_status": "not_established",
+                        "evidence": {
+                            "frontier_ref": (
+                                "sha256:8c31c36b85d97b882b117a8e3e505b27817de4a2e"
+                                "4666a93ce84e3b1338e1988"
+                            ),
+                            "authorization_ref": (
+                                "sha256:f772e62af8cb9b7fbb53b87902ae5d28efa9f7bee"
+                                "167be3dbc94559848fa8329"
+                            ),
+                            "scope_ref": "fixture:explicit-value-scope",
+                        },
+                        "input_limitation": None,
+                        "authorization_status": "authorized",
+                        "ranked_recommendations": ["candidate_cgf_shadow"],
+                        "decision_request": None,
+                        "ranking_bundle_ref": (
+                            "sha256:d1370363e62e579bcd7084baf56cf36a486b2ab04"
+                            "1f422819f36661010819eae"
+                        ),
+                        "admitted_at": "2026-09-08T11:14:34.435182Z",
+                        "trust_epoch": "explicit-test-deployment",
+                        "authoritative_for": "value_schedule_for_ranking",
+                        "may_not_use_for": [
+                            "compiled_run_membership",
+                            "pareto_dominance",
+                            "empirical_value_authority",
+                            "legal_competence",
+                            "democratic_legitimacy",
+                            "claim_evidence",
+                            "publication_authority",
+                        ],
+                    }
+                },
+                "authorization_status": "authorized",
+                "ranked_recommendations": ["candidate_cgf_shadow"],
+                "strangle_receipt": {
+                    "status": "strangled",
+                    "default_entrypoint": ("ControlPlaneService.resolve_generation_value_choices"),
+                    "predecessor": ("compiled_run_completion_without_normative_disposition"),
+                    "default_flipped": True,
+                    "compiled_run_ref": (
+                        "sha256:65cefea4386572f6255089d2418cc43f9736c41227eb1352a351a80815b17458"
+                    ),
+                    "source_node_refs": [
+                        (
+                            "design-problem://f59c8f38958da3790dff02aae047ee5"
+                            "e0b86c3a5599535f0d6da93e73dfce57d"
+                        )
+                    ],
+                    "disposition_node_refs": [
+                        (
+                            "design-problem://f59c8f38958da3790dff02aae047ee5"
+                            "e0b86c3a5599535f0d6da93e73dfce57d"
+                        )
+                    ],
+                },
+            },
+            "normative_disposition_ref": (
+                "sha256:5feaacea427178b78e4c1a56f748060d2bb27b728ac0062470d7655ffa087bb0"
+            ),
+            "phase": "natural_language_run",
+            "promotion_refusal_reasons": ["epoch_validity_refused:policy_admission_missing"],
+            "quality_scorecard": {"run_id": "R_9bfa9624a0a11eef"},
+            "run_id": "R_9bfa9624a0a11eef",
+            "state": "completed",
+            "normative_head_ref": (
+                "sha256:d7d43f5969fe8c96c135717ccc6772cab4a7ddfe36de6ceea2601a50830a6100"
+            ),
+            "normative_head_strangle_receipt": {
+                "status": "strangled",
+                "default_entrypoint": ("ControlPlaneService._current_normative_job_record"),
+                "predecessor": "worker_only_normative_disposition",
+                "default_flipped": True,
+                "original_disposition_ref": (
+                    "sha256:a697451cb06119ac48ac011bcc7e4e893d43458f1f89701bc823d7c83497ac6d"
+                ),
+                "current_disposition_ref": (
+                    "sha256:5feaacea427178b78e4c1a56f748060d2bb27b728ac0062470d7655ffa087bb0"
+                ),
+            },
+        },
+    },
+}
+
+
+def _normative_evidence_transport_examples() -> dict[str, Any]:
+    """Validate the captured fixture transport without granting production authority."""
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        NormativeEvidenceSubmissionResponse,
+    )
+
+    NormativeEvidenceSubmissionResponse.model_validate_json(
+        json.dumps(_NORMATIVE_EVIDENCE_FIXTURE_RESPONSE), strict=True
+    )
+    return {
+        "positive_fixture_only_transport": {
+            "summary": "Actual post-source fixture admission",
+            "description": (
+                "Documentation transport captured from the actual worker and later-signed "
+                "HTTP intake using declared fixture sources, signers and trust; "
+                "not production authority or a canonical denominator. "
+                "Captured references and times describe that fixture run and must not "
+                "be submitted as reusable authority evidence."
+            ),
+            "value": _NORMATIVE_EVIDENCE_FIXTURE_RESPONSE,
+        }
+    }
+
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION: dict[
+    str,
+    dict[str, Any] | Callable[[], dict[str, Any]],
+] = {
+    "submit_run_normative_evidence": _normative_evidence_transport_examples,
     "search_capabilities": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
     "search_data_catalog": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
     "get_run_epoch_staleness": {
@@ -4015,7 +4501,8 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
             examples = _SUCCESS_EXAMPLE_SETS_BY_OPERATION.get(operation_id)
             example = _SUCCESS_EXAMPLES_BY_OPERATION.get(operation_id)
             if examples is not None:
-                success_json["examples"] = deepcopy(examples)
+                examples_value = examples() if callable(examples) else examples
+                success_json["examples"] = deepcopy(examples_value)
             elif example is not None:
                 example_value = example() if callable(example) else example
                 success_json["examples"] = {

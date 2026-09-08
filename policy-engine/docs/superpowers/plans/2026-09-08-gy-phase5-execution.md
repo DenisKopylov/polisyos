@@ -400,3 +400,45 @@ example key as RC1. Those executed rows are outside repair scope by the user's
 explicit instruction. Their complete defining expressions and ownership are
 recorded in the completion journal. No ignore or smaller Ruff denominator is
 introduced, and P41 inherited provenance is not asserted.
+
+## D1d — governed N9 companion for the credal input epoch
+
+The actual final N9 contract check refuses `current_governing_projection_drift`.
+A process-local observer preserves the complete frozen/live payloads and every
+admitted projection while delegating to the unchanged comparison owner. The
+decisive delta is the already-ratified S3 D1b credal reference input epoch: v1
+to v2 in the anytime-refusal and non-promotable contract receipts; the production
+honest-shadow projection is equal. This is **our unclosed S3 companion**, not an
+external scientific blocker or an inherited red. The governing schema field must
+remain decisive. The generic comparator is correctly refusing a silent restamp.
+
+Extend the existing controlled-reissue owner in
+`tools/quality/validation/check_layer3_gy_promotion_contract.py`, following its
+existing explicit reissue procedure. PR1 researcher owns this bounded source,
+mirrored tests, verbatim historical snapshot and evidence; root owns this decision,
+commits and final generated companions. Do not edit production N9 obligation
+evaluation, `promotion_sequence.py`, or the generic comparison algebra. This is
+an input-epoch reissue under credal v2, not new N9 obligation semantics; promotion
+v6, obligation scope v3, evidence bridge v2 and owner projection v3 remain their
+current schemas. New receipts are emitted and admitted by the actual current
+owner under the declared v2 input. Old receipt bytes remain readable in their
+original snapshot and are never edited into new authority.
+
+The controlled transition must reconcile the **complete** owner-admitted identity
+set and semantic projections, and admit only the named v1→v2 input-epoch change
+with every other governing value equal. Require valid frozen content binding and
+actual fresh owner admission before reissue. Classify the predicate as recomputed;
+a caller declaration or plausible schema string cannot authorize it. Preserve
+the current generic mismatch refusal for all other changes. Do not pin the live
+reference back to v1, ignore its schema field, omit a receipt from the denominator,
+remove the old artifact to force a writer path, or construct a promotion receipt.
+
+Red first: the actual unchanged current owner/check must refuse the measured old
+capture. Then the controlled writer emits the new capture and its normal check
+passes. Falsifiers: wrong/novel epoch, extra changed governing field, forged frozen
+content binding, missing/extra admitted identity, and removal of the controlled
+transition retain the happy fixture/markers but restore refusal. Prior historical
+receipts parse under their own epoch. Use complete recursive/independent identity
+walks, not a two-row exception list. The same source change legitimately affects
+DS17 source-binding pins, so regenerate OpenAPI/clients once after this delta is
+reviewed; earlier source-independent tests do not need another broad run.

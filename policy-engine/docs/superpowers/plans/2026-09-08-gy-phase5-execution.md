@@ -514,3 +514,80 @@ tests remain Python 3.14.3 evidence. Falsifiers are failure of either copied
 child under stripped loader settings, dependency provisioning failure, or any
 failure/drift in the actual full generated-output gate. This is a structural
 station choice over every child launcher, not another per-generator patch.
+
+## D7 — source-bound DS11 posture projection companion
+
+The third unchanged normal guardrail runs successfully through the portable
+station and finds the OpenAPI, runtime client and dashboard types fresh. Its sole
+remaining failure is the committed `trust-claim-posture-register` projection.
+The existing family's freshness rule in `architecture/generated_artifacts.toml`
+requires regeneration when admitted source content or projection indices change.
+Root owns this generated companion; the independent PR1 audit owns its complete
+scratch/current/base comparison. The canonical writer has not yet run at this
+decision boundary.
+
+The actual scratch writer and independent complete recursive/stack identity walks
+show unchanged schema v1, rules v4, identity and machine-admission boundaries,
+admitted verifiers, accessibility document and historical a11y receipt. Shared
+claim decisions change only by adding denied uses; no denial is removed. Every
+new claim is blocked, and the removed identity was blocked. Source bindings and
+indices are rederived. The custody-source prose update is the existing
+`DS11-PUBLIC-SIGNATURE-POPULATION` row already present at the slice base; its status
+remains open. Full identities, values and source attribution are retained in
+`gy-phase5-evidence/pr1/trust-posture-complete-delta.json` and the companion audit.
+This is a current-source projection refresh under the existing epoch, not an
+authority upgrade or a new DS11 capability. No new schema/rule version is needed.
+
+Invoke the existing `tools.quality.validation.check_trust_claim_posture` owner
+with `--repo-root . --write --write-generated-reference`, then its normal
+`--check`. Inspect the complete resulting write set and reconcile the canonical
+artifact with the measured scratch output. Do not copy the scratch artifact,
+hand-author a receipt, edit a rule/source/ledger/a11y artifact, or reopen the
+completed DS11 mechanism. The generated reference is its declared companion.
+No replacement runtime path is introduced, so a new StrangleReceipt is not
+claimed. P27 keeps the single writer; P29 uses recomputed output and its actual
+check; P35 compares full field and owner identity sets. P40 classifies this as
+another instance of the existing source-bound freshness rule, now at DS11.
+
+Falsifiers: any newly permitted purpose, relaxed denial, changed authority
+boundary or unexpected canonical/scratch difference refutes the routine-refresh
+decision. After a valid writer/check, change a content-binding field while
+retaining schema and markers; the same normal check must return nonzero. Restore
+the exact writer bytes, then run the unchanged full normal architecture guardrail
+with all writers frozen. No family skip, source-denominator reduction or broad
+closed DS11 test wave substitutes for that gate. Home: the continuous
+`trust-claim-posture-register` family, owned by `team-architecture`; this lane owns
+the source-triggered refresh and its evidence.
+
+## D8 — one byte owner for the generated posture artifact
+
+The ordinary D7 commit did not land: the dashboard Prettier hook reformatted the
+canonical DS11 output, then `fail_on_changes` refused the commit. HEAD stayed at
+the prepared parent. Complete Git name/numstat sets identify only that JSON as
+the hook's unstaged change, and every parsed value remains equal. Its byte form
+is nevertheless different from the canonical writer and therefore stale under
+the existing actual DS11 check. This is a P27 second-writer conflict, not a
+semantic DS11 defect or permission to bypass a hook.
+
+Root will use the dashboard's existing `.prettierignore` ownership seam for the
+exact registered output `public/atlas/trust-claim-posture.v1.json`, with a comment
+naming its canonical writer/check. The repository already uses exact generated
+output exclusions in `packages/runtime-api-client/.prettierignore`. Do not ignore
+the whole atlas directory or JSON vocabulary. Do not modify the completed DS11
+writer, schema, canonical-byte check, family declaration, source denominator or
+ordinary hook command. The artifact's current freshness owner retains complete
+coverage, including its byte representation; generic formatting defers to that
+owner. This is tooling ownership for the required generated companion, with no
+runtime replacement or authority/receipt epoch change.
+
+Regenerate through the real DS11 writer after the hook's known rewrite. Run the
+actual `corepack pnpm exec prettier --write --ignore-unknown` on the artifact;
+its bytes must stay identical. Removal falsifier: temporarily remove only the
+ownership entry, keep all generator/receipt markers and source values intact,
+run that same formatter, then run the unchanged DS11 `--check`. Formatting must
+change the canonical bytes and the real check must refuse `DS11-GENERATED-DRIFT`.
+Restore both original configuration and exact writer bytes in a finally block.
+Then the ordinary commit hook and unchanged full normal architecture gate must
+both succeed. This proves writer coexistence by execution, not by reading an
+ignore marker. Home: dashboard formatter ownership / registered DS11 projection,
+team-frontend and team-architecture; closed here by existing-owner deference.

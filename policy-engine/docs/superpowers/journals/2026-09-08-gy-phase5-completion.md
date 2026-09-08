@@ -26,6 +26,10 @@ or directory/full Python suite is authorized or used.
 
 ## Execution record
 
+These are decision-time entries, preserved in their original sequence. References
+to a next repair or a paused replay describe that boundary; the acceptance,
+verification and delivery sections below give the final disposition.
+
 **PA1-D3e:** canonical client generation exposed DTOs without a callable new POST
 method because its curated operation owner omitted this endpoint. This is a
 required surface bridge, not a reason to stop or claim generation alone is
@@ -211,7 +215,7 @@ The unchanged Done when is:
 | Missing-protection pilot persists blocked | Existing O0 persistence and retry path produces a durable blocked attempt | Established independently; does not establish the joint near-miss premise |
 | Same event has near_miss=true | Protected promotion modes require an absent promotion-purpose authority rule/producer; attempted-evaluation O0 certificate explicitly forbids promotion | Exact event `not_established`; `eval-safety-promotion-authority-producer-missing` / `GY-O0-NC-01` |
 | Both counters increment once for that event | Actual retry has blocked_count=1 and near_miss_count=0. Existing reducer deduplicates actual decision identities | Required joint event remains `not_established`; mocked classification is not credited |
-| Safety core/hash unchanged | Entire safety source compared with exact slice base; final readback is recorded with verification below | No PA1 or S3 permission expansion changes this core |
+| Safety core/hash unchanged | [Final complete source readback](gy-phase5-evidence/pr1/final-safety-integrity.json) equals exact slice-base bytes, SHA-256 `22edd5916472bbe5e186c2a0091ab2e65c40d3b06d94c72cbefaaafdb4d6537c` | No PA1 or S3 permission expansion changes this core |
 | Inadmissible despite caller True | Current v6 DTO/context rejects retired caller predicates; actual CG2 evidence refuses | Already discharged repair; retained, not rebuilt |
 | Dependent despite caller True | Actual evidence portfolio producer/CAS graph/calculus/N9 DATA consumer refuses dependence despite legacy True injection | Already discharged repair; retained, not rebuilt |
 | Unresolved joint coupling refuses | Real N5 emits its blocker, bridge carries it, N9 refuses; removal preserves the supported happy path and makes the actual negative red | Already discharged repair; retained, not rebuilt |
@@ -219,7 +223,8 @@ The unchanged Done when is:
 
 The EFFECT and MEASUREMENT permanent failures and caller-bool vacuous passes in
 the old plan are superseded. Current scope/promotion/bridge epochs are already
-v3/v6/v2; this lane does not restamp N9 receipts. The honest scope-gap mutation
+v3/v6/v2. Historical N9 receipts are preserved; D1d below reissues current captures
+under the governed credal-v2 input without changing those N9 epochs. The honest scope-gap mutation
 uses missing G4/PARAM. The complete actual mode enumeration also refutes the
 unqualified Task K claim that no lane has `scope_insufficient`: protected modes
 still require genuine promotion-purpose authority.
@@ -634,3 +639,70 @@ the supported 3.14.0 framework interpreter and still builds its own independent
 private environment. [Station probe source](gy-phase5-evidence/shared/probe_framework_python.py)
 and [Ruff](gy-phase5-evidence/shared/framework-python-station-ruff-v2.json) are
 retained; the earlier line-wrap lint failure is a lane-harness nonreceipt.
+
+The [third unchanged normal run](gy-phase5-evidence/shared/final-architecture-guardrails-v3.json)
+returns RC1 in 337.399 seconds. The framework station works through every required
+child. OpenAPI, runtime client and dashboard type outputs are fresh; the remaining
+finding is stale `trust-claim-posture-register` output. No Python loader failure,
+baseline drift or narrowed gate is credited as a pass.
+
+The independent [DS11 refresh audit](gy-phase5-evidence/pr1/trust-posture-refresh-audit.md)
+executes the real scratch writer and compares complete artifact fields, owner
+identity sets and source provenance. Shared decisions only gain denied uses; new
+and removed claim identities are blocked. Schema, rules, authority boundaries
+and historical accessibility evidence are unchanged. The source denominator
+intersects this lane, making regeneration a required companion. The D7 decision
+was recorded before the canonical write. Its home is continuous DS11 generated
+posture maintenance, `team-architecture`, and this lane owns the refresh. The
+existing freshness mechanism correctly detected drift and is not being repaired.
+
+D7's [canonical writer](gy-phase5-evidence/shared/d7-posture-write.json) returns
+RC0 in 48.928 seconds; the unchanged [normal check](gy-phase5-evidence/shared/d7-posture-check.json)
+returns RC0 in 59.079 seconds. The [canonical/scratch reconciliation](gy-phase5-evidence/shared/d7-canonical-reconciliation.json)
+is byte-identical at SHA-256
+`4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa`.
+The declared generated-reference companion is unchanged. The actual owner emits
+compact canonical JSON, accounting for the large line diff; no manual reformat or
+authored projection was substituted. Its existing source-collision/runtime-bound
+limitations remain in the recomputed output and are not upgraded by freshness.
+
+The [real-check drift probe](gy-phase5-evidence/shared/d7-posture-corruption.json)
+changes only `payload_digest`, retaining every other parsed value. The exact normal
+check returns RC1 with `DS11-GENERATED-DRIFT` in 47.218 seconds; the wrapper returns
+RC0 because this required refusal and exact writer-byte restoration are verified.
+Schema/markers alone therefore cannot satisfy the unchanged freshness owner.
+[Probe source](gy-phase5-evidence/shared/posture_report_corruption.py) and
+[Ruff RC0](gy-phase5-evidence/shared/d7-posture-harness-ruff.json) are retained.
+The full normal architecture gate still decides final integrated freshness.
+
+## Generated-byte ownership at the ordinary commit boundary
+
+The first D7 commit attempt returned RC1: the ordinary Prettier hook rewrote
+`public/atlas/trust-claim-posture.v1.json`, and `fail_on_changes` refused the commit.
+No commit was created. The [complete staged/worktree comparison](gy-phase5-evidence/shared/d8-hook-rewrite-measurement.json)
+keeps the attached branch and unchanged parent, identifies that exact sole
+unstaged path through independent Git views, and proves every parsed value equal.
+The rewritten bytes nevertheless conflict with DS11's canonical-byte freshness.
+This is a new P27 competing-writers class; no bypass or receipt was claimed.
+
+D8 records the decision before the dashboard's existing `.prettierignore` is
+extended for this exact registered output. Its real DS11 writer/check owns the
+bytes, as generated-client owners already do through the same ignore mechanism.
+The independent PR1 review confirms this placement; changing the closed DS11
+serializer would reopen the wrong owner. The ordinary hook command, generated
+family, full freshness denominator, schema, rules and runtime remain unchanged.
+Home: dashboard formatter ownership / DS11 projection, team-frontend and
+team-architecture; this lane closes the companion conflict.
+
+The [real writer replay](gy-phase5-evidence/shared/d8-posture-rewrite.json) returns
+RC0 in 58.222 seconds. The [actual formatter/removal execution](gy-phase5-evidence/shared/d8-formatter-ownership-removal.json)
+returns wrapper RC0 in 52.246 seconds: with the owner boundary, the real formatter
+returns RC0 and preserves writer bytes. Removing only the entry makes that same
+formatter change bytes while retaining every parsed value; the unchanged DS11
+check then returns RC1 with `DS11-GENERATED-DRIFT` in 50.081 seconds. Both the
+configuration and exact writer bytes are restored in `finally`, SHA-256
+`4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa`.
+[Probe source](gy-phase5-evidence/shared/posture_formatter_ownership.py) and
+[Ruff RC0](gy-phase5-evidence/shared/d8-formatter-harness-ruff.json) are retained.
+The refusal is about the measured competing writer, not the presence of an
+ignore marker; the normal commit and full normal guardrail still run unchanged.

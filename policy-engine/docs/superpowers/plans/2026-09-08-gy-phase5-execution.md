@@ -35,11 +35,25 @@ Falsifiers: every actual manifest route target corrupted; unrelated but register
 
 Research refuted all old vacuous-pass premises and ran their actual controls: inadmissibility/independence reject caller `True`, actual N5 emits its blocker, honest PARAM scope control exists, EFFECT and MEASUREMENT real producer/bridge positives pass. Repeating their repairs or their already-landed epoch bumps is prohibited scope expansion.
 
-The literal Done-when still requires a real canonical production promotion and a field-pilot blocked near miss with both counters incremented once. No current N8 ValueGateReceipt/value_ready production or default N9 writer-input provider exists. Those seams belong to `first-promotion-candidate-with-complete-evidence` and the N8 producer; an already executed N8 row is not reopened here. The protected-mode N9 obligation emits a persisted scope-gap with `owner_ref=absent/unallocated`. O0 persists real blocked attempts and exactly-once blocked counts, but its certificate explicitly forbids promotion. The actual deployed evidence-contract verifier registry returns no verifier.
+The literal Done-when still requires a real canonical production promotion and a field-pilot blocked near miss with both counters incremented once. No current N8 ValueGateReceipt/value_ready production or default N9 writer-input provider exists. That unfinished source/bridge engineering belongs to GY-PR1 / `first-promotion-candidate-with-complete-evidence`; it is not outside this task merely because it precedes the final receipt. Existing executed N8 behavior is preserved. The protected-mode N9 obligation emits a persisted scope-gap with `owner_ref=absent/unallocated`. O0 persists real blocked attempts and exactly-once blocked counts, but its certificate explicitly forbids promotion. The actual deployed evidence-contract verifier registry returns no verifier.
 
 Rejected alternative: a new signed PromotionSafetyEvidence carrier plus three new epochs that still always refuses. A signature can authenticate testimony; it does not independently establish pilot-risk/consent/containment/stop/monitoring predicates. With no compatible semantic input or acceptance mapping, that envelope adds no deciding property (P01/P13/P37). Do not turn the unresolved question into a contract. Preserve the existing honest nonreceipt, explicitly retaining `producer_missing` and `bridge_missing`; do not claim it is a completed external-evidence intake.
 
 Stage 3 for PR1 is targeted verification of the unchanged controls and affected N9 importer paths after S3/PA1 integration, plus byte readback of the safety core. The full task is blocked at the named production semantic/evidence source, not stopped because the work is inconvenient. The falsifier is a real owner-produced complete-evidence candidate and a compatible independently evaluated promotion-purpose safety artifact reaching canonical N9 and O0 replay. A fixture or appointed key alone does not falsify it.
+
+**D2a, executed scope challenge:** `pr1/stage3-scope-audit.md` establishes that
+the existing writers already persist meaningful refusals when genuine inputs
+exist. No independently usable default source was established in the measured
+canonical catalog, retained typed portfolio inputs or current N4 source replay.
+The latter stops at the actual HC-F11–HC-F14 confidence-forwarding withdrawal.
+Source-carrying N4→N6→N9 wiring and generic DataForge source-row adapters remain
+unfinished engineering; neither appointment absence nor an executed N8 label
+waives them. A real candidate-bound source, **even one producing a substantive
+refusal**, falsifies the no-edit decision and requires immediate wiring. The
+unmeasured suitability of database/non-JSON portfolio sources and a generic
+catalog adapter remains `not_established`, not externally impossible. We do not
+add a default provider that supplies manufactured empty inputs to restate the
+existing missing-evidence result.
 
 ### D3 — GY-PA1 default production bridge with both outcomes
 
@@ -52,6 +66,16 @@ The missing-input branch preserves actual N6 front labels/IDs and declares domin
 Deployment trust is a typed constructor/configuration slot, empty by default, never candidate context. Reuse the actual guarded ambient filesystem CAS via its canonical composition adapter, preserving ownership enforcement. Do not open a parallel store or accept arbitrary duck-typed signature verifiers. The job-status consumer replays sidecars so later stale/tampered authorization cannot persist as green progress. Diagnostic events expose refs as audit evidence, never stale authority. Unsupported persistence backends return an explicit limitation; do not silently substitute an unguarded store.
 
 Falsifiers: actual default worker without authorization must persist the request; source-aware positive fixture must reach the same route; wrong role/source/case, stale permission, forged bytes and each silent default refuse specifically. Add novel candidate/leaf data with no code edits and preserve the complete identities. Remove the real default call and separately remove sidecar replay/shared admission while keeping markers and the legitimate positive path; gates must go red.
+
+**D3a, same emission class one level deeper:** the neighboring
+`get_latest_job_for_run` also emits completed progress. Both public job readers
+must use one current normative job projection, derived from the complete actual
+reader inventory. A missing/corrupt sidecar with still-resolvable compiled
+source must retain source candidate fronts and emit the same typed persisted
+request with a precise replay limitation. If the compiled source itself cannot
+be resolved, its population remains explicitly `not_established`; do not return
+stale copied rankings or represent that population as empty. These are the
+existing GAP7/PA1 refusal requirements at sibling egress, not new authority.
 
 ## Ordered execution and exact owners
 
@@ -119,6 +143,20 @@ assert source_bound_authorized_control["ranked_recommendations"] == [expected_se
 - [ ] Commit at a clean boundary and read the delivered branch's file set/content back. Final handback separates built/falsified behavior from findings routed elsewhere. Never claim Phase 5 closed unless every full task conjunct is established.
 
 ## Pattern pass and acceptance map
+
+### Implementation clarification S3-D1a — extensible family vocabulary
+
+The first red/green execution exposed that IR `ObservationContractRoute.family`
+is `ObservationFamily`, a closed enum. Its wrapper
+`ObservationToContractManifest` therefore cannot represent a genuinely new
+data-only family. Reusing that DTO as S3's admission parser would contradict
+§3.5.6 free-growth. Keep parsing in the **existing** runtime manifest owner,
+with complete row/target validation and explicit duplicate/ambiguous-family
+refusal; do not add an advisor parser or extend the enum per new family. The
+IR DTO remains its existing consumer contract. The deciding test adds a novel
+family via data and resolves the same compiled target without source changes;
+malformed or ambiguous route declarations must still refuse. This refines D1's
+owner implementation and leaves all four gates intact.
 
 P05/P15/P32/P37/P38: missing independent semantics cannot become authority through signatures, source presence, thresholds or display identities. P01/P02: sidecar producer, CAS artifact, default worker bridge, status consumer and external audit refs must all exist. P27: extend route/S8/CAS/compiled DTO owners; no second nested parser/store. P28/P29: default flips are run-emitted and the contract removes the decisive property. P07/P08: explicit changed epochs and current source/time replay. P35/P36: whole identity sets and finding IDs. P39: required records do not consume mechanism budget. P40/P41: structural bucket and measured red provenance.
 

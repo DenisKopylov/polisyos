@@ -588,6 +588,8 @@ class DataContextMetric(BaseModel):
     completeness: float = Field(default=0.0, ge=0.0, le=1.0)
     source_lane: CandidateLane = "fastlane"
     sample_rows: list[dict[str, Any]] = Field(default_factory=list)
+    payload_ref: ArtifactRef | None = None
+    fetch_receipt_ref: ArtifactRef | None = None
 
 
 class DataContext(BaseModel):

@@ -1376,11 +1376,26 @@ class ControlPlaneService(
             lifecycle_publisher=self.publish_published_signature_custody_event,
         )
 
-        self._retrieval = retrieval_service or RetrievalService(
-            curated_dir=_resolve_curated_dir(),
-            cas_root=cas_root,
-            providers=self._build_retrieval_providers(),
-        )
+        self._retrieval_catalog = None
+        if retrieval_service is None:
+            from polisyos.data_forge.read_api import catalog as catalog_read_api
+            from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+            curated_dir = _resolve_curated_dir()
+            catalog_paths = default_substrate_catalog_paths(Path.cwd())
+            self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+                catalog_paths.l1_dcat_path,
+                catalog_paths.l1_dcat_path.parent,
+                overlay_path=catalog_read_api.default_acquisition_overlay_path(Path.cwd()),
+            )
+            self._retrieval = RetrievalService(
+                curated_dir=curated_dir,
+                cas_root=cas_root,
+                dataset_catalog=self._retrieval_catalog,
+                providers=self._build_retrieval_providers(),
+            )
+        else:
+            self._retrieval = retrieval_service
         self._worker: ControlWorker | None = None
         if self._policy_resolver.worker_backend == "embedded":
             self._worker = ControlWorker(
@@ -1725,6 +1740,11 @@ class ControlPlaneService(
         """Stop embedded workers and release durable control-plane resources."""
         if self._worker is not None:
             self._worker.stop()
+        retrieval_catalog_close = cast(
+            "Callable[[], None] | None", getattr(self._retrieval_catalog, "close", None)
+        )
+        if callable(retrieval_catalog_close):
+            retrieval_catalog_close()
         control_store_close = cast(
             "Callable[[], None] | None", getattr(self._control_store, "close", None)
         )

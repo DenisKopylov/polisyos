@@ -446,6 +446,7 @@ class RetrievalService:
                     plan,
                     persist_payload=persist_payload,
                     allow_fallback=allow_fallback,
+                    **({"dataset_catalog": self._dataset_catalog} if persist_payload else {}),
                 )
                 previews.append(outcome)
                 if outcome.fallback_used:

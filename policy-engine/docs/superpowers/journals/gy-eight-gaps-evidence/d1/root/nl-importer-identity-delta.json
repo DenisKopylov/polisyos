@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.d1_nl_importer_compare"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T18:50:25.681292+00:00",
+  "elapsed_seconds": 0.103,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"command\": [\n    \".venv/bin/python\",\n    \"-m\",\n    \"pytest\",\n    \"-q\",\n    \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_production_data_canary_materializes_local_lane_without_external_fetch\",\n    \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_passes_resolved_curated_dir_to_llm_data_need_extractor\"\n  ],\n  \"selected_test_identities\": [\n    \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_passes_resolved_curated_dir_to_llm_data_need_extractor\",\n    \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_production_data_canary_materializes_local_lane_without_external_fetch\"\n  ],\n  \"selected_denominator\": 2,\n  \"independent_command_node_count\": 2,\n  \"receipts\": {\n    \"slice_base\": \"_build/gy-gaps/d1/root/nl-catalog-importer-base.json\",\n    \"first_wiring\": \"_build/gy-gaps/d1/root/nl-catalog-importer.json\",\n    \"canonical_wiring\": \"_build/gy-gaps/d1/root/nl-catalog-importer-canonical.json\"\n  },\n  \"failure_identities\": {\n    \"slice_base\": [\n      \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_production_data_canary_materializes_local_lane_without_external_fetch\"\n    ],\n    \"first_wiring\": [\n      \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_passes_resolved_curated_dir_to_llm_data_need_extractor\",\n      \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_production_data_canary_materializes_local_lane_without_external_fetch\"\n    ],\n    \"canonical_wiring\": [\n      \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_production_data_canary_materializes_local_lane_without_external_fetch\"\n    ]\n  },\n  \"current_added_vs_slice_base\": [],\n  \"current_lost_vs_slice_base\": [],\n  \"corrected_own_failure\": [\n    \"tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_passes_resolved_curated_dir_to_llm_data_need_extractor\"\n  ],\n  \"p41_attribution\": \"not_established\",\n  \"reason\": \"Exact base replay repeats the remaining canary failure, but this lane changes its NL input module; zero changed-input intersection is not established.\"\n}\n",
+  "stderr": ""
+}

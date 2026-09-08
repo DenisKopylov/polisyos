@@ -1,0 +1,25 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_all_null_observations"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T18:56:21.227551+00:00",
+  "elapsed_seconds": 75.457,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F\n=================================== FAILURES ===================================\n______________ test_n9_measurement_refuses_all_null_observations _______________\n\nfabric_measurement_owner = namespace(service=<polisyos.fabric.retrieval.service.RetrievalService object at 0x12f766270>, graph=<polisyos.data_for...artifact_ref=None)]), model_spec_ref=None, ir_problem_frame_ref=None, policy_request_frame_ref=None, runtime_hints={}))\n\n    def test_n9_measurement_refuses_all_null_observations(fabric_measurement_owner):\n        from polisyos.fabric.retrieval.custody import FabricFetchCustodyError\n        from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootBindingError\n    \n        owner = fabric_measurement_owner\n        complete_rows = [row for page in owner.http_responses.values() for row in page[1]]\n        assert len(complete_rows) == len(owner.frame)\n        for row in complete_rows:\n            row[\"value\"] = None\n        initial = _promotion_input(design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem))\n        repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(\n            store=owner.store, measurement_catalog=owner.graph, measurement_providers=owner.providers,\n        )\n        try:\n            envelope = _fabric_measurement_envelope(owner)\n            bridge = repository.persist_measurement_root(promotion_input=initial, envelope=envelope)\n            supplied = initial.model_copy(update={\"producer_root_refs\": (bridge,)})\n        except (FabricFetchCustodyError, FabricMeasurementRootBindingError) as exc:\n            print(f\"All-null recorded source refused by owner: {exc.code}\")\n            supplied = initial\n        receipt = run_canonical_promotion_sequence(\n            supplied, confidence_ledger_session=_ledger_session(binding=supplied.design_problem_binding),\n            promotion_evidence_resolver=repository,\n        )\n        measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)\n>       assert measurement.status != PromotionObligationStatus.SATISFIED\nE       AssertionError: assert <PromotionObligationStatus.SATISFIED: 'satisfied'> != <PromotionObligationStatus.SATISFIED: 'satisfied'>\nE        +  where <PromotionObligationStatus.SATISFIED: 'satisfied'> = PromotionObligationRecord(obligation_class=<PromotionObligationClass.MEASUREMENT: 'measurement'>, gate_id=<PromotionGa...venance='recomputed', obligation_instance_id='sha256:533e8a96cc63a060e9fe1d0fb7da1458a02679c7a56efa4294e1b3599ac72dd4').status\nE        +  and   <PromotionObligationStatus.SATISFIED: 'satisfied'> = PromotionObligationStatus.SATISFIED\n\ntests/unit/runtime/quality/test_promotion_sequence.py:2022: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_all_null_observations\n",
+  "stderr": ""
+}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from typing import TYPE_CHECKING
@@ -11,6 +12,10 @@ import numpy as np
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.knowledge.overlay import open_catalog_read_session
 from polisyos.data_forge.domains.catalog.knowledge.types import (
+    CatalogContentIdentity,
+    CatalogFetchBinding,
+    CatalogFetchRequest,
+    CatalogFetchResolution,
     DatasetAccess,
     DatasetCoverage,
     DatasetQuality,
@@ -128,7 +133,12 @@ class DatasetCatalogStore:
     ) -> None:
         self._db_path = db_path
         self._index_dir = index_dir
+        self._overlay_path = overlay_path
+        self._session_source_identities = self._fetch_source_identities()
         self._con = open_catalog_read_session(db_path, overlay_path=overlay_path)
+        if self._session_source_identities != self._fetch_source_identities():
+            self._con.close()
+            raise ValueError("catalog_fetch_source_changed_while_opening")
 
         self._dataset_index = None
         self._dataset_ids: list[str] | None = None
@@ -457,12 +467,13 @@ class DatasetCatalogStore:
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
     def find_by_polisyos_metric(
-        self, metric_name: str, *, top_k: int = 20
+        self, metric_name: str, *, top_k: int | None = 20
     ) -> list[DatasetSearchResult]:
         rows = self._fetch_dicts(
             f"SELECT {self._select_clause('ds_datasets', _DATASET_COLUMNS)} FROM ds_datasets "
-            "WHERE list_contains(polisyos_metrics, ?) LIMIT ?",
-            [metric_name, top_k],
+            "WHERE list_contains(polisyos_metrics, ?)"
+            + (" LIMIT ?" if top_k is not None else " ORDER BY id"),
+            [metric_name, top_k] if top_k is not None else [metric_name],
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
@@ -482,7 +493,7 @@ class DatasetCatalogStore:
         self,
         metric_name: str,
         *,
-        top_k: int = 20,
+        top_k: int | None = 20,
         min_execution_tier: str | None = None,
     ) -> list[MetricBindingMatch]:
         """Resolve metric bindings with optional execution tier enforcement.
@@ -506,7 +517,8 @@ class DatasetCatalogStore:
                 placeholders = ", ".join("?" for _ in allowed)
                 tier_filter_sql = f"AND COALESCE(b.execution_tier, 'catalog') IN ({placeholders}) "
                 bind_params.extend(allowed)
-        bind_params.append(top_k)
+        if top_k is not None:
+            bind_params.append(top_k)
         rows = self._fetch_dicts(
             f"SELECT {self._select_clause('ds_metric_bindings', _BINDING_COLUMNS, alias='b')}, "
             "COALESCE(ds.title, '') AS title "
@@ -519,8 +531,7 @@ class DatasetCatalogStore:
             "WHEN 'fetchable' THEN 1 "
             "ELSE 2 END ASC, "
             f"CASE WHEN {schema_exists_sql} THEN 0 ELSE 1 END ASC, "
-            "b.confidence DESC, b.dataset_id ASC "
-            "LIMIT ?",
+            "b.confidence DESC, b.dataset_id ASC " + ("LIMIT ?" if top_k is not None else ""),
             bind_params,
         )
         out: list[MetricBindingMatch] = []
@@ -674,9 +685,13 @@ class DatasetCatalogStore:
             title=str(row.get("title") or ""),
         )
 
-    def resolve_fetch_target(self, dataset_id: str) -> ResolvedFetchTarget | None:
+    def resolve_fetch_target(
+        self, dataset_id: str, *, distribution_id: str | None = None
+    ) -> ResolvedFetchTarget | None:
         dataset_row = self._get_dataset_row(dataset_id)
         distributions = self.get_distributions(dataset_id)
+        if distribution_id is not None:
+            distributions = [item for item in distributions if item.id == distribution_id]
         if not distributions:
             return None
         preferred_distribution_id = (
@@ -705,6 +720,211 @@ class DatasetCatalogStore:
             default_filters=distribution.default_filters,
             machine_readable=distribution.machine_readable,
             parser_supported=distribution.parser_supported,
+        )
+
+    def bind_fetch_target(
+        self,
+        *,
+        metric_id: str,
+        connector_id: str,
+        request_dataset_id: str,
+        profile_id: str | None,
+        filters: dict[str, list[str]],
+    ) -> CatalogFetchBinding:
+        """Resolve the selected tuple over the complete matching catalog set.
+
+        Search ranking is not an admission limit. Baseline and optional overlay
+        bytes are pinned before and after this exact lookup; a changed or
+        newly-present input requires a fresh binding.
+        """
+        request = CatalogFetchRequest(
+            metric_id=metric_id,
+            connector_id=connector_id,
+            request_dataset_id=request_dataset_id,
+            profile_id=profile_id,
+            filters=filters,
+        )
+        outcome = self.bind_fetch_targets([request])[0]
+        if outcome.binding is None:
+            raise ValueError(outcome.reason)
+        return outcome.binding
+
+    def _fetch_target_candidates(
+        self,
+        metric_id: str,
+        targets: dict[tuple[str, str | None], ResolvedFetchTarget | None],
+    ) -> dict[
+        tuple[str, str, str | None], list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]]
+    ]:
+        """Build the complete candidate index using only actual owner lookups."""
+
+        def target_for(
+            dataset_id: str, distribution_id: str | None = None
+        ) -> ResolvedFetchTarget | None:
+            key = (dataset_id, distribution_id)
+            if key not in targets:
+                targets[key] = self.resolve_fetch_target(
+                    dataset_id, distribution_id=distribution_id
+                )
+            return targets[key]
+
+        matches = self.resolve_metric_bindings(metric_id, top_k=None)
+        candidates: list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]] = []
+        for binding in matches:
+            if binding.execution_tier not in {"fetchable", "transport_ready"}:
+                continue
+            target = target_for(binding.catalog_dataset_id, binding.distribution_id or None)
+            if target is None:
+                continue
+            if (binding.connector_id, binding.request_dataset_id, binding.profile_id or None) != (
+                target.connector_id,
+                target.request_dataset_id,
+                target.profile_id or None,
+            ):
+                continue
+            candidates.append((binding, target))
+        if not matches:
+            for dataset in self.find_by_polisyos_metric(metric_id, top_k=None):
+                if dataset.execution_tier not in {"fetchable", "transport_ready"}:
+                    continue
+                target = target_for(dataset.id)
+                if target is not None:
+                    candidates.append((None, target))
+        indexed: dict[
+            tuple[str, str, str | None], list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]]
+        ] = {}
+        for binding, target in candidates:
+            key = (target.connector_id, target.request_dataset_id, target.profile_id or None)
+            indexed.setdefault(key, []).append((binding, target))
+        return indexed
+
+    @staticmethod
+    def _select_fetch_target(
+        request: CatalogFetchRequest,
+        candidates: dict[
+            tuple[str, str, str | None], list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]]
+        ],
+    ) -> tuple[MetricBindingMatch | None, ResolvedFetchTarget] | None:
+        """Apply the same exact tuple and default-filter predicate in both APIs."""
+        key = (request.connector_id, request.request_dataset_id, request.profile_id)
+        for binding, target in candidates.get(key, []):
+            if not target.parser_supported:
+                continue
+            defaults = dict(target.default_filters)
+            if binding is not None:
+                defaults.update(binding.default_filters)
+            if any(request.filters.get(key) != values for key, values in defaults.items()):
+                continue
+            return (binding, target)
+        return None
+
+    def bind_fetch_targets(
+        self, requests: list[CatalogFetchRequest | dict[str, object]]
+    ) -> tuple[CatalogFetchResolution, ...]:
+        """Resolve a full ordered set under one rechecked actual source epoch.
+
+        Only repeated read keys are memoized inside this invocation. A stale or
+        changing source releases no outcomes. Unreadable owner rows remain
+        explicitly ambiguous; they cannot carry a binding.
+        """
+        checked = [
+            CatalogFetchRequest.model_validate(
+                item.model_dump(mode="python") if isinstance(item, CatalogFetchRequest) else item
+            )
+            for item in requests
+        ]
+        before = self._fetch_source_identities()
+        if before != self._session_source_identities:
+            raise ValueError("catalog_fetch_read_session_stale")
+        baseline, overlay_path, overlay = before
+        targets: dict[tuple[str, str | None], ResolvedFetchTarget | None] = {}
+        by_metric = {}
+        outcomes: list[CatalogFetchResolution] = []
+        for request in checked:
+            if request.metric_id not in by_metric:
+                try:
+                    by_metric[request.metric_id] = self._fetch_target_candidates(
+                        request.metric_id, targets
+                    )
+                except Exception as exc:
+                    by_metric[request.metric_id] = exc
+            candidates = by_metric[request.metric_id]
+            if isinstance(candidates, Exception):
+                outcomes.append(
+                    CatalogFetchResolution(
+                        request=request,
+                        status="ambiguous",
+                        reason=f"catalog_fetch_owner_unreadable:{type(candidates).__name__}:{candidates}",
+                    )
+                )
+                continue
+            selected = self._select_fetch_target(request, candidates)
+            if selected is None:
+                outcomes.append(
+                    CatalogFetchResolution(
+                        request=request,
+                        status="not_admitted",
+                        reason="catalog_fetch_target_not_admitted",
+                    )
+                )
+                continue
+            binding = CatalogFetchBinding(
+                baseline=baseline,
+                overlay_path=overlay_path,
+                overlay=overlay,
+                metric_id=request.metric_id,
+                connector_id=request.connector_id,
+                request_dataset_id=request.request_dataset_id,
+                profile_id=request.profile_id,
+                requested_filters=request.filters,
+                binding=selected[0],
+                target=selected[1],
+            )
+            outcomes.append(
+                CatalogFetchResolution(request=request, status="bound", binding=binding)
+            )
+        if before != self._fetch_source_identities():
+            raise ValueError("catalog_fetch_source_changed")
+        return tuple(outcomes)
+
+    def verify_fetch_binding(self, binding: CatalogFetchBinding) -> CatalogFetchBinding:
+        """Recompute a supplied binding through this store's actual source files."""
+        supplied = CatalogFetchBinding.model_validate(binding.model_dump(mode="python"))
+        expected = self.bind_fetch_target(
+            metric_id=supplied.metric_id,
+            connector_id=supplied.connector_id,
+            request_dataset_id=supplied.request_dataset_id,
+            profile_id=supplied.profile_id,
+            filters=supplied.requested_filters,
+        )
+        if supplied != expected:
+            raise ValueError("catalog_fetch_binding_mismatch")
+        return expected
+
+    def _fetch_source_identities(
+        self,
+    ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+        def identify(path: Path) -> CatalogContentIdentity:
+            if not path.is_file():
+                raise ValueError("catalog_fetch_source_unreadable")
+            digest = hashlib.sha256()
+            byte_size = 0
+            with path.open("rb") as handle:
+                for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    digest.update(chunk)
+                    byte_size += len(chunk)
+            return CatalogContentIdentity(
+                source_path=str(path.resolve()),
+                content_sha256=f"sha256:{digest.hexdigest()}",
+                byte_size=byte_size,
+            )
+
+        overlay = self._overlay_path
+        present = overlay is not None and (overlay.exists() or overlay.is_symlink())
+        return (
+            identify(self._db_path),
+            str(overlay.resolve()) if overlay is not None else None,
+            identify(overlay) if present else None,
         )
 
     def get_connector_params(self, dataset_id: str) -> dict | None:

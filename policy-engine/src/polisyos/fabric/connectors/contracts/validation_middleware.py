@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeVar
 
 import pandas as pd
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.base import (
@@ -45,6 +46,26 @@ class SchemaValidationMode:
     STRICT: ClassVar[ValidationMode] = "strict"
     WARN: ClassVar[ValidationMode] = "warn"
     DISABLED: ClassVar[ValidationMode] = "disabled"
+
+
+class FetchResultContractValidation(BaseModel):
+    """Bind full result-validation errors to the actual current contract identity."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    contract_id: str | None = Field(default=None, min_length=1)
+    contract_version: str | None = Field(default=None, min_length=1)
+    contract_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    errors: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def _require_contract_or_refusal(self) -> FetchResultContractValidation:
+        identities = (self.contract_id, self.contract_version, self.contract_content_hash)
+        if any(value is not None for value in identities):
+            if any(value is None for value in identities):
+                raise ValueError("contract identity must be complete")
+        elif not self.errors:
+            raise ValueError("missing contract identity requires an explicit refusal")
+        return self
 
 
 class ContractValidatingProxy(Generic[DataT]):
@@ -126,7 +147,7 @@ class ContractValidatingProxy(Generic[DataT]):
         if contract is None:
             return result
 
-        errors = self._validate_against_contract(result, contract)
+        errors = self.validate_result_against_contract(result, contract)
         if not errors:
             return result
 
@@ -191,20 +212,22 @@ class ContractValidatingProxy(Generic[DataT]):
         while len(self._resolution_cache) > self._resolution_cache_max_entries:
             self._resolution_cache.popitem(last=False)
 
-    def _validate_against_contract(
-        self,
+    @classmethod
+    def validate_result_against_contract(
+        cls,
         result: FetchResult[DataT],
         contract: ConnectorSchemaContract,
     ) -> list[str]:
-        errors = self._validate_reported_schema(result, contract)
-        frame, frame_error = self._coerce_frame(result.data)
+        """Run the complete existing schema and quality contract without fetching."""
+        errors = cls._validate_reported_schema(result, contract)
+        frame, frame_error = cls._coerce_frame(result.data)
         if frame_error:
             return [*errors, frame_error]
 
         errors.extend(validate_dataframe_against_schema(frame, contract.schema, strict=False))
-        errors.extend(self._validate_completeness(result, frame, contract))
-        errors.extend(self._validate_row_counts(result, contract))
-        errors.extend(self._validate_staleness(result, contract))
+        errors.extend(cls._validate_completeness(result, frame, contract))
+        errors.extend(cls._validate_row_counts(result, contract))
+        errors.extend(cls._validate_staleness(result, contract))
         return errors
 
     @staticmethod
@@ -238,8 +261,9 @@ class ContractValidatingProxy(Generic[DataT]):
                 return pd.DataFrame(data), None
         return pd.DataFrame(), "Cannot validate: data is not DataFrame or list[dict]"
 
+    @classmethod
     def _validate_completeness(
-        self,
+        cls,
         result: FetchResult[DataT],
         frame: pd.DataFrame,
         contract: ConnectorSchemaContract,
@@ -257,7 +281,7 @@ class ContractValidatingProxy(Generic[DataT]):
         if not contract.field_completeness:
             return errors
 
-        scoped = self._scope_completeness_frame(frame, contract)
+        scoped = cls._scope_completeness_frame(frame, contract)
         for field_name, min_ratio in sorted(contract.field_completeness.items()):
             if field_name not in scoped.columns:
                 errors.append(f"field_completeness field '{field_name}' missing in fetched data")

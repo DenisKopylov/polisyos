@@ -2,7 +2,9 @@
 
 Lane: `/Users/deniskopylov/polisyos/.worktrees/gy-gaps`, attached branch
 `codex/gy-eight-gaps`, requested immutable base `43580c80b`.
-No auxiliary worktree has been created. Ordinary local Git, append-only history,
+Auxiliary `gygaps-lane-base` was created at the slice base during D1 for exact
+selected NL replay, on attached branch `codex/gygaps-lane-base`; its creation and
+station are recorded in the D1 journal. It contains no repair. Ordinary local Git, append-only history,
 no push, no GitHub plugin, no storage stash. Only targeted tests are authorized.
 
 ## Accepted design and sequence
@@ -90,3 +92,16 @@ explicit missing conjuncts. No closed guard or full vocabulary denominator was
 weakened. Its task journal routes each remainder. C1 stays `not_executed` because
 the shared Phase-2 canonical proof cannot yet be reissued. This stops C3 only;
 D1, F1, K, L and J continue in order.
+
+C3 landed at `504f995cd203f2efebee8566363b8987092e1e34`. Its complete attached
+branch readback is retained under `gy-eight-gaps-evidence/c3/branch-readback.json`.
+
+D1's catalog/full-fetch/current-N9 engineering is at its checkpoint. The real
+owner census leaves four declared executable L1 bindings refused because their
+CKAN resource identity contradicts the same distribution record. Reissuing
+that external, read-only catalog belongs to Data Forge; D1 remains `blocked`.
+The per-task journal separates this full-vocabulary blocker from the repaired
+constructor, persistence, full source replay, contract-consumption and immutable
+verification-event seams. Current N9 receipts receive a controlled epoch reissue;
+no positive accuracy/calibration or whole production NL-to-promotion claim is
+made. F1 scratch preparation has begun, with source work held until D1's commit.

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal, Protocol, Self
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -17,12 +17,21 @@ from polisyos.data_forge import read_api
 from polisyos.data_forge.read_api import OfficialSnapshotAnswer
 from polisyos.data_forge.read_api.surfaces import available_surfaces, surface_module
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
+from polisyos.fabric.retrieval.providers import (
+    RetrievalProviders,
+    resolve_retrieval_providers,
+)
 from polisyos.pdc import ArtifactEnvelope, ArtifactRef, gy_content_hash
 from polisyos.runtime.quality.adapter_contracts import (
     WORKSPACE_SOURCE_CONTRACT_FACETS,
     ConnectorAdmissionGate,
     DataRequirementAdmissionGate,
 )
+from polisyos.runtime.quality.design_problem import DesignProblem
+
+if TYPE_CHECKING:
+    from polisyos.fabric.retrieval.custody import ResolvedFabricFetch
+
 
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = (
     "policyos.runtime.data_forge_snapshot_binding.v1"
@@ -34,6 +43,7 @@ DATA_FORGE_SNAPSHOT_BINDING_LAYER = "data_forge_snapshot_binding"
 DATA_FORGE_SNAPSHOT_BINDING_PHASE = "data_forge_snapshot_binding"
 DEFAULT_DATA_FORGE_SNAPSHOT_TTL_SECONDS = 60 * 60 * 24 * 90
 WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
+FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.gy.fabric_measurement_root.v2"
 WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION = (
     "policyos.gy.phase2.recorded_panel_measurement_root.v2"
 )
@@ -177,12 +187,15 @@ class CatalogGraphProtocol(Protocol):
         ...
 
 
-class _WorkspaceFixtureManifestProtocol(Protocol):
+class _SourceRequirementScopeProtocol(Protocol):
     fixture_id: str
     construct_scope_query: str
     jurisdiction: str
     population: str
     time_horizon: str
+
+
+class _WorkspaceFixtureManifestProtocol(_SourceRequirementScopeProtocol, Protocol):
     expected_catalog_binding_refs: list[str]
     expected_connector_profile: str
     expected_producer_root_kind: str
@@ -190,6 +203,14 @@ class _WorkspaceFixtureManifestProtocol(Protocol):
 
 class MeasurementRootBindingError(RuntimeError):
     """Raised when a workspace measurement-root catalog binding cannot be produced."""
+
+
+class FabricMeasurementRootBindingError(MeasurementRootBindingError, ValueError):
+    """A current Fabric root refusal consumable by N9's typed failure boundary."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
 
 
 class RecordedPanelSource(BaseModel):
@@ -268,6 +289,50 @@ class RecordedPanelMethodInput(BaseModel):
     observational_data_ref: artifacts.ArtifactRef
     binding_receipt_ref: artifacts.ArtifactRef
     receipt: RecordedPanelBindingReceipt
+
+
+class FabricMeasurementRootPayload(BaseModel):
+    """Bind returned observations to a replayed Fabric and catalog custody chain.
+
+    This root establishes custody of the returned records, not independent
+    external source truth, effect accuracy, or publication authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.gy.fabric_measurement_root.v2"] = (
+        FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
+    )
+    design_problem: DesignProblem
+    source_requirement: DataRequirementSpec
+    fetch_receipt_ref: artifacts.ArtifactRef
+    payload_ref: artifacts.ArtifactRef
+    catalog_binding_ref: artifacts.ArtifactRef
+    source_agreement_checked_at: datetime
+    connector_contract_id: str = Field(min_length=1)
+    connector_contract_version: str = Field(min_length=1)
+    connector_contract_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    producer_root_kind: Literal["measurement"] = "measurement"
+    observed_row_count: int = Field(gt=0)
+    verification_basis: Literal["recomputed_from_current_registered_source"] = (
+        "recomputed_from_current_registered_source"
+    )
+    authority_scope: Literal["returned_observations_custody_only"] = (
+        "returned_observations_custody_only"
+    )
+    limitation: Literal["retrieval_custody_does_not_establish_source_truth"] = (
+        "retrieval_custody_does_not_establish_source_truth"
+    )
+
+    @model_validator(mode="after")
+    def validate_verification_time(self) -> Self:
+        """Keep current-source verification time distinct from historic fetch time."""
+        if (
+            self.source_agreement_checked_at.tzinfo is None
+            or self.source_agreement_checked_at.utcoffset() != timedelta(0)
+        ):
+            raise ValueError("measurement_root_verification_time_requires_utc")
+        return self
 
 
 class MeasurementRootProducer:
@@ -406,7 +471,57 @@ class MeasurementRootProducer:
             verification={"latest_applicability_result": source_contract_gate.result_id},
         )
 
-    def _persist_payload(self, payload: dict[str, Any]) -> str:
+    def produce_from_fabric_fetch(
+        self,
+        *,
+        fetch_receipt_ref: artifacts.ArtifactRef,
+        catalog: read_api.catalog.DatasetCatalogGraph,
+        providers: RetrievalProviders | None = None,
+        design_problem: DesignProblem | None = None,
+        source_requirement: DataRequirementSpec | None = None,
+    ) -> ArtifactEnvelope:
+        """Replay a real full fetch before emitting its measurement-root envelope."""
+
+        if self._artifact_store is None:
+            raise FabricMeasurementRootBindingError("measurement_root_store_not_established")
+        if not isinstance(design_problem, DesignProblem) or not isinstance(
+            source_requirement, DataRequirementSpec
+        ):
+            raise FabricMeasurementRootBindingError("measurement_root_source_requirement_missing")
+        problem = DesignProblem.model_validate(design_problem.model_dump(mode="python"))
+        requirement = DataRequirementSpec.model_validate(
+            source_requirement.model_dump(mode="python")
+        )
+        from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+
+        active_providers = providers or resolve_retrieval_providers()
+        resolved = resolve_persisted_fetch(
+            store=self._artifact_store,
+            fetch_receipt_ref=fetch_receipt_ref,
+            catalog=catalog,
+            providers=active_providers,
+        )
+        payload = _fabric_measurement_payload(
+            resolved,
+            catalog=catalog,
+            design_problem=problem,
+            source_requirement=requirement,
+            providers=active_providers,
+        )
+        payload_ref = self._persist_payload(
+            payload.model_dump(mode="json"),
+            fabric_fetch_ref=resolved.fetch_receipt_ref,
+            source_checked_at=resolved.checked_at,
+        )
+        return _fabric_measurement_envelope(payload, payload_ref)
+
+    def _persist_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        fabric_fetch_ref: artifacts.ArtifactRef | None = None,
+        source_checked_at: datetime | None = None,
+    ) -> str:
         if self._artifact_store is None:
             return gy_content_hash(payload)
         scan = scan_secret_and_pii(
@@ -423,71 +538,431 @@ class MeasurementRootProducer:
             )
         from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 
-        generated_at = _utc_now().replace(microsecond=0).isoformat().replace("+00:00", "Z")
-        fixture_id = str(payload.get("fixture_id") or "measurement-root")
+        opts, identity = _measurement_root_authority_configuration(
+            payload,
+            fabric_fetch_ref=fabric_fetch_ref,
+            source_checked_at=source_checked_at,
+        )
         result = write_authority_artifact(
             self._artifact_store,
             payload,
-            artifacts.PutOptions(
-                kind="policyos.gy.measurement_root_payload",
-                media_type="application/json",
-                schema=artifacts.SchemaInfo(
-                    name=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
-                    version="v1",
-                ),
-                producer=artifacts.ProducerInfo(
-                    component=(
-                        "polisyos.runtime.quality.data_forge_binding."
-                        "MeasurementRootProducer"
-                    ),
-                    version="1.0.0",
-                ),
-            ),
-            evidence_id=f"gy-measurement-root-{gy_content_hash(payload).split(':')[-1][:16]}",
-            evidence_class="authority_bearing",
-            authority_role="producer_authority",
-            provenance_kind="runtime_emitted",
-            owner="team-runtime-quality",
-            reader_contract=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
-            reader_contract_version="v1",
-            tenant_id="policyos-system",
-            cell_id=None,
-            run_id=f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
-            job_id=f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
-            trace_id="trace-gy-measurement-root",
-            span_id="span-gy-measurement-root",
-            parent_span_id=None,
-            requested_execution_profile="gy_slice0",
-            effective_execution_profile="gy_slice0",
-            phase="GY-F2",
-            generated_at=generated_at,
-            as_of_time=generated_at,
-            same_input_closure={
-                "closure_id": f"gy-measurement-root-{_gy_slug(fixture_id)}",
-                "status": "closed",
-                "run_id": f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
-                "job_id": f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
-                "tenant_id": "policyos-system",
-                "cell_id": None,
-                "evidence_input_refs": (),
-            },
-            input_refs=[],
-            effective_mode_ref="gy-slice0-runtime",
-            validation_status="pass",
-            blocking_status="non_blocking",
-            governance={
-                "classification": "internal",
-                "authority_boundary": "measurement_root",
-                "pii": "secret_pii_scanned",
-                "retention_policy": "policy_design_case_generated_artifact",
-                "review_status": "runtime_generated",
-                "override_policy": "no_override",
-                "approval_policy": "not_publication_authority",
-            },
-            redaction_policy_ref="polisyos.core.llm.sanitization.v1",
+            opts,
+            **identity,
             canon_spec=canon.CanonSpec(forbid_floats=False),
         )
         return str(result.cas_ref.artifact_id)
+
+
+def _measurement_root_authority_configuration(
+    payload: dict[str, Any],
+    *,
+    fabric_fetch_ref: artifacts.ArtifactRef | None,
+    source_checked_at: datetime | None,
+) -> tuple[artifacts.PutOptions, dict[str, Any]]:
+    """Build one identity for the existing writer and strict current reader."""
+
+    schema_name = (
+        FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
+        if fabric_fetch_ref is not None
+        else WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION
+    )
+    schema_epoch = "v2" if fabric_fetch_ref is not None else "v1"
+    source_refs = (str(fabric_fetch_ref.artifact_id),) if fabric_fetch_ref is not None else ()
+    inputs = (
+        [artifacts.InputRef(artifact_id=fabric_fetch_ref.artifact_id, role="fabric_fetch")]
+        if fabric_fetch_ref is not None
+        else []
+    )
+    generated_at = (
+        (source_checked_at or _utc_now()).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    )
+    fixture_id = (
+        str(payload["design_problem"]["design_problem_id"])
+        if fabric_fetch_ref is not None
+        else str(payload.get("fixture_id") or "measurement-root")
+    )
+    profile = "gy_fabric_measurement" if fabric_fetch_ref is not None else "gy_slice0"
+    opts = artifacts.PutOptions(
+        kind="policyos.gy.measurement_root_payload",
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=schema_name, version=schema_epoch),
+        producer=artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
+            version="2.0.0" if fabric_fetch_ref is not None else "1.0.0",
+        ),
+        inputs=inputs,
+    )
+    identity = {
+        "evidence_id": f"gy-measurement-root-{gy_content_hash(payload).split(':')[-1][:16]}",
+        "evidence_class": "authority_bearing",
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "owner": "team-runtime-quality",
+        "reader_contract": schema_name,
+        "reader_contract_version": schema_epoch,
+        "tenant_id": "policyos-system",
+        "cell_id": None,
+        "run_id": f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
+        "job_id": f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
+        "trace_id": "trace-gy-measurement-root",
+        "span_id": "span-gy-measurement-root",
+        "parent_span_id": None,
+        "requested_execution_profile": profile,
+        "effective_execution_profile": profile,
+        "phase": "GY-D1" if fabric_fetch_ref is not None else "GY-F2",
+        "generated_at": generated_at,
+        "as_of_time": generated_at,
+        "same_input_closure": {
+            "closure_id": f"gy-measurement-root-{_gy_slug(fixture_id)}",
+            "status": "closed",
+            "run_id": f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
+            "job_id": f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
+            "tenant_id": "policyos-system",
+            "cell_id": None,
+            "evidence_input_refs": source_refs,
+        },
+        "input_refs": list(source_refs),
+        "effective_mode_ref": "gy-fabric-measurement-runtime"
+        if fabric_fetch_ref is not None
+        else "gy-slice0-runtime",
+        "validation_status": "pass",
+        "blocking_status": "non_blocking",
+        "governance": {
+            "classification": "internal",
+            "authority_boundary": "measurement_root",
+            "pii": "secret_pii_scanned",
+            "retention_policy": "policy_design_case_generated_artifact",
+            "review_status": "runtime_generated",
+            "override_policy": "no_override",
+            "approval_policy": "not_publication_authority",
+        },
+        "redaction_policy_ref": "polisyos.core.llm.sanitization.v1",
+    }
+    return opts, identity
+
+
+@dataclass(frozen=True)
+class _FabricMeasurementProblemScope:
+    fixture_id: str
+    construct_scope_query: str
+    jurisdiction: str
+    population: str
+    time_horizon: str
+
+
+def build_fabric_measurement_requirement(
+    *,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    catalog_binding: read_api.catalog.CatalogFetchBinding,
+    design_problem: DesignProblem,
+) -> DataRequirementSpec:
+    """Derive the existing source contract from the actual target and request.
+
+    Request scope is explicit: the complete problem statement, declared region,
+    stakeholder names, and data time are preserved without inferred authority.
+    Catalog coverage, variables, license, quality, and source-registry values
+    come from their existing owners. Missing source facts remain missing.
+    """
+
+    if not isinstance(catalog, read_api.catalog.DatasetCatalogGraph):
+        raise FabricMeasurementRootBindingError("measurement_root_catalog_not_established")
+    binding = read_api.catalog.DatasetCatalogGraph.verify_fetch_binding(catalog, catalog_binding)
+    target = binding.target
+    selected = read_api.catalog.DatasetCatalogGraph.get_dataset(catalog, target.catalog_dataset_id)
+    if selected is None:
+        raise FabricMeasurementRootBindingError("measurement_root_catalog_target_missing")
+    distributions = [
+        row.model_dump(mode="json")
+        for row in (
+            read_api.catalog.DatasetCatalogGraph.get_distributions(
+                catalog, target.catalog_dataset_id
+            )
+        )
+        if row.id == target.distribution_id
+    ]
+    if len(distributions) != 1:
+        raise FabricMeasurementRootBindingError("measurement_root_distribution_not_established")
+    scope = _FabricMeasurementProblemScope(
+        fixture_id=design_problem.design_problem_id,
+        construct_scope_query=design_problem.problem_statement,
+        jurisdiction=design_problem.jurisdiction_time.region,
+        population="; ".join(row.name for row in design_problem.stakeholders),
+        time_horizon=design_problem.jurisdiction_time.data_time,
+    )
+    requirement, _source = source_requirement_for_catalog_binding(
+        manifest=scope,
+        selected=selected,
+        distributions=distributions,
+        connector_type=target.connector_id,
+    )
+    return requirement
+
+
+def _fabric_measurement_payload(
+    resolved: ResolvedFabricFetch,
+    *,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    design_problem: DesignProblem,
+    source_requirement: DataRequirementSpec,
+    providers: RetrievalProviders,
+) -> FabricMeasurementRootPayload:
+    """Recompute the bounded observation predicate from the entire fetched payload."""
+
+    import pandas as pd
+    import pyarrow as pa
+
+    if resolved.source_agreement != "recomputed":
+        raise FabricMeasurementRootBindingError("measurement_root_source_agreement_not_established")
+    result = resolved.result
+    data = result.data
+    if isinstance(data, pd.DataFrame):
+        rows = data.to_dict(orient="records")
+    elif isinstance(data, pa.Table):
+        rows = data.to_pylist()
+    else:
+        rows = data
+    if (
+        not isinstance(rows, (list, tuple))
+        or not rows
+        or any(not isinstance(row, Mapping) or not row for row in rows)
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_observations_not_established")
+    if (
+        len(rows) != result.row_count
+        or result.has_more
+        or result.next_page_token is not None
+        or (result.total_count is not None and result.total_count != result.row_count)
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_full_fetch_not_established")
+    pending = list(rows)
+    while pending:
+        value = pending.pop()
+        if isinstance(value, Mapping):
+            if value.get("not_observations") is True:
+                raise FabricMeasurementRootBindingError(
+                    "measurement_root_explicit_non_observations"
+                )
+            pending.extend(value.values())
+        elif isinstance(value, (list, tuple)):
+            pending.extend(value)
+    scan = scan_secret_and_pii(
+        rows,
+        scope="DAG bundles",
+        artifact_ref_or_route="gy-measurement-root://fabric-fetch",
+        redact=False,
+        block_on_findings=True,
+    )
+    if scan.has_findings:
+        raise FabricMeasurementRootBindingError("measurement_root_observations_secret_pii_blocked")
+    connector_gate = ConnectorAdmissionGate().evaluate(resolved.used_plan.connector_id)
+    if connector_gate.status != "applicable":
+        raise FabricMeasurementRootBindingError("measurement_root_connector_not_admitted")
+    expected = build_fabric_measurement_requirement(
+        catalog=catalog,
+        catalog_binding=resolved.catalog_binding,
+        design_problem=design_problem,
+    )
+    if source_requirement != expected:
+        raise FabricMeasurementRootBindingError("measurement_root_source_requirement_mismatch")
+    if DataRequirementAdmissionGate().evaluate(source_requirement).status != "applicable":
+        raise FabricMeasurementRootBindingError("measurement_root_source_requirement_not_admitted")
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+
+    if not isinstance(providers.registry, ConnectorRegistry):
+        raise FabricMeasurementRootBindingError("measurement_root_contract_owner_not_established")
+    contract_validation = providers.registry.validate_fetch_result(
+        connector_id=resolved.used_plan.connector_id,
+        dataset_id=resolved.used_plan.dataset_id,
+        result=resolved.replayed_result,
+    )
+    if (
+        contract_validation.errors
+        or contract_validation.contract_id is None
+        or contract_validation.contract_version is None
+        or contract_validation.contract_content_hash is None
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_fetch_contract_not_admitted")
+    if (
+        resolved.replayed_result.completeness < source_requirement.quality_minima.min_completeness
+        or 1.0 - resolved.replayed_result.completeness > source_requirement.missingness_tolerance
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_source_completeness_not_admitted")
+    return FabricMeasurementRootPayload(
+        design_problem=design_problem,
+        source_requirement=source_requirement,
+        fetch_receipt_ref=resolved.fetch_receipt_ref,
+        payload_ref=resolved.payload_ref,
+        catalog_binding_ref=resolved.catalog_binding_ref,
+        source_agreement_checked_at=resolved.checked_at,
+        connector_contract_id=contract_validation.contract_id,
+        connector_contract_version=contract_validation.contract_version,
+        connector_contract_content_hash=contract_validation.contract_content_hash,
+        observed_row_count=result.row_count,
+    )
+
+
+def _fabric_measurement_envelope(
+    payload: FabricMeasurementRootPayload,
+    payload_ref: str,
+) -> ArtifactEnvelope:
+    digest = payload_ref.split(":", 1)[1]
+    values = payload.model_dump(mode="json")
+    root = ArtifactRef.from_payload(
+        artifact_id=f"measurement-root-{digest}",
+        artifact_type="MeasurementRoot",
+        payload=values,
+        schema_ref=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+        uri=f"cas://{payload_ref}",
+        version="v2",
+    )
+    source = ArtifactRef(
+        artifact_id=f"fabric-fetch-{payload.fetch_receipt_ref.artifact_id.hex}",
+        artifact_type="FabricFetchReceipt",
+        content_hash=str(payload.fetch_receipt_ref.artifact_id),
+        schema_ref="polisyos.fabric.fetch_receipt.v1",
+        uri=f"cas://{payload.fetch_receipt_ref.artifact_id}",
+        version="v1",
+    )
+    return ArtifactEnvelope(
+        ref=ArtifactRef.from_payload(
+            artifact_id=f"base-dataset-{digest}",
+            artifact_type="BaseDataset",
+            payload=values,
+            schema_ref=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            uri=f"cas://{payload_ref}",
+            version="v2",
+        ),
+        payload_ref=payload_ref,
+        payload_schema_ref=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+        lifecycle_state="shadow",
+        created_by={
+            "kind": "producer",
+            "component": ("polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"),
+        },
+        producer_operation={
+            "invocation_id": f"invoke-fabric-bind-{digest}",
+            "operation_id": "fabric.bind.measurement_root",
+            "operation_version": "v2",
+        },
+        input_artifacts=[source],
+        producer_roots=[root],
+    )
+
+
+def resolve_fabric_measurement_root(
+    *,
+    store: artifacts.ArtifactStore,
+    source_artifact_id: str,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    providers: RetrievalProviders | None = None,
+) -> ArtifactEnvelope:
+    """Resolve full source custody and recompute a current measurement envelope."""
+
+    from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+
+    active_providers = providers or resolve_retrieval_providers()
+    artifact_id = artifacts.ArtifactID(source_artifact_id)
+    raw = store.get_bytes(artifact_id)
+    manifest = store.get_manifest(artifact_id)
+    payload = FabricMeasurementRootPayload.model_validate(canon.from_canonical_bytes(raw))
+    expected_inputs = [
+        artifacts.InputRef(artifact_id=payload.fetch_receipt_ref.artifact_id, role="fabric_fetch")
+    ]
+    authority, closure = manifest.authority, manifest.same_input_closure
+    if (
+        not store.verify(artifact_id).ok
+        or hashlib.sha256(raw).hexdigest() != artifact_id.hex
+        or manifest.artifact_id != artifact_id
+        or manifest.kind != "policyos.gy.measurement_root_payload"
+        or manifest.media_type != "application/json"
+        or manifest.byte_size != len(raw)
+        or manifest.artifact_schema
+        != artifacts.SchemaInfo(name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION, version="v2")
+        or manifest.canon != artifacts.CanonInfo(forbid_floats=False)
+        or manifest.inputs != expected_inputs
+        or manifest.producer
+        != artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
+            version="2.0.0",
+        )
+        or manifest.env is not None
+        or manifest.governance is not None
+        or manifest.tenant_context is None
+        or manifest.tenant_context.tenant_id != "policyos-system"
+        or manifest.tenant_context.cell_id is not None
+        or closure is None
+        or closure.status != "closed"
+        or closure.tenant_id != "policyos-system"
+        or closure.cell_id is not None
+        or closure.evidence_input_refs != (str(payload.fetch_receipt_ref.artifact_id),)
+        or authority is None
+        or authority.payload_sha256 != artifact_id.hex
+        or authority.manifest_ref != f"cas-manifest://{artifact_id}"
+        or manifest.integrity.sha256 != artifact_id.hex
+        or manifest.integrity.optional is not None
+        or manifest.warnings != []
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_source_manifest_invalid")
+    from polisyos.runtime.http.services.control.artifacts import (
+        AuthorityArtifactIdentityContext,
+        verify_runtime_authority_artifact_identity,
+    )
+    from polisyos.runtime.quality.authority import (
+        EvidenceAuthorityEnvelope,
+        GovernanceMetadata,
+        SameInputClosure,
+    )
+
+    emitted_authority = EvidenceAuthorityEnvelope.model_validate(
+        canon.from_canonical_bytes(
+            store.get_bytes(artifacts.ArtifactID(authority.authority_envelope_ref))
+        )
+    )
+    opts, identity = _measurement_root_authority_configuration(
+        payload.model_dump(mode="json"),
+        fabric_fetch_ref=payload.fetch_receipt_ref,
+        source_checked_at=payload.source_agreement_checked_at,
+    )
+    identity["same_input_closure"] = SameInputClosure.model_validate(identity["same_input_closure"])
+    identity["governance"] = GovernanceMetadata.model_validate(identity["governance"])
+    identity["input_refs"] = tuple(identity["input_refs"])
+    context = AuthorityArtifactIdentityContext(
+        **identity,
+        manifest_inputs=tuple(opts.inputs or ()),
+        manifest_governance=opts.governance,
+        # This pointer is not trusted: the shared owner recomputes the complete
+        # attestation payload from the expected context and checks its CAS bytes.
+        attestation_ref=emitted_authority.attestation_ref,
+    )
+    verify_runtime_authority_artifact_identity(
+        store,
+        artifact_id=artifact_id,
+        opts=opts,
+        expected_context=context,
+    )
+    resolved = resolve_persisted_fetch(
+        store=store,
+        fetch_receipt_ref=payload.fetch_receipt_ref,
+        catalog=catalog,
+        providers=active_providers,
+    )
+    if payload.source_agreement_checked_at > resolved.checked_at:
+        raise FabricMeasurementRootBindingError("measurement_root_verification_time_in_future")
+    expected = _fabric_measurement_payload(
+        resolved,
+        catalog=catalog,
+        design_problem=payload.design_problem,
+        source_requirement=payload.source_requirement,
+        providers=active_providers,
+    )
+    # Replaying now establishes current agreement. The earlier check time is
+    # retained only as this root's emission record, never historic transport proof.
+    expected = expected.model_copy(
+        update={"source_agreement_checked_at": payload.source_agreement_checked_at}
+    )
+    if payload != expected:
+        raise FabricMeasurementRootBindingError("measurement_root_fabric_projection_mismatch")
+    return _fabric_measurement_envelope(payload, source_artifact_id)
 
 
 def produce_phase2_recorded_panel_measurement_root(
@@ -799,7 +1274,7 @@ def build_default_workspace_catalog_graph() -> CatalogGraphProtocol:
 
 def source_requirement_for_catalog_binding(
     *,
-    manifest: _WorkspaceFixtureManifestProtocol,
+    manifest: _SourceRequirementScopeProtocol,
     selected: _CatalogRecordProtocol,
     distributions: list[dict[str, Any]],
     connector_type: str,
@@ -914,7 +1389,7 @@ def _catalog_source_registry_entry(selected: _CatalogRecordProtocol) -> object |
 
 def _source_contract_facet_values(
     *,
-    manifest: _WorkspaceFixtureManifestProtocol,
+    manifest: _SourceRequirementScopeProtocol,
     selected_payload: dict[str, object],
     distributions: list[dict[str, Any]],
     connector_type: str,

@@ -23,6 +23,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import contracts as core_contracts
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.data_forge.read_api import catalog as catalog_api
+from polisyos.fabric.retrieval.providers import RetrievalProviders  # noqa: TC001
 
 # The former TC001-suppressed posture DTOs remain eager for Pydantic runtime resolution.
 from polisyos.pdc import (
@@ -139,8 +142,8 @@ PROMOTION_STRANGLE_REF = (
     "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
 )
 CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION: Literal[
-    "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
-] = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+] = "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
 CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
 ] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
@@ -170,14 +173,14 @@ _G4_PROMOTION_RECORDS_PATH = Path(
 )
 _VERIFICATION_NON_PROMOTABLE_REASON = "verification_only_replay"
 _PROMOTION_OBLIGATION_SCOPE_RULE_VERSION = (
-    "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3"
+    "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v4"
 )
 _PROMOTION_CLASS_GATE_SOURCE_RULE_VERSION = (
     "polisyos.policy_design_case.layer3_gy.n9_class_gate_source.v1"
 )
 _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
-    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
-] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
+    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"
+] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"
 _LEGACY_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
 ] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
@@ -194,9 +197,10 @@ _EFFECT_OBLIGATION_SOURCE_KIND: Literal["polisyos.gy.n9_effect_obligation_produc
 _EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
 ] = "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
-_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
+_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.gy.fabric_measurement_root.v2"
+_LEGACY_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
 _PROMOTION_EVIDENCE_VERIFIER_KIND = "polisyos.gy.n9_promotion_evidence_verifier"
-_PROMOTION_EVIDENCE_VERIFIER_BYTES = b"polisyos.n9-promotion-evidence.verifier.v2\n"
+_PROMOTION_EVIDENCE_VERIFIER_BYTES = b"polisyos.n9-promotion-evidence.verifier.v3\n"
 _EFFECTIVE_INDEPENDENCE_BRIDGE_TYPE = "N9EffectiveIndependenceBridge"
 _MEASUREMENT_ROOT_BRIDGE_TYPE = "N9MeasurementRootBridge"
 _EFFECT_OBLIGATION_BRIDGE_TYPE = "N9EffectObligationBridge"
@@ -204,7 +208,7 @@ _EFFECTIVE_INDEPENDENCE_OWNER_REF = (
     "polisyos.evidence.portfolio.effective_independence_graph.build_effective_independence_graph"
 )
 _MEASUREMENT_ROOT_OWNER_REF = (
-    "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer.produce_from_catalog"
+    "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer.produce_from_fabric_fetch"
 )
 _EFFECT_OBLIGATION_OWNER_REF = (
     "polisyos.runtime.quality.promotion_sequence."
@@ -425,7 +429,7 @@ class _LegacyN9PromotionEvidenceBridgeRecordV1(_StrictModel):
 class N9PromotionEvidenceBridgeRecord(_StrictModel):
     """Current candidate/problem binding from a real producer artifact into N9."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"] = (
         _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
     )
     evidence_kind: _PromotionEvidenceKind
@@ -441,6 +445,29 @@ class N9PromotionEvidenceBridgeRecord(_StrictModel):
     disposition: Literal["established", "blocked"]
     limitation_code: str = Field(min_length=1)
     verifier_provenance_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _LegacyN9PromotionEvidenceBridgeRecordV2(N9PromotionEvidenceBridgeRecord):
+    """Exact catalog-only bridge epoch retained without current admission."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"] = (
+        "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
+    )
+
+
+def parse_n9_promotion_evidence_bridge_history(
+    value: Mapping[str, object],
+) -> N9PromotionEvidenceBridgeRecord | _LegacyN9PromotionEvidenceBridgeRecordV1:
+    """Read declared bridge epochs without invoking current authority admission."""
+
+    schema = value.get("schema_version")
+    if schema == _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION:
+        return N9PromotionEvidenceBridgeRecord.model_validate(value)
+    if schema == "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2":
+        return _LegacyN9PromotionEvidenceBridgeRecordV2.model_validate(value)
+    if schema == _LEGACY_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION:
+        return _LegacyN9PromotionEvidenceBridgeRecordV1.model_validate(value)
+    raise ValueError("promotion_evidence_history_schema_invalid")
 
 
 class N9PromotionEvidenceResolution(_StrictModel):
@@ -489,8 +516,16 @@ class _EffectObligationWriterInput(_StrictModel):
 class N9PromotionEvidenceBridgeRepository:
     """Persist and independently replay N9 producer bindings from exact CAS bytes."""
 
-    def __init__(self, *, store: core_artifacts.ArtifactStore) -> None:
+    def __init__(
+        self,
+        *,
+        store: core_artifacts.ArtifactStore,
+        measurement_catalog: catalog_api.DatasetCatalogGraph | None = None,
+        measurement_providers: RetrievalProviders | None = None,
+    ) -> None:
         self._store = store
+        self._measurement_catalog = measurement_catalog
+        self._measurement_providers = measurement_providers
         self._verifier_provenance_ref = store.put_bytes(
             _PROMOTION_EVIDENCE_VERIFIER_BYTES,
             core_artifacts.ArtifactWriteOptions(
@@ -568,26 +603,16 @@ class N9PromotionEvidenceBridgeRepository:
     ) -> ArtifactRef:
         """Resolve a real MeasurementRoot envelope before binding it to N9."""
 
-        payload, root = self._resolve_measurement_source(
-            source_artifact_id=envelope.payload_ref,
-            source_root_ref=next(
-                (
-                    item
-                    for item in envelope.producer_roots
-                    if item.artifact_type == "MeasurementRoot"
-                ),
-                None,
-            ),
-        )
-        if (
-            envelope.ref.artifact_type != "BaseDataset"
-            or envelope.ref.schema_ref != root.schema_ref
-            or envelope.payload_schema_ref != root.schema_ref
-            or envelope.created_by.get("component")
-            != "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
-            or envelope.producer_operation.get("operation_id") != "slice0.bind.catalog"
-        ):
+        resolved_envelope = self._resolve_measurement_envelope(envelope.payload_ref)
+        if envelope != resolved_envelope:
             raise ValueError("measurement_root_envelope_binding_invalid")
+        root = resolved_envelope.producer_roots[0]
+        payload = from_canonical_bytes(
+            self._store.get_bytes(core_artifacts.ArtifactID(envelope.payload_ref))
+        )
+        problem = DesignProblem.model_validate(payload["design_problem"])
+        if N9DesignProblemBinding.from_problem(problem) != promotion_input.design_problem_binding:
+            raise ValueError("measurement_root_design_problem_binding_mismatch")
         return self._persist_bridge(
             promotion_input=promotion_input,
             evidence_kind="measurement_root",
@@ -695,7 +720,7 @@ class N9PromotionEvidenceBridgeRepository:
             if (
                 bridge_ref.artifact_type != expected_type
                 or bridge_ref.schema_ref != _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
-                or bridge_ref.version != "v2"
+                or bridge_ref.version != "v3"
                 or bridge_ref.uri != f"cas://{bridge_ref.artifact_id}"
             ):
                 raise ValueError("promotion_evidence_bridge_ref_invalid")
@@ -792,7 +817,7 @@ class N9PromotionEvidenceBridgeRepository:
             content_hash=gy_content_hash(record.model_dump(mode="json")),
             schema_ref=_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION,
             uri=f"cas://{ref.artifact_id}",
-            version="v2",
+            version="v3",
         )
 
     def _resolve_independence_record(
@@ -865,6 +890,10 @@ class N9PromotionEvidenceBridgeRepository:
         if (
             gy_content_hash(payload) != record.source_semantic_hash
             or root.schema_ref != record.source_schema_ref
+            or N9DesignProblemBinding.from_problem(
+                DesignProblem.model_validate(payload["design_problem"])
+            )
+            != record.design_problem_binding
         ):
             raise ValueError("measurement_root_source_binding_invalid")
         return (
@@ -873,6 +902,10 @@ class N9PromotionEvidenceBridgeRepository:
             (
                 record.source_artifact_id,
                 root.content_hash,
+                *(
+                    payload[name]["artifact_id"]
+                    for name in ("fetch_receipt_ref", "payload_ref", "catalog_binding_ref")
+                ),
             ),
         )
 
@@ -952,7 +985,33 @@ class N9PromotionEvidenceBridgeRepository:
             ),
         )
 
+    def _resolve_measurement_envelope(self, source_artifact_id: str) -> ArtifactEnvelope:
+        from polisyos.runtime.quality.data_forge_binding import resolve_fabric_measurement_root
+
+        if not isinstance(self._measurement_catalog, catalog_api.DatasetCatalogGraph):
+            raise ValueError("measurement_root_catalog_not_established")
+        return resolve_fabric_measurement_root(
+            store=self._store,
+            source_artifact_id=source_artifact_id,
+            catalog=self._measurement_catalog,
+            providers=self._measurement_providers,
+        )
+
     def _resolve_measurement_source(
+        self,
+        *,
+        source_artifact_id: str,
+        source_root_ref: ArtifactRef | None,
+    ) -> tuple[dict[str, Any], ArtifactRef]:
+        envelope = self._resolve_measurement_envelope(source_artifact_id)
+        if envelope.producer_roots != [source_root_ref]:
+            raise ValueError("measurement_root_source_projection_mismatch")
+        payload = from_canonical_bytes(
+            self._store.get_bytes(core_artifacts.ArtifactID(source_artifact_id))
+        )
+        return payload, envelope.producer_roots[0]
+
+    def _resolve_measurement_source_v1_history(
         self,
         *,
         source_artifact_id: str,
@@ -979,7 +1038,7 @@ class N9PromotionEvidenceBridgeRepository:
             or manifest.byte_size != len(raw)
             or schema
             != core_artifacts.SchemaInfo(
-                name=_MEASUREMENT_ROOT_SCHEMA_VERSION,
+                name=_LEGACY_MEASUREMENT_ROOT_SCHEMA_VERSION,
                 version="v1",
             )
             or canon != core_artifacts.CanonInfo(forbid_floats=False)
@@ -1078,7 +1137,7 @@ class N9PromotionEvidenceBridgeRepository:
                 "measurement_row_count": len(rows),
                 "measurement_row_refs": [row["row_id"] for row in rows],
             },
-            schema_ref=_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            schema_ref=_LEGACY_MEASUREMENT_ROOT_SCHEMA_VERSION,
             uri=f"gy://slice0/{fixture_id}/measurement-root",
             version="v1",
         )
@@ -1311,7 +1370,7 @@ class CredalReferencePromotabilityProjection(_StrictModel):
 class CanonicalPromotionInput(_StrictModel):
     """Complete input to one canonical N9 promotion attempt."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v6"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v7"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     design_problem_binding: N9DesignProblemBinding
@@ -1600,7 +1659,7 @@ class CanonicalPromotionOwnerProjection(_StrictModel):
 class CanonicalPromotionReceipt(_StrictModel):
     """Replay-visible result of the canonical N9 sequence."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v6"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v7"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     owner_projection: CanonicalPromotionOwnerProjection
@@ -1734,6 +1793,14 @@ class CanonicalPromotionReceipt(_StrictModel):
         return self
 
 
+class _LegacyCanonicalPromotionReceiptV6(CanonicalPromotionReceipt):
+    """Exact scope-v3/catalog-only v6 receipt retained solely for historical reads."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v6"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+    )
+
+
 class _LegacyCanonicalPromotionReceiptV5(CanonicalPromotionReceipt):
     """Exact v5/v2 obligation-scope receipt retained only for history reads."""
 
@@ -1770,6 +1837,9 @@ class _LegacyCanonicalPromotionReceiptV2(_LegacyCanonicalPromotionReceiptV3):
 
 
 _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+_LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+)
 _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
 )
@@ -1778,6 +1848,7 @@ _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION = (
 )
 _HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS = frozenset(
     {
+        _LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION,
         _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION,
         _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION,
         GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
@@ -1793,6 +1864,8 @@ def _historical_promotion_non_admission_code(
 
     if schema_version not in _HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS:
         return None
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION:
+        return "legacy_obligation_scope_v3_authority_not_admitted"
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION:
         return "legacy_obligation_scope_v2_authority_not_admitted"
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION:
@@ -1804,6 +1877,7 @@ def parse_canonical_promotion_history_receipt(
     value: Mapping[str, object],
 ) -> (
     CanonicalPromotionReceipt
+    | _LegacyCanonicalPromotionReceiptV6
     | _LegacyCanonicalPromotionReceiptV5
     | _LegacyCanonicalPromotionReceiptV4
     | _LegacyCanonicalPromotionReceiptV3
@@ -1814,6 +1888,8 @@ def parse_canonical_promotion_history_receipt(
     schema_version = value.get("schema_version")
     if schema_version == CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION:
         return CanonicalPromotionReceipt.model_validate(value)
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION:
+        return _LegacyCanonicalPromotionReceiptV6.model_validate(value)
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION:
         return _LegacyCanonicalPromotionReceiptV5.model_validate(value)
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION:
@@ -1841,9 +1917,13 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v4"
 )
-CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v5"
+)
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v6"
 )
 
 _PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS = frozenset({"projection_hash"})
@@ -2090,7 +2170,7 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
 def canonical_promotion_receipt_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
-    """Project a verified receipt onto its v6 producer-owned semantics.
+    """Project a verified receipt onto its v7 producer-owned semantics.
 
     The complete raw receipt remains the custody record. Physical ledger
     locators are non-decisive only when the confidence-ledger producer's full
@@ -2135,6 +2215,26 @@ def _canonical_promotion_receipt_v4_semantic_projection(
         receipt.model_dump(mode="json"),
         model_type=_LegacyCanonicalPromotionReceiptV4,
         owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV2,
+        receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
+    )
+
+
+def _canonical_promotion_receipt_v6_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project exact historical v6 bytes under their frozen v5 comparison rule."""
+
+    receipt = _LegacyCanonicalPromotionReceiptV6.model_validate(value)
+    if receipt.confidence_ledger_semantic_projection is None:
+        raise ValueError("promotion_comparison_semantic_ledger_missing")
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    return _project_promotion_receipt_payload(
+        receipt.model_dump(mode="json"),
+        model_type=_LegacyCanonicalPromotionReceiptV6,
+        owner_model_type=CanonicalPromotionOwnerProjection,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
     )
 
@@ -2207,6 +2307,13 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_OWNER_RULE = GyComparison
 )
 
 
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_canonical_promotion_receipt_v6_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
     projector=canonical_promotion_receipt_semantic_projection,
     action="project",
@@ -2231,6 +2338,9 @@ def canonical_promotion_verification_comparison_owner_rule_registry() -> dict[
         ),
         CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_RULE: (
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_OWNER_RULE
+        ),
+        CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE: (
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_OWNER_RULE
         ),
         CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
@@ -2446,6 +2556,8 @@ class CanonicalN9PromotionPort:
         promotion_runtime: PromotionRuntime | None = None,
         epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
         repo_root: Path | None = None,
+        measurement_catalog: catalog_api.DatasetCatalogGraph | None = None,
+        measurement_providers: RetrievalProviders | None = None,
     ) -> None:
         runtime_epoch_resolver = (
             promotion_runtime.epoch_n9_evidence_resolver if promotion_runtime is not None else None
@@ -2457,10 +2569,16 @@ class CanonicalN9PromotionPort:
             and epoch_n9_evidence_resolver is not runtime_epoch_resolver
         ):
             raise ValueError("epoch_n9_evidence_resolver_owner_mismatch")
+        self._measurement_catalog = measurement_catalog
+        self._measurement_providers = measurement_providers
         self._context_provider = context_provider
         self._promotion_runtime = promotion_runtime
         self._promotion_evidence_resolver = (
-            N9PromotionEvidenceBridgeRepository(store=promotion_runtime.store)
+            N9PromotionEvidenceBridgeRepository(
+                store=promotion_runtime.store,
+                measurement_catalog=measurement_catalog,
+                measurement_providers=measurement_providers,
+            )
             if promotion_runtime is not None
             else None
         )
@@ -2583,6 +2701,8 @@ class CanonicalN9PromotionPort:
             problem=problem,
             problem_binding=problem_binding,
             context_provider=self._context_provider,
+            measurement_catalog=self._measurement_catalog,
+            measurement_providers=self._measurement_providers,
             promotion_runtime=self._promotion_runtime,
             epoch_n9_evidence_resolver=self._epoch_n9_evidence_resolver,
             repo_root=self._repo_root,
@@ -2623,6 +2743,8 @@ class _VerificationN9PromotionPort:
 
 def _run_n9_promotion_port_batch(
     *,
+    measurement_catalog: catalog_api.DatasetCatalogGraph | None = None,
+    measurement_providers: RetrievalProviders | None = None,
     admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch | None = None,
     summaries: Sequence[CandidateSummary] = (),
     problem: DesignProblem,
@@ -2640,7 +2762,11 @@ def _run_n9_promotion_port_batch(
         raise ValueError("confidence_ledger_scope_binding_mismatch")
     verification = confidence_ledger_session.authority_provenance == "verification"
     promotion_evidence_resolver = (
-        N9PromotionEvidenceBridgeRepository(store=promotion_runtime.store)
+        N9PromotionEvidenceBridgeRepository(
+            store=promotion_runtime.store,
+            measurement_catalog=measurement_catalog,
+            measurement_providers=measurement_providers,
+        )
         if promotion_runtime is not None
         else None
     )
@@ -3775,7 +3901,7 @@ def admit_canonical_promotion_receipt_for_comparison(
         previous: Mapping[str, object],
         current: Mapping[str, object],
     ) -> Mapping[str, object]:
-        """Admit same-version v6 lineage only; v2/v3/v4/v5 stay history."""
+        """Admit same-version v7 lineage only; v2/v3/v4/v5/v6 stay history."""
 
         try:
             current_receipt = CanonicalPromotionReceipt.model_validate(current)

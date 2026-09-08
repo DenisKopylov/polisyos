@@ -4,6 +4,38 @@
 bounded live discovery, executable fetch plans, previews, and promotion
 signals.
 
+## Persisted fetch custody
+
+`execute_fetch_plans(..., persist_payload=True)` requires a real
+`DatasetCatalogGraph` and CAS. The actual chosen plan, including a fallback,
+must resolve through that graph. The executor persists the complete connector
+payload and a `polisyos.fabric.fetch_receipt.v1` receipt; `DataContextMetric`
+carries their typed `payload_ref` and `fetch_receipt_ref`. Its `sample_rows`
+remain a preview and cannot substitute for the persisted payload.
+
+`custody.resolve_persisted_fetch` resolves the full CAS chain, rechecks the
+catalog source bytes, and repeats the exact full request through the registered
+connector. A changed or unavailable source refuses current verification.
+The comparison establishes current returned-content agreement. It does not
+prove that the historical request happened at its recorded time, nor establish
+scientific source truth. Capture timing stays in the raw receipt and cannot
+authorize a time-sensitive or execution-cost claim.
+
+Current N9 measurement admission uses
+`MeasurementRootProducer.produce_from_fabric_fetch` with an explicit design
+problem and a source requirement derived through the existing catalog owner.
+Both existing connector and source-contract admission gates still apply.
+The registry's full result validator checks the actual configured contract,
+including schema, completeness, row counts and staleness. The root binds that
+contract's ID, version and behavioral content hash; the current N9 reader
+rechecks the same predicate and refuses a changed contract. Description and
+creation metadata are outside that existing behavioral hash.
+Each successful source recheck creates a fresh verification event, with its
+own UTC `source_agreement_checked_at` and immutable authority identity. It
+retains the original fetch reference without rewriting its capture time.
+Catalog-only roots remain historical/fixture inputs and cannot discharge the
+current MEASUREMENT obligation.
+
 Last updated: 2026-04-17.
 
 ## Purpose

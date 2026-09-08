@@ -16,6 +16,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogFetchBinding,
+        CatalogFetchRequest,
+        CatalogFetchResolution,
         DatasetSearchResult,
         DistributionResult,
         MetricBindingMatch,
@@ -656,8 +659,42 @@ class DatasetCatalogGraph:
     ) -> list[MetricBindingMatch]:
         return self._store.search_metric_bindings(query, top_k=top_k, modes=modes)
 
-    def resolve_fetch_target(self, dataset_id: str) -> ResolvedFetchTarget | None:
-        return self._store.resolve_fetch_target(dataset_id)
+    def resolve_fetch_target(
+        self, dataset_id: str, *, distribution_id: str | None = None
+    ) -> ResolvedFetchTarget | None:
+        return self._store.resolve_fetch_target(dataset_id, distribution_id=distribution_id)
+
+    def get_dataset(self, dataset_id: str) -> DatasetSearchResult | None:
+        """Read the exact selected dataset without search ranking or truncation."""
+        return self._store.get_dataset(dataset_id)
+
+    def bind_fetch_target(
+        self,
+        *,
+        metric_id: str,
+        connector_id: str,
+        request_dataset_id: str,
+        profile_id: str | None,
+        filters: dict[str, list[str]],
+    ) -> CatalogFetchBinding:
+        """Bind a fetch tuple through the actual catalog owner and source bytes."""
+        return self._store.bind_fetch_target(
+            metric_id=metric_id,
+            connector_id=connector_id,
+            request_dataset_id=request_dataset_id,
+            profile_id=profile_id,
+            filters=filters,
+        )
+
+    def verify_fetch_binding(self, binding: CatalogFetchBinding) -> CatalogFetchBinding:
+        """Recompute a persisted fetch binding against this graph's real sources."""
+        return self._store.verify_fetch_binding(binding)
+
+    def bind_fetch_targets(
+        self, requests: list[CatalogFetchRequest | dict[str, object]]
+    ) -> tuple[CatalogFetchResolution, ...]:
+        """Resolve every request, releasing outcomes only after source revalidation."""
+        return self._store.bind_fetch_targets(requests)
 
     def get_connector_params(self, dataset_id: str) -> dict | None:
         return self._store.get_connector_params(dataset_id)

@@ -108,6 +108,7 @@ from polisyos.fabric.connectors.contracts.source_contract import (
 )
 from polisyos.fabric.connectors.contracts.validation_middleware import (
     ContractValidatingProxy,
+    FetchResultContractValidation,
     SchemaValidationMode,
 )
 
@@ -129,6 +130,7 @@ __all__ = [
     "DataSchema",
     "DecisionRole",
     "EvolutionReport",
+    "FetchResultContractValidation",
     # Connector-level contracts
     "FieldMapping",
     "FieldRedaction",

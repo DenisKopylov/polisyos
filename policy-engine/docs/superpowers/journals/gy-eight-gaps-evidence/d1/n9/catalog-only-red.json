@@ -1,0 +1,25 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_catalog_metadata_without_fabric_custody"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T17:51:15.589312+00:00",
+  "elapsed_seconds": 87.026,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F\n=================================== FAILURES ===================================\n_____ test_n9_measurement_refuses_catalog_metadata_without_fabric_custody ______\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-49/test_n9_measurement_refuses_ca0')\n\n    def test_n9_measurement_refuses_catalog_metadata_without_fabric_custody(tmp_path: Path) -> None:\n        \"\"\"A catalog-only envelope cannot establish the current measurement obligation.\"\"\"\n    \n        store = FileSystemCAS(tmp_path / \"cas\")\n        catalog = build_slice0_fixture_catalog_graph(tmp_path)\n        envelope = MeasurementRootProducer(artifact_store=store).produce_from_catalog(\n            load_workspace_fixture_manifest(\"ua_msme_credit_worldbank_measurement\"), catalog\n        )\n        promotion_input = _promotion_input()\n        repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(store=store)\n        roots = ()\n        try:\n            roots = (repository.persist_measurement_root(\n                promotion_input=promotion_input, envelope=envelope\n            ),)\n        except ValueError as exc:\n            assert \"measurement_root\" in str(exc)\n        current = promotion_input.model_copy(update={\"producer_root_refs\": roots})\n        receipt = run_canonical_promotion_sequence(\n            current,\n            confidence_ledger_session=_ledger_session(binding=current.design_problem_binding),\n            promotion_evidence_resolver=repository,\n        )\n        measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)\n>       assert measurement.status != PromotionObligationStatus.SATISFIED\nE       AssertionError: assert <PromotionObligationStatus.SATISFIED: 'satisfied'> != <PromotionObligationStatus.SATISFIED: 'satisfied'>\nE        +  where <PromotionObligationStatus.SATISFIED: 'satisfied'> = PromotionObligationRecord(obligation_class=<PromotionObligationClass.MEASUREMENT: 'measurement'>, gate_id=<PromotionGa...venance='recomputed', obligation_instance_id='sha256:fbb0651f1ed618293b733b2fd7dd7046b964ee30b9dc4e71c93208c4ac9ea653').status\nE        +  and   <PromotionObligationStatus.SATISFIED: 'satisfied'> = PromotionObligationStatus.SATISFIED\n\ntests/unit/runtime/quality/test_promotion_sequence.py:1842: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_catalog_metadata_without_fabric_custody\n",
+  "stderr": ""
+}

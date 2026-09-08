@@ -1,0 +1,25 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "tests/unit/runtime/quality/test_promotion_sequence.py::test_fabric_measurement_root_cannot_bypass_existing_source_admission"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T18:14:47.136473+00:00",
+  "elapsed_seconds": 57.115,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F\n=================================== FAILURES ===================================\n_____ test_fabric_measurement_root_cannot_bypass_existing_source_admission _____\n\nfabric_measurement_owner = namespace(service=<polisyos.fabric.retrieval.service.RetrievalService object at 0x131dbd550>, graph=<polisyos.data_for...5     r-5    5.5\n6     r-6    6.5\n7     r-7    7.5\n8     r-8    8.5\n9     r-9    9.5\n10   r-10   10.5\n11   r-11   11.5)\n\n    def test_fabric_measurement_root_cannot_bypass_existing_source_admission(fabric_measurement_owner):\n>       with pytest.raises(ValueError, match=\"measurement_root_source_requirement\"):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/runtime/quality/test_promotion_sequence.py:1923: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_promotion_sequence.py::test_fabric_measurement_root_cannot_bypass_existing_source_admission\n",
+  "stderr": ""
+}

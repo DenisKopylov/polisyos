@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.d1_n9.reconcile_checks"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T19:22:30.112291+00:00",
+  "elapsed_seconds": 0.078,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"corrected_failure_identity_delta\": [\n    \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[authority_role]\",\n    \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[phase]\",\n    \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[problem]\",\n    \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[profile]\",\n    \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_recomputes_full_authority_identity[time]\",\n    \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission[contract_changed]\"\n  ],\n  \"unresolved_failure_identities\": [],\n  \"crosscheck\": \"full failure lines == AST-expanded selected controls == observed mutation controls plus exact selected governing-contract case\",\n  \"removal_deltas\": [\n    {\n      \"receipt\": \"source-replay-removal.json\",\n      \"introduced_failure_identity\": \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_replays_current_measurement_source_at_admission[source_changed]\"\n    },\n    {\n      \"receipt\": \"contract-decision-removal.json\",\n      \"introduced_failure_identity\": \"tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_measurement_refuses_out_of_contract_observations\"\n    }\n  ]\n}\n",
+  "stderr": ""
+}

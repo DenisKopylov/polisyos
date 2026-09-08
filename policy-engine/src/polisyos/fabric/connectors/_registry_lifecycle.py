@@ -20,9 +20,10 @@ if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
+        FetchResult,
         SourceConnector,
     )
-    from polisyos.fabric.connectors.contracts import ContractRegistry
+    from polisyos.fabric.connectors.contracts import ContractRegistry, FetchResultContractValidation
     from polisyos.fabric.connectors.pool import ConnectionPool
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.ir.connectors import ConnectorMetadataSpec
@@ -95,6 +96,47 @@ class RegistryLifecycleMixin:
                 self._cache_wrappers.clear()
             self._schema_invalidation_callback_registered = False
             self._ensure_schema_invalidation_callback()
+
+    def validate_fetch_result(
+        self,
+        *,
+        connector_id: str,
+        dataset_id: str,
+        result: FetchResult[Any],
+    ) -> FetchResultContractValidation:
+        """Validate against the current configured full contract without fetching.
+
+        Fetch-time warn/disabled modes do not weaken this explicit admission
+        check. Identity and errors come from the same resolved contract. Missing
+        or changing contract custody fails closed without mutating the registry.
+        """
+        from polisyos.fabric.connectors.contracts import (
+            ConnectorSchemaContract,
+            ContractRegistry,
+            ContractValidatingProxy,
+            FetchResultContractValidation,
+        )
+
+        with self._instance_lock:
+            registry = self._contract_registry
+            if not isinstance(registry, ContractRegistry):
+                return FetchResultContractValidation(
+                    errors=("connector_contract_registry_not_established",)
+                )
+            revision = registry.revision
+            selected = registry.resolve(connector_id, dataset_id)
+            if selected is None:
+                return FetchResultContractValidation(errors=("connector_contract_not_established",))
+            contract = ConnectorSchemaContract.model_validate(selected.model_dump(mode="python"))
+            errors = ContractValidatingProxy.validate_result_against_contract(result, contract)
+            if registry.revision != revision:
+                errors.append("connector_contract_changed_during_validation")
+            return FetchResultContractValidation(
+                contract_id=contract.contract_id,
+                contract_version=str(contract.schema_version),
+                contract_content_hash=contract.content_hash,
+                errors=tuple(errors),
+            )
 
     def _bootstrap_contract_registry(self) -> None:
         try:

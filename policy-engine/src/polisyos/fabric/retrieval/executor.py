@@ -9,14 +9,15 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
 from polisyos.core.contracts.control import (
     DataContextMetric,
     FetchPlan,
     FetchPlanFallback,
     FetchPreview,
 )
-from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 from .providers import RetrievalProviders, resolve_retrieval_providers
@@ -40,6 +41,8 @@ class ExecutePlanResult:
     metric: DataContextMetric | None
     used_plan: FetchPlan
     fallback_used: bool
+    payload_ref: ArtifactRef | None = None
+    fetch_receipt_ref: ArtifactRef | None = None
 
 
 class FetchExecutor:
@@ -73,18 +76,27 @@ class FetchExecutor:
         )
         return result
 
+    def replay_fetch(self, *, plan: FetchPlan, request: FetchRequest) -> FetchResult[Any]:
+        """Read the exact full request again through the actual connector owner."""
+        checked = FetchPlan.model_validate(plan.model_dump(mode="python"))
+        if request != _fetch_request(checked, page_size=None):
+            raise ValueError("fabric_fetch_request_mismatch")
+        return run_coro_sync(self._fetch(plan=checked, page_size=None))
+
     def execute(
         self,
         plan: FetchPlan,
         *,
         persist_payload: bool = False,
         allow_fallback: bool = True,
+        dataset_catalog: object | None = None,
     ) -> ExecutePlanResult:
         result: ExecutePlanResult = run_coro_sync(
             self._execute_async(
-                plan,
+                FetchPlan.model_validate(plan.model_dump(mode="python")),
                 persist_payload=persist_payload,
                 allow_fallback=allow_fallback,
+                dataset_catalog=dataset_catalog,
             )
         )
         return result
@@ -112,6 +124,7 @@ class FetchExecutor:
         *,
         persist_payload: bool,
         allow_fallback: bool,
+        dataset_catalog: object | None,
     ) -> ExecutePlanResult:
         preview = await self._fetch_preview(plan)
         if not preview.coverage_ok and allow_fallback and plan.fallbacks:
@@ -120,27 +133,45 @@ class FetchExecutor:
                 fallback_plan,
                 persist_payload=persist_payload,
                 allow_fallback=True,
+                dataset_catalog=dataset_catalog,
             )
             return ExecutePlanResult(
                 preview=nested.preview,
                 metric=nested.metric,
                 used_plan=nested.used_plan,
                 fallback_used=True,
+                payload_ref=nested.payload_ref,
+                fetch_receipt_ref=nested.fetch_receipt_ref,
             )
         if not preview.coverage_ok:
             return ExecutePlanResult(
                 preview=preview, metric=None, used_plan=plan, fallback_used=False
             )
 
+        binding = None
+        if persist_payload:
+            from .custody import FabricFetchCustodyError, _bind_plan
+
+            if self._cas_root is None:
+                raise FabricFetchCustodyError("fabric_fetch_cas_missing")
+            binding = _bind_plan(dataset_catalog, plan)
         full_result = await self._fetch(
             plan=plan,
             page_size=None,
         )
         sample_rows = _extract_rows(full_result.data, max_rows=5)
-        if persist_payload and self._cas_root is not None:
-            # Retrieval mode defaults to in-memory payload usage. Persisting large payloads
-            # is intentionally deferred to the ingestion pipeline.
-            _ = self._cas_root
+        payload_ref = fetch_receipt_ref = None
+        if persist_payload:
+            from .custody import _persist_fetched_result
+
+            payload_ref, fetch_receipt_ref = _persist_fetched_result(
+                store=FileSystemCAS(self._cas_root),
+                plan=plan,
+                request=_fetch_request(plan, page_size=None),
+                result=full_result,
+                catalog=dataset_catalog,
+                binding=binding,
+            )
         metric = DataContextMetric(
             metric_id=plan.metric_id,
             plan_id=plan.plan_id,
@@ -150,9 +181,16 @@ class FetchExecutor:
             completeness=float(full_result.completeness),
             source_lane=plan.source_lane,
             sample_rows=sample_rows,
+            payload_ref=payload_ref,
+            fetch_receipt_ref=fetch_receipt_ref,
         )
         return ExecutePlanResult(
-            preview=preview, metric=metric, used_plan=plan, fallback_used=False
+            preview=preview,
+            metric=metric,
+            used_plan=plan,
+            fallback_used=False,
+            payload_ref=payload_ref,
+            fetch_receipt_ref=fetch_receipt_ref,
         )
 
     async def _fetch_preview(self, plan: FetchPlan) -> FetchPreview:
@@ -207,16 +245,7 @@ class FetchExecutor:
         handle = await self._registry.get_connection(plan.connector_id, config)
         started = datetime.now(UTC)
         try:
-            request = FetchRequest(
-                dataset_id=plan.dataset_id,
-                filters=_filters_to_tuple(plan.filters),
-                date_start=_parse_optional_datetime(plan.date_start),
-                date_end=_parse_optional_datetime(plan.date_end),
-                include_metadata=True,
-                include_schema=True,
-                page_size=page_size,
-                retryable=True,
-            )
+            request = _fetch_request(plan, page_size=page_size)
             with self._tracer.start_as_current_span(
                 FABRIC_TRACE_NAMES["connector_fetch"],
                 attributes={
@@ -309,6 +338,19 @@ class FetchExecutor:
 
 def _filters_to_tuple(filters: dict[str, list[str]]) -> tuple[tuple[str, tuple[str, ...]], ...]:
     return tuple((key, tuple(values)) for key, values in sorted((filters or {}).items()))
+
+
+def _fetch_request(plan: FetchPlan, *, page_size: int | None) -> FetchRequest:
+    return FetchRequest(
+        dataset_id=plan.dataset_id,
+        filters=_filters_to_tuple(plan.filters),
+        date_start=_parse_optional_datetime(plan.date_start),
+        date_end=_parse_optional_datetime(plan.date_end),
+        include_metadata=True,
+        include_schema=True,
+        page_size=page_size,
+        retryable=True,
+    )
 
 
 def _parse_optional_datetime(value: str | None) -> datetime | None:

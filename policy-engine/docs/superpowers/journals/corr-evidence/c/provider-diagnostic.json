@@ -1,0 +1,25 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m dotenv -f /Users/deniskopylov/polisyos/policy-engine/.env run -- .venv/bin/python -m docs.superpowers.journals.corr-evidence.c.provider_diagnostic",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "dotenv",
+    "-f",
+    "/Users/deniskopylov/polisyos/policy-engine/.env",
+    "run",
+    "--",
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c.provider_diagnostic"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 28.91208924993407,
+  "timeout_seconds": 150.0,
+  "timed_out": false,
+  "stdout": "{\"cumulative_actual_attempts\": 2, \"declaration_hash\": \"sha256:032f951fa9af6620720a708961459d7c9c42fda2a35d7a04d19eee1d8f86b9ca\", \"elapsed_seconds\": 1.3460839170729741, \"http_attempts\": [{\"provider_error_code\": \"unrecognized_redacted\", \"provider_error_param\": null, \"provider_error_type\": \"insufficient_quota\", \"status\": 429, \"usage\": null}], \"prior_pilot_unchanged\": true, \"prompt_hash\": \"sha256:c04606db1b78a920d171de9df1ae5ce9577e00f54a9ea5b78b09f8601a48cb75\", \"purpose\": \"transport_diagnostic_only_not_pilot_cost_or_calibration\", \"synthetic\": false, \"transport_error_class\": \"RuntimeError\"}\n",
+  "stderr": ""
+}

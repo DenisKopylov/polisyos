@@ -418,3 +418,17 @@ authorization for a full pass remains a separate architect budget decision.
 The declaration and current-normalizer evidence are linked from
 `docs/superpowers/journals/2026-09-08-corr-c.md`. This correction does not claim
 that re-extraction has supplied the corpus-wide missing axis.
+
+**Bounded execution result, 2026-09-08.** The frozen six-work pilot made its first
+screening call and emitted a refusal report; it did not obtain a usable extraction
+or token-usage measurement. One separately declared transport diagnostic returned
+HTTP 429 with provider error type `insufficient_quota` for the configured account
+and model. No full pass was run. Both the held-abstract campaign forecast and the
+historical-source campaign forecast are `not_established`, not zero. The next
+costing attempt requires usable generation quota; the held-data requirement and
+the ability to build and test the pipeline are unchanged. Exact declarations,
+commands, return codes, and provider outputs are retained in
+`docs/superpowers/journals/corr-evidence/c/official-six.json` and
+`docs/superpowers/journals/corr-evidence/c/provider-diagnostic.json`, with the
+scope and full source-set reconciliation in the CORR-C journal. No provider
+error text, credential, or request body is retained in that diagnostic.

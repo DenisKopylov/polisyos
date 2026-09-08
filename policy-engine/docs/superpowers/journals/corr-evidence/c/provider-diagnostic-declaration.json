@@ -1,0 +1,16 @@
+{
+  "schema_version": "corr.provider_diagnostic_declaration.v1",
+  "declared_at": "2026-09-08T18:24:19.285610+00:00",
+  "synthetic": false,
+  "purpose": "transport_diagnostic_only_not_pilot_cost_or_calibration",
+  "previous_failed_pilot": "docs/superpowers/journals/corr-evidence/c/official-six.json",
+  "same_model_configuration": "sha256:4669a79afdb881e82ec06f25db97c670ecc0de54dc5672142a847f17ab7d24d2",
+  "same_first_input_prompt_hash": "sha256:c04606db1b78a920d171de9df1ae5ce9577e00f54a9ea5b78b09f8601a48cb75",
+  "max_http_attempts": 1,
+  "timeout_seconds": 120,
+  "logging": "HTTP status, allowlisted provider error code/type/param, numeric usage; no error message or response text",
+  "prior_attempted_calls": 1,
+  "cumulative_attempt_ceiling_including_this_diagnostic": 2,
+  "outcome": "not_executed",
+  "content_hash": "sha256:032f951fa9af6620720a708961459d7c9c42fda2a35d7a04d19eee1d8f86b9ca"
+}

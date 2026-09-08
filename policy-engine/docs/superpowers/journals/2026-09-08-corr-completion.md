@@ -24,7 +24,13 @@ read-only by consumer contract; every mutating data step targets lane scratch.
 Pending implementation and deciding verification. The terminal table will cover
 A, B and C independently, naming any critical blocker at its exact step.
 
-Full-pass cost estimate from C1: **not measured yet**.
+Full-pass cost estimate from C1: **`not_established` — the configured provider
+returned HTTP 429 `insufficient_quota` before a successful screening measurement.**
+This is the result for both the held-abstract campaign and the separately
+declared historical-source campaign; it is not a zero-cost estimate. The
+[pilot output](corr-evidence/c/official-six.json) records a completed refusal
+report, and the [declared diagnostic](corr-evidence/c/provider-diagnostic.json)
+establishes the external quota failure. No full pass or provider fallback ran.
 
 Built work/falsifiers and findings owned elsewhere will be listed separately.
 DEBT/LEDGER proposals remain journal-only; their files and checker are excluded.

@@ -72,3 +72,36 @@ unable to use publication authority. Deterministic candidate extraction continue
 without an admitted match. Test integration covers the actual rich serializers,
 Scientist intake, persisted receipt, DataForge materialization and both consumers;
 it does not appoint a production evaluator or supply production observations.
+
+## Declared held-abstract subsets
+
+`python -m polisyos.data_forge.domains.academic.batch.abstract_reextraction` accepts
+`--manifest`, `--provider-configuration`, and a new `--output-root`. Credentials
+arrive through the environment. The manifest binds the complete read-only held
+frame and the exact bounded subset before any call. Its provider configuration
+binds the model, endpoint, actual completion cap, serial concurrency, attempt
+limit and timeout. The command refuses a full pass and never reacquires fulltext.
+
+This route reuses `PolicyArticleExtractor`, rich occurrence serialization,
+`load_graph` and `run_edge_synthesize`. Missing source axes remain
+`not_established`; an explicit `unknown` remains a candidate value. Neither
+extractor confidence nor self-verification supplies independent adjudication.
+Without its existing verified adjudication capability, graph loading persists
+raw candidates and emits no publishable exact, family or contested edge.
+
+The run persists each provider response and unchanged usage, each produced work,
+all declared work outcomes, a separate output database and a candidate run report.
+Provider USD missing from usage stays null; a price calculated from observed
+tokens is separate from a provider invoice. Synthetic timing never produces a
+live-provider estimate. The legacy rich DTO's zero-default cost bookkeeping is
+explicitly labelled unestablished in the new record metadata and is not used by
+the estimator. The small pilot's stratum-weighted full-pass projection is an
+estimate with no precision guarantee, not authorization to run the full pass.
+
+Constructed inputs carry `synthetic: true` through raw occurrences and raw rows,
+then through exact/family/contested quality provenance. At the L2 consumer, any
+synthetic raw support conservatively marks every view of that source snapshot,
+including variable and claim siblings. Missing historical provenance stays
+absent. Mechanical tests can exercise signed adjudication and reassembly in an
+isolated synthetic namespace; governing CG2 consumption still refuses synthetic
+authority. This package never appoints a real adjudicator or supplies calibration.

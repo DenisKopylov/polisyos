@@ -13,7 +13,14 @@ import json
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.quality import grounding_relation as _cg1
@@ -24,12 +31,18 @@ from polisyos.runtime.quality.grounding_relation import (
     GroundingRelationCertificate,
     GroundingRelationEngine,
 )
+from polisyos.runtime.quality.grounding_risk import (
+    RELATION_ADMISSION_CEILING,
+    RUN_PLANNING_CEILING,
+    GroundingRunAdmission,
+    GroundingRunBudget,
+)
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.credal_reference import CredalReference
 
-GROUNDING_BIND_SCHEMA_VERSION = "policyos.runtime.grounding_decision_certificate.v1"
-GROUNDING_BIND_VALIDATOR_VERSION = "policyos.runtime.grounding_bind.cg2.v1"
+GROUNDING_BIND_SCHEMA_VERSION = "policyos.runtime.grounding_decision_certificate.v2"
+GROUNDING_BIND_VALIDATOR_VERSION = "policyos.runtime.grounding_bind.cg2.v2"
 
 type GroundingDecision = Literal["bind", "abstain", "novel_candidate"]
 type CalibrationStatus = Literal["calibrated", "cold_start", "drift", "frozen"]
@@ -53,6 +66,9 @@ type BindReason = Literal[
     "cold_start_conservative",
     "calibration_drift_frozen",
     "calibration_frozen",
+    "synthetic_input_candidate_only",
+    "durable_run_budget_unavailable",
+    "risk_budget_exhausted_candidate_custody",
 ]
 
 _BIND_ELIGIBLE_RELATIONS = frozenset({"exact", "certified-specialization"})
@@ -75,7 +91,7 @@ _DEFAULT_RISK_BOUNDS = {
     "delta_runtime": 0.0001,
     "delta_monitor": 0.0001,
 }
-_DEFAULT_DELTA_GROUND = 0.01
+_DEFAULT_DELTA_GROUND = RUN_PLANNING_CEILING
 _DEFAULT_CALIBRATION_MIN_SAMPLES = 20
 _CALIBRATION_OWNER_ALLOWLIST = frozenset({"cg2_contract_seed_anchor"})
 _CG1_HASH_EXCLUDE_FIELDS = {
@@ -315,12 +331,56 @@ class GroundingPromotabilityResolution(_StrictModel):
     content_hash_valid: bool
 
 
+class GroundingAdmissionStrangleReceipt(_StrictModel):
+    """Run-emitted proof that an attempted certificate is not itself charged."""
+
+    schema_version: Literal["policyos.runtime.grounding_admission_strangle.v1"] = (
+        "policyos.runtime.grounding_admission_strangle.v1"
+    )
+    synthetic: bool
+    predecessor_ref: Literal["grounding_bind.cg2.v1:per_certificate_risk_entries"] = (
+        "grounding_bind.cg2.v1:per_certificate_risk_entries"
+    )
+    default_owner: Literal["runtime.quality.grounding_risk.GroundingRunBudget"] = (
+        "runtime.quality.grounding_risk.GroundingRunBudget"
+    )
+    status: Literal["strangled", "drift"]
+    decision: GroundingDecision
+    admission_event_ref: str | None
+    observed_attempt_charge: float
+
+    @classmethod
+    def recompute(
+        cls,
+        *,
+        decision: GroundingDecision,
+        risk: GroundingRiskLedger,
+        admission: GroundingRunAdmission,
+    ) -> GroundingAdmissionStrangleReceipt:
+        """Reconcile the emitted spend against the actual admitted transition."""
+        admitted = decision == "bind" and admission.status == "admitted"
+        expected = admission.charged_this_attempt if admitted else 0.0
+        valid = (
+            risk.total_spend == expected
+            and (not expected or expected == RELATION_ADMISSION_CEILING)
+            and (not expected or admission.event_ref is not None)
+        )
+        return cls(
+            synthetic=admission.synthetic,
+            status="strangled" if valid else "drift",
+            decision=decision,
+            admission_event_ref=admission.event_ref,
+            observed_attempt_charge=risk.total_spend,
+        )
+
+
 class GroundingDecisionCertificate(_StrictModel):
     """Content-addressed CG2 decision certificate."""
 
-    schema_version: Literal["policyos.runtime.grounding_decision_certificate.v1"] = (
-        GROUNDING_BIND_SCHEMA_VERSION
-    )
+    schema_version: Literal[
+        "policyos.runtime.grounding_decision_certificate.v1",
+        "policyos.runtime.grounding_decision_certificate.v2",
+    ] = GROUNDING_BIND_SCHEMA_VERSION
     certificate_id: str = Field(..., pattern=r"^cg2_cert_[a-f0-9]{16}$")
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     decision: GroundingDecision
@@ -346,6 +406,19 @@ class GroundingDecisionCertificate(_StrictModel):
     selected_critical_contradictions: tuple[str, ...] = ()
     relation_outcome_set: tuple[str, ...] = _RELATION_OUTCOME_SET
     validator_version: str = GROUNDING_BIND_VALIDATOR_VERSION
+    synthetic: bool = False
+    run_admission: GroundingRunAdmission | None = None
+    admission_strangle: GroundingAdmissionStrangleReceipt | None = None
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        """Keep historical v1 bodies byte-equivalent inside enclosing receipts."""
+        payload = handler(self)
+        if self.schema_version.endswith(".v1"):
+            payload.pop("synthetic", None)
+            payload.pop("run_admission", None)
+            payload.pop("admission_strangle", None)
+        return payload
 
     @model_validator(mode="after")
     def _bind_requires_safety_evidence(self) -> GroundingDecisionCertificate:
@@ -355,6 +428,29 @@ class GroundingDecisionCertificate(_StrictModel):
         expected_id = _decision_certificate_id(expected_hash)
         if self.certificate_id != expected_id:
             raise ValueError("decision_certificate_id_mismatch")
+        if self.schema_version.endswith(".v2"):
+            if self.run_admission is None:
+                raise ValueError("decision_certificate_requires_run_custody")
+            expected_strangle = GroundingAdmissionStrangleReceipt.recompute(
+                decision=self.decision,
+                risk=self.risk_ledger,
+                admission=self.run_admission,
+            )
+            if (
+                self.admission_strangle != expected_strangle
+                or expected_strangle.status != "strangled"
+            ):
+                raise ValueError("grounding_admission_strangle_drift")
+            if self.synthetic != self.run_admission.synthetic:
+                raise ValueError("decision_certificate_synthetic_provenance_mismatch")
+            if self.synthetic and self.production_promotable:
+                raise ValueError("synthetic_certificate_cannot_grant_authority")
+            if self.production_promotable and (
+                self.run_admission.status != "admitted"
+                or self.run_admission.authority_band != "authority"
+                or not self.run_admission.event_ref
+            ):
+                raise ValueError("production_bind_requires_durable_run_admission")
         if self.production_promotable:
             if self.authority_scope != "production":
                 raise ValueError("promotable_certificate_requires_production_scope")
@@ -365,8 +461,7 @@ class GroundingDecisionCertificate(_StrictModel):
             if (
                 not self.calibration.owned_anchor_id
                 or not self.calibration.owned_anchor_content_hash
-                or "owned_calibration_anchor_validated"
-                not in self.calibration.validation_reasons
+                or "owned_calibration_anchor_validated" not in self.calibration.validation_reasons
             ):
                 raise ValueError("promotable_certificate_requires_owned_calibration_anchor")
         if self.decision != "bind":
@@ -385,8 +480,7 @@ class GroundingDecisionCertificate(_StrictModel):
         if (
             not self.calibration.owned_anchor_id
             or not self.calibration.owned_anchor_content_hash
-            or "owned_calibration_anchor_validated"
-            not in self.calibration.validation_reasons
+            or "owned_calibration_anchor_validated" not in self.calibration.validation_reasons
         ):
             raise ValueError("bind_certificate_requires_owned_calibration_anchor")
         if self.calibration.calibration_source == "cg2_contract_seed_anchor":
@@ -431,14 +525,18 @@ class GroundingBindGate:
         credal_reference: CredalReference,
         *,
         policy: GroundingBindPolicy | None = None,
+        run_budget: GroundingRunBudget | None = None,
     ) -> None:
         if policy is not None and not isinstance(policy, GroundingBindPolicy):
             raise TypeError("policy must be a GroundingBindPolicy")
+        if run_budget is not None and not isinstance(run_budget, GroundingRunBudget):
+            raise TypeError("run_budget must be the canonical GroundingRunBudget owner")
         self.reference = credal_reference
         self.policy = policy or GroundingBindPolicy()
         self._settings = _GroundingBindRuntimeSettings()
         self._relation_engine: GroundingRelationEngine | None = None
         self._replay_cache: dict[tuple[str, str], GroundingRelationCertificate] = {}
+        self._run_budget = run_budget
 
     @classmethod
     def for_contract_testing(
@@ -456,10 +554,11 @@ class GroundingBindGate:
         disable_calibration_freeze: bool = False,
         disable_calibration_owner_validation: bool = False,
         disable_epoch_binding: bool = False,
+        run_budget: GroundingRunBudget | None = None,
     ) -> GroundingBindGate:
         """Return a non-promotable gate for CG2 contract probes only."""
 
-        gate = cls(credal_reference)
+        gate = cls(credal_reference, run_budget=run_budget)
         gate._settings = _GroundingBindRuntimeSettings(
             authority_scope="contract_testing",
             calibration_source="cg2_contract_seed_anchor"
@@ -930,8 +1029,7 @@ class GroundingBindGate:
             _obligation(
                 "admissibility_closed",
                 bool(admissibility)
-                and admissibility
-                not in {"candidate_unverified", "failed", "reference_contested"},
+                and admissibility not in {"candidate_unverified", "failed", "reference_contested"},
                 "proposal admissibility is owner-closed",
                 {"admissibility": admissibility},
             ),
@@ -1131,29 +1229,25 @@ class GroundingBindGate:
         ledger: GroundingCalibrationLedger,
         *,
         calibration: GroundingCalibrationDecision,
+        admission: GroundingRunAdmission | None = None,
     ) -> GroundingRiskLedger:
-        conservative = calibration.status != "calibrated"
-        entries_list: list[GroundingRiskLedgerEntry] = []
-        for component, bound in sorted(self._settings.risk_component_bounds.items()):
-            spend = float(bound)
-            entry_bound = float(bound)
-            if conservative and component == "delta_monitor":
-                spend = max(float(bound), self._settings.delta_ground_budget)
-                entry_bound = spend
-            entries_list.append(
+        # The previous v1 calculation charged every attempted certificate.
+        # v2 reports only this attempt's durable admission debit. The immutable
+        # run receipt separately carries cumulative spend or an explicit unknown.
+        del calibration
+        spend = admission.charged_this_attempt if admission is not None else 0.0
+        entries = (
+            (
                 GroundingRiskLedgerEntry(
-                    component=component,
+                    component="relation_admission",
                     spend=spend,
-                    bound=entry_bound,
-                    source=(
-                        "conservative_cold_start_bound"
-                        if conservative
-                        else "calibrated_stratum_bound"
-                    ),
-                    conservative_bound=conservative,
-                )
+                    bound=RELATION_ADMISSION_CEILING,
+                    source="configured_admission_ceiling_not_correctness_calibration",
+                ),
             )
-        entries = tuple(entries_list)
+            if spend
+            else ()
+        )
         total = round(sum(entry.spend for entry in entries), 12)
         return GroundingRiskLedger(
             delta_ground_budget=self._settings.delta_ground_budget,
@@ -1183,10 +1277,63 @@ class GroundingBindGate:
         safe = safe_t or self._safe_set(active_certificate)
         obligation_checks = obligations or self._obligations(active_certificate)
         calibration_decision = calibration or self._calibration_decision(active_certificate, ledger)
-        risk = risk_ledger or self._risk_ledger(ledger, calibration=calibration_decision)
-        closed = tuple(
-            item.obligation_id for item in obligation_checks if item.status == "closed"
+        synthetic = self._settings.authority_scope == "contract_testing" or _synthetic_reference(
+            self.reference
         )
+        admission = GroundingRunAdmission(
+            synthetic=synthetic,
+            status="candidate",
+            reason="candidate_exploration",
+        )
+        if self._run_budget is not None:
+            admission = self._run_budget._candidate(
+                synthetic=synthetic, reason="candidate_exploration"
+            )
+            synthetic = admission.synthetic
+        if decision == "bind":
+            if synthetic and self._settings.authority_scope == "production":
+                decision, reason = "abstain", "synthetic_input_candidate_only"
+                bound_atom_id = None
+            elif self._run_budget is not None:
+                admission = self._run_budget._admit(
+                    cg1_content_hash=consumed_certificate.content_hash,
+                    reference_hash=self.reference.reference_hash,
+                    bound_atom_id=bound_atom_id or "",
+                    calibration_anchor_hash=calibration_decision.owned_anchor_content_hash or "",
+                    synthetic=synthetic,
+                )
+                synthetic = admission.synthetic
+                if admission.status != "admitted":
+                    decision = "abstain"
+                    reason = (
+                        "risk_budget_exhausted_candidate_custody"
+                        if admission.status == "exhausted"
+                        else "durable_run_budget_unavailable"
+                    )
+                    bound_atom_id = None
+            elif self._settings.authority_scope == "production":
+                decision, reason = "abstain", "durable_run_budget_unavailable"
+                bound_atom_id = None
+                admission = GroundingRunAdmission(
+                    synthetic=False,
+                    status="unavailable",
+                    reason=reason,
+                )
+        # Synthetic refusal must be observable even when calibration is absent;
+        # mechanical mismatches retain their substantive structural reason.
+        if (
+            synthetic
+            and self._settings.authority_scope == "production"
+            and reason
+            in {
+                "cold_start_conservative",
+                "calibration_drift_frozen",
+                "calibration_frozen",
+            }
+        ):
+            reason = "synthetic_input_candidate_only"
+        risk = self._risk_ledger(ledger, calibration=calibration_decision, admission=admission)
+        closed = tuple(item.obligation_id for item in obligation_checks if item.status == "closed")
         open_obligations = tuple(
             item.obligation_id for item in obligation_checks if item.status == "open"
         )
@@ -1216,6 +1363,13 @@ class GroundingBindGate:
             "bound_atom_id": bound_atom_id,
             "relation_outcome_set": list(_RELATION_OUTCOME_SET),
             "validator_version": GROUNDING_BIND_VALIDATOR_VERSION,
+            "synthetic": synthetic,
+            "run_admission": admission.model_dump(mode="json"),
+            "admission_strangle": GroundingAdmissionStrangleReceipt.recompute(
+                decision=decision,
+                risk=risk,
+                admission=admission,
+            ).model_dump(mode="json"),
         }
         content_hash = gy_content_hash(
             {
@@ -1299,7 +1453,9 @@ def _resolve_grounding_decision_promotability(
     store_anchor_hash = store_record.content_hash if store_record is not None else None
 
     promotable = False
-    if not content_hash_valid:
+    if certificate.synthetic or _synthetic_reference(credal_reference):
+        reason = "synthetic_input_cannot_grant_authority"
+    elif not content_hash_valid:
         reason = "decision_certificate_content_hash_mismatch"
     elif certificate.certificate_id != _decision_certificate_id(expected_hash):
         reason = "decision_certificate_id_mismatch"
@@ -1320,8 +1476,27 @@ def _resolve_grounding_decision_promotability(
     elif certificate.authority_scope != "production":
         reason = "non_production_certificate_scope"
     else:
-        promotable = True
-        reason = "owned_production_anchor_resolved"
+        admission = certificate.run_admission
+        if admission is None or not admission.run_id:
+            reason = "durable_run_admission_missing"
+        else:
+            from pathlib import Path
+
+            budget = GroundingRunBudget.from_repo(
+                Path(__file__).resolve().parents[4], run_id=admission.run_id
+            )
+            promotable = budget.contains(
+                admission,
+                cg1_content_hash=certificate.cg1_content_hash,
+                reference_hash=certificate.reference_hash,
+                bound_atom_id=certificate.bound_atom_id or "",
+                calibration_anchor_hash=certificate_anchor_hash,
+            )
+            reason = (
+                "owned_production_anchor_and_run_admission_resolved"
+                if promotable
+                else ("durable_run_admission_unresolved")
+            )
     return GroundingPromotabilityResolution(
         promotable=promotable,
         reason=reason,
@@ -1360,7 +1535,25 @@ def recompute_grounding_decision_content_hash(
         normalized = certificate_or_payload
     payload = gy_artifact_self_identity_projection(normalized)
     payload.pop("certificate_id", None)
+    if payload.get("schema_version") == "policyos.runtime.grounding_decision_certificate.v1":
+        payload.pop("synthetic", None)
+        payload.pop("run_admission", None)
+        payload.pop("admission_strangle", None)
     return gy_content_hash(payload)
+
+
+def _synthetic_reference(reference: CredalReference) -> bool:
+    """Inspect complete support provenance, preserving nested synthetic markings."""
+    pending: list[object] = [edge.provenance for edge in reference.essential_edges.values()]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, Mapping):
+            if value.get("synthetic") is True:
+                return True
+            pending.extend(value.values())
+        elif isinstance(value, (list, tuple)):
+            pending.extend(value)
+    return False
 
 
 def _decision_certificate_id(content_hash: str) -> str:
@@ -1562,11 +1755,10 @@ def _target_is_writable(reference: CredalReference, target: str) -> bool:
         if edge.edge_id.endswith(f":{target}") or edge.edge_id == target:
             has_policy_slot = True
         for completion in edge.admissible_completions:
-            if str(
-                completion.value.get("world_slot")
-                or completion.value.get("slot_id")
-                or ""
-            ) == target:
+            if (
+                str(completion.value.get("world_slot") or completion.value.get("slot_id") or "")
+                == target
+            ):
                 has_policy_slot = True
     return has_world_slot and has_policy_slot
 

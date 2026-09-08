@@ -102,10 +102,7 @@ def test_spoofed_caller_calibration_still_freezes_bind() -> None:
     reference = _reference()
     engine = GroundingRelationEngine(reference)
     cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="cg2-spoof-cal")
-    anchor_id = (
-        f"cg2_contract_seed_anchor:{reference.reference_epoch}:"
-        "tax_relief_rate:global:exact"
-    )
+    anchor_id = f"cg2_contract_seed_anchor:{reference.reference_epoch}:tax_relief_rate:global:exact"
     spoofed = CalibrationStratumRecord(
         operator_family="tax_relief_rate",
         reference_region="global",
@@ -312,9 +309,9 @@ def test_candidate_unverified_obligation_abstains() -> None:
     engine = GroundingRelationEngine(reference)
     cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="cg2-open")
     payload = cg1.model_dump(mode="json")
-    payload["proposal_signature"]["hypotheses"][0]["signature"][
-        "admissibility"
-    ] = "candidate_unverified"
+    payload["proposal_signature"]["hypotheses"][0]["signature"]["admissibility"] = (
+        "candidate_unverified"
+    )
     cg1 = _with_recomputed_content_hash(cg1, payload)
 
     decision = GroundingBindGate.for_contract_testing(
@@ -340,13 +337,11 @@ def test_unsafe_bind_decision_certificate_cannot_be_deserialized() -> None:
     payload["bound_atom_id"] = decision.safe_t.safe_atom_ids[0]
     payload["production_promotable"] = True
     payload["content_hash"] = recompute_grounding_decision_content_hash(payload)
-    payload["certificate_id"] = (
-        f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
-    )
+    payload["certificate_id"] = f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
 
     with pytest.raises(
         ValueError,
-        match="promotable_certificate_requires_calibrated_stratum",
+        match="grounding_admission_strangle_drift",
     ):
         decision.__class__.model_validate(payload)
 
@@ -362,9 +357,7 @@ def test_bind_decision_certificate_rejects_caller_supplied_calibration_source() 
     payload = decision.model_dump(mode="json")
     payload["calibration"]["calibration_source"] = "caller_supplied_unvalidated"
     payload["content_hash"] = recompute_grounding_decision_content_hash(payload)
-    payload["certificate_id"] = (
-        f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
-    )
+    payload["certificate_id"] = f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
 
     with pytest.raises(ValueError, match="bind_certificate_rejects_caller_supplied"):
         decision.__class__.model_validate(payload)
@@ -404,16 +397,30 @@ def test_forged_promotable_production_certificate_resolves_non_promotable() -> N
     payload["calibration"]["owned_anchor_content_hash"] = "sha256:" + "3" * 64
     payload["calibration"]["validation_reasons"] = ["owned_calibration_anchor_validated"]
     payload["content_hash"] = recompute_grounding_decision_content_hash(payload)
-    payload["certificate_id"] = (
-        f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
+    payload["certificate_id"] = f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
+
+    with pytest.raises(ValueError, match="synthetic_certificate_cannot_grant_authority"):
+        GroundingDecisionCertificate.model_validate(payload)
+    # Bypass intake in this marked attack control: the consumer must still refuse.
+    forged = decision.model_copy(
+        update={
+            **{
+                key: payload[key]
+                for key in (
+                    "authority_scope",
+                    "production_promotable",
+                    "content_hash",
+                    "certificate_id",
+                )
+            },
+            "calibration": decision.calibration.model_copy(update=payload["calibration"]),
+        }
     )
-
-    forged = GroundingDecisionCertificate.model_validate(payload)
     resolution = resolve_grounding_decision_promotability(forged, reference)
-
+    assert forged.synthetic is True
     assert forged.production_promotable is True
     assert resolution.promotable is False
-    assert resolution.reason == "owned_anchor_missing"
+    assert resolution.reason == "synthetic_input_cannot_grant_authority"
 
 
 def test_contract_testing_bind_resolves_non_promotable() -> None:
@@ -434,7 +441,7 @@ def test_contract_testing_bind_resolves_non_promotable() -> None:
     assert decision.production_promotable is False
     assert resolution.store_authority_scope == "contract_testing"
     assert resolution.promotable is False
-    assert resolution.reason == "non_production_anchor_scope"
+    assert resolution.reason == "synthetic_input_cannot_grant_authority"
 
 
 def _reference(*, include_duplicate_tax_alias: bool = False) -> CredalReference:

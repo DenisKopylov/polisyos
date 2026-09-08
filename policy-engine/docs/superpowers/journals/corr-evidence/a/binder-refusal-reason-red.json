@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_calibration.py::test_refusal_report_rejects_fallback_when_binder_structural_guard_is_removed -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_grounding_calibration.py::test_refusal_report_rejects_fallback_when_binder_structural_guard_is_removed",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 57.338379207998514,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_ test_refusal_report_rejects_fallback_when_binder_structural_guard_is_removed _\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109621cd0>\n\n    def test_refusal_report_rejects_fallback_when_binder_structural_guard_is_removed(monkeypatch) -> None:\n        from datetime import timedelta\n    \n        from polisyos.runtime.quality import grounding_bind\n        from tests.unit.runtime.quality.test_grounding_bind import _reference\n    \n        owner = importlib.import_module(\"polisyos.runtime.quality.grounding_calibration\")\n        reference = _reference()\n        frame = _frame(reference)\n        suite = owner.declare_refusal_suite(frame, reference, declared_at=frame.declared_at)\n        monkeypatch.setattr(grounding_bind, \"_has_selected_critical_veto\", lambda _certificate: False)\n        report = owner.run_refusal_suite(suite, frame, reference,\n                                         executed_at=frame.declared_at + timedelta(seconds=1))\n        assert report[\"outcomes\"][0][\"refused\"]\n        assert report[\"outcomes\"][0][\"mismatch_detected\"]\n>       assert report[\"outcomes\"][0][\"decision_reason\"] == \"relation_not_bind_eligible\"\nE       AssertionError: assert 'novel_candidate_handoff' == 'relation_not_bind_eligible'\nE         \nE         - relation_not_bind_eligible\nE         + novel_candidate_handoff\n\ntests/unit/runtime/quality/test_grounding_calibration.py:214: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_calibration.py::test_refusal_report_rejects_fallback_when_binder_structural_guard_is_removed\n",
+  "stderr": ""
+}

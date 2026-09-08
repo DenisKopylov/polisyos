@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/data_forge/domains/academic/batch/abstract_reextraction.py src/polisyos/data_forge/domains/academic/batch/article_extractor.py src/polisyos/data_forge/domains/academic/batch/graph_builder.py src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py src/polisyos/runtime/quality/credal_reference.py tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py docs/superpowers/journals/corr-evidence/c/verify_subset_declaration.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/data_forge/domains/academic/batch/abstract_reextraction.py",
+    "src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
+    "src/polisyos/data_forge/domains/academic/batch/graph_builder.py",
+    "src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py",
+    "docs/superpowers/journals/corr-evidence/c/verify_subset_declaration.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 0.06408266699872911,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

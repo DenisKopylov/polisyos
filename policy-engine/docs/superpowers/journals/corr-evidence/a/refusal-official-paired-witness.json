@@ -1,0 +1,24 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_grounding_refusal_sensitivity --check --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08 --report architecture/policy_design_case/corr/grounding_refusal_sensitivity.json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_refusal_sensitivity",
+    "--check",
+    "--world-cas",
+    ".tmp/gy-s-composed-wmr-cas",
+    "--world-ref",
+    "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+    "--declarations",
+    "architecture/policy_design_case/corr/grounding-2026-09-08",
+    "--report",
+    "architecture/policy_design_case/corr/grounding_refusal_sensitivity.json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 159.1371346670203,
+  "stdout": "{\n  \"binder_refused\": 3,\n  \"correctness_bound\": null,\n  \"executed_at\": \"2026-09-08T17:49:04.537185+00:00\",\n  \"issues\": [],\n  \"limitation\": \"A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.\",\n  \"matched_controls_outside_denominator\": [\n    {\n      \"case_id\": \"budget_allocation_multiplier:cg0_atom_8d6c5db80d353640:opposite_sign\",\n      \"production_promotable\": false,\n      \"reason\": \"synthetic_input_candidate_only\",\n      \"relation\": \"exact\",\n      \"synthetic\": true\n    },\n    {\n      \"case_id\": \"procurement_shock_intensity:cg0_atom_7f82b70839a77253:opposite_sign\",\n      \"production_promotable\": false,\n      \"reason\": \"open_obligation\",\n      \"relation\": \"exact\",\n      \"synthetic\": true\n    },\n    {\n      \"case_id\": \"tax_relief_rate:cg0_atom_4164e221ec82011c:opposite_sign\",\n      \"production_promotable\": false,\n      \"reason\": \"synthetic_input_candidate_only\",\n      \"relation\": \"exact\",\n      \"synthetic\": true\n    }\n  ],\n  \"name\": \"refusal_sensitivity\",\n  \"outcomes\": [\n    {\n      \"case_id\": \"budget_allocation_multiplier:cg0_atom_8d6c5db80d353640:opposite_sign\",\n      \"certificate_hash\": \"sha256:27690f458028f866e965731b45f41f09ca611c6e3ded630b70cf22161d0d4a2c\",\n      \"decision_reason\": \"false_analog_hard_abstain\",\n      \"governed_authority\": false,\n      \"mismatch_detected\": true,\n      \"refused\": true,\n      \"synthetic\": true\n    },\n    {\n      \"case_id\": \"procurement_shock_intensity:cg0_atom_7f82b70839a77253:opposite_sign\",\n      \"certificate_hash\": \"sha256:14a8b620a4fc3f90e115c0615431a2ac8e4c61645cc72b6da655b873df39957b\",\n      \"decision_reason\": \"false_analog_hard_abstain\",\n      \"governed_authority\": false,\n      \"mismatch_detected\": true,\n      \"refused\": true,\n      \"synthetic\": true\n    },\n    {\n      \"case_id\": \"tax_relief_rate:cg0_atom_4164e221ec82011c:opposite_sign\",\n      \"certificate_hash\": \"sha256:f206a9b5433eb97380242f2d14647d429cbdf3c0e79b99f7cb13d02a6d8f9953\",\n      \"decision_reason\": \"false_analog_hard_abstain\",\n      \"governed_authority\": false,\n      \"mismatch_detected\": true,\n      \"refused\": true,\n      \"synthetic\": true\n    }\n  ],\n  \"predeclared_mismatches\": 3,\n  \"schema_version\": \"policyos.runtime.grounding_refusal_sensitivity.v1\",\n  \"statement\": \"On a pre-declared adversarial suite of 3 deliberate mismatches, the binder refused 3. A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.\",\n  \"suite_hash\": \"sha256:f2e8931e256664e2946c06c8203bd979b2b733222a3e999447e63e6c227da72f\",\n  \"synthetic\": true\n}\n\n",
+  "stderr": ""
+}

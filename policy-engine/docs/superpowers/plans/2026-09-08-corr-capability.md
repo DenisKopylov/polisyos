@@ -134,6 +134,13 @@ do not bump its schema merely for a changed input hash. Any actual rule/schema
 change discovered there is recorded before editing. Recompute required generated
 companions through their actual owners rather than restamping historical claims.
 
+The S3 strangle packet itself advances from
+`intervention_substrate_strangle.v1` to v2: its current default transitions now
+include early subject recognition, and complete Python source identities are
+reconciled in memory while the receipt retains their count, independently
+derived hashes and difference. Prior v1 packets keep their historical bytes;
+the packet's new shape is not emitted under the old epoch.
+
 ## C — bounded re-extraction, then preservation wiring
 
 C1 extends the existing Academic rich `PolicyArticleExtractor` and current claim
@@ -200,6 +207,18 @@ Persist/replay source identity through reentry; duplicate, mismatched and missin
 bindings fail closed. Removing the handoff must break actual N9 source consumption.
 If C1 yields no real forwardable reference, complete this wiring on declared
 controls and prove the real missing-input negative, naming the exact missing input.
+
+C2 advances the N6 run artifact from `generation_cycle.v1` to v2 when its
+source-handoff references and run-emitted preservation strangle are added.
+Preserve historical v1 serialization without injecting the new fields. Retain
+actual organ objects during a run and persist their typed payloads through the
+existing Core CAS. The run carries the immutable source-handoff artifact ref;
+reentry resolves that exact ref and reconciles the full problem/candidate/atom
+identity, instead of consulting a new mutable run-index service. Missing or
+corrupt source payloads remain typed absence. The existing N9 context provider
+consumes those retained owners only after its protected admission boundary.
+A's admission ledger remains the sole mutable run-budget owner. N6 does not
+reconstruct a parsed atom, Trinity bundle, certificate or WMR from a summary.
 
 ## Execution ownership and verification
 

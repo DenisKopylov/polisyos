@@ -917,6 +917,7 @@ def _normalize_causal_claim(
     work_id: str,
     evidence_bundle: dict[str, Any],
     default_source_basis: str,
+    preserve_source_presence: bool = False,
 ) -> CausalClaim | None:
     if not isinstance(payload, dict):
         return None
@@ -1013,6 +1014,10 @@ def _normalize_causal_claim(
         return None
     if not candidate["supporting_spans"]:
         return None
+    if preserve_source_presence:
+        for axis in ("evidence_strength", "design_family_hint", "claim_extraction_confidence"):
+            if axis not in payload or payload[axis] is None:
+                candidate.pop(axis, None)
     try:
         return CausalClaim.model_validate(candidate)
     except (TypeError, ValueError):
@@ -1160,6 +1165,7 @@ def _normalize_extraction_payload(
     *,
     evidence_bundle: dict[str, Any],
     source_kind: str,
+    preserve_source_presence: bool = False,
 ) -> dict[str, Any]:
     normalization_warnings: list[str] = []
     empirical_parameters: list[EvidenceParameter] = []
@@ -1181,6 +1187,7 @@ def _normalize_extraction_payload(
                 default_source_basis=evidence_bundle.get(
                     "source_basis", SourceBasis.FULLTEXT.value
                 ),
+                preserve_source_presence=preserve_source_presence,
             )
             for raw in _as_list(parsed.get("causal_claims"))
         )
@@ -1304,6 +1311,8 @@ class _SlidingWindowLimiter:
 class GonkaChatClient:
     """OpenAI-compatible client using Gonka API pattern from lex batch."""
 
+    synthetic = False
+
     def __init__(
         self,
         *,
@@ -1314,6 +1323,7 @@ class GonkaChatClient:
         max_retries: int,
         disable_json_mode: bool = False,
         timeout_seconds: int = 120,
+        max_completion_tokens: int | None = None,
     ) -> None:
         self._api_key = api_key
         self._url = f"{base_url.rstrip('/')}/chat/completions"
@@ -1323,6 +1333,11 @@ class GonkaChatClient:
         self._max_retries = max(1, int(max_retries))
         self._disable_json_mode = disable_json_mode
         self._timeout = aiohttp.ClientTimeout(total=max(10, int(timeout_seconds)))
+        if max_completion_tokens is not None and (
+            type(max_completion_tokens) is not int or max_completion_tokens < 1
+        ):
+            raise ValueError("max_completion_tokens_must_be_positive_integer")
+        self._max_completion_tokens = max_completion_tokens
 
     async def __aenter__(self) -> GonkaChatClient:
         self._session = aiohttp.ClientSession(
@@ -1355,6 +1370,8 @@ class GonkaChatClient:
         }
         if not self._disable_json_mode:
             payload["response_format"] = {"type": "json_object"}
+        if self._max_completion_tokens is not None:
+            payload["max_tokens"] = self._max_completion_tokens
 
         last_error: Exception | None = None
         not_found_retries = 0
@@ -1439,6 +1456,8 @@ class PolicyArticleExtractor:
         fulltext_timeout_seconds: int,
         cache_path: Path,
         resolved_texts: dict[str, dict[str, Any]] | None = None,
+        preserve_source_presence: bool = False,
+        cache_provenance: dict[str, Any] | None = None,
     ) -> None:
         self.screening_model = screening_model
         self.extraction_model = extraction_model
@@ -1449,6 +1468,8 @@ class PolicyArticleExtractor:
         self._cache_path = cache_path
         self._processed_cache = self._load_processed_cache(cache_path)
         self._resolved_texts = resolved_texts or {}
+        self._preserve_source_presence = preserve_source_presence
+        self._cache_provenance = dict(cache_provenance or {})
 
     @staticmethod
     def _load_processed_cache(cache_path: Path) -> set[str]:
@@ -1475,6 +1496,7 @@ class PolicyArticleExtractor:
             fh.write(
                 json.dumps(
                     {
+                        **self._cache_provenance,
                         "cache_key": cache_key,
                         "openalex_id": openalex_id,
                         "timestamp": datetime.now(UTC).isoformat(),
@@ -1620,6 +1642,7 @@ Evidence bundle:
                     usage,
                     evidence_bundle=evidence_bundle,
                     source_kind=evidence_bundle["source_kind"],
+                    preserve_source_presence=self._preserve_source_presence,
                 )
             )
             return result

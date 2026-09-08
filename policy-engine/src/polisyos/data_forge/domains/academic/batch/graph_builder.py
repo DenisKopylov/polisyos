@@ -163,7 +163,9 @@ CREATE TABLE IF NOT EXISTS ac_causal_claims_raw (
     span_contamination_detected BOOLEAN DEFAULT FALSE,
     mechanism                 VARCHAR,
     domain                    VARCHAR,
-    trust_score               FLOAT DEFAULT 0.0
+    trust_score               FLOAT DEFAULT 0.0,
+    synthetic                 BOOLEAN,
+    source_provenance_json    VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS ac_claim_adjudications (
@@ -382,6 +384,20 @@ def _admitted_claim_parts(
     return admitted, operational, vocabulary_values
 
 
+def _record_has_synthetic_ancestry(record: WorkRecord) -> bool:
+    """Retain any constructed ancestry over the complete actual input record."""
+    pending: list[object] = [record.model_dump(mode="json")]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            if value.get("synthetic") is True:
+                return True
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
+    return False
+
+
 def _load_claim_adjudications(
     path: Path | None,
     admitted_rows: VerifiedClaimAdjudicationRows | None,
@@ -570,9 +586,9 @@ def _flush_all(
             "legacy_strength_label, record_extraction_mode, claim_text, claim_explicitness, "
             "strong_design_evidence, "
             "design_quality_tier, publish_to_graph, publish_blockers, span_contamination_detected, "
-            "mechanism, domain, trust_score"
+            "mechanism, domain, trust_score, synthetic, source_provenance_json"
             ") "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             raw_claim_batch,
         )
         stats.raw_claims += len(raw_claim_batch)
@@ -728,7 +744,14 @@ def _edge_quality_summary(payload: dict[str, object]) -> dict[str, object]:
     else:
         confidence_summary = {"min": None, "max": None, "mean": None}
     strong_count = sum(1 for flag in strong_flags if flag)
+    source_flags = payload.get("synthetic_sources", [])
+    source_marker: dict[str, bool] = {}
+    if any(value is True for value in source_flags):
+        source_marker["synthetic"] = True
+    elif source_flags and all(value is False for value in source_flags):
+        source_marker["synthetic"] = False
     return {
+        **source_marker,
         "graph_layer": "candidate",
         "claim_ids": claim_ids,
         "design_quality_tiers": tiers,
@@ -1128,6 +1151,14 @@ def load_graph(
             admitted_claims = [
                 _admitted_claim_parts(claim_transport) for claim_transport in record.causal_claims
             ]
+            if _record_has_synthetic_ancestry(record):
+                for _, claim, _ in admitted_claims:
+                    claim["synthetic"] = True
+                    claim["source_provenance"] = {
+                        "synthetic": True,
+                        "scope": "record_contains_constructed_source",
+                        "input_source_provenance": claim.get("source_provenance"),
+                    }
             work_batch.append(
                 (
                     record.id,
@@ -1233,6 +1264,8 @@ def load_graph(
                         claim.get("mechanism", ""),
                         claim.get("domain", ""),
                         record.trust_score,
+                        claim.get("synthetic"),
+                        json.dumps(claim.get("source_provenance"), ensure_ascii=False),
                     )
                 )
                 adjudication = resolve_current_claim_adjudication(
@@ -1636,8 +1669,10 @@ def load_graph(
                         "claim_confidences": [],
                         "publish_blockers": [],
                         "strong_design_flags": [],
+                        "synthetic_sources": [],
                     }
                 payload = edge_accumulator[key]
+                payload["synthetic_sources"].append(claim.get("synthetic"))
                 payload["article_refs"].append(record.id)  # type: ignore[index]
                 confidence_value = (
                     float(adjudication.get("claim_validity_score") or record.extraction_confidence)

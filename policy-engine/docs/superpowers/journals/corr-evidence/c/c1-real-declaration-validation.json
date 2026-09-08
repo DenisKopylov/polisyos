@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.c.verify_subset_declaration",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c.verify_subset_declaration"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 12.299396583926864,
+  "stdout": "{\"status\": \"validated_before_calls\", \"work_ids\": [\"https://openalex.org/W3121515037\", \"https://openalex.org/W2107389862\", \"https://openalex.org/W4394884575\", \"https://openalex.org/W2134044742\", \"https://openalex.org/W4399636837\", \"https://openalex.org/W4392374705\"], \"declaration_digest\": \"sha256:8d63505a398ca11b0623c5e01fe308b3d372cb6a511b6b9807976fb904789bb0\", \"configuration_digest\": \"sha256:4669a79afdb881e82ec06f25db97c670ecc0de54dc5672142a847f17ab7d24d2\", \"provider_calls\": 0}\n",
+  "stderr": ""
+}

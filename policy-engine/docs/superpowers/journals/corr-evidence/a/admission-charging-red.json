@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_risk.py -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_grounding_risk.py",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 82.31578004197218,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________ test_refused_candidate_does_not_spend_any_admission_budget __________\n\n    def test_refused_candidate_does_not_spend_any_admission_budget() -> None:\n        \"\"\"Cold-start refusal exercises a candidate without an authority admission.\"\"\"\n        reference = _reference()\n        engine = GroundingRelationEngine(reference)\n        candidate = engine.certificate_for(_pure_synonym_probe(engine), proposal_id=\"free-candidate\")\n        result = GroundingBindGate(reference).certificate_for(candidate)\n        assert result.decision == \"abstain\"\n        assert result.production_promotable is False\n>       assert result.risk_ledger.total_spend == 0.0\nE       AssertionError: assert 0.0106 == 0.0\nE        +  where 0.0106 = GroundingRiskLedger(delta_ground_budget=0.01, entries=(GroundingRiskLedgerEntry(component='delta_RT1', spend=0.0002, b...nd=True)), total_spend=0.0106, within_budget=False, n11_composition_status='not_wired', n11_confidence_ledger_ref=None).total_spend\nE        +    where GroundingRiskLedger(delta_ground_budget=0.01, entries=(GroundingRiskLedgerEntry(component='delta_RT1', spend=0.0002, b...nd=True)), total_spend=0.0106, within_budget=False, n11_composition_status='not_wired', n11_confidence_ledger_ref=None) = GroundingDecisionCertificate(schema_version='policyos.runtime.grounding_decision_certificate.v1', certificate_id='cg2_..., 'false-analog', 'novel-candidate', 'unknown', 'blocked'), validator_version='policyos.runtime.grounding_bind.cg2.v1').risk_ledger\n\ntests/unit/runtime/quality/test_grounding_risk.py:18: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_risk.py::test_refused_candidate_does_not_spend_any_admission_budget\n",
+  "stderr": ""
+}

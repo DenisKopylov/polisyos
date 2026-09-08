@@ -326,7 +326,18 @@ def _claim_source_basis(con: duckdb.DuckDBPyConnection) -> dict[str, str]:
     return mapping
 
 
-def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
+def _synthetic_projection(values: list[object]) -> dict[str, bool]:
+    """Union known synthetic ancestry; missing provenance never means real."""
+    if any(value is True for value in values):
+        return {"synthetic": True}
+    if values and all(value is False for value in values):
+        return {"synthetic": False}
+    return {}
+
+
+def run_edge_synthesize(
+    config: AcademicBatchConfig, *, source_provenance: dict[str, object] | None = None
+) -> dict[str, int]:
     """Run edge synthesize."""
     started_at = datetime.now(UTC).isoformat()
     if not config.db_path.exists():
@@ -352,6 +363,12 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
         article_meta = _article_meta(con)
         sample_sizes = _sample_sizes(con)
         claim_source_basis = _claim_source_basis(con)
+        exact_provenance = {
+            str(edge_id): json.loads(quality or "{}")
+            for edge_id, quality in con.execute(
+                "SELECT edge_id,quality_signals_json FROM ac_skg_edges"
+            ).fetchall()
+        }
         version_row = con.execute(
             "SELECT COALESCE(MAX(version_id), 0) FROM ac_skg_versions"
         ).fetchone()
@@ -423,6 +440,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
                     "design_tier_histogram": Counter(),
                     "design_family_histogram": Counter(),
                     "exact_edge_ids": set(),
+                    "synthetic_sources": [],
                 },
             )
             meta = article_meta.get(str(openalex_id), {})
@@ -445,6 +463,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
             if design_family:
                 payload["design_family_histogram"][str(design_family)] += 1
             payload["exact_edge_ids"].add(str(edge_id))
+            payload["synthetic_sources"].append(exact_provenance[str(edge_id)].get("synthetic"))
 
         pair_totals: dict[tuple[str, str], dict[str, Any]] = defaultdict(
             lambda: {
@@ -456,6 +475,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
                 "direction_evidence": defaultdict(list),
                 "family_edge_ids": set(),
                 "exact_edge_ids": set(),
+                "synthetic_sources": [],
             }
         )
         for (src_family, dst_family, direction), payload in grouped.items():
@@ -469,6 +489,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
             )
             pair_payload["direction_evidence"][direction].extend(payload["evidence_samples"])
             pair_payload["exact_edge_ids"].update(payload["exact_edge_ids"])
+            pair_payload["synthetic_sources"].extend(payload["synthetic_sources"])
 
         for (src_family, dst_family, direction), payload in grouped.items():
             article_refs = sorted(payload["article_refs"])
@@ -499,6 +520,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
                     "family",
                     json.dumps(
                         {
+                            **_synthetic_projection(payload["synthetic_sources"]),
                             "exact_edge_count": len(payload["exact_edge_ids"]),
                             "exact_edge_ids": sorted(payload["exact_edge_ids"]),
                             "n_unique_works": len(article_refs),
@@ -566,6 +588,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
                     json.dumps(direction_histogram, ensure_ascii=False),
                     json.dumps(
                         {
+                            **_synthetic_projection(payload["synthetic_sources"]),
                             "conflict_flag": True,
                             "exact_edge_count": len(payload["exact_edge_ids"]),
                             "family_edge_count": len(payload["family_edge_ids"]),
@@ -619,6 +642,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
         with open(config.edge_synthesis_report_path, "w", encoding="utf-8") as fh:
             json.dump(
                 {
+                    **(source_provenance or {}),
                     "family_edges": len(family_rows),
                     "contested_edges": len(contested_rows),
                     "review_queue": len(review_queue),
@@ -646,7 +670,7 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
         manifest_path=config.manifests_dir / "edge_synthesize.json",
         stage="edge_synthesize",
         status="ok",
-        metrics=metrics,
+        metrics={**metrics, **(source_provenance or {})},
         artifacts=[
             config.db_path,
             config.canonical_review_queue_path,

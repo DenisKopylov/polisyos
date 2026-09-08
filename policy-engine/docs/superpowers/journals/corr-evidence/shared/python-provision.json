@@ -1,0 +1,30 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": "uv sync --offline --frozen --python /opt/homebrew/bin/python3.14 --extra lint --extra test --extra runtime --extra analytics --extra solvers --extra ml",
+  "argv": [
+    "uv",
+    "sync",
+    "--offline",
+    "--frozen",
+    "--python",
+    "/opt/homebrew/bin/python3.14",
+    "--extra",
+    "lint",
+    "--extra",
+    "test",
+    "--extra",
+    "runtime",
+    "--extra",
+    "analytics",
+    "--extra",
+    "solvers",
+    "--extra",
+    "ml"
+  ],
+  "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.21048474998679012,
+  "stdout": "",
+  "stderr": "Using CPython 3.14.0 interpreter at: /opt/homebrew/opt/python@3.14/bin/python3.14\nCreating virtual environment at: .venv\n  × Failed to download `jaxlib==0.8.2`\n  ╰─▶ Network connectivity is disabled, but the\n      requested data wasn't found in the cache for:\n      `https://files.pythonhosted.org/packages/d8/9d/dca93d916bf8664d7a2bb73ea3d219028dabbe382c31774348963287356a/jaxlib-0.8.2-cp314-cp314-macosx_11_0_arm64.whl`\n  help: `jaxlib` (v0.8.2) was included because `policy-engine` (v0.1.0)\n        depends on `jaxlib`\n"
+}

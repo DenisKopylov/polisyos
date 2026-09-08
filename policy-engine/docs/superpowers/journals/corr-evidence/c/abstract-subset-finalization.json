@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.c.finalize_subset_declaration",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c.finalize_subset_declaration"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 0.11695895798038691,
+  "stdout": "{\n  \"path\": \"docs/superpowers/journals/corr-evidence/c/abstract-subset-manifest.json\",\n  \"predecessor_declaration_digest\": \"sha256:0af0fce5e7b560c9a6c5429d23f4b8766572330427696f745f10a54e71931034\",\n  \"declaration_digest\": \"sha256:8d63505a398ca11b0623c5e01fe308b3d372cb6a511b6b9807976fb904789bb0\",\n  \"declared_at\": \"2026-09-08T16:53:06.176718+00:00\",\n  \"selected_members_unchanged\": true\n}\n",
+  "stderr": ""
+}

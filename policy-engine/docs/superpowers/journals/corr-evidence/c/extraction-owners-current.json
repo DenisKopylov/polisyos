@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.c.probe_extraction_owners",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c.probe_extraction_owners"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 8.352764541981742,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c/probe_extraction_owners.py\", line 70, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c/probe_extraction_owners.py\", line 36, in main\n    disposition = _eligibility_gate(\n        item, text=row[1], source_kind=\"abstract_fallback\", text_quality=\"abstract_only\"\n    )\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/batch/_resolve_extract_transformers.py\", line 1105, in _eligibility_gate\n    method_signal = _method_signal_score(title, abstract, text)\n                    ^^^^^^^^^^^^^^^^^^^^\nNameError: name '_method_signal_score' is not defined\n"
+}

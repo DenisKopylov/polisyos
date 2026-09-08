@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/corr-evidence/c/declare_abstract_subset.py docs/superpowers/journals/corr-evidence/c/probe_extraction_owners.py docs/superpowers/journals/corr-evidence/c/finalize_subset_declaration.py --output-format concise",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/corr-evidence/c/declare_abstract_subset.py",
+    "docs/superpowers/journals/corr-evidence/c/probe_extraction_owners.py",
+    "docs/superpowers/journals/corr-evidence/c/finalize_subset_declaration.py",
+    "--output-format",
+    "concise"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.20662641699891537,
+  "stdout": "docs/superpowers/journals/corr-evidence/c/declare_abstract_subset.py:111:101: E501 Line too long (102 > 100)\ndocs/superpowers/journals/corr-evidence/c/finalize_subset_declaration.py:30:5: T201 `print` found\ndocs/superpowers/journals/corr-evidence/c/finalize_subset_declaration.py:32:16: RUF100 [*] Unused `noqa` directive (unused: `T201`)\nFound 3 errors.\n[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).\n",
+  "stderr": ""
+}

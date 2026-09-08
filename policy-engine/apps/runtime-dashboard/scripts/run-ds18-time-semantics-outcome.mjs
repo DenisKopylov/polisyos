@@ -14,7 +14,9 @@ const fixedEnvironment = {
 };
 
 if (process.argv.length !== 2) {
-  process.stderr.write("DS18 outcome runner accepts no caller-supplied arguments\n");
+  process.stderr.write(
+    "DS18 outcome runner accepts no caller-supplied arguments\n",
+  );
   process.exitCode = 1;
 } else if (!process.execArgv.includes("--experimental-strip-types")) {
   const relaunched = spawnSync(
@@ -33,7 +35,8 @@ if (process.argv.length !== 2) {
     policyEngineRoot,
     "architecture/atlas_surfaces/check_frontend_disposition_register.py",
   );
-  const outcomeModule = await import("../src/test/evidence/ds18ExecutionOutcome.ts");
+  const outcomeModule =
+    await import("../src/test/evidence/ds18ExecutionOutcome.ts");
 
   if (!existsSync(repositoryPython)) {
     process.stderr.write(

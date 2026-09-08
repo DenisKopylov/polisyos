@@ -6,16 +6,18 @@ import json
 import multiprocessing as mp
 import os
 from dataclasses import dataclass, replace
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 from pydantic import Field, create_model
 
-from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, SchemaInfo
+from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.c4_persisted_profiles import (
     C4_PERSISTED_PROFILE_SPECS,
+    c4_canonical_bytes,
     c4_canonical_mapping,
     c4_semantic_digest,
 )
@@ -61,6 +63,7 @@ from polisyos.scientist.evidence.claims.head_index import (
     ClaimLedgerRootVerificationReceipt,
     ClaimLifecycleBridgeAdvanced,
     ClaimLifecycleBridgeNonReceipt,
+    ClaimLifecycleBridgeResultStatement,
     DecisionPacketRootSnapshot,
     DecisionPacketRootSnapshotStatement,
     FilesystemArtifactStoreClaimRootWalk,
@@ -254,6 +257,47 @@ def test_profiled_helper_calls_use_only_registered_record_literals() -> None:
 
     assert observed
     assert observed <= set(C4_PERSISTED_PROFILE_SPECS)
+
+
+@pytest.mark.parametrize("repository_owner", [False, True])
+def test_owner_event_append_requires_an_explicit_authority(
+    tmp_path: Path,
+    repository_owner: bool,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    owner = (
+        _RepositoryClaimLedgerOwner(
+            store=store,
+            policy_resolver=head_index_module.NoClaimLedgerInitializationPolicyResolver(),
+        )
+        if repository_owner
+        else UnappointedClaimLedgerOwner(store=store)
+    )
+
+    result = owner.append_verified_owner_event(
+        owner_key=_owner_key(),
+        owner_event_ref=_ref("3", kind="scientist.claims.supersession_owner_event"),
+    )
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.status == "not_established"
+    assert result.code == "claim_owner_event_authority_unappointed"
+    assert store.iter_artifact_ids() == []
+
+
+def test_unappointed_owner_cannot_invent_a_candidate_root(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    result = UnappointedClaimLedgerOwner(store=store).produce_owner_event_candidate(
+        monitor_event_ref=_ref("1"),
+        predecessor_claim_id="predecessor",
+        successor_claim_ref=_ref("2"),
+        effective_at=datetime(2026, 9, 7, tzinfo=UTC),
+    )
+
+    assert isinstance(result, ClaimLedgerHeadResolutionNonReceipt)
+    assert result.status == "not_established"
+    assert result.code == "claim_head_absent"
+    assert store.iter_artifact_ids() == []
 
 
 def test_owner_scope_is_content_bound_to_base_claims_and_purpose() -> None:
@@ -2308,6 +2352,157 @@ def test_verified_epoch_batch_advances_one_closed_head_with_stale_event(
     assert advanced.head_advance.prior_head_ref == initial.new_head.head_ref
     assert advanced.head_advance.new_head.statement.generation == 1
     assert advanced.bridge_result.statement.pending_ref.kind == ("scientist.claims.bridge_pending")
+    assert denominator.batch_dependency_denominator_ref == receipt.dependency_denominator_ref
+    assert denominator.batch_dependency_denominator_ref == "sha256:" + "6" * 64
+    assert advanced.bridge_result.statement.dependency_denominator_ref == denominator_ref
+    assert (
+        advanced.bridge_result.statement.dependency_denominator_content_hash
+        == denominator_content_hash
+    )
+    assert advanced.bridge_result.statement.dependency_denominator_ref.kind == (
+        "scientist.claims.dependency_denominator"
+    )
+
+    dependency_profile = C4_PERSISTED_PROFILE_SPECS["claim_dependency_denominator"]
+    assert dependency_profile.record == "claim_dependency_denominator"
+    assert dependency_profile.kind == "scientist.claims.dependency_denominator"
+    assert dependency_profile.schema_name == ("polisyos.claim-ledger.dependency-denominator.v1")
+    assert dependency_profile.schema_version == "1"
+    assert dependency_profile.media_type == "application/octet-stream"
+    assert dependency_profile.semantic_prefix == (
+        b"polisyos.claim-ledger-dependency-denominator.v1\0"
+    )
+    assert dependency_profile.raw_mapping_fields == (
+        "schema_version",
+        "registry_ref",
+        "registry_content_hash",
+        "claim_schema_content_hash",
+        "ledger_artifact_ref",
+        "ledger_raw_cas_hash",
+        "batch_dependency_denominator_ref",
+        "requested_dependency_keys",
+        "declared_path_count",
+        "observed_path_count",
+        "ordered_dependency_rows",
+        "ordered_affected_claim_ids",
+        "denominator_hash",
+        "predicate_class",
+    )
+    assert dependency_profile.self_field_exclusions == ("denominator_hash",)
+    assert dependency_profile.binary64_decimal_paths == ()
+    assert dependency_profile.canon_spec == CHRONOLOGY_CANON_SPEC
+
+    bridge_profile = C4_PERSISTED_PROFILE_SPECS["claim_bridge_result"]
+    assert bridge_profile.record == "claim_bridge_result"
+    assert bridge_profile.kind == "scientist.claims.bridge_result"
+    assert bridge_profile.schema_name == "polisyos.claim-ledger.bridge-result.v1"
+    assert bridge_profile.schema_version == "1"
+    assert bridge_profile.media_type == "application/octet-stream"
+    assert bridge_profile.semantic_prefix == b"polisyos.claim-ledger-bridge-result.v1\0"
+    assert bridge_profile.raw_mapping_fields == (
+        "schema_version",
+        "owner_key",
+        "batch_receipt_ref",
+        "batch_receipt_content_hash",
+        "decision_packet_ref",
+        "decision_packet_content_hash",
+        "requested_query_context_ref",
+        "pending_ref",
+        "pending_content_hash",
+        "dependency_denominator_ref",
+        "dependency_denominator_content_hash",
+        "lifecycle_result_ref",
+        "lifecycle_result_content_hash",
+        "prior_ledger_ref",
+        "prior_ledger_content_hash",
+        "next_ledger_ref",
+        "next_ledger_content_hash",
+        "ordered_affected_claim_ids",
+        "predicate_class",
+    )
+    assert bridge_profile.self_field_exclusions == ()
+    assert bridge_profile.binary64_decimal_paths == ()
+    assert bridge_profile.canon_spec == CHRONOLOGY_CANON_SPEC
+
+    denominator_raw = store.get_bytes(denominator_ref.artifact_id)
+    assert store.verify(denominator_ref.artifact_id).ok
+    assert "sha256:" + hashlib.sha256(denominator_raw).hexdigest() == str(
+        denominator_ref.artifact_id
+    )
+    assert denominator_raw == c4_canonical_bytes("claim_dependency_denominator", denominator)
+    assert (
+        _read_profiled_statement(
+            store=store,
+            record="claim_dependency_denominator",
+            ref=denominator_ref,
+            model=ClaimDependencyDenominatorReceipt,
+        )
+        == denominator
+    )
+    assert denominator_content_hash == c4_semantic_digest(
+        "claim_dependency_denominator",
+        denominator,
+    )
+
+    bridge_ref = advanced.bridge_result.bridge_result_ref
+    bridge_statement = advanced.bridge_result.statement
+    bridge_raw = store.get_bytes(bridge_ref.artifact_id)
+    assert store.verify(bridge_ref.artifact_id).ok
+    assert "sha256:" + hashlib.sha256(bridge_raw).hexdigest() == str(bridge_ref.artifact_id)
+    assert bridge_raw == c4_canonical_bytes("claim_bridge_result", bridge_statement)
+    assert (
+        _read_profiled_statement(
+            store=store,
+            record="claim_bridge_result",
+            ref=bridge_ref,
+            model=ClaimLifecycleBridgeResultStatement,
+        )
+        == bridge_statement
+    )
+    assert advanced.bridge_result.bridge_result_content_hash == c4_semantic_digest(
+        "claim_bridge_result",
+        bridge_statement,
+    )
+
+    # This is a profile-correct wrong-family ref, not reconciliation authority evidence.
+    reconciliation_ref = store.put_bytes(
+        b'{"profile_substitution":"runtime-reconciliation"}',
+        ArtifactWriteOptions(
+            kind="polisyos.epoch.transition_denominator_reconciliation_receipt",
+            media_type="application/vnd.polisyos.chronology+json",
+            schema=SchemaInfo(
+                name="polisyos.epoch-transition-denominator-reconciliation.v1",
+                version="1.0",
+            ),
+            canon=CanonInfo.from_spec(CanonSpec()),
+        ),
+    )
+    assert store.verify(reconciliation_ref.artifact_id).ok
+    assert reconciliation_ref.kind == (
+        "polisyos.epoch.transition_denominator_reconciliation_receipt"
+    )
+    assert reconciliation_ref.media_type == "application/vnd.polisyos.chronology+json"
+    reconciliation_manifest = store.get_manifest(reconciliation_ref.artifact_id)
+    assert reconciliation_manifest.kind == reconciliation_ref.kind
+    assert reconciliation_manifest.media_type == reconciliation_ref.media_type
+    assert reconciliation_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.epoch-transition-denominator-reconciliation.v1",
+        version="1.0",
+    )
+    assert reconciliation_manifest.canon == CanonInfo.from_spec(CanonSpec())
+    assert bridge_statement.dependency_denominator_ref != reconciliation_ref
+    with pytest.raises(
+        ValueError,
+        match="claim_profiled_statement_profile_mismatch",
+    ):
+        _read_profiled_statement(
+            store=store,
+            record="claim_dependency_denominator",
+            ref=reconciliation_ref,
+            model=ClaimDependencyDenominatorReceipt,
+        )
+
+    assert owner.resolve_current(owner_key=prepared.owner_key) == (advanced.head_advance.new_head)
     next_ledger = _load_append_only_claim_ledger(
         store,
         advanced.bridge_result.statement.next_ledger_ref,

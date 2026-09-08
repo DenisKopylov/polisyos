@@ -1,11 +1,66 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
 import duckdb
-from polisyos.data_forge.domains.academic.batch.benchmark import run_benchmark
+import pytest
+
+from polisyos.data_forge.domains.academic.batch.benchmark import (
+    _quality_weighted_parameter_score,
+    run_benchmark,
+)
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
-from polisyos.data_forge.domains.academic.knowledge.skg_store import ensure_skg_schema
+from polisyos.data_forge.domains.academic.knowledge.skg_store import (
+    EVIDENCE_WEIGHTS,
+    ensure_skg_schema,
+)
+
+
+@pytest.mark.parametrize("counterfactual_unknown_weight", [None, 0.25])
+def test_parameter_quality_mixed_labels_do_not_alias_unknown(
+    monkeypatch, counterfactual_unknown_weight
+) -> None:
+    """Catch NULL/blank/alien defaults inheriting the recorded-unknown policy."""
+    if counterfactual_unknown_weight is not None:
+        monkeypatch.setitem(EVIDENCE_WEIGHTS, "unknown", counterfactual_unknown_weight)
+    labels = ["rct", "theoretical", "unknown", None, "", "not_established", "alien", "RCT"]
+    with duckdb.connect(":memory:") as con:
+        ensure_skg_schema(con)
+        con.executemany(
+            "INSERT INTO ac_skg_simulation_parameters "
+            "(numeric_id, openalex_id, canonical_name, estimate_type, point_estimate, "
+            "evidence_strength, confidence_interval_json) VALUES (?, 'W', ?, 'ate', 1, ?, '[0,2]')",
+            [(str(i), f"p{i}", label) for i, label in enumerate(labels)],
+        )
+        query = SimpleNamespace(_con=con)
+        scores = [
+            _quality_weighted_parameter_score(query, f"p{i}", current_year=2026)
+            for i in range(len(labels))
+        ]
+        assert scores == pytest.approx(
+            [1.0, 0.15, counterfactual_unknown_weight or 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        )
+        assert [
+            row[0]
+            for row in con.execute(
+                "SELECT evidence_strength FROM ac_skg_simulation_parameters ORDER BY numeric_id"
+            ).fetchall()
+        ] == labels
+
+
+def test_parameter_quality_keeps_established_uncertainty_factor() -> None:
+    """Catch a zero-contribution repair changing established missing-uncertainty scoring."""
+    with duckdb.connect(":memory:") as con:
+        ensure_skg_schema(con)
+        con.execute(
+            "INSERT INTO ac_skg_simulation_parameters "
+            "(numeric_id, openalex_id, canonical_name, estimate_type, point_estimate, evidence_strength) "
+            "VALUES ('n', 'W', 'p', 'ate', 1, 'theoretical')"
+        )
+        assert _quality_weighted_parameter_score(
+            SimpleNamespace(_con=con), "p", current_year=2026
+        ) == pytest.approx(0.105)
 
 
 def test_benchmark_reports_runtime_readiness_metrics(tmp_path) -> None:

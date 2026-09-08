@@ -157,6 +157,23 @@ EpochPerturbation: TypeAlias = Annotated[
 ]
 
 
+class SupersessionCandidateRequest(BaseModel):
+    """Explicit replacement proposal; the request grants no owner authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    predecessor_claim_id: str = Field(min_length=1)
+    successor_claim_ref: ArtifactRef
+    effective_at: datetime
+
+    @field_validator("effective_at")
+    @classmethod
+    def _aware_effective_time(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("supersession candidate effective time must be timezone-aware")
+        return value
+
+
 class GovernanceMonitorEvent(BaseModel):
     """One continuous-governance signal tied to a decision packet."""
 
@@ -178,6 +195,9 @@ class GovernanceMonitorEvent(BaseModel):
     )
     perturbation: EpochPerturbation | None = None
     advisory_posture: AdvisoryPosture = "review_required"
+    supersession_candidate: SupersessionCandidateRequest | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("event_id", "reason")

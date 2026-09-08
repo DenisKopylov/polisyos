@@ -7,7 +7,9 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.foundry.methods.catalog import dependency_profile as dependency_profile_module
 from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as checker
+from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -22,6 +24,61 @@ def _receipt_hash(payload: dict[str, object]) -> str:
         allow_nan=False,
     ).encode()
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _failed_dependency_diagnostic(companion: object) -> object:
+    profile = companion.profile_discriminant
+    observations = tuple(
+        dependency_profile_module.InstalledDistributionObservation(
+            name=row.name,
+            version="incompatible-version" if index == 0 else row.version,
+        )
+        for index, row in enumerate(profile.resolved_distributions)
+    )
+    result = dependency_profile_module.diagnose_dependency_environment(
+        discriminant=profile,
+        observed_distributions=dependency_profile_module.AmbientDependencyEnvironmentObservation(
+            observation_kind="ambient",
+            distributions=observations,
+        ),
+    )
+    assert result.status == "fail"
+    return result
+
+
+def test_chronology_validation_result_separates_governing_and_ambient_channels(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A dependency mismatch cannot alter chronology acceptance issues."""
+
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=REPO_ROOT,
+        source_freeze=n8.dependency_discriminant_source_freeze(REPO_ROOT),
+    )
+    reader = getattr(checker, "read_foundry_dependency_discriminant", None)
+    result_builder = getattr(checker, "validate_payload_result", None)
+    assert callable(reader), "missing behavior: chronology discriminant reader"
+    assert callable(result_builder), "missing behavior: chronology ValidationResult"
+    payload: dict[str, object] = {}
+    governing = checker.validate_payload(payload, repo_root=REPO_ROOT)
+
+    diagnostic = _failed_dependency_diagnostic(companion)
+    monkeypatch.setattr(n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic)
+    result = result_builder(
+        payload,
+        repo_root=REPO_ROOT,
+        companion=companion,
+        diagnostic_verification=diagnostic,
+    )
+
+    assert isinstance(result, checker.ValidationResult)
+    assert result.governing_result == governing
+    assert result.governing_issues == governing
+    assert result.content_ref == companion.content_ref
+    assert result.discriminant_ref == companion.profile_discriminant.discriminant_ref
+    assert result.status == "fail"
+    assert result.first_case.coordinate.startswith("distribution:")
+    assert checker.validate_payload(payload, repo_root=REPO_ROOT) == governing
 
 
 def test_common_envelope_binds_semantic_status_independently() -> None:

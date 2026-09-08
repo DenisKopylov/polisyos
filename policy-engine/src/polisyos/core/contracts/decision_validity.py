@@ -7,6 +7,8 @@ stable wire contract consumed by Runtime and Scientist services.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal, Protocol
@@ -14,6 +16,7 @@ from typing import Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 
 Digest = str
 
@@ -223,6 +226,558 @@ EpochValidityPredicateClass = Literal[
     "institutionally_supplied",
     "not_established",
 ]
+
+_DIGEST_PATTERN = r"^sha256:[0-9a-f]{64}$"
+_EPOCH_IMPACT_SNAPSHOT_SCHEMA = "polisyos.decision-validity.epoch-impact-snapshot.v1"
+_EPOCH_RECONCILIATION_SCHEMA = "polisyos.epoch-transition-denominator-reconciliation.v1"
+_EPOCH_RECONCILIATION_BINDING_SCHEMA = (
+    "polisyos.decision-validity.epoch-reconciliation-admission-binding.v1"
+)
+_EPOCH_AUTHORITY_PURPOSE = "decision_validity_epoch_transition"
+_CANONICALIZATION_PROFILE = "polisyos.canon.json/0.2.0"
+_SNAPSHOT_KIND = "scientist.decision_validity_epoch_impact_snapshot"
+_SNAPSHOT_MEDIA_TYPE = "application/json"
+_RECONCILIATION_KIND = "polisyos.epoch.transition_denominator_reconciliation_receipt"
+_RECONCILIATION_MEDIA_TYPE = "application/vnd.polisyos.chronology+json"
+_CANON_SPEC = CanonSpec()
+
+
+def _semantic_hash(domain: str, payload: object) -> Digest:
+    raw = to_canonical_bytes(payload, _CANON_SPEC)
+    return "sha256:" + hashlib.sha256(domain.encode("utf-8") + b"\0" + raw).hexdigest()
+
+
+def _raw_sha256(payload: bytes) -> Digest:
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _artifact_ref_key(ref: ArtifactRef) -> tuple[str, str, str]:
+    return (str(ref.artifact_id), ref.kind, ref.media_type)
+
+
+class DecisionValidityEpochImpactOwnerRow(BaseModel):
+    """Freeze one semantic-epoch dependency row from the Scientist owner index."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    dependency_key: str = Field(min_length=1)
+    dependency_kind: Literal[DecisionDependencyKind.SEMANTIC_EPOCH]
+    artifact_id: Digest = Field(pattern=_DIGEST_PATTERN)
+    packet_refs: tuple[str, ...]
+    lineage_keys: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def _members_are_canonical(self) -> DecisionValidityEpochImpactOwnerRow:
+        if self.packet_refs != tuple(sorted(set(self.packet_refs))):
+            raise ValueError("epoch_impact_snapshot_packet_refs_noncanonical")
+        if self.lineage_keys != tuple(sorted(set(self.lineage_keys))):
+            raise ValueError("epoch_impact_snapshot_lineage_keys_noncanonical")
+        if any(not value for value in (*self.packet_refs, *self.lineage_keys)):
+            raise ValueError("epoch_impact_snapshot_member_empty")
+        return self
+
+
+class DecisionValidityEpochImpactTarget(BaseModel):
+    """Bind one affected packet and lineage to its semantic-epoch key."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    packet_ref: str = Field(min_length=1)
+    dependency_key: str = Field(min_length=1)
+    decision_lineage_key: str = Field(min_length=1)
+
+
+def _impact_denominator_ref(
+    owner_rows: tuple[DecisionValidityEpochImpactOwnerRow, ...],
+) -> Digest:
+    rows = [row.model_dump(mode="json") for row in owner_rows]
+    raw = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return _raw_sha256(raw)
+
+
+def _owner_projection_generation_ref(
+    *,
+    requested_dependency_keys: tuple[str, ...],
+    owner_rows: tuple[DecisionValidityEpochImpactOwnerRow, ...],
+    targets: tuple[DecisionValidityEpochImpactTarget, ...],
+) -> Digest:
+    return _semantic_hash(
+        "polisyos.decision-validity.epoch-impact-owner-projection.v1",
+        {
+            "requested_dependency_keys": requested_dependency_keys,
+            "owner_rows": owner_rows,
+            "targets": targets,
+        },
+    )
+
+
+class DecisionValidityEpochImpactSnapshot(BaseModel):
+    """Persist the exact Scientist owner projection used by epoch intake."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[_EPOCH_IMPACT_SNAPSHOT_SCHEMA] = _EPOCH_IMPACT_SNAPSHOT_SCHEMA
+    authority_purpose: Literal[_EPOCH_AUTHORITY_PURPOSE] = _EPOCH_AUTHORITY_PURPOSE
+    requested_query_context_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    requested_dependency_keys: tuple[str, ...]
+    owner_rows: tuple[DecisionValidityEpochImpactOwnerRow, ...]
+    targets: tuple[DecisionValidityEpochImpactTarget, ...]
+    decision_impact_denominator_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    owner_projection_generation_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    snapshot_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+
+    @classmethod
+    def build(
+        cls,
+        *,
+        requested_query_context_ref: Digest,
+        requested_dependency_keys: tuple[str, ...],
+        owner_rows: tuple[DecisionValidityEpochImpactOwnerRow, ...],
+        targets: tuple[DecisionValidityEpochImpactTarget, ...],
+    ) -> DecisionValidityEpochImpactSnapshot:
+        """Build a self-bound snapshot from one already enumerated owner projection."""
+
+        values: dict[str, object] = {
+            "schema_version": _EPOCH_IMPACT_SNAPSHOT_SCHEMA,
+            "authority_purpose": _EPOCH_AUTHORITY_PURPOSE,
+            "requested_query_context_ref": requested_query_context_ref,
+            "requested_dependency_keys": requested_dependency_keys,
+            "owner_rows": owner_rows,
+            "targets": targets,
+            "decision_impact_denominator_ref": _impact_denominator_ref(owner_rows),
+            "owner_projection_generation_ref": _owner_projection_generation_ref(
+                requested_dependency_keys=requested_dependency_keys,
+                owner_rows=owner_rows,
+                targets=targets,
+            ),
+        }
+        return cls(
+            **values,
+            snapshot_content_hash=_semantic_hash(
+                "polisyos.decision-validity.epoch-impact-snapshot.v1", values
+            ),
+        )
+
+    @model_validator(mode="after")
+    def _projection_is_exact_and_self_bound(self) -> DecisionValidityEpochImpactSnapshot:
+        if self.requested_dependency_keys != tuple(sorted(set(self.requested_dependency_keys))):
+            raise ValueError("epoch_impact_snapshot_requested_keys_noncanonical")
+        if not self.requested_dependency_keys:
+            raise ValueError("epoch_impact_snapshot_requested_keys_empty")
+        if self.owner_rows != tuple(sorted(self.owner_rows, key=lambda row: row.dependency_key)):
+            raise ValueError("epoch_impact_snapshot_owner_rows_noncanonical")
+        row_keys = tuple(row.dependency_key for row in self.owner_rows)
+        if len(row_keys) != len(set(row_keys)) or row_keys != self.requested_dependency_keys:
+            raise ValueError("epoch_impact_snapshot_owner_rows_mismatch")
+        ordered_targets = tuple(
+            sorted(
+                self.targets,
+                key=lambda row: (row.dependency_key, row.packet_ref, row.decision_lineage_key),
+            )
+        )
+        target_keys = tuple((row.dependency_key, row.packet_ref) for row in self.targets)
+        if self.targets != ordered_targets or len(target_keys) != len(set(target_keys)):
+            raise ValueError("epoch_impact_snapshot_targets_noncanonical")
+        if any(row.dependency_key not in self.requested_dependency_keys for row in self.targets):
+            raise ValueError("epoch_impact_snapshot_target_key_unbound")
+        for owner in self.owner_rows:
+            owner_targets = tuple(
+                row for row in self.targets if row.dependency_key == owner.dependency_key
+            )
+            if tuple(row.packet_ref for row in owner_targets) != owner.packet_refs:
+                raise ValueError("epoch_impact_snapshot_packet_membership_mismatch")
+            if (
+                tuple(sorted({row.decision_lineage_key for row in owner_targets}))
+                != owner.lineage_keys
+            ):
+                raise ValueError("epoch_impact_snapshot_lineage_membership_mismatch")
+        if self.decision_impact_denominator_ref != _impact_denominator_ref(self.owner_rows):
+            raise ValueError("epoch_impact_snapshot_denominator_mismatch")
+        if self.owner_projection_generation_ref != _owner_projection_generation_ref(
+            requested_dependency_keys=self.requested_dependency_keys,
+            owner_rows=self.owner_rows,
+            targets=self.targets,
+        ):
+            raise ValueError("epoch_impact_snapshot_owner_generation_mismatch")
+        values = self.model_dump(mode="json", exclude={"snapshot_content_hash"})
+        if self.snapshot_content_hash != _semantic_hash(
+            "polisyos.decision-validity.epoch-impact-snapshot.v1", values
+        ):
+            raise ValueError("epoch_impact_snapshot_content_hash_mismatch")
+        return self
+
+
+class DecisionValidityEpochImpactSnapshotHandle(BaseModel):
+    """Reference exact persisted Scientist snapshot bytes and their self-hash."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    snapshot_ref: ArtifactRef
+    snapshot_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+
+    @model_validator(mode="after")
+    def _ref_has_snapshot_profile(self) -> DecisionValidityEpochImpactSnapshotHandle:
+        if (
+            self.snapshot_ref.kind != _SNAPSHOT_KIND
+            or self.snapshot_ref.media_type != _SNAPSHOT_MEDIA_TYPE
+        ):
+            raise ValueError("decision_validity_epoch_impact_snapshot_ref_profile_mismatch")
+        return self
+
+
+class PersistedDecisionValidityEpochImpactSnapshot(BaseModel):
+    """Carry exact snapshot bytes only after full local persistence verification."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    handle: DecisionValidityEpochImpactSnapshotHandle
+    snapshot_bytes: bytes
+    snapshot: DecisionValidityEpochImpactSnapshot
+
+    @model_validator(mode="after")
+    def _bytes_are_exact(self) -> PersistedDecisionValidityEpochImpactSnapshot:
+        try:
+            parsed = DecisionValidityEpochImpactSnapshot.model_validate(
+                from_canonical_bytes(self.snapshot_bytes)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("decision_validity_epoch_impact_snapshot_bytes_invalid") from exc
+        if (
+            _raw_sha256(self.snapshot_bytes) != str(self.handle.snapshot_ref.artifact_id)
+            or to_canonical_bytes(parsed.model_dump(mode="json"), _CANON_SPEC)
+            != self.snapshot_bytes
+            or parsed != self.snapshot
+            or self.handle.snapshot_content_hash != parsed.snapshot_content_hash
+        ):
+            raise ValueError("decision_validity_epoch_impact_snapshot_bytes_mismatch")
+        return self
+
+
+class EpochTransitionDenominatorMappingRow(BaseModel):
+    """Map one Scientist impact member to exactly one Runtime target."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    dependency_key: str = Field(min_length=1)
+    dependency_artifact_id: Digest = Field(pattern=_DIGEST_PATTERN)
+    packet_ref: str = Field(min_length=1)
+    decision_lineage_key: str = Field(min_length=1)
+    runtime_target_ref: ArtifactRef
+
+
+class EpochTransitionDenominatorReconciliationReceipt(BaseModel):
+    """Content-bind an independently verified relation between both owner denominators."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[_EPOCH_RECONCILIATION_SCHEMA] = _EPOCH_RECONCILIATION_SCHEMA
+    reconciliation_rule_version: Literal[_EPOCH_RECONCILIATION_SCHEMA] = (
+        _EPOCH_RECONCILIATION_SCHEMA
+    )
+    canonicalization_profile: Literal[_CANONICALIZATION_PROFILE] = _CANONICALIZATION_PROFILE
+    authority_purpose: Literal[_EPOCH_AUTHORITY_PURPOSE] = _EPOCH_AUTHORITY_PURPOSE
+    requested_query_context_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    predicate_class: Literal["independently_reconciled"] = "independently_reconciled"
+    verifier_provenance_ref: ArtifactRef
+    transition_artifact_ref: ArtifactRef
+    transition_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+    epoch_dependency_denominator_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    runtime_target_refs: tuple[ArtifactRef, ...]
+    scientist_snapshot_ref: ArtifactRef
+    scientist_snapshot_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+    decision_impact_denominator_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    requested_dependency_keys: tuple[str, ...]
+    scientist_owner_rows: tuple[DecisionValidityEpochImpactOwnerRow, ...]
+    scientist_targets: tuple[DecisionValidityEpochImpactTarget, ...]
+    mapping_rows: tuple[EpochTransitionDenominatorMappingRow, ...]
+    reconciliation_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+
+    @classmethod
+    def build(
+        cls,
+        *,
+        requested_query_context_ref: Digest,
+        verifier_provenance_ref: ArtifactRef,
+        transition_artifact_ref: ArtifactRef,
+        transition_content_hash: Digest,
+        epoch_dependency_denominator_ref: Digest,
+        runtime_target_refs: tuple[ArtifactRef, ...],
+        scientist_snapshot_ref: ArtifactRef,
+        scientist_snapshot_content_hash: Digest,
+        decision_impact_denominator_ref: Digest,
+        requested_dependency_keys: tuple[str, ...],
+        scientist_owner_rows: tuple[DecisionValidityEpochImpactOwnerRow, ...],
+        scientist_targets: tuple[DecisionValidityEpochImpactTarget, ...],
+        mapping_rows: tuple[EpochTransitionDenominatorMappingRow, ...],
+    ) -> EpochTransitionDenominatorReconciliationReceipt:
+        """Build a self-bound receipt from exact producer-derived coordinates."""
+
+        values: dict[str, object] = {
+            "schema_version": _EPOCH_RECONCILIATION_SCHEMA,
+            "reconciliation_rule_version": _EPOCH_RECONCILIATION_SCHEMA,
+            "canonicalization_profile": _CANONICALIZATION_PROFILE,
+            "authority_purpose": _EPOCH_AUTHORITY_PURPOSE,
+            "predicate_class": "independently_reconciled",
+            "requested_query_context_ref": requested_query_context_ref,
+            "verifier_provenance_ref": verifier_provenance_ref,
+            "transition_artifact_ref": transition_artifact_ref,
+            "transition_content_hash": transition_content_hash,
+            "epoch_dependency_denominator_ref": epoch_dependency_denominator_ref,
+            "runtime_target_refs": runtime_target_refs,
+            "scientist_snapshot_ref": scientist_snapshot_ref,
+            "scientist_snapshot_content_hash": scientist_snapshot_content_hash,
+            "decision_impact_denominator_ref": decision_impact_denominator_ref,
+            "requested_dependency_keys": requested_dependency_keys,
+            "scientist_owner_rows": scientist_owner_rows,
+            "scientist_targets": scientist_targets,
+            "mapping_rows": mapping_rows,
+        }
+        return cls(
+            **values,
+            reconciliation_content_hash=_semantic_hash(
+                "polisyos.epoch-transition-denominator-reconciliation.v1", values
+            ),
+        )
+
+    @model_validator(mode="after")
+    def _relation_is_complete_and_self_bound(
+        self,
+    ) -> EpochTransitionDenominatorReconciliationReceipt:
+        if self.runtime_target_refs != tuple(
+            sorted(self.runtime_target_refs, key=_artifact_ref_key)
+        ):
+            raise ValueError("epoch_reconciliation_runtime_targets_noncanonical")
+        if len({_artifact_ref_key(ref) for ref in self.runtime_target_refs}) != len(
+            self.runtime_target_refs
+        ):
+            raise ValueError("epoch_reconciliation_runtime_target_duplicate")
+        if (
+            self.scientist_snapshot_ref.kind != _SNAPSHOT_KIND
+            or self.scientist_snapshot_ref.media_type != _SNAPSHOT_MEDIA_TYPE
+        ):
+            raise ValueError("epoch_reconciliation_snapshot_ref_profile_mismatch")
+        snapshot = DecisionValidityEpochImpactSnapshot.build(
+            requested_query_context_ref=self.requested_query_context_ref,
+            requested_dependency_keys=self.requested_dependency_keys,
+            owner_rows=self.scientist_owner_rows,
+            targets=self.scientist_targets,
+        )
+        if (
+            self.decision_impact_denominator_ref != snapshot.decision_impact_denominator_ref
+            or self.scientist_snapshot_content_hash != snapshot.snapshot_content_hash
+        ):
+            raise ValueError("epoch_reconciliation_snapshot_mirror_mismatch")
+        mapping_order = tuple(
+            sorted(
+                self.mapping_rows,
+                key=lambda row: (row.dependency_key, row.packet_ref, row.decision_lineage_key),
+            )
+        )
+        mapping_keys = tuple(
+            (row.dependency_key, row.packet_ref, row.decision_lineage_key)
+            for row in self.mapping_rows
+        )
+        target_keys = tuple(
+            (row.dependency_key, row.packet_ref, row.decision_lineage_key)
+            for row in self.scientist_targets
+        )
+        if (
+            self.mapping_rows != mapping_order
+            or len(mapping_keys) != len(set(mapping_keys))
+            or mapping_keys != target_keys
+        ):
+            raise ValueError("epoch_reconciliation_mapping_denominator_mismatch")
+        owner_artifacts = {
+            row.dependency_key: row.artifact_id for row in self.scientist_owner_rows
+        }
+        for owner in self.scientist_owner_rows:
+            candidates = tuple(
+                ref
+                for ref in self.runtime_target_refs
+                if str(ref.artifact_id) == owner.artifact_id
+            )
+            if len(candidates) != 1:
+                raise ValueError("epoch_denominator_membership_mismatch")
+        for row in self.mapping_rows:
+            candidates = tuple(
+                ref
+                for ref in self.runtime_target_refs
+                if str(ref.artifact_id) == row.dependency_artifact_id
+            )
+            if (
+                owner_artifacts.get(row.dependency_key) != row.dependency_artifact_id
+                or len(candidates) != 1
+                or candidates[0] != row.runtime_target_ref
+            ):
+                raise ValueError("epoch_denominator_membership_mismatch")
+        values = self.model_dump(mode="json", exclude={"reconciliation_content_hash"})
+        if self.reconciliation_content_hash != _semantic_hash(
+            "polisyos.epoch-transition-denominator-reconciliation.v1", values
+        ):
+            raise ValueError("epoch_reconciliation_content_hash_mismatch")
+        return self
+
+
+class EpochTransitionDenominatorReconciliationHandle(BaseModel):
+    """Reference exact persisted reconciliation bytes and their self-hash."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    reconciliation_receipt_ref: ArtifactRef
+    reconciliation_receipt_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+
+    @model_validator(mode="after")
+    def _ref_has_reconciliation_profile(self) -> EpochTransitionDenominatorReconciliationHandle:
+        if (
+            self.reconciliation_receipt_ref.kind != _RECONCILIATION_KIND
+            or self.reconciliation_receipt_ref.media_type != _RECONCILIATION_MEDIA_TYPE
+        ):
+            raise ValueError("epoch_reconciliation_receipt_ref_profile_mismatch")
+        return self
+
+
+class PersistedEpochTransitionDenominatorReconciliation(BaseModel):
+    """Carry exact receipt bytes only after complete persistence verification."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    handle: EpochTransitionDenominatorReconciliationHandle
+    receipt_bytes: bytes
+    receipt: EpochTransitionDenominatorReconciliationReceipt
+
+    @model_validator(mode="after")
+    def _bytes_are_exact(self) -> PersistedEpochTransitionDenominatorReconciliation:
+        try:
+            parsed = EpochTransitionDenominatorReconciliationReceipt.model_validate(
+                from_canonical_bytes(self.receipt_bytes)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("epoch_reconciliation_receipt_bytes_invalid") from exc
+        if (
+            _raw_sha256(self.receipt_bytes)
+            != str(self.handle.reconciliation_receipt_ref.artifact_id)
+            or to_canonical_bytes(parsed.model_dump(mode="json"), _CANON_SPEC) != self.receipt_bytes
+            or parsed != self.receipt
+            or self.handle.reconciliation_receipt_content_hash
+            != parsed.reconciliation_content_hash
+        ):
+            raise ValueError("epoch_reconciliation_receipt_bytes_mismatch")
+        return self
+
+
+class EpochDenominatorReconciliationAdmissionBinding(BaseModel):
+    """Write-once Scientist owner binding to one exact reconciliation receipt."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[_EPOCH_RECONCILIATION_BINDING_SCHEMA] = (
+        _EPOCH_RECONCILIATION_BINDING_SCHEMA
+    )
+    batch_id: str = Field(min_length=1)
+    transition_artifact_ref: ArtifactRef
+    transition_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+    requested_query_context_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    authority_purpose: Literal[_EPOCH_AUTHORITY_PURPOSE] = _EPOCH_AUTHORITY_PURPOSE
+    decision_impact_denominator_ref: Digest = Field(pattern=_DIGEST_PATTERN)
+    scientist_snapshot_ref: ArtifactRef
+    scientist_snapshot_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+    verifier_provenance_ref: ArtifactRef
+    reconciliation_receipt_ref: ArtifactRef
+    reconciliation_receipt_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+    reconciliation_rule_version: Literal[_EPOCH_RECONCILIATION_SCHEMA] = (
+        _EPOCH_RECONCILIATION_SCHEMA
+    )
+    canonicalization_profile: Literal[_CANONICALIZATION_PROFILE] = _CANONICALIZATION_PROFILE
+    binding_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
+
+    @classmethod
+    def build(
+        cls,
+        *,
+        batch_id: str,
+        transition_artifact_ref: ArtifactRef,
+        transition_content_hash: Digest,
+        requested_query_context_ref: Digest,
+        decision_impact_denominator_ref: Digest,
+        scientist_snapshot_ref: ArtifactRef,
+        scientist_snapshot_content_hash: Digest,
+        verifier_provenance_ref: ArtifactRef,
+        reconciliation_receipt_ref: ArtifactRef,
+        reconciliation_receipt_content_hash: Digest,
+    ) -> EpochDenominatorReconciliationAdmissionBinding:
+        """Build a self-bound write-once owner binding."""
+
+        values: dict[str, object] = {
+            "schema_version": _EPOCH_RECONCILIATION_BINDING_SCHEMA,
+            "batch_id": batch_id,
+            "transition_artifact_ref": transition_artifact_ref,
+            "transition_content_hash": transition_content_hash,
+            "requested_query_context_ref": requested_query_context_ref,
+            "authority_purpose": _EPOCH_AUTHORITY_PURPOSE,
+            "decision_impact_denominator_ref": decision_impact_denominator_ref,
+            "scientist_snapshot_ref": scientist_snapshot_ref,
+            "scientist_snapshot_content_hash": scientist_snapshot_content_hash,
+            "verifier_provenance_ref": verifier_provenance_ref,
+            "reconciliation_receipt_ref": reconciliation_receipt_ref,
+            "reconciliation_receipt_content_hash": reconciliation_receipt_content_hash,
+            "reconciliation_rule_version": _EPOCH_RECONCILIATION_SCHEMA,
+            "canonicalization_profile": _CANONICALIZATION_PROFILE,
+        }
+        return cls(
+            **values,
+            binding_content_hash=_semantic_hash(
+                "polisyos.decision-validity.epoch-reconciliation-admission-binding.v1", values
+            ),
+        )
+
+    @property
+    def handle(self) -> EpochTransitionDenominatorReconciliationHandle:
+        """Return the exact sidecar handle without changing serialized binding bytes."""
+
+        return EpochTransitionDenominatorReconciliationHandle(
+            reconciliation_receipt_ref=self.reconciliation_receipt_ref,
+            reconciliation_receipt_content_hash=self.reconciliation_receipt_content_hash,
+        )
+
+    @model_validator(mode="after")
+    def _binding_is_self_bound(self) -> EpochDenominatorReconciliationAdmissionBinding:
+        DecisionValidityEpochImpactSnapshotHandle(
+            snapshot_ref=self.scientist_snapshot_ref,
+            snapshot_content_hash=self.scientist_snapshot_content_hash,
+        )
+        _ = self.handle
+        values = self.model_dump(mode="json", exclude={"binding_content_hash"})
+        if self.binding_content_hash != _semantic_hash(
+            "polisyos.decision-validity.epoch-reconciliation-admission-binding.v1", values
+        ):
+            raise ValueError("epoch_reconciliation_admission_binding_hash_mismatch")
+        return self
+
+
+class EpochTransitionDenominatorReconciliationReader(Protocol):
+    """Resolve candidate and exact reconciliation receipts without importing Runtime."""
+
+    verifier_provenance_ref: ArtifactRef | None
+
+    def resolve_for_first_admission(
+        self,
+        *,
+        transition_artifact_ref: ArtifactRef,
+        transition_content_hash: Digest,
+        requested_query_context_ref: Digest,
+        authority_purpose: Literal["decision_validity_epoch_transition"],
+        scientist_snapshot_handle: DecisionValidityEpochImpactSnapshotHandle,
+    ) -> PersistedEpochTransitionDenominatorReconciliation:
+        """Resolve the unique candidate matching first-admission coordinates."""
+        ...
+
+    def resolve_exact(
+        self,
+        *,
+        handle: EpochTransitionDenominatorReconciliationHandle,
+    ) -> PersistedEpochTransitionDenominatorReconciliation:
+        """Resolve one frozen receipt by exact ref and content hash."""
+        ...
 
 
 class EpochValidityBatchTarget(BaseModel):
@@ -638,15 +1193,25 @@ __all__ = [
     "DecisionTriggerSpec",
     "DecisionTriggerType",
     "DecisionValidityEnvelope",
+    "DecisionValidityEpochImpactOwnerRow",
+    "DecisionValidityEpochImpactSnapshot",
+    "DecisionValidityEpochImpactSnapshotHandle",
+    "DecisionValidityEpochImpactTarget",
     "DecisionValidityEvaluation",
     "DecisionValidityStatus",
     "DecisionValidityTransition",
+    "EpochDenominatorReconciliationAdmissionBinding",
+    "EpochTransitionDenominatorMappingRow",
+    "EpochTransitionDenominatorReconciliationHandle",
+    "EpochTransitionDenominatorReconciliationReader",
+    "EpochTransitionDenominatorReconciliationReceipt",
     "EpochTransitionVerificationReceipt",
     "EpochTransitionVerifier",
     "EpochValidityAuthorityGate",
     "EpochValidityBatchCompletionStatement",
     "EpochValidityBatchReceipt",
     "EpochValidityBatchTarget",
+    "EpochValidityCompletedBatchEvidenceDenominator",
     "EpochValidityCompletedBatchEvidenceResolver",
     "EpochValidityGateNonReceipt",
     "EpochValidityGateReceipt",
@@ -654,6 +1219,8 @@ __all__ = [
     "EpochValidityN9Projection",
     "EpochValidityPendingBatch",
     "EpochValidityPreN9SubjectAuthority",
+    "PersistedDecisionValidityEpochImpactSnapshot",
+    "PersistedEpochTransitionDenominatorReconciliation",
     "PersistedEpochValidityBatchEvidence",
     "PersistedEpochValidityGateEvidence",
     "PersistedPreN9AdmittedCandidateBatch",

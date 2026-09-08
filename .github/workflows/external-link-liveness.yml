@@ -1,0 +1,61 @@
+name: External Link Liveness
+
+# Probes external citations and reports what it found. It never blocks.
+#
+# An external URL failing is at least five different facts: the URL was always
+# wrong (our defect), the resource moved (link rot), the site is down, its TLS is
+# broken, or the publisher refuses robots. Only the first is about this repository,
+# and a single failure cannot tell them apart. Treating them alike once let an
+# expired certificate on www.dof.gob.mx stop the release gate.
+#
+# So this job records a dated observation instead of a verdict. Persistence is the
+# signal: one 404 means nothing, the same 404 across consecutive runs means the
+# resource moved and earns a register row.
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: External link liveness (non-blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Probe external citations
+        id: probe
+        continue-on-error: true
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        with:
+          args: >-
+            --config lychee.toml --format markdown --output lychee-report.md
+            policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md
+          fail: false
+
+      - name: Publish the dated observation
+        run: |
+          set -euo pipefail
+          {
+            echo "## External link liveness — $(date -u +%Y-%m-%dT%H:%MZ)"
+            echo
+            echo "Observations, not verdicts. A failure here is a fact about the world"
+            echo "until it persists; see .github/workflows/external-link-liveness.yml."
+            echo
+            cat lychee-report.md 2>/dev/null || echo "(no report produced)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain the report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa2a # v4.6.2
+        with:
+          name: external-link-liveness
+          path: lychee-report.md
+          if-no-files-found: warn
+          retention-days: 90

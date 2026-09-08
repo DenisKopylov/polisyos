@@ -7,7 +7,6 @@
         "src/polisyos/scientist/orchestration",
         "src/polisyos/scientist/orchestration/workflows",
         "src/polisyos/scientist/orchestration/orchestrator",
-        "src/polisyos/scientist/methods/workflows",
         "src/polisyos/scientist/methods/research_dag"
       ],
       "family_id": "workflows_orchestration_orchestrator_research_dag",

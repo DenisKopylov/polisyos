@@ -44,10 +44,7 @@ export default [
       policyos: localPlugin,
     },
     rules: {
-      "policyos/quantity-must-be-wrapped": [
-        "error",
-        { classes: ["decision"] },
-      ],
+      "policyos/quantity-must-be-wrapped": ["error", { classes: ["decision"] }],
     },
   },
 ];

@@ -1,4 +1,7 @@
-import { diffTrinityBundles, parseTrinityBundle } from "@/shared/lib/domain/trinity";
+import {
+  diffTrinityBundles,
+  parseTrinityBundle,
+} from "@/shared/lib/domain/trinity";
 
 function createTrinityBundle() {
   return {

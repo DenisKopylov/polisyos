@@ -1043,20 +1043,22 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
     assert receipt.reentry_cycle_index == 3
     assert receipt.grown_world_before_ref == "world://before/n7"
     assert receipt.grown_world_after_ref != receipt.grown_world_before_ref
-    assert set(receipt.grown_world_added_slots) == {"production_msme_panel", "tax_admin_panel"}
-    assert {outcome.status for outcome in receipt.world_write_outcomes} == {"written"}
-    assert receipt.real_grounding_result_count == 2
+    assert set(receipt.grown_world_added_slots) == {"production_msme_panel"}
+    assert {outcome.status for outcome in receipt.world_write_outcomes} == {"written", "rejected"}
+    assert receipt.real_grounding_result_count == 1
     assert receipt.useful_design_rate_after > 0.0
     assert set(receipt.affected_region.design_ids) == {
         "design:credit",
         "design:portfolio",
-        "design:tax",
     }
     assert set(receipt.affected_region.rederived_design_ids) == set(
         receipt.affected_region.design_ids
     )
     assert {entry.sequence for entry in receipt.journal_entries} == {1, 2}
-    assert validate_acquisition_receipt(receipt) == ()
+    assert any(
+        issue["code"] == "acquisition_artifact_not_captured_from_owner"
+        for issue in validate_acquisition_receipt(receipt)
+    )
 
     clock_shifted_payload = receipt.model_dump(mode="json")
     clock_shifted_payload.pop("content_hash")
@@ -1128,6 +1130,45 @@ def test_n7_missing_design_problem_refuses_grounding_rederive_without_crash() ->
         reason.endswith(":design_problem_unavailable_after_world_write")
         for reason in receipt.fail_closed_reasons
     )
+
+
+def test_real_skg_capture_requires_source_bound_replay_before_audit_emission(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.production_grounding_calibration import (
+        ProductionCG2CalibrationSource,
+    )
+
+    original = ProductionCG2CalibrationSource.produce
+
+    def tampered_produce(self, request):
+        ref = original(self, request)
+        payload = json.loads(self._store.get_bytes(ref.artifact_id))
+        # Leave purpose/status/provenance markers intact; substitute actual request bytes.
+        payload["request"]["claim_ref"] = "claim:borrowed"
+        return self._store.put_bytes(
+            json.dumps(payload).encode(),
+            artifacts.ArtifactWriteOptions(
+                kind="runtime.production_grounding_source_resolution",
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name="runtime.production_grounding_source_resolution", version="1.0"
+                ),
+                producer=artifacts.ProducerInfo(component="candidate", version="1.0"),
+            ),
+        )
+
+    monkeypatch.setattr(ProductionCG2CalibrationSource, "produce", tampered_produce)
+    gap = value_input_world_knowledge_requirement_gap(claim_ref="claim:actual")
+    with pytest.raises(ValueError, match="production_grounding_source_replay_mismatch"):
+        run_acquisition_closed_loop(
+            run_id="n7-source-replay-tamper",
+            acquisition_request={"cycle_index": 1},
+            data_requirement_specs=(gap,),
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world:actual"),
+            owner_gateway=RealAcquisitionOwnerGateway(repo_root=tmp_path),
+        )
 
 
 def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
@@ -1358,7 +1399,7 @@ def test_n7_receipt_validation_rejects_fabricated_provenance_without_raw_owner_r
     assert "acquisition_provenance_not_recomputable_from_real_owner" in issue_codes
 
 
-def test_real_owner_gateway_records_local_skg_response_without_network() -> None:
+def test_real_owner_gateway_records_local_skg_response_without_network(tmp_path: Path) -> None:
     base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
     base_spec["requirement_id"] = "data-requirement:claim-skg-source-family"
     base_spec["claim_id"] = "claim-skg-source-family"
@@ -1371,7 +1412,7 @@ def test_real_owner_gateway_records_local_skg_response_without_network() -> None
         generated_at=datetime(2026, 7, 5, tzinfo=UTC),
     )
     gateway = RealAcquisitionOwnerGateway(
-        repo_root=Path("."),
+        repo_root=tmp_path,
         captured_at=datetime(2026, 7, 5, tzinfo=UTC),
     )
 
@@ -1383,13 +1424,129 @@ def test_real_owner_gateway_records_local_skg_response_without_network() -> None
     assert artifact is not None
     assert artifact.owner_component == "data_forge.skg"
     assert artifact.capture_provenance is not None
-    assert artifact.capture_provenance.owner_endpoint == "skg_store.ensure_skg_schema"
+    assert (
+        artifact.capture_provenance.owner_endpoint
+        == "ProductionCG2CalibrationSource.produce/replay"
+    )
     assert artifact.capture_provenance.network_call is False
     assert gateway.network_counter.network_calls == 0
-    assert artifact.payload["owner_response"]["owner_response_kind"] == "skg_local_schema_probe"
-    assert artifact.payload["owner_response"]["table_count"] > 0
+    assert (
+        artifact.payload["owner_response"]["owner_response_kind"]
+        == "skg_exact_request_source_resolution"
+    )
+    resolution = artifact.payload["owner_response"]["resolution"]
+    assert resolution["source_population"] is None
+    assert "source_snapshot_unavailable" in resolution["refusal_reasons"]
+    assert resolution["n8_admission"] == "blocked"
     assert artifact.payload.get("grounding_results") is None
-    assert artifact.payload["acquired_substrate_registrations"]
+    assert artifact.payload["acquired_substrate_registrations"] == []
+    assert artifact.payload["candidate_bindings"] == []
+
+
+def test_skg_source_capture_replays_exact_current_request_and_cannot_write_world(
+    tmp_path: Path,
+) -> None:
+    import duckdb
+
+    from polisyos.data_forge.read_api import academic
+
+    path = tmp_path / "source.duckdb"
+    with duckdb.connect(str(path)) as con:
+        con.execute(
+            "CREATE TABLE ac_skg_simulation_parameters AS SELECT 'n' || i numeric_id, "
+            "'W1' openalex_id, 'avg_income' canonical_name, '[\"c1\"]' linked_claim_ids_json, "
+            "'[\"e1\"]' linked_edges_json FROM range(30) t(i)"
+        )
+    source = academic.SourceSnapshot(
+        path=path,
+        reference="fixture://n7-source",
+        sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+    )
+    problem = _acquisition_design_problem()
+    payload = problem.model_dump(mode="json")
+    payload["outcome_of_interest"] = {
+        "target_variable": "avg_income",
+        "metric_id": "avg_income",
+        "estimand": "average_treatment_effect",
+        "direction": "maximize",
+    }
+    problem = DesignProblem.model_validate(payload)
+    gap = value_input_world_knowledge_requirement_gap(claim_ref="claim:avg_income")
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+    controller = GenerationCycleController(repo_root=tmp_path)
+    specs = controller._n7_data_requirement_specs(
+        problem, acquisition_request={"requirement_gap": gap.model_dump(mode="json")}
+    )
+    assert len(specs) == 1
+    assert specs[0].model_dump(mode="json") == gap.model_dump(mode="json")
+    world = AcquisitionWorldSnapshot(world_ref="world:request-current", known_slots=("avg_income",))
+    receipt = run_acquisition_closed_loop(
+        run_id="n7-source-refusal",
+        acquisition_request={"cycle_index": 1},
+        data_requirement_specs=specs,
+        world_snapshot=world,
+        design_problem=problem,
+        owner_gateway=RealAcquisitionOwnerGateway(repo_root=tmp_path, skg_source_snapshot=source),
+    )
+    assert len(receipt.owner_artifacts) == 1
+    resolution = receipt.owner_artifacts[0].payload["owner_response"]["resolution"]
+    assert resolution["request"]["design_problem"] == problem.model_dump(mode="json")
+    assert resolution["request"]["world_snapshot"] == world.model_dump(mode="json")
+    assert resolution["request"]["compiled_requirement"] == gap.model_dump(mode="json")
+    assert resolution["source_population"]["row_count"] == 30
+    assert resolution["target_variable"] == "avg_income"
+    assert resolution["cg2_status"] == "cold_start"
+    assert all(row.status == "no_result" for row in receipt.world_write_outcomes)
+    assert receipt.grounding_rederivations == ()
+    assert receipt.real_grounding_result_count == 0
+    assert validate_acquisition_receipt(receipt) == ()
+
+
+@pytest.mark.parametrize(
+    "response_kind", ["skg_exact_request_source_resolution", "skg_local_schema_probe", "alternate"]
+)
+@pytest.mark.parametrize(
+    "projection", ["acquired_substrate_registrations", "candidate_bindings", "grounding_results"]
+)
+def test_every_skg_intake_rejects_acquired_projection_even_with_valid_markers(
+    tmp_path: Path, response_kind: str, projection: str
+) -> None:
+    spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+    spec["required_method_families"] = ["causal_prior"]
+    gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(spec,))[0]
+    record = plan_requirement_gap_acquisition(
+        run_id="skg-forgery", requirement_gaps=(gap,)
+    ).acquisition_records[0]
+    artifact = RealAcquisitionOwnerGateway(repo_root=tmp_path).acquire(
+        record=record, compiled_requirement_spec=spec
+    )
+    payload = json.loads(json.dumps(artifact.payload))
+    payload["owner_response"]["owner_response_kind"] = response_kind
+    payload[projection] = [{"candidate": "self-issued"}]
+    payload["raw_owner_response_hash"] = acquisition_owner._stable_content_hash(
+        payload["owner_response"]
+    )
+    forged = acquisition_owner._artifact_from_owner_response(
+        owner_component="data_forge.skg",
+        owner_endpoint="ProductionCG2CalibrationSource.produce/replay",
+        record=record,
+        spec=spec,
+        payload=payload,
+        captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+        network_call=False,
+        cost_usd=0.0,
+    )
+    receipt = run_acquisition_closed_loop(
+        run_id="skg-forgery-replay",
+        acquisition_request={"cycle_index": 1},
+        data_requirement_specs=(spec,),
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world:current"),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={forged.requirement_ref: forged}
+        ),
+    )
+    assert all(row.status == "rejected" for row in receipt.world_write_outcomes)
 
 
 def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(

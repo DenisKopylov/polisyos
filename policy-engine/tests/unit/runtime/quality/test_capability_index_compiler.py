@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # ruff: noqa: S101, S608, TC003
+import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -11,6 +12,7 @@ import pyarrow.parquet as pq
 import pytest
 
 import polisyos.runtime.quality.capability_index_compiler as compiler
+from polisyos.data_forge.domains.academic.knowledge import skg_versioning
 from polisyos.runtime.quality.capability_index import (
     AuthorityEnvelope,
     CapabilityConflictRecord,
@@ -28,6 +30,27 @@ from polisyos.runtime.quality.capability_index_compiler import (
     create_capability_index_fixture_inputs,
     validate_capability_authority,
 )
+
+
+def test_scholar_compiler_consumes_bound_layer_vintage_before_forwarding_confidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    compiler._create_fixture_scholar_kg(tmp_path)
+    db_path = (
+        tmp_path
+        / "policyos_academic_runtime_slim_20260411T112032Z"
+        / "academic/graph/scholar_knowledge.duckdb"
+    )
+    with db_path.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+
+    unregistered = compiler.load_scholar_capabilities(tmp_path, max_capabilities=1)
+    assert unregistered[0].quality_score.breakdown["causal_edge_confidence"] == 0.82
+
+    monkeypatch.setattr(skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False)
+    with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+        compiler.load_scholar_capabilities(tmp_path, max_capabilities=1)
 
 
 def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(

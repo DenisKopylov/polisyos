@@ -6,10 +6,16 @@ import json
 from pathlib import Path
 from typing import cast
 
+import duckdb
 from pydantic import Field
 
+from polisyos.data_forge.domains.academic.knowledge.skg_store import (
+    skg_materialized_schema_identity,
+    skg_schema_generation_basis,
+)
 from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.io import sha256_file
+from polisyos.data_forge.kernel.io.generation_basis import compare_generation_basis
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
 
@@ -102,6 +108,51 @@ def load_academic_shadow_bundle(root: str | Path) -> AcademicShadowBundle:
         **_dict_value(readiness_report.get("readiness")),
         **_dict_value(extra.get("readiness")),
     }
+    warnings: list[str] = []
+    schema_generation = compare_generation_basis(
+        readiness_report.get("schema_generation"),
+        current=skg_schema_generation_basis(),
+    )
+    recorded_schema_identity = readiness_report.get("materialized_schema_identity")
+    current_schema_identity: str | None = None
+    materialized_schema_current = False
+    if schema_generation.is_current:
+        try:
+            current_schema_identity = skg_materialized_schema_identity(
+                root_path / "graph" / "scholar_knowledge.duckdb"
+            )
+        except (duckdb.Error, OSError):
+            current_schema_identity = None
+        materialized_schema_current = (
+            isinstance(recorded_schema_identity, str)
+            and recorded_schema_identity == current_schema_identity
+        )
+    schema_generation_current = schema_generation.is_current and materialized_schema_current
+    readiness["schema_generation_current"] = schema_generation_current
+    readiness["consumer_ready"] = _bool_value(
+        readiness.get("consumer_ready")
+    ) and schema_generation_current
+    if not schema_generation.is_current:
+        warnings.append(
+            "academic SKG schema generation drift: "
+            f"status={schema_generation.status}; "
+            f"recorded_generation={schema_generation.recorded_generation}; "
+            f"current_generation={schema_generation.current_generation}; "
+            f"recorded_rule_version={schema_generation.recorded_rule_version}; "
+            f"current_rule_version={schema_generation.current_rule_version}"
+        )
+    elif not materialized_schema_current:
+        status = "missing" if not isinstance(recorded_schema_identity, str) else "incompatible"
+        warnings.append(
+            "academic SKG schema generation drift: "
+            f"status={status}; "
+            f"recorded_generation={schema_generation.recorded_generation}; "
+            f"current_generation={schema_generation.current_generation}; "
+            f"recorded_rule_version={schema_generation.recorded_rule_version}; "
+            f"current_rule_version={schema_generation.current_rule_version}; "
+            f"recorded_schema_identity={recorded_schema_identity or 'unrecorded'}; "
+            f"current_schema_identity={current_schema_identity or 'unreadable'}"
+        )
     benchmark_metrics = _dict_value(
         readiness_report.get("benchmark_metrics"),
         readiness_report.get("metrics"),
@@ -115,7 +166,6 @@ def load_academic_shadow_bundle(root: str | Path) -> AcademicShadowBundle:
         failed_readiness_checks=_failed_readiness_checks(readiness),
     )
 
-    warnings: list[str] = []
     artifacts = tuple(
         _load_artifact(root_path, item, warnings)
         for item in _list_value(manifest.get("artifacts"))

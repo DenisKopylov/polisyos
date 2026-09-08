@@ -16,12 +16,12 @@ Only test code imports this subtree. Production source must not import
 
 ## Internal Layout
 
-| Path | Role |
-| --- | --- |
-| `a11y/` | Accessibility test helpers. |
-| `contracts/` | Runtime API fixture and contract verification helpers. |
-| `contracts/fixtures/` | Reviewed JSON API payload fixtures. |
-| `msw/` | Mock Service Worker setup and handlers. |
+| Path                  | Role                                                   |
+| --------------------- | ------------------------------------------------------ |
+| `a11y/`               | Accessibility test helpers.                            |
+| `contracts/`          | Runtime API fixture and contract verification helpers. |
+| `contracts/fixtures/` | Reviewed JSON API payload fixtures.                    |
+| `msw/`                | Mock Service Worker setup and handlers.                |
 
 ## Extension Points
 

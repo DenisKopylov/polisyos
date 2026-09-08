@@ -119,7 +119,7 @@ def test_planned_requires_only_the_content_bound_executable_commitment_basis() -
         (planned,),
         subject=base.subject,
         family=base.family,
-        register_as_of=date(2026, 8, 26),
+        register_as_of=register.register_as_of,
         identity_boundary=register.identity_boundary,
         admitted_sources=register.admitted_sources,
         admitted_verifiers=register.admitted_verifiers,
@@ -135,7 +135,7 @@ def test_planned_requires_only_the_content_bound_executable_commitment_basis() -
         (planned, incomplete_arm),
         subject=base.subject,
         family=base.family,
-        register_as_of=date(2026, 8, 26),
+        register_as_of=register.register_as_of,
         identity_boundary=register.identity_boundary,
         admitted_sources=register.admitted_sources,
         admitted_verifiers=register.admitted_verifiers,
@@ -181,7 +181,7 @@ def test_admitted_verifier_scope_cannot_be_rebound_to_a_novel_subject() -> None:
     )
     facts = posture._recomputed_binding_facts(
         forged,
-        register_as_of=date(2026, 8, 26),
+        register_as_of=register.register_as_of,
         identity_boundary=register.identity_boundary,
         admitted_sources=register.admitted_sources,
         admitted_verifiers=register.admitted_verifiers,
@@ -261,7 +261,7 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
             (supported,),
             subject="system_identity",
             family="methodology",
-            register_as_of=date(2026, 8, 26),
+            register_as_of=register.register_as_of,
             identity_boundary=register.identity_boundary,
             admitted_sources=register.admitted_sources,
             admitted_verifiers=register.admitted_verifiers,
@@ -281,7 +281,7 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
             (supported.model_copy(update=update),),
             subject="system_identity",
             family="methodology",
-            register_as_of=date(2026, 8, 26),
+            register_as_of=register.register_as_of,
             identity_boundary=register.identity_boundary,
             admitted_sources=register.admitted_sources,
             admitted_verifiers=register.admitted_verifiers,
@@ -320,7 +320,7 @@ def test_grounded_performance_requires_governed_evidence_and_prerequisite() -> N
             governed_performance_prerequisite=relabeled_nonperformance,
             admitted_sources=register.admitted_sources,
             admitted_verifiers=register.admitted_verifiers,
-            register_as_of=date(2026, 8, 26),
+            register_as_of=register.register_as_of,
         )
         == "blocked"
     )

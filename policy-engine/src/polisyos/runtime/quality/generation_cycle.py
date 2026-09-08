@@ -61,6 +61,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
+    acquisition_receipt_has_verified_emission,
     grounding_coverage_requirement_gap,
     l1_variable_availability_requirement_gap,
     plan_requirement_gap_acquisition,
@@ -2241,6 +2242,12 @@ class _DefaultSimulationBoundFoundryValuePort:
 
     repo_root: Path | None
     cycle_substrate_context: CycleSubstrateContext | None
+    owner_gateway: ValueOwnerGateway | None = None
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None
+    data_trust: DataTrust | None = None
+    requested_method_fqn: str | None = None
+    observation_to_contract_manifest: object | None = None
+    runtime_budget_ms: float | None = None
 
     def __call__(
         self,
@@ -2266,6 +2273,12 @@ class _DefaultSimulationBoundFoundryValuePort:
             )
         return FoundryValuePort(
             evaluation_context=context,
+            eval_safety_verifier=self.eval_safety_verifier,
+            owner_gateway=self.owner_gateway,
+            data_trust=self.data_trust,
+            requested_method_fqn=self.requested_method_fqn,
+            observation_to_contract_manifest=self.observation_to_contract_manifest,
+            runtime_budget_ms=self.runtime_budget_ms,
             repo_root=self.repo_root,
             cycle_substrate_context=self.cycle_substrate_context,
         )(
@@ -2733,8 +2746,12 @@ class GenerationCycleController:
         existing_port = self._value_port
         value_port_kwargs: dict[str, Any] = {}
         if isinstance(existing_port, FoundryValuePort):
+            if existing_port._evaluation_context.evaluation_mode != "simulate_only":
+                raise GenerationCycleError(
+                    "acquisition_reentry_evaluation_context_rebinding_required"
+                )
             value_port_kwargs = {
-                "evaluation_mode": existing_port._evaluation_mode,
+                "eval_safety_verifier": existing_port._eval_safety_verifier,
                 "data_trust": existing_port._data_trust,
                 "requested_method_fqn": existing_port._requested_method_fqn,
                 "observation_to_contract_manifest": (
@@ -2742,7 +2759,18 @@ class GenerationCycleController:
                 ),
                 "runtime_budget_ms": existing_port._runtime_budget_ms,
             }
-        reentry_value_port = FoundryValuePort(
+        elif isinstance(existing_port, _DefaultSimulationBoundFoundryValuePort):
+            value_port_kwargs = {
+                "eval_safety_verifier": existing_port.eval_safety_verifier,
+                "data_trust": existing_port.data_trust,
+                "requested_method_fqn": existing_port.requested_method_fqn,
+                "observation_to_contract_manifest": (
+                    existing_port.observation_to_contract_manifest
+                ),
+                "runtime_budget_ms": existing_port.runtime_budget_ms,
+            }
+        reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=self._repo_root,
             owner_gateway=RealValueOwnerGateway(
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,
@@ -3059,6 +3087,14 @@ class GenerationCycleController:
         *,
         acquisition_request: Mapping[str, Any],
     ) -> tuple[object, ...]:
+        raw_gap = acquisition_request.get("requirement_gap")
+        if isinstance(raw_gap, Mapping):
+            gap = AcquisitionRequirementGap.model_validate(raw_gap)
+            expected = value_input_world_knowledge_requirement_gap(claim_ref=gap.claim_ref)
+            if gap.model_dump(mode="json") == expected.model_dump(mode="json"):
+                # Carry the actual unsatisfied any_of request, without fabricating
+                # data-family requirements or claiming either alternative is met.
+                return (gap,)
         hinted = problem.runtime_hints.get("n7_data_requirement_specs")
         if hinted is not None:
             return tuple(hinted)
@@ -3151,6 +3187,11 @@ class GenerationCycleController:
         acquisition_receipt: AcquisitionReceipt,
         budget_state: BudgetState,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
+        if not acquisition_receipt_has_verified_emission(acquisition_receipt):
+            raise GenerationCycleError(
+                "n7_receipt_current_context_replay_unavailable",
+                "Raw or changed N7 receipt requires replay before cycle re-entry.",
+            )
         receipt_payload = acquisition_receipt.model_dump(mode="json")
         rederived = _n7_rederived_grounding_for_candidate(
             acquisition_receipt,
@@ -4000,6 +4041,8 @@ def _n7_rederived_grounding_for_candidate(
     *,
     candidate_id: str,
 ) -> object | None:
+    if not acquisition_receipt_has_verified_emission(receipt):
+        return None
     for row in receipt.grounding_rederivations:
         if row.design_id == candidate_id and row.status in {"current_valid", "grounded_shadow"}:
             return row

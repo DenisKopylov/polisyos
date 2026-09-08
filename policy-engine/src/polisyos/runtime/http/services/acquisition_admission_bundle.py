@@ -13,19 +13,6 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.manifest import (
-    ArtifactGovernanceInfo,
-    ArtifactManifest,
-    ProducerInfo,
-    SchemaInfo,
-)
-from polisyos.core.artifacts.signing import (
-    Ed25519Signer,
-    Ed25519Verifier,
-    SignatureVerificationResult,
-    SignatureVerificationStatus,
-)
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.pdc import AuthorityBoundary, OperationContract, OperationInvocationRecord
 from polisyos.runtime.http.authorization import ResourceBindingSource
 from polisyos.runtime.http.permissions import RuntimePermission
@@ -71,14 +58,14 @@ class _AuthorityArtifactStore(Protocol):
 
     def has(self, artifact_id: object) -> bool: ...
 
-    def get_manifest(self, artifact_id: object) -> ArtifactManifest: ...
+    def get_manifest(self, artifact_id: object) -> artifacts.ArtifactManifest: ...
 
     def get_bytes(self, artifact_id: object) -> bytes: ...
 
     def sign_artifact(
         self,
         artifact_id: object,
-        signer: Ed25519Signer,
+        signer: artifacts.Ed25519Signer,
         *,
         signer_identity: str | None = ...,
     ) -> object: ...
@@ -86,10 +73,10 @@ class _AuthorityArtifactStore(Protocol):
     def verify_signature(
         self,
         artifact_id: object,
-        verifier: Ed25519Verifier,
+        verifier: artifacts.Ed25519Verifier,
         *,
         strict_identity: bool | None = ...,
-    ) -> SignatureVerificationResult: ...
+    ) -> artifacts.SignatureVerificationResult: ...
 
 
 class AcquisitionAdmissionBundleBlocked(ValueError):  # noqa: N818 - governed admission outcome
@@ -104,8 +91,8 @@ class AcquisitionAdmissionBundleBlocked(ValueError):  # noqa: N818 - governed ad
 class AcquisitionAdmissionSigningSlot:
     """One purpose-scoped signer and verifier slot, empty in production by default."""
 
-    signer: Ed25519Signer | None = None
-    verifier: Ed25519Verifier | None = None
+    signer: artifacts.Ed25519Signer | None = None
+    verifier: artifacts.Ed25519Verifier | None = None
     signer_identity: str | None = None
     purpose: Literal["acquisition_admission"] = _SIGNER_PURPOSE
 
@@ -119,20 +106,20 @@ class AcquisitionAdmissionSigningSlot:
     def configured(
         cls,
         *,
-        signer: Ed25519Signer,
-        verifier: Ed25519Verifier,
+        signer: artifacts.Ed25519Signer,
+        verifier: artifacts.Ed25519Verifier,
         signer_identity: str,
     ) -> AcquisitionAdmissionSigningSlot:
         """Construct one fully typed, acquisition-purpose signing configuration."""
 
         return cls(signer=signer, verifier=verifier, signer_identity=signer_identity)
 
-    def require_configured(self) -> tuple[Ed25519Signer, Ed25519Verifier, str]:
+    def require_configured(self) -> tuple[artifacts.Ed25519Signer, artifacts.Ed25519Verifier, str]:
         """Return the complete signing tuple or fail before an artifact write."""
 
         if (
-            type(self.signer) is not Ed25519Signer
-            or type(self.verifier) is not Ed25519Verifier
+            type(self.signer) is not artifacts.Ed25519Signer
+            or type(self.verifier) is not artifacts.Ed25519Verifier
             or not isinstance(self.signer_identity, str)
             or not self.signer_identity.strip()
             or self.purpose != _SIGNER_PURPOSE
@@ -232,7 +219,7 @@ class AcquisitionAdmissionBundleProducer:
             strict_identity=True,
         )
         if (
-            signature.status is not SignatureVerificationStatus.VALID
+            signature.status is not artifacts.SignatureVerificationStatus.VALID
             or signature.signer_identity != signer_identity
         ):
             raise AcquisitionAdmissionBundleBlocked("acquisition_admission_signer_untrusted")
@@ -453,19 +440,19 @@ def _recompute_resource_digest(
     return digest
 
 
-def _admission_write_options() -> ArtifactWriteOptions:
-    return ArtifactWriteOptions(
+def _admission_write_options() -> artifacts.ArtifactWriteOptions:
+    return artifacts.ArtifactWriteOptions(
         kind=AGENT_ACTION_ADMISSION_ARTIFACT_KIND,
         media_type="application/json",
-        schema=SchemaInfo(
+        schema=artifacts.SchemaInfo(
             name="polisyos.runtime.AgentActionAdmissionBundle",
             version=AGENT_ACTION_ADMISSION_SCHEMA_VERSION,
         ),
-        producer=ProducerInfo(
+        producer=artifacts.ProducerInfo(
             component="polisyos.runtime.http.services.acquisition_admission_bundle",
             version="2026.08.30+deterministic-admission",
         ),
-        governance=ArtifactGovernanceInfo(classification="internal"),
+        governance=artifacts.ArtifactGovernanceInfo(classification="internal"),
         inputs=[],
     )
 

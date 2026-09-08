@@ -29,6 +29,16 @@ def _seed_skg_tables(db_path) -> None:
         )
         con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
         con.execute(
+            "CREATE TABLE ac_works (id VARCHAR PRIMARY KEY, title VARCHAR, year INTEGER)"
+        )
+        con.execute(
+            "CREATE TABLE ac_causal_claims ("
+            "id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, "
+            "effect VARCHAR NOT NULL, direction VARCHAR, strength VARCHAR, mechanism VARCHAR, "
+            "domain VARCHAR, trust_score FLOAT, strong_design_evidence BOOLEAN, "
+            "design_quality_tier INTEGER, publish_blockers VARCHAR, candidate_layer VARCHAR)"
+        )
+        con.execute(
             """
             CREATE TABLE ac_skg_parameters (
                 param_id VARCHAR,
@@ -38,6 +48,12 @@ def _seed_skg_tables(db_path) -> None:
                 context_json VARCHAR
             )
             """
+        )
+        con.execute("INSERT INTO ac_works VALUES ('W-exact', 'Exact claim work', 2024)")
+        con.execute(
+            "INSERT INTO ac_causal_claims VALUES ("
+            "'c-exact', 'W-exact', 'macro.tax', 'macro.employment', 'positive', "
+            "'rct', 'exact mechanism', 'macro', 0.82, TRUE, 1, '', 'candidate')"
         )
         con.execute(
             """
@@ -719,22 +735,11 @@ def test_query_claims_supports_contested_summary_mode(tmp_path) -> None:
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
-            """
-            INSERT INTO ac_skg_family_edges VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                "fe3",
-                "macro.tax",
-                "macro.employment",
-                "negative",
-                4,
-                3,
-                '["W8","W9","W10","W11"]',
-                '["c8","c9","c10"]',
-                "observational",
-                0.71,
-                '{"conflict_flag": true}',
-            ],
+            "INSERT INTO ac_skg_contested_edges VALUES ("
+            "'ce-claims', 'macro.tax', 'macro.employment', 4, 3, "
+            "'[\"W8\",\"W9\",\"W10\",\"W11\"]', '[\"c8\",\"c9\",\"c10\"]', "
+            "'mixed', 'contested', 'MIXED', 'observational', 0.71, "
+            "'{\"positive\": 2, \"negative\": 2}', '{\"conflict_flag\": true}')"
         )
     finally:
         con.close()
@@ -752,6 +757,233 @@ def test_query_claims_supports_contested_summary_mode(tmp_path) -> None:
 
     assert rows
     assert all(row.mechanism == "contested_summary" for row in rows)
+    assert rows[0].evidence_strength is not None
+    assert rows[0].evidence_strength.value == "observational"
+    assert rows[0].evidence_strength_status.value == "candidate"
+    assert rows[0].projection_binding.subject_kind == "edge_summary"
+    assert rows[0].projection_binding.source_rows[0].source_table == (
+        "ac_skg_contested_edges"
+    )
+    assert rows[0].work_id == "W8"
+    assert "strength" not in rows[0].model_dump()
+
+
+def test_query_claims_exact_legacy_row_uses_claim_projection(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="exact",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].legacy_strength_label == "rct"
+    assert rows[0].evidence_strength is None
+    assert rows[0].evidence_strength_status.value == "not_established"
+    assert rows[0].projection_binding.subject_kind == "claim_row"
+    assert "strength" not in rows[0].model_dump()
+
+
+def test_query_claims_family_summary_establishes_only_explicit_evidence(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "INSERT INTO ac_skg_family_edges VALUES ("
+            "'fe-claims', 'macro.tax', 'macro.employment', 'positive', 5, 4, "
+            "'[\"W1\",\"W2\"]', '[\"c1\",\"c2\"]', 'meta_analysis', 0.91, '{}')"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="family",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is not None
+    assert rows[0].evidence_strength.value == "meta_analysis"
+    assert rows[0].design_family_hint is None
+    assert rows[0].claim_extraction_confidence is None
+    assert rows[0].source_basis is None
+    assert rows[0].projection_binding.source_rows[0].source_table == (
+        "ac_skg_family_edges"
+    )
+    assert rows[0].work_id == "W1"
+
+
+def test_query_claims_hybrid_preserves_tied_explicit_theoretical_evidence(
+    tmp_path,
+) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'theoretical' "
+            "WHERE edge_id = 'e1'"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_family_edges VALUES "
+            "('fe-tie', 'macro.tax', 'macro.employment', 'positive', 3, 3, "
+            "'[\"W1\",\"W2\"]', '[\"c1\",\"c2\"]', 'theoretical', 0.8, '{}')"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="hybrid",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is not None
+    assert rows[0].evidence_strength.value == "theoretical"
+    assert len(rows[0].projection_binding.source_rows) == 2
+    assert rows[0].work_id == "W1"
+
+
+def test_query_claims_edge_summary_types_sql_null_as_not_established(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = NULL WHERE edge_id = 'e1'"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="hybrid",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is None
+    assert rows[0].evidence_strength_status.value == "not_established"
+
+
+def test_query_claims_decodes_persisted_declared_absence(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
+            "WHERE edge_id = 'e1'"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="hybrid",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is None
+    assert rows[0].evidence_strength_status.value == "not_established"
+    assert rows[0].model_dump(mode="json")["evidence_strength"] is None
+
+
+def test_query_edge_support_pairs_declared_absence_with_status(tmp_path) -> None:
+    """The typed edge-support boundary must not expose a bare storage token."""
+
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
+            "WHERE edge_id = 'e1'"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_edge_support(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="exact",
+            min_confidence=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is None
+    assert rows[0].evidence_strength_status.value == "not_established"
+
+
+def test_query_claims_hybrid_ignores_declared_absence_when_evidence_exists(
+    tmp_path,
+) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
+            "WHERE edge_id = 'e1'"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_family_edges VALUES "
+            "('fe-established', 'macro.tax', 'macro.employment', 'positive', 2, 2, "
+            "'[\"W1\",\"W2\"]', '[\"c1\",\"c2\"]', 'rct', 0.8, '{}')"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="hybrid",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is not None
+    assert rows[0].evidence_strength.value == "rct"
+    assert rows[0].evidence_strength_status.value == "candidate"
+    assert len(rows[0].projection_binding.source_rows) == 2
 
 
 def test_query_edge_transport_reads_target_context_scores(tmp_path) -> None:

@@ -83,9 +83,6 @@ jobs:
       - name: Check frontend architecture
         run: corepack pnpm run check:architecture
 
-      - name: Run coverage suite
-        run: corepack pnpm run test:coverage
-
       - name: Run accessibility suite
         run: corepack pnpm run test:a11y
 
@@ -355,6 +352,38 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  frontend-unit-coverage:
+    name: Standard PR / Frontend unit coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: policy-engine/apps/runtime-dashboard
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: runtime
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
+        with:
+          # The suite this job exists to run includes Browser Mode tests, which
+          # were unreachable while it sat behind three red predecessors. They
+          # need Chromium.
+          install-playwright: "true"
+
+      # Deliberately has no `needs` on lint, formatting or architecture. Those
+      # three are all red today, and while the suite sat behind them in one
+      # sequential job it was never reached: a job that cannot get to its own
+      # test step is evidence of nothing either way. A reached red suite is a
+      # result; a skipped one is not.
+      - name: Run coverage suite
+        run: corepack pnpm run test:coverage
+
   standard-pr-gate:
     name: Standard PR / Gate
     if: always()
@@ -362,6 +391,7 @@ jobs:
     needs:
       - runtime-http
       - frontend-quality
+      - frontend-unit-coverage
       - frontend-components
       - frontend-contracts
       - frontend-smoke
@@ -372,9 +402,16 @@ jobs:
       - name: Enforce standard tier
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
+          COVERAGE_RESULT: ${{ needs.frontend-unit-coverage.result }}
         run: |
           echo "Standard tier results: ${RESULTS}"
           if [[ "${RESULTS}" == *"failure"* || "${RESULTS}" == *"cancelled"* ]]; then
             echo "::error::Standard PR gate failed."
+            exit 1
+          fi
+          # The aggregate above only rejects failure and cancelled, so a skipped
+          # or missing coverage result would pass it silently. Name it.
+          if [[ "${COVERAGE_RESULT}" != "success" ]]; then
+            echo "::error::Frontend unit coverage did not complete successfully (${COVERAGE_RESULT})."
             exit 1
           fi

@@ -879,6 +879,9 @@ def load_scholar_capabilities(
     path = _find_first(production_data_root, "**/scholar_knowledge.duckdb")
     if path is None:
         return ()
+    from polisyos.data_forge.read_api import academic
+
+    academic.SKGQuery.require_forwardable_confidence(path)
     with duckdb.connect(str(path), read_only=True) as con:
         if "ac_skg_edges" not in _show_tables(con):
             return ()

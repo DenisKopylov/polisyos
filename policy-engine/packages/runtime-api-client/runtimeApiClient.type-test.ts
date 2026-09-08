@@ -4,12 +4,14 @@ import type {
   ChannelRegistryEntry,
   ChannelRegistryResponse,
   CycleBoardProjectionPacket,
+  DecisionGrade,
   InvalidGovernedProjectionPacket,
   ProjectionSourceValidation,
   RunBoundDesignRecordBinding,
   RunPaperDesignRecordBinding,
   RuntimeApiClient,
 } from "./canonicalRuntimeApiClient.js";
+import type { components as RawRuntimeApiComponents } from "./types.js";
 
 type Equal<Left, Right> =
   (<Value>() => Value extends Left ? 1 : 2) extends <
@@ -86,6 +88,9 @@ type CanonicalLiteralWitnesses = [
   Assert<Equal<ChannelRegistryEntry["include_in_schema"], false>>,
   Assert<Equal<ChannelRegistryEntry["status"], "active">>,
   Assert<Equal<RunPaperDesignRecordBinding, RunBoundDesignRecordBinding>>,
+  Assert<
+    Equal<DecisionGrade, RawRuntimeApiComponents["schemas"]["DecisionGrade"]>
+  >,
   Assert<
     Equal<
       ChannelRegistryResponse["schema_version"],

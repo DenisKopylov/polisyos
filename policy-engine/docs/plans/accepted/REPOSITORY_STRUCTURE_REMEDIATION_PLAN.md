@@ -1252,7 +1252,7 @@ façade pattern. Никаких поведенческих изменений.
 > package split за пределы `scientist/` остаётся вне Phase 5.
 
 > Этот phase пересекается с
-> [`SCIENTIST_BEST_IN_CLASS_PLAN.md`](SCIENTIST_BEST_IN_CLASS_PLAN.md):
+> [`SCIENTIST_BEST_IN_CLASS_PLAN.md`](../active/SCIENTIST_BEST_IN_CLASS_PLAN.md):
 > здесь — только структурный move, без рефакторинга логики, изменения
 > сигнатур или семантики. Поведенческие изменения остаются в
 > companion‑плане.
@@ -1365,7 +1365,7 @@ revert codemod (его dry‑run mode сразу покажет, какие им
 Никаких поведенческих изменений.
 
 > Этот phase пересекается с
-> [`FOUNDRY_REMEDIATION_PLAN.md`](FOUNDRY_REMEDIATION_PLAN.md). Здесь —
+> [`FOUNDRY_REMEDIATION_PLAN.md`](../active/FOUNDRY_REMEDIATION_PLAN.md). Здесь —
 > только структурный move; behavioral остаётся там.
 
 ### 16.1 Prerequisite check
@@ -1380,7 +1380,7 @@ revert codemod (его dry‑run mode сразу покажет, какие им
 ### 16.2 Move map (фиксируется в blueprint)
 
 Нормативная карта для Phase 6 — принятый
-[`DECOMPOSITION_BLUEPRINT.md`](DECOMPOSITION_BLUEPRINT.md). Он
+[`DECOMPOSITION_BLUEPRINT.md`](../active/DECOMPOSITION_BLUEPRINT.md). Он
 зафиксировал audited count в 28 root modules и supersedes старые draft
 цифры 17/22, а также старую цель `foundry/_internal/executor/*`.
 

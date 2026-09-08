@@ -39,6 +39,7 @@ from polisyos.data_forge.domains.academic.batch.article_extractor import (
     _parse_json_object,
     _to_work_record,
 )
+from polisyos.data_forge.domains.academic.batch.claim_adjudicator import _input_items
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.domains.academic.batch.context_classifier import infer_context_from_article
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import (
@@ -65,6 +66,7 @@ from polisyos.ir.analytics.literature import (
     EvidenceParameter,
     EvidenceSpan,
     EvidenceStrength,
+    EvidenceStrengthOrigin,
     HeterogeneityResult,
     ModerationEdge,
     PaperKind,
@@ -1501,7 +1503,8 @@ def _deterministic_numeric_rescue_parameters(
                         "time_period": target_parameter.time_period
                         if target_parameter is not None
                         else "",
-                    }
+                    },
+                    strength_origin=EvidenceStrengthOrigin.INHERITED,
                 )
                 if normalized is None or _parameter_is_non_effect_metric(normalized):
                     continue
@@ -1539,6 +1542,12 @@ def _merge_numeric_parameter_lists(
                     keep.evidence_strength
                     if keep.evidence_strength.value != EvidenceStrength.UNKNOWN.value
                     else enrich.evidence_strength
+                ),
+                "evidence_strength_origin": (
+                    EvidenceStrengthOrigin.INHERITED
+                    if keep.evidence_strength == EvidenceStrength.UNKNOWN
+                    and enrich.evidence_strength != EvidenceStrength.UNKNOWN
+                    else keep.evidence_strength_origin
                 ),
                 "geographic_scope": keep.geographic_scope or enrich.geographic_scope,
                 "time_period": keep.time_period or enrich.time_period,
@@ -1789,8 +1798,16 @@ def _to_claim_row(
     topic_ids: list[str],
     topic_display_names: list[str],
 ) -> dict[str, Any]:
+    subjects = _input_items([result], retracted_ids=set())
+    # The current article supplies the complete subject, never an admitted row.
+    subject = next(
+        item
+        for original, item in zip(result.causal_claims, subjects, strict=True)
+        if original == claim
+    )
     return {
-        "claim_id": claim.claim_id,
+        **subject.model_dump(mode="json"),
+        "claim_id": subject.claim_id,
         "work_id": result.openalex_id,
         "title": result.title,
         "year": result.year,

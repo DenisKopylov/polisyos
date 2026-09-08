@@ -11,7 +11,7 @@ import {
   readReviewerThresholdProfile,
   setReviewerThreshold,
 } from "@/features/runs/domain/operatorCraft";
-import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import type { PublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
 import { Badge, Slider } from "@polisyos/atlas-ui";
@@ -23,7 +23,7 @@ export function AmbientTelemetryHud({
   summary,
 }: {
   activeTab: string;
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   runId: string;
   summary: RunInspectorSummary;
 }) {

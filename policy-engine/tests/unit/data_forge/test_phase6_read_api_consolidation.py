@@ -61,6 +61,23 @@ def test_read_api_imports_do_not_load_domain_or_legacy_internals() -> None:
         assert blocked == [], f"{module_name} loaded internal modules: {blocked}"
 
 
+def test_academic_claim_vocabulary_exports_are_lazy_and_discoverable() -> None:
+    from polisyos.data_forge.read_api import academic
+
+    expected = {
+        "CausalClaimResultV1",
+        "CausalClaimResultV2",
+        "ClaimLineageAuditPage",
+        "ClaimVocabularyProjectionBinding",
+        "audit_academic_claim_lineage",
+        "iter_causal_claim_results_v2",
+    }
+
+    assert expected <= set(academic.__all__)
+    assert expected <= set(dir(academic))
+    assert academic.CausalClaimResult is academic.CausalClaimResultV2
+
+
 def test_read_api_modules_do_not_eagerly_import_domain_internals() -> None:
     src_root = Path(__file__).resolve().parents[3] / "src" / "polisyos" / "data_forge"
     for module_path in sorted((src_root / "read_api").glob("*.py")):

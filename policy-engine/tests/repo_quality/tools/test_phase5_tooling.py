@@ -627,7 +627,7 @@ def test_lint_foundry_reports_unfixed_banned_import(tmp_path: Path) -> None:
     assert payload["messages"][0]["rule_id"] == "foundry.banned-import-root"
 
 
-def test_gen_schema_changed_only_skips_without_selected_entry_changes(
+def test_gen_schema_changed_only_still_materializes_snapshots_without_source_changes(
     tmp_path: Path,
     monkeypatch,
     capsys,
@@ -671,10 +671,12 @@ def test_gen_schema_changed_only_skips_without_selected_entry_changes(
 
     captured = capsys.readouterr()
     assert exit_code == 0
-    assert "skipped" in captured.out.lower()
+    assert "Generated ABI schema snapshots" in captured.out
+    schema = json.loads((tmp_path / "snapshots/ir/demo_model.schema.json").read_text())
+    assert schema["properties"]["value"]["type"] == "integer"
 
 
-def test_gen_schema_persists_baseline_and_skips_unchanged_run(
+def test_gen_schema_baseline_hint_repairs_missing_output_on_repeated_run(
     tmp_path: Path,
     monkeypatch,
     capsys,
@@ -720,6 +722,8 @@ def test_gen_schema_persists_baseline_and_skips_unchanged_run(
         ]
     )
     first_output = capsys.readouterr().out
+    snapshot = tmp_path / "snapshots/ir/demo_model.schema.json"
+    snapshot.unlink()
 
     second_exit = gen_schema.main(
         [
@@ -737,7 +741,8 @@ def test_gen_schema_persists_baseline_and_skips_unchanged_run(
     assert first_exit == 0
     assert second_exit == 0
     assert "Generated ABI schema snapshots" in first_output
-    assert "skipped" in second_output.lower()
+    assert "Generated ABI schema snapshots" in second_output
+    assert json.loads(snapshot.read_text())["properties"]["value"]["type"] == "integer"
 
 
 def test_abi_diff_matches_alias_based_renames() -> None:

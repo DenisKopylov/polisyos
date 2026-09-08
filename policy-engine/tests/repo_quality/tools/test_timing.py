@@ -19,6 +19,7 @@ from pathlib import Path, PurePosixPath
 
 import pytest
 
+from tools.lib import timing as timing_lib
 from tools.lib.timing import (
     DEFAULT_HEALTHY_TERMINAL_EXIT_CODES,
     DEFAULT_TIMING_RETENTION,
@@ -50,7 +51,7 @@ VALIDATION_ROOT = REPO_ROOT / "tools" / "quality" / "validation"
 TIMED_SUITE_RUNNER = REPO_ROOT / "tools" / "quality" / "testing" / "run_timed_suite.py"
 TIMING_BUDGET_CATALOG = REPO_ROOT / "tools" / "quality" / "timing_budgets.json"
 _TIMING_MARKER = "_TIMING_STARTED_AT"
-_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS = 10
+_PYTEST_COLLECTION_TIMEOUT_SECONDS = 600
 
 
 def _run_direct_guard(path: Path, *args: str, timing_log: Path) -> subprocess.CompletedProcess[str]:
@@ -232,6 +233,28 @@ _SECONDS_FIELD_RE = re.compile(
 )
 
 
+def _source_ref_excerpt(
+    timing_key: str,
+    source_ref: str,
+) -> tuple[Path, str, int, int] | str:
+    """Resolve one exact repository-local source reference or return its violation."""
+
+    match = _SOURCE_REF_RE.fullmatch(source_ref)
+    if match is None:
+        return f"{timing_key}:invalid_source_ref:{source_ref}"
+    source_path = (REPO_ROOT / match.group("path")).resolve()
+    try:
+        source_path.relative_to(REPO_ROOT)
+        lines = source_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, ValueError):
+        return f"{timing_key}:unreadable_source_ref:{source_ref}"
+    start = int(match.group("start"))
+    end = int(match.group("end") or start)
+    if start > end or end > len(lines):
+        return f"{timing_key}:invalid_source_range:{source_ref}"
+    return source_path, "\n".join(lines[start - 1 : end]), start, end
+
+
 def _lane_workload_identity_markers(lane: dict[str, object]) -> tuple[str, ...]:
     """Derive command/tool identity tokens independently of an action flag."""
 
@@ -256,155 +279,146 @@ def _normalized_workload_text(value: str) -> str:
     return " ".join(re.findall(r"[a-z0-9]+", value.casefold()))
 
 
-def _source_derived_unittest_denominator(path: Path) -> int:
-    """Count source-declared unittest and module test nodes without importing the suite."""
+def _live_pytest_node_map(test_paths: tuple[str, ...]) -> dict[str, tuple[str, ...]]:
+    """Collect the exact live node map with the lock-bound interpreter and plugins."""
 
-    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    classes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
-    test_case_names: set[str] = set()
-    changed = True
-    while changed:
-        changed = False
-        for node in classes:
-            base_names = {
-                (
-                    f"{base.value.id}.{base.attr}"
-                    if isinstance(base, ast.Attribute) and isinstance(base.value, ast.Name)
-                    else base.id
-                    if isinstance(base, ast.Name)
-                    else ""
-                )
-                for base in node.bases
-            }
-            if node.name not in test_case_names and (
-                {"unittest.TestCase", "TestCase"} & base_names or test_case_names & base_names
-            ):
-                test_case_names.add(node.name)
-                changed = True
-    test_node_types = (ast.FunctionDef, ast.AsyncFunctionDef)
-    module_tests = sum(
-        isinstance(node, test_node_types) and node.name.startswith("test_") for node in tree.body
-    )
-    class_tests = sum(
-        isinstance(member, test_node_types) and member.name.startswith("test_")
-        for node in classes
-        if node.name in test_case_names
-        for member in node.body
-    )
-    return module_tests + class_tests
+    assert Path(sys.prefix).resolve() == (REPO_ROOT / ".venv").resolve()
+    collector = textwrap.dedent(
+        """
+        import json
+        import sys
+
+        import pytest
+
+        _MARKER = "__policyos_pytest_node_map__="
+        _PATHS = tuple(sys.argv[1:])
 
 
-def _historical_git_blob(revision: str, test_path: str) -> bytes:
-    """Read one historical test blob as exact Git-emitted bytes."""
+        class Collector:
+            def pytest_collection_finish(self, session):
+                node_map = {
+                    path: [
+                        item.nodeid
+                        for item in session.items
+                        if item.nodeid.startswith(path + "::")
+                    ]
+                    for path in _PATHS
+                }
+                print(_MARKER + json.dumps(node_map, separators=(",", ":")))
 
-    try:
-        completed = subprocess.run(  # noqa: S603 - fixed system Git executable.
-            ["git", "show", f"{revision}:policy-engine/{test_path}"],
-            cwd=REPO_ROOT,
-            check=False,
-            capture_output=True,
-            timeout=_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS,
+
+        raise SystemExit(
+            pytest.main(["--collect-only", "-q", *_PATHS], plugins=[Collector()])
         )
-    except subprocess.TimeoutExpired as error:
-        raise ValueError(f"historical Git blob lookup timed out: {test_path}") from error
-    except OSError as error:
-        raise ValueError(f"historical Git blob lookup could not start: {test_path}") from error
+        """
+    )
+    completed = subprocess.run(  # noqa: S603 - fixed lock-bound interpreter and paths.
+        [sys.executable, "-c", collector, *test_paths],
+        cwd=REPO_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=_PYTEST_COLLECTION_TIMEOUT_SECONDS,
+    )
     if completed.returncode != 0:
         raise ValueError(
-            f"historical Git blob lookup failed with exit {completed.returncode}: {test_path}"
+            "live pytest collection failed: "
+            f"exit={completed.returncode} stderr={completed.stderr.strip()}"
         )
-    if not isinstance(completed.stdout, bytes):
-        raise ValueError(f"historical Git blob lookup did not return bytes: {test_path}")
-    return completed.stdout
-
-
-def _historical_pytest_node_ids(
-    historical_sources: dict[str, bytes],
-    supporting_sources: dict[str, bytes] | None = None,
-) -> tuple[str, ...]:
-    """Collect exact pytest IDs from Git-bound test bytes in an isolated process."""
-
-    if not historical_sources:
-        raise ValueError("historical pytest collection requires at least one source")
-    supporting_sources = supporting_sources or {}
-    if historical_sources.keys() & supporting_sources.keys():
-        raise ValueError("historical pytest collection source paths overlap")
-    with tempfile.TemporaryDirectory() as temporary_directory:
-        collection_root = Path(temporary_directory)
-        for test_path, source_bytes in {**supporting_sources, **historical_sources}.items():
-            relative_path = PurePosixPath(test_path)
-            if relative_path.is_absolute() or ".." in relative_path.parts:
-                raise ValueError(f"invalid historical test path: {test_path}")
-            destination = collection_root / relative_path
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes(source_bytes)
-        (collection_root / "conftest.py").write_text(
-            "\n".join(
-                (
-                    "import json",
-                    "from pathlib import Path",
-                    f"_HISTORICAL_PATH_ORDER = {list(historical_sources)!r}",
-                    "def pytest_collection_finish(session):",
-                    "    root = Path(session.config.rootpath)",
-                    "    records = sorted(",
-                    "        (",
-                    "            _HISTORICAL_PATH_ORDER.index(",
-                    "                item.path.relative_to(root).as_posix(),",
-                    "            ),",
-                    "            item.location[1],",
-                    "            item.nodeid,",
-                    "        )",
-                    "        for item in session.items",
-                    "    )",
-                    "    print('__historical_node_ids__=' + json.dumps([record[2] for record in records]))",
-                )
-            ),
-            encoding="utf-8",
-        )
-        try:
-            completed = subprocess.run(  # noqa: S603 - fixed local interpreter and pytest module.
-                [
-                    sys.executable,
-                    "-m",
-                    "pytest",
-                    "--collect-only",
-                    "-q",
-                    "-s",
-                    *historical_sources,
-                ],
-                cwd=collection_root,
-                check=False,
-                capture_output=True,
-                timeout=_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS,
-            )
-        except subprocess.TimeoutExpired as error:
-            raise ValueError("historical pytest collection timed out") from error
-        except OSError as error:
-            raise ValueError("historical pytest collection could not start") from error
-        if completed.returncode != 0:
-            raise ValueError(f"historical pytest collection failed with exit {completed.returncode}")
-        try:
-            stdout = completed.stdout.decode("utf-8")
-        except UnicodeDecodeError as error:
-            raise ValueError("historical pytest collection returned non-UTF-8 output") from error
+    marker = "__policyos_pytest_node_map__="
     records = [
-        line.removeprefix("__historical_node_ids__=")
-        for line in stdout.splitlines()
-        if line.startswith("__historical_node_ids__=")
+        line.removeprefix(marker)
+        for line in completed.stdout.splitlines()
+        if line.startswith(marker)
     ]
     if len(records) != 1:
-        raise ValueError("historical pytest collection did not emit one node map")
-    try:
-        node_ids = tuple(json.loads(records[0]))
-    except json.JSONDecodeError as error:
-        raise ValueError("historical pytest collection emitted an invalid node map") from error
-    if not all(isinstance(node_id, str) for node_id in node_ids):
-        raise ValueError("historical pytest collection emitted a non-string node ID")
-    if len(node_ids) != len(set(node_ids)):
-        raise ValueError("historical pytest collection returned duplicate node IDs")
-    if not node_ids:
-        raise ValueError("historical pytest collection returned no node IDs")
-    return node_ids
+        raise ValueError("live pytest collection did not emit exactly one node map")
+    payload = json.loads(records[0])
+    if not isinstance(payload, dict) or set(payload) != set(test_paths):
+        raise ValueError("live pytest collection emitted the wrong path set")
+    node_map = {
+        path: tuple(payload[path])
+        for path in test_paths
+        if isinstance(payload[path], list)
+        and all(isinstance(node_id, str) for node_id in payload[path])
+    }
+    if set(node_map) != set(test_paths) or not all(node_map.values()):
+        raise ValueError("live pytest collection emitted an empty or malformed node map")
+    flattened = [node_id for path in test_paths for node_id in node_map[path]]
+    if len(flattened) != len(set(flattened)):
+        raise ValueError("live pytest collection emitted duplicate node IDs")
+    return node_map
+
+
+def _pytest_execution_receipt_record(
+    lane: dict[str, object],
+    entry: dict[str, object],
+) -> tuple[object, list[str]]:
+    """Validate a same-child pytest envelope and return its canonical record bytes."""
+
+    timing_key = lane["timing_key"]
+    assert isinstance(timing_key, str)
+    violations: list[str] = []
+    if entry.get("schema_version") != "policyos.timing.pytest_execution_receipt.v1":
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_schema")
+    attempt_id = entry.get("attempt_id")
+    if not isinstance(attempt_id, str) or re.fullmatch(r"[0-9a-f]{32}", attempt_id) is None:
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_attempt")
+    if entry.get("timing_key") != timing_key:
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_timing_key")
+    if entry.get("cwd") != ".":
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_cwd")
+    command = lane.get("command")
+    argv = entry.get("argv")
+    if (
+        not isinstance(command, str)
+        or not isinstance(argv, list)
+        or any(not isinstance(argument, str) for argument in argv)
+        or argv != shlex.split(command)
+    ):
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_argv")
+
+    raw_record = entry.get("tool_run_record")
+    record_digest = entry.get("tool_run_record_digest")
+    if not isinstance(raw_record, str) or record_digest != (
+        "sha256:" + hashlib.sha256(raw_record.encode("utf-8")).hexdigest()
+    ):
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_record_digest")
+
+    workload_identity = entry.get("workload_identity")
+    if workload_identity != lane.get("workload_identity"):
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_identity")
+    node_map_payload = entry.get("node_ids_by_path")
+    test_paths = (
+        workload_identity.get("test_paths")
+        if isinstance(workload_identity, dict)
+        else None
+    )
+    if (
+        not isinstance(test_paths, list)
+        or any(not isinstance(path, str) for path in test_paths)
+        or not isinstance(node_map_payload, dict)
+        or set(node_map_payload) != set(test_paths)
+        or any(
+            not isinstance(node_ids, list)
+            or not node_ids
+            or any(
+                not isinstance(node_id, str) or not node_id.startswith(f"{path}::")
+                for node_id in node_ids
+            )
+            for path, node_ids in node_map_payload.items()
+        )
+    ):
+        violations.append(f"{timing_key}:uncited_tool_run_record:receipt_node_map")
+    else:
+        flattened = [node_id for path in test_paths for node_id in node_map_payload[path]]
+        expected_digest = workload_identity.get("node_map_digest")
+        if (
+            len(flattened) != len(set(flattened))
+            or timing_lib.pytest_node_map_digest(node_map_payload) != expected_digest
+        ):
+            violations.append(f"{timing_key}:uncited_tool_run_record:receipt_node_map")
+    return raw_record, violations
 
 
 def _preserved_tool_run_record_duration(
@@ -414,8 +428,9 @@ def _preserved_tool_run_record_duration(
     excerpt: str,
     start: int,
     end: int,
+    expected_admitted: bool = True,
 ) -> tuple[Decimal, list[str]] | None:
-    """Parse a preserved timing-evidence wrapper into its admitted wall-clock duration."""
+    """Parse a preserved timing-evidence wrapper and verify its admission posture."""
 
     try:
         evidence_path.relative_to(REPO_ROOT / "docs" / "superpowers" / "timing-evidence")
@@ -430,34 +445,47 @@ def _preserved_tool_run_record_duration(
         entry = json.loads(excerpt)
     except json.JSONDecodeError:
         return Decimal("NaN"), [f"{timing_key}:uncited_tool_run_record:wrapper"]
-    if not isinstance(entry, dict) or set(entry) != {
-        "salvaged_at",
-        "source_path",
-        "source_line",
-        "raw",
-    }:
+    if not isinstance(entry, dict):
         return Decimal("NaN"), [f"{timing_key}:uncited_tool_run_record:wrapper_fields"]
 
     violations: list[str] = []
-    salvaged_at = entry["salvaged_at"]
-    if not isinstance(salvaged_at, str) or not salvaged_at.strip():
-        violations.append(f"{timing_key}:uncited_tool_run_record:salvaged_at")
-    else:
-        try:
-            datetime.fromisoformat(salvaged_at)
-        except ValueError:
+    legacy_fields = {"salvaged_at", "source_path", "source_line", "raw"}
+    execution_receipt_fields = {
+        "argv",
+        "attempt_id",
+        "cwd",
+        "node_ids_by_path",
+        "schema_version",
+        "timing_key",
+        "tool_run_record",
+        "tool_run_record_digest",
+        "workload_identity",
+    }
+    if set(entry) == legacy_fields:
+        salvaged_at = entry["salvaged_at"]
+        if not isinstance(salvaged_at, str) or not salvaged_at.strip():
             violations.append(f"{timing_key}:uncited_tool_run_record:salvaged_at")
-    source_path = entry["source_path"]
-    if not isinstance(source_path, str) or not source_path.strip():
-        violations.append(f"{timing_key}:uncited_tool_run_record:source_path")
-    else:
-        rendered_source_path = PurePosixPath(source_path)
-        if rendered_source_path.is_absolute() or ".." in rendered_source_path.parts:
+        else:
+            try:
+                datetime.fromisoformat(salvaged_at)
+            except ValueError:
+                violations.append(f"{timing_key}:uncited_tool_run_record:salvaged_at")
+        source_path = entry["source_path"]
+        if not isinstance(source_path, str) or not source_path.strip():
             violations.append(f"{timing_key}:uncited_tool_run_record:source_path")
-    source_line = entry["source_line"]
-    if isinstance(source_line, bool) or not isinstance(source_line, int) or source_line <= 0:
-        violations.append(f"{timing_key}:uncited_tool_run_record:source_line")
-    raw = entry["raw"]
+        else:
+            rendered_source_path = PurePosixPath(source_path)
+            if rendered_source_path.is_absolute() or ".." in rendered_source_path.parts:
+                violations.append(f"{timing_key}:uncited_tool_run_record:source_path")
+        source_line = entry["source_line"]
+        if isinstance(source_line, bool) or not isinstance(source_line, int) or source_line <= 0:
+            violations.append(f"{timing_key}:uncited_tool_run_record:source_line")
+        raw = entry["raw"]
+    elif set(entry) == execution_receipt_fields:
+        raw, receipt_violations = _pytest_execution_receipt_record(lane, entry)
+        violations.extend(receipt_violations)
+    else:
+        return Decimal("NaN"), [f"{timing_key}:uncited_tool_run_record:wrapper_fields"]
     if not isinstance(raw, str) or not raw.strip():
         violations.append(f"{timing_key}:uncited_tool_run_record:raw")
         return Decimal("NaN"), violations
@@ -481,7 +509,7 @@ def _preserved_tool_run_record_duration(
     for field, expected in expected_fields.items():
         if getattr(record, field) != expected:
             violations.append(f"{timing_key}:uncited_tool_run_record:{field}")
-    if record.category != record.tool.split(".", 1)[0]:
+    if record.category not in {record.tool.split(".", 1)[0], "external"}:
         violations.append(f"{timing_key}:uncited_tool_run_record:category")
     declarations = load_healthy_terminal_declarations()
     admission = admit_duration_sample(
@@ -492,8 +520,10 @@ def _preserved_tool_run_record_duration(
             declarations,
         ),
     )
-    if not admission.admitted:
+    if expected_admitted and not admission.admitted:
         violations.append(f"{timing_key}:uncited_tool_run_record:admission:{admission.reason}")
+    if not expected_admitted and admission.admitted:
+        violations.append(f"{timing_key}:unexpected_admitted_nonreceipt")
     return duration_ms, violations
 
 
@@ -510,32 +540,48 @@ def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
         samples_ms = lane.get("samples_ms")
         assert isinstance(samples_ms, list)
         timing_key = lane.get("timing_key")
+        assert isinstance(timing_key, str)
         if not samples_ms:
+            if lane.get("workload_identity") is None:
+                continue
+            if len(source_refs) != 1:
+                violations.append(
+                    f"{timing_key}:nonreceipt_source_cardinality:{len(source_refs)}"
+                )
+                continue
+            source_ref = source_refs[0]
+            assert isinstance(source_ref, str)
+            resolved_ref = _source_ref_excerpt(timing_key, source_ref)
+            if isinstance(resolved_ref, str):
+                violations.append(resolved_ref)
+                continue
+            source_path, excerpt, start, end = resolved_ref
+            preserved_record = _preserved_tool_run_record_duration(
+                lane,
+                evidence_path=source_path,
+                excerpt=excerpt,
+                start=start,
+                end=end,
+                expected_admitted=False,
+            )
+            if preserved_record is None:
+                violations.append(f"{timing_key}:nonreceipt_not_preserved_tool_run_record")
+                continue
+            _, record_violations = preserved_record
+            violations.extend(record_violations)
             continue
-        if samples_ms and len(source_refs) != len(samples_ms):
+        if len(source_refs) != len(samples_ms):
             violations.append(
                 f"{timing_key}:sample_source_cardinality:{len(samples_ms)}:{len(source_refs)}"
             )
             continue
         for sample, source_ref in zip(samples_ms, source_refs, strict=True):
             assert isinstance(source_ref, str)
-            match = _SOURCE_REF_RE.fullmatch(source_ref)
-            if match is None:
-                violations.append(f"{timing_key}:invalid_source_ref:{source_ref}")
+            resolved_ref = _source_ref_excerpt(timing_key, source_ref)
+            if isinstance(resolved_ref, str):
+                violations.append(resolved_ref)
                 continue
-            source_path = (REPO_ROOT / match.group("path")).resolve()
-            try:
-                source_path.relative_to(REPO_ROOT)
-                lines = source_path.read_text(encoding="utf-8").splitlines()
-            except (OSError, ValueError):
-                violations.append(f"{timing_key}:unreadable_source_ref:{source_ref}")
-                continue
-            start = int(match.group("start"))
-            end = int(match.group("end") or start)
-            if start > end or end > len(lines):
-                violations.append(f"{timing_key}:invalid_source_range:{source_ref}")
-                continue
-            excerpt = "\n".join(lines[start - 1 : end])
+            source_path, excerpt, start, end = resolved_ref
             mode = lane.get("mode")
             assert isinstance(mode, str)
             preserved_record = _preserved_tool_run_record_duration(
@@ -1203,8 +1249,9 @@ def test_committed_timing_budget_samples_are_bound_to_cited_excerpts() -> None:
     assert _catalog_evidence_violations(payload) == []
 
 
+@pytest.mark.parametrize("category", ["quality", "external"])
 def test_timing_budget_evidence_binds_preserved_raw_tool_run_record(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, category: str
 ) -> None:
     """Admit only an exact healthy ToolRunRecord preserved in a JSONL evidence wrapper."""
 
@@ -1218,7 +1265,7 @@ def test_timing_budget_evidence_binds_preserved_raw_tool_run_record(
     evidence_path.parent.mkdir(parents=True)
     tool_record = {
         "tool": "quality.validation.check_layer3_gy_epoch_chronology_contract",
-        "category": "quality",
+        "category": category,
         "output_format": "json",
         "status": "ok",
         "preflight_status": "ok",
@@ -1497,7 +1544,7 @@ def test_epoch_corrupt_field_drift_catalog_lane_binds_healthy_wall_receipt() -> 
 
 
 def test_timing_budget_evidence_rejects_a_line_shifted_receipt() -> None:
-    """Catch an evidence gate that accepts a nearby line instead of the cited measurement."""
+    """Catch a no-sample lane whose preserved nonreceipt no longer resolves."""
 
     payload = json.loads(TIMING_BUDGET_CATALOG.read_text(encoding="utf-8"))
     shifted = copy.deepcopy(payload)
@@ -1508,12 +1555,105 @@ def test_timing_budget_evidence_rejects_a_line_shifted_receipt() -> None:
         for lane in lanes
         if isinstance(lane, dict) and lane.get("timing_key") == "atlas.python-governance:default"
     )
-    atlas["source_refs"] = [
-        "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:47"
-    ]
+    shifted_ref = (
+        "docs/superpowers/timing-evidence/"
+        "2026-09-01-atlas-python-governance.jsonl:2"
+    )
+    atlas["source_refs"] = [shifted_ref]
 
-    assert "atlas.python-governance:default:uncited_sample:160233.242" in (
-        _catalog_evidence_violations(shifted)
+    assert (
+        f"atlas.python-governance:default:invalid_source_range:{shifted_ref}"
+        in _catalog_evidence_violations(shifted)
+    )
+
+
+def test_timing_budget_evidence_binds_failed_pytest_execution_receipt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Consume argv, node map, identity, and timing bytes from one failed execution."""
+
+    test_path = "tests/example.py"
+    node_map = {test_path: [f"{test_path}::test_example"]}
+    identity = {
+        "schema_version": timing_lib.PYTEST_WORKLOAD_SCHEMA_VERSION,
+        "predicate_provenance": timing_lib.PYTEST_WORKLOAD_PREDICATE_PROVENANCE,
+        "test_paths": [test_path],
+        "source_digests": {test_path: "sha256:" + "1" * 64},
+        "pytest_version": "9.0.2",
+        "config_path": "pytest.ini",
+        "config_digest": "sha256:" + "2" * 64,
+        "node_map_digest": timing_lib.pytest_node_map_digest(node_map),
+    }
+    record = ToolRunRecord(
+        tool="atlas.python-governance",
+        category="external",
+        output_format="text",
+        status="failed",
+        preflight_status="ok",
+        started_at="2026-09-01T14:54:16+00:00",
+        duration_ms=321.5,
+        exit_code=1,
+        mode="default",
+        regime="serialized",
+    )
+    raw_record = timing_lib.serialize_tool_run_record(record)
+    argv = [sys.executable, "-m", "pytest", test_path, "-q"]
+    receipt = {
+        "argv": argv,
+        "attempt_id": "a" * 32,
+        "cwd": ".",
+        "node_ids_by_path": node_map,
+        "schema_version": "policyos.timing.pytest_execution_receipt.v1",
+        "timing_key": "atlas.python-governance:default",
+        "tool_run_record": raw_record,
+        "tool_run_record_digest": (
+            "sha256:" + hashlib.sha256(raw_record.encode("utf-8")).hexdigest()
+        ),
+        "workload_identity": identity,
+    }
+    evidence_path = (
+        tmp_path
+        / "docs"
+        / "superpowers"
+        / "timing-evidence"
+        / "atlas-python-governance.jsonl"
+    )
+    evidence_path.parent.mkdir(parents=True)
+    evidence_path.write_text(
+        json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sys.modules[__name__], "REPO_ROOT", tmp_path)
+    payload = {
+        "lanes": [
+            {
+                "timing_key": "atlas.python-governance:default",
+                "tool": "atlas.python-governance",
+                "mode": "default",
+                "command": shlex.join(argv),
+                "samples_ms": [],
+                "measured_p95_ms": None,
+                "recommended_timeout_ms": None,
+                "source_refs": [
+                    "docs/superpowers/timing-evidence/atlas-python-governance.jsonl:1"
+                ],
+                "workload_identity": identity,
+                "sample_admission_predicate": "declared_healthy_terminal:v1",
+                "regime": "serialized",
+            }
+        ]
+    }
+
+    assert _catalog_evidence_violations(payload) == []
+    receipt["argv"] = [sys.executable, "-m", "pytest", "tests/other.py", "-q"]
+    evidence_path.write_text(
+        json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+    assert (
+        "atlas.python-governance:default:uncited_tool_run_record:receipt_argv"
+        in _catalog_evidence_violations(payload)
     )
 
 
@@ -1636,9 +1776,8 @@ def test_timing_budget_evidence_rejects_same_mode_cross_tool_swaps() -> None:
 
 
 def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Catch a timing lane that combines samples from different Atlas governance suites."""
+    """Bind the current Atlas lane to its complete live pytest workload identity."""
 
     payload = json.loads(TIMING_BUDGET_CATALOG.read_text(encoding="utf-8"))
     lanes = payload["lanes"]
@@ -1649,19 +1788,71 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
         if isinstance(lane, dict) and lane.get("timing_key") == "atlas.python-governance:default"
     )
 
+    identity_payload = atlas.get("workload_identity")
+    assert isinstance(identity_payload, dict)
+    assert set(identity_payload) == {
+        "schema_version",
+        "predicate_provenance",
+        "test_paths",
+        "source_digests",
+        "pytest_version",
+        "config_path",
+        "config_digest",
+        "node_map_digest",
+    }
     assert atlas["command"] == (
-        "uv run --extra test --with 'jsonschema>=4.25' python -m pytest "
+        "uv run --frozen --extra test --with 'jsonschema>=4.25' python -m pytest "
         "architecture/atlas_surfaces/test_frontend_disposition_register.py "
         "architecture/atlas_surfaces/test_status_retirement_inventory.py -q"
     )
-    assert atlas["samples_ms"] == [160233.242]
     assert atlas["source_refs"] == [
-        "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:48"
+        "docs/superpowers/timing-evidence/2026-09-01-atlas-python-governance.jsonl:1"
     ]
-    source_line = (
-        (REPO_ROOT / atlas["source_refs"][0].rsplit(":", 1)[0])
-        .read_text(encoding="utf-8")
-        .splitlines()[47]
+    assert atlas["sample_admission_predicate"] == "declared_healthy_terminal:v1"
+    assert atlas["regime"] == "serialized"
+    assert atlas["samples_ms"] == []
+    assert atlas["measured_p95_ms"] is None
+    assert atlas["recommended_timeout_ms"] is None
+    evidence_path = REPO_ROOT / atlas["source_refs"][0].rsplit(":", 1)[0]
+    evidence_lines = evidence_path.read_text(encoding="utf-8").splitlines()
+    assert len(evidence_lines) == 1
+    receipt = json.loads(evidence_lines[0])
+    assert set(receipt) == {
+        "argv",
+        "attempt_id",
+        "cwd",
+        "node_ids_by_path",
+        "schema_version",
+        "timing_key",
+        "tool_run_record",
+        "tool_run_record_digest",
+        "workload_identity",
+    }
+    assert receipt["schema_version"] == "policyos.timing.pytest_execution_receipt.v1"
+    assert re.fullmatch(r"[0-9a-f]{32}", receipt["attempt_id"])
+    assert receipt["timing_key"] == atlas["timing_key"]
+    assert receipt["cwd"] == "."
+    assert receipt["argv"] == shlex.split(atlas["command"])
+    assert receipt["workload_identity"] == identity_payload
+    raw_record = receipt["tool_run_record"]
+    assert isinstance(raw_record, str)
+    assert receipt["tool_run_record_digest"] == (
+        "sha256:" + hashlib.sha256(raw_record.encode("utf-8")).hexdigest()
+    )
+    record = ToolRunRecord(**json.loads(raw_record))
+    assert record.tool == "atlas.python-governance"
+    assert record.category == "external"
+    assert record.mode == "default"
+    assert record.regime == "serialized"
+    assert record.status == "failed"
+    assert record.preflight_status == "ok"
+    assert record.exit_code == 1
+    admission = admit_duration_sample(record)
+    assert not admission.admitted
+    assert admission.reason == "terminal_not_declared_healthy"
+    assert not any(
+        violation.startswith("atlas.python-governance:default:")
+        for violation in _catalog_evidence_violations(payload)
     )
     command_test_paths = [
         token
@@ -1672,74 +1863,25 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
         "architecture/atlas_surfaces/test_frontend_disposition_register.py",
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
     ]
-    publication_revision = "6bcc95bff32645189ff2ed65a719c7990e48c52a"
-    historical_sources = {
-        path: _historical_git_blob(publication_revision, path) for path in command_test_paths
-    }
-    historical_supporting_sources = {
-        path.replace("test_", "check_", 1): _historical_git_blob(
-            publication_revision,
-            path.replace("test_", "check_", 1),
-        )
-        for path in command_test_paths
-    }
-    assert {
-        path: hashlib.sha256(source).hexdigest()
-        for path, source in historical_sources.items()
-    } == {
-        "architecture/atlas_surfaces/test_frontend_disposition_register.py": (
-            "841466263c618a3142a6d5327c72072ad0e95bf4d738516f6d240eb98601b685"
-        ),
-        "architecture/atlas_surfaces/test_status_retirement_inventory.py": (
-            "7f5418b7e809b1f1bac0470ecc2a553c878b14d886ea39494362067908e7ca0f"
-        ),
-    }
-    with monkeypatch.context() as patched:
-        patched.setattr(
-            subprocess,
-            "run",
-            lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 7, b"", b"failed"),
-        )
-        with pytest.raises(
-            ValueError,
-            match=re.escape("lookup failed with exit 7: historical.py"),
-        ):
-            _historical_git_blob(publication_revision, "historical.py")
-    with monkeypatch.context() as patched:
-        def timed_out(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
-            raise subprocess.TimeoutExpired(args[0], kwargs["timeout"])
-
-        patched.setattr(subprocess, "run", timed_out)
-        with pytest.raises(ValueError, match=re.escape("lookup timed out: historical.py")):
-            _historical_git_blob(publication_revision, "historical.py")
-    with monkeypatch.context() as patched:
-        def unavailable(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
-            raise OSError("missing git")
-
-        patched.setattr(subprocess, "run", unavailable)
-        with pytest.raises(ValueError, match=re.escape("lookup could not start: historical.py")):
-            _historical_git_blob(publication_revision, "historical.py")
-    historical_node_ids = list(
-        _historical_pytest_node_ids(
-            historical_sources,
-            historical_supporting_sources,
-        )
+    assert Path(sys.prefix).resolve() == (REPO_ROOT / ".venv").resolve()
+    collected = _live_pytest_node_map(tuple(command_test_paths))
+    lane = next(
+        lane
+        for lane in load_timing_budget_catalog()
+        if lane.timing_key == "atlas.python-governance:default"
     )
-    assert len(historical_node_ids) == 67
-    assert len(historical_node_ids) == len(set(historical_node_ids))
-    assert hashlib.sha256(
-        json.dumps(historical_node_ids, separators=(",", ":")).encode("utf-8")
-    ).hexdigest() == "9b08f0ed2e74bf888009820529e2901c6dd3bedb40bf55a679a362efaf12aea6"
-    assert _historical_pytest_node_ids(
-        {
-            "architecture/atlas_surfaces/test_nested_collection.py": (
-                b"if True:\n    def test_hidden() -> None:\n        pass\n"
-            )
-        }
-    ) == ("architecture/atlas_surfaces/test_nested_collection.py::test_hidden",)
-    receipt_count_match = re.search(r"`(?P<count>\d+)` tests passed", source_line)
-    assert receipt_count_match is not None
-    assert int(receipt_count_match.group("count")) == len(historical_node_ids)
+    assert lane.workload_identity is not None
+    timing_lib.verify_pytest_workload_identity(
+        lane.workload_identity,
+        command_test_paths=tuple(command_test_paths),
+        source_bytes={
+            path: (REPO_ROOT / path).read_bytes() for path in command_test_paths
+        },
+        node_ids_by_path=collected,
+        pytest_version=pytest.__version__,
+        config_path="pytest.ini",
+        config_bytes=(REPO_ROOT / "pytest.ini").read_bytes(),
+    )
     assert all("<" not in lane["command"] for lane in lanes if isinstance(lane, dict))
     assert not any(
         isinstance(lane, dict) and lane.get("timing_key") == "atlas.status-governance:default"
@@ -1747,28 +1889,100 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
     )
 
 
-def test_atlas_source_denominator_changes_when_a_test_method_is_removed(
-    tmp_path: Path,
+def test_atlas_python_governance_workload_identity_rejects_same_cardinality_node_swap() -> None:
+    """Reject a different parametrized node map even when its scalar count is unchanged."""
+
+    test_path = "architecture/atlas_surfaces/test_example.py"
+    source_bytes = {test_path: b"def test_example(): pass\n"}
+    config_bytes = b"[pytest]\n"
+    original = {test_path: (f"{test_path}::test_example[a]", f"{test_path}::test_example[b]")}
+    identity = timing_lib.PytestWorkloadIdentity(
+        schema_version="policyos.timing.pytest_workload.v1",
+        predicate_provenance="recomputed",
+        test_paths=(test_path,),
+        source_digests=(
+            (test_path, "sha256:" + hashlib.sha256(source_bytes[test_path]).hexdigest()),
+        ),
+        pytest_version="9.0.2",
+        config_path="pytest.ini",
+        config_digest="sha256:" + hashlib.sha256(config_bytes).hexdigest(),
+        node_map_digest=timing_lib.pytest_node_map_digest(original),
+    )
+    timing_lib.verify_pytest_workload_identity(
+        identity,
+        command_test_paths=(test_path,),
+        source_bytes=source_bytes,
+        node_ids_by_path=original,
+        pytest_version="9.0.2",
+        config_path="pytest.ini",
+        config_bytes=config_bytes,
+    )
+    swapped = {
+        test_path: (f"{test_path}::test_example[a]", f"{test_path}::test_example[c]")
+    }
+    assert sum(map(len, original.values())) == sum(map(len, swapped.values()))
+    with pytest.raises(ValueError, match="node map digest"):
+        timing_lib.verify_pytest_workload_identity(
+            identity,
+            command_test_paths=(test_path,),
+            source_bytes=source_bytes,
+            node_ids_by_path=swapped,
+            pytest_version="9.0.2",
+            config_path="pytest.ini",
+            config_bytes=config_bytes,
+        )
+
+
+@pytest.mark.parametrize(
+    ("corruption", "message"),
+    [
+        ("schema", "unsupported schema version"),
+        ("provenance", "predicate must be recomputed"),
+        ("surplus_digest", "digest every selected source exactly once"),
+    ],
+)
+def test_pytest_workload_verifier_rejects_invalid_direct_identity(
+    corruption: str,
+    message: str,
 ) -> None:
-    """Catch a source census that stays green when a collected test disappears."""
+    """Keep direct callers on the same identity contract as catalog-loaded callers."""
 
-    source_path = REPO_ROOT / "architecture/atlas_surfaces/test_frontend_disposition_register.py"
-    tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
-    removed = next(
-        member
-        for node in tree.body
-        if isinstance(node, ast.ClassDef)
-        for member in node.body
-        if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and member.name.startswith("test_")
+    test_path = "architecture/atlas_surfaces/test_example.py"
+    source = b"def test_example(): pass\n"
+    config = b"[pytest]\n"
+    node_map = {test_path: (f"{test_path}::test_example",)}
+    identity = timing_lib.PytestWorkloadIdentity(
+        schema_version=timing_lib.PYTEST_WORKLOAD_SCHEMA_VERSION,
+        predicate_provenance=timing_lib.PYTEST_WORKLOAD_PREDICATE_PROVENANCE,
+        test_paths=(test_path,),
+        source_digests=(
+            (test_path, "sha256:" + hashlib.sha256(source).hexdigest()),
+        ),
+        pytest_version="9.0.2",
+        config_path="pytest.ini",
+        config_digest="sha256:" + hashlib.sha256(config).hexdigest(),
+        node_map_digest=timing_lib.pytest_node_map_digest(node_map),
     )
-    removed.name = f"removed_{removed.name}"
-    mutated_path = tmp_path / source_path.name
-    mutated_path.write_text(ast.unparse(tree), encoding="utf-8")
+    if corruption == "schema":
+        identity = dataclasses.replace(identity, schema_version="unsupported.v99")
+    elif corruption == "provenance":
+        identity = dataclasses.replace(identity, predicate_provenance="consumer_asserted")
+    else:
+        identity = dataclasses.replace(
+            identity,
+            source_digests=(*identity.source_digests, ("surplus.py", "sha256:" + "0" * 64)),
+        )
 
-    assert _source_derived_unittest_denominator(mutated_path) == (
-        _source_derived_unittest_denominator(source_path) - 1
-    )
+    with pytest.raises(ValueError, match=message):
+        timing_lib.verify_pytest_workload_identity(
+            identity,
+            command_test_paths=(test_path,),
+            source_bytes={test_path: source},
+            node_ids_by_path=node_map,
+            pytest_version="9.0.2",
+            config_path="pytest.ini",
+            config_bytes=config,
+        )
 
 
 def test_n11_closeout_catalog_includes_every_supplied_expensive_lane() -> None:
@@ -1900,6 +2114,200 @@ def test_external_suite_runner_preserves_child_streams_and_nonzero_exit(tmp_path
     assert records[0]["mode"] == "default"
     assert records[0]["status"] == "failed"
     assert records[0]["exit_code"] == 7
+
+
+def test_external_suite_runner_emits_same_child_pytest_workload_receipt(
+    tmp_path: Path,
+) -> None:
+    """Bind the timing record to the exact pytest nodes collected by that child."""
+
+    scratch_parent = REPO_ROOT / "_build" / "test-timing-receipts"
+    scratch_parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=scratch_parent) as raw_scratch:
+        scratch = Path(raw_scratch)
+        test_path = scratch / "test_receipt_fixture.py"
+        test_path.write_text(
+            "def test_alpha():\n    pass\n\ndef test_beta():\n    pass\n",
+            encoding="utf-8",
+        )
+        relative_test_path = test_path.relative_to(REPO_ROOT).as_posix()
+        receipt_path = scratch / "receipt.jsonl"
+        relative_receipt_path = receipt_path.relative_to(REPO_ROOT).as_posix()
+        timing_log = tmp_path / "timing.jsonl"
+        environment = os.environ.copy()
+        environment["POLISYOS_TOOLS_TIMING_LOG"] = str(timing_log)
+        argv = [sys.executable, "-m", "pytest", relative_test_path, "-q"]
+
+        result = subprocess.run(  # noqa: S603 - trusted local runner and fixture.
+            [
+                sys.executable,
+                str(TIMED_SUITE_RUNNER),
+                "--lane",
+                "tests.external:default",
+                "--capture-pytest-workload",
+                "--receipt-output",
+                relative_receipt_path,
+                "--",
+                *argv,
+            ],
+            cwd=REPO_ROOT,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0, result.stdout + result.stderr
+        lines = receipt_path.read_text(encoding="utf-8").splitlines()
+        assert len(lines) == 1
+        receipt = json.loads(lines[0])
+        assert set(receipt) == {
+            "argv",
+            "attempt_id",
+            "cwd",
+            "node_ids_by_path",
+            "schema_version",
+            "timing_key",
+            "tool_run_record",
+            "tool_run_record_digest",
+            "workload_identity",
+        }
+        assert receipt["schema_version"] == "policyos.timing.pytest_execution_receipt.v1"
+        assert re.fullmatch(r"[0-9a-f]{32}", receipt["attempt_id"])
+        assert receipt["timing_key"] == "tests.external:default"
+        assert receipt["cwd"] == "."
+        assert receipt["argv"] == argv
+        raw_record = receipt["tool_run_record"]
+        assert receipt["tool_run_record_digest"] == (
+            "sha256:" + hashlib.sha256(raw_record.encode("utf-8")).hexdigest()
+        )
+        record = ToolRunRecord(**json.loads(raw_record))
+        assert record.tool == "tests.external"
+        assert record.mode == "default"
+        assert record.exit_code == 0
+        node_map = {
+            relative_test_path: [
+                f"{relative_test_path}::test_alpha",
+                f"{relative_test_path}::test_beta",
+            ]
+        }
+        assert receipt["node_ids_by_path"] == node_map
+        identity = receipt["workload_identity"]
+        assert identity["test_paths"] == [relative_test_path]
+        assert identity["source_digests"] == {
+            relative_test_path: "sha256:" + hashlib.sha256(test_path.read_bytes()).hexdigest()
+        }
+        assert identity["node_map_digest"] == timing_lib.pytest_node_map_digest(node_map)
+        assert identity["config_path"] == "pytest.ini"
+        assert identity["config_digest"] == (
+            "sha256:" + hashlib.sha256((REPO_ROOT / "pytest.ini").read_bytes()).hexdigest()
+        )
+
+        extra_directory = scratch / "extra"
+        extra_directory.mkdir()
+        (extra_directory / "test_extra.py").write_text(
+            "def test_extra():\n    pass\n",
+            encoding="utf-8",
+        )
+        escaped_receipt = scratch / "escaped-receipt.jsonl"
+        escaped_argv = [
+            sys.executable,
+            "-m",
+            "pytest",
+            relative_test_path,
+            extra_directory.relative_to(REPO_ROOT).as_posix(),
+            "-q",
+        ]
+        escaped = subprocess.run(  # noqa: S603 - adversarial local runner fixture.
+            [
+                sys.executable,
+                str(TIMED_SUITE_RUNNER),
+                "--lane",
+                "tests.external:default",
+                "--capture-pytest-workload",
+                "--receipt-output",
+                escaped_receipt.relative_to(REPO_ROOT).as_posix(),
+                "--",
+                *escaped_argv,
+            ],
+            cwd=REPO_ROOT,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert escaped.returncode != 0
+        assert not escaped_receipt.exists()
+        assert "pytest receipt collected nodes outside the selected paths" in (
+            escaped.stdout + escaped.stderr
+        )
+
+        filtered_receipt = scratch / "filtered-receipt.jsonl"
+        filtered_argv = [
+            sys.executable,
+            "-m",
+            "pytest",
+            relative_test_path,
+            "-k",
+            "alpha",
+            "-q",
+        ]
+        filtered = subprocess.run(  # noqa: S603 - adversarial local runner fixture.
+            [
+                sys.executable,
+                str(TIMED_SUITE_RUNNER),
+                "--lane",
+                "tests.external:default",
+                "--capture-pytest-workload",
+                "--receipt-output",
+                filtered_receipt.relative_to(REPO_ROOT).as_posix(),
+                "--",
+                *filtered_argv,
+            ],
+            cwd=REPO_ROOT,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert filtered.returncode != 0
+        assert not filtered_receipt.exists()
+        assert "pytest receipt selection changed the complete collected workload" in (
+            filtered.stdout + filtered.stderr
+        )
+
+        blocked_receipt = scratch / "blocked-receipt.jsonl"
+        blocked_receipt.write_text("stale receipt must not survive\n", encoding="utf-8")
+        blocked_argv = [
+            sys.executable,
+            "-m",
+            "pytest",
+            relative_test_path,
+            "-q",
+            "-p",
+            "no:tools.quality.testing.pytest_workload_receipt",
+        ]
+        blocked = subprocess.run(  # noqa: S603 - adversarial local runner fixture.
+            [
+                sys.executable,
+                str(TIMED_SUITE_RUNNER),
+                "--lane",
+                "tests.external:default",
+                "--capture-pytest-workload",
+                "--receipt-output",
+                blocked_receipt.relative_to(REPO_ROOT).as_posix(),
+                "--",
+                *blocked_argv,
+            ],
+            cwd=REPO_ROOT,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert blocked.returncode == 74
+        assert not blocked_receipt.exists()
+        assert "could not persist pytest execution receipt" in blocked.stderr
 
 
 def test_timing_persistence_failure_does_not_change_child_result(tmp_path: Path) -> None:
@@ -2512,11 +2920,17 @@ def test_no_p95_is_published_for_a_lane_that_cannot_support_one() -> None:
 
 
 def test_committed_catalog_publishes_no_p95_it_cannot_support() -> None:
-    """Measured: every committed row currently stores a maximum, not a percentile."""
+    """Publish no percentile for either unmeasured or sub-p95 catalog lanes."""
 
     catalog = load_timing_budget_catalog()
 
     for lane in catalog:
+        if not lane.samples_ms:
+            assert lane.measured_p95_ms is None, lane.timing_key
+            assert lane.recommended_timeout_ms is None, lane.timing_key
+            assert lane.published_p95_ms is None, lane.timing_key
+            assert lane.budget_basis == "declared", lane.timing_key
+            continue
         assert lane.measured_p95_ms == max(lane.samples_ms), lane.timing_key
         if len(lane.samples_ms) < MIN_SAMPLES_FOR_P95:
             assert lane.published_p95_ms is None

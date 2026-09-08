@@ -82,10 +82,10 @@ jobs:
         uses: ./.github/actions/setup-runtime-dashboard
 
       - name: Run mypy strict gate
-        run: uv run python tools/devx/workspace/core_runtime_mypy.py
+        run: uv run python -m tools.devx.workspace.core_runtime_mypy
 
       - name: Run basedpyright gate
-        run: uv run --extra lint python tools/devx/workspace/core_runtime_basedpyright.py
+        run: uv run --extra lint python -m tools.devx.workspace.core_runtime_basedpyright
 
       - name: Run expanded Ruff gate
         run: |
@@ -197,37 +197,37 @@ jobs:
             tests/unit/scientist/compute/test_runner_polyglot.py \
             tests/unit/scientist/agent/test_drafter_factory.py \
             tests/unit/scientist/agent/test_eval_harness.py \
-            tests/unit/scientist/engine/test_async_executor.py \
-            tests/unit/scientist/engine/test_operational_monitoring.py \
-            tests/unit/scientist/engine/runner/test_activity_worker.py \
-            tests/unit/scientist/engine/test_metrics_slo.py \
-            tests/unit/scientist/test_api.py \
-            tests/unit/scientist/test_checkpoint.py \
-            tests/unit/scientist/test_decision_validity_service.py \
-            tests/unit/scientist/test_knowledge_base.py \
-            tests/unit/scientist/test_error_semantics.py \
-            tests/unit/scientist/test_replay_backend.py \
-            tests/unit/scientist/test_llm_cycle_preflight.py \
+            tests/unit/scientist/orchestration/engine/test_async_executor.py \
+            tests/unit/scientist/orchestration/engine/test_operational_monitoring.py \
+            tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py \
+            tests/unit/scientist/orchestration/engine/test_metrics_slo.py \
+            tests/unit/scientist/facade/test_api.py \
+            tests/unit/scientist/orchestration/engine/test_checkpoint.py \
+            tests/unit/scientist/validation/test_decision_validity_service.py \
+            tests/unit/scientist/agent/test_knowledge_base.py \
+            tests/unit/scientist/orchestration/engine/test_error_semantics.py \
+            tests/unit/scientist/replay/test_replay_backend.py \
+            tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py \
             tests/unit/scientist/governance/test_validation_pipeline.py \
-            tests/unit/scientist/llm/test_budget_enforcer.py \
-            tests/unit/scientist/workflows/test_builder_pinning.py \
+            tests/unit/scientist/orchestration/llm/test_budget_enforcer.py \
+            tests/unit/scientist/orchestration/workflows/test_builder_pinning.py \
             tests/unit/runtime/test_runtime_manifest_paths.py \
             tests/unit/scientist/governance/test_validation_pipeline_observability.py \
             tests/unit/scholar/test_freshness.py \
             tests/unit/scholar/search/test_service_jobs_tools.py \
             tests/unit/fabric/test_catalog_providers.py \
             tests/unit/fabric/test_connector_bridge.py \
-            tests/unit/scientist/test_fabric_bridge.py \
+            tests/unit/scientist/adapters/test_fabric_bridge.py \
             tests/unit/fabric/test_ingestion_providers.py \
             tests/unit/fabric/data_plane/test_quarantine.py \
-            tests/unit/scientist/autotune/test_registry_and_runner.py \
+            tests/unit/scientist/methods/autotune/test_registry_and_runner.py \
             tests/unit/runtime/http/test_architecture_boundaries.py \
             tests/unit/runtime/http/test_resilience_guards.py \
             tests/unit/runtime/http/test_runtime_api_observability.py \
             tests/unit/fabric/test_world_store.py \
             tests/unit/core/phase0/test_store_signing.py \
             tests/unit/core/artifacts/test_storage_protocol_boundaries.py \
-            tests/unit/scientist/llm/test_factory.py \
+            tests/unit/scientist/orchestration/llm/test_factory.py \
             tests/unit/scholar/test_api_web_bootstrap.py \
             tests/unit/runtime/http/test_control_service_di.py \
             tools/quality/validation/check_ci_ratchets.py \
@@ -270,7 +270,6 @@ jobs:
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
           extras: "test runtime causal-discovery security"
 
       - name: Setup generated-client toolchain
@@ -295,35 +294,35 @@ jobs:
             tests/unit/core/phase0/test_audit_manifest_compat.py \
             tests/unit/core/phase0/test_decorators.py \
             tests/unit/core/test_llm_core.py \
-            tests/unit/scientist/test_api.py \
+            tests/unit/scientist/facade/test_api.py \
             tests/unit/scientist/agent/test_drafter_factory.py \
             tests/unit/scientist/agent/test_eval_harness.py \
             tests/unit/scientist/compute/test_runner_polyglot.py \
-            tests/unit/scientist/engine/test_async_executor.py \
-            tests/unit/scientist/test_checkpoint.py \
-            tests/unit/scientist/test_decision_validity_service.py \
-            tests/unit/scientist/engine/runner/test_activity_worker.py \
-            tests/unit/scientist/test_knowledge_base.py \
-            tests/unit/scientist/test_replay_backend.py \
-            tests/unit/scientist/engine/test_metrics_slo.py \
-            tests/unit/scientist/compute/test_advanced_methods_c7.py \
+            tests/unit/scientist/orchestration/engine/test_async_executor.py \
+            tests/unit/scientist/orchestration/engine/test_checkpoint.py \
+            tests/unit/scientist/validation/test_decision_validity_service.py \
+            tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py \
+            tests/unit/scientist/agent/test_knowledge_base.py \
+            tests/unit/scientist/replay/test_replay_backend.py \
+            tests/unit/scientist/orchestration/engine/test_metrics_slo.py \
+            tests/unit/scientist/methods/test_advanced.py \
             tests/unit/fabric/connectors/test_cache_system.py \
             tests/unit/fabric/connectors/test_integration.py \
             tests/unit/fabric/test_ingestion_providers.py \
-            tests/unit/scientist/autotune/test_registry_and_runner.py \
+            tests/unit/scientist/methods/autotune/test_registry_and_runner.py \
             tests/unit/fabric/connectors/test_resilience.py \
             tests/unit/fabric/test_retrieval_service_catalog.py \
-            tests/unit/scientist/engine/test_fan_out_async.py \
-            tests/unit/scientist/engine/test_operational_monitoring.py \
-            tests/unit/scientist/engine/test_retry.py \
+            tests/unit/scientist/orchestration/engine/test_fan_out_async.py \
+            tests/unit/scientist/orchestration/engine/test_operational_monitoring.py \
+            tests/unit/scientist/orchestration/engine/test_retry.py \
             tests/unit/scientist/governance/test_validation_pipeline.py \
-            tests/unit/scientist/test_llm_cycle_preflight.py \
+            tests/unit/scientist/orchestration/llm/test_llm_cycle_preflight.py \
             tests/unit/scientist/governance/test_validation_pipeline_observability.py \
-            tests/unit/scientist/llm/test_budget_enforcer.py \
+            tests/unit/scientist/orchestration/llm/test_budget_enforcer.py \
             tests/unit/scientist/search/test_portfolio_search.py \
-            tests/unit/scientist/test_informed_critic.py \
-            tests/unit/scientist/llm/test_factory.py \
-            tests/unit/scientist/workflows/test_builder_pinning.py \
+            tests/unit/scientist/agent/test_informed_critic.py \
+            tests/unit/scientist/orchestration/llm/test_factory.py \
+            tests/unit/scientist/orchestration/workflows/test_builder_pinning.py \
             tests/unit/scholar/test_api_web_bootstrap.py \
             tests/unit/scholar/test_freshness.py \
             tests/unit/scholar/search/test_fetcher_security_cache.py \
@@ -331,8 +330,8 @@ jobs:
             tests/unit/scholar/search/test_service_jobs_tools.py \
             tests/unit/fabric/test_catalog_providers.py \
             tests/unit/fabric/test_connector_bridge.py \
-            tests/unit/scientist/test_fabric_bridge.py \
-            tests/unit/scientist/test_error_semantics.py \
+            tests/unit/scientist/adapters/test_fabric_bridge.py \
+            tests/unit/scientist/orchestration/engine/test_error_semantics.py \
             tests/unit/fabric/data_plane/test_cursor_store.py \
             tests/unit/fabric/data_plane/test_quarantine.py \
             tests/unit/fabric/data_plane/test_modes.py \
@@ -386,7 +385,6 @@ jobs:
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
           extras: "docs"
 
       - name: Check docs accuracy
@@ -405,9 +403,12 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check documentation links
+        # --offline checks only links this repository can resolve itself. External
+        # liveness is probed by external-link-liveness.yml, non-blocking, because a
+        # third party's expired certificate is not a defect in this tree.
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
-          args: "policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md --exclude-path policy-engine/docs/archive"
+          args: "--offline --config lychee.toml policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md"
 
   mutation-subset:
     name: Core Runtime / Mutation Subset
@@ -424,7 +425,6 @@ jobs:
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
           extras: "test mutation runtime"
 
       - name: Run mutation subset
@@ -433,7 +433,7 @@ jobs:
             --paths-to-mutate src/polisyos/common/serialization.py \
             --paths-to-mutate src/polisyos/core/security/authz.py \
             --paths-to-mutate src/polisyos/runtime/http/dependencies.py \
-            --runner "python -m pytest tests/unit/common/test_serialization_properties.py tests/unit/runtime/http/test_access_invariants_properties.py tests/unit/runtime/http/test_runtime_api_authz.py -x -q --no-header"
+            --runner "python -m pytest tests/property/common/test_serialization_properties.py tests/property/runtime/http/test_access_invariants_properties.py tests/unit/runtime/http/test_runtime_api_authz.py -x -q --no-header"
 
       - name: Export mutation results
         run: uv run mutmut results > core-runtime-mutation-results.txt
@@ -461,7 +461,6 @@ jobs:
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
           extras: "test runtime causal-discovery sandbox"
 
       - name: Run performance smoke benchmarks
@@ -499,27 +498,26 @@ jobs:
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
           extras: "test runtime causal-discovery security"
 
       - name: Run Phase 0 acceptance regressions
         run: |
           mkdir -p _build/.tmp/test-reports
           uv run pytest -q \
-            tests/unit/scientist/engine/test_retry.py \
-            tests/unit/scientist/engine/runner/test_worker_pool.py \
-            tests/unit/scientist/engine/locks/test_fcntl_lock.py \
-            tests/unit/scientist/engine/locks/test_lock_metrics.py \
-            tests/unit/scientist/engine/locks/test_dynamodb_lock.py \
-            tests/unit/scientist/engine/locks/test_redis_lock.py \
-            tests/unit/scientist/llm/test_gateway_client_retry.py \
-            tests/unit/scientist/test_idempotency.py \
-            tests/unit/scientist/llm/test_budget_enforcer.py \
-            tests/unit/scientist/backtesting/test_masking.py \
+            tests/unit/scientist/orchestration/engine/test_retry.py \
+            tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py \
+            tests/unit/scientist/orchestration/engine/locks/test_fcntl_lock.py \
+            tests/unit/scientist/orchestration/engine/locks/test_lock_metrics.py \
+            tests/unit/scientist/orchestration/engine/locks/test_dynamodb_lock.py \
+            tests/unit/scientist/orchestration/engine/locks/test_redis_lock.py \
+            tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py \
+            tests/unit/scientist/orchestration/engine/test_idempotency.py \
+            tests/unit/scientist/orchestration/llm/test_budget_enforcer.py \
+            tests/unit/scientist/methods/backtesting/test_masking.py \
             tests/unit/scientist/adapters/test_foundry_bridge.py \
-            tests/unit/scientist/backtesting/test_bootstrap.py \
-            tests/unit/scientist/backtesting/test_ipw.py \
-            tests/unit/scientist/backtesting/test_distributional.py \
+            tests/unit/scientist/methods/backtesting/test_bootstrap.py \
+            tests/unit/scientist/methods/backtesting/test_ipw.py \
+            tests/unit/scientist/methods/backtesting/test_distributional.py \
             tests/unit/scientist/search/test_cheap_stage_autotune.py \
             --junitxml=_build/.tmp/test-reports/scientist-phase0.xml
 
@@ -557,33 +555,32 @@ jobs:
       - name: Setup Policy Engine Python
         uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
           extras: "test runtime causal-discovery sandbox"
 
       - name: Run Phase 1 reliability and mutation regressions
         run: |
           mkdir -p _build/.tmp/test-reports
           uv run pytest -q \
-            tests/unit/scientist/test_remediation_status.py \
-            tests/unit/scientist/test_reliability_scorecard.py \
-            tests/unit/scientist/test_reliability_operational_evidence.py \
-            tests/unit/scientist/integration/test_workflow_reliability_scenarios.py \
+            tests/unit/scientist/facade/test_remediation_status.py \
+            tests/unit/scientist/governance/test_reliability_scorecard.py \
+            tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py \
+            tests/integration/scientist/test_workflow_reliability_scenarios.py \
             tests/unit/scientist/agent/test_data_need_extractor.py \
-            tests/unit/scientist/test_norm_loader.py \
+            tests/unit/scientist/agent/test_norm_loader.py \
             tests/unit/scientist/agent/test_drafter_factory.py \
             tests/unit/scientist/agent/test_drafter_formatting.py \
             tests/unit/scientist/agent/test_router.py \
             tests/unit/scientist/agent/test_supervisor.py \
-            tests/unit/scientist/test_rag_index.py \
-            tests/unit/scientist/test_cross_graph_evidence.py \
+            tests/unit/scientist/agent/test_rag_index.py \
+            tests/unit/scientist/cross_graph/test_cross_graph_evidence.py \
             tests/unit/scientist/cross_graph/test_gatherers.py \
-            tests/unit/scientist/autotune/test_execution_plan_autotune.py \
-            tests/unit/scientist/autotune/test_calibration_autotune.py \
+            tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py \
+            tests/unit/scientist/methods/autotune/test_calibration_autotune.py \
             tests/unit/scientist/search/funnel/test_level2_causal.py \
-            tests/unit/scientist/test_code_verifier.py \
+            tests/unit/scientist/agent/test_code_verifier.py \
             tests/unit/scientist/nodes/builtins/decide/test_policy_translation.py \
-            tests/unit/scientist/engine/test_budget_middleware.py \
-            tests/unit/scientist/workflows/test_builder_pinning.py \
+            tests/unit/scientist/orchestration/engine/test_budget_middleware.py \
+            tests/unit/scientist/orchestration/workflows/test_builder_pinning.py \
             --junitxml=_build/.tmp/test-reports/scientist-phase1.xml
 
       - name: Run Phase 1 runtime benchmarks

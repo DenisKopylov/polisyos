@@ -10,10 +10,7 @@ import {
 } from "@/features/composer";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { buildClerkFormDefaults } from "../domain/clerkDefaults";
-import {
-  hasProducerFinishedAt,
-  useChatStore,
-} from "../state/useChatStore";
+import { hasProducerFinishedAt, useChatStore } from "../state/useChatStore";
 
 export function useClerkNlRun() {
   const { locale } = useI18n();

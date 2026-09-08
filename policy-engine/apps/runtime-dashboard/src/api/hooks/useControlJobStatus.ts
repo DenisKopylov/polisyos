@@ -5,8 +5,7 @@ import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";
 import type { components } from "../types";
 
-export type ControlJobResponse =
-  components["schemas"]["ControlJobResponse"];
+export type ControlJobResponse = components["schemas"]["ControlJobResponse"];
 
 async function fetchControlJobStatus(
   jobId: string,

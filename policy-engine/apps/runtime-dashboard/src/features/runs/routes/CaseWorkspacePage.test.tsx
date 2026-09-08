@@ -53,7 +53,8 @@ vi.mock("@/features/runs/components/runPaperExport", () => ({
     downloadRunPaperPacketMock(...args),
 }));
 
-vi.mock("@/shared/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/shared/i18n/LocaleProvider")>()),
   useI18n: () => ({ t: (key: string) => key }),
 }));
 

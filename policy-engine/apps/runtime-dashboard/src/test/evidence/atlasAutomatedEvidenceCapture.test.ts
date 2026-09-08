@@ -1,6 +1,13 @@
+import { parsePersistenceProcessResult } from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -56,7 +63,8 @@ function normalizedReport(
         : [
             {
               code: "opaque_background_precondition_failed",
-              detail: "Controlled harness was not opaque before classification.",
+              detail:
+                "Controlled harness was not opaque before classification.",
             },
           ],
   }));
@@ -173,11 +181,7 @@ function invokeCoreAdapter(
       timeout: 30_000,
     },
   );
-  return {
-    status: result.status,
-    value: JSON.parse(result.stdout) as unknown,
-    stderr: result.stderr,
-  };
+  return parsePersistenceProcessResult(result);
 }
 
 type StoredManifest = {
@@ -194,7 +198,10 @@ type StoredManifest = {
   };
 };
 
-function readStoredManifest(casRoot: string, artifactId: string): StoredManifest {
+function readStoredManifest(
+  casRoot: string,
+  artifactId: string,
+): StoredManifest {
   const digest = artifactId.slice(7);
   const manifestPath = path.join(
     casRoot,
@@ -247,9 +254,9 @@ describe("Atlas automated evidence capture", () => {
         capture_implementation: "independently_reconciled",
       },
     });
-    expect(capture.receipt_without_payload_ref.authority.may_not_use_for).toContain(
-      "stable",
-    );
+    expect(
+      capture.receipt_without_payload_ref.authority.may_not_use_for,
+    ).toContain("stable");
     expect(capture.receipt_without_payload_ref).not.toHaveProperty(
       "evidence_payload_ref",
     );
@@ -320,16 +327,18 @@ describe("Atlas automated evidence capture", () => {
     (flag, value) => {
       expect(() =>
         captureAtlasEvidence([
-        "--profile",
-        "keyboard_playwright",
-        "--report",
-        "report.json",
-        "--revision",
-        REVISION,
-        "--command-json",
-        JSON.stringify(ATLAS_AUTOMATED_RUNNER_PROFILES.keyboard_playwright.command_argv),
-        "--cas-root",
-        "cas",
+          "--profile",
+          "keyboard_playwright",
+          "--report",
+          "report.json",
+          "--revision",
+          REVISION,
+          "--command-json",
+          JSON.stringify(
+            ATLAS_AUTOMATED_RUNNER_PROFILES.keyboard_playwright.command_argv,
+          ),
+          "--cas-root",
+          "cas",
           flag,
           value,
         ]),
@@ -448,6 +457,7 @@ describe("Atlas automated evidence capture", () => {
       process.cwd(),
       "../../_build/apps/runtime-dashboard",
     );
+    mkdirSync(scratchParent, { recursive: true });
     const casRoot = mkdtempSync(path.join(scratchParent, "ds6-c08-core-test-"));
     try {
       const first = invokeCoreAdapter(casRoot, request);
@@ -502,7 +512,9 @@ describe("Atlas automated evidence capture", () => {
         expect.objectContaining({
           ok: false,
           error: expect.objectContaining({
-            message: expect.stringMatching(/capture implementation provenance mismatch/),
+            message: expect.stringMatching(
+              /capture implementation provenance mismatch/,
+            ),
           }),
         }),
       );

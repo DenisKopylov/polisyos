@@ -32,6 +32,15 @@ The production composition has no epoch-transition signing authority, so positiv
 transition issuance remains absent; an explicitly appointed test verifier proves the intake
 mechanism without promoting that retained institutional gap.
 
+Scientist can also persist and exact-read a strict semantic-epoch impact snapshot from the same
+nullable owner walk used by the legacy denominator resolver. Strict materialization refuses a
+missing or non-CAS owner artifact id without changing legacy resolver behavior. A lazy write-once
+owner index is available for reconciliation admission bindings and creates no directory until a
+sidecar-aware admission writes its first binding. When an explicit Runtime reader is configured,
+first admission validates the exact sidecar and freezes its handle before the unchanged v1 pending
+batch; restart replay resolves only that frozen handle and never consults the live owner index.
+The literal `None` default preserves legacy admission, and no production reader is appointed yet.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).

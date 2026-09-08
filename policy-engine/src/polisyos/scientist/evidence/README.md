@@ -47,3 +47,14 @@ provenance tests under `claims/` and `provenance/`.
 Raw ledger bytes and immutable CAS blobs are candidate evidence, not current
 authority. Production callers receive the owner port; public and reviewer
 exports resolve the current owner head and preserve pending limitations.
+
+`claims/owner_events.py` is the internal supersession producer and resolver.
+Typed monitor proposals produce unsigned, content-bound candidates. The Claim owner
+requires a separately signed, scoped appointment and an independently verified event
+signature before advancing its current head; the production appointment slot remains
+empty. Owner-event bridges have their own frozen replay profile, while the monitor
+result explicitly separates its advisory projection from the typed owner outcome.
+The supersession act admits the predecessor-to-successor relation only. The resolved
+successor remains a separate candidate artifact until its own Claim issuance admits
+it. Candidate or external event persistence alone does not advance currentness; the
+locked head pointer is the admission boundary.

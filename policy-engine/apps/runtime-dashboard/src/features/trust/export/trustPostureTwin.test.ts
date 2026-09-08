@@ -49,6 +49,7 @@ describe("trust posture MACHINE and DOM twins", () => {
     ).toEqual(Array.from(expected));
   });
 
+  /* eslint-disable testing-library/no-node-access, testing-library/no-container -- The DOM twin intentionally removes, reorders and forges structural fields while keeping markers; accessible queries would not exercise that contract. */
   it("independently decodes every ordered public claim field and rejects DOM drift", async () => {
     const [domain, component, twin] = await Promise.all([
       import("../domain/posture"),
@@ -181,4 +182,5 @@ describe("trust posture MACHINE and DOM twins", () => {
       ).toThrow(/DS11-DOM-PARITY-DRIFT/);
     }
   }, 60_000);
+  /* eslint-enable testing-library/no-node-access, testing-library/no-container */
 });

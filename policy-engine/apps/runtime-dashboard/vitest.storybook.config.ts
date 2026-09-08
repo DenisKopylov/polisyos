@@ -6,7 +6,10 @@ import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  cacheDir: path.resolve(__dirname, "../../_cache/apps/runtime-dashboard/vitest-storybook"),
+  cacheDir: path.resolve(
+    __dirname,
+    "../../_cache/apps/runtime-dashboard/vitest-storybook",
+  ),
   plugins: [
     react(),
     storybookTest({ configDir: path.resolve(__dirname, ".storybook") }),

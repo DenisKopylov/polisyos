@@ -73,7 +73,8 @@
                   "selector06": ".reading-view-toggle",
                   "selector07": ".trust-inspector",
                   "selector08": "[data-a11y-overlay=\"true\"]",
-                  "selector09": "[data-print-hidden=\"true\"]"
+                  "selector09": "[data-run-detail-screen-only=\"true\"]",
+                  "selector10": "[data-print-hidden=\"true\"]"
                 },
                 "declarations": {
                   "display": "none !important"
@@ -177,6 +178,41 @@
                   "content": "\" <\" attr(href) \">\"",
                   "font-size": "8pt",
                   "word-break": "break-all"
+                }
+              },
+              "paperLinkHref": {
+                "selectors": {
+                  "selector01": "[data-run-paper-document=\"true\"] a[href]::after"
+                },
+                "declarations": {
+                  "content": "none"
+                }
+              },
+              "eligiblePaperLinkHref": {
+                "selectors": {
+                  "selector01": "[data-run-paper-document=\"true\"] a[data-paper-link-eligible=\"true\"][href]::after"
+                },
+                "declarations": {
+                  "color": "var(--print-muted)",
+                  "content": "\" <\" attr(href) \">\"",
+                  "font-size": "8pt",
+                  "word-break": "break-all"
+                }
+              },
+              "publicDecisionLinkHref": {
+                "selectors": {
+                  "selector01": "a[href^=\"/public/decisions/\"]::after"
+                },
+                "declarations": {
+                  "content": "none"
+                }
+              },
+              "paperControls": {
+                "selectors": {
+                  "selector01": "[data-run-paper-document=\"true\"] :is(button, input, select, textarea, [role=\"slider\"], [contenteditable])"
+                },
+                "declarations": {
+                  "display": "none !important"
                 }
               },
               "trustChips": {

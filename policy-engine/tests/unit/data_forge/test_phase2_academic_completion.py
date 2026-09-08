@@ -5,6 +5,7 @@ from pathlib import Path
 
 import duckdb
 import pytest
+
 from polisyos.data_forge.kernel.pipeline import plan_asset_specs
 from polisyos.data_forge.kernel.testing import compare_file_sha256, compare_json_files
 from polisyos.data_forge.read_api.academic import (
@@ -107,8 +108,11 @@ def test_academic_readiness_package_loads_benchmark_qc_and_artifact_hashes() -> 
     assert benchmark.metrics["parameter_supported_ratio"] == 0.7
     assert qc.passed is True
     assert qc.metrics["runtime_demanded_canonical_resolution_rate_pct"] == 95.0
-    assert package.consumer_ready is True
-    assert package.shadow.consumer_ready is True
+    assert package.consumer_ready is False
+    assert package.shadow.consumer_ready is False
+    assert package.shadow.readiness_summary.failed_readiness_checks == (
+        "schema_generation_current",
+    )
     assert package.artifact_hashes["publish/academic_pipeline_readiness.json"] == (
         "5cae2fad04ac57db77e3376742e704e7811eade21d6bbb6d93cba2b1a07a9129"
     )
@@ -132,7 +136,15 @@ def test_academic_old_vs_new_fixtures_cover_readiness_and_artifact_hashes() -> N
 
     assert diff.has_changes
     assert "publish/academic_pipeline_readiness.json" in diff.changed_artifacts
-    assert diff.readiness_changes["consumer_ready"] == (True, False)
+    assert "consumer_ready" not in diff.readiness_changes
+    assert diff.readiness_changes["failed_readiness_checks"] == (
+        ("schema_generation_current",),
+        (
+            "operational_stability_ready",
+            "parameter_utility_ready",
+            "schema_generation_current",
+        ),
+    )
     assert diff.metric_deltas["benchmark.parameter_supported_ratio"] == pytest.approx(-0.1)
     assert same_hash.passed is True
     assert changed_readiness.passed is False

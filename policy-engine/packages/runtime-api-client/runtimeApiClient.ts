@@ -578,7 +578,7 @@ export type AuthorityAbstainingRunPaperCase = {
 export type AuthorityBoundary = {
   authoritative_for: Array<string>;
   boundary_id?: string | null;
-  decision_grade?: "unsupported" | "descriptive_only" | "advisory_admissible" | "decision_admissible" | null;
+  decision_grade?: DecisionGrade | null;
   evidence_basis?: EvidenceBasis | null;
   evidence_kind?: "measurement" | "derivation" | "proxy" | "transport" | "bounds" | "simulation" | "elicitation" | "incomparable_meet" | null;
   known_limits?: Array<string>;
@@ -1967,6 +1967,8 @@ export type DecisionDependencyEvent = {
   trigger_type: DecisionTriggerType;
 };
 
+export type DecisionGrade = "unsupported" | "descriptive_only" | "advisory_admissible" | "decision_admissible";
+
 export type DecisionLifecycleJob = {
   completed_at?: string | null;
   decision_lineage_key: string;
@@ -2223,6 +2225,77 @@ export type DeltaQuantity = {
   lineage_delta?: LineageDelta;
   metric_id: string;
   significance?: "improved" | "worsened" | "mixed" | "uncertain" | "not_comparable";
+};
+
+export type DependencyDigestProjection = {
+  domain: string;
+  value: string;
+};
+
+export type DependencyDiscriminantAuthorityBoundary = {
+  authoritative_for: Array<string>;
+  may_not_use_for: Array<"n8_admission" | "n10a_stage_gap_closure" | "chronology_acceptance" | "policy_publication" | "policy_promotion">;
+};
+
+export type DependencyDiscriminantOwnerBinding = {
+  binding_name: string;
+  dependency_environment: DependencyEnvironmentDiagnosticProjection;
+  owner_semantic_hash: string | null;
+  relation?: string;
+  relative_path: string;
+  resolved_artifact_content_hash: string | null;
+  semantic_hash_rule_version: string;
+};
+
+export type DependencyDistributionProjection = {
+  name: string;
+  selected_artifact: DependencyDigestProjection;
+  source_kind: string;
+  version: string;
+};
+
+export type DependencyEnvironmentDiagnosticCaseProjection = {
+  case_kind: "root_distribution_disagreement" | "missing_resolved_distribution" | "distribution_field_disagreement" | "unexpected_in_closure_identity";
+  coordinate: string;
+  expected: string;
+  field?: "version" | "source_kind" | "selected_artifact" | null;
+  observed: string;
+  predicate_class: "independently_reconciled" | "recomputed";
+};
+
+export type DependencyEnvironmentDiagnosticProjection = {
+  artifact_content_ref?: string | null;
+  authority_boundary?: DependencyDiscriminantAuthorityBoundary | null;
+  decision_role: string;
+  first_case?: DependencyEnvironmentDiagnosticCaseProjection | null;
+  predicate_class?: string | null;
+  profile?: DependencyProfileDiscriminantProjection | null;
+  receipt_state: "received" | "not_received";
+  status: "pass" | "fail" | "not_established";
+};
+
+export type DependencyProfileDiscriminantProjection = {
+  declaration_ref: DependencyRecordRefProjection;
+  discriminant_ref: DependencyDigestProjection;
+  distribution_set: DependencyDigestProjection;
+  extras: Array<string>;
+  lockfile_ref: DependencyDigestProjection;
+  marker_environment: Array<Array<unknown>>;
+  profile_id: string;
+  pyproject_ref: DependencyDigestProjection;
+  python_constraint: string;
+  resolved_distributions: Array<DependencyDistributionProjection>;
+  resolver_name: string;
+  resolver_version: string;
+  root_distribution: string;
+  rule_version: string;
+  schema_version: string;
+};
+
+export type DependencyRecordRefProjection = {
+  artifact_id: string;
+  schema_version: string;
+  semantic_hash: DependencyDigestProjection;
 };
 
 export type DepthNAcquisitionEconomicsProjection = {
@@ -4513,7 +4586,7 @@ export type ProjectionOwnerBinding = {
 export type ProjectionSourceIdentity = {
   artifact_content_hash: string;
   declared_content_hash?: string | null;
-  related_artifact_bindings?: Array<ProjectionOwnerBinding>;
+  related_artifact_bindings?: Array<RelatedArtifactBinding>;
   relative_path: string;
   validation: ProjectionSourceValidation;
 };
@@ -4629,6 +4702,44 @@ export type ProvingGroundRuntimeOutcomes = {
   reason: string;
 };
 
+export type PublicDecisionJsonValue = string | number | boolean | Array<PublicDecisionJsonValue> | {
+  [key: string]: PublicDecisionJsonValue;
+} | null;
+
+export type PublicDecisionVerificationDimensions = {
+  current_authority?: string;
+  durable_verifiability?: string;
+  issuer_issuance?: string;
+  projection_faithfulness?: string;
+  public_evidence_obtainability?: string;
+  public_history_establishment?: string;
+  status_snapshot_selection?: string;
+};
+
+export type PublicDecisionVerificationIssued = {
+  promoted_record?: null;
+  public_path: string;
+  publication_class?: string;
+  record_id: string;
+};
+
+export type PublicDecisionVerificationResponse = {
+  cryptographic_signature?: "valid" | "invalid" | "not_established";
+  decision_id?: string | null;
+  dimensions?: PublicDecisionVerificationDimensions;
+  issued_at?: string | null;
+  issuer_id?: string | null;
+  promoted_record?: null;
+  public_document?: {
+  [key: string]: PublicDecisionJsonValue;
+} | null;
+  public_document_digest?: string | null;
+  reason_codes: Array<"promoted_public_record_not_established" | "client_token_not_server_issued" | "record_not_issued" | "issuance_index_invalid" | "issuance_index_write_failed" | "verification_issuer_not_configured" | "public_document_invalid" | "record_evidence_unavailable" | "record_signature_missing" | "record_signature_invalid" | "record_key_untrusted" | "record_key_revoked" | "record_issuer_purpose_untrusted" | "record_binding_invalid" | "public_document_binding_invalid">;
+  record_id: string;
+  report_authentication: "verified" | "invalid" | "not_established";
+  report_key_status?: "trusted" | "revoked" | "untrusted" | "not_established";
+};
+
 export type QualityRef = {
   quality_surface?: string | null;
   reason_code?: string | null;
@@ -4710,6 +4821,8 @@ export type RefusedAuthorityValue = {
   surface: AuthoritySurface;
   value_id: AuthorityValueId;
 };
+
+export type RelatedArtifactBinding = ProjectionOwnerBinding | DependencyDiscriminantOwnerBinding;
 
 export type ReplayRef = {
   manifest_ref?: string | null;
@@ -6567,6 +6680,16 @@ export class RuntimeApiClient {
     const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/diagnostics`;
     const query = undefined;
     return this.request<MobilityDiagnosticsResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async verifyPublicDecisionRecord(params: {
+    record_id: string;
+  }): Promise<PublicDecisionVerificationResponse> {
+    const path = `/api/v1/public-decisions/verification`;
+    const query = this.buildQuery({
+      record_id: params.record_id,
+    });
+    return this.request<PublicDecisionVerificationResponse>("GET", path, query, undefined, undefined);
   }
 
   async listRuns(params: {

@@ -25,7 +25,7 @@ import { getVisibleRunInspectorTabs } from "@/features/runs/domain/tabs";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScientificDepthPanel } from "@/features/runs/components/ScientificDepthPanel";
 import { useEpochStaleness } from "@/features/runs/api/useEpochStaleness";
-import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import { buildPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { metricIdentifiability } from "@/shared/lib/domain/decision";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
@@ -198,7 +198,7 @@ function RunInspectorContent() {
   );
   const signedPacket = useMemo(
     () =>
-      buildSignedPublicDecisionPacket({
+      buildPublicDecisionPacket({
         decisionScore: summary.decisionScore,
         decisionView: summary.decisionView,
         epochSemantics,

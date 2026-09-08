@@ -80,10 +80,16 @@ export function checkAuthorityValueTwinParity(
 
   const renderedIds = rendered.map((member) => member.value_id);
   const twinIds = twin.members.map((member) => member.value_id);
-  const renderedById = new Map(rendered.map((member) => [member.value_id, member]));
+  const renderedById = new Map(
+    rendered.map((member) => [member.value_id, member]),
+  );
 
-  const missingFromTwin = renderedIds.filter((id) => !twinIds.includes(id)).sort();
-  const missingFromSurface = twinIds.filter((id) => !renderedIds.includes(id)).sort();
+  const missingFromTwin = renderedIds
+    .filter((id) => !twinIds.includes(id))
+    .sort();
+  const missingFromSurface = twinIds
+    .filter((id) => !renderedIds.includes(id))
+    .sort();
 
   const codeMismatches: string[] = [];
   const reasonMismatches: string[] = [];

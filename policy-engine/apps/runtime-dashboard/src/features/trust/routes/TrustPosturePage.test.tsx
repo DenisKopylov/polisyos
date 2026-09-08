@@ -30,9 +30,9 @@ function deriveRatifiedIdentity() {
   }
   const normalizedParagraph = paragraph.split(/\s+/u).join(" ");
   const roleSentence = `${normalizedParagraph.split(".", 1)[0]}.`;
-  const antiRoles = [...roleSentence.matchAll(/\bnot (?:an? )?(.+?)(?=, not |,? or not |\.)/gu)].map(
-    (match) => match[1]!.trim().replace(/\.$/u, ""),
-  );
+  const antiRoles = [
+    ...roleSentence.matchAll(/\bnot (?:an? )?(.+?)(?=, not |,? or not |\.)/gu),
+  ].map((match) => match[1]!.trim().replace(/\.$/u, ""));
   return { antiRoles, statement };
 }
 
@@ -41,10 +41,13 @@ const ratifiedIdentity = deriveRatifiedIdentity();
 describe("TrustPosturePage", () => {
   afterEach(() => vi.restoreAllMocks());
 
+  /* eslint-disable testing-library/no-node-access, testing-library/no-container -- Compare every ordered claim-bearing field and ratified anti-role across depth modes, including evidence structure. */
   it("defaults to PUBLIC and keeps claim-bearing values fixed across depth", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => Promise.resolve(new Response(artifactBytes, { status: 200 }))),
+      vi.fn(async () =>
+        Promise.resolve(new Response(artifactBytes, { status: 200 })),
+      ),
     );
     const { default: TrustPosturePage } = await import("./TrustPosturePage");
     const view = renderWithProviders(<TrustPosturePage />, {
@@ -86,6 +89,8 @@ describe("TrustPosturePage", () => {
     ).toEqual(ratifiedIdentity.antiRoles);
     expect(ratifiedIdentity.antiRoles).toHaveLength(7);
   });
+
+  /* eslint-enable testing-library/no-node-access, testing-library/no-container */
 
   it("fails visibly unavailable instead of retaining a previous posture", async () => {
     vi.stubGlobal(

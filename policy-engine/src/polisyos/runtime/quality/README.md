@@ -18,6 +18,18 @@ closeout meaning.
 
 Boundary notes:
 
+- `production_grounding_calibration.py` persists and replays source discovery
+  for the exact current N7 request and world context. The generation controller
+  carries the actual N8 requirement into this path. Its relation acceptance slot
+  stays typed and empty: publication eligibility and source-row counts cannot
+  supply proposal/reference relation gold or a calibration acceptance rule.
+  The result is an audit refusal, with CG2 cold-start and N8 blocked; it grants
+  no acquired grounding or world write.
+- `global_case_index.py` recomputes a tenant/cell-scoped CAS inventory of canonical
+  persisted S2 case bindings. The default capability-discovery provider consumes
+  its verified snapshots and persists candidate-only search receipts. Coverage
+  is limited to that binding vocabulary; terminality and policy authority are
+  not established, and the authority appointment slot stays empty.
 - Prefer neutral contracts from `polisyos.core.contracts` when lower-level
   packages need DTOs or protocols.
 - Keep runtime-only persistence, ledger, replay, and validation wiring in this
@@ -97,6 +109,13 @@ Boundary notes:
   evidence remains `producer_missing`, its institutional owner remains
   `absent/unallocated`, and public export exposes only the limitation status,
   code, and vector ref—never numeric risk or raw evidence.
+- `epoch_denominator_reconciliation.py` exact-reads Runtime transition inputs,
+  Scientist impact snapshots, and appointed verifier provenance, recomputes
+  both owner denominators, and persists a sidecar only when every Scientist
+  owner row maps to exactly one Runtime target. First admission scans the
+  complete live CAS artifact denominator; replay accepts only the exact
+  write-once handle frozen by Scientist. No production reader appointment is
+  installed here.
 - `epoch_staleness_projection.py` is the read-only temporal-surface compiler.
   It preserves the real `policy_admission_missing` and
   `epoch_transition_signer_not_established` institutional nonreceipts, while

@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import Any
 
 from tools.lib.cache import (
-    baseline_matches,
     cache_path,
     content_addressable_key,
     default_cache_root,
@@ -44,6 +43,10 @@ from tools.quality.diagnostics.generate_ir_reference_catalog import (  # noqa: E
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "schemas" / "snapshots"
 GENERATOR_VERSION = "1.0.0"
 METADATA_KEYS = {"title", "description", "$comment", "examples"}
+# These record where/when the snapshot was produced, not its ABI. If a supported
+# interpreter or Pydantic release changes a schema, the freshly generated payload
+# and its model hashes must expose that difference instead of the version header.
+MANIFEST_PROVENANCE_KEYS = {"generated_at", "python_version", "pydantic_version"}
 CACHE_NAMESPACE = "diagnostics.gen_schema"
 CACHE_VERSION = "2026.04.phase5"
 DEFAULT_BASELINE_LABEL = "default"
@@ -127,7 +130,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--changed-only",
         action="store_true",
-        help="Skip the run when no ABI model sources changed relative to git.",
+        help="Validate the Git change scope, then run a full check (legacy optimisation hint).",
     )
     parser.add_argument(
         "--git-base-ref",
@@ -142,7 +145,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--skip-if-unchanged",
         action="store_true",
-        help="Skip when a persisted successful baseline fingerprint matches current inputs.",
+        help="Record a successful baseline after a full run (legacy optimisation hint).",
     )
     parser.add_argument(
         "--baseline-label",
@@ -254,14 +257,16 @@ def _write_text_if_changed(path: Path, content: str) -> bool:
     return True
 
 
+def _manifest_content(payload: dict[str, Any]) -> dict[str, Any]:
+    # Top-level only: an identically named model field is still schema content.
+    return {key: value for key, value in payload.items() if key not in MANIFEST_PROVENANCE_KEYS}
+
+
 def _manifest_content_changed(path: Path, payload: dict[str, Any]) -> bool:
     if not path.exists():
         return True
     existing = json.loads(path.read_text("utf-8"))
-    existing.pop("generated_at", None)
-    candidate = dict(payload)
-    candidate.pop("generated_at", None)
-    return existing != candidate
+    return _manifest_content(existing) != _manifest_content(payload)
 
 
 def _build_manifest(
@@ -316,11 +321,7 @@ def _assert_manifest_equals(path: Path, expected: dict[str, Any], errors: list[s
     except json.JSONDecodeError:
         errors.append(f"invalid manifest JSON: {path}")
         return
-    current_clean = dict(current)
-    current_clean.pop("generated_at", None)
-    expected_clean = dict(expected)
-    expected_clean.pop("generated_at", None)
-    if current_clean != expected_clean:
+    if _manifest_content(current) != _manifest_content(expected):
         errors.append(f"snapshot out of date: {path}")
 
 
@@ -355,17 +356,9 @@ def _load_or_generate_entry_payload(
     cache_root: Path | None,
     pydantic_version: str,
 ) -> dict[str, Any]:
-    if cache_root is not None:
-        payload = read_json_cache(
-            cache_path(
-                cache_root,
-                CACHE_NAMESPACE,
-                _entry_cache_key(resolved, pydantic_version=pydantic_version),
-            )
-        )
-        if payload is not None and isinstance(payload.get("schema_payload"), dict):
-            return payload
-
+    # A defining-file hash does not bind imported models, enums, base classes or
+    # schema hooks. Recompute the complete runtime payload before consulting any
+    # persisted candidate; the cache may avoid a write, never establish a schema.
     schema_payload = _generate_model_schema(resolved.cls)
     semantic_payload = _strip_metadata(schema_payload)
     schema_version = _schema_version_for(resolved.entry, resolved.cls)
@@ -376,14 +369,13 @@ def _load_or_generate_entry_payload(
         "sha256_semantic": _schema_hash(semantic_payload),
     }
     if cache_root is not None:
-        write_json_cache(
-            cache_path(
-                cache_root,
-                CACHE_NAMESPACE,
-                _entry_cache_key(resolved, pydantic_version=pydantic_version),
-            ),
-            payload,
+        target = cache_path(
+            cache_root,
+            CACHE_NAMESPACE,
+            _entry_cache_key(resolved, pydantic_version=pydantic_version),
         )
+        if read_json_cache(target) != payload:
+            write_json_cache(target, payload)
     return payload
 
 
@@ -575,21 +567,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     changed_sources: set[Path] = set()
     if args.changed_only:
         try:
-            changed_sources, forced_full_rebuild = _changed_source_scope(args.git_base_ref)
+            changed_sources, _ = _changed_source_scope(args.git_base_ref)
         except ValueError as exc:
             print(f"ABI schema snapshot generation failed: {exc}", file=sys.stderr)
             return 2
-        if not forced_full_rebuild:
-            if not changed_sources:
-                print("ABI schema snapshot generation skipped: no changed ABI sources detected.")
-                return 0
-            if not any(
-                resolved.source_path is not None and resolved.source_path in changed_sources
-                for resolved in resolved_entries
-            ):
-                print("ABI schema snapshot generation skipped: no selected ABI entries changed.")
-                return 0
-            scan_mode = "changed-only"
+
+    # Git scope and saved baselines are diagnostic metadata, not sufficient
+    # evidence about transitive schemas or the current snapshot/reference bytes.
+    if args.changed_only or args.skip_if_unchanged:
+        print("[INFO] Legacy incremental hint: recomputing all selected schemas and references.")
 
     cache_root = args.cache_dir.resolve() if args.cache_dir else default_cache_root(REPO_ROOT)
     baseline_label = args.baseline_label or (
@@ -603,19 +589,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         include_deprecated=args.include_deprecated,
         scan_mode=scan_mode,
     )
-    if (
-        baseline_label
-        and args.skip_if_unchanged
-        and baseline_matches(
-            cache_root,
-            CACHE_NAMESPACE,
-            baseline_label,
-            fingerprint=fingerprint,
-        )
-    ):
-        print(f"ABI schema snapshot generation skipped: baseline {baseline_label!r} unchanged.")
-        return 0
-
     resolved_entries_by_key = {resolved.entry.abi_key: resolved for resolved in resolved_entries}
     by_module: dict[str, list[ABIModelEntry]] = {}
     for entry in entries:

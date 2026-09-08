@@ -1,5 +1,8 @@
 import { API_BASE_URL } from "@/shared/lib/constants";
-import { buildSearchParams, type SearchParamValue } from "@/shared/lib/searchParams";
+import {
+  buildSearchParams,
+  type SearchParamValue,
+} from "@/shared/lib/searchParams";
 
 export function buildRuntimeApiUrl(
   pathname: string,

@@ -36,7 +36,7 @@ EvidenceKind = Literal[
     "elicitation",
     "incomparable_meet",
 ]
-DecisionGrade = Literal[
+type DecisionGrade = Literal[
     "unsupported",
     "descriptive_only",
     "advisory_admissible",

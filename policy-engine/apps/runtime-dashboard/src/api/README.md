@@ -18,14 +18,14 @@ in feature modules.
 
 ## Internal Layout
 
-| Path | Role |
-| --- | --- |
-| `client.ts`, `http.ts`, `url.ts` | HTTP transport and base URL policy. |
-| `hooks/` | React Query hooks by runtime endpoint/domain. |
-| `queryKeys.ts`, `queryClient.ts` | Cache key and client policy. |
-| `types.ts` | Generated OpenAPI type surface. |
-| `validators.ts` | Runtime payload validation. |
-| `stream.ts`, `runtimeApiEvents.ts` | Streaming and event helpers. |
+| Path                               | Role                                          |
+| ---------------------------------- | --------------------------------------------- |
+| `client.ts`, `http.ts`, `url.ts`   | HTTP transport and base URL policy.           |
+| `hooks/`                           | React Query hooks by runtime endpoint/domain. |
+| `queryKeys.ts`, `queryClient.ts`   | Cache key and client policy.                  |
+| `types.ts`                         | Generated OpenAPI type surface.               |
+| `validators.ts`                    | Runtime payload validation.                   |
+| `stream.ts`, `runtimeApiEvents.ts` | Streaming and event helpers.                  |
 
 ## Extension Points
 

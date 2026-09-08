@@ -1,3 +1,8 @@
+import {
+  parsePersistenceProcessResult,
+  PERSISTENCE_CHILD_TIMEOUT_MS,
+  PERSISTENCE_TEST_TIMEOUT_MS,
+} from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
@@ -75,14 +80,11 @@ function invokePersistence(
         POLISYOS_CAS_BACKEND: "filesystem",
         POLISYOS_CAS_ROOT: casRoot,
       },
-      timeout: 60_000,
+      timeout: PERSISTENCE_CHILD_TIMEOUT_MS,
     },
   );
-  return {
-    status: result.status,
-    stderr: result.stderr,
-    value: JSON.parse(result.stdout) as Record<string, unknown>,
-  };
+  const decoded = parsePersistenceProcessResult(result);
+  return { ...decoded, value: decoded.value as Record<string, unknown> };
 }
 
 function asProjectionResult(result: PersistenceResult): ProjectionResult {
@@ -759,23 +761,27 @@ print(json.dumps({"clean": "accepted", "targeted_rejections": messages}))
     },
   );
 
-  it("ignores inherited process-selection controls on the closed path", () => {
-    const isolatedCas = mkdtempSync(
-      path.join(tmpdir(), "atlas-readiness-env-cas-"),
-    );
-    try {
-      const result = asProjectionResult(
-        invokePersistence({ operation: OPERATION }, isolatedCas, {
-          NODE_OPTIONS: "--require=/definitely/not/a/module.cjs",
-          PATH: "/definitely/not/a/path",
-          VITE_CONFIG: "/definitely/not/a/config.ts",
-        }),
+  it(
+    "ignores inherited process-selection controls on the closed path",
+    () => {
+      const isolatedCas = mkdtempSync(
+        path.join(tmpdir(), "atlas-readiness-env-cas-"),
       );
-      expect(result.resolved_projection.projection.claims).toHaveLength(5);
-    } finally {
-      rmSync(isolatedCas, { recursive: true, force: true });
-    }
-  }, 60_000);
+      try {
+        const result = asProjectionResult(
+          invokePersistence({ operation: OPERATION }, isolatedCas, {
+            NODE_OPTIONS: "--require=/definitely/not/a/module.cjs",
+            PATH: "/definitely/not/a/path",
+            VITE_CONFIG: "/definitely/not/a/config.ts",
+          }),
+        );
+        expect(result.resolved_projection.projection.claims).toHaveLength(5);
+      } finally {
+        rmSync(isolatedCas, { recursive: true, force: true });
+      }
+    },
+    PERSISTENCE_TEST_TIMEOUT_MS,
+  );
 
   it("content-binds the exact per-row report bytes without a CI verdict", () => {
     expect(persisted.claim_report_ref.artifact_id).toBe(

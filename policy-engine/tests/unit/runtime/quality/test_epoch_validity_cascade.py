@@ -1168,10 +1168,15 @@ def test_dependency_and_adjudication_receipts_bind_complete_denominators() -> No
         "dependency_graph": graph,
         "target_refs": (target,),
     }
+    outer_denominator_ref = cascade.epoch_dependency_outer_denominator_ref(
+        certificate_bindings=(),
+        dependency_graph=graph,
+    )
+    assert outer_denominator_ref == _semantic_hash(
+        "polisyos.epoch.dependency-denominator.v1", dependency_payload
+    )
     dependency = EpochDependencyDenominatorReceipt(
-        denominator_ref=_semantic_hash(
-            "polisyos.epoch.dependency-denominator.v1", dependency_payload
-        ),
+        denominator_ref=outer_denominator_ref,
         **dependency_payload,
         predicate_class="independently_reconciled",
     )
@@ -1230,6 +1235,11 @@ def test_signed_transition_preimage_binds_owner_purpose_and_both_denominators() 
         dependency_graph=graph,
     )
     adjudication_denominator_ref = _digest("transition-adjudication-denominator")
+    outer_denominator_ref = cascade.epoch_dependency_outer_denominator_ref(
+        certificate_bindings=(),
+        dependency_graph=graph,
+    )
+    assert outer_denominator_ref != graph.denominator_ref
 
     transition = build_epoch_validity_transition(
         previous_epoch=SemanticEpochManifest.model_construct(epoch_ref=_digest("epoch-old")),
@@ -1237,13 +1247,13 @@ def test_signed_transition_preimage_binds_owner_purpose_and_both_denominators() 
         certificates=(),
         dependency_graph=graph,
         target_vector=vector,
-        dependency_denominator_ref=graph.denominator_ref,
+        dependency_denominator_ref=outer_denominator_ref,
         adjudication_denominator_ref=adjudication_denominator_ref,
         requested_query_context_ref=_digest("transition-query"),
         authority_purpose="decision_validity",
     )
 
-    assert transition.dependency_denominator_ref == graph.denominator_ref
+    assert transition.dependency_denominator_ref == outer_denominator_ref
     assert transition.adjudication_denominator_ref == adjudication_denominator_ref
     assert transition.authority_purpose == "decision_validity"
     for field, mutation, diagnostic in (

@@ -1,7 +1,4 @@
-import {
-  getDecisionQueue,
-  groupRunsByStatus,
-} from "./status";
+import { getDecisionQueue, groupRunsByStatus } from "./status";
 import * as runStatus from "./status";
 
 describe("run status helpers", () => {

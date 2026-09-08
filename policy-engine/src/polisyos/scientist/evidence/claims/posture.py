@@ -17,10 +17,10 @@ CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v4"
 CLAIM_POSTURE_SLICE_BASE_REF = "f935e0c2e9359bc1202ce5d36ea706de58f7aaab"
 RATIFIED_IDENTITY_PATH = "docs/system-design-decisions/policyos-identity-and-custody-boundary.md"
 RATIFIED_IDENTITY_CONTENT_DIGEST = (
-    "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332"
+    "sha256:9a660772c5a5ce863165cd0da48880438190fa95ad3a651312a56dc6c19b1a2d"
 )
 RATIFIED_IDENTITY_BASIS_DIGEST = (
-    "sha256:ebd375b2f2e7c4f3fd0e2f6e02960a842f4e5feeccf84d5a2809c08f47f02682"
+    "sha256:89a888e3ed7ac47b3572b84bafb231354de7926275c43b2fe25a00e15b202d99"
 )
 CUSTODY_APPOINTMENT_SOURCE_PATH = "docs/plans/active/DEBT-REGISTER.md"
 CUSTODY_APPOINTMENT_CONTRACT: Mapping[str, tuple[str, str]] = {
@@ -120,6 +120,14 @@ class SourceClaimState(str, Enum):
     NOT_ESTABLISHED = "not_established"
 
 
+class CustodyAppointmentStatus(str, Enum):
+    """Register status carried by an otherwise valid custody appointment."""
+
+    OPEN = "open"
+    BLOCKED = "blocked"
+    CLOSED = "closed"
+
+
 class EstablishmentClass(str, Enum):
     """Frozen provenance class for a gate predicate."""
 
@@ -204,7 +212,11 @@ class AdmittedSourceMember(_StrictModel):
 
 
 class SourceDerivationReceipt(_StrictModel):
-    """Complete-set receipt emitted by one independent source derivation."""
+    """Complete candidate-set receipt emitted by one independent source derivation.
+
+    ``scanned_python_count`` is the number of discovered Python files admitted to the
+    authority/denial source basis, not the unrelated files traversed to discover it.
+    """
 
     method: Literal["ast", "tokenize"]
     scanned_python_count: int = Field(ge=0)
@@ -744,6 +756,7 @@ class CustodyAppointmentSource(_StrictModel):
 
     path: Literal["docs/plans/active/DEBT-REGISTER.md"]
     debt_id: str
+    status: CustodyAppointmentStatus
     source_content: str
     content_digest: str
 
@@ -1834,12 +1847,12 @@ def _validate_derivation_receipts(
 def _validate_custody_appointments(
     claims: Sequence[ClaimPostureRow],
     sources: Sequence[CustodyAppointmentSource],
-) -> tuple[tuple[str, str, str, str], ...]:
+) -> tuple[tuple[str, str, str, str, CustodyAppointmentStatus], ...]:
     """Recompute custody appointments from their exact admitted Markdown rows."""
     source_ids = tuple(item.debt_id for item in sources)
     if source_ids != CUSTODY_APPOINTMENT_DEBT_IDS:
-        raise ValueError("custody appointment sources must be the closed sorted debt set")
-    derived: list[tuple[str, str, str, str]] = []
+        raise ValueError("custody appointment sources must be the fixed sorted debt set")
+    derived: list[tuple[str, str, str, str, CustodyAppointmentStatus]] = []
     for source in sources:
         if "\n" in source.source_content or not source.source_content.startswith("|"):
             raise ValueError("custody appointment source must be exactly one Markdown row")
@@ -1864,10 +1877,12 @@ def _validate_custody_appointments(
         if (
             ids != [source.debt_id]
             or len(owners) != 1
-            or statuses != ["open"]
+            or statuses != [source.status.value]
             or len(commands) != 1
         ):
-            raise ValueError("custody appointment source row is not exactly appointed and open")
+            raise ValueError(
+                "custody appointment source row is not exactly appointed with its typed status"
+            )
         if (owners[0], commands[0]) != CUSTODY_APPOINTMENT_CONTRACT[source.debt_id]:
             raise ValueError("custody appointment source differs from the accepted contract")
         derived.append(
@@ -1876,6 +1891,7 @@ def _validate_custody_appointments(
                 owners[0],
                 commands[0],
                 f"{source.path}#{source.debt_id}@{digest}",
+                source.status,
             )
         )
 
@@ -1885,26 +1901,38 @@ def _validate_custody_appointments(
     bindings = rows[0].source_bindings
     if len(bindings) != 3:
         raise ValueError("custody appointment set must contain exactly three arms")
-    appointments: list[tuple[str, str, str, str]] = []
+    appointments: list[tuple[str, str, str, str, CustodyAppointmentStatus]] = []
+    status_by_id = {item.debt_id: item.status for item in sources}
     for binding in bindings:
+        debt_id = binding.prerequisite_refs[0] if len(binding.prerequisite_refs) == 1 else None
+        expected_state = (
+            SourceClaimState.PLANNED
+            if debt_id is not None
+            and status_by_id.get(debt_id) == CustodyAppointmentStatus.OPEN
+            else SourceClaimState.BLOCKED
+        )
         if (
-            binding.source_state != SourceClaimState.PLANNED
+            binding.source_state != expected_state
             or binding.owner.basis != "closure_commitment"
             or binding.owner.establishment_class != EstablishmentClass.RECOMPUTED
             or not binding.owner.source_ref
             or not binding.owner.source_ref.startswith(f"{CUSTODY_APPOINTMENT_SOURCE_PATH}#")
             or len(binding.prerequisite_refs) != 1
+            or debt_id not in status_by_id
             or not binding.owner.owner
             or not binding.closure_signal
             or binding.identity_boundary_ref != RATIFIED_IDENTITY_PATH
         ):
-            raise ValueError("custody appointment is not bound to its admitted debt source")
+            raise ValueError(
+                "custody appointment owner/closure is not bound to its admitted debt source"
+            )
         appointments.append(
             (
                 binding.prerequisite_refs[0],
                 binding.owner.owner,
                 binding.closure_signal,
                 binding.owner.source_ref,
+                status_by_id[binding.prerequisite_refs[0]],
             )
         )
     ordered = tuple(sorted(appointments))
@@ -2072,7 +2100,9 @@ def _validate_fixed_semantic_bindings(
     accessibility_document: AccessibilityDocumentBinding | None,
     page_receipt: PageA11yReceiptBinding | None,
     admitted_verifiers: Sequence[AdmittedVerifier],
-    custody_appointments: Sequence[tuple[str, str, str, str]],
+    custody_appointments: Sequence[
+        tuple[str, str, str, str, CustodyAppointmentStatus]
+    ],
 ) -> None:
     """Recompute every fixed semantic arm from its admitted typed artifacts."""
     rows = {row.subject: row for row in claims if row.subject in FIXED_SEMANTIC_BINDING_COUNTS}
@@ -2137,13 +2167,24 @@ def _validate_fixed_semantic_bindings(
         "accountable_owner",
         "identity_boundary",
     }
-    for debt_id, owner_name, closure_signal, source_ref in custody_appointments:
+    for debt_id, owner_name, closure_signal, source_ref, appointment_status in custody_appointments:
+        if appointment_status == CustodyAppointmentStatus.OPEN:
+            custody_state = SourceClaimState.PLANNED
+            custody_limitation = f"Planned prerequisite: {debt_id}"
+        elif appointment_status == CustodyAppointmentStatus.BLOCKED:
+            custody_state = SourceClaimState.BLOCKED
+            custody_limitation = f"Blocked prerequisite: {debt_id}"
+        else:
+            custody_state = SourceClaimState.BLOCKED
+            custody_limitation = (
+                f"Closed appointment lacks an admitted closure receipt: {debt_id}"
+            )
         _validate_exact_fixed_binding(
             custody_by_id[debt_id],
             coordinate=identity_coordinate,
             content_digest=identity.content_digest,
             source_state=(
-                SourceClaimState.PLANNED if identity_is_exact else SourceClaimState.BLOCKED
+                custody_state if identity_is_exact else SourceClaimState.BLOCKED
             ),
             subject="universal_custody_commitment",
             family="custody",
@@ -2161,7 +2202,7 @@ def _validate_fixed_semantic_bindings(
             review_due=review_due,
             source_as_of=identity.last_reviewed,
             evidence=None,
-            limitation_refs=(f"Planned prerequisite: {debt_id}",),
+            limitation_refs=(custody_limitation,),
             prerequisite_refs=(debt_id,),
             closure_signal=closure_signal,
             predicate_facts=custody_facts,

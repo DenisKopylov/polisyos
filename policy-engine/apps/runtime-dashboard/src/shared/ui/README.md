@@ -16,13 +16,13 @@ as stable API.
 
 ## Internal Layout
 
-| Path | Role |
-| --- | --- |
-| `primitives/` | Base controls and layout primitives. |
-| `compounds/` | Reusable multi-part UI patterns. |
-| `patterns/` | Cross-flow reusable interaction patterns. |
-| `authored-text/`, `quantity/`, `temporal/`, `trust-view/` | Domain-shaped shared renderers. |
-| `tokens/`, `responsive/` | UI tokens and responsive helpers. |
+| Path                                                      | Role                                      |
+| --------------------------------------------------------- | ----------------------------------------- |
+| `primitives/`                                             | Base controls and layout primitives.      |
+| `compounds/`                                              | Reusable multi-part UI patterns.          |
+| `patterns/`                                               | Cross-flow reusable interaction patterns. |
+| `authored-text/`, `quantity/`, `temporal/`, `trust-view/` | Domain-shaped shared renderers.           |
+| `tokens/`, `responsive/`                                  | UI tokens and responsive helpers.         |
 
 ## Extension Points
 

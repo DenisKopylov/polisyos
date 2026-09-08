@@ -18,10 +18,13 @@ import sys
 import tempfile
 import tomllib
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Any, Final, Literal
 from unittest.mock import patch
+
+from pydantic import TypeAdapter
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -37,6 +40,11 @@ from polisyos.core.contracts.decision_validity import (
     EpochValidityBatchTarget,
 )
 from polisyos.core.security.full_prefix import FullPrefixVerifier, build_full_prefix_bundle
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    DependencyEnvironmentDiagnosticCase,
+    DependencyEnvironmentDiagnosticResult,
+    DependencyProfileDiscriminant,
+)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -82,6 +90,7 @@ from tools.lib.timing import run_timed_entrypoint
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, DomainDigest
 
 
 VALIDATOR_ID: Final = "layer3_gy_epoch_chronology_contract"
@@ -101,6 +110,139 @@ EXPECTED_TERMINAL_MATRIX: Final = {
     "whole_history_authenticity": "not_established",
     "writer_independent_holder": "absent/unallocated",
 }
+
+
+@dataclass(frozen=True, slots=True)
+class ValidationResult:
+    """Separate chronology governing issues from ambient dependency diagnostics."""
+
+    governing_issues: tuple[dict[str, Any], ...]
+    ambient_findings: tuple[dict[str, Any], ...]
+    dependency_discriminant_content_ref: str | None = None
+    profile_discriminant: DependencyProfileDiscriminant | None = None
+    diagnostic_status: Literal["pass", "fail", "not_established"] = "not_established"
+    diagnostic_first_case: DependencyEnvironmentDiagnosticCase | None = None
+
+    @property
+    def governing_result(self) -> tuple[dict[str, Any], ...]:
+        """Return the governing tuple without ambient diagnostic bytes."""
+
+        return self.governing_issues
+
+    @property
+    def content_ref(self) -> str | None:
+        """Return the validated companion content reference, if received."""
+
+        return self.dependency_discriminant_content_ref
+
+    @property
+    def discriminant_ref(
+        self,
+    ) -> DomainDigest[Literal[DigestDomain.DEPENDENCY_DISCRIMINANT]] | None:
+        """Return the Foundry discriminant reference, if received."""
+
+        if self.profile_discriminant is None:
+            return None
+        return self.profile_discriminant.discriminant_ref
+
+    @property
+    def status(self) -> Literal["pass", "fail", "not_established"]:
+        """Return the ambient diagnostic status."""
+
+        return self.diagnostic_status
+
+    @property
+    def first_case(self) -> DependencyEnvironmentDiagnosticCase | None:
+        """Return the first ambient diagnostic case, if any."""
+
+        return self.diagnostic_first_case
+
+
+_DEPENDENCY_DIAGNOSTIC_RESULT_ADAPTER = TypeAdapter(DependencyEnvironmentDiagnosticResult)
+
+
+def _dependency_diagnostic_status_and_case(
+    *,
+    content_ref: str | None,
+    ambient_findings: Sequence[Mapping[str, Any]],
+) -> tuple[
+    Literal["pass", "fail", "not_established"],
+    DependencyEnvironmentDiagnosticCase | None,
+]:
+    """Project owner-validated diagnostic fields without deciding chronology."""
+
+    for finding in reversed(tuple(ambient_findings)):
+        diagnostic = finding.get("diagnostic") or finding.get("current_diagnostic")
+        if not isinstance(diagnostic, Mapping):
+            continue
+        parsed = _DEPENDENCY_DIAGNOSTIC_RESULT_ADAPTER.validate_json(
+            json.dumps(diagnostic, sort_keys=True, separators=(",", ":"))
+        )
+        return parsed.status, getattr(parsed, "first_case", None)
+    if content_ref is None or any(
+        str(finding.get("code") or "").startswith("dependency_discriminant_diagnostic_")
+        or str(finding.get("code") or "").startswith("dependency_environment_diagnostic_")
+        for finding in ambient_findings
+    ):
+        return "not_established", None
+    return "pass", None
+
+
+def read_foundry_dependency_discriminant(
+    *,
+    repo_root: Path,
+    companion: object | None = None,
+    diagnostic_verification: object | None = None,
+) -> ValidationResult:
+    """Independently reopen the shared companion through the N8 owner API."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    received = companion
+    if received is None:
+        try:
+            received = (repo_root / n8.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH).read_bytes()
+        except OSError:
+            received = b""
+    owner_result = n8.validate_foundry_dependency_discriminant(
+        repo_root=repo_root,
+        companion=received,
+        diagnostic_verification=diagnostic_verification,
+    )
+    status, first_case = _dependency_diagnostic_status_and_case(
+        content_ref=owner_result.content_ref,
+        ambient_findings=owner_result.ambient_findings,
+    )
+    return ValidationResult(
+        governing_issues=owner_result.governing_issues,
+        ambient_findings=owner_result.ambient_findings,
+        dependency_discriminant_content_ref=owner_result.content_ref,
+        profile_discriminant=owner_result.profile_discriminant,
+        diagnostic_status=status,
+        diagnostic_first_case=first_case,
+    )
+
+
+def dependency_environment_diagnostic_projection(result: ValidationResult) -> dict[str, Any]:
+    """Render the ambient chronology diagnostic without governing fields."""
+
+    discriminant_ref = result.discriminant_ref
+    first_case = result.first_case
+    return {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": result.content_ref,
+        "discriminant_ref": (
+            discriminant_ref.model_dump(mode="json")
+            if hasattr(discriminant_ref, "model_dump")
+            else discriminant_ref
+        ),
+        "status": result.status,
+        "first_case": (
+            first_case.model_dump(mode="json")
+            if hasattr(first_case, "model_dump")
+            else first_case
+        ),
+    }
 _ALLOCATION_PAYLOAD_FIELDS: Final = (
     "row_kind",
     "subject_key",
@@ -1154,6 +1296,36 @@ def validate_payload(
     return tuple(issues)
 
 
+def validate_payload_result(
+    payload: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    expected_source_freeze: str | None = None,
+    companion: object | None = None,
+    diagnostic_verification: object | None = None,
+) -> ValidationResult:
+    """Validate chronology and retain the dependency diagnostic separately."""
+
+    governing = validate_payload(
+        payload,
+        repo_root=repo_root,
+        expected_source_freeze=expected_source_freeze,
+    )
+    ambient = read_foundry_dependency_discriminant(
+        repo_root=repo_root,
+        companion=companion,
+        diagnostic_verification=diagnostic_verification,
+    )
+    return ValidationResult(
+        governing_issues=governing,
+        ambient_findings=ambient.ambient_findings,
+        dependency_discriminant_content_ref=ambient.content_ref,
+        profile_discriminant=ambient.profile_discriminant,
+        diagnostic_status=ambient.status,
+        diagnostic_first_case=ambient.first_case,
+    )
+
+
 def _source_flip_cases() -> tuple[dict[str, Any], ...]:
     semantic_old = """        return self._qualification_consumer.qualify(
             adapter=self._chronology_adapter,
@@ -1564,8 +1736,14 @@ def run_mode(
             issues=issues,
             results=list(results),
         )
-    issues = validate_payload(payload, repo_root=repo_root)
-    extra: dict[str, Any] = {"payload_sha256": payload["payload_sha256"]}
+    validation = validate_payload_result(payload, repo_root=repo_root)
+    issues = validation.governing_issues
+    extra: dict[str, Any] = {
+        "dependency_environment_diagnostic": dependency_environment_diagnostic_projection(
+            validation
+        ),
+        "payload_sha256": payload["payload_sha256"],
+    }
     governed = repo_root / OUTPUT_PATH
     if governed.is_file():
         try:

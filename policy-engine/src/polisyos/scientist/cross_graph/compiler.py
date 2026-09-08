@@ -107,6 +107,19 @@ _CROSS_GRAPH_DISTANCE_ERRORS = (
 )
 _CROSS_GRAPH_MODEL_ERRORS = (TypeError, ValueError, ValidationError)
 
+_PARAMETER_EVIDENCE_WEIGHTS: dict[str, float] = {
+    "rct": 1.0,
+    "meta_analysis": 0.95,
+    "quasi_natural": 0.8,
+    "quasi_natural_event": 0.75,
+    "panel_fe": 0.65,
+    "structural": 0.55,
+    "observational": 0.45,
+    "cross_sectional": 0.35,
+    "theoretical": 0.15,
+    "unknown": 0.0,
+}
+
 
 class CrossGraphEvidenceConfig(BaseModel):
     """Runtime configuration describing which evidence backends, ontology, and context the compiler should use."""
@@ -1662,19 +1675,10 @@ def _candidate_distance(
 
 
 def _parameter_candidate_score(candidate: ParameterCandidate) -> float:
-    strength = getattr(candidate.parameter.evidence_strength, "value", "unknown")
-    strength_weight = {
-        "rct": 1.0,
-        "meta_analysis": 0.95,
-        "quasi_natural": 0.8,
-        "quasi_natural_event": 0.75,
-        "panel_fe": 0.65,
-        "structural": 0.55,
-        "observational": 0.45,
-        "cross_sectional": 0.35,
-        "theoretical": 0.15,
-        "unknown": 0.25,
-    }.get(str(strength), 0.25)
+    strength = getattr(candidate.parameter.evidence_strength, "value", None)
+    if strength is None:
+        return 0.0
+    strength_weight = _PARAMETER_EVIDENCE_WEIGHTS.get(str(strength), 0.0)
     transport_factor = max(0.0, 1.0 - float(candidate.transport_penalty or 0.0))
     review_penalty = 0.85 if candidate.requires_expert_review else 1.0
     layer_factor = 1.0 if candidate.source_layer in {"simulation_ready", "simulation"} else 0.7

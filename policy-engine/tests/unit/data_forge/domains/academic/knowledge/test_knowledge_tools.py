@@ -3,10 +3,17 @@
 from __future__ import annotations
 
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
+    ClaimLineageAuditPage,
+    ClaimLineageAuditRecord,
+    ClaimVocabularyLimitation,
+    ClaimVocabularyProjectionBinding,
+    ClaimVocabularySourceRowBinding,
     ParameterPrior,
     WorkSearchResult,
 )
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetSearchResult
+from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
 from polisyos.lex.knowledge.types import (
     LegalDocVersionResult,
     LegalFactResult,
@@ -87,6 +94,46 @@ class _MockScholarGraph:
 
     def get_mechanism_evidence(self, mechanism_name, *, top_k=20):
         return []
+
+    def audit_claim_lineage(self, *, status="all", cursor=None, limit=100):
+        del cursor, limit
+        source = ClaimVocabularySourceRowBinding(
+            source_table="ac_causal_claims_raw",
+            source_schema_version="legacy_v1",
+            source_identity="claim-1|work-1",
+            source_row_sha256="a" * 64,
+        )
+        binding = ClaimVocabularyProjectionBinding(
+            projection_rule_version=CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
+            subject_kind="claim_row",
+            source_rows=(source,),
+            projected_vocabulary_sha256="b" * 64,
+        )
+        return ClaimLineageAuditPage(
+            items=(
+                ClaimLineageAuditRecord(
+                    id="claim-1",
+                    work_id="work-1",
+                    cause="x",
+                    effect="y",
+                    legacy_strength_label="moderate",
+                    vocabulary=VersionedClaimVocabularyEnvelope(
+                        cause="x",
+                        effect="y",
+                        legacy_strength_label="moderate",
+                        record_extraction_mode="llm_legacy",
+                    ),
+                    projection_binding=binding,
+                    limitations=(
+                        ClaimVocabularyLimitation.AMBIGUOUS_LEGACY_VOCABULARY,
+                    ),
+                ),
+            ),
+            total_identities=69_798,
+            next_cursor="opaque-cursor",
+            status_filter=status,
+            projection_rule_version=CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
+        )
 
 
 class _MockLegalGraph:
@@ -268,6 +315,7 @@ def test_toolkit_no_graphs() -> None:
     assert toolkit.search_datasets("GDP") == []
     assert toolkit.get_parameter_prior("test") is None
     assert toolkit.find_causal_evidence("X", "Y") == []
+    assert toolkit.audit_academic_claim_lineage() is None
     assert toolkit.search_legal_facts("ліцензія") == []
 
 
@@ -299,6 +347,27 @@ def test_toolkit_search_evidence() -> None:
     results = toolkit.search_evidence("minimum wage")
     assert len(results) == 1
     assert "minimum wage" in results[0].title
+
+
+def test_toolkit_forwards_typed_claim_lineage_audit() -> None:
+    toolkit = KnowledgeToolkit(scholar_graph=_MockScholarGraph())
+
+    page = toolkit.audit_academic_claim_lineage(
+        status="not_established",
+        cursor="incoming-cursor",
+        limit=17,
+    )
+
+    assert page is not None
+    assert page.status_filter == "not_established"
+    assert page.total_identities == 69_798
+    assert page.next_cursor == "opaque-cursor"
+    item = page.items[0]
+    assert item.vocabulary.design_family_hint is None
+    assert item.vocabulary.design_family_hint_status.value == "not_established"
+    assert item.vocabulary.evidence_strength is None
+    assert item.vocabulary.evidence_strength_status.value == "not_established"
+    assert item.projection_binding.source_rows[0].source_identity == "claim-1|work-1"
 
 
 def test_toolkit_get_parameter_prior() -> None:

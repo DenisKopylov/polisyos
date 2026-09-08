@@ -65,6 +65,12 @@ vi.mock("@/api/hooks/useCapabilities", () => ({
   useCapabilities: (...args: unknown[]) => useCapabilitiesMock(...args),
 }));
 
+// The chrome owns authorization/layout; capability transport is an ancillary fixture.
+vi.mock("@/api/hooks/useCapabilitySearch", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/api/hooks/useCapabilitySearch")>()),
+  useCapabilitySearch: () => ({ data: undefined }),
+}));
+
 vi.mock("@/api/hooks/useHealth", () => ({
   useHealth: (...args: unknown[]) => useHealthMock(...args),
 }));

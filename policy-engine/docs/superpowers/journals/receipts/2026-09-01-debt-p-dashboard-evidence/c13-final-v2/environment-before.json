@@ -1,0 +1,27 @@
+{
+  "measured_at": "2026-09-01T20:32:52.837Z",
+  "phase": "before",
+  "schema_version": "1.0",
+  "tuple": {
+    "architecture": "arm64 Apple M2",
+    "browser": "Chromium 147.0.7727.15",
+    "commit": "39b5e0d9ceb453eb8afd4c5429cbef4ebeca50c2",
+    "fonts": {
+      "@fontsource/ibm-plex-mono": {
+        "file_count": 243,
+        "tree_sha256": "80fe419a5ee77cf65cc4565657770a81f275dab4fa9a48bf9c9b3d8dfe77de9e",
+        "version": "5.2.7"
+      },
+      "@fontsource/manrope": {
+        "file_count": 148,
+        "tree_sha256": "cf76bd50ef127d9a8019fc98b72ebda6f8e8eb6f2737abcdb2d9366437e7c3df",
+        "version": "5.2.8"
+      }
+    },
+    "host": "MacBook-Air-Denis.local",
+    "kernel": "darwin 25.6.0",
+    "os": "macOS 26.6.2 (25G83)",
+    "playwright": "1.59.1"
+  },
+  "tuple_sha256": "a3d2aa1dd115939f50e2274bbef635e9f9efa33a082a96d6f6e3b56bc2efb19f"
+}

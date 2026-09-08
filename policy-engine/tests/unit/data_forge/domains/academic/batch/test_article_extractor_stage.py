@@ -7,6 +7,7 @@ from polisyos.data_forge.domains.academic.batch.article_extractor import (
     _build_evidence_bundle,
     _normalize_empirical_parameter,
     run_article_extract,
+    serialize_rich_claim_occurrence_vocabulary,
 )
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import FullTextFetchResult
@@ -16,7 +17,68 @@ from polisyos.data_forge.domains.academic.batch.resolve_extract import (
     _eligibility_gate,
     _post_resolve_priority,
 )
-from polisyos.ir.analytics.literature import TextQuality
+from polisyos.ir.analytics.literature import (
+    CausalClaim,
+    DesignFamily,
+    EvidenceStrength,
+    SourceBasis,
+    TextQuality,
+)
+
+
+def test_rich_claim_serializer_preserves_metadata_and_does_not_borrow_record_confidence() -> None:
+    """Catch a rich serializer that drops claim metadata or substitutes record confidence."""
+
+    claim = CausalClaim(
+        claim_id="claim-1",
+        cause_variable="tax rate",
+        effect_variable="employment",
+        direction="negative",
+        claim_text="Tax rates reduce employment.",
+        claim_type="causal_claim",
+        design_family_hint=DesignFamily.OLS,
+        evidence_strength=EvidenceStrength.RCT,
+        effect_size=-0.12,
+        source_basis=SourceBasis.FULLTEXT,
+        claim_extraction_confidence=None,
+        extraction_warnings=["candidate_only"],
+        publish_blockers=["review"],
+    )
+
+    transport = serialize_rich_claim_occurrence_vocabulary(
+        claim,
+        record_extraction_mode="resolve_extract",
+        record_extraction_confidence=0.91,
+    )
+
+    assert transport.occurrence["claim_id"] == "claim-1"
+    assert transport.occurrence["claim_text"] == "Tax rates reduce employment."
+    assert transport.occurrence["effect_size"] == -0.12
+    assert transport.occurrence["extraction_warnings"] == ["candidate_only"]
+    assert transport.occurrence["publish_blockers"] == ["review"]
+    assert "strength" not in transport.occurrence
+    assert "evidence_strength" not in transport.occurrence
+    assert transport.vocabulary.evidence_strength is EvidenceStrength.RCT
+    assert transport.vocabulary.claim_extraction_confidence is None
+    assert transport.vocabulary.record_extraction_mode == "resolve_extract"
+
+
+def test_rich_claim_serializer_keeps_omitted_pydantic_defaults_absent() -> None:
+    """Catch default enum values being promoted to candidate observations."""
+
+    claim = CausalClaim(cause_variable="tax rate", effect_variable="employment")
+
+    transport = serialize_rich_claim_occurrence_vocabulary(
+        claim,
+        record_extraction_mode="resolve_extract",
+    )
+
+    assert transport.vocabulary.design_family_hint is None
+    assert transport.vocabulary.design_family_hint_status.value == "not_established"
+    assert transport.vocabulary.evidence_strength is None
+    assert transport.vocabulary.evidence_strength_status.value == "not_established"
+    assert transport.vocabulary.source_basis is None
+    assert transport.vocabulary.source_basis_status.value == "not_established"
 
 
 class _BaseFakePool:

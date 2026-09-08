@@ -28,7 +28,11 @@
     "scenario_scope": {},
     "assumption_set": []
   },
-  "comparability": {"status": "compatible", "warnings": [], "blocked_reasons": []},
+  "comparability": {
+    "status": "compatible",
+    "warnings": [],
+    "blocked_reasons": []
+  },
   "deltas": [
     {
       "metric_id": "policy_cost",
@@ -37,15 +41,21 @@
       "b": null,
       "delta_absolute": {
         "point": 0,
-        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "unit": { "code": "[USD]", "system": "ucum", "display": "USD" },
         "metric_id": "policy_cost_delta",
         "lineage": {
           "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "hash": null,
           "status": "verified",
           "freshness": "current",
-          "summary": {"method": "QuantityValue delta"},
-          "compact_summary": [{"kind": "method", "label": "QuantityValue delta", "id": "policy_cost_delta"}],
+          "summary": { "method": "QuantityValue delta" },
+          "compact_summary": [
+            {
+              "kind": "method",
+              "label": "QuantityValue delta",
+              "id": "policy_cost_delta"
+            }
+          ],
           "reason_code": null,
           "tracking_issue": null
         },
@@ -61,7 +71,12 @@
         "label": "Policy cost delta"
       },
       "delta_relative": null,
-      "delta_distribution": {"quantiles": {}, "mean_shift": null, "median_shift": null, "ci_overlap": null},
+      "delta_distribution": {
+        "quantiles": {},
+        "mean_shift": null,
+        "median_shift": null,
+        "ci_overlap": null
+      },
       "significance": "not_comparable",
       "dominance": "none",
       "decision_salience": 0.8,

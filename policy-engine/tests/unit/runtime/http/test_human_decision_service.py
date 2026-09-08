@@ -240,6 +240,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         _harness,
         _intent,
         _invocation,
+        _mandate_authority_evidence,
         _operation,
         _persist_signed,
         _prepare_gateway,
@@ -328,6 +329,10 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         invocation=invocation,
         intent=intent,
         bindings=(binding,),
+        mandate_authority_evidence=_mandate_authority_evidence(
+            effective_from=NOW - timedelta(hours=1),
+            effective_until=NOW + timedelta(hours=2),
+        ),
     )
     with patch.object(authority, "_utcnow", return_value=NOW):
         source_decision = _produce(
@@ -1847,7 +1852,48 @@ def test_human_decision_caller_selectors_must_match_signed_packet(
     assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(basis_gate)
 
 
-def test_human_decision_rejects_arbitrary_source_refusal(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "refusal_reasons",
+    [
+        ("operation_out_of_envelope",),
+        ("operation_out_of_envelope", "human_decision_missing"),
+    ],
+)
+def test_human_decision_pre_action_refusal_can_request_first_record(
+    tmp_path: Path,
+    refusal_reasons: tuple[str, ...],
+) -> None:
+    """The canonical missing-record refusal can enter review without firing an effect."""
+
+    fixture = _signed_current_gate_fixture(tmp_path)
+    request = fixture.source_decision.human_decision_request
+    assert request is not None
+    resigned = fixture.resign_request_bundle(
+        request,
+        source_update={"refusal_reasons": refusal_reasons},
+    )
+
+    gate = fixture.resolve(**resigned)
+
+    assert gate.status == "available", gate.reasons
+    assert _human_decision_record_ids(fixture.store) == set()
+    assert fixture.effects == []
+
+
+@pytest.mark.parametrize(
+    "refusal_reasons",
+    [
+        ("operation_out_of_envelope", "explicit_permission_missing"),
+        ("human_decision_missing",),
+        ("operation_out_of_envelope", "human_decision_missing", "explicit_permission_missing"),
+        ("human_decision_missing", "operation_out_of_envelope"),
+        ("operation_out_of_envelope", "human_decision_missing", "human_decision_missing"),
+    ],
+)
+def test_human_decision_rejects_arbitrary_source_refusal(
+    tmp_path: Path,
+    refusal_reasons: tuple[str, ...],
+) -> None:
     """A human approval cannot convert an unrelated producer refusal into authority."""
 
     fixture = _signed_current_gate_fixture(tmp_path)
@@ -1855,12 +1901,7 @@ def test_human_decision_rejects_arbitrary_source_refusal(tmp_path: Path) -> None
     assert request is not None
     resigned = fixture.resign_request_bundle(
         request,
-        source_update={
-            "refusal_reasons": (
-                "operation_out_of_envelope",
-                "explicit_permission_missing",
-            )
-        },
+        source_update={"refusal_reasons": refusal_reasons},
     )
 
     gate = fixture.resolve(**resigned)

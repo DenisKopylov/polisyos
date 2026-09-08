@@ -118,10 +118,12 @@ const BOUND_PRODUCER_READS = ["useI18n", "useReadinessComposition"] as const;
 
 describe("DS16-C01 negative 4 — successor authority", () => {
   it("holds on both panels as they stand, and reports the property it proves", () => {
-    expect(mintedValueFindings(readinessSource, "PublicSectorReadinessPanel")).toEqual(
-      [],
-    );
-    expect(mintedValueFindings(scientificSource, "ScientificDepthPanel")).toEqual([]);
+    expect(
+      mintedValueFindings(readinessSource, "PublicSectorReadinessPanel"),
+    ).toEqual([]);
+    expect(
+      mintedValueFindings(scientificSource, "ScientificDepthPanel"),
+    ).toEqual([]);
   });
 
   it("catches a locally computed value arriving through a legitimate producer field", () => {
@@ -183,7 +185,10 @@ describe("DS16-C01 negative 4 — successor authority", () => {
       ],
       [
         "component-child",
-        scientificSource.replace('{t("common.unavailable")}', "<Unavailable />"),
+        scientificSource.replace(
+          '{t("common.unavailable")}',
+          "<Unavailable />",
+        ),
         "ScientificDepthPanel",
         ["opaque-component-child:Unavailable"],
       ],
@@ -276,9 +281,13 @@ describe("DS16-C01 negative 4 — successor authority", () => {
       '{t("common.unavailable")}\n      {0.87}',
     );
 
-    expect(markersIntact).toContain('import { useI18n } from "@/shared/i18n/LocaleProvider";');
+    expect(markersIntact).toContain(
+      'import { useI18n } from "@/shared/i18n/LocaleProvider";',
+    );
     expect(markersIntact).toContain("const { t } = useI18n();");
-    expect(markersIntact).toContain('data-testid="public-sector-readiness-panel"');
+    expect(markersIntact).toContain(
+      'data-testid="public-sector-readiness-panel"',
+    );
     expect(markersIntact).toContain('{t("common.unavailable")}');
 
     expect(

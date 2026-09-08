@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -202,6 +203,107 @@ def test_canonical_owner_sources_validate(
     assert result["semantic_projection_hash_rule_version"]
     assert result["dependency_aggregate_identity"].startswith("sha256:")
     assert result["dependency_bindings"]
+
+
+def test_value_gate_worker_projects_the_validated_foundry_diagnostic(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The isolated bridge receives one N8/Foundry binding, not a local resolver."""
+
+    value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    companion_path = (
+        "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    )
+    monkeypatch.setitem(worker_module._VALIDATORS, "value-gate", lambda _root: [])
+    companion = json.loads((REPO_ROOT / companion_path).read_text(encoding="utf-8"))
+    result = worker_module._validate_request(
+        {
+            "projection_id": "value-gate",
+            "repository_root": str(REPO_ROOT),
+            "component_bindings": {
+                value_path: _sha256(REPO_ROOT / value_path),
+                companion_path: _sha256(REPO_ROOT / companion_path),
+            },
+            "projection_payload": {"probe": "value-gate"},
+        }
+    )
+
+    assert result["status"] == "passed"
+    diagnostic = result["related_dependency_diagnostic"]
+    assert diagnostic["decision_role"] == "ambient_non_decisive"
+    assert diagnostic["predicate_class"] == "recomputed"
+    assert diagnostic["receipt_state"] == "received"
+    assert diagnostic["status"] in {"pass", "fail", "not_established"}
+    assert diagnostic["profile"] == companion["profile_discriminant"]
+
+
+def test_value_gate_worker_diagnostic_exception_cannot_change_governing_status(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A broken ambient probe becomes non-receipt, never owner-validation failure."""
+
+    value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    monkeypatch.setitem(worker_module._VALIDATORS, "value-gate", lambda _root: [])
+
+    def broken_diagnostic(_root: Path) -> dict[str, Any]:
+        raise RuntimeError("ambient probe failed")
+
+    monkeypatch.setattr(worker_module, "_value_dependency_diagnostic", broken_diagnostic)
+    result = worker_module._validate_request(
+        {
+            "projection_id": "value-gate",
+            "repository_root": str(REPO_ROOT),
+            "component_bindings": {value_path: _sha256(REPO_ROOT / value_path)},
+            "projection_payload": {"probe": "value-gate"},
+        }
+    )
+
+    assert result["status"] == "passed"
+    assert result["issue_codes"] == []
+    assert result["related_dependency_diagnostic"] == {
+        "artifact_content_ref": None,
+        "authority_boundary": None,
+        "decision_role": "ambient_non_decisive",
+        "first_case": None,
+        "predicate_class": None,
+        "profile": None,
+        "receipt_state": "not_received",
+        "status": "not_established",
+    }
+
+
+def test_value_gate_worker_maps_owner_diagnostic_nonreceipt_to_not_established(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    companion_path = (
+        REPO_ROOT
+        / "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    )
+    companion = n8.FoundryDependencyDiscriminantCompanion.model_validate_json(
+        companion_path.read_bytes()
+    )
+    monkeypatch.setattr(
+        n8,
+        "validate_foundry_dependency_discriminant",
+        lambda **_kwargs: SimpleNamespace(
+            content_ref=companion.content_ref,
+            profile_discriminant=companion.profile_discriminant,
+            ambient_findings=(
+                {
+                    "code": "dependency_environment_diagnostic_not_received",
+                    "decision_role": "ambient_non_decisive",
+                },
+            ),
+        ),
+    )
+
+    diagnostic = worker_module._value_dependency_diagnostic(REPO_ROOT)
+
+    assert diagnostic["receipt_state"] == "received"
+    assert diagnostic["status"] == "not_established"
+    assert diagnostic["first_case"] is None
 
 
 def test_acquisition_growth_has_genuine_recomputing_owner_validator() -> None:

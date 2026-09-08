@@ -22,6 +22,33 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Enable corepack and activate the pinned pnpm
+      # setup-node's cache: "pnpm" resolves the directory to cache by running
+      # `pnpm store path`, so pnpm must be on PATH before that step: corepack
+      # ships with the runner's Node but is not enabled.
+      #
+      # Enabling it is not enough on its own. The corepack shim resolves its
+      # version from the nearest packageManager pin, and this repository keeps
+      # that pin in policy-engine/package.json while setup-node runs from the
+      # repository root, where there is none. The shim therefore fell back to
+      # corepack's own default pnpm, a different major with a different store
+      # layout: setup-node recorded /home/runner/.local/share/pnpm/store/v11
+      # while `corepack pnpm install` populated the pinned 10.x's store/v10, so
+      # the post-run save looked in a directory nothing had written to.
+      #
+      # Activating the pin here makes the root-level shim resolve to the same
+      # pnpm the install uses, so both sides name one store. Naming the store
+      # explicitly does not fix this on its own - pnpm appends the store-layout
+      # version to whatever directory it is given, so two different majors stay
+      # in two different directories.
+      shell: bash
+      working-directory: policy-engine
+      run: |
+        set -euo pipefail
+        corepack enable
+        corepack prepare --activate
+        pnpm --version
+
     - name: Setup Node
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:

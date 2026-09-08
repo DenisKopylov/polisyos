@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
@@ -11,6 +13,7 @@ from polisyos.ir.analytics.literature import (
     ClaimAdjudicationResult,
     ClaimExplicitness,
     ClaimType,
+    ClaimVocabularyAxisStatus,
     DesignFamily,
     EnvironmentAuditReport,
     EvidenceParameter,
@@ -24,12 +27,12 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
     SupportStatus,
     TextQuality,
+    VersionedClaimVocabularyEnvelope,
     load_article_extraction_result,
     load_literature_causal_prior,
     persist_article_extraction_result,
     persist_literature_causal_prior,
 )
-from pydantic import ValidationError
 
 
 def _minimal_parameter() -> EvidenceParameter:
@@ -186,6 +189,57 @@ def test_causal_claim_is_frozen_report_contract() -> None:
         claim.claim_text = "mutated"
 
 
+def test_design_family_does_not_implicitly_derive_evidence_strength() -> None:
+    """Keep the two v2 classification axes independently supplied."""
+
+    disagreement = VersionedClaimVocabularyEnvelope(
+        cause="tax_rate",
+        effect="employment",
+        design_family_hint=DesignFamily.OLS,
+        design_family_hint_status=ClaimVocabularyAxisStatus.CANDIDATE,
+        evidence_strength=EvidenceStrength.RCT,
+        evidence_strength_status=ClaimVocabularyAxisStatus.CANDIDATE,
+        claim_extraction_confidence=0.23,
+        claim_extraction_confidence_status=ClaimVocabularyAxisStatus.CANDIDATE,
+        source_basis=SourceBasis.FULLTEXT,
+        source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
+    )
+
+    assert VersionedClaimVocabularyEnvelope.model_validate_json(
+        disagreement.model_dump_json()
+    ) == disagreement
+    assert disagreement.design_family_hint is DesignFamily.OLS
+    assert disagreement.evidence_strength is EvidenceStrength.RCT
+
+    axis_variants = {
+        "design_family_hint": DesignFamily.RCT,
+        "evidence_strength": EvidenceStrength.PANEL_FE,
+        "claim_extraction_confidence": 0.77,
+        "source_basis": SourceBasis.ABSTRACT_ONLY,
+    }
+    axis_values = tuple(axis_variants)
+    baseline = disagreement.model_dump(mode="json")
+    for changed_axis, replacement in axis_variants.items():
+        variant_payload = dict(baseline)
+        variant_payload[changed_axis] = replacement
+        variant = VersionedClaimVocabularyEnvelope.model_validate(variant_payload)
+
+        assert getattr(variant, changed_axis) == replacement
+        for stable_axis in axis_values:
+            if stable_axis != changed_axis:
+                assert getattr(variant, stable_axis) == getattr(disagreement, stable_axis)
+
+    with pytest.raises(ValidationError, match="strength"):
+        VersionedClaimVocabularyEnvelope.model_validate(
+            {
+                "schema_version": "2.0",
+                "cause": "tax_rate",
+                "effect": "employment",
+                "strength": "rct",
+            }
+        )
+
+
 def test_article_extraction_result_normalizes_year_aliases_consistently() -> None:
     payload = {
         "openalex_id": "https://openalex.org/W4",
@@ -270,6 +324,33 @@ def test_literature_prior_artifact_persist_load_roundtrip(tmp_path) -> None:
     assert loaded == prior
     assert loaded.edges[0].src == "x"
     assert loaded.metadata["topic"] == "labor"
+
+
+def test_literature_prior_roundtrips_declared_absence_without_value_token(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="x",
+                dst="y",
+                confidence=0.66,
+                evidence_strength=None,
+                evidence_strength_status=ClaimVocabularyAxisStatus.NOT_ESTABLISHED,
+                article_refs=["W42"],
+            )
+        ]
+    )
+
+    ref = persist_literature_causal_prior(store, prior)
+    loaded = load_literature_causal_prior(store, ref)
+    graph = loaded.to_causal_graph_model(nodes=["x", "y"])
+
+    edge = loaded.edges[0]
+    assert edge.evidence_strength is None
+    assert edge.evidence_strength_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    assert edge.model_dump(mode="json")["evidence_strength"] is None
+    assert graph.edges[0].metadata.get("evidence_strength") is None
+    assert graph.edges[0].metadata["evidence_strength_status"] == "not_established"
 
 
 def test_literature_prior_roundtrips_environment_audit(tmp_path) -> None:

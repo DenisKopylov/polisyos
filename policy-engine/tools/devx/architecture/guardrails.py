@@ -13,12 +13,16 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 import tomllib
+import venv
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from tools.lib.imports import repo_root_from
 
@@ -34,6 +38,12 @@ DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "exceptions" / "guardrails
 DEFAULT_EXCEPTION_REGISTRY = REPO_ROOT / "architecture" / "guardrail_exceptions_registry.md"
 DEFAULT_MODULE_SIZE_BUDGET = REPO_ROOT / "architecture" / "module_size_budget.toml"
 DEFAULT_MAX_EXPIRY_DAYS = 90
+STATUS_RETIREMENT_STANDALONE_NOTICE = (
+    "Standalone Atlas gate: "
+    "architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by "
+    "`uv run polisyos-tools architecture guardrails check`; run it explicitly or "
+    "through architecture/atlas_surfaces/check_atlas_enforcement.py."
+)
 RUNTIME_OPENAPI_CLIENT_SOURCE = "schemas/runtime_api_v1.openapi.json"
 FRESHNESS_PATTERNS = (
     re.compile(r"^- Last updated:\s+\d{4}-\d{2}-\d{2}$", flags=re.MULTILINE),
@@ -69,6 +79,16 @@ WORKFLOW_BASELINE_REQUIREMENTS: dict[str, tuple[tuple[str, str, str], ...]] = {
             "uv_guardrails",
             "uv run polisyos-tools architecture guardrails check",
             "Architecture workflow must run the architecture guardrails inside the synced `uv` environment.",
+        ),
+    ),
+}
+WORKFLOW_RUN_REQUIREMENTS: dict[str, tuple[tuple[str, str, str, str], ...]] = {
+    "ops/ci/templates/workflows/arch.yml": (
+        (
+            "trust_claim_posture",
+            "import-gate",
+            "uv run pytest tests/repo_quality/tools/test_trust_claim_posture.py -q",
+            "Architecture workflow must run the trust-claim posture semantic guardrail.",
         ),
     ),
 }
@@ -1438,7 +1458,6 @@ def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
     )
     shutil.copytree(repo_root, destination, symlinks=True, ignore=ignored)
     for relative in (
-        Path(".venv"),
         Path("node_modules"),
         Path("packages/runtime-api-client/node_modules"),
         Path("apps/runtime-dashboard/node_modules"),
@@ -1449,6 +1468,58 @@ def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
         linked = destination / relative
         linked.parent.mkdir(parents=True, exist_ok=True)
         linked.symlink_to(source, target_is_directory=True)
+
+
+def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
+    """Bind probe imports and uv's disposable environment to the copied source."""
+    private_environment = source_root.parent / "environment"
+    environment = os.environ.copy()
+    for name in (
+        "VIRTUAL_ENV",
+        "CONDA_PREFIX",
+        "PYTHONHOME",
+        "UV_PROJECT_ENVIRONMENT",
+        "UV_NO_SYNC",
+        "UV_NO_CONFIG",
+        "UV_CONFIG_FILE",
+        "UV_ENV_FILE",
+        "UV_ISOLATED",
+    ):
+        environment.pop(name, None)
+    environment.update(
+        {
+            "UV_FROZEN": "1",
+            "UV_PROJECT": str(source_root),
+            "UV_PROJECT_ENVIRONMENT": str(private_environment),
+            "UV_CACHE_DIR": str(source_root.parent / "uv-cache"),
+            "UV_WORKING_DIR": str(source_root),
+            "UV_PYTHON": sys.executable,
+            "UV_NO_ENV_FILE": "1",
+            "PYTHONPATH": os.pathsep.join((str(source_root / "src"), str(source_root))),
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PATH": os.pathsep.join((str(private_environment / "bin"), environment.get("PATH", ""))),
+        }
+    )
+    return environment
+
+
+def _prepare_isolated_probe_environment(source_root: Path, environment: dict[str, str]) -> None:
+    """Provision a private interpreter before any family's output measurement."""
+    private_environment = Path(environment["UV_PROJECT_ENVIRONMENT"])
+    venv.EnvBuilder(with_pip=False).create(private_environment)
+    (source_root / ".venv").symlink_to(private_environment, target_is_directory=True)
+    if (source_root / "pyproject.toml").is_file():
+        uv_binary = shutil.which("uv", path=environment["PATH"])
+        if uv_binary is None:
+            raise FileNotFoundError("uv is required to provision the locked probe environment")
+        subprocess.run(
+            [uv_binary, "sync", "--frozen"],
+            cwd=source_root,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
 
 
 def _changed_snapshot_paths(
@@ -1497,6 +1568,8 @@ def _run_required_generated_artifact_checks(
     required_families = [
         family for family in families if _requires_default_generated_freshness(family)
     ]
+    if not required_families:
+        return []
     violations: list[GuardrailViolation] = []
     declared_owners: dict[str, list[str]] = {}
     for family in families:
@@ -1515,6 +1588,23 @@ def _run_required_generated_artifact_checks(
         isolated_repo_root = scratch_root / "source"
         output_root = scratch_root / "outputs"
         _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
+        environment = _isolated_probe_environment(isolated_repo_root)
+        try:
+            _prepare_isolated_probe_environment(isolated_repo_root, environment)
+        except (OSError, subprocess.CalledProcessError) as error:
+            detail = (
+                ((error.stdout or "") + (error.stderr or "")).strip()
+                if isinstance(error, subprocess.CalledProcessError)
+                else str(error)
+            )
+            return [
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject="required_freshness_environment",
+                    detail="probe_environment_preparation_failed",
+                    message=f"Required freshness environment preparation failed: {detail}",
+                )
+            ]
         for family in required_families:
             family_violations: list[GuardrailViolation] = []
             probe_command = family.output_probe_command
@@ -1540,6 +1630,7 @@ def _run_required_generated_artifact_checks(
             result = subprocess.run(
                 rendered_command,
                 cwd=isolated_repo_root,
+                env=environment,
                 capture_output=True,
                 text=True,
                 check=False,
@@ -1690,7 +1781,12 @@ def _run_required_generated_artifact_checks(
 
 def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
-    for workflow_rel, rules in WORKFLOW_BASELINE_REQUIREMENTS.items():
+    workflow_paths = sorted(
+        set(WORKFLOW_BASELINE_REQUIREMENTS)
+        | set(WORKFLOW_RUN_REQUIREMENTS)
+        | set(WORKFLOW_BASELINE_FORBIDDEN)
+    )
+    for workflow_rel in workflow_paths:
         workflow_path = REPO_ROOT / workflow_rel
         if not workflow_path.exists():
             violations.append(
@@ -1703,7 +1799,9 @@ def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
             )
             continue
         text = workflow_path.read_text(encoding="utf-8")
-        for detail, snippet, message in rules:
+        for detail, snippet, message in WORKFLOW_BASELINE_REQUIREMENTS.get(
+            workflow_rel, ()
+        ):
             if snippet not in text:
                 violations.append(
                     GuardrailViolation(
@@ -1713,12 +1811,51 @@ def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
                         message=f"{message} Expected snippet: `{snippet}`",
                     )
                 )
-    for workflow_rel, rules in WORKFLOW_BASELINE_FORBIDDEN.items():
-        workflow_path = REPO_ROOT / workflow_rel
-        if not workflow_path.exists():
-            continue
-        text = workflow_path.read_text(encoding="utf-8")
-        for detail, snippet, message in rules:
+        run_requirements = WORKFLOW_RUN_REQUIREMENTS.get(workflow_rel, ())
+        if run_requirements:
+            try:
+                payload = yaml.safe_load(text)
+            except yaml.YAMLError as exc:
+                violations.append(
+                    GuardrailViolation(
+                        check="workflow_config",
+                        subject=workflow_rel,
+                        detail="invalid_yaml",
+                        message=f"Workflow/config YAML is invalid: {exc}",
+                    )
+                )
+                payload = None
+            jobs = payload.get("jobs") if isinstance(payload, dict) else None
+            for detail, job_id, command, message in run_requirements:
+                job = jobs.get(job_id) if isinstance(jobs, dict) else None
+                job_gates = (
+                    isinstance(job, dict)
+                    and "if" not in job
+                    and job.get("continue-on-error", False) is False
+                )
+                steps = job.get("steps", ()) if isinstance(job, dict) else ()
+                command_gates = any(
+                    isinstance(step, dict)
+                    and step.get("run") == command
+                    and "if" not in step
+                    and step.get("continue-on-error", False) is False
+                    for step in steps
+                )
+                if not job_gates or not command_gates:
+                    violations.append(
+                        GuardrailViolation(
+                            check="workflow_config",
+                            subject=workflow_rel,
+                            detail=detail,
+                            message=(
+                                f"{message} Expected unconditional gating run command in job "
+                                f"`{job_id}`: `{command}`"
+                            ),
+                        )
+                    )
+        for detail, snippet, message in WORKFLOW_BASELINE_FORBIDDEN.get(
+            workflow_rel, ()
+        ):
             if snippet in text:
                 violations.append(
                     GuardrailViolation(
@@ -2015,6 +2152,7 @@ def run_check(args: argparse.Namespace) -> int:
             )
         )
 
+    print(STATUS_RETIREMENT_STANDALONE_NOTICE)
     if violations:
         print("Architecture guardrail check FAILED:")
         for violation in violations:

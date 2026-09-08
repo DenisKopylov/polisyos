@@ -24,6 +24,8 @@ logger = get_logger(__name__)
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import (
         CausalClaimResult,
+        CausalClaimResultV1,
+        ClaimLineageAuditPage,
         ParameterPrior,
         ScholarKnowledgeGraph,
         WorkSearchResult,
@@ -39,7 +41,10 @@ if TYPE_CHECKING:
         LegalSourceBundle,
     )
     from polisyos.scholar.search.models import WebEvidenceBundle
-    from polisyos.scientist.validation.policy_verified.models import LegalCandidatePack, LegalSourcePack
+    from polisyos.scientist.validation.policy_verified.models import (
+        LegalCandidatePack,
+        LegalSourcePack,
+    )
 
 
 class KnowledgeToolkit:
@@ -191,6 +196,50 @@ class KnowledgeToolkit:
         return self._scholar_graph.get_mechanism_evidence(
             mechanism_name,
             top_k=top_k,
+        )
+
+    def find_causal_evidence_v1_audit(
+        self,
+        cause: str,
+        effect: str,
+        *,
+        min_trust: float = 0.5,
+    ) -> list[CausalClaimResultV1]:
+        """Read the deprecated lossy v1 claim view for audit tooling only."""
+        if self._scholar_graph is None:
+            return []
+        return self._scholar_graph.find_causal_evidence_v1_audit(
+            cause, effect, min_trust=min_trust
+        )
+
+    def get_mechanism_evidence_v1_audit(
+        self,
+        mechanism_name: str,
+        *,
+        top_k: int = 20,
+        min_trust: float = 0.3,
+    ) -> list[CausalClaimResultV1]:
+        """Read the deprecated lossy v1 mechanism view for audit tooling only."""
+        if self._scholar_graph is None:
+            return []
+        return self._scholar_graph.get_mechanism_evidence_v1_audit(
+            mechanism_name, top_k=top_k, min_trust=min_trust
+        )
+
+    def audit_academic_claim_lineage(
+        self,
+        *,
+        status: str = "all",
+        cursor: str | None = None,
+        limit: int = 100,
+    ) -> ClaimLineageAuditPage | None:
+        """Read raw claim lineage for audit without semantic reconstruction."""
+        if self._scholar_graph is None:
+            return None
+        return self._scholar_graph.audit_claim_lineage(
+            status=status,
+            cursor=cursor,
+            limit=limit,
         )
 
     # ------------------------------------------------------------------

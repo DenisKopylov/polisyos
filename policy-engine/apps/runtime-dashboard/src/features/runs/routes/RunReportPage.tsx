@@ -335,13 +335,19 @@ function RunPaperDocument({
         <h1 className="text-3xl font-semibold">
           {t("pages.runs.report.paper.runHeading", { runId: paper.run.run_id })}
         </h1>
+      </header>
+
+      <section
+        data-print-keep-together="true"
+        data-testid="run-paper-time-semantics"
+      >
         <TimeSemanticsLabel
           epochSemantics={epochSemantics}
           payloadAsOf={epochProjection?.owner_as_of}
           txAt={epochProjection?.temporal_scope.tx_at}
           validAt={epochProjection?.temporal_scope.valid_at}
         />
-      </header>
+      </section>
 
       <section data-print-keep-together="true">
         <dl className="grid gap-3 sm:grid-cols-2">

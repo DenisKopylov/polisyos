@@ -52,66 +52,71 @@ export type AuthorityLocalStateCodec<Value> = Readonly<{
   encode: (value: Value) => unknown;
 }>;
 
-export type AuthorityLocalStateFamily<StoreClass extends string, Value> =
-  Readonly<{
-    key: (input: {
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-    }) => string | null;
-    read: (input: {
-      fallback: Value;
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-    }) => Value;
-    write: (input: {
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-      value: Value;
-    }) => boolean;
-  }>;
+export type AuthorityLocalStateFamily<
+  StoreClass extends string,
+  Value,
+> = Readonly<{
+  key: (input: {
+    scope: AuthorityLocalScope | null | undefined;
+    slot: string;
+  }) => string | null;
+  read: (input: {
+    fallback: Value;
+    scope: AuthorityLocalScope | null | undefined;
+    slot: string;
+  }) => Value;
+  write: (input: {
+    scope: AuthorityLocalScope | null | undefined;
+    slot: string;
+    value: Value;
+  }) => boolean;
+}>;
 
-export type AuthorityLocalStateEnvelopeFamily<StoreClass extends string, Value> =
-  Readonly<{
-    decode: <Fallback extends Value | null>(input: {
-      envelope: unknown;
-      fallback: Fallback;
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-    }) => Value | Fallback;
-    encode: (input: {
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-      value: Value;
-    }) => Readonly<{
-      envelope: Omit<
-        PersistedEnvelope<StoreClass>,
-        typeof persistedEnvelopeIssuerBrand
-      >;
-      key: string;
-    }> | null;
-    key: (input: {
-      scope: AuthorityLocalScope | null | undefined;
-      slot: string;
-    }) => string | null;
-  }>;
+export type AuthorityLocalStateEnvelopeFamily<
+  StoreClass extends string,
+  Value,
+> = Readonly<{
+  decode: <Fallback extends Value | null>(input: {
+    envelope: unknown;
+    fallback: Fallback;
+    scope: AuthorityLocalScope | null | undefined;
+    slot: string;
+  }) => Value | Fallback;
+  encode: (input: {
+    scope: AuthorityLocalScope | null | undefined;
+    slot: string;
+    value: Value;
+  }) => Readonly<{
+    envelope: Omit<
+      PersistedEnvelope<StoreClass>,
+      typeof persistedEnvelopeIssuerBrand
+    >;
+    key: string;
+  }> | null;
+  key: (input: {
+    scope: AuthorityLocalScope | null | undefined;
+    slot: string;
+  }) => string | null;
+}>;
 
 export type AuthorityLocalStateEnvelopeFamilyConfig<
   StoreClass extends string,
   Value,
-> =
-  Readonly<{
-    clock: () => Date;
-    codec: AuthorityLocalStateCodec<Value>;
-    family: StoreClass;
-    ttlMs: number;
-    version: number;
-  }>;
+> = Readonly<{
+  clock: () => Date;
+  codec: AuthorityLocalStateCodec<Value>;
+  family: StoreClass;
+  ttlMs: number;
+  version: number;
+}>;
 
-type AuthorityLocalStateFamilyConfig<StoreClass extends string, Value> =
-  AuthorityLocalStateEnvelopeFamilyConfig<StoreClass, Value> &
-    Readonly<{
-      storage: () => Storage | null;
-    }>;
+type AuthorityLocalStateFamilyConfig<
+  StoreClass extends string,
+  Value,
+> = AuthorityLocalStateEnvelopeFamilyConfig<StoreClass, Value> &
+  Readonly<{
+    storage: () => Storage | null;
+  }>;
 
 type ParsedEnvelope<StoreClass extends string> = Omit<
   PersistedEnvelope<StoreClass>,
@@ -142,7 +147,10 @@ function isCanonicalTimestamp(value: unknown): value is string {
     return false;
   }
   const milliseconds = Date.parse(value);
-  return Number.isFinite(milliseconds) && new Date(milliseconds).toISOString() === value;
+  return (
+    Number.isFinite(milliseconds) &&
+    new Date(milliseconds).toISOString() === value
+  );
 }
 
 function freezeRecursively<Value>(value: Value): Value {
@@ -239,7 +247,11 @@ export function createAuthorityLocalStateEnvelopeFamily<
 >(
   config: AuthorityLocalStateEnvelopeFamilyConfig<StoreClass, Value>,
 ): AuthorityLocalStateEnvelopeFamily<StoreClass, Value> {
-  if (!isNonEmptyString(config.family) || !Number.isInteger(config.version) || config.version < 1) {
+  if (
+    !isNonEmptyString(config.family) ||
+    !Number.isInteger(config.version) ||
+    config.version < 1
+  ) {
     throw new Error("Authority local-state family configuration is invalid.");
   }
   if (!Number.isFinite(config.ttlMs) || config.ttlMs <= 0) {
@@ -253,7 +265,11 @@ export function createAuthorityLocalStateEnvelopeFamily<
     if (!isCompleteScope(input.scope) || !isNonEmptyString(input.slot)) {
       return null;
     }
-    return scopedKey({ family: config.family, scope: input.scope, slot: input.slot });
+    return scopedKey({
+      family: config.family,
+      scope: input.scope,
+      slot: input.slot,
+    });
   }
 
   return Object.freeze({
@@ -301,7 +317,10 @@ export function createAuthorityLocalStateEnvelopeFamily<
       try {
         issued = config.clock();
         expires = new Date(issued.getTime() + config.ttlMs);
-        if (!Number.isFinite(issued.getTime()) || !Number.isFinite(expires.getTime())) {
+        if (
+          !Number.isFinite(issued.getTime()) ||
+          !Number.isFinite(expires.getTime())
+        ) {
           return null;
         }
         encodedPayload = copyEncodedPayload(config.codec.encode(input.value));
@@ -347,7 +366,10 @@ export function createAuthorityLocalStateEnvelopeFamily<
  * callers supply only verified scope, logical slot, and payload. Invalid bytes
  * are never migrated or rewritten during reads.
  */
-export function createAuthorityLocalStateFamily<StoreClass extends string, Value>(
+export function createAuthorityLocalStateFamily<
+  StoreClass extends string,
+  Value,
+>(
   config: AuthorityLocalStateFamilyConfig<StoreClass, Value>,
 ): AuthorityLocalStateFamily<StoreClass, Value> {
   const owner = createAuthorityLocalStateEnvelopeFamily(config);
@@ -389,10 +411,7 @@ export function createAuthorityLocalStateFamily<StoreClass extends string, Value
         if (!storage) {
           return false;
         }
-        storage.setItem(
-          issued.key,
-          JSON.stringify(issued.envelope),
-        );
+        storage.setItem(issued.key, JSON.stringify(issued.envelope));
         return true;
       } catch {
         return false;

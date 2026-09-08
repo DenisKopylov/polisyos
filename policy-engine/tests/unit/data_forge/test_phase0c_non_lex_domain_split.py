@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+
 from polisyos.data_forge.kernel.pipeline import plan_asset_specs
 from polisyos.data_forge.read_api.academic import (
     ACADEMIC_ASSET_GROUP,
@@ -70,17 +71,23 @@ def test_academic_shadow_bundle_loads_without_legacy_academic_imports() -> None:
     after = {name for name in sys.modules if name.startswith("polisyos.academic")}
     assert after == before
     assert bundle.pipeline == "academic"
-    assert bundle.consumer_ready is True
+    assert bundle.consumer_ready is False
     assert bundle.readiness["canonical_runtime_ready"] is True
-    assert bundle.readiness_summary.consumer_ready is True
-    assert bundle.readiness_summary.failed_readiness_checks == ()
+    assert bundle.readiness["schema_generation_current"] is False
+    assert bundle.readiness_summary.consumer_ready is False
+    assert bundle.readiness_summary.failed_readiness_checks == (
+        "schema_generation_current",
+    )
     assert bundle.benchmark_metrics["parameter_supported_ratio"] == 0.7
     assert bundle.qc_metrics["runtime_demanded_canonical_resolution_rate_pct"] == 95.0
     assert len(bundle.artifacts) == 5
     assert all(artifact.checksum_ok is True for artifact in bundle.artifacts)
     assert bundle.artifact_by_relative_path("publish/academic_pipeline_readiness.json")
     assert bundle.stage_manifests[0].stage == "publish"
-    assert bundle.warnings == ()
+    assert len(bundle.warnings) == 1
+    assert "status=missing" in bundle.warnings[0]
+    assert "recorded_generation=unrecorded" in bundle.warnings[0]
+    assert "current_generation=sha256:" in bundle.warnings[0]
 
 
 def test_academic_shadow_diff_reports_readiness_and_metric_changes() -> None:
@@ -93,11 +100,15 @@ def test_academic_shadow_diff_reports_readiness_and_metric_changes() -> None:
     assert diff.added_artifacts == ()
     assert diff.removed_artifacts == ()
     assert "publish/academic_pipeline_readiness.json" in diff.changed_artifacts
-    assert diff.readiness_changes["consumer_ready"] == (True, False)
+    assert "consumer_ready" not in diff.readiness_changes
     assert diff.readiness_changes["parameter_utility_ready"] == (True, False)
     assert diff.readiness_changes["failed_readiness_checks"] == (
-        (),
-        ("operational_stability_ready", "parameter_utility_ready"),
+        ("schema_generation_current",),
+        (
+            "operational_stability_ready",
+            "parameter_utility_ready",
+            "schema_generation_current",
+        ),
     )
     assert diff.metric_deltas["benchmark.parameter_supported_ratio"] == pytest.approx(-0.1)
     assert diff.metric_deltas["qc.runtime_demanded_canonical_resolution_rate_pct"] == -3.0

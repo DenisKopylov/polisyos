@@ -13,8 +13,14 @@
       "snapshot_id": null,
       "scenario_id": null
     },
-    "valid_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:00:00Z"},
-    "tx_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:01:00Z"},
+    "valid_range": {
+      "earliest": "2026-02-11T11:59:00Z",
+      "latest": "2026-02-11T12:00:00Z"
+    },
+    "tx_range": {
+      "earliest": "2026-02-11T11:59:00Z",
+      "latest": "2026-02-11T12:01:00Z"
+    },
     "resolution": "event",
     "surfaces": [
       {
@@ -22,8 +28,14 @@
         "supported": true,
         "resolution": "event",
         "reason_code": null,
-        "valid_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:00:00Z"},
-        "tx_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:01:00Z"},
+        "valid_range": {
+          "earliest": "2026-02-11T11:59:00Z",
+          "latest": "2026-02-11T12:00:00Z"
+        },
+        "tx_range": {
+          "earliest": "2026-02-11T11:59:00Z",
+          "latest": "2026-02-11T12:01:00Z"
+        },
         "nearest_event_points": [],
         "gaps": []
       }

@@ -14,6 +14,9 @@ import uvicorn
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+    from polisyos.pdc import Layer2S2DesignSearchInput
+
 
 def _load_fixture_builder() -> Callable[..., dict[str, object]]:
     policy_engine_root = Path(__file__).resolve().parents[3]
@@ -48,15 +51,13 @@ def _assert_dashboard_fixture_clean(payload: object) -> None:
     assert_no_benchmark_contamination(payload, surface="dashboard_fixture")
 
 
-def _install_bound_run_paper_fixture(env: dict[str, object]) -> str:
-    """Create one real S2 run whose terminal manifest can back the report page."""
+def _build_run_paper_search_input(
+    *,
+    fixture_role: str | None = None,
+) -> Layer2S2DesignSearchInput:
+    """Build one deterministic S2 input, distinct for each governed fixture role."""
     _ensure_policy_engine_import_roots()
-    from polisyos.core.security import tenant_scope
     from polisyos.pdc import Layer2S2DesignSearchInput
-    from polisyos.runtime.quality.workspace.s2_design_search_operation import (
-        S2_DESIGN_SEARCH_OPERATION_ID,
-        execute_s2_design_search_operation,
-    )
 
     policy_engine_root = Path(__file__).resolve().parents[3]
     proving_case = json.loads(
@@ -72,8 +73,14 @@ def _install_bound_run_paper_fixture(env: dict[str, object]) -> str:
         ).read_text(encoding="utf-8")
     )
     candidate_space = manifest["candidate_space"]
-    search_input = Layer2S2DesignSearchInput(
-        case_id=str(proving_case["case_id"]),
+    base_case_id = str(proving_case["case_id"])
+    case_id = (
+        f"{base_case_id}__dashboard_{fixture_role}"
+        if fixture_role is not None
+        else base_case_id
+    )
+    return Layer2S2DesignSearchInput(
+        case_id=case_id,
         intent_ref=(
             "repo://architecture/policy_design_case/layer2_first_proving_case.json"
         ),
@@ -96,6 +103,45 @@ def _install_bound_run_paper_fixture(env: dict[str, object]) -> str:
         generated_at=datetime(2026, 5, 30, tzinfo=UTC),
     )
 
+
+def _persist_run_paper_fixture_binding(
+    *,
+    store: FileSystemCAS,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+    fixture_role: str,
+) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]:
+    """Persist the verified S2 chain attached to one existing fixture run."""
+    _ensure_policy_engine_import_roots()
+    from polisyos.pdc import persist_s2_design_search_run, run_s2_shadow_design_loop
+
+    search_run = run_s2_shadow_design_loop(
+        _build_run_paper_search_input(fixture_role=fixture_role)
+    )
+    persisted = persist_s2_design_search_run(
+        search_run,
+        store=store,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    return (
+        persisted.design_record_ref,
+        persisted.search_ledger_ref,
+        persisted.binding_ref,
+    )
+
+
+def _install_bound_run_paper_fixture(env: dict[str, object]) -> str:
+    """Create one real S2 run whose terminal manifest can back the report page."""
+    _ensure_policy_engine_import_roots()
+    from polisyos.core.security import tenant_scope
+    from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+        S2_DESIGN_SEARCH_OPERATION_ID,
+        execute_s2_design_search_operation,
+    )
+
     app = env["app"]
     container = app.state.runtime_container
     context = container.runtime_api_context
@@ -107,7 +153,7 @@ def _install_bound_run_paper_fixture(env: dict[str, object]) -> str:
     ):
         execute_s2_design_search_operation(
             operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
-            search_input=search_input,
+            search_input=_build_run_paper_search_input(),
             store=context.store,
             core_runs_root=context.core_runs_root,
             run_id=run_id,
@@ -123,11 +169,16 @@ def _build_dashboard_fixture_env(
     include_bound_run_paper_fixture: bool,
     include_test_client: bool,
 ) -> dict[str, object]:
-    """Build the shared fixture and opt into the DS11-only bound report run."""
+    """Build dashboard fixtures with producer-bound paper runs when requested."""
     build_runtime_api_env = _load_fixture_builder()
     env = build_runtime_api_env(
         tmp_root,
         include_run_paper_fixtures=include_run_paper_fixtures,
+        run_paper_binding_factory=(
+            _persist_run_paper_fixture_binding
+            if include_run_paper_fixtures
+            else None
+        ),
         include_test_client=include_test_client,
     )
     if include_bound_run_paper_fixture:

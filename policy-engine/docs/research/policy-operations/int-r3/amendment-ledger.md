@@ -14,7 +14,7 @@ orientation_finding_total: 6
 # INT-R3 amendment ledger
 
 The audit record is
-[`../../audits/int-r3/int-r3-independent-audit.md`](../../audits/int-r3/int-r3-independent-audit.md).
+[`../audits/int-r3/int-r3-independent-audit.md`](../audits/int-r3/int-r3-independent-audit.md).
 The bounded responses are in this ledger,
 [`amendment-specification.md`](amendment-specification.md),
 [`repository-baseline-amendment.md`](repository-baseline-amendment.md), and

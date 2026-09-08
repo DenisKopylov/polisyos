@@ -11,7 +11,11 @@ import { OuterSetValue, OuterSetValueStateCell } from "./OuterSetValue";
 function member(metricId: string, point: number | null): QuantityValueOutput {
   return {
     label: metricId,
-    lineage: { freshness: "current", id: `lineage:${metricId}`, status: "verified" },
+    lineage: {
+      freshness: "current",
+      id: `lineage:${metricId}`,
+      status: "verified",
+    },
     metric_id: metricId,
     point,
     quantity_class: "decision",
@@ -47,7 +51,10 @@ describe("OuterSetValue accessibility", () => {
     const { container } = render(
       <Harness>
         <OuterSetValueStateCell state="zero" value={member("zero", 0)} />
-        <OuterSetValueStateCell state="unknown" value={member("unknown", null)} />
+        <OuterSetValueStateCell
+          state="unknown"
+          value={member("unknown", null)}
+        />
         <OuterSetValueStateCell state="gap" value={member("gap", null)} />
       </Harness>,
     );

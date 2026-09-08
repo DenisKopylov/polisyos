@@ -8,9 +8,10 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.contracts.c4_persisted_profiles import c4_semantic_digest
 from polisyos.core.contracts.decision_validity import (
     EpochValidityBatchReceipt,
     EpochValidityBatchTarget,
@@ -21,6 +22,7 @@ from polisyos.scientist.evidence.claims.head_index import (
     ClaimDependencyDenominatorReceipt,
     ClaimLifecycleBridgeNonReceipt,
     UnappointedClaimLedgerOwner,
+    _read_profiled_statement,
 )
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
@@ -46,6 +48,64 @@ from polisyos.scientist.governance.continuous.monitors import (
     persist_governance_monitor_event,
 )
 from polisyos.scientist.methods.search.readiness import DecisionReadiness
+from polisyos.scientist.validation.decision_validity import (
+    DecisionValidityService,
+    _DecisionValidityStateStore,
+)
+
+_PRE_RECONCILIATION_TRANSITION_V1_BYTES = b'{"transition":"epoch-owner-fixture"}'
+_PRE_RECONCILIATION_TRANSITION_V1_SHA256 = (
+    "sha256:a7b2fdfd29f6071489506bec7154184c18ab145128825716ec01d22c9ffa81cf"
+)
+_PRE_RECONCILIATION_COMPLETION_V1_BYTES = (
+    b'{"adjudication_denominator_ref":"sha256:4444444444444444444444444444444444444'
+    b'444444444444444444444444444","affected_packet_refs":["sha256:ed1359fc4d62bece'
+    b'6c2aa1e62065c09e302c42646749174794572855f8d39b7d"],"batch_id":"epoch_batch_9864e'
+    b'1498ba6af00d7ba7d1fcdd1d3e9dfc506ec51aebc2a71e409305451ea7f","dependency_den'
+    b'ominator_ref":"sha256:2ad893eca38c1e2b47d6639d3cf8803f3a117d3b4132ab807eb1bbc247f4c'
+    b'b5f","predicate_class":"independently_reconciled","requested_query_context_ref":"sh'
+    b'a256:2222222222222222222222222222222222222222222222222222222222222222","schema_v'
+    b'ersion":"polisyos.decision-validity.epoch-batch-completion.v1","state":"completed",'
+    b'"targets":[{"decision_lineage_key":"epoch_lineage_0","dependency_key":"epoch::ow'
+    b'ner-fixture","packet_ref":"sha256:ed1359fc4d62bece6c2aa1e62065c09e302c426467491747'
+    b'94572855f8d39b7d","reason":"epoch_advanced","status":"stale"}],"transition_artifac'
+    b't_ref":{"artifact_id":"sha256:a7b2fdfd29f6071489506bec7154184c18ab145128825716ec01d2'
+    b'2c9ffa81cf","kind":"chronology.epoch_transition","media_type":"application/json"},'
+    b'"transition_content_hash":"sha256:a7b2fdfd29f6071489506bec7154184c18ab145128825716ec'
+    b'01d22c9ffa81cf","verifier_provenance_ref":{"artifact_id":"sha256:65ff9962a8f8b73012'
+    b'ad71661955401373fd11c9c2347398d20b969f38a44602","kind":"chronology.epoch_transit'
+    b'ion_verifier","media_type":"application/json"}}'
+)
+_PRE_RECONCILIATION_COMPLETION_V1_SHA256 = (
+    "sha256:c8ed22b6dc8921bf1653018edcdcf6e84fd92416b8995e5daeade3eb83f40091"
+)
+_PRE_RECONCILIATION_BATCH_V1_BYTES = (
+    b'{"adjudication_denominator_ref":"sha256:4444444444444444444444444444444444444'
+    b'444444444444444444444444444","affected_packet_refs":["sha256:ed1359fc4d62bece'
+    b'6c2aa1e62065c09e302c42646749174794572855f8d39b7d"],"batch_id":"epoch_batch_9864e'
+    b'1498ba6af00d7ba7d1fcdd1d3e9dfc506ec51aebc2a71e409305451ea7f","claim_bridge_re'
+    b'sult_refs":[],"completion_receipt_ref":{"artifact_id":"sha256:c8ed22b6dc8921bf165301'
+    b'8edcdcf6e84fd92416b8995e5daeade3eb83f40091","kind":"scientist.decision_validit'
+    b'y_epoch_batch_completion","media_type":"application/json"},"dependency_denominator'
+    b'_ref":"sha256:2ad893eca38c1e2b47d6639d3cf8803f3a117d3b4132ab807eb1bbc247f4cb5f'
+    b'","requested_query_context_ref":"sha256:222222222222222222222222222222222222222222'
+    b'2222222222222222222222","schema_version":"polisyos.decision-validity.epoch-batch'
+    b'-receipt.v1","state":"completed","targets":[{"decision_lineage_key":"epoch_lineage'
+    b'_0","dependency_key":"epoch::owner-fixture","packet_ref":"sha256:ed1359fc4d62bece6c2a'
+    b'a1e62065c09e302c42646749174794572855f8d39b7d","reason":"epoch_advanced","status":"'
+    b'stale"}],"transition_artifact_ref":{"artifact_id":"sha256:a7b2fdfd29f6071489506bec715'
+    b'4184c18ab145128825716ec01d22c9ffa81cf","kind":"chronology.epoch_transition","media'
+    b'_type":"application/json"},"transition_content_hash":"sha256:a7b2fdfd29f6071489506bec'
+    b'7154184c18ab145128825716ec01d22c9ffa81cf","verifier_provenance_ref":{"artifact_id'
+    b'":"sha256:65ff9962a8f8b73012ad71661955401373fd11c9c2347398d20b969f38a44602","'
+    b'kind":"chronology.epoch_transition_verifier","media_type":"application/json"}}'
+)
+_PRE_RECONCILIATION_BATCH_V1_SHA256 = (
+    "sha256:2317b29e75fc35a7fd093e04b03e9675f4f0344fc22682bc8fe7e29ddc1e4c01"
+)
+_PRE_RECONCILIATION_SCIENTIST_DENOMINATOR = (
+    "sha256:2ad893eca38c1e2b47d6639d3cf8803f3a117d3b4132ab807eb1bbc247f4cb5f"
+)
 
 
 def _ref(seed: str, *, kind: str = "scientist.test") -> ArtifactRef:
@@ -198,10 +258,143 @@ def _completed_claim_bridge_fixture(
     return store, service, receipt_ref, packet_ref, query_ref, receipt
 
 
+def test_pre_reconciliation_epoch_batch_v1_replays_exact_bytes_without_sidecar_binding(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    legacy_canon = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    receipt_canon = CanonInfo.from_spec(CanonSpec())
+    transition_ref = store.put_bytes(
+        _PRE_RECONCILIATION_TRANSITION_V1_BYTES,
+        PutOptions(
+            kind="chronology.epoch_transition",
+            media_type="application/json",
+            schema=SchemaInfo(name="chronology.epoch_transition", version="1.0"),
+            canon=legacy_canon,
+        ),
+    )
+    transition_input = InputRef(
+        artifact_id=transition_ref.artifact_id,
+        role="epoch_transition",
+    )
+    completion_ref = store.put_bytes(
+        _PRE_RECONCILIATION_COMPLETION_V1_BYTES,
+        PutOptions(
+            kind="scientist.decision_validity_epoch_batch_completion",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.decision-validity.epoch-batch-completion.v1",
+                version="1.0",
+            ),
+            inputs=[transition_input],
+            canon=receipt_canon,
+        ),
+    )
+    receipt_inputs = [
+        transition_input,
+        InputRef(
+            artifact_id=completion_ref.artifact_id,
+            role="completion_statement",
+        ),
+    ]
+    receipt_ref = store.put_bytes(
+        _PRE_RECONCILIATION_BATCH_V1_BYTES,
+        PutOptions(
+            kind="scientist.decision_validity_epoch_batch_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.decision-validity.epoch-batch-receipt.v1",
+                version="1.0",
+            ),
+            inputs=receipt_inputs,
+            canon=receipt_canon,
+        ),
+    )
+
+    assert str(transition_ref.artifact_id) == _PRE_RECONCILIATION_TRANSITION_V1_SHA256
+    assert str(completion_ref.artifact_id) == _PRE_RECONCILIATION_COMPLETION_V1_SHA256
+    assert str(receipt_ref.artifact_id) == _PRE_RECONCILIATION_BATCH_V1_SHA256
+    assert len(_PRE_RECONCILIATION_TRANSITION_V1_BYTES) == 36
+    assert len(_PRE_RECONCILIATION_COMPLETION_V1_BYTES) == 1343
+    assert len(_PRE_RECONCILIATION_BATCH_V1_BYTES) == 1532
+    assert store.verify(transition_ref.artifact_id).ok
+    assert store.verify(completion_ref.artifact_id).ok
+    assert store.verify(receipt_ref.artifact_id).ok
+    transition_manifest = store.get_manifest(transition_ref.artifact_id)
+    assert transition_manifest.kind == "chronology.epoch_transition"
+    assert transition_manifest.media_type == "application/json"
+    assert transition_manifest.artifact_schema == SchemaInfo(
+        name="chronology.epoch_transition",
+        version="1.0",
+    )
+    assert transition_manifest.canon == legacy_canon
+    assert transition_manifest.inputs == []
+    completion_manifest = store.get_manifest(completion_ref.artifact_id)
+    assert completion_manifest.kind == "scientist.decision_validity_epoch_batch_completion"
+    assert completion_manifest.media_type == "application/json"
+    assert completion_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.decision-validity.epoch-batch-completion.v1",
+        version="1.0",
+    )
+    assert completion_manifest.canon == receipt_canon
+    assert completion_manifest.inputs == [transition_input]
+    receipt_manifest = store.get_manifest(receipt_ref.artifact_id)
+    assert receipt_manifest.kind == "scientist.decision_validity_epoch_batch_receipt"
+    assert receipt_manifest.media_type == "application/json"
+    assert receipt_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.decision-validity.epoch-batch-receipt.v1",
+        version="1.0",
+    )
+    assert receipt_manifest.canon == receipt_canon
+    assert receipt_manifest.inputs == receipt_inputs
+
+    receipt_raw_before = store.get_bytes(receipt_ref.artifact_id)
+    receipt = EpochValidityBatchReceipt.model_validate(
+        from_canonical_bytes(_PRE_RECONCILIATION_BATCH_V1_BYTES)
+    )
+    assert to_canonical_bytes(receipt.model_dump(mode="json"), CanonSpec()) == (
+        _PRE_RECONCILIATION_BATCH_V1_BYTES
+    )
+    state = _DecisionValidityStateStore(store)
+    sidecar_root = store.root / "decision_validity" / "epoch_reconciliation_admissions"
+    assert state.load_epoch_reconciliation_admission_binding(receipt.batch_id) is None
+    assert state.list_epoch_reconciliation_admission_bindings() == ()
+    assert not sidecar_root.exists()
+    state.save_epoch_receipt(
+        receipt,
+        receipt_artifact_ref=receipt_ref,
+        receipt_content_hash=_PRE_RECONCILIATION_BATCH_V1_SHA256,
+    )
+    reader = DecisionValidityService(
+        store,
+        epoch_denominator_reconciliation_reader=None,
+    )
+
+    evidence = reader.resolve_completed_epoch_batch_evidence(
+        batch_receipt_ref=receipt_ref,
+    )
+
+    receipt_raw_after = store.get_bytes(receipt_ref.artifact_id)
+    assert receipt_raw_before == _PRE_RECONCILIATION_BATCH_V1_BYTES
+    assert receipt_raw_after == receipt_raw_before
+    assert (
+        "sha256:" + hashlib.sha256(receipt_raw_after).hexdigest()
+        == _PRE_RECONCILIATION_BATCH_V1_SHA256
+    )
+    assert evidence.batch_receipt_ref == receipt_ref
+    assert evidence.batch_receipt_content_hash == _PRE_RECONCILIATION_BATCH_V1_SHA256
+    assert evidence.receipt_bytes == _PRE_RECONCILIATION_BATCH_V1_BYTES
+    assert evidence.receipt == receipt
+    assert receipt.dependency_denominator_ref == _PRE_RECONCILIATION_SCIENTIST_DENOMINATOR
+    assert state.load_epoch_reconciliation_admission_binding(receipt.batch_id) is None
+    assert state.list_epoch_reconciliation_admission_bindings() == ()
+    assert not sidecar_root.exists()
+
+
 def test_completed_epoch_batch_is_only_authority_input_to_claim_bridge(
     tmp_path: Path,
 ) -> None:
-    store, service, receipt_ref, packet_ref, query_ref, _ = _completed_claim_bridge_fixture(
+    store, service, receipt_ref, packet_ref, query_ref, receipt = _completed_claim_bridge_fixture(
         tmp_path
     )
 
@@ -217,6 +410,22 @@ def test_completed_epoch_batch_is_only_authority_input_to_claim_bridge(
     assert result.pending.statement.mapping_status == "resolved"
     assert result.pending.statement.ordered_affected_claim_ids == ("claim-epoch",)
     assert result.pending.statement.expected_head_ref is None
+    denominator = _read_profiled_statement(
+        store=store,
+        record="claim_dependency_denominator",
+        ref=result.pending.statement.target_mapping_ref,
+        model=ClaimDependencyDenominatorReceipt,
+    )
+    assert isinstance(denominator, ClaimDependencyDenominatorReceipt)
+    assert denominator.batch_dependency_denominator_ref == receipt.dependency_denominator_ref
+    assert denominator.batch_dependency_denominator_ref == "sha256:" + "7" * 64
+    assert result.pending.statement.target_mapping_ref.kind == (
+        "scientist.claims.dependency_denominator"
+    )
+    assert result.pending.statement.target_mapping_content_hash == c4_semantic_digest(
+        "claim_dependency_denominator",
+        denominator,
+    )
     pending_raw = store.get_bytes(result.pending.pending_ref.artifact_id)
     assert ClaimBridgePendingStatement.model_validate(from_canonical_bytes(pending_raw)) == (
         result.pending.statement

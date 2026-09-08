@@ -64,7 +64,9 @@ function toneClassName(
     : "border-border bg-muted/40 text-muted-foreground";
 }
 
-function trustGlyph(tone: ReturnType<typeof presentTrustPresentation>["status"]) {
+function trustGlyph(
+  tone: ReturnType<typeof presentTrustPresentation>["status"],
+) {
   if (tone === "verified") return "✓";
   if (tone === "pending") return "◌";
   if (tone === "disputed") return "!";

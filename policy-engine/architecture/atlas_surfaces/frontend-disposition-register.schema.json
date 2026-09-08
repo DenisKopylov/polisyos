@@ -1985,14 +1985,14 @@
         "declaration_sha256",
         "exported",
         "kind",
-        "line"
+        "source_row"
       ],
       "properties": {
         "column": { "type": "integer", "minimum": 1 },
         "declaration_sha256": { "$ref": "#/$defs/sha256" },
         "exported": { "type": "boolean" },
         "kind": { "$ref": "#/$defs/nonEmptyString" },
-        "line": { "type": "integer", "minimum": 1 }
+        "source_row": { "type": "integer", "minimum": 1 }
       }
     },
     "ds17RoleId": {
@@ -2308,9 +2308,9 @@
       "additionalProperties": false,
       "required": [
         "column",
-        "component_identity",
+        "component_name",
         "kind",
-        "line",
+        "source_row",
         "root_id",
         "root_source_sha256",
         "epoch_context_read_count",
@@ -2325,7 +2325,7 @@
       ],
       "properties": {
         "column": { "type": "integer", "minimum": 1 },
-        "component_identity": { "$ref": "#/$defs/nonEmptyString" },
+        "component_name": { "$ref": "#/$defs/nonEmptyString" },
         "kind": {
           "enum": [
             "jsx",
@@ -2340,7 +2340,7 @@
             "print_root"
           ]
         },
-        "line": { "type": "integer", "minimum": 1 },
+        "source_row": { "type": "integer", "minimum": 1 },
         "root_id": { "$ref": "#/$defs/nonEmptyString" },
         "root_source_sha256": { "$ref": "#/$defs/sha256" },
         "epoch_context_read_count": { "type": "integer", "minimum": 0 },

@@ -28,6 +28,16 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install uv
         uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081 # v5
+      - name: Install source-build system headers
+        # pillow is source-only in uv.lock and marker-pdf caps it below 11, so it is
+        # compiled here. The build needs jpeg/zlib headers the runner does not ship.
+        # Duplicated from .github/actions/setup-policy-engine-python because these two
+        # workflows install uv directly instead of using that composite action.
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libjpeg-dev zlib1g-dev
       - name: Install Python
         run: uv python install
       - name: Runtime quality contracts

@@ -21,7 +21,7 @@
     "build": "corepack pnpm run typecheck",
     "generate": "bash ./scripts/generate-runtime-api-client.sh",
     "contracts:verify": "cd ../.. && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py",
-    "test": "node --test runtimeApiClient.test.mjs scripts/canonicalize-runtime-client.test.mjs",
+    "test": "node --test runtimeApiClient.test.mjs scripts/canonicalize-runtime-client.test.mjs scripts/normalize-recursive-openapi-types.test.mjs",
     "lint": "eslint runtimeApiClient.ts canonicalRuntimeApiClient.ts runtimeApiClient.type-test.ts runtimeApiClient.js canonicalRuntimeApiClient.js runtimeApiClient.test.mjs scripts/*.mjs eslint.config.mjs --max-warnings=0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

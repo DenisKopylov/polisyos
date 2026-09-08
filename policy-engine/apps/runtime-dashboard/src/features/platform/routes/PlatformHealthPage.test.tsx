@@ -84,6 +84,7 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
   const actual = await vi.importActual<
     typeof import("@/shared/i18n/LocaleProvider")
   >("@/shared/i18n/LocaleProvider");
+  const { default: en } = await import("@/shared/i18n/locales/en.json");
   return {
     ...actual,
     useI18n: () => ({
@@ -92,8 +93,14 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
         value: string | null | undefined,
         fallback: string,
       ) => fallback ?? value ?? "",
-      t: (key: string, payload?: Record<string, unknown>) =>
-        payload ? `${key}:${JSON.stringify(payload)}` : key,
+      t: (key: string, payload?: Record<string, unknown>) => {
+        // This label is now translated in production; keep the existing DOM
+        // assertion on the authored output rather than exposing a mock key.
+        if (key === "capabilityDiscovery.candidateLabel") {
+          return en.capabilityDiscovery.candidateLabel;
+        }
+        return payload ? `${key}:${JSON.stringify(payload)}` : key;
+      },
     }),
   };
 });

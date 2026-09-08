@@ -111,9 +111,11 @@ describe("opaque background contrast evidence", () => {
     expect(result.receipts.map(({ sourceId }) => sourceId)).toEqual(
       EXPECTED_SOURCES.map(({ sourceId }) => sourceId),
     );
-    expect(result.receipts.every(({ result: receipt }) => receipt === "computed_pass")).toBe(
-      true,
-    );
+    expect(
+      result.receipts.every(
+        ({ result: receipt }) => receipt === "computed_pass",
+      ),
+    ).toBe(true);
   });
 
   it("keeps axe incomplete unattributed and emits zero receipts", () => {
@@ -139,7 +141,10 @@ describe("opaque background contrast evidence", () => {
     expect(result.status).toBe("fail");
     expect(result.receipts).toEqual([]);
     expect(result.failures).toContainEqual(
-      expect.objectContaining({ kind: "pass_missing", sourceId: "badge-neutral" }),
+      expect.objectContaining({
+        kind: "pass_missing",
+        sourceId: "badge-neutral",
+      }),
     );
   });
 
@@ -186,7 +191,10 @@ describe("opaque background contrast evidence", () => {
     expect(result.status).toBe("fail");
     expect(result.receipts).toEqual([]);
     expect(result.failures).toContainEqual(
-      expect.objectContaining({ kind: "ratio_invalid", sourceId: "candidate-frame" }),
+      expect.objectContaining({
+        kind: "ratio_invalid",
+        sourceId: "candidate-frame",
+      }),
     );
   });
 
@@ -252,7 +260,10 @@ describe("opaque background contrast evidence", () => {
       expect(result.status).toBe("fail");
       expect(result.receipts).toEqual([]);
       expect(result.failures).toContainEqual(
-        expect.objectContaining({ kind: "count_invalid", sourceId: "badge-neutral" }),
+        expect.objectContaining({
+          kind: "count_invalid",
+          sourceId: "badge-neutral",
+        }),
       );
     }
   });

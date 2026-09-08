@@ -693,8 +693,8 @@ def _quality_weighted_parameter_score(
 
     best_score = 0.0
     for row in rows:
-        evidence_str = str(row[1] or "unknown")
-        base = _SKG_EVIDENCE_WEIGHTS.get(evidence_str, 0.15)
+        evidence_str = str(row[1]) if row[1] is not None else None
+        base = 0.0 if evidence_str is None else _SKG_EVIDENCE_WEIGHTS.get(evidence_str, 0.0)
         ci_json = row[2] or "[]"
         has_uncertainty = (ci_json not in ("[]", "null", "")) or (row[3] is not None)
         uncertainty_factor = 1.0 if has_uncertainty else 0.7

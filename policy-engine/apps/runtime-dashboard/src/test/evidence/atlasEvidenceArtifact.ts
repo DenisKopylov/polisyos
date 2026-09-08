@@ -62,9 +62,7 @@ const nonEmptyString = z
     message: "value must be non-empty and have no surrounding whitespace",
   });
 const identity = nonEmptyString.regex(/^[a-z0-9][a-z0-9._:@/-]*$/);
-export const atlasArtifactIdSchema = z
-  .string()
-  .regex(/^sha256:[0-9a-f]{64}$/);
+export const atlasArtifactIdSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/);
 const repositoryRevision = z.string().regex(/^[0-9a-f]{40}$/);
 const evidenceKindSchema = z.enum([
   "automated_browser",
@@ -144,9 +142,7 @@ const provenanceSchema = z
   })
   .strict()
   .superRefine((provenance, context) => {
-    if (
-      provenance.producer.producer_id === provenance.verifier.verifier_id
-    ) {
+    if (provenance.producer.producer_id === provenance.verifier.verifier_id) {
       context.addIssue({
         code: "custom",
         path: ["verifier", "verifier_id"],
@@ -286,9 +282,7 @@ export const atlasEvidencePayloadSchema = z
   })
   .strict();
 
-export type AtlasEvidencePayload = z.infer<
-  typeof atlasEvidencePayloadSchema
->;
+export type AtlasEvidencePayload = z.infer<typeof atlasEvidencePayloadSchema>;
 
 const retentionSchema = z
   .object({

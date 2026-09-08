@@ -698,12 +698,20 @@ C06_CONTRAST_CURRENT_EVIDENCE_SHA256 = {
 C06_RENDERED_CONTRAST_FINDING_ID = (
     "baseline-test-a11y-rendered-contrast-incomplete-debt"
 )
-C13_RECEIPT_START = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:START -->"
-C13_RECEIPT_END = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:END -->"
+C13_RECEIPT_START = "<!-- TASK-P-C13-PRINT-RECEIPT-REISSUE:START -->"
+C13_RECEIPT_END = "<!-- TASK-P-C13-PRINT-RECEIPT-REISSUE:END -->"
 C13_VERIFIED_REVISION = "0440f0a8d6b64c254c37b64144461e5091e2b1db"
 C13_REPAIR_COMMIT = "69aca1e25921e145fecdf57eac5a73f638f11db4"
-C13_EVIDENCE_REVISION = "5255eaf4ef683d964b0a73a277751f8b9873ab41"
-C13_RECEIPT_SHA256 = "bae570619054115e08d81fa04044869e19b06f4281249d3ec5b677addd6cc854"
+C13_REISSUE_REVISION = "39b5e0d9ceb453eb8afd4c5429cbef4ebeca50c2"
+C13_EVIDENCE_REVISION = "cfaf2cac071082be7505e44503a8c6759d7d37c2"
+C13_RECEIPT_SHA256 = "dd61ccd579fdf860a648ff580a139244e7351fb0eca063f55e6747287a529006"
+C13_RECEIPT_REF = (
+    "docs/superpowers/journals/2026-09-01-debt-p-dashboard-evidence.md"
+)
+C13_RAW_ROOT = (
+    "docs/superpowers/journals/receipts/"
+    "2026-09-01-debt-p-dashboard-evidence/c13-final-v2"
+)
 C13_PRINT_ROOT_ID = "adjacent-print-export"
 C13_PRINT_SUCCESSOR_ID = "run-report-paper-projection"
 C13_TEST_TITLES = [
@@ -724,6 +732,11 @@ C13_SOURCE_REFS = [
     "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
     "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/"
     "run-report-identity-a4-print-chromium-darwin.png",
+]
+C13_PRODUCER_REFS = [
+    "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+    "tests/_helpers/runtime_http.py",
+    "tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py",
 ]
 C13_ENVIRONMENT_PRODUCER_REF = (
     "architecture/atlas_surfaces/capture_c13_execution_environment.mjs"
@@ -8030,6 +8043,156 @@ def _json_field_value_span(
     return start, end, value
 
 
+def _non_anchor_source_fields_candidate_text(
+    original_text: str,
+) -> tuple[str, dict[str, int]]:
+    """Neutralize non-anchor source facts while preserving every peer byte."""
+    opening = json.loads(original_text)
+    coverage_start, coverage_end, _coverage = _json_top_level_object_span(
+        original_text, "ds18_time_semantics_coverage"
+    )
+    files_start, files_end, files = _json_field_value_span(
+        original_text,
+        field="files",
+        within=(coverage_start, coverage_end),
+    )
+    if not isinstance(files, list):
+        raise ValueError("DS18 component migration files are invalid")
+    expected = copy.deepcopy(opening)
+    expected_files = expected["ds18_time_semantics_coverage"]["files"]
+    legacy_component_count = 0
+    current_component_count = 0
+    legacy_line_count = 0
+    current_source_row_count = 0
+    for file_index, row in enumerate(files):
+        if not isinstance(row, Mapping) or not isinstance(row.get("roots"), list):
+            raise ValueError("DS18 component migration file roots are invalid")
+        for root_index, root in enumerate(row["roots"]):
+            if not isinstance(root, Mapping):
+                raise ValueError("DS18 component migration root is invalid")
+            has_legacy = "component_identity" in root
+            has_current = "component_name" in root
+            if has_legacy and has_current:
+                raise ValueError("DS18 root component label is ambiguous")
+            if not has_legacy and not has_current:
+                raise ValueError("DS18 root component label is missing")
+            field = "component_identity" if has_legacy else "component_name"
+            component_name = root[field]
+            if not isinstance(component_name, str) or not component_name:
+                raise ValueError("DS18 root component label is invalid")
+            has_legacy_line = "line" in root
+            has_source_row = "source_row" in root
+            if has_legacy_line and has_source_row:
+                raise ValueError("DS18 root source location is ambiguous")
+            if not has_legacy_line and not has_source_row:
+                raise ValueError("DS18 root source location is missing")
+            source_row_field = "line" if has_legacy_line else "source_row"
+            source_row = root[source_row_field]
+            if (
+                not isinstance(source_row, int)
+                or isinstance(source_row, bool)
+                or source_row < 1
+            ):
+                raise ValueError("DS18 root source location is invalid")
+            if has_legacy:
+                legacy_component_count += 1
+            else:
+                current_component_count += 1
+            if has_legacy_line:
+                legacy_line_count += 1
+            else:
+                current_source_row_count += 1
+            replacements = {
+                "component_identity": "component_name",
+                "line": "source_row",
+            }
+            expected_files[file_index]["roots"][root_index] = {
+                replacements.get(key, key): value for key, value in root.items()
+            }
+
+    legacy_component_marker = '"component_identity":'
+    current_component_marker = '"component_name":'
+    legacy_line_marker = '"line":'
+    current_source_row_marker = '"source_row":'
+    files_text = original_text[files_start:files_end]
+    if files_text.count(legacy_component_marker) != legacy_component_count:
+        raise ValueError("DS18 legacy component label token coverage drift")
+    if files_text.count(current_component_marker) != current_component_count:
+        raise ValueError("DS18 current component label token coverage drift")
+    if files_text.count(legacy_line_marker) != legacy_line_count:
+        raise ValueError("DS18 legacy source-line token coverage drift")
+    if files_text.count(current_source_row_marker) != current_source_row_count:
+        raise ValueError("DS18 current source-row token coverage drift")
+    candidate_files_text = files_text.replace(
+        legacy_component_marker, current_component_marker
+    ).replace(legacy_line_marker, current_source_row_marker)
+    candidate = (
+        original_text[:files_start]
+        + candidate_files_text
+        + original_text[files_end:]
+    )
+
+    surface_start, surface_end, _surface = _json_top_level_object_span(
+        candidate, DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+    )
+    roles_start, roles_end, roles = _json_field_value_span(
+        candidate,
+        field="roles",
+        within=(surface_start, surface_end),
+    )
+    if not isinstance(roles, list):
+        raise ValueError("DS17 non-anchor migration roles are invalid")
+    expected_roles = expected[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"]
+    legacy_declaration_line_count = 0
+    current_declaration_row_count = 0
+    for role_index, role in enumerate(roles):
+        declaration = role.get("declaration") if isinstance(role, Mapping) else None
+        if not isinstance(declaration, Mapping):
+            raise ValueError("DS17 non-anchor declaration is invalid")
+        has_legacy_line = "line" in declaration
+        has_source_row = "source_row" in declaration
+        if has_legacy_line and has_source_row:
+            raise ValueError("DS17 declaration source location is ambiguous")
+        if not has_legacy_line and not has_source_row:
+            raise ValueError("DS17 declaration source location is missing")
+        source_row_field = "line" if has_legacy_line else "source_row"
+        source_row = declaration[source_row_field]
+        if (
+            not isinstance(source_row, int)
+            or isinstance(source_row, bool)
+            or source_row < 1
+        ):
+            raise ValueError("DS17 declaration source location is invalid")
+        if has_legacy_line:
+            legacy_declaration_line_count += 1
+        else:
+            current_declaration_row_count += 1
+        expected_roles[role_index]["declaration"] = {
+            ("source_row" if key == "line" else key): value
+            for key, value in declaration.items()
+        }
+    roles_text = candidate[roles_start:roles_end]
+    if roles_text.count(legacy_line_marker) != legacy_declaration_line_count:
+        raise ValueError("DS17 legacy source-line token coverage drift")
+    if roles_text.count(current_source_row_marker) != current_declaration_row_count:
+        raise ValueError("DS17 current source-row token coverage drift")
+    candidate_roles_text = roles_text.replace(
+        legacy_line_marker, current_source_row_marker
+    )
+    candidate = (
+        candidate[:roles_start]
+        + candidate_roles_text
+        + candidate[roles_end:]
+    )
+    if json.loads(candidate) != expected:
+        raise ValueError("non-anchor source-field migration changed an unrelated value")
+    return candidate, {
+        "ds18_component_labels": legacy_component_count,
+        "ds18_source_lines": legacy_line_count,
+        "ds17_source_lines": legacy_declaration_line_count,
+    }
+
+
 def _ds9_c07_storage_target_spans(
     text: str,
 ) -> list[tuple[str, int, int, Any]]:
@@ -8296,10 +8459,11 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
     """Evaluate every independently observed C13 conjunct without collapsing it."""
     errors: list[str] = []
     if (
-        receipt.get("receipt_id") != "ds6-c13-independent-run-paper-closure"
-        or receipt.get("schema_version") != "1.0"
+        receipt.get("receipt_id") != "task-p-c13-run-paper-reissue"
+        or receipt.get("schema_version") != "2.0"
         or receipt.get("predicate_provenance") != "recomputed"
         or receipt.get("verified_revision") != C13_VERIFIED_REVISION
+        or receipt.get("reissue_revision") != C13_REISSUE_REVISION
         or receipt.get("evidence_revision") != C13_EVIDENCE_REVISION
         or receipt.get("repair_commit") != C13_REPAIR_COMMIT
     ):
@@ -8327,18 +8491,18 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         return [*errors, "capture_cardinality"]
     outputs = [capture.get("output") for capture in captures]
     expected_outputs = [
-        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-1",
-        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-2",
+        f"{C13_RAW_ROOT}/run-1/artifacts",
+        f"{C13_RAW_ROOT}/run-2/artifacts",
     ]
     if outputs != expected_outputs or [
         capture.get("capture_id") for capture in captures
-    ] != ["ds6-c13-verification-1", "ds6-c13-verification-2"]:
+    ] != ["task-p-c13-verification-1", "task-p-c13-verification-2"]:
         errors.append("capture_output_not_distinct")
     environment = receipt.get("environment")
     environment_sha256 = _canonical_sha256(environment)
     if (
         not isinstance(environment, Mapping)
-        or environment.get("commit") != C13_VERIFIED_REVISION
+        or environment.get("commit") != C13_REISSUE_REVISION
         or receipt.get("environment_sha256_receipts")
         != [environment_sha256] * 3
     ):
@@ -8374,7 +8538,8 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         if (
             type(base_count) is not int
             or type(grown_count) is not int
-            or (base_count, grown_count) != (5, 30)
+            or base_count <= 0
+            or grown_count <= base_count
         ):
             errors.append(f"capture_{index}_growth_not_admitted")
         for field in ("max_width_delta_pt", "max_height_delta_pt"):
@@ -8439,6 +8604,23 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         )
     ):
         errors.append("source_population")
+    producer_bindings = receipt.get("producer_bindings")
+    if (
+        not isinstance(producer_bindings, list)
+        or [
+            row.get("path")
+            for row in producer_bindings
+            if isinstance(row, Mapping)
+        ]
+        != C13_PRODUCER_REFS
+        or any(
+            not isinstance(row, Mapping)
+            or not isinstance(row.get("path"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", str(row.get("sha256", "")))
+            for row in producer_bindings
+        )
+    ):
+        errors.append("producer_population")
     observed = hashlib.sha256(
         json.dumps(receipt, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -8452,10 +8634,7 @@ def _c13_independent_print_receipt(
 ) -> dict[str, Any]:
     """Admit exactly the independently recomputed two-run journal receipt."""
     if source_text is None:
-        source_text = (
-            REPO_ROOT
-            / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
-        ).read_text(encoding="utf-8")
+        source_text = (REPO_ROOT / C13_RECEIPT_REF).read_text(encoding="utf-8")
     if (
         source_text.count(C13_RECEIPT_START) != 1
         or source_text.count(C13_RECEIPT_END) != 1
@@ -8553,12 +8732,12 @@ def _c13_raw_execution_receipt(
     artifacts: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
     """Resolve the two raw Playwright results and three environment probes."""
-    root = "docs/plans/active/atlas-slices/receipts/ds6-c13-raw"
+    root = C13_RAW_ROOT
     expected_paths = [
         f"{root}/run-1/results.json",
-        f"{root}/run-1/.last-run.json",
+        f"{root}/run-1/artifacts/.last-run.json",
         f"{root}/run-2/results.json",
-        f"{root}/run-2/.last-run.json",
+        f"{root}/run-2/artifacts/.last-run.json",
         f"{root}/environment-before.json",
         f"{root}/environment-between.json",
         f"{root}/environment-after.json",
@@ -8600,7 +8779,7 @@ def _c13_raw_execution_receipt(
     capture_receipts: list[dict[str, Any]] = []
     for index in (1, 2):
         result_path = f"{root}/run-{index}/results.json"
-        last_path = f"{root}/run-{index}/.last-run.json"
+        last_path = f"{root}/run-{index}/artifacts/.last-run.json"
         result = json.loads(artifacts[result_path])
         last_run = json.loads(artifacts[last_path])
         config = result.get("config", {})
@@ -8614,7 +8793,7 @@ def _c13_raw_execution_receipt(
             ),
             {},
         )
-        output_suffix = f"/{root}/run-{index}"
+        output_suffix = f"/{root}/run-{index}/artifacts"
         if (
             result.get("errors") != []
             or last_run != {"status": "passed", "failedTests": []}
@@ -8679,15 +8858,27 @@ def _c13_raw_execution_receipt(
             name: base64.b64decode(str(attachment["body"]), validate=True)
             for name, attachment in attachments.items()
         }
+        recorded_pdfs = receipt["captures"][index - 1].get("pdfs", {})
+        expected_base_pages = recorded_pdfs.get("base_page_count")
+        expected_grown_pages = recorded_pdfs.get("grown_page_count")
+        if (
+            type(expected_base_pages) is not int
+            or type(expected_grown_pages) is not int
+            or expected_base_pages <= 0
+            or expected_grown_pages <= expected_base_pages
+        ):
+            raise ValueError(
+                f"C13 raw execution rejected:run {index} page-count receipt"
+            )
         empty = _c13_pdf_geometry(
             decoded["run-paper-empty.pdf"],
             decoded["run-paper-empty-geometry.json"],
-            expected_pages=5,
+            expected_pages=expected_base_pages,
         )
         grown = _c13_pdf_geometry(
             decoded["run-paper-growth.pdf"],
             decoded["run-paper-growth-geometry.json"],
-            expected_pages=30,
+            expected_pages=expected_grown_pages,
         )
         capture_receipts.append(
             {
@@ -8722,6 +8913,7 @@ def _c13_verify_current_print_evidence(
     receipt: Mapping[str, Any],
     *,
     evidence_bytes: Mapping[str, bytes] | None = None,
+    producer_bytes: Mapping[str, bytes] | None = None,
 ) -> None:
     """Content-bind the admitted execution to the exact current property owners."""
     if _c13_receipt_shape_errors(receipt):
@@ -8756,21 +8948,51 @@ def _c13_verify_current_print_evidence(
             raise ValueError(f"C13 current evidence drift:{source_ref}")
         verified_bytes = _c03_git_bytes(
             "show",
-            f"{C13_VERIFIED_REVISION}:policy-engine/{source_ref}",
+            f"{C13_REISSUE_REVISION}:policy-engine/{source_ref}",
         )
         if hashlib.sha256(verified_bytes).hexdigest() != expected_sha256:
             raise ValueError(f"C13 current evidence drift:history:{source_ref}")
 
-    producer = receipt["environment_probe_producer"]
-    producer_ref = str(producer["path"])
-    producer_bytes = (REPO_ROOT / producer_ref).read_bytes()
-    if hashlib.sha256(producer_bytes).hexdigest() != producer["sha256"]:
+    producer_bindings = {
+        str(row["path"]): str(row["sha256"])
+        for row in receipt["producer_bindings"]
+    }
+    if producer_bytes is None:
+        producer_bytes = {
+            producer_ref: (REPO_ROOT / producer_ref).read_bytes()
+            for producer_ref in producer_bindings
+        }
+    if set(producer_bytes) != set(producer_bindings):
+        raise ValueError("C13 current evidence drift:producer population")
+    for producer_ref, expected_sha256 in producer_bindings.items():
+        observed_sha256 = hashlib.sha256(producer_bytes[producer_ref]).hexdigest()
+        if observed_sha256 != expected_sha256:
+            raise ValueError(f"C13 current evidence drift:producer:{producer_ref}")
+        reissue_bytes = _c03_git_bytes(
+            "show",
+            f"{C13_REISSUE_REVISION}:policy-engine/{producer_ref}",
+        )
+        if hashlib.sha256(reissue_bytes).hexdigest() != expected_sha256:
+            raise ValueError(
+                f"C13 current evidence drift:producer history:{producer_ref}"
+            )
+
+    environment_producer = receipt["environment_probe_producer"]
+    producer_ref = str(environment_producer["path"])
+    environment_producer_bytes = (REPO_ROOT / producer_ref).read_bytes()
+    if (
+        hashlib.sha256(environment_producer_bytes).hexdigest()
+        != environment_producer["sha256"]
+    ):
         raise ValueError("C13 current evidence drift:environment producer")
     committed_producer = _c03_git_bytes(
         "show",
         f"{C13_EVIDENCE_REVISION}:policy-engine/{producer_ref}",
     )
-    if hashlib.sha256(committed_producer).hexdigest() != producer["sha256"]:
+    if (
+        hashlib.sha256(committed_producer).hexdigest()
+        != environment_producer["sha256"]
+    ):
         raise ValueError("C13 current evidence drift:environment producer history")
 
     snapshot = receipt["snapshot"]
@@ -8794,7 +9016,8 @@ def _c13_verify_current_print_evidence(
 
     for ancestor, descendant, label in (
         (C13_REPAIR_COMMIT, C13_VERIFIED_REVISION, "repair"),
-        (C13_VERIFIED_REVISION, C13_EVIDENCE_REVISION, "evidence"),
+        (C13_VERIFIED_REVISION, C13_REISSUE_REVISION, "reissue"),
+        (C13_REISSUE_REVISION, C13_EVIDENCE_REVISION, "evidence"),
         (C13_EVIDENCE_REVISION, "HEAD", "evidence revision"),
     ):
         ancestry = subprocess.run(  # noqa: S603 - fixed Git command
@@ -9257,45 +9480,12 @@ DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS = {
         ],
     }
 }
-DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES = (
+DS10_RETIRED_EXTERNAL_REGISTER_NONCLOSURES = (
     "c13_print_receipt_invalid:C13 current evidence drift:"
     "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
 )
-DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
-    (
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AmbientTelemetryHud.tsx"
-    ): (
-        "232392b06df5bbaca4380a20fd669554d9ddd0f132396c8f290dea5804faf740",
-        "a06e6a98fc766b48b569d7215ee3e6f390abe8a3022ffe2bb98116ace23093cd",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "OperatorCraftPanel.tsx"
-    ): (
-        "687a831dce4165393622ed37d60e4269f61b3dd424589b62fb3ae924b1196b66",
-        "8d94ade694f63613d913042cf36f612e62327b843e01781cd3b9872d365702ef",
-    ),
-    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
-        "514ddff6df513859ec99e2b429e50b7e6bf5c6417b320f416c2a576a744777df",
-        "f4533fee648a8e2de5fb7ca6bedc56ac1e908b02351019950bae11b21cf25d66",
-    ),
-    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx": (
-        "4bb0bea6d71ad045d3d129dc9455cb0f4786d723199d77d95a372de2c22542bb",
-        "5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/"
-        "RunReportPage.test.tsx"
-    ): (
-        "d3b5819eb8e3a0390d4c7bc4f261457ddf2583d504424feaad2584c04ad5b6dd",
-        "30023d274e3a48235cc72a1dbbe1ee39d8276a5299b9c2c8ab12cbd46c96d1a9",
-    ),
-    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts": (
-        "c472f411f4ee512a9e1a54057b8c5a3a64130d6df8a6d79a6c09a4e5efeca8d9",
-        "3a69dd559452400e50eec543fdf365c03cf5b3d358b6fc04adcb1b8953ce9ab8",
-    ),
-}
+DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES: tuple[str, ...] = ()
+DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES: dict[str, tuple[str, str]] = {}
 DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = dict(
     DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
 )
@@ -9509,19 +9699,12 @@ def _ds10_protected_signing_census_candidate_text(original_text: str) -> str:
 
 
 def _ds10_c13_external_nonclosure_admission(
-    errors: Sequence[str],
+    _errors: Sequence[str],
     *,
     source_bytes: Mapping[str, bytes] | None = None,
-    expected_mismatches: Mapping[str, tuple[str, str]] | None = None,
+    producer_bytes: Mapping[str, bytes] | None = None,
 ) -> tuple[tuple[str, ...], list[str]]:
-    """Admit the exact fail-fast C13 error only after a complete binding census."""
-    if expected_mismatches is None:
-        expected_mismatches = DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-    declared = DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
-    cardinality = errors.count(declared)
-    if cardinality > 1:
-        return (), ["ds10_c13_external_error_cardinality_drift"]
-
+    """Require current C13 evidence; no historical C13 residual is admissible."""
     receipt = _c13_independent_print_receipt()
     bindings = {
         str(row["path"]): str(row["sha256"])
@@ -9534,35 +9717,26 @@ def _ds10_c13_external_nonclosure_admission(
         }
     if set(source_bytes) != set(bindings):
         return (), ["ds10_c13_external_source_binding_census_drift"]
-    if cardinality == 0:
-        try:
-            _c13_verify_current_print_evidence(receipt, evidence_bytes=source_bytes)
-        except ValueError:
-            return (), ["ds10_c13_unexposed_current_evidence_drift"]
-        return (), []
-
-    observed_mismatches = {
-        source_ref: (
-            expected_sha256,
-            hashlib.sha256(source_bytes[source_ref]).hexdigest(),
-        )
-        for source_ref, expected_sha256 in bindings.items()
-        if hashlib.sha256(source_bytes[source_ref]).hexdigest() != expected_sha256
+    producer_bindings = {
+        str(row["path"]): str(row["sha256"])
+        for row in receipt["producer_bindings"]
     }
-    if observed_mismatches != expected_mismatches:
-        return (), ["ds10_c13_external_source_binding_census_drift"]
-
-    replay_bytes = dict(source_bytes)
-    for source_ref in observed_mismatches:
-        replay_bytes[source_ref] = _c03_git_bytes(
-            "show",
-            f"{C13_VERIFIED_REVISION}:policy-engine/{source_ref}",
-        )
+    if producer_bytes is None:
+        producer_bytes = {
+            producer_ref: (REPO_ROOT / producer_ref).read_bytes()
+            for producer_ref in producer_bindings
+        }
+    if set(producer_bytes) != set(producer_bindings):
+        return (), ["ds10_c13_external_producer_binding_census_drift"]
     try:
-        _c13_verify_current_print_evidence(receipt, evidence_bytes=replay_bytes)
+        _c13_verify_current_print_evidence(
+            receipt,
+            evidence_bytes=source_bytes,
+            producer_bytes=producer_bytes,
+        )
     except ValueError:
-        return (), ["ds10_c13_external_receipt_replay_drift"]
-    return DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES, []
+        return (), ["ds10_c13_unexposed_current_evidence_drift"]
+    return (), []
 
 
 def _ds10_blocking_register_errors(
@@ -11325,14 +11499,12 @@ def _write_ds9_human_decision_integrity_family() -> dict[str, int]:
 def _write_c13_print_family() -> dict[str, Any]:
     """Atomically transition the print root, report, and induced status anchor."""
     _c13_writer_fence()
-    journal_path = (
-        REPO_ROOT
-        / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
-    )
+    journal_path = REPO_ROOT / C13_RECEIPT_REF
     original_journal = journal_path.read_text(encoding="utf-8")
     receipt = _c13_independent_print_receipt(original_journal)
     evidence_paths = {
         *(str(row["path"]) for row in receipt["source_bindings"]),
+        *(str(row["path"]) for row in receipt["producer_bindings"]),
         *(str(row["path"]) for row in receipt["raw_artifacts"]),
         str(receipt["environment_probe_producer"]["path"]),
     }
@@ -13144,16 +13316,13 @@ def _ds15_acquisition_routes_candidate_errors(
     *,
     report_parity: bool,
 ) -> list[str]:
-    """Permit only the independently admitted C13 source drift in DS15's family."""
+    """Require current C13 evidence while validating DS15's governed family."""
     errors = validate_register(
         data,
         live_probes=False,
         report_parity=report_parity,
     )
-    admitted, admission_errors = _ds10_c13_external_nonclosure_admission(
-        errors,
-        expected_mismatches=DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
-    )
+    admitted, admission_errors = _ds10_c13_external_nonclosure_admission(errors)
     return [
         *admission_errors,
         *_ds10_blocking_register_errors(
@@ -17103,7 +17272,7 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
                     "declaration_sha256": declaration["declaration_sha256"],
                     "exported": declaration["exported"],
                     "kind": declaration["kind"],
-                    "line": declaration["line"],
+                    "source_row": declaration["line"],
                 },
                 "behavioral_evidence": [
                     _ds17_source_receipt(test_path, test_module)
@@ -17738,6 +17907,14 @@ def _build_ds18_time_semantics_coverage(
         roots: list[dict[str, Any]] = []
         for scanned_root in scan_file.get("roots", []):
             root = dict(scanned_root)
+            component_name = root.pop("component_identity", None)
+            if not isinstance(component_name, str) or not component_name:
+                raise ValueError(f"DS18 scanner root lacks a component name: {path_ref}")
+            root["component_name"] = component_name
+            if "source_row" in root:
+                raise ValueError(f"DS18 scanner root preclaims a source row: {path_ref}")
+            if "line" in root:
+                root["source_row"] = root.pop("line")
             root.update(
                 {
                     "owner_evidence": [_ds18_source_receipt(path_ref)],
@@ -17994,21 +18171,26 @@ def _validate_ds18_time_semantics_coverage_core(
             if scanned_root is None:
                 continue
             scanner_fields = {
-                "column",
-                "component_identity",
-                "epoch_context_read_count",
-                "epoch_semantics_prop_count",
-                "epoch_semantics_provider_render_count",
-                "kind",
-                "line",
-                "root_id",
-                "root_source_sha256",
-                "time_semantics_label_render_count",
+                "column": "column",
+                "component_name": "component_identity",
+                "epoch_context_read_count": "epoch_context_read_count",
+                "epoch_semantics_prop_count": "epoch_semantics_prop_count",
+                "epoch_semantics_provider_render_count": (
+                    "epoch_semantics_provider_render_count"
+                ),
+                "kind": "kind",
+                "source_row": "line",
+                "root_id": "root_id",
+                "root_source_sha256": "root_source_sha256",
+                "time_semantics_label_render_count": (
+                    "time_semantics_label_render_count"
+                ),
             }
-            for field in scanner_fields:
-                if root.get(field) != scanned_root.get(field):
+            for stored_field, scanner_field in scanner_fields.items():
+                if root.get(stored_field) != scanned_root.get(scanner_field):
                     errors.append(
-                        f"ds18_time_semantics_root_receipt_drift:{label}:{field}"
+                        "ds18_time_semantics_root_receipt_drift:"
+                        f"{label}:{stored_field}"
                     )
             if root.get("predicate_provenance") != "independently_reconciled":
                 errors.append(f"ds18_time_semantics_root_provenance_drift:{label}")
@@ -18090,7 +18272,15 @@ def _ds18_coverage_root_index(
         for root in stored_roots:
             if not isinstance(root, Mapping):
                 raise ValueError("DS18 lineage root receipt is invalid")
-            component = root.get("component_identity")
+            component_name = root.get("component_name")
+            legacy_component_identity = root.get("component_identity")
+            if component_name is not None and legacy_component_identity is not None:
+                raise ValueError("DS18 lineage root has two component labels")
+            component = (
+                component_name
+                if component_name is not None
+                else legacy_component_identity
+            )
             if not isinstance(component, str) or not component:
                 raise ValueError("DS18 lineage root component is invalid")
             occurrence = occurrences[component]
@@ -21546,6 +21736,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="recompute only the DS18 file/root denominator and semantic receipts",
     )
     parser.add_argument(
+        "--migrate-non-anchor-source-fields",
+        action="store_true",
+        help="surgically neutralize DS17/DS18 non-anchor source field names",
+    )
+    parser.add_argument(
         "--write-ds15-acquisition-routes",
         action="store_true",
         help="atomically admit the bounded DS15 query/disposition transition",
@@ -21598,6 +21793,61 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.migrate_non_anchor_source_fields:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"migrate_non_anchor_source_fields"}:
+            sys.stderr.write(
+                "Non-anchor source-field migration requires only "
+                "--migrate-non-anchor-source-fields\n"
+            )
+            return 1
+        try:
+            original_text = REGISTER_PATH.read_text(encoding="utf-8")
+            candidate_text, renamed_fields = (
+                _non_anchor_source_fields_candidate_text(original_text)
+            )
+            candidate = json.loads(candidate_text)
+            candidate_errors = _schema_errors(candidate, SCHEMA_PATH)
+        except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+            sys.stderr.write(f"Non-anchor source-field migration rejected: {exc}\n")
+            return 1
+        if candidate_errors:
+            for error in candidate_errors:
+                sys.stderr.write(
+                    f"Non-anchor source-field migration rejected: {error}\n"
+                )
+            return 1
+        REGISTER_PATH.write_text(candidate_text, encoding="utf-8")
+        roots = [
+            root
+            for row in candidate["ds18_time_semantics_coverage"]["files"]
+            for root in row["roots"]
+        ]
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "current_roots": len(roots),
+                    "renamed_ds18_component_labels": renamed_fields[
+                        "ds18_component_labels"
+                    ],
+                    "renamed_ds18_source_lines": renamed_fields[
+                        "ds18_source_lines"
+                    ],
+                    "renamed_ds17_source_lines": renamed_fields[
+                        "ds17_source_lines"
+                    ],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
 
     if args.write_ds17_confidence_ledger_risk_spend:
         selected = {

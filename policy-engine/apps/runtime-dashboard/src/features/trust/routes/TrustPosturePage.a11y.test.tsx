@@ -33,7 +33,9 @@ describe("TrustPosturePage accessibility", () => {
       claims: selectedClaims,
       projection_groups: artifactValue.projection_groups.map((group) => ({
         ...group,
-        claim_ids: group.claim_ids.filter((claimId) => selectedIds.has(claimId)),
+        claim_ids: group.claim_ids.filter((claimId) =>
+          selectedIds.has(claimId),
+        ),
       })),
     };
     vi.doMock("@/features/trust/domain/loadPosture", () => ({
@@ -54,7 +56,11 @@ describe("TrustPosturePage accessibility", () => {
 
     await screen.findByTestId("trust-posture-register");
     expect(screen.getByRole("group", { name: /detail/i })).toBeInTheDocument();
-    expect(view.container.querySelector("[data-trust-limitation]")).toBeVisible();
+    /* eslint-disable testing-library/no-container, testing-library/no-node-access -- Audit the actual limitation element independently of its variable claim text. */
+    expect(
+      view.container.querySelector("[data-trust-limitation]"),
+    ).toBeVisible();
+    /* eslint-enable testing-library/no-container, testing-library/no-node-access */
     expect((await axe(view.container)).violations).toHaveLength(0);
   });
 });

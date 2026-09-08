@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
 from polisyos.runtime.quality.substrate_registry import (
@@ -64,88 +66,51 @@ def test_l2_parameter_estimate_lowers_to_interval_value_outer_set() -> None:
 
 
 def test_l2_transport_and_contested_edges_lower_to_bounded_nonpoint_sets() -> None:
+    """The pinned historical layer must no longer size or populate these bounds."""
     query = SKGQuery(L2_DB, L2_DB.parent)
-    source = query.parameter_estimate_value_outer_set(
-        estimate_id=L2_ESTIMATE_ID,
-        world_model_record_ref="repo://architecture/policy_design_case/layer3_gy_world_model_record_contract.json",
-        epoch="skg:1",
-    )
-
-    transported = query.transport_value_outer_set(
-        source,
-        edge_id=L2_EDGE_ID,
-        target_context_id="UA",
-    )
-    contested = query.contested_edge_value_outer_set(
-        contested_edge_id=L2_CONTESTED_EDGE_ID,
-        world_model_record_ref="repo://architecture/policy_design_case/layer3_gy_world_model_record_contract.json",
-        epoch="skg:1",
-    )
-
-    assert transported.identification_status in {"partial", "proxy"}
-    assert transported.width[0] > source.width[0]
-    assert "transported_limited" in transported.calibration_scope["lowering_status"]
-    untransported = query.transport_value_outer_set(
-        source,
-        edge_id=L2_EDGE_ID,
-        target_context_id="ZZ_WRONG_SCOPE",
-    )
-    assert untransported.representation_status == "search_only"
-    assert untransported.calibration_scope["transport_reason"] == "transport_unavailable_for_scope"
-    assert not untransported.promotion_decision().promotable
-    assert contested.lower[0] < 0.0 < contested.upper[0]
-    assert contested.identification_status == "proxy"
-    assert contested.calibration_scope["lowering_status"] == (
-        "structural_ambiguity_estimate_envelope"
-    )
-    assert int(contested.calibration_scope["resolved_claim_count"]) >= 3
-    assert int(contested.calibration_scope["estimate_count"]) >= 2
+    try:
+        declaration = query.confidence_layer_vintage(L2_DB)
+        assert declaration is not None
+        assert declaration.claim_evidence_axis == "absent"
+        source = query.parameter_estimate_value_outer_set(
+            estimate_id=L2_ESTIMATE_ID,
+            world_model_record_ref="repo://architecture/policy_design_case/layer3_gy_world_model_record_contract.json",
+            epoch="skg:1",
+        )
+        for context_id in ("UA", "ZZ_WRONG_SCOPE"):
+            with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+                query.transport_value_outer_set(source, edge_id=L2_EDGE_ID, target_context_id=context_id)
+        with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+            query.untransported_value_outer_set(
+                source, edge_id=L2_EDGE_ID, target_context_id="UA", reason="transport_unavailable"
+            )
+        with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+            query.contested_edge_value_outer_set(
+                contested_edge_id=L2_CONTESTED_EDGE_ID,
+                world_model_record_ref="repo://architecture/policy_design_case/layer3_gy_world_model_record_contract.json",
+                epoch="skg:1",
+            )
+    finally:
+        query.close()
 
 
 def test_l2_grounding_resolves_content_and_fails_closed_for_unrelated_query() -> None:
+    """A matching name or scope cannot admit this snapshot's historical confidence."""
     query = SKGQuery(L2_DB, L2_DB.parent)
-
-    matched = query.resolve_grounded_causal_prior(
-        cause="agriculture.fertilizer_use",
-        effect="agriculture.food_nutritional_quality",
-        estimand="directional_effect",
-        scope_context_id="UA",
-        required_skg_version_id=1,
-    )
-    unrelated = query.resolve_grounded_causal_prior(
-        cause="astronomy.star_brightness",
-        effect="agriculture.food_nutritional_quality",
-        estimand="directional_effect",
-        scope_context_id="UA",
-        required_skg_version_id=1,
-    )
-    wrong_scope = query.resolve_grounded_causal_prior(
-        cause="agriculture.fertilizer_use",
-        effect="agriculture.food_nutritional_quality",
-        estimand="directional_effect",
-        scope_context_id="ZZ_WRONG_SCOPE",
-        required_skg_version_id=1,
-    )
-    alias = query.resolve_grounded_causal_prior(
-        cause="agriculture.organic_fertilizer_system",
-        effect="agriculture.crop_yield",
-        estimand="directional_effect",
-        scope_context_id="UA",
-        required_skg_version_id=1,
-    )
-
-    assert matched.status == "bound"
-    assert matched.edge_id == L2_EDGE_ID
-    assert matched.relevance_score > 0.0
-    assert matched.content_bind_status == "content_bound"
-    assert unrelated.status == "blocked"
-    assert unrelated.edge_id is None
-    assert unrelated.relevance_score < matched.relevance_score
-    assert wrong_scope.status == "search_only"
-    assert wrong_scope.transport_ref is None
-    assert "transport_unavailable_for_scope" in wrong_scope.blockers
-    assert alias.status == "bound"
-    assert alias.transport_ref is not None
+    try:
+        for cause, effect, scope in (
+            ("agriculture.fertilizer_use", "agriculture.food_nutritional_quality", "UA"),
+            ("astronomy.star_brightness", "agriculture.food_nutritional_quality", "UA"),
+            ("agriculture.fertilizer_use", "agriculture.food_nutritional_quality", "ZZ_WRONG_SCOPE"),
+            ("agriculture.organic_fertilizer_system", "agriculture.crop_yield", "UA"),
+        ):
+            with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+                query.resolve_grounded_causal_prior(
+                    cause=cause, effect=effect, estimand="directional_effect",
+                    scope_context_id=scope, required_skg_version_id=1,
+                )
+    finally:
+        query.close()
 
 
 def test_l3_threshold_admits_blocks_units_and_missing_bound_fail_closed() -> None:

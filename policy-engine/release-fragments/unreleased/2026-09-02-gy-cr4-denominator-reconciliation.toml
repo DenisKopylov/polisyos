@@ -1,0 +1,32 @@
+id = "2026-09-02-gy-cr4-denominator-reconciliation"
+title = "Add exact epoch denominator reconciliation"
+type = "added"
+component = "core-contracts"
+owner = "team-polisyos"
+summary = "Add strict Scientist epoch-impact snapshots, an exact Runtime reconciliation producer and reader, and write-once sidecar admission."
+evidence = [
+  "tests/unit/scientist/validation/test_decision_validity_service.py",
+]
+compatibility = "The reader is opt-in. Without a configured reconciliation reader, DecisionValidityService retains legacy admission behavior and all existing epoch-validity v1 bytes and meanings remain unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts"
+migration = "No migration is required; consumers may adopt the additive contracts when a reconciliation reader is explicitly appointed."
+api = "Adds ten strict/frozen epoch-impact and denominator-reconciliation models plus EpochTransitionDenominatorReconciliationReader to polisyos.core.contracts."
+limitations = "The producer and exact reader are implemented but not production-appointed; DS18 production verification, provider, and orchestration work remains open."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "gy-cr4-denominator-reconciliation-contracts"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.contracts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Core contracts expose content-bound epoch reconciliation, Runtime produces and exact-reads it, and Scientist can opt into write-once sidecar admission without changing legacy v1 receipts."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

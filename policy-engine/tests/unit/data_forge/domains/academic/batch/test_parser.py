@@ -6,6 +6,7 @@ from polisyos.data_forge.domains.academic.batch.parser import (
     classify_study_design,
     extract_numerical_estimates,
     reconstruct_abstract,
+    serialize_deterministic_claim_occurrence_vocabulary,
 )
 
 # ---------------------------------------------------------------------------
@@ -190,6 +191,44 @@ def test_classify_empty() -> None:
 
 def test_classify_no_match() -> None:
     assert classify_study_design("We discuss the topic.") == ""
+
+
+def test_future_deterministic_claim_serializer_keeps_abstract_basis_without_legacy_label() -> None:
+    """Catch a deterministic v2 serializer that invents the old moderate label."""
+
+    transport = serialize_deterministic_claim_occurrence_vocabulary(
+        {
+            "cause": "minimum wage",
+            "effect": "employment",
+            "direction": "negative",
+            "mechanism": "labour cost",
+            "claim_type": "causal_claim",
+        }
+    )
+
+    assert "strength" not in transport.occurrence
+    assert transport.occurrence["claim_type"] == "causal_claim"
+    assert transport.vocabulary.legacy_strength_label is None
+    assert transport.vocabulary.design_family_hint is None
+    assert transport.vocabulary.evidence_strength is None
+    assert transport.vocabulary.claim_extraction_confidence is None
+    assert transport.vocabulary.source_basis.value == "abstract_only"
+    assert transport.vocabulary.source_basis_status.value == "candidate"
+
+
+def test_future_deterministic_claim_serializer_rejects_a_generic_strength_label() -> None:
+    """Catch a future serializer that silently discards historical evidence labels."""
+
+    with pytest.raises(ValueError, match="strength"):
+        serialize_deterministic_claim_occurrence_vocabulary(
+            {
+                "cause": "minimum wage",
+                "effect": "employment",
+                "direction": "negative",
+                "strength": "moderate",
+                "mechanism": "labour cost",
+            }
+        )
 
 
 # Need pytest for approx

@@ -1262,6 +1262,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/public-decisions/verification": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Verify Public Decision Record
+     * @description Verify an issued locator without admitting any browser-provided document.
+     */
+    get: operations["verify_public_decision_record"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs": {
     parameters: {
       query?: never;
@@ -1648,6 +1668,30 @@ export interface paths {
     put?: never;
     /** Create Run Production Approval */
     post: operations["create_run_production_approval"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/public-verification-record": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Issue Public Decision Record
+     * @description Redact the persisted run packet, then issue a report about those exact bytes.
+     *
+     *     The caller selects an owned run, never supplies a document, key or authority
+     *     verdict. The existing public-export producer owns disclosure and projection
+     *     limits; its refusal is propagated before any record or public link is issued.
+     */
+    post: operations["issue_public_decision_record"];
     delete?: never;
     options?: never;
     head?: never;
@@ -3216,15 +3260,7 @@ export interface components {
       authoritative_for: string[];
       /** Boundary Id */
       boundary_id?: string | null;
-      /** Decision Grade */
-      decision_grade?:
-        | (
-            | "unsupported"
-            | "descriptive_only"
-            | "advisory_admissible"
-            | "decision_admissible"
-          )
-        | null;
+      decision_grade?: components["schemas"]["DecisionGrade"] | null;
       evidence_basis?: components["schemas"]["EvidenceBasis"] | null;
       /** Evidence Kind */
       evidence_kind?:
@@ -3927,64 +3963,7 @@ export interface components {
      * BureaucraticBlock
      * @description Canonical document AST block independent of HTML/PDF/DOCX renderers.
      */
-    BureaucraticBlock: {
-      authorship?: components["schemas"]["BureaucraticAuthorship"];
-      /** Children */
-      children?: components["schemas"]["BureaucraticBlock"][];
-      /**
-       * Epistemic Origin
-       * @enum {string}
-       */
-      epistemic_origin:
-        | "evidence_filled"
-        | "model_generated"
-        | "operator_filled"
-        | "imported";
-      /** Id */
-      id: string;
-      /** Items */
-      items?: string[];
-      /**
-       * Kind
-       * @enum {string}
-       */
-      kind:
-        | "header"
-        | "requisites"
-        | "preamble"
-        | "legal_basis"
-        | "section"
-        | "article"
-        | "clause"
-        | "subclause"
-        | "paragraph"
-        | "list"
-        | "table"
-        | "quantity"
-        | "annex"
-        | "signature"
-        | "appendix";
-      /**
-       * Level
-       * @default 1
-       */
-      level: number;
-      /** Metadata */
-      metadata?: {
-        [key: string]: unknown;
-      };
-      /** Number */
-      number?: string | null;
-      /** Provenance */
-      provenance?: components["schemas"]["LineageCompactSummaryItem"][];
-      quantity?: components["schemas"]["QuantityValue-Output"] | null;
-      /** Raw Source Refs */
-      raw_source_refs?: string[];
-      /** Text */
-      text?: string | null;
-      /** Title */
-      title?: string | null;
-    };
+    BureaucraticBlock: _RuntimeApiRecursiveSchema_BureaucraticBlock;
     /**
      * BureaucraticDocument
      * @description Machine-checkable bureaucratic document AST rendered from a decision packet.
@@ -6714,6 +6693,12 @@ export interface components {
       status: components["schemas"]["DecisionValidityStatus"];
       trigger_type: components["schemas"]["DecisionTriggerType"];
     };
+    /** @enum {string} */
+    DecisionGrade:
+      | "unsupported"
+      | "descriptive_only"
+      | "advisory_admissible"
+      | "decision_admissible";
     /**
      * DecisionLifecycleJob
      * @description Describe a scheduled or completed control-plane follow-up job.
@@ -7294,6 +7279,190 @@ export interface components {
         | "mixed"
         | "uncertain"
         | "not_comparable";
+    };
+    /**
+     * DependencyDigestProjection
+     * @description Carry one owner-computed digest without recomputing it in Runtime.
+     */
+    DependencyDigestProjection: {
+      /** Domain */
+      domain: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * DependencyDiscriminantAuthorityBoundary
+     * @description Declare the only diagnostic use and the explicitly denied authority uses.
+     */
+    DependencyDiscriminantAuthorityBoundary: {
+      /** Authoritative For */
+      authoritative_for: "dependency_environment_diagnosis"[];
+      /** May Not Use For */
+      may_not_use_for: (
+        | "n8_admission"
+        | "n10a_stage_gap_closure"
+        | "chronology_acceptance"
+        | "policy_publication"
+        | "policy_promotion"
+      )[];
+    };
+    /**
+     * DependencyDiscriminantOwnerBinding
+     * @description Carry the received or non-received Foundry diagnostic companion.
+     */
+    DependencyDiscriminantOwnerBinding: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      binding_name: "foundry_dependency_discriminant";
+      dependency_environment: components["schemas"]["DependencyEnvironmentDiagnosticProjection"];
+      /** Owner Semantic Hash */
+      owner_semantic_hash: string | null;
+      /**
+       * Relation
+       * @default semantic_projection
+       * @constant
+       */
+      relation: "semantic_projection";
+      /**
+       * Relative Path
+       * @constant
+       */
+      relative_path: "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json";
+      /** Resolved Artifact Content Hash */
+      resolved_artifact_content_hash: string | null;
+      /**
+       * Semantic Hash Rule Version
+       * @constant
+       */
+      semantic_hash_rule_version: "polisyos.foundry.dependency_discriminant.v1";
+    };
+    /**
+     * DependencyDistributionProjection
+     * @description Carry one member of the owner-resolved deployment closure.
+     */
+    DependencyDistributionProjection: {
+      /** Name */
+      name: string;
+      selected_artifact: components["schemas"]["DependencyDigestProjection"];
+      /** Source Kind */
+      source_kind: string;
+      /** Version */
+      version: string;
+    };
+    /**
+     * DependencyEnvironmentDiagnosticCaseProjection
+     * @description Transport the owner-ordered first incompatible closure coordinate.
+     */
+    DependencyEnvironmentDiagnosticCaseProjection: {
+      /**
+       * Case Kind
+       * @enum {string}
+       */
+      case_kind:
+        | "root_distribution_disagreement"
+        | "missing_resolved_distribution"
+        | "distribution_field_disagreement"
+        | "unexpected_in_closure_identity";
+      /** Coordinate */
+      coordinate: string;
+      /** Expected */
+      expected: string;
+      /** Field */
+      field?: ("version" | "source_kind" | "selected_artifact") | null;
+      /** Observed */
+      observed: string;
+      /**
+       * Predicate Class
+       * @enum {string}
+       */
+      predicate_class: "independently_reconciled" | "recomputed";
+    };
+    /**
+     * DependencyEnvironmentDiagnosticProjection
+     * @description Typed non-decisive diagnostic emitted by the Foundry/N8 owner bridge.
+     */
+    DependencyEnvironmentDiagnosticProjection: {
+      /** Artifact Content Ref */
+      artifact_content_ref?: string | null;
+      authority_boundary?:
+        | components["schemas"]["DependencyDiscriminantAuthorityBoundary"]
+        | null;
+      /**
+       * Decision Role
+       * @constant
+       */
+      decision_role: "ambient_non_decisive";
+      first_case?:
+        | components["schemas"]["DependencyEnvironmentDiagnosticCaseProjection"]
+        | null;
+      /** Predicate Class */
+      predicate_class?: "recomputed" | null;
+      profile?:
+        | components["schemas"]["DependencyProfileDiscriminantProjection"]
+        | null;
+      /**
+       * Receipt State
+       * @enum {string}
+       */
+      receipt_state: "received" | "not_received";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "pass" | "fail" | "not_established";
+    };
+    /**
+     * DependencyProfileDiscriminantProjection
+     * @description Transport the complete Foundry-owned dependency discriminant unchanged.
+     */
+    DependencyProfileDiscriminantProjection: {
+      declaration_ref: components["schemas"]["DependencyRecordRefProjection"];
+      discriminant_ref: components["schemas"]["DependencyDigestProjection"];
+      distribution_set: components["schemas"]["DependencyDigestProjection"];
+      /** Extras */
+      extras: string[];
+      lockfile_ref: components["schemas"]["DependencyDigestProjection"];
+      /** Marker Environment */
+      marker_environment: [string, string][];
+      /** Profile Id */
+      profile_id: string;
+      pyproject_ref: components["schemas"]["DependencyDigestProjection"];
+      /** Python Constraint */
+      python_constraint: string;
+      /** Resolved Distributions */
+      resolved_distributions: components["schemas"]["DependencyDistributionProjection"][];
+      /**
+       * Resolver Name
+       * @constant
+       */
+      resolver_name: "uv";
+      /** Resolver Version */
+      resolver_version: string;
+      /** Root Distribution */
+      root_distribution: string;
+      /**
+       * Rule Version
+       * @constant
+       */
+      rule_version: "polisyos.foundry.dependency_discriminant.v1";
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "polisyos.foundry.dependency-discriminant.v1";
+    };
+    /**
+     * DependencyRecordRefProjection
+     * @description Carry the owner record reference used by the discriminant.
+     */
+    DependencyRecordRefProjection: {
+      /** Artifact Id */
+      artifact_id: string;
+      /** Schema Version */
+      schema_version: string;
+      semantic_hash: components["schemas"]["DependencyDigestProjection"];
     };
     /**
      * DepthNAcquisitionEconomicsProjection
@@ -13389,8 +13558,11 @@ export interface components {
      * @description Resolve an owner-declared semantic hash without calling it byte identity.
      */
     ProjectionOwnerBinding: {
-      /** Binding Name */
-      binding_name: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      binding_name: "live_probe_journal_content_sha256";
       /** Owner Semantic Hash */
       owner_semantic_hash: string;
       /**
@@ -13419,7 +13591,7 @@ export interface components {
        * Related Artifact Bindings
        * @default []
        */
-      related_artifact_bindings: components["schemas"]["ProjectionOwnerBinding"][];
+      related_artifact_bindings: components["schemas"]["RelatedArtifactBinding"][];
       /** Relative Path */
       relative_path: string;
       validation: components["schemas"]["ProjectionSourceValidation"];
@@ -13664,6 +13836,135 @@ export interface components {
       /** Reason */
       reason: string;
     };
+    PublicDecisionJsonValue: _RuntimeApiRecursiveSchema_PublicDecisionJsonValue;
+    /**
+     * PublicDecisionVerificationDimensions
+     * @description PV-K01 dimensions withheld until their actual owners provide evidence.
+     */
+    PublicDecisionVerificationDimensions: {
+      /**
+       * Current Authority
+       * @default not_established
+       * @constant
+       */
+      current_authority: "not_established";
+      /**
+       * Durable Verifiability
+       * @default not_established
+       * @constant
+       */
+      durable_verifiability: "not_established";
+      /**
+       * Issuer Issuance
+       * @default not_established
+       * @constant
+       */
+      issuer_issuance: "not_established";
+      /**
+       * Projection Faithfulness
+       * @default not_established
+       * @constant
+       */
+      projection_faithfulness: "not_established";
+      /**
+       * Public Evidence Obtainability
+       * @default not_established
+       * @constant
+       */
+      public_evidence_obtainability: "not_established";
+      /**
+       * Public History Establishment
+       * @default not_established
+       * @constant
+       */
+      public_history_establishment: "not_established";
+      /**
+       * Status Snapshot Selection
+       * @default not_established
+       * @constant
+       */
+      status_snapshot_selection: "not_established";
+    };
+    /**
+     * PublicDecisionVerificationIssued
+     * @description Opaque locator returned only after durable issuance and verifier readback.
+     */
+    PublicDecisionVerificationIssued: {
+      /** Promoted Record */
+      promoted_record?: null;
+      /** Public Path */
+      public_path: string;
+      /**
+       * Publication Class
+       * @default verification_report_only
+       * @constant
+       */
+      publication_class: "verification_report_only";
+      /** Record Id */
+      record_id: string;
+    };
+    /**
+     * PublicDecisionVerificationResponse
+     * @description Authentication result with document bytes exposed only after verification.
+     */
+    PublicDecisionVerificationResponse: {
+      /**
+       * Cryptographic Signature
+       * @default not_established
+       * @enum {string}
+       */
+      cryptographic_signature: "valid" | "invalid" | "not_established";
+      /** Decision Id */
+      decision_id?: string | null;
+      dimensions?: components["schemas"]["PublicDecisionVerificationDimensions"];
+      /** Issued At */
+      issued_at?: string | null;
+      /** Issuer Id */
+      issuer_id?: string | null;
+      /** Promoted Record */
+      promoted_record?: null;
+      /** Public Document */
+      public_document?: {
+        [key: string]: components["schemas"]["PublicDecisionJsonValue"];
+      } | null;
+      /** Public Document Digest */
+      public_document_digest?: string | null;
+      /** Reason Codes */
+      reason_codes: (
+        | "promoted_public_record_not_established"
+        | "client_token_not_server_issued"
+        | "record_not_issued"
+        | "issuance_index_invalid"
+        | "issuance_index_write_failed"
+        | "verification_issuer_not_configured"
+        | "public_document_invalid"
+        | "record_evidence_unavailable"
+        | "record_signature_missing"
+        | "record_signature_invalid"
+        | "record_key_untrusted"
+        | "record_key_revoked"
+        | "record_issuer_purpose_untrusted"
+        | "record_binding_invalid"
+        | "public_document_binding_invalid"
+      )[];
+      /** Record Id */
+      record_id: string;
+      /**
+       * Report Authentication
+       * @enum {string}
+       */
+      report_authentication: "verified" | "invalid" | "not_established";
+      /**
+       * Report Key Status
+       * @default not_established
+       * @enum {string}
+       */
+      report_key_status:
+        | "trusted"
+        | "revoked"
+        | "untrusted"
+        | "not_established";
+    };
     /**
      * QualityRef
      * @description Quality evidence reference embedded in a Fabric trust envelope.
@@ -13875,6 +14176,9 @@ export interface components {
       surface: components["schemas"]["AuthoritySurface"];
       value_id: components["schemas"]["AuthorityValueId"];
     };
+    RelatedArtifactBinding:
+      | components["schemas"]["ProjectionOwnerBinding"]
+      | components["schemas"]["DependencyDiscriminantOwnerBinding"];
     /**
      * ReplayRef
      * @description Replay or retention alternative reference for the value.
@@ -23433,6 +23737,113 @@ export interface operations {
       };
     };
   };
+  verify_public_decision_record: {
+    parameters: {
+      query: {
+        record_id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "cryptographic_signature": "not_established",
+           *       "dimensions": {
+           *         "current_authority": "not_established",
+           *         "durable_verifiability": "not_established",
+           *         "issuer_issuance": "not_established",
+           *         "projection_faithfulness": "not_established",
+           *         "public_evidence_obtainability": "not_established",
+           *         "public_history_establishment": "not_established",
+           *         "status_snapshot_selection": "not_established"
+           *       },
+           *       "reason_codes": [
+           *         "record_not_issued",
+           *         "promoted_public_record_not_established"
+           *       ],
+           *       "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "report_authentication": "not_established",
+           *       "report_key_status": "not_established"
+           *     }
+           */
+          "application/json": components["schemas"]["PublicDecisionVerificationResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   list_runs: {
     parameters: {
       query?: {
@@ -25629,6 +26040,99 @@ export interface operations {
       };
     };
   };
+  issue_public_decision_record: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "public_path": "/public/decisions/pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "publication_class": "verification_report_only",
+           *       "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+           *     }
+           */
+          "application/json": components["schemas"]["PublicDecisionVerificationIssued"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_quantities: {
     parameters: {
       query?: {
@@ -26645,3 +27149,73 @@ export interface operations {
     };
   };
 }
+
+// Guarded recursive schema aliases; generated from components.schemas.
+type _RuntimeApiRecursiveSchema_BureaucraticBlock = {
+  authorship?: components["schemas"]["BureaucraticAuthorship"];
+  /** Children */
+  children?: _RuntimeApiRecursiveSchema_BureaucraticBlock[];
+  /**
+   * Epistemic Origin
+   * @enum {string}
+   */
+  epistemic_origin:
+    | "evidence_filled"
+    | "model_generated"
+    | "operator_filled"
+    | "imported";
+  /** Id */
+  id: string;
+  /** Items */
+  items?: string[];
+  /**
+   * Kind
+   * @enum {string}
+   */
+  kind:
+    | "header"
+    | "requisites"
+    | "preamble"
+    | "legal_basis"
+    | "section"
+    | "article"
+    | "clause"
+    | "subclause"
+    | "paragraph"
+    | "list"
+    | "table"
+    | "quantity"
+    | "annex"
+    | "signature"
+    | "appendix";
+  /**
+   * Level
+   * @default 1
+   */
+  level: number;
+  /** Metadata */
+  metadata?: {
+    [key: string]: unknown;
+  };
+  /** Number */
+  number?: string | null;
+  /** Provenance */
+  provenance?: components["schemas"]["LineageCompactSummaryItem"][];
+  quantity?: components["schemas"]["QuantityValue-Output"] | null;
+  /** Raw Source Refs */
+  raw_source_refs?: string[];
+  /** Text */
+  text?: string | null;
+  /** Title */
+  title?: string | null;
+};
+
+type _RuntimeApiRecursiveSchema_PublicDecisionJsonValue =
+  | string
+  | number
+  | boolean
+  | _RuntimeApiRecursiveSchema_PublicDecisionJsonValue[]
+  | {
+      [key: string]: _RuntimeApiRecursiveSchema_PublicDecisionJsonValue;
+    }
+  | null;

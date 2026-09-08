@@ -24,6 +24,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup declaration checker Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: policy-engine/.python-version
+
+      - name: Install declaration checker dependencies
+        run: |
+          python3 -m venv "${RUNNER_TEMP}/ci-declarations"
+          "${RUNNER_TEMP}/ci-declarations/bin/python" -m pip install --disable-pip-version-check PyYAML==6.0.3 packaging==25.0
+
       - name: Install actionlint
         id: actionlint
         run: |
@@ -35,6 +45,12 @@ jobs:
 
       - name: Review workflow policy
         run: python3 policy-engine/tools/ci/check_workflow_policy.py --repo-root . --summary .github/workflow-policy-summary.md
+
+      - name: Check declared Python test targets
+        run: python3 .github/scripts/check_declared_test_targets.py --repo-root .
+
+      - name: Check declared Python versions
+        run: '"${RUNNER_TEMP}/ci-declarations/bin/python" .github/scripts/check_python_versions.py --repo-root .'
 
       - name: Validate Phase 7 ratchet policy
         if: github.event_name == 'pull_request'
@@ -206,33 +222,42 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Detect ABI-relevant changes
+      - name: Setup ripgrep
+        uses: ./.github/actions/setup-ripgrep
+
+      - name: Report directly changed ABI paths
         id: abi_scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail
           git diff --name-only "${BASE_SHA}" "${GITHUB_SHA}" > /tmp/changed-files.txt
-          if rg -q \
+          scan_status=0
+          rg -q \
             '^(policy-engine/src/polisyos/ir/|policy-engine/src/polisyos/fabric/world/|policy-engine/src/polisyos/core/canon/|policy-engine/src/polisyos/core/artifacts/|policy-engine/schemas/|policy-engine/tools/quality/diagnostics/gen_schema.py|policy-engine/tools/quality/diagnostics/abi_diff.py|\\.github/workflows/abi.yml)' \
-            /tmp/changed-files.txt; then
+            /tmp/changed-files.txt || scan_status=$?
+          if [[ "${scan_status}" -eq 0 ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
+          elif [[ "${scan_status}" -eq 1 ]]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::ABI scan failed: rg (ripgrep) returned ${scan_status}." >&2
+            exit "${scan_status}"
           fi
+          echo "Direct ABI path scan: $(cat "$GITHUB_OUTPUT"). Snapshot validation runs for every pull request, including changes to imported models." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup Policy Engine Python
-        if: steps.abi_scope.outputs.changed == 'true'
         uses: ./.github/actions/setup-policy-engine-python
         with:
           profile: minimal
 
+      - name: Check complete runtime schema snapshots
+        run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+
       - name: Generate current ABI snapshots
-        if: steps.abi_scope.outputs.changed == 'true'
         run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --output-dir /tmp/current-schemas
 
       - name: Extract baseline snapshots from base branch
-        if: steps.abi_scope.outputs.changed == 'true'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
@@ -246,7 +271,6 @@ jobs:
           mkdir -p /tmp/baseline-schemas/ir /tmp/baseline-schemas/fabric
 
       - name: Run ABI semantic diff
-        if: steps.abi_scope.outputs.changed == 'true'
         id: abi_diff
         run: |
           set +e
@@ -262,13 +286,6 @@ jobs:
           echo "verdict=${verdict}" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Skip ABI diff when surface is untouched
-        if: steps.abi_scope.outputs.changed != 'true'
-        run: |
-          cat <<'EOF' > /tmp/abi-comment.md
-          No ABI-relevant paths changed in this pull request.
-          EOF
-
       - name: Upload ABI report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -281,7 +298,7 @@ jobs:
           retention-days: 14
 
       - name: Fail on blocking ABI verdict
-        if: steps.abi_scope.outputs.changed == 'true' && steps.abi_diff.outputs.verdict == 'FAIL'
+        if: steps.abi_diff.outputs.verdict == 'FAIL'
         run: |
           echo "::error::ABI gate failed. Breaking changes detected without a required schema_version major bump."
           exit 1

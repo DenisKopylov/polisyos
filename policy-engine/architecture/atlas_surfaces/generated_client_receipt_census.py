@@ -23,6 +23,7 @@ from collections import namedtuple
 from collections.abc import Iterable, Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path
+from typing import cast
 
 DEFAULT_TARGET_PATHS = (
     "schemas/runtime_api_v1.openapi.json",
@@ -184,6 +185,181 @@ def _parse_structured(path: Path) -> object:
         with path.open("rb") as stream:
             return tomllib.load(stream)
     raise ValueError(f"unsupported structured artifact: {path}")
+
+
+def _repo_file(repo_root: Path, declared_path: str | Path) -> Path:
+    """Resolve one declared file inside the repository boundary."""
+    root = repo_root.resolve()
+    candidate = Path(declared_path)
+    resolved = (candidate if candidate.is_absolute() else root / candidate).resolve()
+    if not resolved.is_relative_to(root):
+        raise ValueError(f"declared path escapes repository: {declared_path}")
+    if not resolved.is_file():
+        raise ValueError(f"declared source is missing: {declared_path}")
+    return resolved
+
+
+def _declared_anchor(
+    document: object,
+    *,
+    record_id: str,
+) -> tuple[dict[str, object], str, dict[str, object]]:
+    """Return one uniquely identified top-level entry and its declared anchor."""
+    if not isinstance(document, Mapping):
+        raise ValueError("identity emission requires a JSON object")
+    entries = document.get("entries")
+    if not isinstance(entries, list):
+        raise ValueError("identity emission requires an entries array")
+    matching_entries = [
+        entry
+        for entry in entries
+        if isinstance(entry, dict)
+        and any(
+            entry.get(key) == record_id
+            for key in ("debt_id", "unit_id", "record_id", "id")
+        )
+    ]
+    if len(matching_entries) != 1:
+        raise ValueError(f"identity emission record is not unique: {record_id}")
+    entry = matching_entries[0]
+    anchors = [
+        (str(key), value)
+        for key, value in entry.items()
+        if "anchor" in str(key).lower() and isinstance(value, dict)
+    ]
+    if len(anchors) != 1:
+        raise ValueError(f"identity emission anchor is not unique: {record_id}")
+    anchor_key, anchor = anchors[0]
+    return entry, anchor_key, anchor
+
+
+def _json_object_span_for_value(
+    source: str,
+    *,
+    key: str,
+    value: Mapping[str, object],
+) -> tuple[int, int, str]:
+    """Locate one JSON object value and its key indentation without reformatting."""
+    pattern = re.compile(rf'(?m)^(?P<indent>[ \t]*)"{re.escape(key)}"\s*:\s*(?P<open>{{)')
+    candidates: list[tuple[int, int, str]] = []
+    for match in pattern.finditer(source):
+        start = match.start("open")
+        depth = 0
+        in_string = False
+        escaped = False
+        end: int | None = None
+        for index in range(start, len(source)):
+            character = source[index]
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == '"':
+                    in_string = False
+                continue
+            if character == '"':
+                in_string = True
+            elif character == "{":
+                depth += 1
+            elif character == "}":
+                depth -= 1
+                if depth == 0:
+                    end = index + 1
+                    break
+        if end is None:
+            raise ValueError(f"unterminated JSON object for anchor key: {key}")
+        try:
+            observed = json.loads(source[start:end])
+        except json.JSONDecodeError:
+            continue
+        if observed == value:
+            candidates.append((start, end, match.group("indent")))
+    if len(candidates) != 1:
+        raise ValueError(f"identity emission JSON anchor is not unique: {key}")
+    return candidates[0]
+
+
+def emit_present_projection_anchor(
+    *,
+    repo_root: Path,
+    artifact_path: str | Path,
+    record_id: str,
+) -> dict[str, object]:
+    """Mint and surgically write a present generated-client anchor from live source."""
+    artifact = _repo_file(repo_root, artifact_path)
+    if artifact.suffix != ".json":
+        raise ValueError("identity emission supports JSON artifacts only")
+    original = artifact.read_text(encoding="utf-8")
+    document = json.loads(original)
+    entry, anchor_key, anchor = _declared_anchor(document, record_id=record_id)
+    anchor_kind = anchor.get("anchor_kind")
+    if anchor_kind not in {"missing_export", "present_projection"}:
+        raise ValueError(f"identity emission anchor kind is unsupported: {anchor_kind}")
+    canonical_path = cast("object", anchor.get("canonical_path"))
+    types_path = cast("object", anchor.get("types_path"))
+    symbol = cast("object", anchor.get("symbol"))
+    if not all(isinstance(value, str) and value for value in (canonical_path, types_path, symbol)):
+        raise ValueError(f"identity emission anchor declaration is incomplete: {record_id}")
+    canonical_path = cast("str", canonical_path)
+    types_path = cast("str", types_path)
+    symbol = cast("str", symbol)
+    sources = {
+        canonical_path: _repo_file(repo_root, canonical_path).read_text(encoding="utf-8"),
+        types_path: _repo_file(repo_root, types_path).read_text(encoding="utf-8"),
+    }
+    engine = _typescript_identity_engine()
+    requests = (
+        (canonical_path, "exported_declaration", symbol),
+        (types_path, "type_property", f"components.{symbol}"),
+    )
+    emitted: list[tuple[int, str]] = []
+    for source_path, role, discriminator in requests:
+        identity = engine._typescript_reference_identity(
+            sources,
+            source_path=source_path,
+            role=role,
+            discriminator=discriminator,
+        )
+        facts = engine._typescript_reference_construct_facts(
+            sources,
+            source_path=source_path,
+            role=role,
+            discriminator=discriminator,
+        )
+        matches = facts.get("matches")
+        if not isinstance(matches, list) or len(matches) != 1:
+            raise RuntimeError("identity engine returned a non-unique minted construct")
+        start_line = matches[0].get("startLine")
+        encoded_identity = identity.get("encoded_identity")
+        if not isinstance(start_line, int) or not isinstance(encoded_identity, str):
+            raise RuntimeError("identity engine returned an invalid minted binding")
+        emitted.append((start_line, encoded_identity))
+    new_anchor: dict[str, object] = {
+        "anchor_kind": "present_projection",
+        "canonical_path": canonical_path,
+        "canonical_line": emitted[0][0],
+        "canonical_identity": emitted[0][1],
+        "types_path": types_path,
+        "schema_line": emitted[1][0],
+        "schema_identity": emitted[1][1],
+        "symbol": symbol,
+    }
+    start, end, indent = _json_object_span_for_value(
+        original,
+        key=anchor_key,
+        value=anchor,
+    )
+    rendered = json.dumps(new_anchor, ensure_ascii=False, indent=2).replace(
+        "\n", "\n" + indent
+    )
+    updated = original[:start] + rendered + original[end:]
+    entry[anchor_key] = new_anchor
+    if json.loads(updated) != document:
+        raise RuntimeError("identity emission surgical write changed unrelated JSON")
+    if updated != original:
+        artifact.write_text(updated, encoding="utf-8")
+    return new_anchor
 
 
 def _json_pointer(path: tuple[str, ...]) -> str:
@@ -930,7 +1106,31 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--target", action="append", dest="targets")
     parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--emit-present-projection-anchor",
+        type=Path,
+        metavar="ARTIFACT",
+        help="surgically mint one declared anchor from its live TypeScript sources",
+    )
+    parser.add_argument(
+        "--record-id",
+        help="record identifier selected by --emit-present-projection-anchor",
+    )
     arguments = parser.parse_args(argv)
+    if arguments.emit_present_projection_anchor is not None:
+        if arguments.check or arguments.targets:
+            parser.error("identity emission cannot be combined with --check or --target")
+        if not arguments.record_id:
+            parser.error("--record-id is required for identity emission")
+        emitted = emit_present_projection_anchor(
+            repo_root=arguments.repo_root,
+            artifact_path=arguments.emit_present_projection_anchor,
+            record_id=arguments.record_id,
+        )
+        print(json.dumps(emitted, indent=2, sort_keys=True))  # noqa: T201 - CLI boundary
+        return 0
+    if arguments.record_id:
+        parser.error("--record-id requires --emit-present-projection-anchor")
     candidates = _repository_candidates(arguments.repo_root)
     report = build_report(
         repo_root=arguments.repo_root,

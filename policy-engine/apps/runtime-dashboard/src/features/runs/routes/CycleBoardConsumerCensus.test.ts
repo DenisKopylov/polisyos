@@ -598,11 +598,13 @@ describe("Cycle Board production consumer census", () => {
     census = inspectConsumers(productionPopulation());
   }, 45_000);
 
-  it("has one acquisition-growth intake and one Cycle Board hook consumer", () => {
+  it("has one acquisition-growth intake shared by the approval flow and Cycle Board", () => {
     expect(census.acquisitionClientCalls).toEqual([
       "features/runs/api/useAcquisitionRoutes.ts",
     ]);
     expect(census.acquisitionHookCalls).toEqual([
+      // fb06e4942 added the run-bound flow through this same admitted intake.
+      "features/runs/components/AcquisitionApprovalFlow.tsx",
       "features/runs/components/CycleBoard.tsx",
     ]);
   }, 45_000);

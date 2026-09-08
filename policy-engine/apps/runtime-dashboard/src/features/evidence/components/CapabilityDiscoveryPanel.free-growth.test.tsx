@@ -85,9 +85,11 @@ describeLive("DS10 capability discovery free growth", () => {
       "admitted_authority",
     );
 
+    /* eslint-disable testing-library/no-node-access -- Inspect the owner-bound result identity independent of its open vocabulary labels. */
     const result = screen
       .getByTestId("capability-discovery-panel")
       .querySelector("[data-capability-ref]");
+    /* eslint-enable testing-library/no-node-access */
     expect(result).toHaveAttribute(
       "data-capability-ref",
       generatedCapabilityId,

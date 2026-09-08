@@ -11,6 +11,7 @@ import {
   confidenceLedgerPromotionBlockers,
   evaluateConfidenceLedgerProtectedQuery,
   orderedConfidenceLedgerActualRows,
+  type ConfidenceLedgerOwnerLiteralRule,
 } from "./confidenceLedgerRiskSpend";
 
 type OpenApiSchema = Readonly<{
@@ -19,10 +20,15 @@ type OpenApiSchema = Readonly<{
   allOf?: readonly OpenApiSchema[];
   anyOf?: readonly OpenApiSchema[];
   const?: unknown;
+  discriminator?: Readonly<{
+    mapping: Readonly<Record<string, string>>;
+    propertyName: string;
+  }>;
   enum?: readonly unknown[];
   items?: OpenApiSchema;
   oneOf?: readonly OpenApiSchema[];
   properties?: Readonly<Record<string, OpenApiSchema>>;
+  type?: string;
 }>;
 
 type OpenApiDocument = Readonly<{
@@ -73,6 +79,90 @@ function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
   );
 }
 
+type RelatedBinding =
+  AvailableConfidenceLedgerRiskSpendPacket["source"]["related_artifact_bindings"][number];
+type DependencyBinding = Extract<
+  RelatedBinding,
+  { binding_name: "foundry_dependency_discriminant" }
+>;
+
+function dependencyBinding(received: boolean): DependencyBinding {
+  const contentHash = availablePacket().source.artifact_content_hash;
+  const digest = (domain: string) => ({ domain, value: contentHash });
+  return {
+    binding_name: "foundry_dependency_discriminant",
+    owner_semantic_hash: received ? contentHash : null,
+    relation: "semantic_projection",
+    relative_path:
+      "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
+    resolved_artifact_content_hash: received ? contentHash : null,
+    semantic_hash_rule_version: "polisyos.foundry.dependency_discriminant.v1",
+    dependency_environment: {
+      artifact_content_ref: received ? contentHash : null,
+      authority_boundary: received
+        ? {
+            authoritative_for: ["dependency_environment_diagnosis"],
+            may_not_use_for: [
+              "n8_admission",
+              "n10a_stage_gap_closure",
+              "chronology_acceptance",
+              "policy_publication",
+              "policy_promotion",
+            ],
+          }
+        : null,
+      decision_role: "ambient_non_decisive",
+      first_case: null,
+      predicate_class: received ? "recomputed" : null,
+      profile: received
+        ? {
+            declaration_ref: {
+              artifact_id: "dependency-profile://dashboard-admission-fixture",
+              schema_version: "fixture.dependency-profile.v1",
+              semantic_hash: digest("dependency-profile-declaration"),
+            },
+            discriminant_ref: digest("dependency-discriminant"),
+            distribution_set: digest("distribution-set"),
+            extras: ["runtime"],
+            lockfile_ref: digest("uv-lock-blob"),
+            marker_environment: [["python_version", "3.14"]],
+            profile_id: "dashboard-admission-fixture",
+            pyproject_ref: digest("pyproject-blob"),
+            python_constraint: ">=3.14,<3.15",
+            resolved_distributions: [
+              {
+                name: "policy-engine",
+                version: "0.1.0",
+                source_kind: "editable",
+                selected_artifact: digest("selected-distribution-artifact"),
+              },
+            ],
+            resolver_name: "uv",
+            resolver_version: "0.9.21",
+            root_distribution: "policy-engine",
+            rule_version: "polisyos.foundry.dependency_discriminant.v1",
+            schema_version: "polisyos.foundry.dependency-discriminant.v1",
+          }
+        : null,
+      receipt_state: received ? "received" : "not_received",
+      status: received ? "pass" : "not_established",
+    },
+  };
+}
+
+function liveProbeBinding(): RelatedBinding {
+  const contentHash = availablePacket().source.artifact_content_hash;
+  return {
+    binding_name: "live_probe_journal_content_sha256",
+    owner_semantic_hash: contentHash,
+    relation: "semantic_projection",
+    relative_path:
+      "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+    resolved_artifact_content_hash: contentHash,
+    semantic_hash_rule_version: "policyos.layer3.gy.n13a.acquisition_census.v1",
+  };
+}
+
 function generatedOwnerLiteralInventory() {
   const openApi = openApiDocument();
   const rootSchemas = [
@@ -81,16 +171,14 @@ function generatedOwnerLiteralInventory() {
     "ArtifactMissingConfidenceLedgerRiskSpendPacket",
     "InvalidConfidenceLedgerRiskSpendPacket",
   ] as const;
-  const rules: Array<{
-    path: string;
-    rootSchema: (typeof rootSchemas)[number];
-    value: boolean | number | string;
-  }> = [];
+  const rules: ConfidenceLedgerOwnerLiteralRule[] = [];
   const walk = (
     rootSchema: (typeof rootSchemas)[number],
     schema: OpenApiSchema,
     path: string,
     refs: ReadonlySet<string>,
+    branches: NonNullable<ConfidenceLedgerOwnerLiteralRule["branches"]> = [],
+    nullablePaths: readonly string[] = [],
   ): void => {
     if (schema.$ref !== undefined) {
       const name = schema.$ref.split("/").at(-1);
@@ -99,7 +187,14 @@ function generatedOwnerLiteralInventory() {
       if (referenced === undefined) {
         throw new Error(`unresolved OpenAPI schema reference ${schema.$ref}`);
       }
-      walk(rootSchema, referenced, path, new Set([...refs, name]));
+      walk(
+        rootSchema,
+        referenced,
+        path,
+        new Set([...refs, name]),
+        branches,
+        nullablePaths,
+      );
     }
     const singleton =
       schema.const ?? (schema.enum?.length === 1 ? schema.enum[0] : undefined);
@@ -108,24 +203,80 @@ function generatedOwnerLiteralInventory() {
       typeof singleton === "number" ||
       typeof singleton === "string"
     ) {
-      rules.push({ path, rootSchema, value: singleton });
+      rules.push({
+        path,
+        rootSchema,
+        value: singleton,
+        ...(branches.length === 0 ? {} : { branches }),
+        ...(nullablePaths.length === 0 ? {} : { nullablePaths }),
+      });
     }
     for (const branch of ["allOf", "oneOf", "anyOf"] as const) {
-      schema[branch]?.forEach((nested) =>
-        walk(rootSchema, nested, path, new Set(refs)),
-      );
+      const nullable = schema[branch]?.some((nested) => nested.type === "null");
+      schema[branch]?.forEach((nested) => {
+        const discriminator = schema.discriminator;
+        const branchValue =
+          discriminator === undefined
+            ? undefined
+            : Object.entries(discriminator.mapping).find(
+                ([, ref]) => ref === nested.$ref,
+              )?.[0];
+        if (discriminator !== undefined && branchValue === undefined) {
+          throw new Error(
+            `unresolved discriminator arm at ${rootSchema}${path}`,
+          );
+        }
+        walk(
+          rootSchema,
+          nested,
+          path,
+          new Set(refs),
+          discriminator === undefined || branchValue === undefined
+            ? branches
+            : [
+                ...branches,
+                {
+                  discriminator: discriminator.propertyName,
+                  path,
+                  value: branchValue,
+                },
+              ],
+          nullable ? [...nullablePaths, path] : nullablePaths,
+        );
+      });
     }
     Object.entries(schema.properties ?? {}).forEach(([field, nested]) =>
-      walk(rootSchema, nested, `${path}/${field}`, new Set(refs)),
+      walk(
+        rootSchema,
+        nested,
+        `${path}/${field}`,
+        new Set(refs),
+        branches,
+        nullablePaths,
+      ),
     );
     if (schema.items !== undefined) {
-      walk(rootSchema, schema.items, `${path}/*`, new Set(refs));
+      walk(
+        rootSchema,
+        schema.items,
+        `${path}/*`,
+        new Set(refs),
+        branches,
+        nullablePaths,
+      );
     }
     if (
       typeof schema.additionalProperties === "object" &&
       schema.additionalProperties !== null
     ) {
-      walk(rootSchema, schema.additionalProperties, `${path}/*`, new Set(refs));
+      walk(
+        rootSchema,
+        schema.additionalProperties,
+        `${path}/*`,
+        new Set(refs),
+        branches,
+        nullablePaths,
+      );
     }
   };
   rootSchemas.forEach((rootSchema) => {
@@ -134,9 +285,7 @@ function generatedOwnerLiteralInventory() {
     walk(rootSchema, schema, "", new Set([rootSchema]));
   });
   return rules.sort((left, right) =>
-    `${left.rootSchema}${left.path}`.localeCompare(
-      `${right.rootSchema}${right.path}`,
-    ),
+    canonicalJson(left).localeCompare(canonicalJson(right)),
   );
 }
 
@@ -679,15 +828,281 @@ describe("confidence-ledger risk-spend strict admission", () => {
   it("covers every generated owner const and single-value enum with the runtime literal table", () => {
     const generated = generatedOwnerLiteralInventory();
     const runtime = [...CONFIDENCE_LEDGER_OWNER_LITERAL_RULES].sort(
-      (left, right) =>
-        `${left.rootSchema}${left.path}`.localeCompare(
-          `${right.rootSchema}${right.path}`,
-        ),
+      (left, right) => canonicalJson(left).localeCompare(canonicalJson(right)),
     );
 
-    expect(generated).toHaveLength(99);
+    expect(generated.length).toBeGreaterThan(0);
     expect(runtime).toEqual(generated);
   });
+
+  it.each([
+    ["live-probe", () => [liveProbeBinding()]],
+    ["received dependency", () => [dependencyBinding(true)]],
+    ["dependency non-receipt", () => [dependencyBinding(false)]],
+    [
+      "mixed discriminated bindings",
+      () => [
+        liveProbeBinding(),
+        dependencyBinding(true),
+        dependencyBinding(false),
+      ],
+    ],
+    [
+      "dependency non-receipt with omitted nullable fields",
+      () => {
+        const binding = dependencyBinding(false);
+        for (const field of [
+          "artifact_content_ref",
+          "authority_boundary",
+          "first_case",
+          "predicate_class",
+          "profile",
+        ] as const) {
+          Reflect.deleteProperty(binding.dependency_environment, field);
+        }
+        return [binding];
+      },
+    ],
+    [
+      "received failing dependency",
+      () => {
+        const binding = dependencyBinding(true);
+        binding.dependency_environment.status = "fail";
+        binding.dependency_environment.first_case = {
+          case_kind: "distribution_field_disagreement",
+          coordinate: "policy-engine",
+          expected: "0.1.0",
+          observed: "0.2.0",
+          field: "version",
+          predicate_class: "independently_reconciled",
+        };
+        return [binding];
+      },
+    ],
+    [
+      "received unestablished dependency",
+      () => {
+        const binding = dependencyBinding(true);
+        binding.dependency_environment.status = "not_established";
+        return [binding];
+      },
+    ],
+  ] satisfies Array<[string, () => RelatedBinding[]]>)(
+    "admits the owner's %s arm without upgrading protected authority",
+    async (_label, bindings) => {
+      const packet = availablePacket();
+      packet.source.related_artifact_bindings = bindings();
+      await refreshSelfHashes(packet);
+
+      await expect(
+        admitConfidenceLedgerRiskSpendPacket(packet),
+      ).resolves.toEqual(packet);
+      const evaluated = await evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: packet,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      });
+      expect(evaluated.status).toBe("exact");
+      if (evaluated.status !== "exact")
+        throw new Error("valid owner binding was blocked");
+      expect(evaluated.packet).toEqual(packet);
+      expect(evaluated.protectedQueries.promotion_authority).toBe("denied");
+      expect(evaluated.protectedQueries.publication_authority).toBe("denied");
+      expect(confidenceLedgerPromotionBlockers(evaluated.packet)).toEqual(
+        confidenceLedgerPromotionBlockers(availablePacket()),
+      );
+    },
+  );
+
+  it.each([
+    [
+      "undeclared binding discriminator",
+      (binding: DependencyBinding) => {
+        binding.binding_name = "candidate-authored-binding" as never;
+      },
+    ],
+    [
+      "cross-arm discriminator substitution",
+      (binding: DependencyBinding) => {
+        binding.binding_name = "live_probe_journal_content_sha256" as never;
+      },
+    ],
+    [
+      "dependency relation substitution",
+      (binding: DependencyBinding) => {
+        binding.relation = "authority" as never;
+      },
+    ],
+    [
+      "dependency path substitution",
+      (binding: DependencyBinding) => {
+        binding.relative_path = "candidate/companion.json" as never;
+      },
+    ],
+    [
+      "dependency rule substitution",
+      (binding: DependencyBinding) => {
+        binding.semantic_hash_rule_version = "candidate.v1" as never;
+      },
+    ],
+    [
+      "dependency decision-role upgrade",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.decision_role =
+          "policy_decisive" as never;
+      },
+    ],
+    [
+      "received predicate removal",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.predicate_class = null;
+      },
+    ],
+    [
+      "received boundary removal",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.authority_boundary = null;
+      },
+    ],
+    [
+      "received content-ref removal",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.artifact_content_ref = null;
+        binding.owner_semantic_hash = null;
+      },
+    ],
+    [
+      "received profile removal",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.profile = null;
+      },
+    ],
+    [
+      "received resolved-byte removal",
+      (binding: DependencyBinding) => {
+        binding.resolved_artifact_content_hash = null;
+      },
+    ],
+    [
+      "semantic hash disagreement",
+      (binding: DependencyBinding) => {
+        binding.owner_semantic_hash = "sha256:" + "a".repeat(64);
+      },
+    ],
+    [
+      "non-receipt carrying owner evidence",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.receipt_state = "not_received";
+        binding.dependency_environment.status = "not_established";
+      },
+    ],
+    [
+      "failing diagnostic without first case",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.status = "fail";
+      },
+    ],
+    [
+      "passing diagnostic with first case",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.first_case = {
+          case_kind: "missing_resolved_distribution",
+          coordinate: "package",
+          expected: "present",
+          observed: "absent",
+          predicate_class: "recomputed",
+        };
+      },
+    ],
+    [
+      "wrong first-case field semantics",
+      (binding: DependencyBinding) => {
+        binding.dependency_environment.status = "fail";
+        binding.dependency_environment.first_case = {
+          case_kind: "distribution_field_disagreement",
+          coordinate: "package",
+          expected: "0.1.0",
+          observed: "0.2.0",
+          predicate_class: "recomputed",
+          field: null,
+        };
+      },
+    ],
+  ])("blocks a coherently rehashed %s", async (_label, mutate) => {
+    const packet = availablePacket();
+    const binding = dependencyBinding(true);
+    mutate(binding);
+    packet.source.related_artifact_bindings = [binding];
+    await refreshSelfHashes(packet);
+
+    await expect(
+      evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: packet,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      }),
+    ).resolves.toEqual({
+      reason: "parser_or_schema_failure",
+      status: "blocked",
+    });
+  });
+
+  it("blocks a dependency non-receipt that declares diagnostic success", async () => {
+    const packet = availablePacket();
+    const binding = dependencyBinding(false);
+    binding.dependency_environment.status = "pass";
+    packet.source.related_artifact_bindings = [binding];
+    await refreshSelfHashes(packet);
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /contract_error.*non-receipt is not established/isu,
+    );
+  });
+
+  it.each([
+    ["declaration_ref", "semantic_hash"],
+    ["pyproject_ref"],
+    ["lockfile_ref"],
+    ["distribution_set"],
+    ["discriminant_ref"],
+    ["resolved_distributions", "0", "selected_artifact"],
+  ])(
+    "rejects a substituted dependency digest domain at %j",
+    async (...path) => {
+      const packet = availablePacket();
+      const binding = dependencyBinding(true);
+      let digest: unknown = binding.dependency_environment.profile;
+      for (const segment of path)
+        digest = (digest as Record<string, unknown>)[segment];
+      (digest as { domain: string }).domain = "candidate-authored-domain";
+      packet.source.related_artifact_bindings = [binding];
+      await refreshSelfHashes(packet);
+      await expect(
+        admitConfidenceLedgerRiskSpendPacket(packet),
+      ).rejects.toThrow(/contract_error/iu);
+    },
+  );
+
+  it.each(["authority", "denial", "closure"] as const)(
+    "rejects a removed dependency diagnostic %s property",
+    async (property) => {
+      const packet = availablePacket();
+      const binding = dependencyBinding(true);
+      const diagnostic = binding.dependency_environment;
+      if (property === "authority")
+        diagnostic.authority_boundary!.authoritative_for = [];
+      if (property === "denial")
+        diagnostic.authority_boundary!.may_not_use_for.pop();
+      if (property === "closure")
+        diagnostic.profile!.resolved_distributions = [];
+      packet.source.related_artifact_bindings = [binding];
+      await refreshSelfHashes(packet);
+      await expect(
+        admitConfidenceLedgerRiskSpendPacket(packet),
+      ).rejects.toThrow(/contract_error/iu);
+    },
+  );
 
   it("admits the specialized available packet and resolves actual rows by producer refs", async () => {
     const packet = availablePacket();

@@ -49,9 +49,7 @@ function numberBlock(
   counters: Counters,
 ): BureaucraticBlock {
   const number = numberForKind(block, counters);
-  const children = block.children?.map((child) =>
-    numberBlock(child, counters),
-  );
+  const children = block.children?.map((child) => numberBlock(child, counters));
   return {
     ...block,
     children,

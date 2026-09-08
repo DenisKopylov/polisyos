@@ -78,9 +78,13 @@ const authorityValuesClient = new RuntimeApiClient({
     ),
 });
 
-export function useRunAuthorityValues(runId: string, surface: AuthoritySurface) {
+export function useRunAuthorityValues(
+  runId: string,
+  surface: AuthoritySurface,
+) {
   const query = useQuery({
-    queryFn: () => authorityValuesClient.getRunAuthorityValues({ run_id: runId }),
+    queryFn: () =>
+      authorityValuesClient.getRunAuthorityValues({ run_id: runId }),
     queryKey: ["runs", runId, "authority-values"],
   });
 

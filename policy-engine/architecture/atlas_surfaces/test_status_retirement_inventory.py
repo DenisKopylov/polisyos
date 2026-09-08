@@ -1305,7 +1305,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         self.assertIn(sentinel, errors)
         waist_validator.assert_called_once_with(debt)
 
-    def test_waist_anchors_bind_constructs_and_recompute_missing_exports(self) -> None:
+    def test_waist_anchors_bind_each_present_generated_construct(self) -> None:
         """The status consumer ignores navigation but fails on semantic drift."""
         _inventory, debt = _artifacts()
         canonical_path = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
@@ -1360,29 +1360,30 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
             )
 
-            comment_only = canonical_source + "\n// DecisionGrade remains absent.\n"
+            comment_only = canonical_source + "\n// DecisionGrade stays owner-generated.\n"
             self.assertEqual([], waist_errors(canonical=comment_only))
 
-            present_export = canonical_source + "\nexport type DecisionGrade = string;\n"
-            self.assertTrue(
-                any(
-                    "anchor_absence_unexpected_presence" in error
-                    and ":canonical:DecisionGrade" in error
-                    for error in waist_errors(canonical=present_export)
-                )
-            )
-
-            present_schema = types_source.replace(
-                "export interface components {\n    schemas: {",
-                "export interface components {\n    schemas: {\n"
-                "        DecisionGrade: string;",
+            renamed_decision_grade = canonical_source.replace(
+                "export type DecisionGrade =",
+                "export type RenamedDecisionGrade =",
                 1,
             )
             self.assertTrue(
                 any(
-                    "anchor_absence_unexpected_presence" in error
-                    and ":schema:DecisionGrade" in error
-                    for error in waist_errors(types=present_schema)
+                    "typescript_reference_binding_missing_or_renamed" in error
+                    for error in waist_errors(canonical=renamed_decision_grade)
+                )
+            )
+
+            decision_grade_drift = types_source.replace(
+                '"advisory_admissible" | "decision_admissible";',
+                '"advisory_admissible" | "decision_admissible" | "review_required";',
+                1,
+            )
+            self.assertTrue(
+                any(
+                    "typescript_reference_content_drift" in error
+                    for error in waist_errors(types=decision_grade_drift)
                 )
             )
 
@@ -1403,6 +1404,55 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             "unregistered_semantic_definition:"
             + removed["source_span"]["declaration_name"],
             errors,
+        )
+
+    def test_decision_grade_presentation_is_a_content_bound_non_status_taxonomy(
+        self,
+    ) -> None:
+        """Admit the owner-derived map without treating it as frontend authority."""
+        inventory, _debt = _artifacts()
+        scan = checker._scan()
+        finding = (
+            "unregistered_semantic_definition:"
+            "decisionGradePresentationByOwnerGrade"
+        )
+
+        self.assertNotIn(  # noqa: PT009
+            finding, checker._validate_semantic_candidates(inventory, scan)
+        )
+        row = next(
+            candidate
+            for candidate in inventory["semantic_exemptions"]
+            if candidate["candidate_id"]
+            == "semantic-decision-grade-presentation"
+        )
+        self.assertEqual("non_status_taxonomy", row["disposition"])  # noqa: PT009
+        self.assertTrue(row["does_not_change_ds1_denominator"])  # noqa: PT009
+
+        missing = copy.deepcopy(inventory)
+        missing["semantic_exemptions"].remove(
+            next(
+                candidate
+                for candidate in missing["semantic_exemptions"]
+                if candidate["candidate_id"]
+                == "semantic-decision-grade-presentation"
+            )
+        )
+        self.assertIn(  # noqa: PT009
+            finding, checker._validate_semantic_candidates(missing, scan)
+        )
+
+        drifted = copy.deepcopy(inventory)
+        drifted_row = next(
+            candidate
+            for candidate in drifted["semantic_exemptions"]
+            if candidate["candidate_id"]
+            == "semantic-decision-grade-presentation"
+        )
+        drifted_row["literal_members"] = ["unsupported"]
+        self.assertIn(  # noqa: PT009
+            "semantic_literal_members_drift:semantic-decision-grade-presentation",
+            checker._validate_semantic_candidates(drifted, scan),
         )
 
     def test_scan_routes_authority_like_confidence_and_severity_unions_to_semantic_candidates(

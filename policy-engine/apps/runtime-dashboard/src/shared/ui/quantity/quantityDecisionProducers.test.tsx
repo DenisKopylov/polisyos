@@ -163,7 +163,8 @@ describe("quantity decision producers", () => {
   it("does not produce or render the removed Public Sector fallback guesses", () => {
     expect(
       quantityDecisionProducerProbes.some(
-        (probe) => probe.expectedPoint === -0.12 || probe.expectedPoint === -0.5,
+        (probe) =>
+          probe.expectedPoint === -0.12 || probe.expectedPoint === -0.5,
       ),
     ).toBe(false);
 

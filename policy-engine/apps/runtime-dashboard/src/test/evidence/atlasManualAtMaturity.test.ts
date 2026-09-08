@@ -226,7 +226,8 @@ describe("Atlas manual AT maturity prerequisite", () => {
         index === 0
           ? {
               ...reference,
-              c16_unknown_reference_key: "preserved-by-loose-reference-contract",
+              c16_unknown_reference_key:
+                "preserved-by-loose-reference-contract",
             }
           : reference,
       ),
@@ -238,12 +239,14 @@ describe("Atlas manual AT maturity prerequisite", () => {
       evidence_status: "unverified",
       grants_stable: false,
     });
-    expect(evaluate(validBundle(), EVALUATED_AT, ownerWithUnknownKeys)).toEqual({
-      decision: "blocked",
-      code: "manual_at_integrity_not_established",
-      evidence_status: "unverified",
-      grants_stable: false,
-    });
+    expect(evaluate(validBundle(), EVALUATED_AT, ownerWithUnknownKeys)).toEqual(
+      {
+        decision: "blocked",
+        code: "manual_at_integrity_not_established",
+        evidence_status: "unverified",
+        grants_stable: false,
+      },
+    );
   });
 
   it("fails an owner-shaped stable row closed when evidence is absent", () => {
@@ -311,7 +314,9 @@ describe("Atlas manual AT maturity prerequisite", () => {
     const unknown = validBundle();
     unknown.receipt.result = {
       outcome: "incomplete",
-      findings: [{ code: "observation_unknown", detail: "Observation unavailable" }],
+      findings: [
+        { code: "observation_unknown", detail: "Observation unavailable" },
+      ],
     };
     unknown.resolved_payload.payload.result = unknown.receipt.result;
     unknown.resolved_payload.payload.details = {
@@ -424,9 +429,7 @@ describe("Atlas manual AT maturity prerequisite", () => {
   });
 
   it("rejects future verification and expiry that does not follow verification", () => {
-    expect(
-      evaluate(validBundle(), "2026-08-11T09:00:01.500Z"),
-    ).toMatchObject({
+    expect(evaluate(validBundle(), "2026-08-11T09:00:01.500Z")).toMatchObject({
       code: "manual_at_evidence_not_yet_valid",
       evidence_status: "future",
     });
@@ -443,7 +446,9 @@ describe("Atlas manual AT maturity prerequisite", () => {
   });
 
   it("requires the owner row to bind the exact receipt artifact identity", () => {
-    expect(evaluate(validBundle(), EVALUATED_AT, stableOwnerEntry(false))).toMatchObject({
+    expect(
+      evaluate(validBundle(), EVALUATED_AT, stableOwnerEntry(false)),
+    ).toMatchObject({
       code: "manual_at_owner_reference_absent",
       evidence_status: "missing",
     });

@@ -9,7 +9,7 @@ import {
   WalletCards,
 } from "lucide-react";
 
-import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import type { PublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import {
   buildOperatorCraftSnapshot,
   completeReadingOnboardingRun,
@@ -72,7 +72,7 @@ export function OperatorCraftPanel({
   packet,
   runId,
 }: {
-  packet: SignedPublicDecisionPacket;
+  packet: PublicDecisionPacket;
   runId: string;
 }) {
   const { t } = useI18n();

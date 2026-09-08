@@ -7,8 +7,8 @@ production_data_trust_policies = []
 [[purpose_admissions]]
 authority_purpose = "n8_method_catalog_reconstruction"
 profile_id = "n8-method-catalog-reconstruction-py314-uv0921-v1"
-declaration_artifact_id = "sha256:08daf17764605fd45b65f70935b7647fea9015f3b84146d299ee362f6108d5a5"
-declaration_semantic_hash = "sha256:688edd557430b2c0c4b91d93aff70b8ecd941617f265a53d0b160eca8826b960"
+declaration_artifact_id = "sha256:f5f2ab920e1ea44c6c2cbb9bdc3a6da2dd7e2e7e067d23dd0dc1ee91ee000aca"
+declaration_semantic_hash = "sha256:016d01f2315ac1eabad0cffff17bb45a94fd63883a50eb33929cb6f7f491c56a"
 predicate_class = "recomputed"
 
 [[capabilities]]

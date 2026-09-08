@@ -65,6 +65,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json` |
 | `Policy Design Case Layer 3 GY-N13a acquisition-layer reality census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`<br/>`architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`<br/>`architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json` |
 | `Policy Design Case Layer 3 GY-N13b acquisition executor contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_derivation_universality.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json` |
+| `Policy Design Case Layer 3 GY-N8 Foundry dependency discriminant` | `generated_committed` | `committed` | `automated` | `team-foundry` | `architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json` |
 | `Policy Design Case Layer 3 GY-N11 anytime-valid confidence ledger` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 | `Trust claim posture register` | `generated_committed` | `committed` | `automated` | `team-architecture` | `apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json` |
@@ -623,17 +624,19 @@ uv run python tools/ci/check_fabric_schema_registry.py --update
 
 - Family id: `runtime-openapi-snapshot`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/runtime/http/** FastAPI app factory and DTO contracts
+- Source of truth: src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs
 - Commit policy: `committed`
-- Freshness rule: Regenerate and commit whenever runtime routes, request/response DTOs, or OpenAPI examples change.
+- Freshness rule: Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
+- Required in default freshness check: `true`
+- Generator-observed output probe: `env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output '{output_root}/schemas/runtime_api_v1.openapi.json'`
 - Outputs:
   - `schemas/runtime_api_v1.openapi.json`
 
@@ -1841,6 +1844,30 @@ Canonical regeneration commands:
 
 ```bash
 uv run --extra test python tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb --l5-path production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json
+```
+
+## `Policy Design Case Layer 3 GY-N8 Foundry dependency discriminant`
+
+- Family id: `policy-design-case-layer3-gy-n8-dependency-discriminant`
+- Lifecycle: `generated_committed`
+- Source of truth: Foundry catalog/discovery dependency profile and digest owners, the exact N8 value-gate contract bytes, and tools/quality/validation/check_layer3_gy_value_gate_contract.py
+- Generator: GY-N8 value-gate validator companion writer over the Foundry catalog/discovery dependency discriminant
+- Verifier: GY-N8 companion checker replays the Foundry-owned profile, source-freeze, N8 bytes, and ambient authority boundary
+- Promotion target: machine and audit dependency-environment diagnosis only; never N8 admission, stage-gap closure, chronology acceptance, publication, or promotion
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever the Foundry dependency profile/distribution closure, its frozen source bytes, or the exact N8 value-gate contract bytes change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-foundry`
+- Approval owner: `team-foundry`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_value_gate_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_layer3_gy_value_gate_contract.py --write-dependency-discriminant architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json --write --expected-source-freeze 3ffb6ad5ed95d316656bc19946018a4eec52bc3b
 ```
 
 ## `Policy Design Case Layer 3 GY-N11 anytime-valid confidence ledger`

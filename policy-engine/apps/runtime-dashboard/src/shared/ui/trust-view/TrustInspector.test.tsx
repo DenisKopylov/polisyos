@@ -91,9 +91,7 @@ describe("TrustInspector", () => {
     expect(screen.getByRole("dialog")).toHaveTextContent("RiskReviewBot@2.0");
     expect(screen.getByRole("dialog")).toHaveTextContent("lineage_hash_match");
 
-    await user.click(
-      screen.getByRole("button", { name: "Copy audit link" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Copy audit link" }));
     expect(writeText).toHaveBeenCalledWith(
       expect.stringContaining("trust=expanded"),
     );

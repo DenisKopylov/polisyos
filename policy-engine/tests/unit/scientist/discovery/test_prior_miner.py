@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from polisyos.ir.analytics.literature import ClaimVocabularyAxisStatus
 from polisyos.scientist.methods.discovery.prior_miner import PriorMiner, PriorMinerConfig
 from polisyos.scientist.methods.discovery.priors import DisputedEdge, GraphPriorBundle, PriorEdge
 
@@ -144,6 +145,61 @@ def test_prior_miner_queries_hybrid_skg_and_filters_to_target_edges(monkeypatch,
     assert result.status == "ok"
     assert result.source_statuses["academic"].status.value == "available"
     assert captured["closed"] is True
+
+
+def test_prior_miner_preserves_declared_absence_without_value_token(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    db_path = tmp_path / "mock.duckdb"
+    db_path.write_text("", encoding="utf-8")
+    index_dir = tmp_path / "index"
+    index_dir.mkdir()
+
+    class FakeQuery:
+        def __init__(self, db_path: Path, index_dir: Path) -> None:
+            del db_path, index_dir
+
+        def query_prior_for_variables(self, variables, **kwargs):
+            del variables, kwargs
+            return [
+                {
+                    "src": "X",
+                    "dst": "Y",
+                    "direction": "positive",
+                    "confidence": 0.8,
+                    "n_articles": 3,
+                    "article_refs": ["oa:1"],
+                    "candidate_layer": "hybrid",
+                    "quality_signals": {"layers": ["exact"]},
+                    "evidence_strength": None,
+                    "evidence_strength_status": "not_established",
+                }
+            ]
+
+        def latest_skg_version_id(self):
+            return 42
+
+        def skg_snapshot_ref(self, *, version_id=None):
+            return f"duckdb:///tmp/mock.duckdb#v{version_id}"
+
+        def close(self):
+            return None
+
+    monkeypatch.setattr("polisyos.scientist.methods.discovery.prior_miner.SKGQuery", FakeQuery)
+    miner = PriorMiner(
+        config=PriorMinerConfig(
+            academic_db_path=str(db_path),
+            academic_index_dir=str(index_dir),
+        )
+    )
+
+    result = miner.mine(_bundle())
+
+    support = result.support_rows[0]
+    assert support.evidence_strength is None
+    assert support.evidence_strength_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    assert support.model_dump(mode="json")["evidence_strength"] is None
 
 
 def test_prior_miner_returns_degraded_bundle_when_skg_unavailable(monkeypatch, tmp_path) -> None:

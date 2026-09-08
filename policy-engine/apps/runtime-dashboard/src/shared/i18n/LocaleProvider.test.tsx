@@ -199,9 +199,11 @@ describe("LocaleProvider", () => {
     expect(formatNumber(1234.5)).toBe(
       new Intl.NumberFormat("en-US").format(1234.5),
     );
-    expect(formatIcuMessage("{count, plural, one {# item} other {# items}}", "ru", { count: 2 })).toBe(
-      "2 items",
-    );
+    expect(
+      formatIcuMessage("{count, plural, one {# item} other {# items}}", "ru", {
+        count: 2,
+      }),
+    ).toBe("2 items");
     expect(toIntlLocale("ru")).toBe("ru-RU");
   });
 });

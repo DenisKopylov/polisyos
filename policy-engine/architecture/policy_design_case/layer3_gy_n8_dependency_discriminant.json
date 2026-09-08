@@ -1,0 +1,1426 @@
+{
+  "artifact_content_hash": "sha256:4dcf46b4810471ba8ecfe2931757e7c628fd5339e8044df7a246fe987cde84ec",
+  "authority_boundary": {
+    "authoritative_for": [
+      "dependency_environment_diagnosis"
+    ],
+    "may_not_use_for": [
+      "n8_admission",
+      "n10a_stage_gap_closure",
+      "chronology_acceptance",
+      "policy_publication",
+      "policy_promotion"
+    ]
+  },
+  "authority_owner": "polisyos.foundry.methods.catalog",
+  "authority_purpose": "n8_method_catalog_reconstruction",
+  "decision_role": "ambient_non_decisive",
+  "n8_contract_ref": {
+    "content_hash": "sha256:c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303",
+    "path": "architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+    "rule_version": "policyos.layer3.gy.n8.value_gate.v2",
+    "schema_version": "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
+  },
+  "predicate_class": "recomputed",
+  "produced_by": "tools.quality.validation.check_layer3_gy_value_gate_contract",
+  "profile_discriminant": {
+    "declaration_ref": {
+      "artifact_id": "sha256:c8bd2bdcef4791dc06685bbfa919aff2b0ff068f0603edded195e05d001d3e8e",
+      "schema_version": "polisyos.foundry.dependency-profile.v1",
+      "semantic_hash": {
+        "domain": "dependency-profile-declaration",
+        "value": "sha256:211d8fdd5454db593208abc6a5e88b516509955e0b32059f0864cbf4392bb103"
+      }
+    },
+    "discriminant_ref": {
+      "domain": "dependency-discriminant",
+      "value": "sha256:882a6fe3e61026f378d0f1e438ec59c7bad70c6cf6c2329c59bb558b0947c5dc"
+    },
+    "distribution_set": {
+      "domain": "distribution-set",
+      "value": "sha256:d8396862971f145f94365299514fa865872535b0875ffbba2cbb71846b19671e"
+    },
+    "extras": [
+      "analytics",
+      "bayesian",
+      "ml",
+      "optimization-advanced",
+      "solvers"
+    ],
+    "lockfile_ref": {
+      "domain": "uv-lock-blob",
+      "value": "sha256:d3ca8737e0ce78b1deade715174576cb5449b443d96180e7029d9999d0584572"
+    },
+    "marker_environment": [
+      [
+        "implementation_name",
+        "cpython"
+      ],
+      [
+        "platform_python_implementation",
+        "CPython"
+      ],
+      [
+        "sys_platform",
+        "darwin"
+      ]
+    ],
+    "profile_id": "n8-method-catalog-reconstruction-py314-uv0921-v1",
+    "pyproject_ref": {
+      "domain": "pyproject-blob",
+      "value": "sha256:803cbfb79c7727807db1c98d07413e8ef2f1b2a08929bd99bc2f8e638ee5142d"
+    },
+    "python_constraint": ">=3.14,<3.15",
+    "resolved_distributions": [
+      {
+        "name": "about-time",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5c6381220da2c0392b6f57b2f860d2caf73a5bd2dfec9ae2f556764de57ed39c"
+        },
+        "source_kind": "registry",
+        "version": "4.2.1"
+      },
+      {
+        "name": "absl-py",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:8ec094b99cc5dc7fc3a41272d28935a1b2da3d20ef4bce9ddea5bd701a27bbf5"
+        },
+        "source_kind": "registry",
+        "version": "2.3.1"
+      },
+      {
+        "name": "aiohappyeyeballs",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6d7b44220302e119f70942e13c3505983c530f5a31c5ad6241d823f841048579"
+        },
+        "source_kind": "registry",
+        "version": "2.6.1"
+      },
+      {
+        "name": "aiohttp",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:89ab3699b5ff871b6a58ba077adc3a1e582ea075b1ac75661ba5b705426fa8e1"
+        },
+        "source_kind": "registry",
+        "version": "3.13.3"
+      },
+      {
+        "name": "aiosignal",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:1c6669b797f2ff41059aa7142896432b2c7ef27e2518f4e89c578a3132ec2006"
+        },
+        "source_kind": "registry",
+        "version": "1.4.0"
+      },
+      {
+        "name": "alive-progress",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:165105f7a24fedf5d7889ae0332fc59a25d381e4a4ed9426ad2c4d58b2eb7059"
+        },
+        "source_kind": "registry",
+        "version": "3.3.0"
+      },
+      {
+        "name": "annotated-types",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:8674a0833549461e20868f234225d64ed639648963e11933420b9dc23f311691"
+        },
+        "source_kind": "registry",
+        "version": "0.7.0"
+      },
+      {
+        "name": "anyio",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:53761dde24cf56a7fd4b5644ede361335b87f1aa31c82b582f3c60a65e997064"
+        },
+        "source_kind": "registry",
+        "version": "4.12.0"
+      },
+      {
+        "name": "arch",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:e74f1e9b5897e72ae3dcf35160a9556e00fffdca179c8cdde52c0c91af140ab8"
+        },
+        "source_kind": "registry",
+        "version": "8.0.0"
+      },
+      {
+        "name": "arviz",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:03690ee50f79aa65db65a3363949dec1fd49b2d57fcf5998face87ab3dcfba12"
+        },
+        "source_kind": "registry",
+        "version": "1.0.0"
+      },
+      {
+        "name": "arviz-base",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:004457a56973a8a9e8b19783b6433a42fc3afc2710cc11747788ae138979b58a"
+        },
+        "source_kind": "registry",
+        "version": "1.0.0"
+      },
+      {
+        "name": "arviz-plots",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:eac2c1ef806cee94675b643b24f132e816063134aac5d342216eed50a2b08952"
+        },
+        "source_kind": "registry",
+        "version": "1.0.0"
+      },
+      {
+        "name": "arviz-stats",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:12eaaf6a2d650f7a15a3e9e25575b02ba1697ce0c77742dc4e407653b0dc1c3a"
+        },
+        "source_kind": "registry",
+        "version": "1.0.0"
+      },
+      {
+        "name": "attrs",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:fde67b9c584b61fb4e7c2a66e0248e2289531fc43701843491653f60f8b1ef38"
+        },
+        "source_kind": "registry",
+        "version": "25.4.0"
+      },
+      {
+        "name": "autograd",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:060a0c861f50b28110627aa39ebba42fe37d36a463bf2debf435eeeee9bd35b2"
+        },
+        "source_kind": "registry",
+        "version": "1.8.0"
+      },
+      {
+        "name": "autograd-gamma",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5f6e45f0f8f757f509062943d93bc5c5eb911350ada947bc5b17d51ecbaa1d80"
+        },
+        "source_kind": "registry",
+        "version": "0.5.0"
+      },
+      {
+        "name": "certifi",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:047476b3206d380188e1c76837f194051fba128af391114f8d7c9f93266cf4d8"
+        },
+        "source_kind": "registry",
+        "version": "2025.11.12"
+      },
+      {
+        "name": "cffi",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:dab728b3ce35e22cb1823acd98223f5c0a16ca5e61d350eec836a5effa8a2f79"
+        },
+        "source_kind": "registry",
+        "version": "2.0.0"
+      },
+      {
+        "name": "charset-normalizer",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:d2f7db9d098180a50331a3cff023d9e96bf4c788084cf42c385ab503a81944b8"
+        },
+        "source_kind": "registry",
+        "version": "3.4.4"
+      },
+      {
+        "name": "chex",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:183ed2851a6d68366ecf8e0b01e7ecf0d729e11bfa8cac0f6828898fe3f672be"
+        },
+        "source_kind": "registry",
+        "version": "0.1.91"
+      },
+      {
+        "name": "clarabel",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6c0d810d38a4bad22736642904879d24d7c79d5a436d53711744d730ceb10147"
+        },
+        "source_kind": "registry",
+        "version": "0.11.1"
+      },
+      {
+        "name": "click",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ca13b4f6a887f11e557c3a43dcb6bcf75cfc9f224d60fe236d9b4eee14f9b89e"
+        },
+        "source_kind": "registry",
+        "version": "8.3.1"
+      },
+      {
+        "name": "cma",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:56309ffd4d860f059fdbd3b993e596ebe6680b273873c73768e31421801aa21e"
+        },
+        "source_kind": "registry",
+        "version": "4.4.1"
+      },
+      {
+        "name": "contourpy",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:9e6b417c41ce4045b4132169d6e7ed0c067323fce2c11accd500544019298b79"
+        },
+        "source_kind": "registry",
+        "version": "1.3.3"
+      },
+      {
+        "name": "cryptography",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:32004691356de2ef53eb5f28403b119d5e1da0d0d11a1cf897b93356c7f2be41"
+        },
+        "source_kind": "registry",
+        "version": "46.0.4"
+      },
+      {
+        "name": "cvxpy",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:32b19a897e86c681ae25f623e9064fe2722775782d30040fdea40894f2a6a3c0"
+        },
+        "source_kind": "registry",
+        "version": "1.8.2"
+      },
+      {
+        "name": "cycler",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:61a58d94aac0cc7cba559c2f5e75095fe2d73c7e2cab80e25ddea5a2bbd40fb7"
+        },
+        "source_kind": "registry",
+        "version": "0.12.1"
+      },
+      {
+        "name": "defusedxml",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:eada755c57503d3c1a3476723a113679ade41c400a3c8d4cf091e610b6626f16"
+        },
+        "source_kind": "registry",
+        "version": "0.7.1"
+      },
+      {
+        "name": "deprecated",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:bba8e2b65a70c584eb91e4cc62d11fdb36376677f7082e5377ac45fc6d9ab5c0"
+        },
+        "source_kind": "registry",
+        "version": "1.3.1"
+      },
+      {
+        "name": "diffrax",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:df94d989f456b516f8df232717a459b9b1a03f51bd8ebc47f5f8fcb64a0a348b"
+        },
+        "source_kind": "registry",
+        "version": "0.7.0"
+      },
+      {
+        "name": "distro",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:a984b05a1a2aa58b1ddaea3cb5656ab36381f43607bcd459d4d2de00d08e4ddc"
+        },
+        "source_kind": "registry",
+        "version": "1.9.0"
+      },
+      {
+        "name": "duckdb",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ec36229b8412d20678e1464d0d79abac984ba6322c7a25a720c0ea468e5a8368"
+        },
+        "source_kind": "registry",
+        "version": "1.4.3"
+      },
+      {
+        "name": "equinox",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5ae5589d212f956d306189fea277c8ae23b55dccf014954399b5f63fb2cfe579"
+        },
+        "source_kind": "registry",
+        "version": "0.13.2"
+      },
+      {
+        "name": "et-xmlfile",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:4fe90c95b4cf77b3133ed9cf6945d2edf4fd0ad5a14914804e57f8d34f61f324"
+        },
+        "source_kind": "registry",
+        "version": "2.0.0"
+      },
+      {
+        "name": "fonttools",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:05c1c946ad89d05802f44b530bca73b1b0ca0d55f44544622fd9a1bfeaebb191"
+        },
+        "source_kind": "registry",
+        "version": "4.61.1"
+      },
+      {
+        "name": "formulaic",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:71670d17bf6b03db11d9d3b852ff87ee00949af7da6b9cd16621f37d3ae2be5f"
+        },
+        "source_kind": "registry",
+        "version": "1.2.1"
+      },
+      {
+        "name": "frozenlist",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:44ad93047c7d32f109720ee1ac457c33c73cfb4b5bcc0fa2826e3c70ac711adf"
+        },
+        "source_kind": "registry",
+        "version": "1.8.0"
+      },
+      {
+        "name": "googleapis-common-protos",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:a60d25b2d0bca8967c093acfe50d3bdefc230e81f8f8167e340d345d89a6bef0"
+        },
+        "source_kind": "registry",
+        "version": "1.72.0"
+      },
+      {
+        "name": "graphemeu",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5e6e99e0a5b967ec7abb11a22e519a49882e275696ac2fcdb6891962f8605b67"
+        },
+        "source_kind": "registry",
+        "version": "0.7.2"
+      },
+      {
+        "name": "grpcio",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5cc3ecc50af5dfbc9d2537694ccfc23ec614aabf0b5fb5e4c1b9160ed70ac807"
+        },
+        "source_kind": "registry",
+        "version": "1.78.0"
+      },
+      {
+        "name": "h11",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:abfe0c7b519d25e2de8b06d9cfc6ab7bbc68a9866aaad98affdfecde916b8bd5"
+        },
+        "source_kind": "registry",
+        "version": "0.16.0"
+      },
+      {
+        "name": "highspy",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:bfef6aa4e123f038af2297feea36569c01abd9cffcd3f33e30888528b32eff38"
+        },
+        "source_kind": "registry",
+        "version": "1.13.1"
+      },
+      {
+        "name": "hnswlib",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:69d3aecaf0ac014ac3ff9985b15a3711b126eaaea7c9c15f7947ba829bfd5bfd"
+        },
+        "source_kind": "registry",
+        "version": "0.8.0"
+      },
+      {
+        "name": "httpcore",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:0b62bcc4678e9a0408eb21668f2a2ad5161ef30c0a1ac4ce085a6468b8834f53"
+        },
+        "source_kind": "registry",
+        "version": "1.0.9"
+      },
+      {
+        "name": "httpx",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:e5bd9c715e4dbd8dcd0607f69e132c43a68e4e8511dbce3528ed3e1f974ac18b"
+        },
+        "source_kind": "registry",
+        "version": "0.28.1"
+      },
+      {
+        "name": "idna",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5018c49f5b11a0f4fed7bc0bbc3ff3e180399df5e0b1594b75badd723714f026"
+        },
+        "source_kind": "registry",
+        "version": "3.11"
+      },
+      {
+        "name": "immutabledict",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:441c18124dd24779d4ca73922dbd3003b2ffaed57384c160384c39446e1c9a09"
+        },
+        "source_kind": "registry",
+        "version": "4.2.2"
+      },
+      {
+        "name": "importlib-metadata",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:342039fcc9cb45e3b03781cd28fd47b7abcfdc887fe9b4cee6b6e479294e02ea"
+        },
+        "source_kind": "registry",
+        "version": "8.7.1"
+      },
+      {
+        "name": "interface-meta",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:2c17642436c12ba284e64e99584a06c489946501f289ae01d8bcc16c5a729837"
+        },
+        "source_kind": "registry",
+        "version": "1.3.0"
+      },
+      {
+        "name": "jax",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ce2e38d5835ad3876032e9c5ae387ab63b889ac8d28d9574a1a3323f63f80390"
+        },
+        "source_kind": "registry",
+        "version": "0.8.2"
+      },
+      {
+        "name": "jaxlib",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:7e80d6c94ea6af0cbed9daa54a8e7d9021ec98b4fac178c6a1594fbd0ef3a341"
+        },
+        "source_kind": "registry",
+        "version": "0.8.2"
+      },
+      {
+        "name": "jaxtyping",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ccb132512789796120afcb9562b813e861e6c0c10ca71ae1074244b390297bd0"
+        },
+        "source_kind": "registry",
+        "version": "0.3.4"
+      },
+      {
+        "name": "jinja2",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:0a7877356b48e1c17dcbd1ca2b0293f8257000fc80504447a932baeada6e10fb"
+        },
+        "source_kind": "registry",
+        "version": "3.1.6"
+      },
+      {
+        "name": "jiter",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:65a8a1fb654df5228f245647bcc82ea54a244aef8903da3c8170413c8e2cd353"
+        },
+        "source_kind": "registry",
+        "version": "0.13.0"
+      },
+      {
+        "name": "joblib",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:595bd48936a1428d68ebb3d8ccd02303a75cadcf5b1186a5f723eb41c18406bc"
+        },
+        "source_kind": "registry",
+        "version": "1.5.3"
+      },
+      {
+        "name": "jsonpatch",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:978da14479a5ae2f1b2750b584d6b2e974f52dc57973fec5e39cc88aac4abd2b"
+        },
+        "source_kind": "registry",
+        "version": "1.33"
+      },
+      {
+        "name": "jsonpointer",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:1fd50541dc425b6c2ecb4d2fc9c7b19ab0bdb73599711a3b09474085011eec0d"
+        },
+        "source_kind": "registry",
+        "version": "3.0.0"
+      },
+      {
+        "name": "kiwisolver",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:a9aa259534064efd0eeff1835e8171f9074f3cb21079fa738d3e3c1b98a62449"
+        },
+        "source_kind": "registry",
+        "version": "1.4.9"
+      },
+      {
+        "name": "langchain",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ead67b89851fedb2ebc5375dd795cc612434a40ed184584655d06460488ae6b7"
+        },
+        "source_kind": "registry",
+        "version": "1.2.0"
+      },
+      {
+        "name": "langchain-core",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:b0cb195eae47bc7db6a444e19894ba4b29263b4af485d0f05c763c5d2b1a2993"
+        },
+        "source_kind": "registry",
+        "version": "1.2.6"
+      },
+      {
+        "name": "langgraph",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:3f4b457a5d27e89f1dcb0181a394dd8066eb8bc3e2f827701be2585a27a1eef5"
+        },
+        "source_kind": "registry",
+        "version": "1.0.5"
+      },
+      {
+        "name": "langgraph-checkpoint",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:7a067de4bb7a1995d8f8854bd5d4f4a5f1468687351a5dee095109c086b2b878"
+        },
+        "source_kind": "registry",
+        "version": "3.0.1"
+      },
+      {
+        "name": "langgraph-prebuilt",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:630fd642b8498342ad4d142fcf8d07fb194d500c7e81c417a17c2911acca5e6e"
+        },
+        "source_kind": "registry",
+        "version": "1.0.5"
+      },
+      {
+        "name": "langgraph-sdk",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ea88b1bab4d897fcf9c7eb360bcf73b20b836889acec10c484fb2ec415434520"
+        },
+        "source_kind": "registry",
+        "version": "0.3.1"
+      },
+      {
+        "name": "langsmith",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:382203e81485b1157ba3dd53eff7a8a1c53c7281a04b42b918671dbfcca6d18d"
+        },
+        "source_kind": "registry",
+        "version": "0.6.0"
+      },
+      {
+        "name": "lifelines",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:c1e03299e3a10e026ed5e6d23035e90d55d8fdefac33a696339560632dc7f544"
+        },
+        "source_kind": "registry",
+        "version": "0.30.3"
+      },
+      {
+        "name": "linearmodels",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:186337e6826969c441dd321e114ef8ff1b3c5539d936423cf9ade87075663745"
+        },
+        "source_kind": "registry",
+        "version": "7.0"
+      },
+      {
+        "name": "lineax",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:554aedfc5089781d37ebd5a650c36199cf0e26ecee4a6781bb9ff0d7b301e678"
+        },
+        "source_kind": "registry",
+        "version": "0.0.8"
+      },
+      {
+        "name": "loguru",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:8a772c41d3f7afc15b5d9b55b39736ca37e9ce9d2f8eeb5c123cb6d7d9ec2b6a"
+        },
+        "source_kind": "registry",
+        "version": "0.7.3"
+      },
+      {
+        "name": "mapie",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:1581551d062d429a7c86241ec660295b784d73a1363bc304a955591a3c4ec975"
+        },
+        "source_kind": "registry",
+        "version": "1.3.0"
+      },
+      {
+        "name": "markupsafe",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:d0f88ad7b706f5e6a39d908df522bbe48a9fc9503e3232d693adddf46a2021bb"
+        },
+        "source_kind": "registry",
+        "version": "3.0.3"
+      },
+      {
+        "name": "matplotlib",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6aa197da3426c99546ada83998095eecb5cb83adda6556222690327c8d12ab2c"
+        },
+        "source_kind": "registry",
+        "version": "3.10.8"
+      },
+      {
+        "name": "ml-dtypes",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:8333ce5b0b9c5a3162d466ef87454d80b80090ce408c776e7e5871b7965a6ffd"
+        },
+        "source_kind": "registry",
+        "version": "0.5.4"
+      },
+      {
+        "name": "moocore",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6f2cb51d4c29593f7254662bd62843e949c6aaf82191b194edb834f1e1ad7c30"
+        },
+        "source_kind": "registry",
+        "version": "0.1.10"
+      },
+      {
+        "name": "multidict",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ecda2972083e10ebe334eaf1c1c2d0307840ddf8104633d08079468b096a84ef"
+        },
+        "source_kind": "registry",
+        "version": "6.7.1"
+      },
+      {
+        "name": "multipledispatch",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:32db1fa2fffa89cdd2bd274d9cb3b98b36324f7fb180cf723597f8fcdcf2d9dc"
+        },
+        "source_kind": "registry",
+        "version": "1.0.0"
+      },
+      {
+        "name": "mypy-extensions",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:bab005850146c440b26b185cb53bd4aeb84d90e458e86c1c45305db2b16f271b"
+        },
+        "source_kind": "registry",
+        "version": "1.1.0"
+      },
+      {
+        "name": "narwhals",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:f63901aabe9a933e9e1640efb4b1db5e8b94643ec196dd6195c339ab601e5802"
+        },
+        "source_kind": "registry",
+        "version": "2.14.0"
+      },
+      {
+        "name": "numpy",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:1fd643eb7dd8f10fc2882653f4052103785cdb0e51a31b1d05798b441a85921b"
+        },
+        "source_kind": "registry",
+        "version": "2.3.5"
+      },
+      {
+        "name": "numpyro",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:4d0abeddef1b9da47044d904e07ad81d63b57a14b0d514ab33a76a504ecf6d00"
+        },
+        "source_kind": "registry",
+        "version": "0.20.1"
+      },
+      {
+        "name": "odfpy",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:2cd2d2279bb029d60f30eb2f02004ebfde6edf0cff81837fb4d0f36dbe3f4682"
+        },
+        "source_kind": "registry",
+        "version": "1.4.1"
+      },
+      {
+        "name": "openai",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:78fda1094cafed9b5777365fa55fd986352b3de1ad5840ca828dc81270af17f2"
+        },
+        "source_kind": "registry",
+        "version": "1.109.1"
+      },
+      {
+        "name": "openpyxl",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:71dd52a34bdd762acb1d717cf4d708b3abc02bad135e2ccce5fb7d01865c197c"
+        },
+        "source_kind": "registry",
+        "version": "3.1.5"
+      },
+      {
+        "name": "opentelemetry-api",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:9cd02b991bbb239134846fb9dfd30b0e7b59af28e208e3c49b37e53224e67153"
+        },
+        "source_kind": "registry",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-otlp-proto-common",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:c6140b354f8383bbcd078453c250ab35fda98222da879987b5afab02aefa987e"
+        },
+        "source_kind": "registry",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-otlp-proto-grpc",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:65dbd26a048e6a3b117c3c333da65413dc5e35a635240134c814b9c0d9deb279"
+        },
+        "source_kind": "registry",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-prometheus",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:52ca596d95a25957ea155adeeede6f06f4f0b6221671726a534ac0f80a326bfd"
+        },
+        "source_kind": "registry",
+        "version": "0.60b1"
+      },
+      {
+        "name": "opentelemetry-proto",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:e97eebcacfe19d3bda59f3458d725782810292e0f0151a7da4ddbc775ff7cc3c"
+        },
+        "source_kind": "registry",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-sdk",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:13c9795f519b4667dbf07513a89ae859dda9c5f8ae22e9e78b8553b4b0fefb9d"
+        },
+        "source_kind": "registry",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-semantic-conventions",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5685140cadb457502793fb2f9eb853a425a822708d3d9df5c1875f3dabd2e018"
+        },
+        "source_kind": "registry",
+        "version": "0.60b1"
+      },
+      {
+        "name": "opt-einsum",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:d322cdd7a5e8cada857285da4b77a2e90641fc72f75341fe736047cb5f33f3e8"
+        },
+        "source_kind": "registry",
+        "version": "3.4.0"
+      },
+      {
+        "name": "optax",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:eecbfe4b8a77e0993150b2bde0f854b582ce36d6580fabfb07fa8540c5054822"
+        },
+        "source_kind": "registry",
+        "version": "0.2.6"
+      },
+      {
+        "name": "optimistix",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5600c0c3bc2b00f6d2a5a197cd3cd46d40805b4f8fdc2d5132430cd7b8f3a599"
+        },
+        "source_kind": "registry",
+        "version": "0.0.11"
+      },
+      {
+        "name": "orjson",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:eb5807f015025d1fe942d138c9d630a25be4a585e97e956b93e1567117919033"
+        },
+        "source_kind": "registry",
+        "version": "3.11.5"
+      },
+      {
+        "name": "ormsgpack",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:d6124a8f563b46a4848e3a4dedf5fe1358b14285fba65c6688e563770bccb1bd"
+        },
+        "source_kind": "registry",
+        "version": "1.12.1"
+      },
+      {
+        "name": "ortools",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:8ccb0f195098a855bf03b776031e4b530973225d58fb59e18fa1ead69ec8ef31"
+        },
+        "source_kind": "registry",
+        "version": "9.15.6755"
+      },
+      {
+        "name": "osqp",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:8e0f92f610dd447a5f15de906f4dce6168619b3a836686614a1b05a883909f22"
+        },
+        "source_kind": "registry",
+        "version": "1.1.0"
+      },
+      {
+        "name": "packaging",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:170fae501dad4af6e28b2985c26a84fc4f9b0134495e8c7f3ccbef4bd29654b2"
+        },
+        "source_kind": "registry",
+        "version": "25.0"
+      },
+      {
+        "name": "pandas",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:cd8b072cec557dc1919a462ef8e4f9a1b5f4b9298b7f33d4ca6c520d5e84b303"
+        },
+        "source_kind": "registry",
+        "version": "2.3.3"
+      },
+      {
+        "name": "patsy",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:c56126ca7fbdac3856f8e995314c5aa4520fdaa0e878f07d56d1c5fdf3f3f6bf"
+        },
+        "source_kind": "registry",
+        "version": "1.0.2"
+      },
+      {
+        "name": "pillow",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:912c4caab91257464b6664656a363d8b71a851985dc3fb472a3aa209a71c16e4"
+        },
+        "source_kind": "registry",
+        "version": "10.4.0"
+      },
+      {
+        "name": "platformdirs",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:23ad6a0264e02537b964577e410dfe5c21a42f0fb45afcff85c8d58de7795570"
+        },
+        "source_kind": "registry",
+        "version": "4.5.1"
+      },
+      {
+        "name": "policy-engine",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6c5b4d521a6153e7019f49d9c668a8e1ad7f0a7c62e9a1ef483a1b21b46bc5ec"
+        },
+        "source_kind": "editable",
+        "version": "0.1.0"
+      },
+      {
+        "name": "prometheus-client",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:541f9e940c2eaa96583804702f351cea4000a01c929b5448873fe6f7f528145a"
+        },
+        "source_kind": "registry",
+        "version": "0.23.1"
+      },
+      {
+        "name": "propcache",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5e06a5ac5b191dfbb1c894234ca78476d70ef04bc0a5fd4e011d8ab538dc4df4"
+        },
+        "source_kind": "registry",
+        "version": "0.4.1"
+      },
+      {
+        "name": "protobuf",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:a38295278a41e321bafdba75a0b8c629dc95bc04b629c5ccbcd7cc7708f027be"
+        },
+        "source_kind": "registry",
+        "version": "6.33.2"
+      },
+      {
+        "name": "pulp",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:a4ee5dae3bfbb0558faf136ec2a53873ee250a01e62bf07d21eb4135240eb9bd"
+        },
+        "source_kind": "registry",
+        "version": "3.3.0"
+      },
+      {
+        "name": "pyarrow",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:1ba583a5362097439b9de8ffdcc66de524ad7716bf78e0f73a4f14d4dae31a08"
+        },
+        "source_kind": "registry",
+        "version": "22.0.0"
+      },
+      {
+        "name": "pycparser",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:643eae10d3c48294f5aeb358cb48ba365e08e9d41a5fcb45ee4fd26a178da751"
+        },
+        "source_kind": "registry",
+        "version": "2.23"
+      },
+      {
+        "name": "pydantic",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:beb830cc47077d3034ad4f4f91ec0261b01baab543a297b6127cca9898c71431"
+        },
+        "source_kind": "registry",
+        "version": "2.12.5"
+      },
+      {
+        "name": "pydantic-core",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:e0f128cf62003f5113d2a893e369bc83e8c4bb62382c695c6bc28e16761a19cb"
+        },
+        "source_kind": "registry",
+        "version": "2.41.5"
+      },
+      {
+        "name": "pydantic-settings",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:c6438ef173848e000e7fcebae7b9ce7eba6af53da1260bcf99b5f7a9482a166c"
+        },
+        "source_kind": "registry",
+        "version": "2.12.0"
+      },
+      {
+        "name": "pyhdfe",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:135d8dea0c76b410341aee54c6a798939fcfc473be08730cc8ab8b69735b5c65"
+        },
+        "source_kind": "registry",
+        "version": "0.2.0"
+      },
+      {
+        "name": "pymoo",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:67a530f01ba07950fafa2fd31973ef32069b3458cca5e5425f936ff9284614cc"
+        },
+        "source_kind": "registry",
+        "version": "0.6.1.6"
+      },
+      {
+        "name": "pyparsing",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:62e3af4442ca1984d40d1c6dd1bd5fed99ce3b831418254bd2ab92b2acbe2b51"
+        },
+        "source_kind": "registry",
+        "version": "3.3.1"
+      },
+      {
+        "name": "pypdf",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:4c1a9b170a7a265a47b4d5abae2552719b994e01dd45ae4573aad9cdf56afe09"
+        },
+        "source_kind": "registry",
+        "version": "6.7.4"
+      },
+      {
+        "name": "python-dateutil",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:c844e82da43b872ea701b30464e79a49aa14e1931f44ae5ad9c05d14c5d6ac21"
+        },
+        "source_kind": "registry",
+        "version": "2.9.0.post0"
+      },
+      {
+        "name": "python-dotenv",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:479242205e5016b815ea087e1b028d9a98f60a11bc57561118cc2aee81c44c93"
+        },
+        "source_kind": "registry",
+        "version": "1.2.1"
+      },
+      {
+        "name": "pytz",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:633bae2830650bc4a0848560e1e155c7f247db9fa9a8d2e47ecdf97361c0770c"
+        },
+        "source_kind": "registry",
+        "version": "2025.2"
+      },
+      {
+        "name": "pyyaml",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:bf99e585bbdc96c8424e360ff542b27d3651d3db25289b7852dd1c3461df1b84"
+        },
+        "source_kind": "registry",
+        "version": "6.0.3"
+      },
+      {
+        "name": "regex",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:31b5ea707881ebcd4bb868f562297097096b864ea23ff66ee065131db7c8371e"
+        },
+        "source_kind": "registry",
+        "version": "2024.11.6"
+      },
+      {
+        "name": "requests",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6b3fee6cbd3de777daa24efd247e8f574439febd1cddbea5e307cc8bd2033950"
+        },
+        "source_kind": "registry",
+        "version": "2.32.5"
+      },
+      {
+        "name": "requests-toolbelt",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:a9c55387a331472e4851176121ee7079764809e38109c7f885ec80406d42e690"
+        },
+        "source_kind": "registry",
+        "version": "1.0.0"
+      },
+      {
+        "name": "ruptures",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:256b04b4f568d6a0911599bcff522a314889d8b452d5ad533a8dffd8d8fcdc1d"
+        },
+        "source_kind": "registry",
+        "version": "1.1.10"
+      },
+      {
+        "name": "scikit-learn",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:bf62a328b447cca9a459bd45e32178fddc01d8c31717d62e2b8b8e0cdb07d96f"
+        },
+        "source_kind": "registry",
+        "version": "1.8.0"
+      },
+      {
+        "name": "scipy",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:b10503131f88bab5d12f54e9334cd1a9ca80423e28dffe2c94274098caf5f456"
+        },
+        "source_kind": "registry",
+        "version": "1.16.3"
+      },
+      {
+        "name": "scs",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:49c627dc95222b0bfb83a48915323e10eadb6bde172ec9138abcc4cf0bf2c6a8"
+        },
+        "source_kind": "registry",
+        "version": "3.2.11"
+      },
+      {
+        "name": "setuptools",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:f4d8a1b8adc874656c1f4acdf886337a80c8d181172dca69ea1cee29a39349ff"
+        },
+        "source_kind": "registry",
+        "version": "80.9.0"
+      },
+      {
+        "name": "six",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:51d92db38c81fad9e3fed6b3235ab41244573b7a114295c7dc9a22348e9c2615"
+        },
+        "source_kind": "registry",
+        "version": "1.17.0"
+      },
+      {
+        "name": "sniffio",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5b87ded2b57715279b1882d9d470e4f53399b78e0c685ebf363cfede44c91aa7"
+        },
+        "source_kind": "registry",
+        "version": "1.3.1"
+      },
+      {
+        "name": "statsmodels",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:f49c8b90f15343d3e27e4601a94d54f50e9ffcb0ebf80bb69dc08d5bb19c627d"
+        },
+        "source_kind": "registry",
+        "version": "0.14.6"
+      },
+      {
+        "name": "tenacity",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:318830b67eb8781388eac152c9e98e61a7c8da512210acb8e1a0e6a409296077"
+        },
+        "source_kind": "registry",
+        "version": "9.1.2"
+      },
+      {
+        "name": "threadpoolctl",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:60cd2de33fbdf12ee24f3ea63bbdfc54e8c94383bc7f4ec5f9322dfe5ce6287d"
+        },
+        "source_kind": "registry",
+        "version": "3.6.0"
+      },
+      {
+        "name": "tiktoken",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:09c2d54e3f600949a69d342edac567d08632557f8d31aa6912e5b53cbebcf6a6"
+        },
+        "source_kind": "registry",
+        "version": "0.12.0"
+      },
+      {
+        "name": "toolz",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6b83bede1bc9cc0a5683b4d53b49910d77def35bc096b548dda88e475b53af3d"
+        },
+        "source_kind": "registry",
+        "version": "1.1.0"
+      },
+      {
+        "name": "tqdm",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:d6e18c503e94984b17d1579da67afc321f3b20a3edc561ca9a962517b353f684"
+        },
+        "source_kind": "registry",
+        "version": "4.67.3"
+      },
+      {
+        "name": "typing-extensions",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:5edd24fe38d23422b7364f05a26c97b1730ef95fa379d9e4c572816bc274bb7e"
+        },
+        "source_kind": "registry",
+        "version": "4.15.0"
+      },
+      {
+        "name": "typing-inspection",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:53d8e048eaab55f1b3b293e6800c750ba602729d3ee452821243264fbff57e5d"
+        },
+        "source_kind": "registry",
+        "version": "0.4.2"
+      },
+      {
+        "name": "tzdata",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:509bf80883ead4984f89166c9f0c836b98836ceef1d1f6bace690669bf18ddc6"
+        },
+        "source_kind": "registry",
+        "version": "2025.3"
+      },
+      {
+        "name": "urllib3",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:4bd932f645615f5fd982326b537a9b19960897eae1669acfe0368fe4828e3a07"
+        },
+        "source_kind": "registry",
+        "version": "2.6.2"
+      },
+      {
+        "name": "uuid-utils",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:25590cb5c382b5f43a6fecb1ae3ef3bc130d125b2bc3353633f15d622b3b0ee6"
+        },
+        "source_kind": "registry",
+        "version": "0.12.0"
+      },
+      {
+        "name": "wadler-lindig",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:ce9a86a3f090fc90234709a25676633bf1f737c92f357f84ab9fead099865a75"
+        },
+        "source_kind": "registry",
+        "version": "0.1.7"
+      },
+      {
+        "name": "wrapt",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:7130497acbf2a080a77d4fa7946a98515f0d5a2bc24ae555b09e06d493af5b5a"
+        },
+        "source_kind": "registry",
+        "version": "2.0.1"
+      },
+      {
+        "name": "xarray",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6a419aabd4b3e0443b2f8eeb3a8226e43399897c3dacb6d944b17730d471bb3e"
+        },
+        "source_kind": "registry",
+        "version": "2026.2.0"
+      },
+      {
+        "name": "xlrd",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:22c7730a89f853b1ef8f261965ad878ccc0afa2a515ed10513bb135dfd2c0ab6"
+        },
+        "source_kind": "registry",
+        "version": "2.0.2"
+      },
+      {
+        "name": "xxhash",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:6780f73afd70feb05552fc8c4894cab2a22004732a4defdb511f603aa99ae73b"
+        },
+        "source_kind": "registry",
+        "version": "3.6.0"
+      },
+      {
+        "name": "yarl",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:31bae71d910ac73456c1a976eebdf245fb43f1e3744e32197b7ab747ee3e89ba"
+        },
+        "source_kind": "registry",
+        "version": "1.22.0"
+      },
+      {
+        "name": "zipp",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:47a070cc04b85f333237d104934467a706f84addb9f7ae254288276792837a0c"
+        },
+        "source_kind": "registry",
+        "version": "3.23.0"
+      },
+      {
+        "name": "zstandard",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:943c1634b9692dec93893fd065df23884a82396b3e6378c58aede662695a2fd0"
+        },
+        "source_kind": "registry",
+        "version": "0.25.0"
+      }
+    ],
+    "resolver_name": "uv",
+    "resolver_version": "0.9.21",
+    "root_distribution": "policy-engine",
+    "rule_version": "polisyos.foundry.dependency_discriminant.v1",
+    "schema_version": "polisyos.foundry.dependency-discriminant.v1"
+  },
+  "rule_version": "polisyos.foundry.dependency_discriminant.v1",
+  "schema_version": "polisyos.foundry.n8_dependency_discriminant.v1",
+  "source_freeze": "3ffb6ad5ed95d316656bc19946018a4eec52bc3b"
+}

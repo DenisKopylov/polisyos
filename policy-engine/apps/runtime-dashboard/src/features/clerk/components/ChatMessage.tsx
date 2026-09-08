@@ -118,16 +118,12 @@ export function ChatMessage({
 
             {/* View full analysis link */}
             {message.runId && hasProducerFinishedAt(message.runFinishedAt) && (
-                <div className="pt-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    to={`/runs/${message.runId}`}
-                  >
-                    {t("clerk.viewFullAnalysis")}
-                  </Button>
-                </div>
-              )}
+              <div className="pt-1">
+                <Button size="sm" variant="ghost" to={`/runs/${message.runId}`}>
+                  {t("clerk.viewFullAnalysis")}
+                </Button>
+              </div>
+            )}
 
             {/* Suggestion chips at the end of completed responses */}
             {!isStreaming &&

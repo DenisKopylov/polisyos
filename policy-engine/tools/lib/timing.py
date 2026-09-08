@@ -4,17 +4,18 @@ from __future__ import annotations
 
 import ast
 import fcntl
+import hashlib
 import json
 import math
 import os
 import sys
 import time
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from inspect import signature
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from statistics import fmean
 
 from .fs import atomic_write_text
@@ -328,6 +329,128 @@ def budget_basis_for(sample_count: int) -> str:
     return BUDGET_BASIS_P95
 
 
+PYTEST_WORKLOAD_SCHEMA_VERSION = "policyos.timing.pytest_workload.v1"
+PYTEST_WORKLOAD_PREDICATE_PROVENANCE = "recomputed"
+
+
+@dataclass(frozen=True)
+class PytestWorkloadIdentity:
+    """Content-bound identity of one exact path-selected pytest workload."""
+
+    schema_version: str
+    predicate_provenance: str
+    test_paths: tuple[str, ...]
+    source_digests: tuple[tuple[str, str], ...]
+    pytest_version: str
+    config_path: str
+    config_digest: str
+    node_map_digest: str
+
+
+def pytest_node_map_digest(node_ids_by_path: Mapping[str, Sequence[str]]) -> str:
+    """Hash a complete ordered path-to-pytest-node map without a scalar denominator."""
+
+    canonical = {
+        path: list(node_ids_by_path[path]) for path in sorted(node_ids_by_path)
+    }
+    encoded = json.dumps(
+        canonical,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _validate_pytest_workload_identity(identity: PytestWorkloadIdentity) -> None:
+    """Enforce the complete v1 identity contract for loader and direct callers."""
+
+    if identity.schema_version != PYTEST_WORKLOAD_SCHEMA_VERSION:
+        raise ValueError("pytest workload identity has an unsupported schema version")
+    if identity.predicate_provenance != PYTEST_WORKLOAD_PREDICATE_PROVENANCE:
+        raise ValueError("pytest workload identity predicate must be recomputed")
+    expected_paths = identity.test_paths
+    if (
+        not expected_paths
+        or any(
+            not _is_safe_relative_path(path) or not path.endswith(".py")
+            for path in expected_paths
+        )
+        or len(expected_paths) != len(set(expected_paths))
+    ):
+        raise ValueError("pytest workload identity test_paths must be unique relative Python paths")
+    source_digest_entries = identity.source_digests
+    if any(
+        not isinstance(entry, tuple)
+        or len(entry) != 2
+        or not isinstance(entry[0], str)
+        or not _is_sha256_digest(entry[1])
+        for entry in source_digest_entries
+    ):
+        raise ValueError("pytest workload identity must digest every selected source exactly once")
+    source_digest_paths = tuple(path for path, _ in source_digest_entries)
+    if (
+        len(source_digest_paths) != len(set(source_digest_paths))
+        or set(source_digest_paths) != set(expected_paths)
+    ):
+        raise ValueError("pytest workload identity must digest every selected source exactly once")
+    if not isinstance(identity.pytest_version, str) or not identity.pytest_version.strip():
+        raise ValueError("pytest workload identity requires a collector version")
+    if not _is_safe_relative_path(identity.config_path):
+        raise ValueError("pytest workload identity requires a safe config path")
+    if not _is_sha256_digest(identity.config_digest):
+        raise ValueError("pytest workload identity requires a config digest")
+    if not _is_sha256_digest(identity.node_map_digest):
+        raise ValueError("pytest workload identity requires a node-map digest")
+
+
+def verify_pytest_workload_identity(
+    identity: PytestWorkloadIdentity,
+    *,
+    command_test_paths: Sequence[str],
+    source_bytes: Mapping[str, bytes],
+    node_ids_by_path: Mapping[str, Sequence[str]],
+    pytest_version: str,
+    config_path: str,
+    config_bytes: bytes,
+) -> None:
+    """Recompute a pytest workload identity from selection bytes and real node IDs."""
+
+    _validate_pytest_workload_identity(identity)
+    expected_paths = identity.test_paths
+    if tuple(command_test_paths) != expected_paths:
+        raise ValueError("pytest workload command test paths differ from the receipt")
+    if set(source_bytes) != set(expected_paths):
+        raise ValueError("pytest workload source set differs from the receipt")
+    expected_source_digests = dict(identity.source_digests)
+    for path in expected_paths:
+        digest = "sha256:" + hashlib.sha256(source_bytes[path]).hexdigest()
+        if expected_source_digests.get(path) != digest:
+            raise ValueError("pytest workload source digest differs from the receipt")
+    if pytest_version != identity.pytest_version:
+        raise ValueError("pytest workload collector version differs from the receipt")
+    if config_path != identity.config_path:
+        raise ValueError("pytest workload config path differs from the receipt")
+    config_digest = "sha256:" + hashlib.sha256(config_bytes).hexdigest()
+    if config_digest != identity.config_digest:
+        raise ValueError("pytest workload config digest differs from the receipt")
+    if set(node_ids_by_path) != set(expected_paths):
+        raise ValueError("pytest workload node-map paths differ from the receipt")
+    all_node_ids: list[str] = []
+    for path in expected_paths:
+        node_ids = tuple(node_ids_by_path[path])
+        if not node_ids or any(
+            not isinstance(node_id, str) or not node_id.startswith(f"{path}::")
+            for node_id in node_ids
+        ):
+            raise ValueError("pytest workload node map contains an invalid node ID")
+        all_node_ids.extend(node_ids)
+    if len(all_node_ids) != len(set(all_node_ids)):
+        raise ValueError("pytest workload node map contains duplicate node IDs")
+    if pytest_node_map_digest(node_ids_by_path) != identity.node_map_digest:
+        raise ValueError("pytest workload node map digest differs from the receipt")
+
+
 @dataclass(frozen=True)
 class TimingBudgetLane:
     """A measured timeout recommendation for one exact tool and operational mode."""
@@ -340,6 +463,8 @@ class TimingBudgetLane:
     measured_p95_ms: float | None
     recommended_timeout_ms: float | None
     source_refs: tuple[str, ...]
+    #: Exact source/collector/node-map receipt when the lane selects a pytest workload.
+    workload_identity: PytestWorkloadIdentity | None = None
     #: Which rule admitted these samples, so a widened predicate is visible rather than silent.
     sample_admission_predicate: str = MANUAL_SAMPLE_ADMISSION_PREDICATE_ID
     #: The contention regime the samples were measured in. A cap from a ``serialized`` sample
@@ -540,10 +665,16 @@ def append_timing_record(path: Path, record: ToolRunRecord) -> None:
             limit = _retention_limit()
             prior_limit = limit - 1
             retained = [*(records[-prior_limit:] if prior_limit else []), record]
-            payload = "".join(json.dumps(asdict(item), sort_keys=True) + "\n" for item in retained)
+            payload = "".join(serialize_tool_run_record(item) + "\n" for item in retained)
             atomic_write_text(path, payload)
         finally:
             fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+
+
+def serialize_tool_run_record(record: ToolRunRecord) -> str:
+    """Serialize one timing record canonically for logs and bound execution receipts."""
+
+    return json.dumps(asdict(record), sort_keys=True)
 
 
 def default_timing_log_path() -> Path:
@@ -572,6 +703,78 @@ def _optional_number(payload: dict[str, object], field: str) -> float | None:
     if isinstance(value, bool) or not isinstance(value, int | float):
         raise ValueError(f"timing budget lane {field} must be a number or null")
     return float(value)
+
+
+def _is_sha256_digest(value: object) -> bool:
+    if not isinstance(value, str) or not value.startswith("sha256:"):
+        return False
+    encoded = value.removeprefix("sha256:")
+    return len(encoded) == 64 and all(character in "0123456789abcdef" for character in encoded)
+
+
+def _is_safe_relative_path(value: object) -> bool:
+    if not isinstance(value, str) or not value.strip() or "\\" in value:
+        return False
+    path = PurePosixPath(value)
+    return not path.is_absolute() and ".." not in path.parts and value == path.as_posix()
+
+
+def _pytest_workload_identity_from_data(payload: object) -> PytestWorkloadIdentity | None:
+    if payload is None:
+        return None
+    expected_fields = {
+        "schema_version",
+        "predicate_provenance",
+        "test_paths",
+        "source_digests",
+        "pytest_version",
+        "config_path",
+        "config_digest",
+        "node_map_digest",
+    }
+    if not isinstance(payload, dict) or set(payload) != expected_fields:
+        raise ValueError("pytest workload identity must contain exactly the v1 fields")
+    if payload["schema_version"] != PYTEST_WORKLOAD_SCHEMA_VERSION:
+        raise ValueError("pytest workload identity has an unsupported schema version")
+    if payload["predicate_provenance"] != PYTEST_WORKLOAD_PREDICATE_PROVENANCE:
+        raise ValueError("pytest workload identity predicate must be recomputed")
+    test_paths = payload["test_paths"]
+    if (
+        not isinstance(test_paths, list)
+        or not test_paths
+        or any(not _is_safe_relative_path(path) or not path.endswith(".py") for path in test_paths)
+        or len(test_paths) != len(set(test_paths))
+    ):
+        raise ValueError("pytest workload identity test_paths must be unique relative Python paths")
+    source_digests = payload["source_digests"]
+    if (
+        not isinstance(source_digests, dict)
+        or set(source_digests) != set(test_paths)
+        or any(not _is_sha256_digest(digest) for digest in source_digests.values())
+    ):
+        raise ValueError("pytest workload identity must digest every selected source exactly once")
+    pytest_version = payload["pytest_version"]
+    if not isinstance(pytest_version, str) or not pytest_version.strip():
+        raise ValueError("pytest workload identity requires a collector version")
+    config_path = payload["config_path"]
+    if not _is_safe_relative_path(config_path):
+        raise ValueError("pytest workload identity requires a safe config path")
+    if not _is_sha256_digest(payload["config_digest"]):
+        raise ValueError("pytest workload identity requires a config digest")
+    if not _is_sha256_digest(payload["node_map_digest"]):
+        raise ValueError("pytest workload identity requires a node-map digest")
+    identity = PytestWorkloadIdentity(
+        schema_version=payload["schema_version"],
+        predicate_provenance=payload["predicate_provenance"],
+        test_paths=tuple(test_paths),
+        source_digests=tuple((path, source_digests[path]) for path in test_paths),
+        pytest_version=pytest_version,
+        config_path=config_path,
+        config_digest=payload["config_digest"],
+        node_map_digest=payload["node_map_digest"],
+    )
+    _validate_pytest_workload_identity(identity)
+    return identity
 
 
 def _timing_budget_lane_from_data(payload: object) -> TimingBudgetLane:
@@ -626,6 +829,9 @@ def _timing_budget_lane_from_data(payload: object) -> TimingBudgetLane:
         measured_p95_ms=measured_p95_ms,
         recommended_timeout_ms=recommended_timeout_ms,
         source_refs=tuple(source_refs_data),
+        workload_identity=_pytest_workload_identity_from_data(
+            payload.get("workload_identity")
+        ),
         sample_admission_predicate=predicate,
         regime=regime,
         ceiling_is_declared=not samples_ms,
@@ -870,6 +1076,7 @@ def run_timed_operation(
     mode: str = "default",
     output_format: str = "text",
     started_perf_counter: float | None = None,
+    record_sink: Callable[[ToolRunRecord], None] | None = None,
 ) -> int:
     """Run an operation and append one best-effort timing record without changing its outcome."""
 
@@ -905,6 +1112,11 @@ def run_timed_operation(
             mode=mode,
             regime=regime_from_env(),
         )
+        if record_sink is not None:
+            try:
+                record_sink(record)
+            except Exception as exc:  # pragma: no cover - defensive telemetry boundary.
+                print(f"warning: timing record sink failed: {exc}", file=sys.stderr)
         _append_timing_record_best_effort(record)
 
 

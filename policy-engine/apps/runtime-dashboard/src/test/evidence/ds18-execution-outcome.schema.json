@@ -53,10 +53,24 @@
           ]
         },
         "exit_code": { "type": "integer", "minimum": 0 },
-        "stdout_byte_count": { "type": "integer", "minimum": 0, "maximum": 8388608 },
-        "stdout_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
-        "stderr_byte_count": { "type": "integer", "minimum": 0, "maximum": 8388608 },
-        "stderr_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        "stdout_byte_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8388608
+        },
+        "stdout_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "stderr_byte_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8388608
+        },
+        "stderr_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
       }
     }
   ]

@@ -118,9 +118,7 @@ export function SensitivityPlot({
         )}
       </div>
       {referenceValue ? (
-        <div
-          data-testid="sensitivity-reference-evidence"
-        >
+        <div data-testid="sensitivity-reference-evidence">
           <ChartQuantityEvidence value={referenceValue} />
         </div>
       ) : null}

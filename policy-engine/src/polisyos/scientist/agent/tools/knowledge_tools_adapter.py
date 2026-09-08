@@ -22,6 +22,9 @@ _INCLUDE_METHODS: set[str] = {
     "get_parameter_prior",
     "find_causal_evidence",
     "get_mechanism_evidence",
+    "find_causal_evidence_v1_audit",
+    "get_mechanism_evidence_v1_audit",
+    "audit_academic_claim_lineage",
     "search_legal_facts",
     "search_legal_provisions",
     "find_legal_constraints",
@@ -129,7 +132,13 @@ def _infer_domain(name: str) -> str:
     """Infer the knowledge domain from the method name."""
     if "dataset" in name or "metric" in name or "connector" in name:
         return "datasets"
-    if "evidence" in name or "parameter" in name or "causal" in name or "mechanism" in name:
+    if (
+        "academic" in name
+        or "evidence" in name
+        or "parameter" in name
+        or "causal" in name
+        or "mechanism" in name
+    ):
         return "academic"
     if "legal" in name or "provision" in name or "norm" in name or "source" in name:
         return "legal"

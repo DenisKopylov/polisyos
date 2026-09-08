@@ -69,7 +69,7 @@ def walk_source_files(repo_root: Path) -> tuple[AdmittedSourceMember, ...]:
 
 
 def derive_ast_sources(repo_root: Path) -> SourceDerivation:
-    """Derive the complete raw/exact/role/literal inventory with Python AST."""
+    """Derive and content-bind the complete authority/denial candidate set with AST."""
     root = repo_root.resolve()
     members = walk_source_files(root)
     rows: list[SourceInventoryRow] = []
@@ -86,14 +86,18 @@ def derive_ast_sources(repo_root: Path) -> SourceDerivation:
             continue
         rows.append(_derive_ast_row(member, raw))
     ordered = tuple(sorted(rows, key=lambda row: row.path))
+    candidate_paths = {row.path for row in ordered} | {
+        member.path for member in denied_raw_members
+    }
+    admitted = tuple(member for member in members if member.path in candidate_paths)
     receipt = _build_receipt(
         method="ast",
-        scanned_python_count=len(members),
+        scanned_python_count=len(admitted),
         rows=ordered,
         denied_raw_members=denied_raw_members,
         denied_only_sites=denied_only_sites,
     )
-    return SourceDerivation(admitted_sources=members, rows=ordered, receipt=receipt)
+    return SourceDerivation(admitted_sources=admitted, rows=ordered, receipt=receipt)
 
 
 def compile_source_claim_bindings(

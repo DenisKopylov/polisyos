@@ -152,7 +152,8 @@ export function classifyOpaqueBackgroundContrast(
       failures.push({
         kind: "source_unknown",
         reportedSourceId: observation.sourceId,
-        detail: "The observation identity is not in the frozen source registry.",
+        detail:
+          "The observation identity is not in the frozen source registry.",
       });
       continue;
     }
@@ -176,7 +177,8 @@ export function classifyOpaqueBackgroundContrast(
       failures.push({
         kind: "count_invalid",
         sourceId: source.sourceId,
-        detail: "Violation and incomplete counts must be finite non-negative integers.",
+        detail:
+          "Violation and incomplete counts must be finite non-negative integers.",
       });
       continue;
     }
@@ -210,7 +212,8 @@ export function classifyOpaqueBackgroundContrast(
       failures.push({
         kind: "pass_missing",
         sourceId: source.sourceId,
-        detail: "Zero violations alone is not evidence; axe emitted no numeric pass.",
+        detail:
+          "Zero violations alone is not evidence; axe emitted no numeric pass.",
       });
       sourceFailed = true;
     }
@@ -227,7 +230,8 @@ export function classifyOpaqueBackgroundContrast(
         failures.push({
           kind: "ratio_invalid",
           sourceId: source.sourceId,
-          detail: "Axe pass data must contain finite numeric actual and required ratios.",
+          detail:
+            "Axe pass data must contain finite numeric actual and required ratios.",
         });
         sourceFailed = true;
         continue;
@@ -286,7 +290,9 @@ export function classifyOpaqueBackgroundContrast(
     };
   }
 
-  const receiptById = new Map(receipts.map((receipt) => [receipt.sourceId, receipt]));
+  const receiptById = new Map(
+    receipts.map((receipt) => [receipt.sourceId, receipt]),
+  );
   return {
     status: "pass",
     denominator,

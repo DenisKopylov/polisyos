@@ -11,10 +11,13 @@ import subprocess
 import sys
 import tomllib
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from contextvars import ContextVar
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tools.lib.document_references import reference_scan_text
 from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
@@ -24,7 +27,7 @@ PHASE = "0.1"
 GENERATED_AT = "2026-05-07T00:00:00Z"
 LAST_REVIEWED = "2026-05-07"
 DEFAULT_BASELINE_DIR = (
-    REPO_ROOT / "architecture" / "baselines" / "repository_best_in_class_last_mile"
+    Path("architecture") / "baselines" / "repository_best_in_class_last_mile"
 )
 DEFAULT_INVENTORY = DEFAULT_BASELINE_DIR / "inventory.json"
 PLAN_PATH = Path("docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md")
@@ -177,82 +180,165 @@ CANONICAL_ARCHITECTURE_TEST_ROOT = "/".join(
 )
 
 
+@dataclass(frozen=True)
+class _RepositoryCensus:
+    root: Path
+    files: frozenset[Path]
+    directories: frozenset[Path]
+    children: Mapping[Path, tuple[Path, ...]]
+
+    @classmethod
+    def read(cls, root: Path) -> _RepositoryCensus:
+        files = frozenset(root / name for name in _tracked_paths(root))
+        directories: set[Path] = {root}
+        for path in files:
+            # stat follows links: a tracked missing or dangling input is ambiguous.
+            path.stat()
+            directories.update(parent for parent in path.parents if parent.is_relative_to(root))
+        children: dict[Path, list[Path]] = defaultdict(list)
+        for path in files | directories:
+            if path != root:
+                children[path.parent].append(path)
+        return cls(root, files, frozenset(directories), {
+            parent: tuple(sorted(paths)) for parent, paths in children.items()
+        })
+
+
+_ACTIVE_CENSUS: ContextVar[_RepositoryCensus | None] = ContextVar(
+    "last_mile_repository_census", default=None
+)
+
+
+def _is_tracked(path: Path) -> bool:
+    census = _ACTIVE_CENSUS.get()
+    return census is not None and path.absolute() in census.files
+
+
+def _exists(path: Path) -> bool:
+    census = _ACTIVE_CENSUS.get()
+    return path.exists() if census is None else (
+        path.absolute() in census.files or path.absolute() in census.directories
+    )
+
+
+def _is_file(path: Path) -> bool:
+    census = _ACTIVE_CENSUS.get()
+    return path.is_file() if census is None else path.absolute() in census.files
+
+
+def _is_dir(path: Path) -> bool:
+    census = _ACTIVE_CENSUS.get()
+    return path.is_dir() if census is None else path.absolute() in census.directories
+
+
+def _iterdir(path: Path) -> Iterator[Path]:
+    census = _ACTIVE_CENSUS.get()
+    if census is None:
+        yield from path.iterdir()
+    else:
+        yield from census.children.get(path.absolute(), ())
+
+
+def _walk(path: Path) -> Iterator[tuple[Path, list[str], list[str]]]:
+    if not _is_dir(path):
+        return
+    children = list(_iterdir(path))
+    directories = [child.name for child in children if _is_dir(child)]
+    files = [child.name for child in children if _is_file(child)]
+    yield path, directories, files
+    # Match os.walk's pruning contract; callers may remove ignored directories.
+    for name in directories:
+        yield from _walk(path / name)
+
+
+def _glob(path: Path, pattern: str, *, recursive: bool = False) -> Iterator[Path]:
+    census = _ACTIVE_CENSUS.get()
+    if census is None:
+        yield from path.rglob(pattern) if recursive else path.glob(pattern)
+        return
+    if recursive:
+        for current, directories, files in _walk(path):
+            for name in directories + files:
+                candidate = current / name
+                if candidate.relative_to(path).full_match(f"**/{pattern}"):
+                    yield candidate
+    else:
+        for candidate in _iterdir(path):
+            if candidate.relative_to(path).full_match(pattern):
+                yield candidate
+
+
 def _rel(path: Path, repo_root: Path) -> str:
     try:
-        return path.resolve().relative_to(repo_root.resolve()).as_posix()
+        return path.absolute().relative_to(repo_root.absolute()).as_posix()
     except ValueError:
         return path.as_posix()
 
 
 def _read_text(path: Path) -> str:
-    try:
-        return path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
-        return ""
+    if _ACTIVE_CENSUS.get() is not None and not _is_tracked(path):
+        raise FileNotFoundError(2, "Input is not tracked", str(path))
+    return path.read_text(encoding="utf-8")
 
 
 def _load_toml(path: Path) -> dict[str, Any]:
-    if not path.exists():
+    try:
+        text = _read_text(path)
+    except FileNotFoundError:
+        if _is_tracked(path):
+            raise
         return {}
-    with path.open("rb") as stream:
-        payload = tomllib.load(stream)
-    return payload if isinstance(payload, dict) else {}
+    return tomllib.loads(text)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    if not path.exists():
-        return {}
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        text = _read_text(path)
+    except FileNotFoundError:
+        if _is_tracked(path):
+            raise
         return {}
-    return payload if isinstance(payload, dict) else {}
+    payload = json.loads(text)
+    if not isinstance(payload, dict):
+        raise ValueError(f"expected JSON object: {path}")
+    return payload
 
 
 def _git_lines(repo_root: Path, *args: str) -> list[str]:
-    try:
-        completed = subprocess.run(
-            ["git", *args],
-            cwd=repo_root,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return []
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     return [line for line in completed.stdout.splitlines() if line.strip()]
 
 
 def _tracked_paths(repo_root: Path) -> set[str]:
-    paths = _git_lines(repo_root, "ls-files")
-    if paths:
-        return set(paths)
-    measured: set[str] = set()
-    for current, dirnames, filenames in os.walk(repo_root):
-        dirnames[:] = [
-            name
-            for name in dirnames
-            if name not in IGNORED_DIR_NAMES and not name.startswith(".")
-        ]
-        for filename in filenames:
-            measured.add(_rel(Path(current) / filename, repo_root))
-    return measured
+    census = _ACTIVE_CENSUS.get()
+    if census is not None and census.root == repo_root:
+        return {path.relative_to(repo_root).as_posix() for path in census.files}
+    completed = subprocess.run(
+        ["git", "ls-files", "-z"], cwd=repo_root, check=True, capture_output=True
+    )
+    return {os.fsdecode(raw) for raw in completed.stdout.split(b"\0") if raw}
 
 
 def _existing_paths(repo_root: Path, paths: Sequence[str]) -> list[str]:
-    return [path for path in paths if (repo_root / path).exists()]
+    return [path for path in paths if _exists(repo_root / path)]
 
 
 def _source_package_dirs(repo_root: Path) -> list[Path]:
     source_root = repo_root / "src" / "polisyos"
-    if not source_root.exists():
+    if not _exists(source_root):
         return []
     return sorted(
         child
-        for child in source_root.iterdir()
-        if child.is_dir()
+        for child in _iterdir(source_root)
+        if _is_dir(child)
         and child.name not in IGNORED_DIR_NAMES
-        and (child / "__init__.py").exists()
+        and _exists(child / "__init__.py")
     )
 
 
@@ -261,7 +347,7 @@ def _package_name(path: Path) -> str:
 
 
 def _direct_python_files(package_dir: Path) -> list[Path]:
-    return sorted(path for path in package_dir.glob("*.py") if path.is_file())
+    return sorted(path for path in _glob(package_dir, "*.py") if _is_file(path))
 
 
 def _collect_loose_root_modules(repo_root: Path) -> dict[str, Any]:
@@ -298,15 +384,15 @@ def _single_file_shell_policy(repo_root: Path) -> dict[str, Any]:
 
 
 def _is_single_file_shell_package(directory: Path, *, max_python_files: int) -> bool:
-    if not (directory / "__init__.py").is_file():
+    if not _is_file(directory / "__init__.py"):
         return False
-    python_files = sorted(directory.glob("*.py"))
+    python_files = sorted(_glob(directory, "*.py"))
     if len(python_files) > max_python_files:
         return False
     child_dirs = [
         child
-        for child in directory.iterdir()
-        if child.is_dir() and child.name not in IGNORED_DIR_NAMES
+        for child in _iterdir(directory)
+        if _is_dir(child) and child.name not in IGNORED_DIR_NAMES
     ]
     return not child_dirs
 
@@ -316,9 +402,9 @@ def _collect_single_file_shell_packages(repo_root: Path) -> dict[str, Any]:
     by_package: dict[str, list[str]] = {}
     for scope in policy["scope_roots"]:
         root = repo_root / str(scope)
-        if not root.exists():
+        if not _exists(root):
             continue
-        candidates = [root, *sorted(path for path in root.rglob("*") if path.is_dir())]
+        candidates = [root, *sorted(path for path in _glob(root, "*", recursive=True) if _is_dir(path))]
         for directory in candidates:
             if not _is_single_file_shell_package(
                 directory,
@@ -372,8 +458,8 @@ def _first_level_name_index(repo_root: Path) -> dict[str, list[dict[str, str]]]:
     index: dict[str, list[dict[str, str]]] = defaultdict(list)
     for package_dir in _source_package_dirs(repo_root):
         package = _package_name(package_dir)
-        for child in sorted(package_dir.iterdir()):
-            if not child.is_dir() or child.name in IGNORED_DIR_NAMES:
+        for child in sorted(_iterdir(package_dir)):
+            if not _is_dir(child) or child.name in IGNORED_DIR_NAMES:
                 continue
             index[child.name].append({"package": package, "path": _rel(child, repo_root)})
         for file_path in _direct_python_files(package_dir):
@@ -479,8 +565,8 @@ def _phase0_4_first_level_directory_index(repo_root: Path) -> dict[str, dict[str
     for package_dir in _source_package_dirs(repo_root):
         package = _package_name(package_dir)
         index[package][package].append(_rel(package_dir, repo_root))
-        for child in sorted(package_dir.iterdir()):
-            if not child.is_dir() or child.name in IGNORED_DIR_NAMES:
+        for child in sorted(_iterdir(package_dir)):
+            if not _is_dir(child) or child.name in IGNORED_DIR_NAMES:
                 continue
             index[child.name][package].append(_rel(child, repo_root))
     return index
@@ -559,9 +645,9 @@ def _walk_source_paths(repo_root: Path) -> tuple[list[Path], list[Path]]:
     source_root = repo_root / "src" / "polisyos"
     dirs: list[Path] = []
     files: list[Path] = []
-    if not source_root.exists():
+    if not _exists(source_root):
         return dirs, files
-    for current, dirnames, filenames in os.walk(source_root):
+    for current, dirnames, filenames in _walk(source_root):
         dirnames[:] = [
             name
             for name in dirnames
@@ -659,7 +745,7 @@ def _collect_phase0_4_cross_cutting_concerns(repo_root: Path) -> dict[str, Any]:
 
 
 def _phase0_4_existing_locations(repo_root: Path, candidates: Sequence[str]) -> list[str]:
-    return [path for path in candidates if (repo_root / path).exists()]
+    return [path for path in candidates if _exists(repo_root / path)]
 
 
 def _collect_phase0_4_scientist_parallel_implementations(repo_root: Path) -> dict[str, Any]:
@@ -789,10 +875,10 @@ def _collect_phase0_4_scientist_parallel_implementations(repo_root: Path) -> dic
 
 def _collect_schema_residue(repo_root: Path) -> list[str]:
     schema_root = repo_root / "schemas"
-    if not schema_root.exists():
+    if not _exists(schema_root):
         return []
     residue: list[str] = []
-    for current, dirnames, filenames in os.walk(schema_root):
+    for current, dirnames, filenames in _walk(schema_root):
         if "__pycache__" in dirnames:
             residue.append(_rel(Path(current) / "__pycache__", repo_root))
         for filename in filenames:
@@ -803,7 +889,12 @@ def _collect_schema_residue(repo_root: Path) -> list[str]:
 
 
 def _extract_sunset(readme_path: Path, repo_root: Path) -> dict[str, Any]:
-    text = _read_text(readme_path)
+    try:
+        text = _read_text(readme_path)
+    except FileNotFoundError:
+        if _is_tracked(readme_path):
+            raise
+        text = ""
     date_match = None
     for line in text.splitlines():
         if "sunset" not in line.lower():
@@ -814,7 +905,7 @@ def _extract_sunset(readme_path: Path, repo_root: Path) -> dict[str, Any]:
     return {
         "metadata_present": date_match is not None,
         "sunset_date": date_match.group(1) if date_match else None,
-        "source": _rel(readme_path, repo_root) if readme_path.exists() else None,
+        "source": _rel(readme_path, repo_root) if _exists(readme_path) else None,
     }
 
 
@@ -900,13 +991,13 @@ def _collect_local_ignored_residue(repo_root: Path) -> list[str]:
 def _collect_architecture_gate_split(repo_root: Path) -> list[str]:
     root_files = sorted(
         _rel(path, repo_root)
-        for path in (repo_root / "architecture").glob("*gate*.toml")
-        if path.is_file()
+        for path in _glob(repo_root / "architecture", "*gate*.toml")
+        if _is_file(path)
     )
     gate_files = sorted(
         _rel(path, repo_root)
-        for path in (repo_root / "architecture" / "gates").rglob("*")
-        if path.is_file()
+        for path in _glob(repo_root / "architecture" / "gates", "*", recursive=True)
+        if _is_file(path)
     )
     return root_files + gate_files
 
@@ -943,14 +1034,14 @@ def _collect_adr_index_paths(repo_root: Path) -> list[str]:
 
 def _collect_operability_bundle_paths(repo_root: Path) -> list[str]:
     component_root = repo_root / "ops" / "components"
-    if not component_root.exists():
+    if not _exists(component_root):
         return []
     required = ("alerts.yml", "dashboard.json", "retention-policy.toml", "runtime-contract.toml", "slo.yaml")
-    paths: list[str] = ["ops/components/index.toml"] if (component_root / "index.toml").exists() else []
-    for child in sorted(component_root.iterdir()):
-        if not child.is_dir():
+    paths: list[str] = ["ops/components/index.toml"] if _exists(component_root / "index.toml") else []
+    for child in sorted(_iterdir(component_root)):
+        if not _is_dir(child):
             continue
-        missing = [name for name in required if not (child / name).exists()]
+        missing = [name for name in required if not _exists(child / name)]
         if missing:
             paths.append(_rel(child, repo_root))
     return sorted(set(paths))
@@ -990,7 +1081,7 @@ def _collect_frontend_mentions(repo_root: Path) -> list[str]:
         path = repo_root / rel_path
         if path.suffix not in TEXT_SUFFIXES:
             continue
-        text = _read_text(path)
+        text = reference_scan_text(Path(rel_path), _read_text(path))
         if "frontend/" in text or "`frontend`" in text or "frontend path" in text.lower():
             paths.append(rel_path)
     return paths
@@ -1001,8 +1092,8 @@ def _collect_taxonomy_paths(repo_root: Path) -> list[str]:
     concern_terms = ("taxonomy", "concept", "gate", "concern")
     return sorted(
         _rel(path, repo_root)
-        for path in architecture_root.glob("*.toml")
-        if path.is_file() and any(term in path.stem for term in concern_terms)
+        for path in _glob(architecture_root, "*.toml")
+        if _is_file(path) and any(term in path.stem for term in concern_terms)
     )
 
 
@@ -1043,6 +1134,16 @@ def collect_inventory(
     include_local_ignored_residue: bool = False,
 ) -> dict[str, Any]:
     repo_root = repo_root.resolve()
+    token = _ACTIVE_CENSUS.set(_RepositoryCensus.read(repo_root))
+    try:
+        return _collect_inventory(repo_root, include_local_ignored_residue=include_local_ignored_residue)
+    finally:
+        _ACTIVE_CENSUS.reset(token)
+
+
+def _collect_inventory(
+    repo_root: Path, *, include_local_ignored_residue: bool
+) -> dict[str, Any]:
     loose = _collect_loose_root_modules(repo_root)
     shells = _collect_single_file_shell_packages(repo_root)
     semantic_pairs = _collect_semantic_pairs(repo_root)
@@ -1419,7 +1520,7 @@ def dump_json(inventory: Mapping[str, Any]) -> str:
 
 def write_phase0_4_baselines(
     inventory: Mapping[str, Any],
-    baseline_dir: Path = DEFAULT_BASELINE_DIR,
+    baseline_dir: Path = REPO_ROOT / DEFAULT_BASELINE_DIR,
 ) -> None:
     baseline_dir.mkdir(parents=True, exist_ok=True)
     snapshots = {
@@ -1436,12 +1537,26 @@ def write_phase0_4_baselines(
         )
 
 
-def check_artifacts(repo_root: Path = REPO_ROOT, baseline_path: Path = DEFAULT_INVENTORY) -> list[str]:
-    baseline_path = baseline_path if baseline_path.is_absolute() else repo_root / baseline_path
-    current = dump_json(collect_inventory(repo_root))
-    if not baseline_path.exists():
-        return [f"missing baseline: {_rel(baseline_path, repo_root)}"]
-    expected = baseline_path.read_text(encoding="utf-8")
+def check_artifacts(repo_root: Path = REPO_ROOT, baseline_path: Path | None = None) -> list[str]:
+    repo_root = repo_root.resolve()
+    if baseline_path is None:
+        baseline_path = repo_root / DEFAULT_INVENTORY
+        token = _ACTIVE_CENSUS.set(_RepositoryCensus.read(repo_root))
+        try:
+            if not _is_file(baseline_path):
+                return [f"missing baseline: {_rel(baseline_path, repo_root)}"]
+            current = dump_json(collect_inventory(repo_root))
+            expected = _read_text(baseline_path)
+        finally:
+            _ACTIVE_CENSUS.reset(token)
+    else:
+        # An explicit comparison artifact is an input supplied by the operator,
+        # including diagnostic baselines outside this repository's tracked set.
+        baseline_path = baseline_path if baseline_path.is_absolute() else repo_root / baseline_path
+        current = dump_json(collect_inventory(repo_root))
+        if not baseline_path.exists():
+            return [f"missing baseline: {_rel(baseline_path, repo_root)}"]
+        expected = baseline_path.read_text(encoding="utf-8")
     if current != expected:
         return [f"baseline drift: {_rel(baseline_path, repo_root)}"]
     return []
@@ -1470,6 +1585,15 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
+    try:
+        return _run(args)
+    except (OSError, UnicodeError, ValueError, subprocess.CalledProcessError) as error:
+        detail = str(error).replace(f"{args.repo_root.resolve()}/", "")
+        print(f"ambiguous inventory input: {type(error).__name__}: {detail}", file=sys.stderr)
+        return 1
+
+
+def _run(args: argparse.Namespace) -> int:
     repo_root = args.repo_root.resolve()
     inventory = collect_inventory(
         repo_root,

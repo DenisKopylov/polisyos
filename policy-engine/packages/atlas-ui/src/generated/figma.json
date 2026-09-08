@@ -1,7 +1,7 @@
 {
   "$description": "Generated Atlas token exchange projection",
   "$extensions": {
-    "polisyos.sourceDigest": "d6e64ec7edd52b8d22c162339c4e77f371bcd86c27bda97bc0ef33dde12a24ab"
+    "polisyos.sourceDigest": "bbe256179e6ff3b97336d9c5c4a447358d9e6e819db9cfb5f0015d113e92c938"
   },
   "tokens": {
     "tokens/modes/contrast.tokens.json.contrast.forcedColors.backdropFilter": "none",
@@ -497,6 +497,11 @@
     "tokens/modes/print.tokens.json.printMode.export.rules.documentMetadata.selectors.selector01": ".print-document-metadata",
     "tokens/modes/print.tokens.json.printMode.export.rules.documentMetadata.selectors.selector02": ".print-provenance-summary",
     "tokens/modes/print.tokens.json.printMode.export.rules.documentMetadata.selectors.selector03": ".print-source-appendix",
+    "tokens/modes/print.tokens.json.printMode.export.rules.eligiblePaperLinkHref.declarations.color": "var(--print-muted)",
+    "tokens/modes/print.tokens.json.printMode.export.rules.eligiblePaperLinkHref.declarations.content": "\" <\" attr(href) \">\"",
+    "tokens/modes/print.tokens.json.printMode.export.rules.eligiblePaperLinkHref.declarations.font-size": "8pt",
+    "tokens/modes/print.tokens.json.printMode.export.rules.eligiblePaperLinkHref.declarations.word-break": "break-all",
+    "tokens/modes/print.tokens.json.printMode.export.rules.eligiblePaperLinkHref.selectors.selector01": "[data-run-paper-document=\"true\"] a[data-paper-link-eligible=\"true\"][href]::after",
     "tokens/modes/print.tokens.json.printMode.export.rules.headings.declarations.break-after": "avoid",
     "tokens/modes/print.tokens.json.printMode.export.rules.headings.declarations.color": "var(--print-ink) !important",
     "tokens/modes/print.tokens.json.printMode.export.rules.headings.selectors.selector01": "h1",
@@ -512,7 +517,8 @@
     "tokens/modes/print.tokens.json.printMode.export.rules.hide.selectors.selector06": ".reading-view-toggle",
     "tokens/modes/print.tokens.json.printMode.export.rules.hide.selectors.selector07": ".trust-inspector",
     "tokens/modes/print.tokens.json.printMode.export.rules.hide.selectors.selector08": "[data-a11y-overlay=\"true\"]",
-    "tokens/modes/print.tokens.json.printMode.export.rules.hide.selectors.selector09": "[data-print-hidden=\"true\"]",
+    "tokens/modes/print.tokens.json.printMode.export.rules.hide.selectors.selector09": "[data-run-detail-screen-only=\"true\"]",
+    "tokens/modes/print.tokens.json.printMode.export.rules.hide.selectors.selector10": "[data-print-hidden=\"true\"]",
     "tokens/modes/print.tokens.json.printMode.export.rules.keepTogether.declarations.break-inside": "avoid",
     "tokens/modes/print.tokens.json.printMode.export.rules.keepTogether.selectors.selector01": "table",
     "tokens/modes/print.tokens.json.printMode.export.rules.keepTogether.selectors.selector02": "figure",
@@ -530,11 +536,17 @@
     "tokens/modes/print.tokens.json.printMode.export.rules.marginNote.declarations.margin-top": "0.75rem !important",
     "tokens/modes/print.tokens.json.printMode.export.rules.marginNote.declarations.position": "static !important",
     "tokens/modes/print.tokens.json.printMode.export.rules.marginNote.selectors.selector01": ".margin-note",
+    "tokens/modes/print.tokens.json.printMode.export.rules.paperControls.declarations.display": "none !important",
+    "tokens/modes/print.tokens.json.printMode.export.rules.paperControls.selectors.selector01": "[data-run-paper-document=\"true\"] :is(button, input, select, textarea, [role=\"slider\"], [contenteditable])",
+    "tokens/modes/print.tokens.json.printMode.export.rules.paperLinkHref.declarations.content": "none",
+    "tokens/modes/print.tokens.json.printMode.export.rules.paperLinkHref.selectors.selector01": "[data-run-paper-document=\"true\"] a[href]::after",
     "tokens/modes/print.tokens.json.printMode.export.rules.prose.declarations.color": "var(--print-ink) !important",
     "tokens/modes/print.tokens.json.printMode.export.rules.prose.declarations.max-width": "none !important",
     "tokens/modes/print.tokens.json.printMode.export.rules.prose.selectors.selector01": ".prose",
     "tokens/modes/print.tokens.json.printMode.export.rules.provenanceSummary.declarations.content": "\" [\" attr(data-glyph-summary) \"]\"",
     "tokens/modes/print.tokens.json.printMode.export.rules.provenanceSummary.selectors.selector01": ".provenance-strip::after",
+    "tokens/modes/print.tokens.json.printMode.export.rules.publicDecisionLinkHref.declarations.content": "none",
+    "tokens/modes/print.tokens.json.printMode.export.rules.publicDecisionLinkHref.selectors.selector01": "a[href^=\"/public/decisions/\"]::after",
     "tokens/modes/print.tokens.json.printMode.export.rules.trustChips.declarations.border-color": "var(--print-line) !important",
     "tokens/modes/print.tokens.json.printMode.export.rules.trustChips.declarations.color": "var(--print-ink) !important",
     "tokens/modes/print.tokens.json.printMode.export.rules.trustChips.selectors.selector01": ".trust-hash-chip",

@@ -7,7 +7,11 @@ import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from polisyos.data_forge.domains.academic.knowledge.types import SourceTopicRef, WorkRecord
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    SourceTopicRef,
+    WorkRecord,
+    adapt_jsonl_work_record_claims,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 if TYPE_CHECKING:
@@ -185,7 +189,9 @@ def merge_and_dedup(config: AcademicBatchConfig) -> MergeStats:
                 line = line.strip()
                 if not line:
                     continue
-                rec = WorkRecord.model_validate_json(line)
+                rec = adapt_jsonl_work_record_claims(
+                    json.loads(line), provenance="legacy_jsonl"
+                )
                 key = rec.id
                 if key in seen:
                     duplicates.append((key, file_path.name))

@@ -16,6 +16,9 @@ const allowedFiles = new Set([
   "scripts/canonicalize-runtime-client.mjs",
   "scripts/canonicalize-runtime-client.test.mjs",
   "scripts/check-architecture.mjs",
+  "scripts/generate-runtime-api-client.sh",
+  "scripts/normalize-recursive-openapi-types.mjs",
+  "scripts/normalize-recursive-openapi-types.test.mjs",
   "tsconfig.json",
   "types.ts",
 ]);
@@ -25,11 +28,19 @@ const expectedImports = new Map([
   ["canonicalRuntimeApiClient.ts", ["./types.js"]],
   ["canonicalRuntimeApiClient.js", []],
   ["runtimeApiClient.js", []],
-  ["runtimeApiClient.type-test.ts", ["./canonicalRuntimeApiClient.js"]],
+  [
+    "runtimeApiClient.type-test.ts",
+    ["./canonicalRuntimeApiClient.js", "./types.js"],
+  ],
   ["types.ts", []],
   [
     "runtimeApiClient.test.mjs",
-    ["./runtimeApiClient.js", "node:assert/strict", "node:test"],
+    [
+      "./canonicalRuntimeApiClient.js",
+      "./runtimeApiClient.js",
+      "node:assert/strict",
+      "node:test",
+    ],
   ],
   [
     "scripts/canonicalize-runtime-client.mjs",
@@ -38,6 +49,19 @@ const expectedImports = new Map([
   [
     "scripts/canonicalize-runtime-client.test.mjs",
     ["./canonicalize-runtime-client.mjs", "node:assert/strict", "node:test"],
+  ],
+  [
+    "scripts/normalize-recursive-openapi-types.mjs",
+    ["node:fs/promises", "node:path", "typescript"],
+  ],
+  [
+    "scripts/normalize-recursive-openapi-types.test.mjs",
+    [
+      "./normalize-recursive-openapi-types.mjs",
+      "node:assert/strict",
+      "node:test",
+      "typescript",
+    ],
   ],
   ["scripts/check-architecture.mjs", ["node:fs/promises", "node:path"]],
 ]);

@@ -53,9 +53,7 @@ export function runDetailsQueryOptions(
   return {
     queryKey: queryKeys.run(runId, temporalScope),
     queryFn: () => fetchRunDetails(runId, temporalScope),
-    staleTime: (query: {
-      state: { data?: { run?: QueryRun } };
-    }) => {
+    staleTime: (query: { state: { data?: { run?: QueryRun } } }) => {
       const run = query.state.data?.run;
       return hasProducerFinishedAt(run)
         ? RUN_TERMINAL_STALE_MS

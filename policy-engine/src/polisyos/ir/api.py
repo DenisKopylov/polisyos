@@ -186,6 +186,10 @@ IR_NAMING_CONVENTIONS: dict[str, str] = {
 
 ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "AccessTier": ("polisyos.ir.analytics.data_views", "AccessTier"),
+    "AdmittedClaimAdjudicationBatch": (
+        "polisyos.ir.analytics.literature",
+        "AdmittedClaimAdjudicationBatch",
+    ),
     "BacktestReport": ("polisyos.ir.analytics.backtest", "BacktestReport"),
     "BacktestScenario": ("polisyos.ir.analytics.backtest", "BacktestScenario"),
     "BiasDirection": ("polisyos.ir.analytics.backtest", "BiasDirection"),
@@ -223,6 +227,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "ABMResult": ("polisyos.ir.analytics.phase4_dynamics", "ABMResult"),
     "ABMResultRef": ("polisyos.ir.registry.refs", "ABMResultRef"),
+    "CausalCredibility": (
+        "polisyos.ir.analytics.literature",
+        "CausalCredibility",
+    ),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",
         "CausalDiscoveryReport",
@@ -250,6 +258,26 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "CausalEdge": ("polisyos.ir.analytics.causal_graph", "CausalEdge"),
     "CausalEffectReport": ("polisyos.ir.analytics.causal", "CausalEffectReport"),
     "CausalGraphModel": ("polisyos.ir.analytics.causal_graph", "CausalGraphModel"),
+    "ClaimAdjudicationInputBatch": (
+        "polisyos.ir.analytics.literature",
+        "ClaimAdjudicationInputBatch",
+    ),
+    "ClaimAdjudicationInputItem": (
+        "polisyos.ir.analytics.literature",
+        "ClaimAdjudicationInputItem",
+    ),
+    "ClaimAdjudicationResult": (
+        "polisyos.ir.analytics.literature",
+        "ClaimAdjudicationResult",
+    ),
+    "ClaimType": (
+        "polisyos.ir.analytics.literature",
+        "ClaimType",
+    ),
+    "ClaimVocabularyAxisStatus": (
+        "polisyos.ir.analytics.literature",
+        "ClaimVocabularyAxisStatus",
+    ),
     "CausalInterventionSpec": (
         "polisyos.ir.analytics.causal_queries",
         "CausalInterventionSpec",
@@ -273,6 +301,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "DataFilter": ("polisyos.ir.analytics.data_views", "DataFilter"),
     "DataViewRequest": ("polisyos.ir.analytics.data_views", "DataViewRequest"),
     "DataViewType": ("polisyos.ir.analytics.data_views", "DataViewType"),
+    "DesignFamily": ("polisyos.ir.analytics.literature", "DesignFamily"),
     "DiagnosticTest": ("polisyos.ir.analytics.causal", "DiagnosticTest"),
     "DetectorResult": (
         "polisyos.ir.analytics.shift_diagnostics",
@@ -303,6 +332,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.dependent_sensitivity",
         "DependentSensitivityResultRef",
     ),
+    "RiskOfBias": (
+        "polisyos.ir.analytics.literature",
+        "RiskOfBias",
+    ),
     "SensitivityAnalysisBundle": (
         "polisyos.ir.analytics.sensitivity",
         "SensitivityAnalysisBundle",
@@ -310,6 +343,11 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "SensitivityAnalysisIndex": (
         "polisyos.ir.analytics.sensitivity",
         "SensitivityAnalysisIndex",
+    ),
+    "SourceBasis": ("polisyos.ir.analytics.literature", "SourceBasis"),
+    "SupportStatus": (
+        "polisyos.ir.analytics.literature",
+        "SupportStatus",
     ),
     "load_dependent_sensitivity_result": (
         "polisyos.ir.analytics.dependent_sensitivity",
@@ -322,6 +360,15 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "DistributionalReport": (
         "polisyos.ir.analytics.distributional",
         "DistributionalReport",
+    ),
+    "EvidenceStrength": ("polisyos.ir.analytics.literature", "EvidenceStrength"),
+    "VersionedClaimVocabularyEnvelope": (
+        "polisyos.ir.analytics.literature",
+        "VersionedClaimVocabularyEnvelope",
+    ),
+    "adapt_legacy_claim_occurrence_as_v2_absence": (
+        "polisyos.ir.analytics.literature",
+        "adapt_legacy_claim_occurrence_as_v2_absence",
     ),
     "CounterfactualLawEstimate": (
         "polisyos.ir.analytics.endogenous_inequality",

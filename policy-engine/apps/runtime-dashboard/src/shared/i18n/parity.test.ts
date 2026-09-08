@@ -102,6 +102,10 @@ const COUNT_MESSAGE_ALLOWLIST = new Map<string, string>([
 ]);
 
 const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
+  [
+    "admitted",
+    "Admitted-response cardinality from the quarantine owner projection.",
+  ],
   ["accepted", "Accepted-item numerator in an accepted/total ratio."],
   ["accuracy", "Measured correctness proportion."],
   ["act", "Ordinal Act number."],
@@ -123,8 +127,14 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
     "completeness",
     "Preview completeness proportion formatted as a percentage.",
   ],
+  [
+    "confidenceCount",
+    "Cardinality of backlog rows whose binding confidence is zero.",
+  ],
   ["confidence", "Confidence percentage or out-of-100 quantity."],
   ["cost", "Price per million."],
+  ["demandOne", "Cardinality of backlog rows with route demand 1.0."],
+  ["demandTwo", "Cardinality of backlog rows with route demand 2.0."],
   ["depth", "Graph or workflow depth."],
   ["docs", "Document cardinality."],
   ["duration", "Time quantity, sometimes preformatted."],
@@ -161,10 +171,12 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["priority", "Numeric intervention priority from the typed Trinity domain."],
   ["quality", "Quality-floor scalar."],
   ["quantities", "Estimated-quantity cardinality."],
+  ["raw", "Raw-response cardinality from the quarantine owner projection."],
   ["rate", "Success-rate quantity."],
   ["ratio", "Numeric ratio."],
   ["required", "Required dwell seconds."],
   ["rows", "Row cardinality."],
+  ["scoreCount", "Cardinality of backlog rows whose ranking score is zero."],
   ["score", "Numeric score or floor."],
   ["seconds", "Explicit seconds."],
   ["selected", "Selected-profile cardinality."],
@@ -182,7 +194,7 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
 ]);
 
 const NUMERIC_VARIABLE_KEY_SET_SHA256 =
-  "c60120b6795593d5f5b84b83353e2c1d02c7ea568e8e48e146942aadbfdf3517";
+  "f34f6dd4f3ea6d555fe00bccef557f1889287fe6e7e167d43fdfbb95104a33f8";
 
 const NON_NUMERIC_VARIABLE_REASONS = new Map<string, string>(
   `actor
@@ -276,12 +288,12 @@ why`
 const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
   "50f796f6c245ab27b028ccce622a0d618dc841fa5fdc8e7c918413293ea5cb80";
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
-  "c4bd3cc7d9456a6dc58ed77cb9ff26238866b2b782931dbb8eb0ad0117207e6d";
-const ACTIVE_LOCALE_LEAF_COUNT = 2733;
-const NON_COUNT_MESSAGE_COUNT = 248;
-const NON_COUNT_VARIABLE_USE_COUNT = 366;
+  "77064e6e2907ccf132d4aedc5f682a0be3bf6edec16cb99248d05cb8cff1ab9d";
+const ACTIVE_LOCALE_LEAF_COUNT = 2879;
+const NON_COUNT_MESSAGE_COUNT = 252;
+const NON_COUNT_VARIABLE_USE_COUNT = 375;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
-  "1447d8c0a8bb7eca11ce8cff2e421c2939ac06c7dcebca67ec8159b18055cbf6";
+  "c599dafceb25273820b8337955089b29c2be9854bdbeb6756605e65a740463ee";
 
 type NumericUseClassification = "pluralized" | "invariant";
 
@@ -717,8 +729,53 @@ const NUMERIC_AGREEMENT_COHORT_DECLARATIONS = new Map<
   ],
 ]);
 
+// These acquisition axes come from the owner projection, independently of
+// their wording: each agreeing variable must own its own cardinal selector.
+for (const [identity, classification, reason] of [
+  [
+    "pages.cycleBoard.acquisition.backlog.zeroScoreBasis#{confidenceCount}",
+    "pluralized",
+    "Zero binding-confidence numerator selects the predicate independently of total.",
+  ],
+  [
+    "pages.cycleBoard.acquisition.backlog.zeroScoreBasis#{scoreCount}",
+    "pluralized",
+    "Zero ranking-score numerator selects the predicate independently of total.",
+  ],
+  [
+    "pages.cycleBoard.acquisition.backlog.zeroScoreBasis#{total}",
+    "pluralized",
+    "Backlog denominator selects both counted metric nouns independently of the numerators.",
+  ],
+  [
+    "pages.cycleBoard.acquisition.backlog.demandSplit#{demandOne}",
+    "pluralized",
+    "Count of route-demand-1.0 rows selects the row noun.",
+  ],
+  [
+    "pages.cycleBoard.acquisition.backlog.demandSplit#{demandTwo}",
+    "pluralized",
+    "Count of route-demand-2.0 rows selects the row noun independently.",
+  ],
+  [
+    "pages.cycleBoard.acquisition.quarantine.counts#{admitted}",
+    "invariant",
+    "Admitted is a status predicate without a counted noun in either active locale.",
+  ],
+  [
+    "pages.cycleBoard.acquisition.quarantine.counts#{raw}",
+    "pluralized",
+    "Raw-response cardinality selects the response noun.",
+  ],
+] as const) {
+  NUMERIC_AGREEMENT_COHORT_DECLARATIONS.set(identity, {
+    classification,
+    reason,
+  });
+}
+
 const NUMERIC_AGREEMENT_COHORT_KEY_SET_SHA256 =
-  "10b722ba7f4776a504eba6b983deface1b607af76fa190f72ff177fe0fabff88";
+  "341e015c72bdd7581242cf6d24f5589863f1585b0a4d05396f54c0d331daff03";
 
 function mergeNumericUseDeclarations(
   ...declarationSets: ReadonlyMap<string, NumericUseDeclaration>[]
@@ -743,7 +800,7 @@ const QUANTITATIVE_USE_DECLARATIONS = mergeNumericUseDeclarations(
 );
 
 const QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256 =
-  "4bc1fc6d6b2600cfbebd509630f3f5ad82276c47e88b38834ce6fa3d526ee858";
+  "d6f9d00e82629ce96b81712f366c22cb91d6bf65bb31e6fa10e865740bd865a2";
 
 const LEGACY_CONTINUITY_RU_KEY_COUNT = 2456;
 const LEGACY_CONTINUITY_RU_KEY_SET_SHA256 =
@@ -1329,6 +1386,112 @@ describe("locale catalogs", () => {
           }
         : undefined;
       expect(ukrainianOtherActual).toEqual(ukrainianOtherWitness);
+    },
+  );
+
+  it.each([
+    [
+      "en",
+      en,
+      [
+        "The census covers 1 connector family; this card shows the selected carrier’s live disposition.",
+        "The census covers 2 connector families; this card shows the selected carrier’s live disposition.",
+        "The census covers 5 connector families; this card shows the selected carrier’s live disposition.",
+      ],
+    ],
+    [
+      "uk",
+      uk,
+      [
+        "Перепис охоплює 1 сімейство конекторів; ця картка показує поточний стан вибраного носія.",
+        "Перепис охоплює 2 сімейства конекторів; ця картка показує поточний стан вибраного носія.",
+        "Перепис охоплює 5 сімейств конекторів; ця картка показує поточний стан вибраного носія.",
+      ],
+    ],
+  ] as const)(
+    "renders connector family counts with %s agreement",
+    (locale, catalog, expected) => {
+      expect(
+        [1, 2, 5].map((count) =>
+          formatIcuMessage(
+            getMessage(
+              catalog,
+              "pages.cycleBoard.acquisition.connector.familyCount",
+            ),
+            locale,
+            { count },
+          ),
+        ),
+      ).toEqual(expected);
+    },
+  );
+
+  it.each([
+    [
+      "backlog.zeroScoreBasis",
+      { scoreCount: 1, confidenceCount: 1, total: 1 },
+      "1 of 1 ranking score is 0.0; 1 of 1 binding-confidence value is 0.0.",
+      "1 з 1 оцінки ранжування дорівнює 0.0; 1 з 1 значення впевненості прив’язки дорівнює 0.0.",
+    ],
+    [
+      "backlog.zeroScoreBasis",
+      { scoreCount: 5, confidenceCount: 5, total: 5 },
+      "5 of 5 ranking scores are 0.0; 5 of 5 binding-confidence values are 0.0.",
+      "5 з 5 оцінок ранжування дорівнюють 0.0; 5 з 5 значень впевненості прив’язки дорівнюють 0.0.",
+    ],
+    [
+      "backlog.zeroScoreBasis",
+      { scoreCount: 1, confidenceCount: 2, total: 5 },
+      "1 of 5 ranking scores is 0.0; 2 of 5 binding-confidence values are 0.0.",
+      "1 з 5 оцінок ранжування дорівнює 0.0; 2 з 5 значень впевненості прив’язки дорівнюють 0.0.",
+    ],
+    [
+      "backlog.demandSplit",
+      { demandOne: 2, demandTwo: 2 },
+      "Route demand is 2.0 on 2 rows and 1.0 on 2 rows.",
+      "Route demand дорівнює 2.0 для 2 рядків і 1.0 для 2 рядків.",
+    ],
+    [
+      "backlog.demandSplit",
+      { demandOne: 1, demandTwo: 5 },
+      "Route demand is 2.0 on 5 rows and 1.0 on 1 row.",
+      "Route demand дорівнює 2.0 для 5 рядків і 1.0 для 1 рядка.",
+    ],
+    [
+      "quarantine.counts",
+      { raw: 1, admitted: 1 },
+      "1 raw response · 1 admitted",
+      "1 необроблена відповідь · 1 допущено",
+    ],
+    [
+      "quarantine.counts",
+      { raw: 2, admitted: 0 },
+      "2 raw responses · 0 admitted",
+      "2 необроблені відповіді · 0 допущено",
+    ],
+    [
+      "quarantine.counts",
+      { raw: 5, admitted: 1 },
+      "5 raw responses · 1 admitted",
+      "5 необроблених відповідей · 1 допущено",
+    ],
+  ] as const)(
+    "renders independent acquisition quantities for %s with %j",
+    (path, values, english, ukrainian) => {
+      expect(
+        formatIcuMessage(
+          getMessage(en, `pages.cycleBoard.acquisition.${path}`),
+          "en",
+          values,
+        ),
+      ).toBe(english);
+      expect(
+        formatIcuMessage(
+          getMessage(uk, `pages.cycleBoard.acquisition.${path}`),
+          "uk",
+          values,
+        ),
+      ).toBe(ukrainian);
     },
   );
 
@@ -1967,12 +2130,12 @@ describe("locale catalogs", () => {
         .map(([identity]) => identity.slice(0, identity.lastIndexOf("#{"))),
     );
 
-    expect(paths.size).toBe(23);
-    expect(NUMERIC_AGREEMENT_COHORT_DECLARATIONS.size).toBe(36);
-    expect(NUMERIC_VARIABLE_REASONS.size).toBe(71);
+    expect(paths.size).toBe(26);
+    expect(NUMERIC_AGREEMENT_COHORT_DECLARATIONS.size).toBe(43);
+    expect(NUMERIC_VARIABLE_REASONS.size).toBe(77);
     expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(81);
-    expect(declaredVariableNames).toHaveLength(152);
-    expect(new Set(declaredVariableNames).size).toBe(152);
+    expect(declaredVariableNames).toHaveLength(158);
+    expect(new Set(declaredVariableNames).size).toBe(158);
     expect([collectLeafPairs(en).length, collectLeafPairs(uk).length]).toEqual([
       ACTIVE_LOCALE_LEAF_COUNT,
       ACTIVE_LOCALE_LEAF_COUNT,
@@ -1993,7 +2156,7 @@ describe("locale catalogs", () => {
         .digest("hex"),
     ).toBe(NON_COUNT_VARIABLE_USE_KEY_SET_SHA256);
     expect(NUMERIC_INVARIANT_USE_DECLARATIONS.size).toBe(147);
-    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(183);
+    expect(QUANTITATIVE_USE_DECLARATIONS.size).toBe(190);
     expect(activeScans.flatMap((scan) => scan.parseFailurePaths)).toEqual([]);
     expect(declaredVariableNames).toEqual(activeVariableNames);
     expect(adjudicatedNumericUseKeys).toEqual(activeNumericUseKeys);
@@ -2048,9 +2211,9 @@ describe("locale catalogs", () => {
         .update(adjudicatedNumericUseKeys.join("\n"))
         .digest("hex"),
     ).toBe(QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256);
-    expect(cohortClassifications).toEqual({ pluralized: 4, invariant: 32 });
-    expect(allClassifications).toEqual({ pluralized: 4, invariant: 179 });
-    expect(labelGuidedPaths.size).toBe(19);
+    expect(cohortClassifications).toEqual({ pluralized: 10, invariant: 33 });
+    expect(allClassifications).toEqual({ pluralized: 10, invariant: 180 });
+    expect(labelGuidedPaths.size).toBe(20);
     for (const identity of NUMERIC_AGREEMENT_COHORT_DECLARATIONS.keys()) {
       const parsedIdentity = parseNumericUseIdentity(identity);
       expect(

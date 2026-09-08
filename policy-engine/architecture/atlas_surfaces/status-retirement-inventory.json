@@ -22,13 +22,13 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:6141e3fe69858b4433755d4fc4f5a1707ac7a8d2cb6d127c0d3297c7e9b5541d"
+      "sha256": "sha256:55f8266837f07c751bd2fb2a86dac06217e5032d29273ce23c3b30091bdf97eb"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
-      "canonical_sha256": "sha256:0e26c4ae8b9b05d7d400d0423b115186c39a04dbf035195c677bc1ac8bc2be1c",
+      "canonical_sha256": "sha256:6aa6c4c97e5a7c046bb642f3a4337a59d54ee85fc91af1e6bb88a5900d5c9906",
       "types_path": "packages/runtime-api-client/types.ts",
-      "types_sha256": "sha256:9e3dccd170c24b7d2a114c4673cd4cc3f9f35f62729a1e6aa493e709903bce4b"
+      "types_sha256": "sha256:6e8ee386d8734796f6aba8426bb8526485e58736a0c402ea2cc74d8b3eda4ae3"
     }
   },
   "denominators": {
@@ -3487,6 +3487,33 @@
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-decision-grade-presentation",
+      "current_definition_state": "present",
+      "definition_kind": "const",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.ts",
+        "start_line": 13,
+        "end_line": 18,
+        "declaration_name": "decisionGradePresentationByOwnerGrade"
+      },
+      "literal_members": [
+        "advisory_admissible",
+        "decision_admissible",
+        "descriptive_only",
+        "unsupported"
+      ],
+      "type_expression": "{\n  unsupported: \"unsupported\",\n  descriptive_only: \"descriptive_only\",\n  advisory_admissible: \"advisory_admissible\",\n  decision_admissible: \"decision_admissible\",\n} as const satisfies Record<DecisionGrade, DecisionGrade>",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C14",
+      "rationale": "decisionGradePresentationByOwnerGrade is a private exhaustive presentation map keyed by the generated DecisionGrade owner vocabulary; it preserves owner-issued labels and sends runtime novelty to unrecognized, so it neither defines nor promotes frontend authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "does_not_change_ds1_denominator": true
     },

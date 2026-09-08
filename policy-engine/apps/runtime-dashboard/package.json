@@ -73,7 +73,7 @@
     "lighthouse:report": "node ./scripts/summarize-lighthouse.mjs",
     "audit:ci": "mkdir -p ../../_build/apps/runtime-dashboard/audit && (corepack pnpm audit --json > ../../_build/apps/runtime-dashboard/audit/pnpm-audit-raw.json || true) && node ./scripts/run-audit.mjs",
     "visual:report": "node ./scripts/summarize-playwright-visual.mjs",
-    "prepare": "LEFTHOOK_CONFIG=policy-engine/apps/runtime-dashboard/lefthook.yml lefthook install --force"
+    "prepare": "node ../../tools/devx/install_repo_hooks.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

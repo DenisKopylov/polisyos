@@ -1,0 +1,76 @@
+id = "2026-09-07-atlas-public-verification-record"
+title = "Replace the false public verification claim with an authenticated server report"
+type = "changed"
+component = "runtime"
+owner = "team-design"
+summary = "The public decision surface stopped asserting verification on browser-forged packets; it now authenticates exact-byte server-issued reports and displays the real verifier's refusal for a forgery."
+evidence = [
+  "tests/unit/runtime/http/test_public_decision_verification.py",
+  "tests/unit/runtime/http/test_public_decision_verification_routes.py",
+  "tests/unit/scientist/governance/continuous/test_published_signature_custody.py",
+  "apps/runtime-dashboard/e2e/public-decision-verification.browser.ts",
+  "docs/superpowers/journals/2026-09-07-atlas-public-surface.md",
+]
+compatibility = "Additive runtime operations, generated client/types and experimental continuous-governance exports. Legacy browser-computed packets remain invalid. The report JSON value schema is explicitly scoped and recursive; both declared TypeScript generators preserve recursive components through a shared derived alias transform."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: runtime verification-report API; public_experimental: Scientist continuous-governance diagnostic adapter"
+migration = "Regenerate OpenAPI and both client families. Deploy an explicit POLISYOS_PUBLIC_VERIFICATION_CONFIG with issuer ID, protected signing-key path and purpose-bound trusted public keys; missing signing configuration refuses issuance. Trust and revocation policy is an app-lifetime snapshot, requiring restart after configuration changes."
+api = "PLATFORM_ADMIN POST /api/v1/runs/{run_id}/public-verification-record derives an existing owned run's public export; anonymous GET /api/v1/public-decisions/verification verifies only a controlled issued-record locator."
+limitations = "Report authentication proves exact-byte report custody under configured key trust. It does not prove governed policy issuance, projection faithfulness, public history, durable verifiability, current authority, status snapshot selection or public evidence obtainability. All seven dimensions remain not_established and promoted_record is null. DS12 governed population production and scope-adjudication claim-head admission remain open."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/superpowers/journals/2026-09-07-atlas-public-surface.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "public-verification-record-operations"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: runtime public verification-report API"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Issue and verify exact-byte public reports without promoting their content into a governed decision or current-authority claim."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "public-verification-record-client"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-design"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Generated clients expose public report verification and issuance types with a recursive JSON document type that excludes non-JSON values across raw, canonical and OpenAPI consumers."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "public-verification-record-dashboard-types"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-design"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Dashboard types derive public verification responses from the regenerated OpenAPI schema."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "public-verification-record-population-diagnostics"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.scientist.governance.continuous"
+owner = "team-design"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "The custody watcher inspects actual issued verification reports and persists missing-governed-population diagnostics without declaring a governed population."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

@@ -8,8 +8,10 @@ evidence cannot become production authority.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, cast
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.contracts import (
     DecisionValidityStatus,
     EngineeringCapabilityAbsenceView,
@@ -42,11 +44,16 @@ from polisyos.scientist.governance.continuous import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from datetime import datetime
 
-    from polisyos.core import artifacts as core_artifacts
-
+from .derived_observations import (
+    EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND,
+    DerivationRefusalCode,
+    DerivationRefusalError,
+    EpochInheritanceRecomputeReceipt,
+    read_epoch_inheritance_recompute_receipt,
+)
 from .epoch_validity_cascade import (
     EpochDependencyDenominatorReceipt,
     EpochTransitionSigningNonReceipt,
@@ -62,6 +69,190 @@ from .open_world_risk import (
 
 _RECOMPUTE_OWNER_MODULE = "polisyos.runtime.quality.derived_observations"
 _RECOMPUTE_OWNER_PATH = "src/polisyos/runtime/quality/derived_observations.py"
+_EpochDependencyKey = tuple[str, str, str, str, str, str, str, str]
+
+
+def _dependency_key(
+    *,
+    source_ref: core_artifacts.ArtifactRef,
+    target_ref: core_artifacts.ArtifactRef,
+    relation: str,
+    authority_purpose: str,
+) -> _EpochDependencyKey:
+    return (
+        str(source_ref.artifact_id),
+        source_ref.kind,
+        source_ref.media_type,
+        str(target_ref.artifact_id),
+        target_ref.kind,
+        target_ref.media_type,
+        relation,
+        authority_purpose,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class _EpochRecomputeResolution:
+    transition: EpochValidityTransitionArtifact | None
+    receipts: Mapping[_EpochDependencyKey, EpochInheritanceRecomputeReceipt]
+    recomputes: Mapping[_EpochDependencyKey, EpochDerivedRecomputeView]
+    complete: bool
+
+
+class EpochInheritanceRecomputeProjectionReader:
+    """Exact-read owner recompute receipts at one requested temporal coordinate."""
+
+    def __init__(self, *, artifact_store: core_artifacts.ArtifactStore) -> None:
+        self._artifact_store = artifact_store
+
+    def resolve(
+        self,
+        *,
+        requested_query_context_ref: str,
+        authority_purpose: str,
+    ) -> _EpochRecomputeResolution:
+        """Resolve one transition's exact recompute rows without claiming it is head."""
+
+        verified: list[
+            tuple[
+                EpochInheritanceRecomputeReceipt,
+                EpochDerivedRecomputeView,
+                EpochValidityTransitionArtifact,
+            ]
+        ] = []
+        store = cast("core_artifacts.FileSystemCAS", self._artifact_store)
+        for artifact_id in sorted(self._artifact_store.iter_artifact_ids(), key=str):
+            manifest = self._artifact_store.get_manifest(artifact_id)
+            if manifest.kind != EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND:
+                continue
+            if manifest.media_type != "application/json":
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+                    "epoch recompute receipt manifest profile mismatch",
+                )
+            receipt_ref = core_artifacts.ArtifactRef(
+                artifact_id=manifest.artifact_id,
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+            )
+            try:
+                receipt = EpochInheritanceRecomputeReceipt.model_validate_json(
+                    self._artifact_store.get_bytes(artifact_id)
+                )
+            except (OSError, TypeError, ValueError) as exc:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+                    "epoch recompute receipt candidate readback failed",
+                ) from exc
+            if (
+                receipt.requested_query_context_ref != requested_query_context_ref
+                or receipt.authority_purpose != authority_purpose
+            ):
+                continue
+            persisted = read_epoch_inheritance_recompute_receipt(
+                store,
+                receipt_ref=receipt_ref,
+                expected_previous_epoch_ref=receipt.previous_epoch_ref,
+                expected_current_epoch_ref=receipt.current_epoch_ref,
+                requested_query_context_ref=requested_query_context_ref,
+                authority_purpose=authority_purpose,
+                source_ref=receipt.source_ref,
+                target_ref=receipt.target_ref,
+                relation=receipt.relation,
+                expected_target_disposition=receipt.target_disposition,
+                certificate_ref=receipt.certificate_artifact_ref,
+            )
+            try:
+                transition = EpochValidityTransitionArtifact.model_validate_json(
+                    self._artifact_store.get_bytes(
+                        receipt.transition_artifact_ref.artifact_id
+                    )
+                )
+            except (OSError, TypeError, ValueError) as exc:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+                    "epoch recompute transition projection readback failed",
+                ) from exc
+            if (
+                transition.transition_content_hash != receipt.transition_content_hash
+                or transition.previous_epoch_ref != receipt.previous_epoch_ref
+                or transition.current_epoch_ref != receipt.current_epoch_ref
+                or transition.requested_query_context_ref != requested_query_context_ref
+                or transition.authority_purpose != authority_purpose
+            ):
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+                    "epoch recompute receipt differs from requested transition coordinate",
+                )
+            verified.append(
+                (
+                    receipt,
+                    EpochDerivedRecomputeView(
+                        status="completed",
+                        predicate_provenance="recomputed",
+                        evidence_ref=persisted.receipt_artifact_ref,
+                        evidence_content_hash=persisted.receipt_content_hash,
+                    ),
+                    transition,
+                )
+            )
+
+        if not verified:
+            return _EpochRecomputeResolution(
+                transition=None,
+                receipts={},
+                recomputes={},
+                complete=False,
+            )
+        transition_identities = {
+            (
+                str(receipt.transition_artifact_ref.artifact_id),
+                receipt.transition_content_hash,
+            )
+            for receipt, _view, _transition in verified
+        }
+        if len(transition_identities) != 1:
+            raise DerivationRefusalError(
+                DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+                "multiple epoch transitions answer one requested temporal coordinate",
+            )
+        transition = verified[0][2]
+        receipts: dict[_EpochDependencyKey, EpochInheritanceRecomputeReceipt] = {}
+        recomputes: dict[_EpochDependencyKey, EpochDerivedRecomputeView] = {}
+        for receipt, view, candidate_transition in verified:
+            if candidate_transition != transition:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+                    "epoch transition projections differ at one temporal coordinate",
+                )
+            key = _dependency_key(
+                source_ref=receipt.source_ref,
+                target_ref=receipt.target_ref,
+                relation=receipt.relation,
+                authority_purpose=receipt.authority_purpose,
+            )
+            if key in receipts:
+                raise DerivationRefusalError(
+                    DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+                    "multiple completed receipts answer one dependency edge",
+                )
+            receipts[key] = receipt
+            recomputes[key] = view
+        edge_keys = {
+            _dependency_key(
+                source_ref=edge.source_ref,
+                target_ref=edge.target_ref,
+                relation=edge.relation,
+                authority_purpose=edge.authority_purpose,
+            )
+            for edge in transition.dependency_graph.edges
+        }
+        return _EpochRecomputeResolution(
+            transition=transition,
+            receipts=receipts,
+            recomputes=recomputes,
+            complete=bool(edge_keys) and set(recomputes) == edge_keys,
+        )
 
 
 def _institutional_absences(
@@ -261,8 +452,11 @@ def _certificate_views(
 
 def _dependency_views(
     transition: EpochValidityTransitionArtifact,
+    *,
+    recomputes: Mapping[_EpochDependencyKey, EpochDerivedRecomputeView] | None = None,
 ) -> tuple[EpochDependencyStalenessView, ...]:
     dispositions = _disposition_by_target(transition)
+    resolved_recomputes = recomputes or {}
     rows: list[EpochDependencyStalenessView] = []
     for edge in transition.dependency_graph.edges:
         disposition = dispositions.get(str(edge.target_ref.artifact_id))
@@ -280,13 +474,44 @@ def _dependency_views(
                 owner_evidence_refs=(
                     disposition.owner_evidence_refs if disposition is not None else ()
                 ),
-                recompute=EpochDerivedRecomputeView(
-                    status="not_established",
-                    predicate_provenance="not_established",
+                recompute=resolved_recomputes.get(
+                    _dependency_key(
+                        source_ref=edge.source_ref,
+                        target_ref=edge.target_ref,
+                        relation=edge.relation,
+                        authority_purpose=edge.authority_purpose,
+                    ),
+                    EpochDerivedRecomputeView(
+                        status="not_established",
+                        predicate_provenance="not_established",
+                    ),
                 ),
             )
         )
     return tuple(rows)
+
+
+def _recompute_only_dependency_views(
+    resolution: _EpochRecomputeResolution,
+) -> tuple[EpochDependencyStalenessView, ...]:
+    """Project exact recompute coordinates without transition lifecycle authority."""
+
+    return tuple(
+        EpochDependencyStalenessView(
+            source_ref=receipt.source_ref,
+            target_ref=receipt.target_ref,
+            relation=receipt.relation,
+            authority_purpose=receipt.authority_purpose,
+            # The frozen surface requires the transition-bound disposition. Here it
+            # is only a replay coordinate; lifecycle fields stay on the signer path.
+            disposition=receipt.target_disposition,
+            source_classes=(),
+            advisory_event_refs=(),
+            owner_evidence_refs=(),
+            recompute=resolution.recomputes[key],
+        )
+        for key, receipt in resolution.receipts.items()
+    )
 
 
 def _source_evidence_refs(
@@ -412,6 +637,8 @@ def compile_epoch_staleness_projection(
         | OpenWorldRiskProductionNonReceipt
         | None
     ) = None,
+    recompute_reader: EpochInheritanceRecomputeProjectionReader | None = None,
+    recompute_authority_purpose: str | None = None,
     fixture_only: bool = False,
 ) -> EpochStalenessProjectionView:
     """Compose a strict projection without upgrading any input's authority band."""
@@ -425,6 +652,19 @@ def compile_epoch_staleness_projection(
         raise ValueError("epoch gate query context mismatch")
     if isinstance(transition, EpochValidityTransitionArtifact) and not fixture_only:
         raise ValueError("positive transition projection requires an exact owner reader")
+    recompute_resolution = _EpochRecomputeResolution(
+        transition=None,
+        receipts={},
+        recomputes={},
+        complete=False,
+    )
+    if recompute_reader is not None:
+        if not recompute_authority_purpose:
+            raise ValueError("recompute reader requires an exact authority purpose")
+        recompute_resolution = recompute_reader.resolve(
+            requested_query_context_ref=requested_query_context_ref,
+            authority_purpose=recompute_authority_purpose,
+        )
 
     absences = _institutional_absences(epoch_gate=epoch_gate, transition=transition)
     certificates: tuple[EpochCertificateStalenessView, ...] = ()
@@ -440,7 +680,15 @@ def compile_epoch_staleness_projection(
         )
         current_epoch_ref = transition.current_epoch_ref
         certificates = _certificate_views(transition)
-        dependencies = _dependency_views(transition)
+        if (
+            recompute_resolution.transition is not None
+            and recompute_resolution.transition != transition
+        ):
+            raise ValueError("recompute receipt transition differs from projected transition")
+        dependencies = _dependency_views(
+            transition,
+            recomputes=recompute_resolution.recomputes,
+        )
         lineage = (
             EpochBoundaryLineageView(
                 previous_epoch_ref=transition.previous_epoch_ref,
@@ -454,6 +702,8 @@ def compile_epoch_staleness_projection(
                 ),
             ),
         )
+    elif recompute_resolution.transition is not None:
+        dependencies = _recompute_only_dependency_views(recompute_resolution)
 
     if absences:
         status: EpochProjectionStatus = "not_established"
@@ -488,7 +738,8 @@ def compile_epoch_staleness_projection(
         limitations.append("epoch_dependency_denominator_not_established")
     if absences:
         limitations.extend(row.refusal_code for row in absences)
-    limitations.append("derived_recompute_status_not_established")
+    if not recompute_resolution.complete:
+        limitations.append("derived_recompute_status_not_established")
 
     draft = EpochStalenessProjectionView.model_construct(
         run_id=run_id,
@@ -514,7 +765,9 @@ def compile_epoch_staleness_projection(
         lineage=lineage,
         open_world_risk=_open_world_risk_view(open_world_risk),
         institutional_absences=absences,
-        engineering_absences=(_engineering_absence(),),
+        engineering_absences=(
+            () if recompute_reader is not None else (_engineering_absence(),)
+        ),
         limitations=tuple(dict.fromkeys(limitations)),
         predicate_provenance=denominator.predicate_provenance,
         fixture_only=fixture_only,
@@ -528,4 +781,7 @@ def compile_epoch_staleness_projection(
     )
 
 
-__all__ = ["compile_epoch_staleness_projection"]
+__all__ = [
+    "EpochInheritanceRecomputeProjectionReader",
+    "compile_epoch_staleness_projection",
+]

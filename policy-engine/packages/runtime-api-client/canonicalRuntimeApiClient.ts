@@ -529,6 +529,8 @@ export type DecisionCompareReport =
 export type DecisionDependencyEvent =
   RuntimeApiComponents["schemas"]["DecisionDependencyEvent"];
 
+export type DecisionGrade = RuntimeApiComponents["schemas"]["DecisionGrade"];
+
 export type DecisionLifecycleJob =
   RuntimeApiComponents["schemas"]["DecisionLifecycleJob"];
 
@@ -590,6 +592,30 @@ export type DeltaDistribution =
   RuntimeApiComponents["schemas"]["DeltaDistribution"];
 
 export type DeltaQuantity = RuntimeApiComponents["schemas"]["DeltaQuantity"];
+
+export type DependencyDigestProjection =
+  RuntimeApiComponents["schemas"]["DependencyDigestProjection"];
+
+export type DependencyDiscriminantAuthorityBoundary =
+  RuntimeApiComponents["schemas"]["DependencyDiscriminantAuthorityBoundary"];
+
+export type DependencyDiscriminantOwnerBinding =
+  RuntimeApiComponents["schemas"]["DependencyDiscriminantOwnerBinding"];
+
+export type DependencyDistributionProjection =
+  RuntimeApiComponents["schemas"]["DependencyDistributionProjection"];
+
+export type DependencyEnvironmentDiagnosticCaseProjection =
+  RuntimeApiComponents["schemas"]["DependencyEnvironmentDiagnosticCaseProjection"];
+
+export type DependencyEnvironmentDiagnosticProjection =
+  RuntimeApiComponents["schemas"]["DependencyEnvironmentDiagnosticProjection"];
+
+export type DependencyProfileDiscriminantProjection =
+  RuntimeApiComponents["schemas"]["DependencyProfileDiscriminantProjection"];
+
+export type DependencyRecordRefProjection =
+  RuntimeApiComponents["schemas"]["DependencyRecordRefProjection"];
 
 export type DepthNAcquisitionEconomicsProjection =
   RuntimeApiComponents["schemas"]["DepthNAcquisitionEconomicsProjection"];
@@ -1178,6 +1204,18 @@ export type ProvingGroundFixtureRecord =
 export type ProvingGroundRuntimeOutcomes =
   RuntimeApiComponents["schemas"]["ProvingGroundRuntimeOutcomes"];
 
+export type PublicDecisionJsonValue =
+  RuntimeApiComponents["schemas"]["PublicDecisionJsonValue"];
+
+export type PublicDecisionVerificationDimensions =
+  RuntimeApiComponents["schemas"]["PublicDecisionVerificationDimensions"];
+
+export type PublicDecisionVerificationIssued =
+  RuntimeApiComponents["schemas"]["PublicDecisionVerificationIssued"];
+
+export type PublicDecisionVerificationResponse =
+  RuntimeApiComponents["schemas"]["PublicDecisionVerificationResponse"];
+
 export type QualityRef = RuntimeApiComponents["schemas"]["QualityRef"];
 
 export type QuantityCoverageEntry =
@@ -1202,6 +1240,9 @@ export type ReasonAlgebraRow =
 
 export type RefusedAuthorityValue =
   RuntimeApiComponents["schemas"]["RefusedAuthorityValue"];
+
+export type RelatedArtifactBinding =
+  RuntimeApiComponents["schemas"]["RelatedArtifactBinding"];
 
 export type ReplayRef = RuntimeApiComponents["schemas"]["ReplayRef"];
 
@@ -2529,6 +2570,22 @@ export class RuntimeApiClient {
     const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/diagnostics`;
     const query = undefined;
     return this.request<MobilityDiagnosticsResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async verifyPublicDecisionRecord(params: {
+    record_id: string;
+  }): Promise<PublicDecisionVerificationResponse> {
+    const path = `/api/v1/public-decisions/verification`;
+    const query = this.buildQuery({
+      record_id: params.record_id,
+    });
+    return this.request<PublicDecisionVerificationResponse>(
       "GET",
       path,
       query,

@@ -75,7 +75,10 @@ describe("DS16-C02 successor containment gate", () => {
     for (const [name, source] of PANELS) {
       expect(panelEmissionMode(source, name), `${name} mode`).toBe("bound");
     }
-    expect(DEFAULT_PRODUCER_READS).toEqual(["useI18n", "useRunAuthorityValues"]);
+    expect(DEFAULT_PRODUCER_READS).toEqual([
+      "useI18n",
+      "useRunAuthorityValues",
+    ]);
   });
 
   it("proves no locally minted value on both real panels, and fails on each minting class", () => {
@@ -133,7 +136,10 @@ describe("DS16-C02 successor containment gate", () => {
     ];
 
     for (const [label, corrupted, expected] of violations) {
-      const findings = mintedValueFindings(corrupted, "PublicSectorReadinessPanel");
+      const findings = mintedValueFindings(
+        corrupted,
+        "PublicSectorReadinessPanel",
+      );
       expect(findings, `${label} must be caught`).not.toEqual([]);
       expect(findings, `${label} findings`).toEqual(expected);
     }
@@ -169,9 +175,9 @@ export function PublicSectorReadinessPanel() {
   return <section data-testid="public-sector-readiness-panel">{t("common.other")}</section>;
 }
 `;
-    expect(panelEmissionMode(containedWithoutRefusal, "PublicSectorReadinessPanel")).toBe(
-      "contained",
-    );
+    expect(
+      panelEmissionMode(containedWithoutRefusal, "PublicSectorReadinessPanel"),
+    ).toBe("contained");
     expect(
       refusalFindings(containedWithoutRefusal, "PublicSectorReadinessPanel"),
     ).toEqual(["refusal-missing"]);
@@ -179,12 +185,12 @@ export function PublicSectorReadinessPanel() {
 
   it("pins the label-key inventory so a value-bearing key cannot arrive silently", () => {
     // GAP 2's mitigation. Both panels render exactly one key today.
-    expect(renderedLabelKeys(readinessSource, "PublicSectorReadinessPanel")).toEqual(
+    expect(
+      renderedLabelKeys(readinessSource, "PublicSectorReadinessPanel"),
+    ).toEqual([SANCTIONED_REFUSAL_KEY]);
+    expect(renderedLabelKeys(scientificSource, "ScientificDepthPanel")).toEqual(
       [SANCTIONED_REFUSAL_KEY],
     );
-    expect(renderedLabelKeys(scientificSource, "ScientificDepthPanel")).toEqual([
-      SANCTIONED_REFUSAL_KEY,
-    ]);
 
     // A key whose IDENTITY asserts a value changes the inventory, so it cannot
     // enter without editing this expectation — the channel is watched even
@@ -239,7 +245,10 @@ export function PublicSectorReadinessPanel() {
     ];
 
     for (const [label, corrupted, expected] of selections) {
-      const findings = mintedValueFindings(corrupted, "PublicSectorReadinessPanel");
+      const findings = mintedValueFindings(
+        corrupted,
+        "PublicSectorReadinessPanel",
+      );
       expect(findings, `${label} must be caught`).not.toEqual([]);
       expect(findings, `${label} findings`).toEqual(expected);
     }
@@ -259,9 +268,7 @@ export function PublicSectorReadinessPanel() {
       "every production mount passes exactly runId",
     ).toBe(true);
     expect(
-      census.mounts
-        .map((mount) => `${mount.file}:${mount.name}`)
-        .sort(),
+      census.mounts.map((mount) => `${mount.file}:${mount.name}`).sort(),
     ).toEqual([
       "features/runs/routes/RunDetailLayout.tsx:PublicSectorReadinessPanel",
       "features/runs/routes/RunDetailLayout.tsx:ScientificDepthPanel",
@@ -351,9 +358,9 @@ export function ReadinessSiblingWrapper() {
     expect(
       renderedLabelKeys(markersIntact, "PublicSectorReadinessPanel"),
     ).toEqual([SANCTIONED_REFUSAL_KEY]);
-    expect(refusalFindings(markersIntact, "PublicSectorReadinessPanel")).toEqual(
-      [],
-    );
+    expect(
+      refusalFindings(markersIntact, "PublicSectorReadinessPanel"),
+    ).toEqual([]);
 
     expect(
       mintedValueFindings(markersIntact, "PublicSectorReadinessPanel"),
@@ -368,7 +375,9 @@ export function ReadinessSiblingWrapper() {
       sourceRoot,
       "features/runs/components/readinessScientificContainment.test.ts",
     );
-    expect(fs.existsSync(ancestor), "the retired witness must be gone").toBe(false);
+    expect(fs.existsSync(ancestor), "the retired witness must be gone").toBe(
+      false,
+    );
 
     // A successor closes only when the old owner path is proven strangled. The test is
     // whether anything still REACHES for the witness — imports it, or reads it off disk

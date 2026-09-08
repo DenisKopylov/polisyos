@@ -186,7 +186,9 @@ function normalizeSourceFile(value: string): string {
 }
 
 function isFileSuite(suite: RawPlaywrightSuite): boolean {
-  return suite.title.endsWith(path.posix.basename(suite.file.replaceAll("\\", "/")));
+  return suite.title.endsWith(
+    path.posix.basename(suite.file.replaceAll("\\", "/")),
+  );
 }
 
 type PlaywrightSpecAtPath = {
@@ -210,7 +212,10 @@ function flattenPlaywrightSpecs(
 }
 
 function findingDetail(messages: string[], fallback: string): string {
-  const detail = messages.map((message) => message.trim()).filter(Boolean).join("\n");
+  const detail = messages
+    .map((message) => message.trim())
+    .filter(Boolean)
+    .join("\n");
   return detail || fallback;
 }
 
@@ -221,15 +226,22 @@ function normalizePlaywrightReport(
 ): AtlasNormalizedRunnerReport {
   const source = playwrightReportSchema.parse(raw);
   if (source.errors.length > 0) {
-    throw new TypeError("Playwright report contains top-level collection errors");
+    throw new TypeError(
+      "Playwright report contains top-level collection errors",
+    );
   }
   const profile = ATLAS_AUTOMATED_RUNNER_PROFILES.keyboard_playwright;
   const tests = flattenPlaywrightSpecs(source.suites).flatMap(
     ({ parentTitles, spec }) =>
       spec.tests.map((test) => {
         const result = test.results.at(-1)!;
-        if (test.projectName !== "chromium" || test.expectedStatus !== "passed") {
-          throw new TypeError("keyboard evidence requires an expected-pass Chromium result");
+        if (
+          test.projectName !== "chromium" ||
+          test.expectedStatus !== "passed"
+        ) {
+          throw new TypeError(
+            "keyboard evidence requires an expected-pass Chromium result",
+          );
         }
         const outcome =
           test.status === "expected" && result.status === "passed"
@@ -279,7 +291,9 @@ function normalizePlaywrightReport(
       source.stats.skipped !==
       measured.total
   ) {
-    throw new TypeError("Playwright summary contradicts its individual results");
+    throw new TypeError(
+      "Playwright summary contradicts its individual results",
+    );
   }
   const startedAt = new Date(source.stats.startTime).toISOString();
   const finishedAt = new Date(
@@ -363,7 +377,9 @@ function normalizeVitestReport(
     ).length,
   };
   const fileStatusesMatch = source.testResults.every((file) => {
-    const hasFailure = file.assertionResults.some(({ status }) => status === "failed");
+    const hasFailure = file.assertionResults.some(
+      ({ status }) => status === "failed",
+    );
     const hasIncomplete = file.assertionResults.some(
       ({ status }) => status !== "passed" && status !== "failed",
     );
@@ -428,7 +444,9 @@ export function normalizeAtlasRunnerReport(
   if (profileId === "opaque_storybook") {
     return normalizeVitestReport(raw, repositoryRevision, commandArgv);
   }
-  throw new TypeError(`undeclared automated evidence runner: ${String(profileId)}`);
+  throw new TypeError(
+    `undeclared automated evidence runner: ${String(profileId)}`,
+  );
 }
 
 type CommandOptions = {
@@ -492,10 +510,14 @@ function readOptions(argv: string[]): CommandOptions {
     commandArgv.length === 0 ||
     commandArgv.some(
       (value) =>
-        typeof value !== "string" || value.length === 0 || value.trim() !== value,
+        typeof value !== "string" ||
+        value.length === 0 ||
+        value.trim() !== value,
     )
   ) {
-    throw new TypeError("--command-json must be a non-empty JSON array of trimmed strings");
+    throw new TypeError(
+      "--command-json must be a non-empty JSON array of trimmed strings",
+    );
   }
   return {
     profileId,
@@ -548,12 +570,18 @@ function assertExactResolvedPair(
   result: AtlasEvidencePersistenceResult,
 ): void {
   if (!isDeepStrictEqual(result.resolved_payload.payload, capture.payload)) {
-    throw new TypeError("resolved verification payload differs from normalized capture");
+    throw new TypeError(
+      "resolved verification payload differs from normalized capture",
+    );
   }
   const { evidence_payload_ref: _ref, ...receiptWithoutRef } =
     result.resolved_receipt.receipt;
-  if (!isDeepStrictEqual(receiptWithoutRef, capture.receipt_without_payload_ref)) {
-    throw new TypeError("resolved evidence receipt differs from normalized capture");
+  if (
+    !isDeepStrictEqual(receiptWithoutRef, capture.receipt_without_payload_ref)
+  ) {
+    throw new TypeError(
+      "resolved evidence receipt differs from normalized capture",
+    );
   }
 }
 
@@ -594,7 +622,9 @@ function main(): void {
     const output = `${JSON.stringify(result)}\n`;
     process.stdout.write(output);
   } catch (error) {
-    process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
+    process.stderr.write(
+      `${error instanceof Error ? error.stack : String(error)}\n`,
+    );
     process.exitCode = 1;
   }
 }

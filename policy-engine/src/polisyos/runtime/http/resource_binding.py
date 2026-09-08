@@ -83,6 +83,7 @@ _OWNED_PATH_RESOLVERS = {
     ("runtime.run.feedback_evaluation", "run_id"): _ResolverKind.RUN,
     ("runtime.run.reissue", "run_id"): _ResolverKind.RUN,
     ("runtime.run.production_approval", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.public_verification_record", "run_id"): _ResolverKind.RUN,
     ("runtime.run.human_decision", "run_id"): _ResolverKind.RUN,
     ("runtime.run.human_decision_gate", "run_id"): _ResolverKind.RUN,
     ("runtime.run.human_decision_record", "run_id"): _ResolverKind.RUN,

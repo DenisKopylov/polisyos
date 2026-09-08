@@ -673,6 +673,20 @@ signature_requirement = "unsigned"
 required_signer_role = "none"
 
 [[domains]]
+domain_id = "dependency-discriminant"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d6469736372696d696e616e742e763100"
+algebra_id = "relation_v1"
+preimage_kind = "relation"
+producer_id = "relation_v1"
+verifier_id = "recompute_relation_v1"
+ordering_rule = "ordered_framed_relation_v1"
+derivation_rule = "computed_relation"
+derivation_evidence = ["DependencyProfileDiscriminant"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
 domain_id = "dependency-closure"
 prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d636c6f737572652e763100"
 algebra_id = "relation_v1"

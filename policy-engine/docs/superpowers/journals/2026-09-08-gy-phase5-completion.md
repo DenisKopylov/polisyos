@@ -606,3 +606,31 @@ The full guardrail's P41 inherited provenance remains `not_established`, since
 the focused base replay is narrower and the full source-input intersection is
 nonempty. Home: continuous architecture baseline maintenance, `@platform-owners`
 with `@tools-owners` backup; the exact tightening is owned inside this lane.
+
+The [second unchanged normal run](gy-phase5-evidence/shared/final-architecture-guardrails-v2.json)
+returns RC1 in 74.396 seconds. Baseline drift is gone and private provisioning
+runs, but Python-based generator children still fail on the copied interpreter's
+relative library linkage. Dashboard type generation completes; that partial
+result does not credit the other required families. This is the same station
+class one level deeper, so D6 addresses copied-interpreter portability across
+launchers rather than patching generators individually.
+
+The independent [private-interpreter owner audit](gy-phase5-evidence/pr1/private-interpreter-owner-audit.md)
+identifies the closed `generated-freshness-probe-rebinds-caller-venv` row and its
+actual source. Caller isolation remains intact and no source repair to that
+closed row is made. The installed framework-backed Homebrew Python 3.14.0 is
+within the declared `>=3.14,<3.15` range. The actual
+[copy/direct/system-shell probe](gy-phase5-evidence/shared/framework-python-station-probe.json)
+returns RC0 with every DYLD setting removed and both children retaining their
+private prefix. This demonstrates the structural station choice without binary
+patching, environment inheritance, or a different gate predicate.
+
+A lane-local ignored environment at `.tmp/gyphase5-framework/.venv` is
+[provisioned](gy-phase5-evidence/shared/framework-python-provision.json) with
+`uv sync --frozen --python /opt/homebrew/bin/python3.14`, RC0 in 10.140 seconds.
+The lock and product dependencies are unchanged. Earlier targeted tests and API
+verification remain Python 3.14.3 receipts; the next full normal guardrail uses
+the supported 3.14.0 framework interpreter and still builds its own independent
+private environment. [Station probe source](gy-phase5-evidence/shared/probe_framework_python.py)
+and [Ruff](gy-phase5-evidence/shared/framework-python-station-ruff-v2.json) are
+retained; the earlier line-wrap lint failure is a lane-harness nonreceipt.

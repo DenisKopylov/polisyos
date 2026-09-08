@@ -1,0 +1,17 @@
+{
+  "command": ".venv/bin/python -m ruff format docs/superpowers/journals/gy-phase5-evidence/pr1/private_interpreter_owner_audit.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "docs/superpowers/journals/gy-phase5-evidence/pr1/private_interpreter_owner_audit.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 0.057,
+  "stdout": "1 file reformatted\n",
+  "stderr": ""
+}

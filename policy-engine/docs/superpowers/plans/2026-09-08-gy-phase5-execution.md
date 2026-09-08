@@ -486,3 +486,31 @@ predicate or freshness family is replaced. The source is not a new runtime path,
 so no new receipt epoch or runtime StrangleReceipt is claimed. A failing actual
 private preparation or output probe remains a failure, irrespective of this
 minimal interpreter positive.
+
+## D6 — portable station interpreter without reopening a closed guardrail owner
+
+The second normal run fixes the baseline and provisions the private environment,
+but generated children still lose the UV interpreter's relative library lookup.
+This is the same copied-interpreter portability class one level deeper (P40).
+An environment-only fix does not close the property across child launchers.
+The private-environment owner belongs to the closed
+`generated-freshness-probe-rebinds-caller-venv` repair; this lane will not alter
+its source or claim that caller-isolation semantics are broken.
+
+The installed Homebrew framework Python at `/opt/homebrew/bin/python3.14`
+uses an absolute framework library linkage. Its measured version is 3.14.0,
+within the project's declared `>=3.14,<3.15` range. Test the actual default
+`venv.EnvBuilder(with_pip=False)` copy through both a direct process and the
+real system shell with all DYLD lookup settings removed. If that property holds,
+provision a lane-local ignored scratch environment with this interpreter and
+the unchanged frozen dependency lock, then run the unchanged full normal
+guardrail from it. The guardrail still owns a fresh independent private
+environment/cache and copied source; no shared site-packages enter its probes.
+
+Root owns this station action. Do not edit or patch installed interpreters,
+binaries, guardrail code, generator commands, locks, or family denominators.
+Record the interpreter patch-version difference explicitly; prior targeted
+tests remain Python 3.14.3 evidence. Falsifiers are failure of either copied
+child under stripped loader settings, dependency provisioning failure, or any
+failure/drift in the actual full generated-output gate. This is a structural
+station choice over every child launcher, not another per-generator patch.

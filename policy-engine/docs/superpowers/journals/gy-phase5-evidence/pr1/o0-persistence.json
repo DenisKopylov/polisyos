@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/services/test_evaluation_safety.py::test_blocked_non_simulation_persists_ordered_chain_without_certificate tests/integration/runtime_quality/test_evaluation_safety_admission.py::test_blocked_control_attempt_retry_reuses_terminal_projection_without_recounting tests/unit/runtime/quality/test_evaluation_safety.py::test_promotion_state_injection_cannot_change_safety_core -q",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 28.677,
+  "stdout": "...                                                                      [100%]\n",
+  "stderr": ""
+}

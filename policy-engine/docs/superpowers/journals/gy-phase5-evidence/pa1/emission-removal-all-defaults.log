@@ -1,0 +1,139 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/measure.py", line 163, in <module>
+    controls(sys.argv[1])
+    ~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/measure.py", line 154, in controls
+    assert not escaped, f"unauthorized defaults reached CAS persistence: {escaped}"
+           ^^^^^^^^^^^
+AssertionError: unauthorized defaults reached CAS persistence: ['silent_equal_weight', 'historical_prior', 'proxy_as_priority']
+{
+  "python": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin/python",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "mode": "emission_removal"
+}
+{
+  "control": "positive_signed_fixture_not_production_denominator",
+  "bundle_ref": "sha256:1049e9e10cca7f5480c2ff5fe6f7ecfaa55e4fda4e32a74c6d2b350aefe7b395",
+  "result": {
+    "archive": {
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+      "archive_id": "layer2.s8.pareto-archive.ua-msme",
+      "archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "frontier_refs": [
+        "foundry://welfare/frontier/ua-msme"
+      ],
+      "nondominated_alternative_ids": [
+        "targeted_credit",
+        "cash_transfer"
+      ],
+      "rejected_nondominated_alternative_ids": [
+        "cash_transfer"
+      ],
+      "objective_refs": [
+        "objective://credit_access",
+        "objective://fiscal_burden_per_beneficiary"
+      ],
+      "value_schedule_ref": "sha256:7b6058792a476c950d93b331245dcbd9d7dd955fed8e8b35e799f977f14249df",
+      "ranking_mode": "ranked_with_authorized_values",
+      "archive_status": "ranked_with_authorized_values",
+      "scenario_value_schedule_refs": [
+        "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+      ],
+      "claim_refs": [
+        "claim://ua-msme/welfare-frontier"
+      ],
+      "audit_refs": [
+        "cas://audit/welfare-frontier/ua-msme"
+      ],
+      "authority_boundary": {
+        "boundary_id": null,
+        "authoritative_for": [
+          "value_schedule_for_ranking"
+        ],
+        "may_not_use_for": [
+          "production_claim_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "scalar_welfare_authority",
+          "preference_learning_authority",
+          "mandate_creation",
+          "social_weight_selection_without_authorized_schedule",
+          "outcome_prediction_authority",
+          "forecast_calibration_authority",
+          "s9_projection_maturity",
+          "s10_forecast_support",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "legal_competence",
+          "democratic_legitimacy",
+          "policy_optimality"
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "governed",
+        "rule_version_refs": [
+          "policyos.layer2.s8.value_choice.v1"
+        ],
+        "evidence_kind": null,
+        "decision_grade": null,
+        "evidence_basis": null,
+        "known_limits": [
+          "Selection permission does not validate candidate policy facts or outcomes."
+        ]
+      },
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "legal_competence",
+        "democratic_legitimacy",
+        "policy_optimality"
+      ],
+      "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+      "created_at": "2026-06-01T00:00:00Z",
+      "normative_admission_ref": "sha256:5176855958ce853503ad47edda26241eefd7166d1106052dc553d0c13743198a",
+      "selected_alternative_ref": "targeted_credit"
+    },
+    "authorization_status": "authorized",
+    "ranked_recommendations": [
+      "targeted_credit"
+    ],
+    "decision_request": null
+  }
+}
+{
+  "default": "silent_equal_weight",
+  "selected": "targeted_credit",
+  "escaped_to_cas": true
+}
+{
+  "default": "historical_prior",
+  "selected": "cash_transfer",
+  "escaped_to_cas": true
+}
+{
+  "default": "proxy_as_priority",
+  "selected": "targeted_credit",
+  "escaped_to_cas": true
+}

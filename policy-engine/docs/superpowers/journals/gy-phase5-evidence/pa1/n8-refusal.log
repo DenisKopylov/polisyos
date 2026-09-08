@@ -1,0 +1,21 @@
+ERROR: found no collectors for /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition
+
+ERROR: found no collectors for /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_shaped_owner_assignment_attestation_is_not_authority
+
+ERROR: found no collectors for /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_shaped_relation_certificate_cannot_open_missing_value_input_lane
+
+
+==================================== ERRORS ====================================
+________ ERROR collecting tests/unit/runtime/quality/test_value_gate.py ________
+ImportError while importing test module '/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tests/unit/runtime/quality/test_value_gate.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_value_gate.py:158: in <module>
+    from .test_cycle_substrate import _registry as _lane0_registry
+E   ImportError: attempted relative import with no known parent package
+=========================== short test summary info ============================
+ERROR tests/unit/runtime/quality/test_value_gate.py
+1 error in 77.25s (0:01:17)

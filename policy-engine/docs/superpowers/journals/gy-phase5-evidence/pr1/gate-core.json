@@ -1,0 +1,9 @@
+{
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_promotion_sequence.py -q -k 'current_input_rejects_legacy_caller_gate_predicates or cg2_open_admissibility or scope_insufficient_obligation_does_not_vacuously_pass or real_dependent_independence_graph_refuses_legacy_true or empty_independence_graph or real_measurement_root_resolves or effect_without or ungrounded_effect_claim or effect_exact_or_bounded or production_n9_port_persists or n5_coupling or promotion_context_cannot_supply_legacy_gate_predicate or eval_safety_names'",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "returncode": 1,
+  "duration_seconds": 0.017,
+  "stdout": "",
+  "stderr": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin/python: No module named pytest\n"
+}

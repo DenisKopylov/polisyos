@@ -1,0 +1,9 @@
+{
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pr1.runtime_snapshot",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "returncode": 1,
+  "duration_seconds": 0.149,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/runtime_snapshot.py\", line 11, in <module>\n    from polisyos.runtime.quality import generation_cycle as gc\nModuleNotFoundError: No module named 'polisyos'\n"
+}

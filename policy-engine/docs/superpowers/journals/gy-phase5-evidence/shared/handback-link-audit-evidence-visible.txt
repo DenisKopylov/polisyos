@@ -7604,6 +7604,83 @@ DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/su
 1: ...............                                                          [100%]
 2: 15 passed in 85.55s (0:01:25)
 
+DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-baseline-audit.md
+1: # Final guardrail deep-import baseline audit
+2: 
+3: Recommendation: remove only the stale baseline identity
+4: `polisyos.runtime.quality.acquisition_planner->polisyos.data_forge.domains.academic.knowledge`,
+5: record that deliberate tightening, and run the unchanged normal guardrail with the separately repaired station environment. No production import, public-entrypoint policy, exception, receipt, or executed N7 capability needs repair. This observer changed no baseline or production source.
+6: 
+7: ## Actual owner measurements
+8: 
+9: The focused harness imports the real `tools.devx.architecture.guardrails` from each requested root and asserts its `REPO_ROOT`. It executes the same `collect_deep_import_edges`, `render_deep_import_baseline_json`, exact frozen-byte equality, and `_check_deep_import_creep` owners used by normal `run_check`. It does not skip an input or alter a rejection rule. Both command records include exact argv, cwd, lane-venv path prefix, return code, wall time, and complete streams.
+10: 
+11: | Root | Focused baseline result | Evidence |
+12: | --- | --- | --- |
+13: | Current lane | RC1, 39.255s; exact stale identity below; creep findings empty | [command](deep-import-owner-current.json), [complete packet](deep-import-current-complete.json) |
+14: | Existing lane-owned `gyphase5-lane-basecheck`, exact slice base `3d572c146f9d021cb6daad64ebb7b093121ed124` | RC1, 39.664s; identical stale identity; creep findings empty | [command](deep-import-owner-base.json), [complete packet](deep-import-base-complete.json) |
+15: 
+16: The denominator is every `src/**/*.py` file used by the owner and every static import in those files, together with the complete public-entrypoint contract. The owner's `Path.rglob`/`ast.walk` result is independently reconciled against `os.walk`/`ast.NodeVisitor`; complete file and finding identity sets agree, and unreadable/ambiguous cases are empty. Each packet retains all source-file identities and hashes, every actual expected edge, every independently derived edge, every frozen edge, and the whole expected and frozen artifacts. No count-only comparison is used.
+17: 
+18: [Complete base/current reconciliation](deep-import-complete-delta.json), produced by [this command](deep-import-delta-archive.json), returns RC0 in 12.363s. The entire current expected edge map equals the entire slice-base expected edge map, including values, and the entire frozen maps also agree. The complete set differences in each root are:
+19: 
+20: - Frozen absent from actual expected: `polisyos.runtime.quality.acquisition_planner->polisyos.data_forge.domains.academic.knowledge`.
+21: - Actual expected absent from frozen: empty.
+22: - Shared edge identities with different edge values: empty.
+23: 
+24: The exact source-removal provenance is retained as a complete `git show 68689784a -- src/polisyos/runtime/quality/acquisition_planner.py` command/result in the reconciliation packet. That commit, already in the slice base, replaced `_capture_skg`'s direct `domains.academic.knowledge` import and schema probe with the existing `polisyos.data_forge.read_api` academic surface and `ProductionCG2CalibrationSource.produce/replay`. The baseline retained the old import identity. The current supported-entrypoint contract still declares `polisyos.data_forge.read_api`; its existing `__init__.py` exposes `academic`, and `read_api/academic.py` resolves the actual source-identity owner. The declaration is not newly broadened by this lane.
+25: 
+26: ## Why deletion tightens the gate
+27: 
+28: `guardrails.py:1952` detects creep by testing each complete current edge identity against the baseline. `run_check:2074` separately rejects a baseline that differs from the full current rendering. Removing an absent row shrinks the tolerated set while restoring exact snapshot freshness; it neither suppresses a live finding nor narrows the scanner denominator.
+29: 
+30: The reconciliation command also ran the actual creep owner against an ignored scratch baseline rendered from all real current edges. The genuine current edge set returned no creep findings. Reintroducing the old frozen edge as the adversarial input then produced the exact `New deep-import creep detected` finding for that identity. The reintroduced edge is explicitly a mutation witness, never a current-source denominator member. No checked-in baseline was written by the probe.
+31: 
+32: ## Write boundary and finding classification
+33: 
+34: `CONTRIBUTING.md:94–113` names the baseline and the canonical governance sources. `tools/devx/architecture/README.md` identifies the guardrails engine as the source of truth for regenerating this inventory. `docs/reference/ratchet-policy.md` requires deliberate baseline changes and names `@platform-owners` with `@tools-owners` as backup. The exact deletion, evidence, and normal-gate replay meet that maintenance purpose without admitting a new dependency.
+35: 
+36: The plan's earlier closed `deep-import-baseline-stale` row required edge adjudication because blindly synchronizing would have accepted new creeps. Its closure is historical context, not authorization for another expansion and not a task reopened here. This measurement has no added creep to adjudicate. The proposed ADR-0053 is explicitly `Proposed`; its post-freeze contract-change approval language is not silently promoted to a ratified ruling. In any case, this recommendation changes no import rule or supported-entrypoint contract. No missing external semantic ruling or institutional appointment is identified for this exact tightening. Do not perform an unrestricted baseline sync or change another entry.
+37: 
+38: P40 classification: **NEW final-review class**, a stale import-ratchet snapshot companion under P07/P29. It is separate from the lane's already repaired manifest/authority intake classes. Its home is the continuous architecture guardrail baseline owner (`@platform-owners`, backup `@tools-owners`), with the source transition identified above. No executed N7 or closed stale-baseline task is reopened.
+39: 
+40: P41 scope remains explicit: the focused owner reproduces at the exact slice base, but the full normal architecture command was not replayed here. The complete current/base observed source-input intersection with this lane's changed paths is nonempty and is retained in the delta packet. Therefore a claim that the **full red guardrail is inherited** is **not_established**. The proposed closure rests on the actual complete edge maps and the tightening falsifier, not on an inherited-red exemption.
+41: 
+42: [Research harness Ruff](deep-import-harness-ruff-final-v2.json) passes RC0. Earlier local Ruff records remain as superseded harness-format findings. The station's separate copied-interpreter/dylib failure belongs to the parent's station evidence; no station workaround, source fix, baseline write, or full guardrail run was performed by this audit.
+
+DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-audit.md
+1: # Private generated-probe interpreter: owner and portability boundary
+2: 
+3: Recommendation: run the unchanged guardrail from a separately provisioned, supported interpreter whose **copied executable** resolves its runtime library without an inherited `DYLD_LIBRARY_PATH`. Preserve the private environment/cache and source-copy isolation. Do not patch individual generator launchers, weaken freshness gates, or reconnect the caller's environment to the isolated source.
+4: 
+5: The parent's [framework station probe](../shared/framework-python-station-probe.json) now passes that exact copy-and-child-launch property: the copied Python 3.14.0 runs directly and through `/bin/bash` with all `DYLD` variables absent, both RC0. The eventual unchanged full-gate outcome remains parent-owned and is not inferred from this station probe.
+6: 
+7: ## Measured owner
+8: 
+9: `tools/devx/architecture/guardrails.py:1473` constructs the isolated environment settings. It begins with the caller environment, clears the named virtual-environment/uv overrides, binds `UV_PYTHON` to `sys.executable`, and places the private environment first in `PATH`. At `:1506`, `_prepare_isolated_probe_environment` calls `venv.EnvBuilder(with_pip=False).create(private_environment)`, links the isolated source's `.venv` to that private environment, and performs the frozen uv sync before output measurement.
+10: 
+11: The [read-only owner census command](private-interpreter-owner-command.json) returned RC0 in 23.594s. Its [complete packet](private-interpreter-owner-complete.json) retains the full canonical `src/**/*.py` and `tools/**/*.py` identity sets from independent Git index and HEAD-tree enumerations, every environment-related source match, the complete resolved direct-constructor set, the actual imported stdlib implementation, the verbatim register row, and the complete source-introducing Git diff. Unreadable/ambiguous cases are empty. The direct constructor set is precisely the existing guardrail's `venv.EnvBuilder(with_pip=False)` call. Every environment-token match was inspected.
+12: 
+13: The other construction-shaped Python source is `tools/devx/workspace/remote_acceptance.py`, which emits a remote Linux bootstrap shell command `python3 -m venv` for installing uv. It does not provide a reusable portable private-probe constructor for this macOS station. Foundry's `libpython` references classify dependency evidence; they do not build environments. Remaining matches concern existing environment consumers, ignored directories, or installation requirements. No alternative private-interpreter owner was found in the stated complete canonical Python denominator. Non-Python launchers and externally installed tool implementations are explicitly outside this census; their global absence is **not_established**.
+14: 
+15: The live stdlib `venv.EnvBuilder.ensure_directories` obtains the executable from `sys._base_executable`, and `setup_python` copies that executable through `symlink_or_copy`. The audit's actual base executable was `/Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14`. Thus changing only `UV_PYTHON` after the builder has selected its base is not a structural repair for this copy. The interpreter running the unchanged builder must itself supply a base executable with portable library resolution.
+16: 
+17: ## Existing closure and present finding
+18: 
+19: The complete Git diff in the packet confirms introduction in `6fa919b744c945f686a42ab746bbb3f5dbaa9b79`, `fix: complete instrument input and execution boundaries`. The [instrument-station journal](../../2026-09-07-instrument-station-independence.md) explains that this repair replaced a shared caller environment with a real private interpreter and cache, including the source `.venv` location required by actual consumers.
+20: 
+21: The exact register row `generated-freshness-probe-rebinds-caller-venv` is **closed**, owned by `team-architecture` / devx. Its closure property is that the caller's editable bindings remain byte-identical and usable after the real consumers. The current loader failures do not show that caller isolation was lost, and this lane must not reopen or roll back that closed property.
+22: 
+23: The [first normal guardrail receipt](../shared/final-architecture-guardrails.json) failed when uv queried the private copied Python. The [second normal receipt](../shared/final-architecture-guardrails-v2.json) progressed through preparation with the station library-path setting, then emitted the same missing-`@rpath/libpython3.14.dylib` condition from generated child invocations. These are execution failures, not generated-byte drift findings or passing freshness receipts.
+24: 
+25: P40 classification: **the SAME copied-interpreter portability class, one level deeper**, as the parent's first station probe. The decisive quantity is executable/runtime-library resolvability across the real nested process path, not whether uv sync or one direct Python launch happens to succeed. The structural station solution must survive both a direct launch and the actual shell-mediated child launch with `DYLD` variables absent, then the unchanged full owner must complete. Another per-launch environment patch would repeat the ladder.
+26: 
+27: A source-level portability repair, if station provisioning cannot supply that property, belongs to the existing DevX/architecture private-environment owner under a separately named portability issue. It would require an explicit assignment because this audit forbids source/gate changes and Phase 5's product tasks do not own a new environment-builder implementation. The closed row's editable-isolation invariant must remain intact. This is an engineering ownership boundary, not a missing institutional signature or semantic ruling, and the mere existence of a closed row does not prove that all future changes to its file are prohibited.
+28: 
+29: The supported station path changes neither product source nor global installations: provision a lane-local environment with the existing supported framework interpreter and the unchanged frozen lock, invoke the unchanged guardrail through that environment, and retain the real returned verdict. The direct/shell copy property is now established by the linked run; it requires no product repair or reopening. Any remaining full-gate failure must retain its exact cause. If the portability class persists, its route is `team-architecture` / devx as `private-generated-probe-interpreter-portability`; no existing active product row was established for that narrower issue.
+30: 
+31: No full guardrail, environment construction, source modification, binary patch, or installed-global change was performed by this audit. [Harness Ruff](private-interpreter-audit-ruff-final.json) passes RC0. All evidence writes are complete and frozen for the parent's next normal-gate run.
+
 DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md
 1: # S3 D1d — N9 capture reissue for the governed credal input epoch
 2: 
@@ -7983,6 +8060,55 @@ DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/su
 166: chain is recorded*. Do not shorten that to “all engineering is done,” “source adapter cannot
 167: be built,” “N8 is executed so PR1 cannot wire its outputs,” or “appointment blocks data-only
 168: promotion.” Those statements exceed the measurements or the user's authorization.
+
+DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-refresh-audit.md
+1: # Trust-posture generated companion: measured refresh decision
+2: 
+3: Recommendation: reissue the committed trust-posture projection through the existing canonical DS11 writer, then run its normal check and a decisive drift probe. The measured delta is a declared-source projection refresh under the existing schema and rules. No source, rule, gate, institutional authority, or receipt-schema decision needs changing. This audit wrote only scratch output and evidence; the canonical artifact remains parent-owned.
+4: 
+5: ## Actual generator and complete comparison
+6: 
+7: The [actual scratch writer](trust-posture-scratch-write.json) returned RC0 in 58.708s:
+8: 
+9: ```text
+10: .venv/bin/python -m tools.quality.validation.check_trust_claim_posture --repo-root . --write --output-root .tmp/gyphase5-trust-posture-audit --json
+11: ```
+12: 
+13: The command record contains exact argv, cwd, lane-venv/PYTHONPATH prefixes, and complete streams. It uses the registered family's bounded output seam, with the user-required package-module invocation. The real compiler performs its independent AST/token source reconciliation, builds the existing strict posture DTO, validates it, and emits the fixed output under the supplied scratch root. No canonical file or generated reference was written.
+14: 
+15: [Complete comparison](trust-posture-complete-delta.json), produced by [this command](trust-posture-delta-command.json), returned RC0 in 1.298s. It retains both full artifacts, every field identity, every changed value, every source binding and its base/current file digest, and complete keyed claim/source-inventory/admitted-source identity sets. Recursive and independent stack walks agree over the whole objects. Missing fields, null, and empty containers are distinct; ambiguous reads are empty. Numeric array-index changes are supplemented by complete owner-identity comparisons, so insertions cannot conceal a removed member.
+16: 
+17: [The semantic summary](trust-posture-semantic-summary.json), produced by [this command](trust-posture-semantic-summary-command.json), returned RC0 in 0.269s and projects the complete comparison without resampling it.
+18: 
+19: ## Exact semantic disposition
+20: 
+21: These complete top-level fields are equal: `schema_version`, `rule_version`, `register_as_of`, `slice_base_ref`, `identity_boundary`, `admitted_verifiers`, `machine_admission_boundary`, `accessibility_document`, `page_a11y_receipt`, and `may_not_use_for_denied_only_sites`. The artifact stays `policyos.trust.claim_posture_register.v1` under `policyos.trust.claim_posture_rules.v4`. Historical accessibility evidence is preserved verbatim.
+22: 
+23: The changed fields are `admitted_sources`, `ast_derivation`, `token_derivation`, `source_inventory`, `source_set_digest`, `claims`, `projection_groups`, `custody_appointment_sources`, and `payload_digest`. Their complete changes are retained, rather than described as “hashes only.”
+24: 
+25: For every shared claim identity, all decision fields other than `may_not_use_for` remain equal, including effective state, permitted purposes, owner, owner basis, blockers, dates, limitations, and audiences. Every changed denied-use set only grows; none loses a member. Complete added/removed denied-use identity sets are in the summary. New claim identities are all `blocked`, and the removed identity was `blocked`; no support or authority upgrade is minted.
+26: 
+27: The complete new-claim source-coordinate set consists of the static `authoritative_for` sites at `http/openapi_contract.py:1472`, `capability_discovery.py::_compose_item`, and the value-choice owner's `NormativeAuthorizationRecord`, `_value_authority_ceiling`, `NormativeDecisionRequest`, and `NormativeGenerationDisposition`. The removed identity is the older `_compose_item` coordinate. The summary retains every full claim ID and coordinate. The `value_schedule_for_ranking` declared-purpose claim remains blocked under the existing posture calculus; a declared type vocabulary is not treated as an authorized schedule or globally established capability.
+28: 
+29: The custody-source change is the exact `DS11-PUBLIC-SIGNATURE-POPULATION` row text and its digest. Its status remains `open`; its current exact text already exists at the slice base, as directly compared by the summary script. Other custody rows retain their original values. This refresh transcribes no register edit and claims no appointment or closure.
+30: 
+31: ## Source provenance and ownership
+32: 
+33: The admitted-source identity set itself is unchanged. The full source-digest comparison has current-versus-slice changes in these bound files:
+34: 
+35: - `src/polisyos/runtime/http/openapi_contract.py`
+36: - `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`
+37: - `src/polisyos/runtime/quality/generation_cycle.py`
+38: 
+39: Every other refreshed admitted source has current bytes equal to the slice base; all such paths are enumerated in the summary, including the acquisition, capability-discovery, Academic, and claim-lifecycle sources. This is a bounded content attribution, not a claim that the whole final gate is inherited. The complete source set intersects this lane's changes, so the stale projection is a required current companion. The prior frozen output's last commit and both current/base HEADs are retained with full Git command results in the comparison packet.
+40: 
+41: `architecture/generated_artifacts.toml:2167–2206` declares this family `generated_committed`, owned and approved by `team-architecture`, with `stale_output_behavior="fail"`. Its freshness rule explicitly requires regeneration whenever an admitted posture source, rule, projection index, or historical accessibility receipt changes. The source changes above trigger that existing rule. The reissue changes source-bound data under unchanged schema/rules; it is not a drive-by semantic-contract edit or a reason to invent a new epoch.
+42: 
+43: The parent should invoke the canonical writer, not copy or hand-edit this scratch packet. Its existing `--write-generated-reference` companion is bounded by the declared owner. Then the ordinary `--check`, one real drift falsifier, and unchanged full architecture guardrails decide acceptance. The standing closed DS11 freshness mechanism is functioning: it detected the stale output. Regeneration uses that completed mechanism and does not reopen or weaken it.
+44: 
+45: P40 classification: the existing generated-source freshness class is now observed at the trust-posture family after the OpenAPI companion. This is a worked example of the same declared source-binding rule, not another authority-parser repair. Its home is the `trust-claim-posture-register` family and `team-architecture`; the lane's source-bound companion work owns the refresh. No ownerless finding, institutional blocker, or new product repair is introduced.
+46: 
+47: [Harness Ruff](trust-posture-harness-ruff-final-v2.json) passes RC0. No canonical artifact, production source, rule, gate, debt register, or ledger was changed by this audit. All writer processes and evidence writes are complete and frozen for the parent's canonical reissue/check wave.
 
 DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/credal-consumer-audit.md
 1: # S3 credal law-status consumer audit — 2026-09-08
@@ -8666,3 +8792,292 @@ DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/su
 53: would close it is the independent correspondence producer/verifier above;
 54: the current measured owner chain does not have it. A source accepted under that
 55: rule and replayed through the law owner would falsify this bounded limitation.
+
+DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_formatter_ownership.py
+1: """Exercise canonical-byte ownership through the actual formatter and DS11 check."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import hashlib
+6: import json
+7: import os
+8: import subprocess
+9: import sys
+10: import time
+11: from pathlib import Path
+12: 
+13: 
+14: def run(command: list[str], cwd: Path) -> dict[str, object]:
+15:     """Capture one real owner invocation, including its complete result."""
+16:     started = time.monotonic()
+17:     result = subprocess.run(  # noqa: S603 — fixed local owner commands.
+18:         command, cwd=cwd, capture_output=True, text=True, check=False
+19:     )
+20:     return {
+21:         "argv": command,
+22:         "cwd": str(cwd),
+23:         "PATH": os.environ.get("PATH"),
+24:         "PYTHONPATH": os.environ.get("PYTHONPATH"),
+25:         "returncode": result.returncode,
+26:         "elapsed_seconds": time.monotonic() - started,
+27:         "stdout": result.stdout,
+28:         "stderr": result.stderr,
+29:     }
+30: 
+31: 
+32: def main() -> int:
+33:     """Remove the writer boundary and require the unchanged freshness check red."""
+34:     root = Path.cwd()
+35:     dashboard = root / "apps/runtime-dashboard"
+36:     artifact = dashboard / "public/atlas/trust-claim-posture.v1.json"
+37:     config = dashboard / ".prettierignore"
+38:     writer_bytes = artifact.read_bytes()
+39:     config_bytes = config.read_bytes()
+40:     entry = b"/public/atlas/trust-claim-posture.v1.json\n"
+41:     if config_bytes.count(entry) != 1:
+42:         raise ValueError("ownership_entry_ambiguous")
+43:     formatter = [
+44:         "corepack", "pnpm", "exec", "prettier", "--write", "--ignore-unknown",
+45:         "public/atlas/trust-claim-posture.v1.json",
+46:     ]
+47:     checker = [
+48:         sys.executable, "-m", "tools.quality.validation.check_trust_claim_posture",
+49:         "--repo-root", ".", "--check",
+50:     ]
+51:     records: dict[str, object] = {}
+52:     try:
+53:         records["with_owner_boundary"] = run(formatter, dashboard)
+54:         records["boundary_preserves_writer_bytes"] = artifact.read_bytes() == writer_bytes
+55:         config.write_bytes(config_bytes.replace(entry, b""))
+56:         records["without_owner_boundary"] = run(formatter, dashboard)
+57:         formatted = artifact.read_bytes()
+58:         records["removal_changes_bytes"] = formatted != writer_bytes
+59:         records["removal_preserves_all_parsed_values"] = (
+60:             json.loads(formatted) == json.loads(writer_bytes)
+61:         )
+62:         records["real_check_after_removal"] = run(checker, root)
+63:     finally:
+64:         config.write_bytes(config_bytes)
+65:         artifact.write_bytes(writer_bytes)
+66:     records["writer_sha256"] = hashlib.sha256(writer_bytes).hexdigest()
+67:     records["restored_sha256"] = hashlib.sha256(artifact.read_bytes()).hexdigest()
+68:     records["artifact_restored_exactly"] = artifact.read_bytes() == writer_bytes
+69:     records["configuration_restored_exactly"] = config.read_bytes() == config_bytes
+70:     sys.stdout.write(json.dumps(records, indent=2) + "\n")
+71:     if not all(records[key] is True for key in (
+72:         "boundary_preserves_writer_bytes", "removal_changes_bytes",
+73:         "removal_preserves_all_parsed_values", "artifact_restored_exactly",
+74:         "configuration_restored_exactly",
+75:     )):
+76:         raise ValueError("formatter_ownership_property_not_established")
+77:     if any(records[key]["returncode"] != 0 for key in (  # type: ignore[index]
+78:         "with_owner_boundary", "without_owner_boundary"
+79:     )):
+80:         raise ValueError("formatter_command_failed")
+81:     checked = records["real_check_after_removal"]
+82:     if checked["returncode"] != 1 or (  # type: ignore[index]
+83:         "ValueError: DS11-GENERATED-DRIFT" not in checked["stderr"]  # type: ignore[index]
+84:     ):
+85:         raise ValueError("unchanged_owner_did_not_refuse_formatted_bytes")
+86:     return 0
+87: 
+88: 
+89: if __name__ == "__main__":
+90:     raise SystemExit(main())
+
+DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_report_corruption.py
+1: """Require the normal DS11 owner to refuse a corrupted content binding."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import hashlib
+6: import json
+7: import os
+8: import subprocess
+9: import sys
+10: import time
+11: from pathlib import Path
+12: 
+13: 
+14: def main() -> int:
+15:     """Mutate one digest, execute the actual check, and restore writer bytes."""
+16:     path = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
+17:     original = path.read_bytes()
+18:     before = json.loads(original)
+19:     original_digest = before["payload_digest"]
+20:     false_digest = "sha256:" + "0" * 64
+21:     if original_digest == false_digest:
+22:         raise ValueError("writer_digest_already_zero")
+23:     marker = json.dumps(original_digest).encode()
+24:     if original.count(marker) != 1:
+25:         raise ValueError("mutation_identity_ambiguous")
+26:     corrupted = original.replace(marker, json.dumps(false_digest).encode())
+27:     after = json.loads(corrupted)
+28:     after["payload_digest"] = original_digest
+29:     if after != before:
+30:         raise ValueError("unexpected_additional_mutation")
+31:     command = [
+32:         sys.executable,
+33:         "-m",
+34:         "tools.quality.validation.check_trust_claim_posture",
+35:         "--repo-root",
+36:         ".",
+37:         "--check",
+38:     ]
+39:     started = time.monotonic()
+40:     try:
+41:         path.write_bytes(corrupted)
+42:         result = subprocess.run(  # noqa: S603 — fixed owner command, no user input.
+43:             command, capture_output=True, text=True, check=False
+44:         )
+45:     finally:
+46:         path.write_bytes(original)
+47:     restored = path.read_bytes()
+48:     evidence = {
+49:         "artifact": str(path),
+50:         "mutation_path": "/payload_digest",
+51:         "original_value": original_digest,
+52:         "mutated_value": false_digest,
+53:         "all_other_parsed_values_equal": after == before,
+54:         "cwd": str(Path.cwd()),
+55:         "argv": command,
+56:         "PATH": os.environ.get("PATH"),
+57:         "PYTHONPATH": os.environ.get("PYTHONPATH"),
+58:         "returncode": result.returncode,
+59:         "elapsed_seconds": time.monotonic() - started,
+60:         "stdout": result.stdout,
+61:         "stderr": result.stderr,
+62:         "original_sha256": hashlib.sha256(original).hexdigest(),
+63:         "restored_sha256": hashlib.sha256(restored).hexdigest(),
+64:         "byte_identical_restoration": original == restored,
+65:     }
+66:     sys.stdout.write(json.dumps(evidence, indent=2) + "\n")
+67:     if original != restored:
+68:         raise ValueError("restoration_not_byte_identical")
+69:     if result.returncode != 1 or "ValueError: DS11-GENERATED-DRIFT" not in result.stderr:
+70:         raise ValueError("real_owner_did_not_refuse_corrupted_binding")
+71:     return 0
+72: 
+73: 
+74: if __name__ == "__main__":
+75:     raise SystemExit(main())
+
+DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/probe_framework_python.py
+1: """Verify copied framework Python without inherited dynamic-loader settings."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import json
+6: import os
+7: import subprocess
+8: import sys
+9: import tempfile
+10: import venv
+11: from pathlib import Path
+12: 
+13: 
+14: def main() -> None:
+15:     """Execute both direct and system-shell children from a real copied venv."""
+16:     environment = {
+17:         key: value for key, value in os.environ.items() if not key.startswith("DYLD_")
+18:     }
+19:     records = []
+20:     with tempfile.TemporaryDirectory(prefix="gyphase5-framework-copy-", dir=".tmp") as scratch:
+21:         private = Path(scratch).resolve() / "environment"
+22:         venv.EnvBuilder(with_pip=False).create(private)
+23:         python = str(private / "bin/python3")
+24:         expression = (
+25:             "import json,sys; print(json.dumps({'version':sys.version,'prefix':sys.prefix}))"
+26:         )
+27:         commands = [
+28:             [python, "-c", expression],
+29:             ["/bin/bash", "-c", 'exec "$1" -c "$2"', "probe", python, expression],
+30:         ]
+31:         for command in commands:
+32:             child = subprocess.run(  # noqa: S603 - measured local copied interpreter.
+33:                 command, env=environment, capture_output=True, text=True, check=False
+34:             )
+35:             records.append({
+36:                 "argv": command,
+37:                 "returncode": child.returncode,
+38:                 "stdout": child.stdout,
+39:                 "stderr": child.stderr,
+40:             })
+41:         sys.stdout.write(json.dumps({
+42:             "outer_executable": sys.executable,
+43:             "outer_version": sys.version,
+44:             "DYLD_environment_keys": [key for key in environment if key.startswith("DYLD_")],
+45:             "records": records,
+46:         }, indent=2) + "\n")
+47:         for record in records:
+48:             if record["returncode"] != 0:
+49:                 raise RuntimeError("copied_framework_child_failed")
+50:             result = json.loads(record["stdout"])
+51:             if result["version"] != sys.version or result["prefix"] != str(private):
+52:                 raise RuntimeError("copied_framework_child_escaped_private_prefix")
+53: 
+54: 
+55: if __name__ == "__main__":
+56:     main()
+
+DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/probe_private_python.py
+1: """Exercise the guardrail's exact copied-interpreter station prerequisite."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import json
+6: import os
+7: import subprocess
+8: import sys
+9: import sysconfig
+10: import tempfile
+11: import venv
+12: from pathlib import Path
+13: 
+14: 
+15: def main() -> None:
+16:     """Retain the original loader failure and verify a library-path-only repair."""
+17:     library = Path(sysconfig.get_config_var("LIBDIR"))
+18:     dylib = library / sysconfig.get_config_var("LDLIBRARY")
+19:     if not dylib.is_file():
+20:         raise RuntimeError("measured_base_python_library_unavailable")
+21:     records = []
+22:     with tempfile.TemporaryDirectory(prefix="gyphase5-python-copy-", dir=".tmp") as scratch:
+23:         private = Path(scratch).resolve() / "environment"
+24:         venv.EnvBuilder(with_pip=False).create(private)
+25:         command = [
+26:             str(private / "bin/python3"),
+27:             "-c",
+28:             "import json,sys; print(json.dumps({'version':sys.version,"
+29:             "'base_prefix':sys.base_prefix,'executable':sys.executable}))",
+30:         ]
+31:         for mode in ("original", "base_library_path"):
+32:             environment = os.environ.copy()
+33:             environment.pop("DYLD_LIBRARY_PATH", None)
+34:             if mode == "base_library_path":
+35:                 environment["DYLD_LIBRARY_PATH"] = str(library)
+36:             child = subprocess.run(  # noqa: S603 - actual local copied interpreter.
+37:                 command, env=environment, capture_output=True, text=True, check=False
+38:             )
+39:             records.append({
+40:                 "mode": mode,
+41:                 "argv": command,
+42:                 "DYLD_LIBRARY_PATH": environment.get("DYLD_LIBRARY_PATH"),
+43:                 "returncode": child.returncode,
+44:                 "stdout": child.stdout,
+45:                 "stderr": child.stderr,
+46:             })
+47:         sys.stdout.write(json.dumps({
+48:             "library": str(dylib),
+49:             "outer_version": sys.version,
+50:             "records": records,
+51:         }, indent=2) + "\n")
+52:         if records[0]["returncode"] == 0 or records[1]["returncode"] != 0:
+53:             raise RuntimeError("copied_interpreter_station_property_not_established")
+54:         fixed = json.loads(records[1]["stdout"])
+55:         if fixed["version"] != sys.version:
+56:             raise RuntimeError("copied_interpreter_version_changed")
+57: 
+58: 
+59: if __name__ == "__main__":
+60:     main()

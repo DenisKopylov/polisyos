@@ -24,6 +24,20 @@ mechanisms from unestablished full-task conjuncts.
 No push, GitHub plugin, history rewrite, storage stash, active debt/register write,
 or directory/full Python suite is authorized or used.
 
+### Final per-task disposition
+
+| Task | Final status | Deciding result and exact remaining boundary |
+| --- | --- | --- |
+| GY-S3 | `blocked` | The manifest/default/N4 bridge and honest law/credal refusal mechanism are delivered and recomputed. Full acceptance stops at `P5-S3-MAP-01`: independent law-to-lever correspondence admission, its acceptance rule and authorized positive/free-growth witness remain `verification_missing` / `not_established`. GY-S3 Lex mapping owner and team-architecture must supply that quantity. Mechanical statute trace or a signature alone does not satisfy it. The retained education and full-reference failures below are not erased by mechanism success. |
+| GY-PR1 | `blocked` | The superseded vacuous-pass and honest fail-closed controls are re-executed; a canonical complete-evidence promotion and the required joint protected-pilot near-miss event remain unproduced. External boundaries are scientific relation/calibration acceptance (`P5-SKG-01`, HC-F11–HC-F14) and promotion-purpose protection semantics (`eval-safety-promotion-authority-producer-missing` / `GY-O0-NC-01`). **PR1's own source-preservation, pre-admission and measurement/portfolio wiring remains unfinished inside PR1**. Two actual source challenges establish no currently usable owner input even for its substantive refusal path; they do not establish generic engineering impossibility. A genuine owner atom/proposal plus forwardable reference, or candidate-bound empirical source, triggers that wiring without waiting for successful promotion. |
+| GY-PA1 | `executed` | Default worker → persisted source/refusal → canonical owned run → later signed HTTP intake → transactional head → both current readers and generated clients is wired and tested. Missing/unauthorized/wrong-role/stale/source-mismatched schedules and every named silent default refuse for the actual owner reason, with zero rankings and a typed request. A valid post-source signed control ranks, and decisive removals make the negative tests red. The August `not_executable` standing is superseded. |
+
+Phase 5 remains open because S3 and PR1 have unmet full-task conjuncts. This
+handoff does not open Phase 6, Phase 7 or Atlas DS14/DS21. Their stated programme
+ordering is unchanged; no additional cross-plan dependency is introduced.
+PA1's live-PostgreSQL and alternate-CAS verification limits remain explicitly
+named below; no live deployment trust or empirical/promotion authority is claimed.
+
 ## Execution record
 
 These are decision-time entries, preserved in their original sequence. References
@@ -706,3 +720,69 @@ configuration and exact writer bytes are restored in `finally`, SHA-256
 [Ruff RC0](gy-phase5-evidence/shared/d8-formatter-harness-ruff.json) are retained.
 The refusal is about the measured competing writer, not the presence of an
 ignore marker; the normal commit and full normal guardrail still run unchanged.
+
+## Final integrated verification and handback
+
+The ordinary [D7/D8 commit](gy-phase5-evidence/shared/d7-d8-commit.json) succeeds
+with its normal hooks enabled. Commit
+`d80a5a4f9cad96bf9534b1c631da3f46a1b0bc5b` is [read back completely from the attached branch](gy-phase5-evidence/shared/d7-d8-delivery-readback.json):
+the full path set, parent and every committed blob match the prepared bytes.
+The generated artifact remains at its actual writer hash after the hook.
+
+With every writer frozen, the unchanged [final normal architecture command](gy-phase5-evidence/shared/final-architecture-guardrails-v4.json)
+returns **RC0 in 343.836 seconds**. All families required by that normal gate
+are fresh: `runtime-openapi-snapshot`, `runtime-api-client`,
+`runtime-dashboard-api-types`, and `trust-claim-posture-register`. No skip flag,
+family reduction, forged output or hook bypass is used. Its informational notice
+about the separate Atlas status-retirement command is retained in full; that
+standalone gate is not a Phase 5 gate and was not silently credited as run.
+
+The targeted PA1, governed D1d/N9, runtime API contract, generated-client tests and
+client/dashboard type checks pass in the exact records above. The complete S3
+targeted command remains RC1 for its explicitly named education/reference cases;
+the complete changed-source Ruff command remains RC1 for the preserved DS18/DS15
+duplicate key. Their denominators and P41 limitations stay intact. Later Python
+changes are evidence harnesses with their own recorded Ruff RC0; no product
+Python changed after the D1d freeze. No full/directory Python suite ran.
+
+The failure/repair register was reopened before closeout. The existing P27/P28/P29
+and P37/P38 rules cover the owner/default/proof and authority properties; P40
+records the widened PA1 and S3 classes, and P41 prevents unsupported inherited-red
+claims. D5 baseline tightening, D6 framework station, D7 current projection and
+D8 byte ownership are closed integration findings with the evidence above.
+No further rule is added merely to narrate those instances.
+
+### Proposed architect transcription only
+
+- `GY-S3`: replace the old unexecuted-seam measurement with the delivered route,
+  default, N4 and refusal/credal mechanisms; retain `blocked` at
+  `P5-S3-MAP-01` with its exact independent correspondence acceptance quantity.
+- `GY-PR1`: remove the superseded EFFECT/MEASUREMENT/caller-bool investigation
+  premises; retain `blocked` for the actual canonical-positive and protected
+  near-miss conjuncts. Keep its source-preservation/pre-admission/empirical binding
+  engineering explicitly inside PR1 and the first-promotion row.
+- `GY-PA1`: replace the August completed negative with `executed`, using the
+  source-to-late-evidence-to-reader/client receipts and genuine refusal reasons.
+  GAP7/local S8 capability is existing evidence, not newly reopened work.
+- `first-promotion-candidate-with-complete-evidence`: the SKG engineering fork
+  exists. Name the scientific evidence/acceptance boundary, current N8 refusal
+  and unfinished N9 input production/binding; do not restore an appointment-only
+  explanation or construct a complete candidate to clear the row.
+
+These are proposals in this journal. Active `DEBT-REGISTER.md` and `LEDGER.md`
+remain untouched; the architect owns their transcription. The final documentation
+and evidence append is committed and read back at handoff without inserting its
+own hash into itself. The [pre-record-commit state and complete protected-file comparison](gy-phase5-evidence/shared/handback-protected-state.json)
+returns RC0: the complete tracked debt/ledger identity sets agree across index,
+HEAD and slice-base trees, and every protected file plus the safety core is
+byte-identical to the slice base. Only documentation/evidence remains uncommitted
+at that capture boundary. The registered auxiliary is clean, attached to its
+named branch at the exact slice base. Final clean-primary status is checked after
+the documentation commit, rather than inferred from that earlier snapshot.
+
+The final documentation-only independent review approves the corrected history
+label, historical/current N9 distinction, safety evidence link, terminal table and
+programme ordering. It finds no blocking documentation correction. Independent
+parsers reconcile all direct local links in the three deliverables; no missing
+or non-file target remains. No source or gate changed after the successful final
+normal architecture run. No push occurs.

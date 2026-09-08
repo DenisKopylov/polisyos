@@ -353,12 +353,16 @@ assert source_bound_authorized_control["ranked_recommendations"] == [expected_se
 
 ### Step FINAL — freeze, review, one targeted integration wave
 
-- [ ] Reopen the failure/repair register. Review the complete frozen source against full Done-when tables and the removal properties. Review findings use P40 buckets: same-class second escape widens to the real property or records a tested bounded residual; no per-probe ladder.
-- [ ] Run changed modules plus actual importer tests, changed recomputing validators and their drift probes, Ruff and architecture guardrails. Preserve PATH with lane venv first and normal pytest import mode. No full/directory suite.
-- [ ] For each red, decide using evidence: own failure; genuine external dependency; or not_established provenance. P41 inherited requires exact command at the slice base and disjoint complete input set. No nearer-base substitute. Guardrail findings outside the scope go to named owners, not baseline absorption.
-- [ ] PR1: recheck affected promotion imports/controls and read safety-core bytes against `3d572c146`; do not construct a canonical positive to clear its blocked Done-when.
-- [ ] Write `docs/superpowers/journals/2026-09-08-gy-phase5-completion.md` with per-task terminal `executed / not_executed / blocked / not_executable`, exact evidence/conjuncts and what must change at each remaining boundary. Do not stop the lane while any authorized buildable step remains.
-- [ ] Commit at a clean boundary and read the delivered branch's file set/content back. Final handback separates built/falsified behavior from findings routed elsewhere. Never claim Phase 5 closed unless every full task conjunct is established.
+- [x] Reopen the failure/repair register. Review the complete frozen source against full Done-when tables and the removal properties. Review findings use P40 buckets: same-class second escape widens to the real property or records a tested bounded residual; no per-probe ladder.
+- [x] Run changed modules plus actual importer tests, changed recomputing validators and their drift probes, Ruff and architecture guardrails. Preserve PATH with lane venv first and normal pytest import mode. No full/directory suite.
+- [x] For each red, decide using evidence: own failure; genuine external dependency; or not_established provenance. P41 inherited requires exact command at the slice base and disjoint complete input set. No nearer-base substitute. Guardrail findings outside the scope go to named owners, not baseline absorption.
+- [x] PR1: recheck affected promotion imports/controls and read safety-core bytes against `3d572c146`; do not construct a canonical positive to clear its blocked Done-when.
+- [x] Write `docs/superpowers/journals/2026-09-08-gy-phase5-completion.md` with per-task terminal `executed / not_executed / blocked / not_executable`, exact evidence/conjuncts and what must change at each remaining boundary. Do not stop the lane while any authorized buildable step remains.
+- [x] Commit at a clean boundary and read the delivered branch's file set/content back. Final handback separates built/falsified behavior from findings routed elsewhere. Never claim Phase 5 closed unless every full task conjunct is established.
+
+Final action receipts and per-task dispositions are in the completion journal.
+Checked actions above do not assert passing every test or full Phase 5 acceptance:
+GY-PA1 is `executed`; GY-S3 and GY-PR1 are `blocked` at their measured conjuncts.
 
 ## Pattern pass and acceptance map
 

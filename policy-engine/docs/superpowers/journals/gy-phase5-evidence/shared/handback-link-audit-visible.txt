@@ -1026,101 +1026,248 @@ DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/su
 353: 
 354: ### Step FINAL — freeze, review, one targeted integration wave
 355: 
-356: - [ ] Reopen the failure/repair register. Review the complete frozen source against full Done-when tables and the removal properties. Review findings use P40 buckets: same-class second escape widens to the real property or records a tested bounded residual; no per-probe ladder.
-357: - [ ] Run changed modules plus actual importer tests, changed recomputing validators and their drift probes, Ruff and architecture guardrails. Preserve PATH with lane venv first and normal pytest import mode. No full/directory suite.
-358: - [ ] For each red, decide using evidence: own failure; genuine external dependency; or not_established provenance. P41 inherited requires exact command at the slice base and disjoint complete input set. No nearer-base substitute. Guardrail findings outside the scope go to named owners, not baseline absorption.
-359: - [ ] PR1: recheck affected promotion imports/controls and read safety-core bytes against `3d572c146`; do not construct a canonical positive to clear its blocked Done-when.
-360: - [ ] Write `docs/superpowers/journals/2026-09-08-gy-phase5-completion.md` with per-task terminal `executed / not_executed / blocked / not_executable`, exact evidence/conjuncts and what must change at each remaining boundary. Do not stop the lane while any authorized buildable step remains.
-361: - [ ] Commit at a clean boundary and read the delivered branch's file set/content back. Final handback separates built/falsified behavior from findings routed elsewhere. Never claim Phase 5 closed unless every full task conjunct is established.
+356: - [x] Reopen the failure/repair register. Review the complete frozen source against full Done-when tables and the removal properties. Review findings use P40 buckets: same-class second escape widens to the real property or records a tested bounded residual; no per-probe ladder.
+357: - [x] Run changed modules plus actual importer tests, changed recomputing validators and their drift probes, Ruff and architecture guardrails. Preserve PATH with lane venv first and normal pytest import mode. No full/directory suite.
+358: - [x] For each red, decide using evidence: own failure; genuine external dependency; or not_established provenance. P41 inherited requires exact command at the slice base and disjoint complete input set. No nearer-base substitute. Guardrail findings outside the scope go to named owners, not baseline absorption.
+359: - [x] PR1: recheck affected promotion imports/controls and read safety-core bytes against `3d572c146`; do not construct a canonical positive to clear its blocked Done-when.
+360: - [x] Write `docs/superpowers/journals/2026-09-08-gy-phase5-completion.md` with per-task terminal `executed / not_executed / blocked / not_executable`, exact evidence/conjuncts and what must change at each remaining boundary. Do not stop the lane while any authorized buildable step remains.
+361: - [x] Commit at a clean boundary and read the delivered branch's file set/content back. Final handback separates built/falsified behavior from findings routed elsewhere. Never claim Phase 5 closed unless every full task conjunct is established.
 362: 
-363: ## Pattern pass and acceptance map
-364: 
-365: ### Implementation clarification S3-D1a — extensible family vocabulary
+363: Final action receipts and per-task dispositions are in the completion journal.
+364: Checked actions above do not assert passing every test or full Phase 5 acceptance:
+365: GY-PA1 is `executed`; GY-S3 and GY-PR1 are `blocked` at their measured conjuncts.
 366: 
-367: The first red/green execution exposed that IR `ObservationContractRoute.family`
-368: is `ObservationFamily`, a closed enum. Its wrapper
-369: `ObservationToContractManifest` therefore cannot represent a genuinely new
-370: data-only family. Reusing that DTO as S3's admission parser would contradict
-371: §3.5.6 free-growth. Keep parsing in the **existing** runtime manifest owner,
-372: with complete row/target validation and explicit duplicate/ambiguous-family
-373: refusal; do not add an advisor parser or extend the enum per new family. The
-374: IR DTO remains its existing consumer contract. The deciding test adds a novel
-375: family via data and resolves the same compiled target without source changes;
-376: malformed or ambiguous route declarations must still refuse. This refines D1's
-377: owner implementation and leaves all four gates intact.
-378: 
-379: P05/P15/P32/P37/P38: missing independent semantics cannot become authority through signatures, source presence, thresholds or display identities. P01/P02: sidecar producer, CAS artifact, default worker bridge, status consumer and external audit refs must all exist. P27: extend route/S8/CAS/compiled DTO owners; no second nested parser/store. P28/P29: default flips are run-emitted and the contract removes the decisive property. P07/P08: explicit changed epochs and current source/time replay. P35/P36: whole identity sets and finding IDs. P39: required records do not consume mechanism budget. P40/P41: structural bucket and measured red provenance.
-380: 
-381: Already discharged PR1 controls are reuse evidence, not newly built capability. S3 routing can be repaired while independent legal correspondence remains unknown. PA1's negative and authorization bridge can be completed while empirical N8 is blocked. These boundaries preserve the original gates rather than narrowing them for a green label.
+367: ## Pattern pass and acceptance map
+368: 
+369: ### Implementation clarification S3-D1a — extensible family vocabulary
+370: 
+371: The first red/green execution exposed that IR `ObservationContractRoute.family`
+372: is `ObservationFamily`, a closed enum. Its wrapper
+373: `ObservationToContractManifest` therefore cannot represent a genuinely new
+374: data-only family. Reusing that DTO as S3's admission parser would contradict
+375: §3.5.6 free-growth. Keep parsing in the **existing** runtime manifest owner,
+376: with complete row/target validation and explicit duplicate/ambiguous-family
+377: refusal; do not add an advisor parser or extend the enum per new family. The
+378: IR DTO remains its existing consumer contract. The deciding test adds a novel
+379: family via data and resolves the same compiled target without source changes;
+380: malformed or ambiguous route declarations must still refuse. This refines D1's
+381: owner implementation and leaves all four gates intact.
 382: 
-383: ## Independent architecture review before source edits
+383: P05/P15/P32/P37/P38: missing independent semantics cannot become authority through signatures, source presence, thresholds or display identities. P01/P02: sidecar producer, CAS artifact, default worker bridge, status consumer and external audit refs must all exist. P27: extend route/S8/CAS/compiled DTO owners; no second nested parser/store. P28/P29: default flips are run-emitted and the contract removes the decisive property. P07/P08: explicit changed epochs and current source/time replay. P35/P36: whole identity sets and finding IDs. P39: required records do not consume mechanism budget. P40/P41: structural bucket and measured red provenance.
 384: 
-385: PR1 researcher reviewed S3 and PA1 independently of their authors. Review accepts the buildable PA1 mechanism only with compiled-to-leaf association recomputed by the compiled DTO owner at every egress; this is incorporated above. The review confirms S3 cannot be marked executed from route repair while independent law correspondence and its positive free-growth path remain unestablished. The universal blocked mapping is an honest boundary repair, not a substitute happy path. Review record: `../journals/gy-phase5-evidence/pr1/architecture-review.md`.
+385: Already discharged PR1 controls are reuse evidence, not newly built capability. S3 routing can be repaired while independent legal correspondence remains unknown. PA1's negative and authorization bridge can be completed while empirical N8 is blocked. These boundaries preserve the original gates rather than narrowing them for a green label.
 386: 
-387: ## Executed final integration decisions
+387: ## Independent architecture review before source edits
 388: 
-389: D4's single public-inventory transaction contains both Foundry exports and the
-390: already-owned Core `ControlJobResponse` facade export. Root lands these public
-391: companions with the S3 mechanism, before the remaining PA1 HTTP/client append;
-392: the Core class already exists, so this order introduces no unresolved export.
-393: The inventory is recomputed and exact export identity deltas are reconciled; no
-394: import baseline or exception is changed. D3f's captured transport example lands
-395: with PA1 and its canonical generated clients. These are dependency-order
-396: companions, not separate capability claims.
-397: 
-398: The actual S3 writer plus independent live recomputation returns RC0. The drift
-399: probe changes only the record's substantive task-completion claim, then the
-400: unchanged full owner returns RC1 solely for artifact drift while its behavior
-401: remains pass. Exact writer-emitted bytes are restored and re-read by SHA256;
-402: there is no extra authored receipt or another expensive unchanged replay.
-403: 
-404: The frozen full source Ruff gate retains DS18 C03 / DS15 C03's duplicate epoch
-405: example key as RC1. Those executed rows are outside repair scope by the user's
-406: explicit instruction. Their complete defining expressions and ownership are
-407: recorded in the completion journal. No ignore or smaller Ruff denominator is
-408: introduced, and P41 inherited provenance is not asserted.
-409: 
-410: ## D1d — governed N9 companion for the credal input epoch
-411: 
-412: The actual final N9 contract check refuses `current_governing_projection_drift`.
-413: A process-local observer preserves the complete frozen/live payloads and every
-414: admitted projection while delegating to the unchanged comparison owner. The
-415: decisive delta is the already-ratified S3 D1b credal reference input epoch: v1
-416: to v2 in the anytime-refusal and non-promotable contract receipts; the production
-417: honest-shadow projection is equal. This is **our unclosed S3 companion**, not an
-418: external scientific blocker or an inherited red. The governing schema field must
-419: remain decisive. The generic comparator is correctly refusing a silent restamp.
-420: 
-421: Extend the existing controlled-reissue owner in
-422: `tools/quality/validation/check_layer3_gy_promotion_contract.py`, following its
-423: existing explicit reissue procedure. PR1 researcher owns this bounded source,
-424: mirrored tests, verbatim historical snapshot and evidence; root owns this decision,
-425: commits and final generated companions. Do not edit production N9 obligation
-426: evaluation, `promotion_sequence.py`, or the generic comparison algebra. This is
-427: an input-epoch reissue under credal v2, not new N9 obligation semantics; promotion
-428: v6, obligation scope v3, evidence bridge v2 and owner projection v3 remain their
-429: current schemas. New receipts are emitted and admitted by the actual current
-430: owner under the declared v2 input. Old receipt bytes remain readable in their
-431: original snapshot and are never edited into new authority.
-432: 
-433: The controlled transition must reconcile the **complete** owner-admitted identity
-434: set and semantic projections, and admit only the named v1→v2 input-epoch change
-435: with every other governing value equal. Require valid frozen content binding and
-436: actual fresh owner admission before reissue. Classify the predicate as recomputed;
-437: a caller declaration or plausible schema string cannot authorize it. Preserve
-438: the current generic mismatch refusal for all other changes. Do not pin the live
-439: reference back to v1, ignore its schema field, omit a receipt from the denominator,
-440: remove the old artifact to force a writer path, or construct a promotion receipt.
-441: 
-442: Red first: the actual unchanged current owner/check must refuse the measured old
-443: capture. Then the controlled writer emits the new capture and its normal check
-444: passes. Falsifiers: wrong/novel epoch, extra changed governing field, forged frozen
-445: content binding, missing/extra admitted identity, and removal of the controlled
-446: transition retain the happy fixture/markers but restore refusal. Prior historical
-447: receipts parse under their own epoch. Use complete recursive/independent identity
-448: walks, not a two-row exception list. The same source change legitimately affects
-449: DS17 source-binding pins, so regenerate OpenAPI/clients once after this delta is
-450: reviewed; earlier source-independent tests do not need another broad run.
+389: PR1 researcher reviewed S3 and PA1 independently of their authors. Review accepts the buildable PA1 mechanism only with compiled-to-leaf association recomputed by the compiled DTO owner at every egress; this is incorporated above. The review confirms S3 cannot be marked executed from route repair while independent law correspondence and its positive free-growth path remain unestablished. The universal blocked mapping is an honest boundary repair, not a substitute happy path. Review record: `../journals/gy-phase5-evidence/pr1/architecture-review.md`.
+390: 
+391: ## Executed final integration decisions
+392: 
+393: D4's single public-inventory transaction contains both Foundry exports and the
+394: already-owned Core `ControlJobResponse` facade export. Root lands these public
+395: companions with the S3 mechanism, before the remaining PA1 HTTP/client append;
+396: the Core class already exists, so this order introduces no unresolved export.
+397: The inventory is recomputed and exact export identity deltas are reconciled; no
+398: import baseline or exception is changed. D3f's captured transport example lands
+399: with PA1 and its canonical generated clients. These are dependency-order
+400: companions, not separate capability claims.
+401: 
+402: The actual S3 writer plus independent live recomputation returns RC0. The drift
+403: probe changes only the record's substantive task-completion claim, then the
+404: unchanged full owner returns RC1 solely for artifact drift while its behavior
+405: remains pass. Exact writer-emitted bytes are restored and re-read by SHA256;
+406: there is no extra authored receipt or another expensive unchanged replay.
+407: 
+408: The frozen full source Ruff gate retains DS18 C03 / DS15 C03's duplicate epoch
+409: example key as RC1. Those executed rows are outside repair scope by the user's
+410: explicit instruction. Their complete defining expressions and ownership are
+411: recorded in the completion journal. No ignore or smaller Ruff denominator is
+412: introduced, and P41 inherited provenance is not asserted.
+413: 
+414: ## D1d — governed N9 companion for the credal input epoch
+415: 
+416: The actual final N9 contract check refuses `current_governing_projection_drift`.
+417: A process-local observer preserves the complete frozen/live payloads and every
+418: admitted projection while delegating to the unchanged comparison owner. The
+419: decisive delta is the already-ratified S3 D1b credal reference input epoch: v1
+420: to v2 in the anytime-refusal and non-promotable contract receipts; the production
+421: honest-shadow projection is equal. This is **our unclosed S3 companion**, not an
+422: external scientific blocker or an inherited red. The governing schema field must
+423: remain decisive. The generic comparator is correctly refusing a silent restamp.
+424: 
+425: Extend the existing controlled-reissue owner in
+426: `tools/quality/validation/check_layer3_gy_promotion_contract.py`, following its
+427: existing explicit reissue procedure. PR1 researcher owns this bounded source,
+428: mirrored tests, verbatim historical snapshot and evidence; root owns this decision,
+429: commits and final generated companions. Do not edit production N9 obligation
+430: evaluation, `promotion_sequence.py`, or the generic comparison algebra. This is
+431: an input-epoch reissue under credal v2, not new N9 obligation semantics; promotion
+432: v6, obligation scope v3, evidence bridge v2 and owner projection v3 remain their
+433: current schemas. New receipts are emitted and admitted by the actual current
+434: owner under the declared v2 input. Old receipt bytes remain readable in their
+435: original snapshot and are never edited into new authority.
+436: 
+437: The controlled transition must reconcile the **complete** owner-admitted identity
+438: set and semantic projections, and admit only the named v1→v2 input-epoch change
+439: with every other governing value equal. Require valid frozen content binding and
+440: actual fresh owner admission before reissue. Classify the predicate as recomputed;
+441: a caller declaration or plausible schema string cannot authorize it. Preserve
+442: the current generic mismatch refusal for all other changes. Do not pin the live
+443: reference back to v1, ignore its schema field, omit a receipt from the denominator,
+444: remove the old artifact to force a writer path, or construct a promotion receipt.
+445: 
+446: Red first: the actual unchanged current owner/check must refuse the measured old
+447: capture. Then the controlled writer emits the new capture and its normal check
+448: passes. Falsifiers: wrong/novel epoch, extra changed governing field, forged frozen
+449: content binding, missing/extra admitted identity, and removal of the controlled
+450: transition retain the happy fixture/markers but restore refusal. Prior historical
+451: receipts parse under their own epoch. Use complete recursive/independent identity
+452: walks, not a two-row exception list. The same source change legitimately affects
+453: DS17 source-binding pins, so regenerate OpenAPI/clients once after this delta is
+454: reviewed; earlier source-independent tests do not need another broad run.
+455: 
+456: ## D5 — final guardrail ratchet companion and copied-interpreter station
+457: 
+458: The unchanged normal guardrail reports a stale baseline identity and fails its
+459: private interpreter before generated freshness can run. These are new final
+460: verification findings, not reasons to narrow the gate. Root owns this decision,
+461: the surgical generated baseline edit and the final normal invocation. PR1's
+462: independent investigation owns the full current/base owner evidence.
+463: 
+464: The real deep-import owner and independent file/AST enumeration agree at both
+465: the lane and exact slice base: the baseline contains the removed
+466: `polisyos.runtime.quality.acquisition_planner → polisyos.data_forge.domains.academic.knowledge`
+467: edge; actual source imports the existing DataForge `read_api` instead. That source
+468: replacement already landed in `68689784a`. There is no newly tolerated edge to
+469: accept. Remove only this stale object from
+470: `architecture/baselines/imports/deep_import.json`, surgically, as the canonical
+471: owner's generated ratchet companion. The tolerated set shrinks. Import rules,
+472: public ownership, source denominator, exception policy and executed N7 code remain
+473: unchanged. This is not a repair to N7's already-landed runtime behavior.
+474: 
+475: Falsifier: the original stale row makes the unchanged actual owner report drift;
+476: after deletion its complete expected/current identities must agree, with no
+477: additional tolerated edge or creep. Any additional identity difference or a
+478: required exception would refute this bounded decision and require a separate
+479: measurement. P27 reuses the existing owner; P29 uses its actual whole-set output;
+480: P35 preserves independent complete identities. P41 inherited provenance of the
+481: **full** guardrail remains `not_established`: the focused base replay is not the
+482: full normal command and lane source changes intersect its full input set.
+483: 
+484: Separately, the exact `venv.EnvBuilder(with_pip=False)` station probe reproduces
+485: the loader failure and fixes it solely with `DYLD_LIBRARY_PATH` pointing to the
+486: measured original Python 3.14.3 library directory. The copied interpreter's
+487: version remains identical. Carry that value into the unchanged full normal
+488: guardrail, with every writer frozen. No product code, locked dependency, gate
+489: predicate or freshness family is replaced. The source is not a new runtime path,
+490: so no new receipt epoch or runtime StrangleReceipt is claimed. A failing actual
+491: private preparation or output probe remains a failure, irrespective of this
+492: minimal interpreter positive.
+493: 
+494: ## D6 — portable station interpreter without reopening a closed guardrail owner
+495: 
+496: The second normal run fixes the baseline and provisions the private environment,
+497: but generated children still lose the UV interpreter's relative library lookup.
+498: This is the same copied-interpreter portability class one level deeper (P40).
+499: An environment-only fix does not close the property across child launchers.
+500: The private-environment owner belongs to the closed
+501: `generated-freshness-probe-rebinds-caller-venv` repair; this lane will not alter
+502: its source or claim that caller-isolation semantics are broken.
+503: 
+504: The installed Homebrew framework Python at `/opt/homebrew/bin/python3.14`
+505: uses an absolute framework library linkage. Its measured version is 3.14.0,
+506: within the project's declared `>=3.14,<3.15` range. Test the actual default
+507: `venv.EnvBuilder(with_pip=False)` copy through both a direct process and the
+508: real system shell with all DYLD lookup settings removed. If that property holds,
+509: provision a lane-local ignored scratch environment with this interpreter and
+510: the unchanged frozen dependency lock, then run the unchanged full normal
+511: guardrail from it. The guardrail still owns a fresh independent private
+512: environment/cache and copied source; no shared site-packages enter its probes.
+513: 
+514: Root owns this station action. Do not edit or patch installed interpreters,
+515: binaries, guardrail code, generator commands, locks, or family denominators.
+516: Record the interpreter patch-version difference explicitly; prior targeted
+517: tests remain Python 3.14.3 evidence. Falsifiers are failure of either copied
+518: child under stripped loader settings, dependency provisioning failure, or any
+519: failure/drift in the actual full generated-output gate. This is a structural
+520: station choice over every child launcher, not another per-generator patch.
+521: 
+522: ## D7 — source-bound DS11 posture projection companion
+523: 
+524: The third unchanged normal guardrail runs successfully through the portable
+525: station and finds the OpenAPI, runtime client and dashboard types fresh. Its sole
+526: remaining failure is the committed `trust-claim-posture-register` projection.
+527: The existing family's freshness rule in `architecture/generated_artifacts.toml`
+528: requires regeneration when admitted source content or projection indices change.
+529: Root owns this generated companion; the independent PR1 audit owns its complete
+530: scratch/current/base comparison. The canonical writer has not yet run at this
+531: decision boundary.
+532: 
+533: The actual scratch writer and independent complete recursive/stack identity walks
+534: show unchanged schema v1, rules v4, identity and machine-admission boundaries,
+535: admitted verifiers, accessibility document and historical a11y receipt. Shared
+536: claim decisions change only by adding denied uses; no denial is removed. Every
+537: new claim is blocked, and the removed identity was blocked. Source bindings and
+538: indices are rederived. The custody-source prose update is the existing
+539: `DS11-PUBLIC-SIGNATURE-POPULATION` row already present at the slice base; its status
+540: remains open. Full identities, values and source attribution are retained in
+541: `gy-phase5-evidence/pr1/trust-posture-complete-delta.json` and the companion audit.
+542: This is a current-source projection refresh under the existing epoch, not an
+543: authority upgrade or a new DS11 capability. No new schema/rule version is needed.
+544: 
+545: Invoke the existing `tools.quality.validation.check_trust_claim_posture` owner
+546: with `--repo-root . --write --write-generated-reference`, then its normal
+547: `--check`. Inspect the complete resulting write set and reconcile the canonical
+548: artifact with the measured scratch output. Do not copy the scratch artifact,
+549: hand-author a receipt, edit a rule/source/ledger/a11y artifact, or reopen the
+550: completed DS11 mechanism. The generated reference is its declared companion.
+551: No replacement runtime path is introduced, so a new StrangleReceipt is not
+552: claimed. P27 keeps the single writer; P29 uses recomputed output and its actual
+553: check; P35 compares full field and owner identity sets. P40 classifies this as
+554: another instance of the existing source-bound freshness rule, now at DS11.
+555: 
+556: Falsifiers: any newly permitted purpose, relaxed denial, changed authority
+557: boundary or unexpected canonical/scratch difference refutes the routine-refresh
+558: decision. After a valid writer/check, change a content-binding field while
+559: retaining schema and markers; the same normal check must return nonzero. Restore
+560: the exact writer bytes, then run the unchanged full normal architecture guardrail
+561: with all writers frozen. No family skip, source-denominator reduction or broad
+562: closed DS11 test wave substitutes for that gate. Home: the continuous
+563: `trust-claim-posture-register` family, owned by `team-architecture`; this lane owns
+564: the source-triggered refresh and its evidence.
+565: 
+566: ## D8 — one byte owner for the generated posture artifact
+567: 
+568: The ordinary D7 commit did not land: the dashboard Prettier hook reformatted the
+569: canonical DS11 output, then `fail_on_changes` refused the commit. HEAD stayed at
+570: the prepared parent. Complete Git name/numstat sets identify only that JSON as
+571: the hook's unstaged change, and every parsed value remains equal. Its byte form
+572: is nevertheless different from the canonical writer and therefore stale under
+573: the existing actual DS11 check. This is a P27 second-writer conflict, not a
+574: semantic DS11 defect or permission to bypass a hook.
+575: 
+576: Root will use the dashboard's existing `.prettierignore` ownership seam for the
+577: exact registered output `public/atlas/trust-claim-posture.v1.json`, with a comment
+578: naming its canonical writer/check. The repository already uses exact generated
+579: output exclusions in `packages/runtime-api-client/.prettierignore`. Do not ignore
+580: the whole atlas directory or JSON vocabulary. Do not modify the completed DS11
+581: writer, schema, canonical-byte check, family declaration, source denominator or
+582: ordinary hook command. The artifact's current freshness owner retains complete
+583: coverage, including its byte representation; generic formatting defers to that
+584: owner. This is tooling ownership for the required generated companion, with no
+585: runtime replacement or authority/receipt epoch change.
+586: 
+587: Regenerate through the real DS11 writer after the hook's known rewrite. Run the
+588: actual `corepack pnpm exec prettier --write --ignore-unknown` on the artifact;
+589: its bytes must stay identical. Removal falsifier: temporarily remove only the
+590: ownership entry, keep all generator/receipt markers and source values intact,
+591: run that same formatter, then run the unchanged DS11 `--check`. Formatting must
+592: change the canonical bytes and the real check must refuse `DS11-GENERATED-DRIFT`.
+593: Restore both original configuration and exact writer bytes in a finally block.
+594: Then the ordinary commit hook and unchanged full normal architecture gate must
+595: both succeed. This proves writer coexistence by execution, not by reading an
+596: ignore marker. Home: dashboard formatter ownership / registered DS11 projection,
+597: team-frontend and team-architecture; closed here by existing-owner deference.
 
 DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md
 1: # GY Phase 5 — implementation and completion journal
@@ -1149,546 +1296,765 @@ DOCUMENT /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/su
 24: No push, GitHub plugin, history rewrite, storage stash, active debt/register write,
 25: or directory/full Python suite is authorized or used.
 26: 
-27: ## Execution record
+27: ### Final per-task disposition
 28: 
-29: **PA1-D3e:** canonical client generation exposed DTOs without a callable new POST
-30: method because its curated operation owner omitted this endpoint. This is a
-31: required surface bridge, not a reason to stop or claim generation alone is
-32: coverage. The plan records the exact existing-owner extension and actual
-33: fetch-level red-first test before the generator source changes.
+29: | Task | Final status | Deciding result and exact remaining boundary |
+30: | --- | --- | --- |
+31: | GY-S3 | `blocked` | The manifest/default/N4 bridge and honest law/credal refusal mechanism are delivered and recomputed. Full acceptance stops at `P5-S3-MAP-01`: independent law-to-lever correspondence admission, its acceptance rule and authorized positive/free-growth witness remain `verification_missing` / `not_established`. GY-S3 Lex mapping owner and team-architecture must supply that quantity. Mechanical statute trace or a signature alone does not satisfy it. The retained education and full-reference failures below are not erased by mechanism success. |
+32: | GY-PR1 | `blocked` | The superseded vacuous-pass and honest fail-closed controls are re-executed; a canonical complete-evidence promotion and the required joint protected-pilot near-miss event remain unproduced. External boundaries are scientific relation/calibration acceptance (`P5-SKG-01`, HC-F11–HC-F14) and promotion-purpose protection semantics (`eval-safety-promotion-authority-producer-missing` / `GY-O0-NC-01`). **PR1's own source-preservation, pre-admission and measurement/portfolio wiring remains unfinished inside PR1**. Two actual source challenges establish no currently usable owner input even for its substantive refusal path; they do not establish generic engineering impossibility. A genuine owner atom/proposal plus forwardable reference, or candidate-bound empirical source, triggers that wiring without waiting for successful promotion. |
+33: | GY-PA1 | `executed` | Default worker → persisted source/refusal → canonical owned run → later signed HTTP intake → transactional head → both current readers and generated clients is wired and tested. Missing/unauthorized/wrong-role/stale/source-mismatched schedules and every named silent default refuse for the actual owner reason, with zero rankings and a typed request. A valid post-source signed control ranks, and decisive removals make the negative tests red. The August `not_executable` standing is superseded. |
 34: 
-35: **PA1-D3d:** `d3b-head-absence-challenge.json` executes a genuine later evidence
-36: admission, copies its current projection through the real progress writer, then
-37: omits the event owner's head. The reader incorrectly returns authorized rankings.
-38: This is the same P31/P37 head-arrival/current-emission class. The plan now binds
-39: both event and no-event reader branches to immutable core source outputs and
-40: requires canonical-frontier refusal on rebound progress. That decision precedes
-41: the batched source correction. Independent review also requires semantic reader
-42: assertions before head-reference markers in the removal gate.
-43: 
-44: **S3-RV02 / D1c:** independent execution accepted the completed RV01 omission
-45: invariant, then established a NEW P01/P02 configuration bridge gap. A full manifest
-46: plus explicit budget family selects through the owner, while the actual port
-47: constructor rejects that argument. The lane will expose the existing requested
-48: family through its actual port/default/reentry chain and preserve missing/unknown
-49: scope refusal. It is buildable within S3 and is not folded into the separate law
-50: correspondence blocker. The decision precedes source edits; final replay remains
-51: paused until this bounded correction is reviewed.
+35: Phase 5 remains open because S3 and PR1 have unmet full-task conjuncts. This
+36: handoff does not open Phase 6, Phase 7 or Atlas DS14/DS21. Their stated programme
+37: ordering is unchanged; no additional cross-plan dependency is introduced.
+38: PA1's live-PostgreSQL and alternate-CAS verification limits remain explicitly
+39: named below; no live deployment trust or empirical/promotion authority is claimed.
+40: 
+41: ## Execution record
+42: 
+43: These are decision-time entries, preserved in their original sequence. References
+44: to a next repair or a paused replay describe that boundary; the acceptance,
+45: verification and delivery sections below give the final disposition.
+46: 
+47: **PA1-D3e:** canonical client generation exposed DTOs without a callable new POST
+48: method because its curated operation owner omitted this endpoint. This is a
+49: required surface bridge, not a reason to stop or claim generation alone is
+50: coverage. The plan records the exact existing-owner extension and actual
+51: fetch-level red-first test before the generator source changes.
 52: 
-53: **PA1 first implementation boundary:** `f412d424a` persists source-bound worker
-54: choices and current replay. Its targeted test identity sets reconcile and its
-55: four property-removal probes are red. The whole committed package was read back
-56: from the attached branch; the [readback record](gy-phase5-evidence/shared/pa1-first-delivery-readback.json)
-57: distinguishes the deliberately separate S3 README section.
-58: 
-59: **PA1-R01 / D3b:** independent review found a NEW P01/P02 temporal bridge gap:
-60: post-source signed evidence creates a new sidecar but neither current job reader
-61: consumes it. [The executed witness](gy-phase5-evidence/pa1/independent-temporal-intake.json)
-62: and [full review](gy-phase5-evidence/pa1/independent-review.md) decide this finding.
-63: The first package is not full closeout. An existing-owner evidence intake and
-64: conditional current-head transition is the next coherent append, governed in D3b
-65: before its source edits.
-66: 
-67: **D3c:** the real route exposed the same temporal bridge class at source
-68: publication: the owned-run resolver returned `authorization_binding_run_unresolved`
-69: because the natural-language worker had no canonical terminal core run manifest.
-70: The P40 second-finding decision widens to the complete producer/publication/intake/
-71: head/reader lifecycle. Reuse canonical `RunContext` publication under the exact
-72: job scope; do not weaken authorization or hide the missing producer in a fixture.
-73: The agent's red gate is retained, and the plan decision precedes this extra seam.
-74: 
-75: **S3-D1a:** the existing IR route's closed `ObservationFamily` rejects a novel
-76: data-only family. The runtime artifact owner retains its generic parser and
-77: complete target checks; the advisor receives only the owner projection. The
-78: plan clarification records why forcing the closed DTO would violate the
-79: unchanged free-growth gate. No enum member or second nested parser is added.
-80: 
-81: **PA1-D3a:** the latest-job reader is a sibling emission of persisted progress.
-82: It joins job-status in a single current projection boundary. This is the same
-83: P31/P37/P38 class one level deeper under P40. Source-available sidecar omission
-84: or corruption must preserve candidate fronts and produce a typed request;
-85: source-unavailable population is declared `not_established`, never zero.
-86: 
-87: **S3-D1b:** the existing credal L6 projection unconditionally confirms a law-map
-88: edge after reading the law owner. Its modality is law-to-knob admissibility,
-89: and CG1/CG2 consume that authority. The dependent S3 handoff must carry the
-90: new correspondence refusal without losing the knob association and thereby
-91: dropping the blocking edge from scope. This is the same P37/P38 class under
-92: P40. The change is confined to S3's input projection; general S2/CG1 and their
-93: scientific acceptance rules remain outside this repair.
-94: 
-95: The D1b receipt decision precedes its source edit: current credal reference v2,
-96: explicit v1 hashing for historical replay, no historical restamp. The independent
-97: [executed consumer audit](gy-phase5-evidence/s3/credal-consumer-audit.md) reconciles
-98: the real raw-knob/WMR atom identities with CG1's actual projection. Both the
-99: original unconditional confirmation and a status-only repair which drops the
-100: knob association leave the same atoms falsely admitted; association-preserving
-101: uncertainty reaches the existing contested consumer without changing its algorithm.
-102: 
-103: Implementation starts with failing behavioral tests through the actual N8/N4 and
-104: natural-language control-worker seams. Evidence is retained in
-105: `gy-phase5-evidence/s3/` and `gy-phase5-evidence/pa1/` with actual subprocess exit
-106: codes, complete outputs, and explicit synthetic-control labels. A green fixture
-107: is not a production receipt or a canonical population.
-108: 
-109: The stage-2 PR1 no-edit decision is independently challenged before closeout:
-110: external scientific acceptance absence must not conceal independently buildable
-111: production writer wiring. Likewise, S3's independent law-correspondence owner
-112: discovery must precede any terminal blocked claim.
-113: 
-114: **PR1-D2a:** the [execution-scope audit](gy-phase5-evidence/pr1/stage3-scope-audit.md)
-115: preserves an important distinction: the three negative writers are built; their
-116: default source-carrying chain is unfinished engineering **inside** GY-PR1 and
-117: `first-promotion-candidate-with-complete-evidence`. No independently usable
-118: candidate-bound source was established in the measured catalog/typed portfolio
-119: population/current N4 source. The actual academic owner refuses confidence
-120: forwarding under HC-F11–HC-F14. Generic adapter feasibility and database/non-JSON
-121: portfolio suitability remain `not_established`; absence of an appointment is
-122: not their blocker. A real input yielding even a substantive refusal would
-123: require wiring immediately. The lane does not replace missing source evidence
-124: with empty authored inputs or call the engineering finished.
-125: 
-126: **PR1-SBC01–03:** a second independent [source-bridge challenge](gy-phase5-evidence/pr1/source-bridge-challenge.md)
-127: executes the full retained N6 fallback population and corrects a possible zero-generation
-128: inference: fallback candidates do exist. Their actual objects fail the canonical
-129: atom owner on missing substantive fields; an existing real WMR still cannot yield
-130: a forwardable full reference under HC-F11–HC-F14. No scoped replacement reference,
-131: convenient catalog atom, or simulation row relabeled as an empirical measurement is
-132: used. Source preservation/pre-admission engineering remains inside PR1 and
-133: `bridge_missing`; generic adapter impossibility is not established. The complete
-134: corrected command returns RC0; the earlier unsupported cleanup-call RC1 is retained
-135: as a harness nonreceipt.
-136: 
-137: Station: the shared Python dependency path contained Ruff's module but lacked
-138: the lane's executable. The lane now has a read-only link to the existing Ruff
-139: binary; `.venv/bin/python -m ruff --version` returns RC0, `0.14.10`, in
-140: [the complete record](gy-phase5-evidence/shared/ruff-station.json). Earlier Ruff
-141: FileNotFoundError runs are harness nonreceipts, retained by PA1; no tracked
-142: dependency or lockfile changed.
+53: **PA1-D3d:** `d3b-head-absence-challenge.json` executes a genuine later evidence
+54: admission, copies its current projection through the real progress writer, then
+55: omits the event owner's head. The reader incorrectly returns authorized rankings.
+56: This is the same P31/P37 head-arrival/current-emission class. The plan now binds
+57: both event and no-event reader branches to immutable core source outputs and
+58: requires canonical-frontier refusal on rebound progress. That decision precedes
+59: the batched source correction. Independent review also requires semantic reader
+60: assertions before head-reference markers in the removal gate.
+61: 
+62: **S3-RV02 / D1c:** independent execution accepted the completed RV01 omission
+63: invariant, then established a NEW P01/P02 configuration bridge gap. A full manifest
+64: plus explicit budget family selects through the owner, while the actual port
+65: constructor rejects that argument. The lane will expose the existing requested
+66: family through its actual port/default/reentry chain and preserve missing/unknown
+67: scope refusal. It is buildable within S3 and is not folded into the separate law
+68: correspondence blocker. The decision precedes source edits; final replay remains
+69: paused until this bounded correction is reviewed.
+70: 
+71: **PA1 first implementation boundary:** `f412d424a` persists source-bound worker
+72: choices and current replay. Its targeted test identity sets reconcile and its
+73: four property-removal probes are red. The whole committed package was read back
+74: from the attached branch; the [readback record](gy-phase5-evidence/shared/pa1-first-delivery-readback.json)
+75: distinguishes the deliberately separate S3 README section.
+76: 
+77: **PA1-R01 / D3b:** independent review found a NEW P01/P02 temporal bridge gap:
+78: post-source signed evidence creates a new sidecar but neither current job reader
+79: consumes it. [The executed witness](gy-phase5-evidence/pa1/independent-temporal-intake.json)
+80: and [full review](gy-phase5-evidence/pa1/independent-review.md) decide this finding.
+81: The first package is not full closeout. An existing-owner evidence intake and
+82: conditional current-head transition is the next coherent append, governed in D3b
+83: before its source edits.
+84: 
+85: **D3c:** the real route exposed the same temporal bridge class at source
+86: publication: the owned-run resolver returned `authorization_binding_run_unresolved`
+87: because the natural-language worker had no canonical terminal core run manifest.
+88: The P40 second-finding decision widens to the complete producer/publication/intake/
+89: head/reader lifecycle. Reuse canonical `RunContext` publication under the exact
+90: job scope; do not weaken authorization or hide the missing producer in a fixture.
+91: The agent's red gate is retained, and the plan decision precedes this extra seam.
+92: 
+93: **S3-D1a:** the existing IR route's closed `ObservationFamily` rejects a novel
+94: data-only family. The runtime artifact owner retains its generic parser and
+95: complete target checks; the advisor receives only the owner projection. The
+96: plan clarification records why forcing the closed DTO would violate the
+97: unchanged free-growth gate. No enum member or second nested parser is added.
+98: 
+99: **PA1-D3a:** the latest-job reader is a sibling emission of persisted progress.
+100: It joins job-status in a single current projection boundary. This is the same
+101: P31/P37/P38 class one level deeper under P40. Source-available sidecar omission
+102: or corruption must preserve candidate fronts and produce a typed request;
+103: source-unavailable population is declared `not_established`, never zero.
+104: 
+105: **S3-D1b:** the existing credal L6 projection unconditionally confirms a law-map
+106: edge after reading the law owner. Its modality is law-to-knob admissibility,
+107: and CG1/CG2 consume that authority. The dependent S3 handoff must carry the
+108: new correspondence refusal without losing the knob association and thereby
+109: dropping the blocking edge from scope. This is the same P37/P38 class under
+110: P40. The change is confined to S3's input projection; general S2/CG1 and their
+111: scientific acceptance rules remain outside this repair.
+112: 
+113: The D1b receipt decision precedes its source edit: current credal reference v2,
+114: explicit v1 hashing for historical replay, no historical restamp. The independent
+115: [executed consumer audit](gy-phase5-evidence/s3/credal-consumer-audit.md) reconciles
+116: the real raw-knob/WMR atom identities with CG1's actual projection. Both the
+117: original unconditional confirmation and a status-only repair which drops the
+118: knob association leave the same atoms falsely admitted; association-preserving
+119: uncertainty reaches the existing contested consumer without changing its algorithm.
+120: 
+121: Implementation starts with failing behavioral tests through the actual N8/N4 and
+122: natural-language control-worker seams. Evidence is retained in
+123: `gy-phase5-evidence/s3/` and `gy-phase5-evidence/pa1/` with actual subprocess exit
+124: codes, complete outputs, and explicit synthetic-control labels. A green fixture
+125: is not a production receipt or a canonical population.
+126: 
+127: The stage-2 PR1 no-edit decision is independently challenged before closeout:
+128: external scientific acceptance absence must not conceal independently buildable
+129: production writer wiring. Likewise, S3's independent law-correspondence owner
+130: discovery must precede any terminal blocked claim.
+131: 
+132: **PR1-D2a:** the [execution-scope audit](gy-phase5-evidence/pr1/stage3-scope-audit.md)
+133: preserves an important distinction: the three negative writers are built; their
+134: default source-carrying chain is unfinished engineering **inside** GY-PR1 and
+135: `first-promotion-candidate-with-complete-evidence`. No independently usable
+136: candidate-bound source was established in the measured catalog/typed portfolio
+137: population/current N4 source. The actual academic owner refuses confidence
+138: forwarding under HC-F11–HC-F14. Generic adapter feasibility and database/non-JSON
+139: portfolio suitability remain `not_established`; absence of an appointment is
+140: not their blocker. A real input yielding even a substantive refusal would
+141: require wiring immediately. The lane does not replace missing source evidence
+142: with empty authored inputs or call the engineering finished.
 143: 
-144: ## Full-task acceptance map
-145: 
-146: `P5-S3-MAP-01` extends S3-R11/AR-S3-01 by executed reusable-owner discovery:
-147: [finding](gy-phase5-evidence/shared/law-owner-discovery.md),
-148: [complete command record](gy-phase5-evidence/shared/law-owner-discovery.json).
-149: The real registry resolves the entire declared relation set, while the compiler,
-150: GL map bridge, claim-competence report and heuristic transport mapper do not
-151: establish the missing law→lever correspondence. This is a semantic
-152: producer/acceptance dependency, not a write boundary. The route and honest
-153: law-refusal repair were executable and are delivered below.
+144: **PR1-SBC01–03:** a second independent [source-bridge challenge](gy-phase5-evidence/pr1/source-bridge-challenge.md)
+145: executes the full retained N6 fallback population and corrects a possible zero-generation
+146: inference: fallback candidates do exist. Their actual objects fail the canonical
+147: atom owner on missing substantive fields; an existing real WMR still cannot yield
+148: a forwardable full reference under HC-F11–HC-F14. No scoped replacement reference,
+149: convenient catalog atom, or simulation row relabeled as an empirical measurement is
+150: used. Source preservation/pre-admission engineering remains inside PR1 and
+151: `bridge_missing`; generic adapter impossibility is not established. The complete
+152: corrected command returns RC0; the earlier unsupported cleanup-call RC1 is retained
+153: as a harness nonreceipt.
 154: 
-155: The following is the full acceptance map; final verification and delivery receipts
-156: are appended below when their actual commands finish. A mechanism's passing test
-157: does not discharge another row's unavailable source or authority predicate.
-158: 
-159: ### GY-S3 conjunct closeout map
-160: 
-161: The unchanged plan's Done when is:
-162: 
-163: > an InterventionAtomBinding operator / lever resolves against the real knob
-164: > dictionary + lex_intervention_map (a law-bound lever traces to its statute);
-165: > the GY-N8 value-method selection routes via observation_to_contract_manifest;
-166: > registers in GY-S0.
-167: 
-168: Rev 11's N4 consumption and §§3.5.5–3.5.6 remain binding. The complete source
-169: denominators and exact original executions are in the stage-1 journal and
-170: [S3 findings](gy-phase5-evidence/s3/findings.md); the current mechanism and property
-171: probes are in [S3 stage 3](gy-phase5-evidence/s3/stage3.md).
+155: Station: the shared Python dependency path contained Ruff's module but lacked
+156: the lane's executable. The lane now has a read-only link to the existing Ruff
+157: binary; `.venv/bin/python -m ruff --version` returns RC0, `0.14.10`, in
+158: [the complete record](gy-phase5-evidence/shared/ruff-station.json). Earlier Ruff
+159: FileNotFoundError runs are harness nonreceipts, retained by PA1; no tracked
+160: dependency or lockfile changed.
+161: 
+162: ## Full-task acceptance map
+163: 
+164: `P5-S3-MAP-01` extends S3-R11/AR-S3-01 by executed reusable-owner discovery:
+165: [finding](gy-phase5-evidence/shared/law-owner-discovery.md),
+166: [complete command record](gy-phase5-evidence/shared/law-owner-discovery.json).
+167: The real registry resolves the entire declared relation set, while the compiler,
+168: GL map bridge, claim-competence report and heuristic transport mapper do not
+169: establish the missing law→lever correspondence. This is a semantic
+170: producer/acceptance dependency, not a write boundary. The route and honest
+171: law-refusal repair were executable and are delivered below.
 172: 
-173: | Conjunct | Current deciding evidence | Limit or remaining capability |
-174: | --- | --- | --- |
-175: | Operator/lever resolves real knob dictionary | Existing owner execution over the complete real dictionary and WMR, repeated by the current recomputing report | Existing capability reused; no new atom is authored as a production design |
-176: | Law-bound lever traces statute | Complete real law/knob/provision trace remains available; threshold truth is separate from law-to-knob correspondence | Mechanical trace established. Independent correspondence admission is `verification_missing`; its evidence producer/acceptance semantics are not supplied by the current owner |
-177: | N8 selection consumes real manifest | Runtime route owner projects complete validated routes; actual port/default controller/reentry carry explicit family and use the bound context's manifest when source is omitted | Real native budget selection; no native-compatible method is silently invented for another route. Missing/fake/malformed/ambiguous family or target refuses |
-178: | S0 registration | Real registry construction and independent serialized-entry enumeration agree for the complete L6 population | Existing registration reused. Separate education-context replay failures stay in the test denominator |
-179: | Rev 11 N4 route consumption | Same runtime route owner validates the complete manifest before the candidate-only surrogate uses its projection | No family-count score bonus can make fake target declarations equivalent to real routes |
-180: | §3.5.6 complete vocabulary | Full real knob/law/route identity sets and full Foundry registry inputs independently reconciled | Current report validates the complete set; no fixture becomes the canonical denominator |
-181: | §3.5.6 fake/novel refusal | Real-owner target corruption, supplied-null/malformed source, unknown family, explicit outside method, nested context tampering and source-override mismatch | Scope cannot disappear into the old GP fallback |
-182: | §3.5.6 data-only growth | Novel route/family data reaches the same native method owner without a code branch; candidate knob/law trace grows under the same parser | **Authorized law-correspondence free-growth is not established**; all current declared mappings remain candidate evidence |
-183: | §3.5.6 decisive removal | Target-validation, default source/family forwarding, law-authority and credal handoff removals retain markers/happy controls and make the behavioral contract red | A status-only law fix dropping the association was rejected; the blocking dependency now reaches the actual atom consumer |
-184: | §3.5.5 owner/strangle/run proof | Existing runtime manifest/law owner and Foundry registry extended; run-emitted N8/N4/law strangles bind default flips and current behavioral witnesses | Current report explicitly separates mechanism validation from full task acceptance |
+173: The following is the full acceptance map; final verification and delivery receipts
+174: are appended below when their actual commands finish. A mechanism's passing test
+175: does not discharge another row's unavailable source or authority predicate.
+176: 
+177: ### GY-S3 conjunct closeout map
+178: 
+179: The unchanged plan's Done when is:
+180: 
+181: > an InterventionAtomBinding operator / lever resolves against the real knob
+182: > dictionary + lex_intervention_map (a law-bound lever traces to its statute);
+183: > the GY-N8 value-method selection routes via observation_to_contract_manifest;
+184: > registers in GY-S0.
 185: 
-186: The critical full-task boundary is `P5-S3-MAP-01`: independently admitted
-187: law-to-lever correspondence and its acceptance rule, owned by **GY-S3 / Lex
-188: mapping owner and team-architecture**. Reusable-owner discovery did not find that
-189: quantity. A resolvable, content-bound, independently verified mapping witness and
-190: its genuine positive/free-growth path would remove this boundary. A signature or
-191: another threshold lookup alone would not. The lane still built the route bridge
-192: and the honest refusal/credal propagation mechanism; it did not stop on the
-193: missing authority slot.
-194: 
-195: ### GY-PR1 conjunct closeout map
-196: 
-197: The unchanged Done when is:
-198: 
-199: > `GY-O0-NC-01`'s closure signal is met exactly as written — a real canonical
-200: > `consumer_promotable=True` receipt in the production lane, a field-pilot request
-201: > lacking a required protection persisting `EvalSafety=blocked` with
-202: > `near_miss=true`, both reconciled counters incrementing exactly once, and the
-203: > safety core and its hash unchanged. Plus, red-first: a design that is in fact
-204: > inadmissible or dependent must refuse **against a caller supplying `True`**, and
-205: > a design with an unresolved joint coupling must make COUPLING refuse. A
-206: > constructed or forged receipt cannot close it.
-207: 
-208: | Conjunct | Executed result | Remaining capability |
-209: | --- | --- | --- |
-210: | Real canonical promotable receipt | Current default N9 has no source provider; actual N8 acquisition remains refused. No production complete candidate was manufactured | `producer_missing`, `artifact_missing`, `bridge_missing` in `first-promotion-candidate-with-complete-evidence` |
-211: | Missing-protection pilot persists blocked | Existing O0 persistence and retry path produces a durable blocked attempt | Established independently; does not establish the joint near-miss premise |
-212: | Same event has near_miss=true | Protected promotion modes require an absent promotion-purpose authority rule/producer; attempted-evaluation O0 certificate explicitly forbids promotion | Exact event `not_established`; `eval-safety-promotion-authority-producer-missing` / `GY-O0-NC-01` |
-213: | Both counters increment once for that event | Actual retry has blocked_count=1 and near_miss_count=0. Existing reducer deduplicates actual decision identities | Required joint event remains `not_established`; mocked classification is not credited |
-214: | Safety core/hash unchanged | Entire safety source compared with exact slice base; final readback is recorded with verification below | No PA1 or S3 permission expansion changes this core |
-215: | Inadmissible despite caller True | Current v6 DTO/context rejects retired caller predicates; actual CG2 evidence refuses | Already discharged repair; retained, not rebuilt |
-216: | Dependent despite caller True | Actual evidence portfolio producer/CAS graph/calculus/N9 DATA consumer refuses dependence despite legacy True injection | Already discharged repair; retained, not rebuilt |
-217: | Unresolved joint coupling refuses | Real N5 emits its blocker, bridge carries it, N9 refuses; removal preserves the supported happy path and makes the actual negative red | Already discharged repair; retained, not rebuilt |
-218: | Receipt is produced, not constructed | No canonical receipt was constructed, forged or promoted from a fixture | Canonical positive remains unproduced |
-219: 
-220: The EFFECT and MEASUREMENT permanent failures and caller-bool vacuous passes in
-221: the old plan are superseded. Current scope/promotion/bridge epochs are already
-222: v3/v6/v2; this lane does not restamp N9 receipts. The honest scope-gap mutation
-223: uses missing G4/PARAM. The complete actual mode enumeration also refutes the
-224: unqualified Task K claim that no lane has `scope_insufficient`: protected modes
-225: still require genuine promotion-purpose authority.
-226: 
-227: The shared SKG engineering branch is already present in DataForge. What its real
-228: run cannot establish is **scientific relation acceptance**, independent relation
-229: gold and outcome-sensitive calibration. Home:
-230: `cg2-production-relation-gold-acceptance-unspecified`, with team-architecture for
-231: the scientific acceptance ruling and DataForge academic/knowledge for evidence
-232: and verifier production. The current full reference owner additionally withholds
-233: confidence under **HC-F11–HC-F14 / claim-level-evidence-axis**. Neither is an
-234: institutional appointment or a lane write prohibition.
-235: 
-236: PR1's own unfinished engineering is retained here, not routed away: preserve real
-237: N4 atom/proposal/Trinity source through N6; expose an evidence-production stage
-238: before protected N9 admission; bind genuine measurement and evidence-portfolio
-239: inputs. The [two executed challenges](gy-phase5-evidence/pr1/source-bridge-challenge.md)
-240: found no independently useful current writer input, including a substantive
-241: negative, on the measured source path. N6 fallback is nonempty but its complete
-242: objects fail the canonical atom owner on substantive missing fields; the full
-243: reference remains withheld. A generic adapter is feasible engineering, and its
-244: global impossibility is **not** claimed. An actual owner atom/proposal plus a
-245: forwardable reference, or a genuinely candidate-bound measurement/portfolio source,
-246: would require immediate wiring without waiting for positive promotion. Empty
-247: carriers or simulation rows relabeled empirical would not close a conjunct.
-248: 
-249: ### GY-PA1 conjunct closeout map
-250: 
-251: The unchanged Done when is:
-252: 
-253: > a case with no authorized schedule cannot emit a single ranked recommendation
-254: > (only frontier + a typed `NormativeDecisionRequest`); an authority-lane mismatch
-255: > (legal competence but wrong decision-rights role) returns `blocked`; a fixture
-256: > injecting a **silent equal-weight / historical-prior / proxy-as-priority default
-257: > goes red**.
-258: 
-259: The August `not_executable` rationale is refuted by current execution: GAP7's
-260: local signed owner, the request **output**, and a ranked emitter already existed.
-261: This lane extends their actual production bridge and later-evidence lifecycle.
-262: 
-263: | Conjunct | Deciding current path and falsifier |
-264: | --- | --- |
-265: | No authorized schedule, zero rankings | Actual default natural-language worker persists compiled source and a source-bound S8 refusal; both current readers recompute zero selections |
-266: | Frontier plus typed request | Complete actual leaf/front identities are preserved with dominance explicitly `not_established`; missing/corrupt sidecar or rebound progress retains canonical source/frontier and persists a typed request |
-267: | Wrong decision-rights role blocked | Actual default worker's wrong-role evidence reaches `p20_normative_authority_scope_mismatch`; absent-resolver blanket refusal is not the vehicle |
-268: | All named silent defaults go red | Source/CAS/shared-emission probes inject each default; real owner rejects them. Removing the decisive emission/signature validation makes the unchanged negative red |
-269: | Falsifiable authorized path | Actual worker first publishes its source through canonical RunContext; evidence is signed afterward and submitted through the owned-run HTTP route; both readers observe the admitted selection |
-270: | Honest current authority | Immutable core outputs own source and initial disposition; event-backed CAS head owns later admission; signature/source/time replay occurs at both current readers. Event omission plus copied progress cannot retain authorization |
-271: | P27 existing owners | Existing S8, compiled generation DTO owner, guarded ambient CAS, RunContext, resource authorization and control-job event store; no parallel persistence or trust source |
-272: | P28 default flipped | Worker bridge and current-head reader strangles are run-emitted/recomputed. Worker/head/publication removals make actual consumer tests red while markers remain |
-273: | P29 and §3.5.6 | Complete source/leaf/head-field and router identities reconciled; fake/novel/source-substitution cases refuse; data-only candidate/leaf growth preserves identity; valid signed control survives decisive removals |
-274: 
-275: The new `POST /api/v1/control/runs/{run_id}/normative-evidence` receives our scoped
-276: evidence; it does not appoint an institution or execute policy. Expected prior
-277: head is compared and appended within the existing persistence transaction.
-278: SQLite's competing independent-store execution is verified. PostgreSQL's locking
-279: and transaction path is source-reviewed; a live PostgreSQL concurrency run is
-280: **not_established**. Default deployment trust remains typed and empty. Historical
-281: generation/S8/core receipt epochs remain readable; new source-aware authorization
-282: and additive composition/head artifacts use their declared epochs. No empirical,
-283: Pareto, legal, optimality, publication or promotion authority is granted here.
-284: 
-285: ### Frozen-source independent review
-286: 
-287: The final bounded reviews are [S3 RV02](gy-phase5-evidence/s3/independent-rv02-review.md)
-288: and [PA1 D3d](gy-phase5-evidence/pa1/independent-d3d-review.md). Earlier findings and
-289: red probes remain append-only evidence. The PA1 head-removal gate was corrected
-290: to assert both real readers' authorization/rankings **before** marker fields; its
-291: actual RC1 is the semantic failure, not an arbitrary missing-ref failure.
-292: 
-293: ## Final targeted verification and delivery
-294: 
-295: The measured records below retain both passing and failing gates and the exact
-296: branch delivery readbacks. Mechanism delivery does not assert Phase 5 closure.
-297: 
-298: ## Built mechanisms and their falsifiers
-299: 
-300: - **S3 manifest routing:** existing route owner → full registry projection → actual
-301:   N8/default/reentry selection and N4 consumer. Fake target, malformed/present-null
-302:   manifest, unknown family, source override and owner-removal controls decide it.
-303: - **S3 honest law handoff:** threshold evaluation retains the actual statute trace
-304:   while unverified correspondence refuses; credal projection keeps the dependency
-305:   associated and uncertain. Target transposition, resolution exception and
-306:   association/status-only removal distinguish the property from its old proxy.
-307: - **PA1 default refusal and late evidence:** actual worker → guarded CAS source →
-308:   canonical owned RunContext → signed evidence intake → transactional event head →
-309:   both current readers. Wrong role/source, stale head/signature, missing event with
-310:   copied progress, source rebind and silent-default injections refuse. Removing
-311:   worker publication, signature validation, shared admission or event attachment
-312:   makes the unchanged consumer test red. A genuine post-source signed control
-313:   remains authorized.
-314: - **External reviewable surfaces:** PA1 owned-run endpoint and generated clients;
-315:   current job/audience projections and durable audit refs; S3 recomputed report and
-316:   declared epochs. These expose candidate/refusal/admitted-selection scope without
-317:   granting empirical or promotion authority.
+186: Rev 11's N4 consumption and §§3.5.5–3.5.6 remain binding. The complete source
+187: denominators and exact original executions are in the stage-1 journal and
+188: [S3 findings](gy-phase5-evidence/s3/findings.md); the current mechanism and property
+189: probes are in [S3 stage 3](gy-phase5-evidence/s3/stage3.md).
+190: 
+191: | Conjunct | Current deciding evidence | Limit or remaining capability |
+192: | --- | --- | --- |
+193: | Operator/lever resolves real knob dictionary | Existing owner execution over the complete real dictionary and WMR, repeated by the current recomputing report | Existing capability reused; no new atom is authored as a production design |
+194: | Law-bound lever traces statute | Complete real law/knob/provision trace remains available; threshold truth is separate from law-to-knob correspondence | Mechanical trace established. Independent correspondence admission is `verification_missing`; its evidence producer/acceptance semantics are not supplied by the current owner |
+195: | N8 selection consumes real manifest | Runtime route owner projects complete validated routes; actual port/default controller/reentry carry explicit family and use the bound context's manifest when source is omitted | Real native budget selection; no native-compatible method is silently invented for another route. Missing/fake/malformed/ambiguous family or target refuses |
+196: | S0 registration | Real registry construction and independent serialized-entry enumeration agree for the complete L6 population | Existing registration reused. Separate education-context replay failures stay in the test denominator |
+197: | Rev 11 N4 route consumption | Same runtime route owner validates the complete manifest before the candidate-only surrogate uses its projection | No family-count score bonus can make fake target declarations equivalent to real routes |
+198: | §3.5.6 complete vocabulary | Full real knob/law/route identity sets and full Foundry registry inputs independently reconciled | Current report validates the complete set; no fixture becomes the canonical denominator |
+199: | §3.5.6 fake/novel refusal | Real-owner target corruption, supplied-null/malformed source, unknown family, explicit outside method, nested context tampering and source-override mismatch | Scope cannot disappear into the old GP fallback |
+200: | §3.5.6 data-only growth | Novel route/family data reaches the same native method owner without a code branch; candidate knob/law trace grows under the same parser | **Authorized law-correspondence free-growth is not established**; all current declared mappings remain candidate evidence |
+201: | §3.5.6 decisive removal | Target-validation, default source/family forwarding, law-authority and credal handoff removals retain markers/happy controls and make the behavioral contract red | A status-only law fix dropping the association was rejected; the blocking dependency now reaches the actual atom consumer |
+202: | §3.5.5 owner/strangle/run proof | Existing runtime manifest/law owner and Foundry registry extended; run-emitted N8/N4/law strangles bind default flips and current behavioral witnesses | Current report explicitly separates mechanism validation from full task acceptance |
+203: 
+204: The critical full-task boundary is `P5-S3-MAP-01`: independently admitted
+205: law-to-lever correspondence and its acceptance rule, owned by **GY-S3 / Lex
+206: mapping owner and team-architecture**. Reusable-owner discovery did not find that
+207: quantity. A resolvable, content-bound, independently verified mapping witness and
+208: its genuine positive/free-growth path would remove this boundary. A signature or
+209: another threshold lookup alone would not. The lane still built the route bridge
+210: and the honest refusal/credal propagation mechanism; it did not stop on the
+211: missing authority slot.
+212: 
+213: ### GY-PR1 conjunct closeout map
+214: 
+215: The unchanged Done when is:
+216: 
+217: > `GY-O0-NC-01`'s closure signal is met exactly as written — a real canonical
+218: > `consumer_promotable=True` receipt in the production lane, a field-pilot request
+219: > lacking a required protection persisting `EvalSafety=blocked` with
+220: > `near_miss=true`, both reconciled counters incrementing exactly once, and the
+221: > safety core and its hash unchanged. Plus, red-first: a design that is in fact
+222: > inadmissible or dependent must refuse **against a caller supplying `True`**, and
+223: > a design with an unresolved joint coupling must make COUPLING refuse. A
+224: > constructed or forged receipt cannot close it.
+225: 
+226: | Conjunct | Executed result | Remaining capability |
+227: | --- | --- | --- |
+228: | Real canonical promotable receipt | Current default N9 has no source provider; actual N8 acquisition remains refused. No production complete candidate was manufactured | `producer_missing`, `artifact_missing`, `bridge_missing` in `first-promotion-candidate-with-complete-evidence` |
+229: | Missing-protection pilot persists blocked | Existing O0 persistence and retry path produces a durable blocked attempt | Established independently; does not establish the joint near-miss premise |
+230: | Same event has near_miss=true | Protected promotion modes require an absent promotion-purpose authority rule/producer; attempted-evaluation O0 certificate explicitly forbids promotion | Exact event `not_established`; `eval-safety-promotion-authority-producer-missing` / `GY-O0-NC-01` |
+231: | Both counters increment once for that event | Actual retry has blocked_count=1 and near_miss_count=0. Existing reducer deduplicates actual decision identities | Required joint event remains `not_established`; mocked classification is not credited |
+232: | Safety core/hash unchanged | [Final complete source readback](gy-phase5-evidence/pr1/final-safety-integrity.json) equals exact slice-base bytes, SHA-256 `22edd5916472bbe5e186c2a0091ab2e65c40d3b06d94c72cbefaaafdb4d6537c` | No PA1 or S3 permission expansion changes this core |
+233: | Inadmissible despite caller True | Current v6 DTO/context rejects retired caller predicates; actual CG2 evidence refuses | Already discharged repair; retained, not rebuilt |
+234: | Dependent despite caller True | Actual evidence portfolio producer/CAS graph/calculus/N9 DATA consumer refuses dependence despite legacy True injection | Already discharged repair; retained, not rebuilt |
+235: | Unresolved joint coupling refuses | Real N5 emits its blocker, bridge carries it, N9 refuses; removal preserves the supported happy path and makes the actual negative red | Already discharged repair; retained, not rebuilt |
+236: | Receipt is produced, not constructed | No canonical receipt was constructed, forged or promoted from a fixture | Canonical positive remains unproduced |
+237: 
+238: The EFFECT and MEASUREMENT permanent failures and caller-bool vacuous passes in
+239: the old plan are superseded. Current scope/promotion/bridge epochs are already
+240: v3/v6/v2. Historical N9 receipts are preserved; D1d below reissues current captures
+241: under the governed credal-v2 input without changing those N9 epochs. The honest scope-gap mutation
+242: uses missing G4/PARAM. The complete actual mode enumeration also refutes the
+243: unqualified Task K claim that no lane has `scope_insufficient`: protected modes
+244: still require genuine promotion-purpose authority.
+245: 
+246: The shared SKG engineering branch is already present in DataForge. What its real
+247: run cannot establish is **scientific relation acceptance**, independent relation
+248: gold and outcome-sensitive calibration. Home:
+249: `cg2-production-relation-gold-acceptance-unspecified`, with team-architecture for
+250: the scientific acceptance ruling and DataForge academic/knowledge for evidence
+251: and verifier production. The current full reference owner additionally withholds
+252: confidence under **HC-F11–HC-F14 / claim-level-evidence-axis**. Neither is an
+253: institutional appointment or a lane write prohibition.
+254: 
+255: PR1's own unfinished engineering is retained here, not routed away: preserve real
+256: N4 atom/proposal/Trinity source through N6; expose an evidence-production stage
+257: before protected N9 admission; bind genuine measurement and evidence-portfolio
+258: inputs. The [two executed challenges](gy-phase5-evidence/pr1/source-bridge-challenge.md)
+259: found no independently useful current writer input, including a substantive
+260: negative, on the measured source path. N6 fallback is nonempty but its complete
+261: objects fail the canonical atom owner on substantive missing fields; the full
+262: reference remains withheld. A generic adapter is feasible engineering, and its
+263: global impossibility is **not** claimed. An actual owner atom/proposal plus a
+264: forwardable reference, or a genuinely candidate-bound measurement/portfolio source,
+265: would require immediate wiring without waiting for positive promotion. Empty
+266: carriers or simulation rows relabeled empirical would not close a conjunct.
+267: 
+268: ### GY-PA1 conjunct closeout map
+269: 
+270: The unchanged Done when is:
+271: 
+272: > a case with no authorized schedule cannot emit a single ranked recommendation
+273: > (only frontier + a typed `NormativeDecisionRequest`); an authority-lane mismatch
+274: > (legal competence but wrong decision-rights role) returns `blocked`; a fixture
+275: > injecting a **silent equal-weight / historical-prior / proxy-as-priority default
+276: > goes red**.
+277: 
+278: The August `not_executable` rationale is refuted by current execution: GAP7's
+279: local signed owner, the request **output**, and a ranked emitter already existed.
+280: This lane extends their actual production bridge and later-evidence lifecycle.
+281: 
+282: | Conjunct | Deciding current path and falsifier |
+283: | --- | --- |
+284: | No authorized schedule, zero rankings | Actual default natural-language worker persists compiled source and a source-bound S8 refusal; both current readers recompute zero selections |
+285: | Frontier plus typed request | Complete actual leaf/front identities are preserved with dominance explicitly `not_established`; missing/corrupt sidecar or rebound progress retains canonical source/frontier and persists a typed request |
+286: | Wrong decision-rights role blocked | Actual default worker's wrong-role evidence reaches `p20_normative_authority_scope_mismatch`; absent-resolver blanket refusal is not the vehicle |
+287: | All named silent defaults go red | Source/CAS/shared-emission probes inject each default; real owner rejects them. Removing the decisive emission/signature validation makes the unchanged negative red |
+288: | Falsifiable authorized path | Actual worker first publishes its source through canonical RunContext; evidence is signed afterward and submitted through the owned-run HTTP route; both readers observe the admitted selection |
+289: | Honest current authority | Immutable core outputs own source and initial disposition; event-backed CAS head owns later admission; signature/source/time replay occurs at both current readers. Event omission plus copied progress cannot retain authorization |
+290: | P27 existing owners | Existing S8, compiled generation DTO owner, guarded ambient CAS, RunContext, resource authorization and control-job event store; no parallel persistence or trust source |
+291: | P28 default flipped | Worker bridge and current-head reader strangles are run-emitted/recomputed. Worker/head/publication removals make actual consumer tests red while markers remain |
+292: | P29 and §3.5.6 | Complete source/leaf/head-field and router identities reconciled; fake/novel/source-substitution cases refuse; data-only candidate/leaf growth preserves identity; valid signed control survives decisive removals |
+293: 
+294: The new `POST /api/v1/control/runs/{run_id}/normative-evidence` receives our scoped
+295: evidence; it does not appoint an institution or execute policy. Expected prior
+296: head is compared and appended within the existing persistence transaction.
+297: SQLite's competing independent-store execution is verified. PostgreSQL's locking
+298: and transaction path is source-reviewed; a live PostgreSQL concurrency run is
+299: **not_established**. Default deployment trust remains typed and empty. Historical
+300: generation/S8/core receipt epochs remain readable; new source-aware authorization
+301: and additive composition/head artifacts use their declared epochs. No empirical,
+302: Pareto, legal, optimality, publication or promotion authority is granted here.
+303: 
+304: ### Frozen-source independent review
+305: 
+306: The final bounded reviews are [S3 RV02](gy-phase5-evidence/s3/independent-rv02-review.md)
+307: and [PA1 D3d](gy-phase5-evidence/pa1/independent-d3d-review.md). Earlier findings and
+308: red probes remain append-only evidence. The PA1 head-removal gate was corrected
+309: to assert both real readers' authorization/rankings **before** marker fields; its
+310: actual RC1 is the semantic failure, not an arbitrary missing-ref failure.
+311: 
+312: ## Final targeted verification and delivery
+313: 
+314: The measured records below retain both passing and failing gates and the exact
+315: branch delivery readbacks. Mechanism delivery does not assert Phase 5 closure.
+316: 
+317: ## Built mechanisms and their falsifiers
 318: 
-319: ## Findings routed outside the implemented mechanisms
-320: 
-321: This list is separate from the built/falsifier list. It includes declared
-322: verification limits; a location in this list is not an assertion that another
-323: team has already accepted or repaired the finding. Active DEBT/LEDGER transcription
-324: belongs to the architect and was not performed by this lane.
-325: 
-326: | Finding / limitation | Named home and required next quantity |
-327: | --- | --- |
-328: | `P5-SKG-01`: certified SKG path cannot admit current relation/calibration evidence | `cg2-production-relation-gold-acceptance-unspecified`; team-architecture scientific acceptance ruling, DataForge academic/knowledge independent relation/outcome evidence and verifier |
-329: | Full reference source withheld | DataForge `claim-level-evidence-axis`, `causal-claim-current-contract-vocabulary`, `cg2-calibration-observations-per-stratum`; authoritative findings **HC-F11–HC-F14**, not an appointment workaround |
-330: | `P5-S3-MAP-01` / S3-R11: real threshold is not verified law-to-lever correspondence | GY-S3 / Lex mapping owner, team-architecture acceptance rule; independently content-bound mapping witness plus positive/free-growth demonstration |
-331: | PR1 complete canonical promotion and protected near-miss premise | `first-promotion-candidate-with-complete-evidence`, `eval-safety-promotion-authority-producer-missing`, `GY-O0-NC-01`; genuine scientific inputs and promotion-purpose protection semantics |
-332: | **PR1 source-carrying and measurement/portfolio bridge remains unfinished** | **Still inside GY-PR1**, `bridge_missing` / `producer_missing`; no global engineering impossibility claimed. N4 source preservation, pre-admission evidence stage and actual candidate/source binding remain the identified engineering seams |
-333: | Education pair current registry owner rederivation fails | Existing education cycle-substrate / GY-S0 capture owner, **P41**. Exact slice-base replay is red too, but complete-input disjointness is `not_established`; neither inherited nor excluded from the final target set |
-334: | Historical credal/depth/second-domain captures | Their existing recomputing owners and **P07/P08**. Prior epochs remain readable; current freshness is credited only by an actual current-owner check. No blanket restamp of executed tasks. The N9 credal-input delta is our S3 D1d companion and is handled inside this lane |
-335: | S3-R12: LegalKnowledgeStore provision API selects unavailable `version_id` | **Lex knowledge-store owner / P32** source-schema compatibility; exact read-only API failure and complete SQL fallback retained. No active row established: architect may register |
-336: | S3 requirement-spec flat manifest consumer | `foundry/methods/selection/requirements.py`, **P27**. Actual behavior remains `not_established`; source seam alone is not a second proven defect |
-337: | Malformed retained UDF source schema | **DataForge source-contract artifact integrity / P35**; active-row map explicitly nowhere. The unreadable document stays `ambiguous`, never an empty portfolio source |
-338: | Non-filesystem signed-CAS integration | **Core artifacts / runtime persistence, P01/P27**; current supported canonical filesystem adapter is explicit, alternate backend support is `not_established`. No active row established |
-339: | Live PostgreSQL concurrent head admission | **ControlPlaneStore / P29** verification limitation; SQLite race executed, PostgreSQL transaction source reviewed. No live PostgreSQL receipt claimed |
-340: | Stale August/Task K prose | GY-PA1/GY-GAP7, GY-PR1 and first-promotion row; architect transcription from stage-1 conjunct tables, not repair to an executed task |
-341: | Missing executable, import mode, cleanup method, early readback and root harness lint nonreceipts | **Explicit nowhere: lane harness**. Corrected attempts retained with actual RC; no product or inherited-failure claim derived from them |
-342: 
-343: Independent handback review identified the requirement-spec, Lex schema,
-344: alternate-CAS and PostgreSQL limitations for explicit routing above. Earlier PA1
-345: package recommendations are superseded by D3b–D3d and the final table below; D1a
-346: governs over the initial S3 closed-enum suggestion.
-347: 
-348: ## Final verification wave: measured records
-349: 
-350: The frozen targeted S3 wave completed with RC1 in 1940.956 seconds.
-351: [Full command and streams](gy-phase5-evidence/s3/final-targeted.json) and
-352: [complete collection/JUnit identity reconciliation](gy-phase5-evidence/s3/final-test-identities.json)
-353: retain every collected/executed identity; both set differences are empty and no
-354: identity is ambiguous. The nonpassing set is exactly the two education registry
-355: rederive tests plus `test_reference_repair_stales_dependent_certificate`, whose
-356: full credal source refuses confidence forwarding under HC-F11–HC-F14. The latter
-357: is the same measured scientific dependency, not an assertion against a newly
-358: constructed reference. No node was excluded or rewritten to manufacture green.
-359: The education failures still lack the complete input-disjointness proof required
-360: by P41 and remain `not_established` for inherited provenance.
+319: - **S3 manifest routing:** existing route owner → full registry projection → actual
+320:   N8/default/reentry selection and N4 consumer. Fake target, malformed/present-null
+321:   manifest, unknown family, source override and owner-removal controls decide it.
+322: - **S3 honest law handoff:** threshold evaluation retains the actual statute trace
+323:   while unverified correspondence refuses; credal projection keeps the dependency
+324:   associated and uncertain. Target transposition, resolution exception and
+325:   association/status-only removal distinguish the property from its old proxy.
+326: - **PA1 default refusal and late evidence:** actual worker → guarded CAS source →
+327:   canonical owned RunContext → signed evidence intake → transactional event head →
+328:   both current readers. Wrong role/source, stale head/signature, missing event with
+329:   copied progress, source rebind and silent-default injections refuse. Removing
+330:   worker publication, signature validation, shared admission or event attachment
+331:   makes the unchanged consumer test red. A genuine post-source signed control
+332:   remains authorized.
+333: - **External reviewable surfaces:** PA1 owned-run endpoint and generated clients;
+334:   current job/audience projections and durable audit refs; S3 recomputed report and
+335:   declared epochs. These expose candidate/refusal/admitted-selection scope without
+336:   granting empirical or promotion authority.
+337: 
+338: ## Findings routed outside the implemented mechanisms
+339: 
+340: This list is separate from the built/falsifier list. It includes declared
+341: verification limits; a location in this list is not an assertion that another
+342: team has already accepted or repaired the finding. Active DEBT/LEDGER transcription
+343: belongs to the architect and was not performed by this lane.
+344: 
+345: | Finding / limitation | Named home and required next quantity |
+346: | --- | --- |
+347: | `P5-SKG-01`: certified SKG path cannot admit current relation/calibration evidence | `cg2-production-relation-gold-acceptance-unspecified`; team-architecture scientific acceptance ruling, DataForge academic/knowledge independent relation/outcome evidence and verifier |
+348: | Full reference source withheld | DataForge `claim-level-evidence-axis`, `causal-claim-current-contract-vocabulary`, `cg2-calibration-observations-per-stratum`; authoritative findings **HC-F11–HC-F14**, not an appointment workaround |
+349: | `P5-S3-MAP-01` / S3-R11: real threshold is not verified law-to-lever correspondence | GY-S3 / Lex mapping owner, team-architecture acceptance rule; independently content-bound mapping witness plus positive/free-growth demonstration |
+350: | PR1 complete canonical promotion and protected near-miss premise | `first-promotion-candidate-with-complete-evidence`, `eval-safety-promotion-authority-producer-missing`, `GY-O0-NC-01`; genuine scientific inputs and promotion-purpose protection semantics |
+351: | **PR1 source-carrying and measurement/portfolio bridge remains unfinished** | **Still inside GY-PR1**, `bridge_missing` / `producer_missing`; no global engineering impossibility claimed. N4 source preservation, pre-admission evidence stage and actual candidate/source binding remain the identified engineering seams |
+352: | Education pair current registry owner rederivation fails | Existing education cycle-substrate / GY-S0 capture owner, **P41**. Exact slice-base replay is red too, but complete-input disjointness is `not_established`; neither inherited nor excluded from the final target set |
+353: | Historical credal/depth/second-domain captures | Their existing recomputing owners and **P07/P08**. Prior epochs remain readable; current freshness is credited only by an actual current-owner check. No blanket restamp of executed tasks. The N9 credal-input delta is our S3 D1d companion and is handled inside this lane |
+354: | S3-R12: LegalKnowledgeStore provision API selects unavailable `version_id` | **Lex knowledge-store owner / P32** source-schema compatibility; exact read-only API failure and complete SQL fallback retained. No active row established: architect may register |
+355: | S3 requirement-spec flat manifest consumer | `foundry/methods/selection/requirements.py`, **P27**. Actual behavior remains `not_established`; source seam alone is not a second proven defect |
+356: | Malformed retained UDF source schema | **DataForge source-contract artifact integrity / P35**; active-row map explicitly nowhere. The unreadable document stays `ambiguous`, never an empty portfolio source |
+357: | Non-filesystem signed-CAS integration | **Core artifacts / runtime persistence, P01/P27**; current supported canonical filesystem adapter is explicit, alternate backend support is `not_established`. No active row established |
+358: | Live PostgreSQL concurrent head admission | **ControlPlaneStore / P29** verification limitation; SQLite race executed, PostgreSQL transaction source reviewed. No live PostgreSQL receipt claimed |
+359: | Stale August/Task K prose | GY-PA1/GY-GAP7, GY-PR1 and first-promotion row; architect transcription from stage-1 conjunct tables, not repair to an executed task |
+360: | Missing executable, import mode, cleanup method, early readback and root harness lint nonreceipts | **Explicit nowhere: lane harness**. Corrected attempts retained with actual RC; no product or inherited-failure claim derived from them |
 361: 
-362: The PA1 final targeted wave returns RC0 in 216.817 seconds; its independent
-363: [identity reconciliation](gy-phase5-evidence/pa1/final-test-identities.json) preserves
-364: the entire actual collection and JUnit execution set without missing, unexpected,
-365: duplicate or nonpassing cases. The subsequent public-surface delta is verified
-366: separately; that late integration does not reprice unrelated long scientific tests.
-367: 
-368: **Surface integration findings and disposition:** canonical client generation
-369: initially omitted the new callable POST despite emitting its DTO. D3e extends the
-370: existing curated operation owner; actual raw/canonical fetch tests and the
-371: regenerate-after-removal probe decide closure. D4 extends existing Core/Foundry
-372: facades for exact owned objects rather than adding deep-import exceptions.
-373: [Independent client/Core delta review](gy-phase5-evidence/shared/independent-surface-delta-review.md)
-374: approves those changes; the subsequent
-375: [Foundry facade review](gy-phase5-evidence/shared/independent-foundry-facade-review.md)
-376: and [D3f example review](gy-phase5-evidence/shared/independent-openapi-example-review.md)
-377: also approve their frozen deltas.
-378: 
-379: **DS17 dependency drift:** the actual unchanged example worker's complete
-380: dependency bindings and independent rehash are preserved in
-381: [worker observation](gy-phase5-evidence/shared/ds17-worker-observation.json),
-382: [dependency analysis](gy-phase5-evidence/shared/ds17-dependency-analysis.json) and
-383: [exact generator substitution](gy-phase5-evidence/shared/ds17-exact-generator-delta.json).
-384: Substituting only the pre-D3e generator bytes reproduces the old OpenAPI aggregate
-385: exactly; the dependency identity sets are unchanged. This was our legitimate
-386: source change between generation and verification, not an inherited DS17 defect
-387: or an OpenAPI self-reference. The original observer source is preserved verbatim
-388: as [executed script text](gy-phase5-evidence/shared/ds17_dependency_audit.py.txt).
-389: Regenerate once after the final source freeze, then verify the unchanged full gate.
-390: 
-391: **Additional harness nonreceipts:** an OpenAPI strict-parse process imported the
-392: old Core facade before the new consumer was written and then failed on that
-393: mixed source state. A fresh process passes the actual current facade identity
-394: and consumer annotation test. A docs commit attempted while a generator wrote
-395: the worktree was rejected by lefthook's concurrent-change check; the subsequent
-396: readback against the old HEAD also failed. After the writer completed, the
-397: same commit succeeded as `432fcae02` and was read back from the attached branch.
-398: Neither failed attempt is a delivery receipt. The copied observer's original
-399: style and the new corruption harness produced an initial Ruff RC1; observer
-400: bytes remain historical evidence text and the executable harness was corrected.
-401: These are explicit nowhere product findings: lane harness/execution discipline.
-402: 
-403: The exact public export identity delta is independently reconciled over both
-404: complete inventory JSON documents: `ControlJobResponse` under Core contracts,
-405: and `MethodRouteConstraint`/`method_accepts_input_contract` under Foundry; no
-406: export is removed. [Complete record](gy-phase5-evidence/shared/public-surface-identity-delta.json).
-407: The canonical sync used `--skip-deep-import-baseline`; the existing import baseline,
-408: exceptions, public contract, import policy and generated-family manifest remain
-409: byte-identical to the slice base. D4's original unmocked fresh-process import
-410: now returns RC0 in 53.641 seconds, with the same entrypoint and bound as the
-411: actual recursive-lock failure. [Deciding green](gy-phase5-evidence/s3/d4-facade-python-stack-green.json).
-412: 
-413: The frozen complete slice source/test/tool Ruff command returns RC1 solely for
-414: `F601` at the duplicate `admit_epoch_validity_batch` example key.
-415: [Exact command and complete output](gy-phase5-evidence/shared/frozen-source-ruff.json).
-416: [The complete defining-expression/history audit](gy-phase5-evidence/pa1/openapi-epoch-duplicate-audit.json)
-417: shows DS18 C03's eager owner-derived example is overwritten by DS15 C03's later
-418: literal. This source is preserved because the user forbids repairs to already
-419: executed rows. Home: **DS18 C03 / epoch-staleness owner and DS15 C03 / acquisition
-420: API owner**, under P03/P29. Removing the earlier expression would also remove
-421: its eager construction, so it is not reported as a merely cosmetic duplicate.
-422: No Ruff ignore, denominator exclusion or P41 inherited label is used. The PA1
-423: transport/refusal mechanism tests remain separately deciding evidence.
-424: 
-425: Normal architecture guardrails were statically traced before invocation: the
-426: default required output probes do not execute pytest or `check_debt_ledger.py`.
-427: DS11 reads the debt register as input without editing it or executing its command
-428: strings. Canonical internal probe scripts still invoke Python generators by
-429: file path, and the dashboard shell may prefer bare pnpm; this is existing
-430: internal owner behavior, not a claim of complete child-command compliance with
-431: the lane's invocation rule. The current outer verification commands use `-m`
-432: and `corepack pnpm`. The historical PR1 recorder description in
-433: `pr1/stage3-scope-audit.md` shows a file-path recorder invocation; its child-only
-434: JSON does not independently capture that outer invocation. This is a retained
-435: lane-harness invocation nonreceipt, not a product result or universal compliance
-436: claim.
-437: Home for that invocation mismatch: **architecture/generated artifact tool owners,
-438: module-invocation and station-PATH rules; explicit nowhere active task row**.
-439: No canonical probe is replaced or weakened.
-440: 
-441: The canonical S3 **write plus check** returns RC0 in 653.707 seconds, with
-442: behavior pass and an empty issue set.
-443: [Exact owner execution](gy-phase5-evidence/s3/final-report-write-check.json).
-444: The separate surgical corruption changes only the report's claim that mechanism
-445: validation is full task completion. The same actual owner returns **RC1**, solely
-446: `intervention_substrate_contract_drift`, while live behavior remains pass. The
-447: probe wrapper returns RC0 because it confirms that expected refusal and restores
-448: the exact writer bytes; the two return codes are deliberately distinct.
-449: [Complete corrupt-field execution and byte restoration](gy-phase5-evidence/s3/final-report-corruption.json).
-450: Restored SHA256: `f1a742ebaefe3cdfec8ada7bb257d0807d00181c239014d36d340251360425f0`.
-451: This closes mechanism-proof freshness, not the missing law-correspondence
-452: authority or the full task's positive free-growth conjunct.
-453: 
-454: Frozen OpenAPI and both client generators return RC0. Complete recursive and
-455: iterative JSON walks agree on the whole before/after identity sets; there is one
-456: new operation path and no removed node or operation. All changes to existing
-457: values belong to the DS17 source-bound example pins; the added values belong to
-458: the normative evidence DTOs and endpoint.
-459: [Complete JSON delta](gy-phase5-evidence/shared/runtime-openapi-frozen-delta.json).
-460: Actual generated raw/canonical client tests and client/dashboard typechecks
-461: return RC0 in their frozen records. The API contract and architecture gates are
-462: reported only after their own executions below.
-463: 
-464: The frozen full Runtime API contract returns RC0 in 92.080 seconds:
-465: [runtime-api-contract-frozen.json](gy-phase5-evidence/shared/runtime-api-contract-frozen.json).
-466: D3f's independent [example review](gy-phase5-evidence/shared/independent-openapi-example-review.md)
-467: is approved; all source reviews are frozen. The current complete credal contract
-468: check returns RC1 in 53.256 seconds at the actual HC-F11–HC-F14 forwarding
-469: restriction, preserving the same declared scientific boundary:
-470: [full current-owner failure](gy-phase5-evidence/s3/final-credal-current-check.json).
-471: No old capture is restamped and no scoped reference replaces the full source.
-472: The final [epoch identity census](gy-phase5-evidence/s3/final-epoch-census.json)
-473: reconciles both complete enumerations without unreadable/ambiguous cases;
-474: historical v1 captures remain historical evidence, with current freshness withheld
-475: where the actual producer cannot currently run.
-476: 
-477: ## Governed credal-input fan-out: S3 D1d
-478: 
-479: The current N9 owner check returned RC1 in 73.542 seconds with
-480: `current_governing_projection_drift`:
-481: [exact current check](gy-phase5-evidence/s3/final-promotion-current-check.json).
-482: The complete frozen/live owner projection comparison identifies S3 D1b's credal
-483: input v1 → v2 as the differing governing quantity. This is our dependent
-484: artifact repair, not an external blocker or an inherited failure. The D1d
-485: decision was committed and read back before changing its existing reconciliation
-486: owner. Production obligation semantics and the generic receipt comparator stay
-487: unchanged; the decision requires a freshly admitted owner replay, exact full
-488: envelope reconciliation, preserved historical bytes, and refusal for any other
-489: governing drift.
-490: 
-491: The [independent frozen delta review](gy-phase5-evidence/shared/independent-d1d-review.md)
-492: approves this exact boundary. The
-493: [expanded final targeted run](gy-phase5-evidence/pr1/d1d-reissue-final-tests.json)
-494: returns RC0 in 292.919 seconds, including the real writer/check positive and
-495: the old v3 → v6 transition control. The
-496: [transition removal](gy-phase5-evidence/pr1/d1d-transition-removal.json) returns
-497: RC1 because the unchanged writer positive again encounters the generic semantic
-498: mismatch. The [governing-comparison removal](gy-phase5-evidence/pr1/d1d-governing-comparison-removal.json)
-499: returns RC1 because the unchanged negative fails to observe the required refusal
-500: for an extra governing field. Both probes keep disk source unchanged. These
-501: results prove the transition and its bound; canonical output freshness is
-502: decided separately by the actual owner write/check below.
-503: 
-504: The canonical [write](gy-phase5-evidence/pr1/d1d-canonical-write.json) returns
-505: RC0 in 83.787 seconds, and the unchanged current
-506: [check](gy-phase5-evidence/pr1/d1d-canonical-check.json) returns RC0 in 120.637
-507: seconds. The owner's in-memory
-508: [corrupt-field check](gy-phase5-evidence/pr1/d1d-canonical-corruption.json)
-509: returns the required RC1 in 63.478 seconds without mutating disk bytes. The new
-510: canonical report SHA256 is
-511: `3925c1e9f2474d6c950877f27860c3e8409b57ae2f37f088b40aebb4742b36e9`.
-512: The historical capture remains exactly
-513: `4825fd7adac74ef35a351d023dbd0069952b602b26b1c124c7795ef696f1a59a`.
-514: No canonical promotion has been created: the actual admitted receipt identities
-515: retain their refusal/non-promotability. D1d closes S3's governed companion only.
-516: 
-517: The exact same targeted matrix was replayed with JUnit to repair the missing
-518: execution-identity receipt. [Execution](gy-phase5-evidence/pr1/d1d-identity-execution.json)
-519: returns RC0 in 320.487 seconds; the
-520: [complete collection/JUnit reconciliation](gy-phase5-evidence/pr1/d1d-test-identities.json)
-521: returns RC0 in 41.947 seconds, with equal identity sets and no missing,
-522: unexpected, ambiguous, duplicate or nonpassing case. The earlier `-q` output
-523: remains behavioral evidence with its original recording limit. The
-524: [complete reissue journal](gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md)
-525: retains the full diagnosis, input denominator, current and historical bytes,
-526: and all exact commands and streams.
-527: 
-528: After this final source/artifact freeze, the canonical
-529: [OpenAPI generator](gy-phase5-evidence/shared/d1d-runtime-openapi-generate.json),
-530: [client generator](gy-phase5-evidence/shared/d1d-runtime-client-generate.json)
-531: and [dashboard generator](gy-phase5-evidence/shared/d1d-runtime-dashboard-generate.json)
-532: all return RC0. The complete
-533: [JSON identity delta](gy-phase5-evidence/shared/d1d-runtime-openapi-delta.json)
-534: still has no removed node or operation. The delta from the preceding committed
-535: schema is confined to DS17's actual source-bound example; both regenerated
-536: client surfaces are byte-identical to their preceding committed versions.
-537: The fresh [client tests](gy-phase5-evidence/shared/d1d-runtime-client-tests.json),
-538: [client typecheck](gy-phase5-evidence/shared/d1d-runtime-client-typecheck.json),
-539: [dashboard typecheck](gy-phase5-evidence/shared/d1d-runtime-dashboard-typecheck.json)
-540: and full [Runtime API contract](gy-phase5-evidence/shared/d1d-runtime-api-contract.json)
-541: all return RC0. The final API contract took 137.951 seconds. No generated API
-542: schema field or operation was narrowed to obtain these results.
-543: 
-544: The complete slice source/test/tool Ruff command after the D1d source freeze
-545: still returns RC1 solely for the preserved DS18/DS15 `F601` finding:
-546: [full command and output](gy-phase5-evidence/shared/d1d-full-source-ruff.json).
-547: The path denominator is every changed `.py` under `src/`, `tests/` and `tools/`
-548: against the exact slice base, reconciled from full Git name and numstat walks;
-549: the untracked walk adds no Python source path. No changed source is omitted.
-550: 
-551: ## Read-back delivery boundaries
-552: 
-553: Each row was committed from the attached branch only after its writers stopped.
-554: The readback walks the complete actual commit path set and reads every committed
-555: blob from that branch, comparing it with the prepared staged bytes and parent.
-556: Failed hook/readback attempts remain nonreceipts in the earlier execution record.
-557: 
-558: | Delivered boundary | Commit | Actual branch readback |
-559: | --- | --- | --- |
-560: | S3 manifest/law/credal mechanism, report, facade and public companions | `f79e18ad888b0725a4863d28545fae3ec7d35839` | [Complete branch bytes](gy-phase5-evidence/shared/s3-delivery-readback.json) |
-561: | PA1 later signed-evidence intake, immutable source/head readers, actual HTTP example and generated clients | `7839a6b9f8e83f78af1d840bd2cf5935f1dac7df` | [Complete branch bytes](gy-phase5-evidence/shared/pa1-final-delivery-readback.json) |
-562: | S3 D1d governed reissue decision, before implementation | `33efaade30089e8ef5a08c8fde9e76e6e01d9610` | [Decision branch bytes](gy-phase5-evidence/shared/d1d-decision-delivery-readback.json) |
-563: | S3 D1d actual owner reissue, history, semantic tests and generated OpenAPI companion | `0821766940356f260cb5afc55370acf6f7ae1ed1` | [Complete branch bytes](gy-phase5-evidence/shared/d1d-source-delivery-readback.json) |
+362: Independent handback review identified the requirement-spec, Lex schema,
+363: alternate-CAS and PostgreSQL limitations for explicit routing above. Earlier PA1
+364: package recommendations are superseded by D3b–D3d and the final table below; D1a
+365: governs over the initial S3 closed-enum suggestion.
+366: 
+367: ## Final verification wave: measured records
+368: 
+369: The frozen targeted S3 wave completed with RC1 in 1940.956 seconds.
+370: [Full command and streams](gy-phase5-evidence/s3/final-targeted.json) and
+371: [complete collection/JUnit identity reconciliation](gy-phase5-evidence/s3/final-test-identities.json)
+372: retain every collected/executed identity; both set differences are empty and no
+373: identity is ambiguous. The nonpassing set is exactly the two education registry
+374: rederive tests plus `test_reference_repair_stales_dependent_certificate`, whose
+375: full credal source refuses confidence forwarding under HC-F11–HC-F14. The latter
+376: is the same measured scientific dependency, not an assertion against a newly
+377: constructed reference. No node was excluded or rewritten to manufacture green.
+378: The education failures still lack the complete input-disjointness proof required
+379: by P41 and remain `not_established` for inherited provenance.
+380: 
+381: The PA1 final targeted wave returns RC0 in 216.817 seconds; its independent
+382: [identity reconciliation](gy-phase5-evidence/pa1/final-test-identities.json) preserves
+383: the entire actual collection and JUnit execution set without missing, unexpected,
+384: duplicate or nonpassing cases. The subsequent public-surface delta is verified
+385: separately; that late integration does not reprice unrelated long scientific tests.
+386: 
+387: **Surface integration findings and disposition:** canonical client generation
+388: initially omitted the new callable POST despite emitting its DTO. D3e extends the
+389: existing curated operation owner; actual raw/canonical fetch tests and the
+390: regenerate-after-removal probe decide closure. D4 extends existing Core/Foundry
+391: facades for exact owned objects rather than adding deep-import exceptions.
+392: [Independent client/Core delta review](gy-phase5-evidence/shared/independent-surface-delta-review.md)
+393: approves those changes; the subsequent
+394: [Foundry facade review](gy-phase5-evidence/shared/independent-foundry-facade-review.md)
+395: and [D3f example review](gy-phase5-evidence/shared/independent-openapi-example-review.md)
+396: also approve their frozen deltas.
+397: 
+398: **DS17 dependency drift:** the actual unchanged example worker's complete
+399: dependency bindings and independent rehash are preserved in
+400: [worker observation](gy-phase5-evidence/shared/ds17-worker-observation.json),
+401: [dependency analysis](gy-phase5-evidence/shared/ds17-dependency-analysis.json) and
+402: [exact generator substitution](gy-phase5-evidence/shared/ds17-exact-generator-delta.json).
+403: Substituting only the pre-D3e generator bytes reproduces the old OpenAPI aggregate
+404: exactly; the dependency identity sets are unchanged. This was our legitimate
+405: source change between generation and verification, not an inherited DS17 defect
+406: or an OpenAPI self-reference. The original observer source is preserved verbatim
+407: as [executed script text](gy-phase5-evidence/shared/ds17_dependency_audit.py.txt).
+408: Regenerate once after the final source freeze, then verify the unchanged full gate.
+409: 
+410: **Additional harness nonreceipts:** an OpenAPI strict-parse process imported the
+411: old Core facade before the new consumer was written and then failed on that
+412: mixed source state. A fresh process passes the actual current facade identity
+413: and consumer annotation test. A docs commit attempted while a generator wrote
+414: the worktree was rejected by lefthook's concurrent-change check; the subsequent
+415: readback against the old HEAD also failed. After the writer completed, the
+416: same commit succeeded as `432fcae02` and was read back from the attached branch.
+417: Neither failed attempt is a delivery receipt. The copied observer's original
+418: style and the new corruption harness produced an initial Ruff RC1; observer
+419: bytes remain historical evidence text and the executable harness was corrected.
+420: These are explicit nowhere product findings: lane harness/execution discipline.
+421: 
+422: The exact public export identity delta is independently reconciled over both
+423: complete inventory JSON documents: `ControlJobResponse` under Core contracts,
+424: and `MethodRouteConstraint`/`method_accepts_input_contract` under Foundry; no
+425: export is removed. [Complete record](gy-phase5-evidence/shared/public-surface-identity-delta.json).
+426: The canonical sync used `--skip-deep-import-baseline`; at that boundary the import
+427: baseline, exceptions, public contract, import policy and generated-family manifest
+428: were byte-identical to the slice base. D5 later retires only the independently
+429: measured stale baseline identity; it changes none of those policies or exceptions.
+430: D4's original unmocked fresh-process import
+431: now returns RC0 in 53.641 seconds, with the same entrypoint and bound as the
+432: actual recursive-lock failure. [Deciding green](gy-phase5-evidence/s3/d4-facade-python-stack-green.json).
+433: 
+434: The frozen complete slice source/test/tool Ruff command returns RC1 solely for
+435: `F601` at the duplicate `admit_epoch_validity_batch` example key.
+436: [Exact command and complete output](gy-phase5-evidence/shared/frozen-source-ruff.json).
+437: [The complete defining-expression/history audit](gy-phase5-evidence/pa1/openapi-epoch-duplicate-audit.json)
+438: shows DS18 C03's eager owner-derived example is overwritten by DS15 C03's later
+439: literal. This source is preserved because the user forbids repairs to already
+440: executed rows. Home: **DS18 C03 / epoch-staleness owner and DS15 C03 / acquisition
+441: API owner**, under P03/P29. Removing the earlier expression would also remove
+442: its eager construction, so it is not reported as a merely cosmetic duplicate.
+443: No Ruff ignore, denominator exclusion or P41 inherited label is used. The PA1
+444: transport/refusal mechanism tests remain separately deciding evidence.
+445: 
+446: Normal architecture guardrails were statically traced before invocation: the
+447: default required output probes do not execute pytest or `check_debt_ledger.py`.
+448: DS11 reads the debt register as input without editing it or executing its command
+449: strings. Canonical internal probe scripts still invoke Python generators by
+450: file path, and the dashboard shell may prefer bare pnpm; this is existing
+451: internal owner behavior, not a claim of complete child-command compliance with
+452: the lane's invocation rule. The current outer verification commands use `-m`
+453: and `corepack pnpm`. The historical PR1 recorder description in
+454: `pr1/stage3-scope-audit.md` shows a file-path recorder invocation; its child-only
+455: JSON does not independently capture that outer invocation. This is a retained
+456: lane-harness invocation nonreceipt, not a product result or universal compliance
+457: claim.
+458: Home for that invocation mismatch: **architecture/generated artifact tool owners,
+459: module-invocation and station-PATH rules; explicit nowhere active task row**.
+460: No canonical probe is replaced or weakened.
+461: 
+462: The canonical S3 **write plus check** returns RC0 in 653.707 seconds, with
+463: behavior pass and an empty issue set.
+464: [Exact owner execution](gy-phase5-evidence/s3/final-report-write-check.json).
+465: The separate surgical corruption changes only the report's claim that mechanism
+466: validation is full task completion. The same actual owner returns **RC1**, solely
+467: `intervention_substrate_contract_drift`, while live behavior remains pass. The
+468: probe wrapper returns RC0 because it confirms that expected refusal and restores
+469: the exact writer bytes; the two return codes are deliberately distinct.
+470: [Complete corrupt-field execution and byte restoration](gy-phase5-evidence/s3/final-report-corruption.json).
+471: Restored SHA256: `f1a742ebaefe3cdfec8ada7bb257d0807d00181c239014d36d340251360425f0`.
+472: This closes mechanism-proof freshness, not the missing law-correspondence
+473: authority or the full task's positive free-growth conjunct.
+474: 
+475: Frozen OpenAPI and both client generators return RC0. Complete recursive and
+476: iterative JSON walks agree on the whole before/after identity sets; there is one
+477: new operation path and no removed node or operation. All changes to existing
+478: values belong to the DS17 source-bound example pins; the added values belong to
+479: the normative evidence DTOs and endpoint.
+480: [Complete JSON delta](gy-phase5-evidence/shared/runtime-openapi-frozen-delta.json).
+481: Actual generated raw/canonical client tests and client/dashboard typechecks
+482: return RC0 in their frozen records. The API contract and architecture gates are
+483: reported only after their own executions below.
+484: 
+485: The frozen full Runtime API contract returns RC0 in 92.080 seconds:
+486: [runtime-api-contract-frozen.json](gy-phase5-evidence/shared/runtime-api-contract-frozen.json).
+487: D3f's independent [example review](gy-phase5-evidence/shared/independent-openapi-example-review.md)
+488: is approved; all source reviews are frozen. The current complete credal contract
+489: check returns RC1 in 53.256 seconds at the actual HC-F11–HC-F14 forwarding
+490: restriction, preserving the same declared scientific boundary:
+491: [full current-owner failure](gy-phase5-evidence/s3/final-credal-current-check.json).
+492: No old capture is restamped and no scoped reference replaces the full source.
+493: The final [epoch identity census](gy-phase5-evidence/s3/final-epoch-census.json)
+494: reconciles both complete enumerations without unreadable/ambiguous cases;
+495: historical v1 captures remain historical evidence, with current freshness withheld
+496: where the actual producer cannot currently run.
+497: 
+498: ## Governed credal-input fan-out: S3 D1d
+499: 
+500: The current N9 owner check returned RC1 in 73.542 seconds with
+501: `current_governing_projection_drift`:
+502: [exact current check](gy-phase5-evidence/s3/final-promotion-current-check.json).
+503: The complete frozen/live owner projection comparison identifies S3 D1b's credal
+504: input v1 → v2 as the differing governing quantity. This is our dependent
+505: artifact repair, not an external blocker or an inherited failure. The D1d
+506: decision was committed and read back before changing its existing reconciliation
+507: owner. Production obligation semantics and the generic receipt comparator stay
+508: unchanged; the decision requires a freshly admitted owner replay, exact full
+509: envelope reconciliation, preserved historical bytes, and refusal for any other
+510: governing drift.
+511: 
+512: The [independent frozen delta review](gy-phase5-evidence/shared/independent-d1d-review.md)
+513: approves this exact boundary. The
+514: [expanded final targeted run](gy-phase5-evidence/pr1/d1d-reissue-final-tests.json)
+515: returns RC0 in 292.919 seconds, including the real writer/check positive and
+516: the old v3 → v6 transition control. The
+517: [transition removal](gy-phase5-evidence/pr1/d1d-transition-removal.json) returns
+518: RC1 because the unchanged writer positive again encounters the generic semantic
+519: mismatch. The [governing-comparison removal](gy-phase5-evidence/pr1/d1d-governing-comparison-removal.json)
+520: returns RC1 because the unchanged negative fails to observe the required refusal
+521: for an extra governing field. Both probes keep disk source unchanged. These
+522: results prove the transition and its bound; canonical output freshness is
+523: decided separately by the actual owner write/check below.
+524: 
+525: The canonical [write](gy-phase5-evidence/pr1/d1d-canonical-write.json) returns
+526: RC0 in 83.787 seconds, and the unchanged current
+527: [check](gy-phase5-evidence/pr1/d1d-canonical-check.json) returns RC0 in 120.637
+528: seconds. The owner's in-memory
+529: [corrupt-field check](gy-phase5-evidence/pr1/d1d-canonical-corruption.json)
+530: returns the required RC1 in 63.478 seconds without mutating disk bytes. The new
+531: canonical report SHA256 is
+532: `3925c1e9f2474d6c950877f27860c3e8409b57ae2f37f088b40aebb4742b36e9`.
+533: The historical capture remains exactly
+534: `4825fd7adac74ef35a351d023dbd0069952b602b26b1c124c7795ef696f1a59a`.
+535: No canonical promotion has been created: the actual admitted receipt identities
+536: retain their refusal/non-promotability. D1d closes S3's governed companion only.
+537: 
+538: The exact same targeted matrix was replayed with JUnit to repair the missing
+539: execution-identity receipt. [Execution](gy-phase5-evidence/pr1/d1d-identity-execution.json)
+540: returns RC0 in 320.487 seconds; the
+541: [complete collection/JUnit reconciliation](gy-phase5-evidence/pr1/d1d-test-identities.json)
+542: returns RC0 in 41.947 seconds, with equal identity sets and no missing,
+543: unexpected, ambiguous, duplicate or nonpassing case. The earlier `-q` output
+544: remains behavioral evidence with its original recording limit. The
+545: [complete reissue journal](gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md)
+546: retains the full diagnosis, input denominator, current and historical bytes,
+547: and all exact commands and streams.
+548: 
+549: After this final source/artifact freeze, the canonical
+550: [OpenAPI generator](gy-phase5-evidence/shared/d1d-runtime-openapi-generate.json),
+551: [client generator](gy-phase5-evidence/shared/d1d-runtime-client-generate.json)
+552: and [dashboard generator](gy-phase5-evidence/shared/d1d-runtime-dashboard-generate.json)
+553: all return RC0. The complete
+554: [JSON identity delta](gy-phase5-evidence/shared/d1d-runtime-openapi-delta.json)
+555: still has no removed node or operation. The delta from the preceding committed
+556: schema is confined to DS17's actual source-bound example; both regenerated
+557: client surfaces are byte-identical to their preceding committed versions.
+558: The fresh [client tests](gy-phase5-evidence/shared/d1d-runtime-client-tests.json),
+559: [client typecheck](gy-phase5-evidence/shared/d1d-runtime-client-typecheck.json),
+560: [dashboard typecheck](gy-phase5-evidence/shared/d1d-runtime-dashboard-typecheck.json)
+561: and full [Runtime API contract](gy-phase5-evidence/shared/d1d-runtime-api-contract.json)
+562: all return RC0. The final API contract took 137.951 seconds. No generated API
+563: schema field or operation was narrowed to obtain these results.
 564: 
-565: The copied stage-1 PA1 evidence links were repaired only in visible Markdown;
-566: verbatim command/output fences were preserved. The independent final audit
-567: reconciles both link parsers over all three lane documents, resolves their direct
-568: local targets, and reads their linked JSON evidence. Earlier missing-link audit
-569: records are retained as lane-document findings, now corrected.
+565: The complete slice source/test/tool Ruff command after the D1d source freeze
+566: still returns RC1 solely for the preserved DS18/DS15 `F601` finding:
+567: [full command and output](gy-phase5-evidence/shared/d1d-full-source-ruff.json).
+568: The path denominator is every changed `.py` under `src/`, `tests/` and `tools/`
+569: against the exact slice base, reconciled from full Git name and numstat walks;
+570: the untracked walk adds no Python source path. No changed source is omitted.
+571: 
+572: ## Read-back delivery boundaries
+573: 
+574: Each row was committed from the attached branch only after its writers stopped.
+575: The readback walks the complete actual commit path set and reads every committed
+576: blob from that branch, comparing it with the prepared staged bytes and parent.
+577: Failed hook/readback attempts remain nonreceipts in the earlier execution record.
+578: 
+579: | Delivered boundary | Commit | Actual branch readback |
+580: | --- | --- | --- |
+581: | S3 manifest/law/credal mechanism, report, facade and public companions | `f79e18ad888b0725a4863d28545fae3ec7d35839` | [Complete branch bytes](gy-phase5-evidence/shared/s3-delivery-readback.json) |
+582: | PA1 later signed-evidence intake, immutable source/head readers, actual HTTP example and generated clients | `7839a6b9f8e83f78af1d840bd2cf5935f1dac7df` | [Complete branch bytes](gy-phase5-evidence/shared/pa1-final-delivery-readback.json) |
+583: | S3 D1d governed reissue decision, before implementation | `33efaade30089e8ef5a08c8fde9e76e6e01d9610` | [Decision branch bytes](gy-phase5-evidence/shared/d1d-decision-delivery-readback.json) |
+584: | S3 D1d actual owner reissue, history, semantic tests and generated OpenAPI companion | `0821766940356f260cb5afc55370acf6f7ae1ed1` | [Complete branch bytes](gy-phase5-evidence/shared/d1d-source-delivery-readback.json) |
+585: 
+586: The copied stage-1 PA1 evidence links were repaired only in visible Markdown;
+587: verbatim command/output fences were preserved. The independent final audit
+588: reconciles both link parsers over all three lane documents, resolves their direct
+589: local targets, and reads their linked JSON evidence. Earlier missing-link audit
+590: records are retained as lane-document findings, now corrected.
+591: 
+592: ## Normal architecture guardrails: station and baseline diagnosis
+593: 
+594: The unchanged normal [guardrail command](gy-phase5-evidence/shared/final-architecture-guardrails.json)
+595: returned RC1 in 30.315 seconds. It reported a stale deep-import baseline entry
+596: for `acquisition_planner → data_forge.domains.academic.knowledge` and a separate
+597: failure to provision its private Python. This result is not a passing freshness
+598: receipt; the generated-output probes had not completed. No skip flag, baseline
+599: absorption or substitute generated check was used.
+600: 
+601: The [station probe](gy-phase5-evidence/shared/private-python-station-probe.json)
+602: executes the same `venv.EnvBuilder(with_pip=False)` copy operation. Its child
+603: reproduces SIGABRT / missing `@rpath/libpython3.14.dylib`; adding only
+604: `DYLD_LIBRARY_PATH` pointing to the measured original Python library directory
+605: makes that copied child run with exactly the same Python version. The existing
+606: library is `/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/libpython3.14.dylib`.
+607: No product source, installed dependency version, owner predicate or probe
+608: denominator changes. [Probe source](gy-phase5-evidence/shared/probe_private_python.py)
+609: and [Ruff](gy-phase5-evidence/shared/private-python-station-ruff.json) are retained.
+610: This is a local station remedy; home for a durable portable fix is the existing
+611: architecture private-environment owner, explicit nowhere active product row.
+612: The next normal invocation carries this environment value. Baseline provenance
+613: and disposition are measured separately before accepting or declining a change.
+614: 
+615: The independent [complete baseline audit](gy-phase5-evidence/pr1/deep-import-baseline-audit.md)
+616: executes the actual owner at current and exact slice base, independently
+617: reconciles the entire source/import vocabulary, and retains all expected/frozen
+618: edge identities. Both roots have the same sole stale baseline identity and no
+619: new creep. The actual old import was already replaced by the supported DataForge
+620: `read_api` in `68689784a`. A scratch baseline rendered from the complete real
+621: edge set passes; reintroducing the stale edge produces the exact creep finding.
+622: The D5 decision therefore removes only that stale object, reducing the tolerated
+623: set. It does not reopen executed N7 semantics or accept a new dependency.
+624: The full guardrail's P41 inherited provenance remains `not_established`, since
+625: the focused base replay is narrower and the full source-input intersection is
+626: nonempty. Home: continuous architecture baseline maintenance, `@platform-owners`
+627: with `@tools-owners` backup; the exact tightening is owned inside this lane.
+628: 
+629: The [second unchanged normal run](gy-phase5-evidence/shared/final-architecture-guardrails-v2.json)
+630: returns RC1 in 74.396 seconds. Baseline drift is gone and private provisioning
+631: runs, but Python-based generator children still fail on the copied interpreter's
+632: relative library linkage. Dashboard type generation completes; that partial
+633: result does not credit the other required families. This is the same station
+634: class one level deeper, so D6 addresses copied-interpreter portability across
+635: launchers rather than patching generators individually.
+636: 
+637: The independent [private-interpreter owner audit](gy-phase5-evidence/pr1/private-interpreter-owner-audit.md)
+638: identifies the closed `generated-freshness-probe-rebinds-caller-venv` row and its
+639: actual source. Caller isolation remains intact and no source repair to that
+640: closed row is made. The installed framework-backed Homebrew Python 3.14.0 is
+641: within the declared `>=3.14,<3.15` range. The actual
+642: [copy/direct/system-shell probe](gy-phase5-evidence/shared/framework-python-station-probe.json)
+643: returns RC0 with every DYLD setting removed and both children retaining their
+644: private prefix. This demonstrates the structural station choice without binary
+645: patching, environment inheritance, or a different gate predicate.
+646: 
+647: A lane-local ignored environment at `.tmp/gyphase5-framework/.venv` is
+648: [provisioned](gy-phase5-evidence/shared/framework-python-provision.json) with
+649: `uv sync --frozen --python /opt/homebrew/bin/python3.14`, RC0 in 10.140 seconds.
+650: The lock and product dependencies are unchanged. Earlier targeted tests and API
+651: verification remain Python 3.14.3 receipts; the next full normal guardrail uses
+652: the supported 3.14.0 framework interpreter and still builds its own independent
+653: private environment. [Station probe source](gy-phase5-evidence/shared/probe_framework_python.py)
+654: and [Ruff](gy-phase5-evidence/shared/framework-python-station-ruff-v2.json) are
+655: retained; the earlier line-wrap lint failure is a lane-harness nonreceipt.
+656: 
+657: The [third unchanged normal run](gy-phase5-evidence/shared/final-architecture-guardrails-v3.json)
+658: returns RC1 in 337.399 seconds. The framework station works through every required
+659: child. OpenAPI, runtime client and dashboard type outputs are fresh; the remaining
+660: finding is stale `trust-claim-posture-register` output. No Python loader failure,
+661: baseline drift or narrowed gate is credited as a pass.
+662: 
+663: The independent [DS11 refresh audit](gy-phase5-evidence/pr1/trust-posture-refresh-audit.md)
+664: executes the real scratch writer and compares complete artifact fields, owner
+665: identity sets and source provenance. Shared decisions only gain denied uses; new
+666: and removed claim identities are blocked. Schema, rules, authority boundaries
+667: and historical accessibility evidence are unchanged. The source denominator
+668: intersects this lane, making regeneration a required companion. The D7 decision
+669: was recorded before the canonical write. Its home is continuous DS11 generated
+670: posture maintenance, `team-architecture`, and this lane owns the refresh. The
+671: existing freshness mechanism correctly detected drift and is not being repaired.
+672: 
+673: D7's [canonical writer](gy-phase5-evidence/shared/d7-posture-write.json) returns
+674: RC0 in 48.928 seconds; the unchanged [normal check](gy-phase5-evidence/shared/d7-posture-check.json)
+675: returns RC0 in 59.079 seconds. The [canonical/scratch reconciliation](gy-phase5-evidence/shared/d7-canonical-reconciliation.json)
+676: is byte-identical at SHA-256
+677: `4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa`.
+678: The declared generated-reference companion is unchanged. The actual owner emits
+679: compact canonical JSON, accounting for the large line diff; no manual reformat or
+680: authored projection was substituted. Its existing source-collision/runtime-bound
+681: limitations remain in the recomputed output and are not upgraded by freshness.
+682: 
+683: The [real-check drift probe](gy-phase5-evidence/shared/d7-posture-corruption.json)
+684: changes only `payload_digest`, retaining every other parsed value. The exact normal
+685: check returns RC1 with `DS11-GENERATED-DRIFT` in 47.218 seconds; the wrapper returns
+686: RC0 because this required refusal and exact writer-byte restoration are verified.
+687: Schema/markers alone therefore cannot satisfy the unchanged freshness owner.
+688: [Probe source](gy-phase5-evidence/shared/posture_report_corruption.py) and
+689: [Ruff RC0](gy-phase5-evidence/shared/d7-posture-harness-ruff.json) are retained.
+690: The full normal architecture gate still decides final integrated freshness.
+691: 
+692: ## Generated-byte ownership at the ordinary commit boundary
+693: 
+694: The first D7 commit attempt returned RC1: the ordinary Prettier hook rewrote
+695: `public/atlas/trust-claim-posture.v1.json`, and `fail_on_changes` refused the commit.
+696: No commit was created. The [complete staged/worktree comparison](gy-phase5-evidence/shared/d8-hook-rewrite-measurement.json)
+697: keeps the attached branch and unchanged parent, identifies that exact sole
+698: unstaged path through independent Git views, and proves every parsed value equal.
+699: The rewritten bytes nevertheless conflict with DS11's canonical-byte freshness.
+700: This is a new P27 competing-writers class; no bypass or receipt was claimed.
+701: 
+702: D8 records the decision before the dashboard's existing `.prettierignore` is
+703: extended for this exact registered output. Its real DS11 writer/check owns the
+704: bytes, as generated-client owners already do through the same ignore mechanism.
+705: The independent PR1 review confirms this placement; changing the closed DS11
+706: serializer would reopen the wrong owner. The ordinary hook command, generated
+707: family, full freshness denominator, schema, rules and runtime remain unchanged.
+708: Home: dashboard formatter ownership / DS11 projection, team-frontend and
+709: team-architecture; this lane closes the companion conflict.
+710: 
+711: The [real writer replay](gy-phase5-evidence/shared/d8-posture-rewrite.json) returns
+712: RC0 in 58.222 seconds. The [actual formatter/removal execution](gy-phase5-evidence/shared/d8-formatter-ownership-removal.json)
+713: returns wrapper RC0 in 52.246 seconds: with the owner boundary, the real formatter
+714: returns RC0 and preserves writer bytes. Removing only the entry makes that same
+715: formatter change bytes while retaining every parsed value; the unchanged DS11
+716: check then returns RC1 with `DS11-GENERATED-DRIFT` in 50.081 seconds. Both the
+717: configuration and exact writer bytes are restored in `finally`, SHA-256
+718: `4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa`.
+719: [Probe source](gy-phase5-evidence/shared/posture_formatter_ownership.py) and
+720: [Ruff RC0](gy-phase5-evidence/shared/d8-formatter-harness-ruff.json) are retained.
+721: The refusal is about the measured competing writer, not the presence of an
+722: ignore marker; the normal commit and full normal guardrail still run unchanged.
+723: 
+724: ## Final integrated verification and handback
+725: 
+726: The ordinary [D7/D8 commit](gy-phase5-evidence/shared/d7-d8-commit.json) succeeds
+727: with its normal hooks enabled. Commit
+728: `d80a5a4f9cad96bf9534b1c631da3f46a1b0bc5b` is [read back completely from the attached branch](gy-phase5-evidence/shared/d7-d8-delivery-readback.json):
+729: the full path set, parent and every committed blob match the prepared bytes.
+730: The generated artifact remains at its actual writer hash after the hook.
+731: 
+732: With every writer frozen, the unchanged [final normal architecture command](gy-phase5-evidence/shared/final-architecture-guardrails-v4.json)
+733: returns **RC0 in 343.836 seconds**. All families required by that normal gate
+734: are fresh: `runtime-openapi-snapshot`, `runtime-api-client`,
+735: `runtime-dashboard-api-types`, and `trust-claim-posture-register`. No skip flag,
+736: family reduction, forged output or hook bypass is used. Its informational notice
+737: about the separate Atlas status-retirement command is retained in full; that
+738: standalone gate is not a Phase 5 gate and was not silently credited as run.
+739: 
+740: The targeted PA1, governed D1d/N9, runtime API contract, generated-client tests and
+741: client/dashboard type checks pass in the exact records above. The complete S3
+742: targeted command remains RC1 for its explicitly named education/reference cases;
+743: the complete changed-source Ruff command remains RC1 for the preserved DS18/DS15
+744: duplicate key. Their denominators and P41 limitations stay intact. Later Python
+745: changes are evidence harnesses with their own recorded Ruff RC0; no product
+746: Python changed after the D1d freeze. No full/directory Python suite ran.
+747: 
+748: The failure/repair register was reopened before closeout. The existing P27/P28/P29
+749: and P37/P38 rules cover the owner/default/proof and authority properties; P40
+750: records the widened PA1 and S3 classes, and P41 prevents unsupported inherited-red
+751: claims. D5 baseline tightening, D6 framework station, D7 current projection and
+752: D8 byte ownership are closed integration findings with the evidence above.
+753: No further rule is added merely to narrate those instances.
+754: 
+755: ### Proposed architect transcription only
+756: 
+757: - `GY-S3`: replace the old unexecuted-seam measurement with the delivered route,
+758:   default, N4 and refusal/credal mechanisms; retain `blocked` at
+759:   `P5-S3-MAP-01` with its exact independent correspondence acceptance quantity.
+760: - `GY-PR1`: remove the superseded EFFECT/MEASUREMENT/caller-bool investigation
+761:   premises; retain `blocked` for the actual canonical-positive and protected
+762:   near-miss conjuncts. Keep its source-preservation/pre-admission/empirical binding
+763:   engineering explicitly inside PR1 and the first-promotion row.
+764: - `GY-PA1`: replace the August completed negative with `executed`, using the
+765:   source-to-late-evidence-to-reader/client receipts and genuine refusal reasons.
+766:   GAP7/local S8 capability is existing evidence, not newly reopened work.
+767: - `first-promotion-candidate-with-complete-evidence`: the SKG engineering fork
+768:   exists. Name the scientific evidence/acceptance boundary, current N8 refusal
+769:   and unfinished N9 input production/binding; do not restore an appointment-only
+770:   explanation or construct a complete candidate to clear the row.
+771: 
+772: These are proposals in this journal. Active `DEBT-REGISTER.md` and `LEDGER.md`
+773: remain untouched; the architect owns their transcription. The final documentation
+774: and evidence append is committed and read back at handoff without inserting its
+775: own hash into itself. The [pre-record-commit state and complete protected-file comparison](gy-phase5-evidence/shared/handback-protected-state.json)
+776: returns RC0: the complete tracked debt/ledger identity sets agree across index,
+777: HEAD and slice-base trees, and every protected file plus the safety core is
+778: byte-identical to the slice base. Only documentation/evidence remains uncommitted
+779: at that capture boundary. The registered auxiliary is clean, attached to its
+780: named branch at the exact slice base. Final clean-primary status is checked after
+781: the documentation commit, rather than inferred from that earlier snapshot.
+782: 
+783: The final documentation-only independent review approves the corrected history
+784: label, historical/current N9 distinction, safety evidence link, terminal table and
+785: programme ordering. It finds no blocking documentation correction. Independent
+786: parsers reconcile all direct local links in the three deliverables; no missing
+787: or non-file target remains. No source or gate changed after the successful final
+788: normal architecture run. No push occurs.

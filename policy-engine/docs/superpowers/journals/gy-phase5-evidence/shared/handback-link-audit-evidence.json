@@ -282,6 +282,23 @@
     "json_readable": true
   },
   {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/deep-import-baseline-audit.md",
+    "sha256": "65e5abc7d23a672da815edb35f30b60750db7677c58e8902e7c5d811ddb7e524"
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/final-safety-integrity.json",
+    "sha256": "81c8040564db4b48c119e1def38a0beeb49c7ca2433a41dc8eb4c95efadde676",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -c 'import hashlib,json,subprocess; from pathlib import Path; p=\"src/polisyos/runtime/quality/evaluation_safety.py\"; current=Path(p).read_bytes(); base=subprocess.check_output([\"git\",\"show\",\"3d572c146:policy-engine/\"+p]); print(json.dumps({\"path\":p,\"denominator\":\"entire file bytes from exact slice base and current worktree\",\"base\":\"3d572c146\",\"base_sha256\":hashlib.sha256(base).hexdigest(),\"current_sha256\":hashlib.sha256(current).hexdigest(),\"byte_equal\":current==base})); raise SystemExit(0 if current==base else 1)'",
+    "returncode": 0,
+    "elapsed_seconds": 0.14332224999088794,
+    "stdout_terminal_lines": [
+      "{\"path\": \"src/polisyos/runtime/quality/evaluation_safety.py\", \"denominator\": \"entire file bytes from exact slice base and current worktree\", \"base\": \"3d572c146\", \"base_sha256\": \"22edd5916472bbe5e186c2a0091ab2e65c40d3b06d94c72cbefaaafdb4d6537c\", \"current_sha256\": \"22edd5916472bbe5e186c2a0091ab2e65c40d3b06d94c72cbefaaafdb4d6537c\", \"byte_equal\": true}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
     "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/n8-owner-assignment.json",
     "sha256": "b100576e5deb6361858ed586db86e4d4caf3bc6d8b24977aa88ad3e92c956fb7",
     "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_value_gate.py::test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition tests/unit/runtime/quality/test_value_gate.py::test_shaped_owner_assignment_attestation_is_not_authority tests/unit/runtime/quality/test_value_gate.py::test_shaped_relation_certificate_cannot_open_missing_value_input_lane -q",
@@ -294,6 +311,10 @@
     "json_readable": true
   },
   {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/private-interpreter-owner-audit.md",
+    "sha256": "4b8ad091f9a4489f68881cd64222ecc808a401e559d85c87fd02103ee55606c3"
+  },
+  {
     "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md",
     "sha256": "f20528cde1eba5f1b476c208d3f1120ca63cadddcde13aaafb47fbc589d3a0bf"
   },
@@ -304,6 +325,10 @@
   {
     "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-scope-audit.md",
     "sha256": "f3e02bc3aced40498d2101f6b3ab9d30ce797e3b40427ef764e1e0f5877c1916"
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/trust-posture-refresh-audit.md",
+    "sha256": "b9a0a3adc618e7f5765730c80e7e7c6ffc10fed8565cd70aa4f3476ba7ca8c0b"
   },
   {
     "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/credal-consumer-audit.md",
@@ -724,6 +749,266 @@
     "json_readable": true
   },
   {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-canonical-reconciliation.json",
+    "sha256": "c9068182dc015995fd9facc34c7d9069efd1630d7202aec4fc06d5c87e98e413",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -c 'import hashlib,json,pathlib,subprocess\np=pathlib.Path(\"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\")\nq=pathlib.Path(\".tmp/gyphase5-trust-posture-audit/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\")\nreference=pathlib.Path(\"docs/reference/generated-artifacts.md\")\nold=subprocess.run([\"git\",\"show\",\"HEAD:policy-engine/docs/reference/generated-artifacts.md\"],capture_output=True,check=True).stdout\nnames=subprocess.run([\"git\",\"diff\",\"--name-only\",\"-z\"],capture_output=True,check=True).stdout\nstats=subprocess.run([\"git\",\"diff\",\"--numstat\",\"-z\"],capture_output=True,check=True).stdout\na={v.decode() for v in names.split(b\"\\0\") if v}\nb={v.split(b\"\\t\",2)[2].decode() for v in stats.split(b\"\\0\") if v}\nrecord={\"canonical_sha256\":hashlib.sha256(p.read_bytes()).hexdigest(),\"scratch_sha256\":hashlib.sha256(q.read_bytes()).hexdigest(),\"canonical_equals_scratch_bytes\":p.read_bytes()==q.read_bytes(),\"canonical_equals_scratch_parsed\":json.loads(p.read_bytes())==json.loads(q.read_bytes()),\"generated_reference_equals_head_bytes\":reference.read_bytes()==old,\"complete_tracked_changed_paths\":sorted(a),\"independent_numstat_paths\":sorted(b),\"path_sets_equal\":a==b}\nprint(json.dumps(record,indent=2))\nassert record[\"canonical_equals_scratch_bytes\"] and record[\"generated_reference_equals_head_bytes\"] and a==b\n'",
+    "returncode": 0,
+    "elapsed_seconds": 0.20968495798297226,
+    "stdout_terminal_lines": [
+      "  \"canonical_equals_scratch_parsed\": true,",
+      "  \"generated_reference_equals_head_bytes\": true,",
+      "  \"complete_tracked_changed_paths\": [",
+      "    \"policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\",",
+      "    \"policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md\",",
+      "    \"policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md\"",
+      "  ],",
+      "  \"independent_numstat_paths\": [",
+      "    \"policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\",",
+      "    \"policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md\",",
+      "    \"policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md\"",
+      "  ],",
+      "  \"path_sets_equal\": true",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-d8-commit.json",
+    "sha256": "ff1a753347061753106069845c3b4c953b44e1ff9d87be1b6f054263aae785f6",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": "git commit -m 'Refresh canonical trust posture and preserve its byte owner' -m 'Falsifiers: the unchanged DS11 check rejects a corrupted digest. Removing formatter ownership makes real Prettier change writer bytes and the same freshness check refuse DS11-GENERATED-DRIFT; ordinary hooks remain enabled. Preserve rules, boundaries, full denominator and historical accessibility evidence.'",
+    "returncode": 0,
+    "elapsed_seconds": 1.9010223330114968,
+    "stdout_terminal_lines": [
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/trust_posture_semantic_summary.py",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d5-ratchet-delivery-readback.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-canonical-reconciliation.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-check.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-corruption.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-harness-ruff.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-write.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-formatter-harness-ruff.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-formatter-ownership-removal.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-hook-rewrite-measurement.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-posture-rewrite.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails-v3.json",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_formatter_ownership.py",
+      " create mode 100644 policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_report_corruption.py"
+    ],
+    "stderr": "\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 lefthook v2.1.6  hook: pre-commit \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u2502  eslint (skip) no files for inspection\n\u2503  check-contrast \u276f \n\nContrast checks passed.\n\n\u2503  check-reduced-motion \u276f \n\nReduced-motion checks passed.\n\n\u2503  prettier \u276f \n\n\n                                      \n  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nsummary: (done in 1.26 seconds)       \n\u2713 check-contrast (0.22 seconds)\n\u2713 check-reduced-motion (0.23 seconds)\n\u2713 prettier (0.51 seconds)\n",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-d8-delivery-readback.json",
+    "sha256": "8bde57ce1756ab79e59f83f4898e62af828178652ddcb0fd1132691b87dbf380",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.delivery_readback check .tmp/gyphase5-d7-d8-delivery.json",
+    "returncode": 0,
+    "elapsed_seconds": 0.5236907500075176,
+    "stdout_terminal_lines": [
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-check.json\": \"cf912dccb542776eda6ec246902a912042aee8704e68ca8dd0f0b8e17ff3aa73\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-corruption.json\": \"e411c7fb823cb56364287b78e9a492903ecb59f25338a5ddbe7d16c3cecb2948\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-harness-ruff.json\": \"8c0b47f773de1e093a1fb36ff8fa3ccfc39c67c07a2a35439807c299f0e5cb12\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-write.json\": \"6b5ae1f03fd13f8f1db47ff7b1f185f3cfc1b46c63772f3b015da1c77eceeebb\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-formatter-harness-ruff.json\": \"c567305501e3b565154f829622dd9989d8c00117103fc81cf51b7af790ee8be3\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-formatter-ownership-removal.json\": \"752c06184fb55967d7ffb9f608c237ba9756f40130e1c68874a9886b10fd2d1d\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-hook-rewrite-measurement.json\": \"69922b8cd519b5147aef697df1c38cd1200f6291e020a83ea934f8ca60b83f1d\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-posture-rewrite.json\": \"62675f2c7c25d46ad4de9bdaaa953611a800af818825e5e613ae0f55439f63d9\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails-v3.json\": \"9f61c8638ddcc42c62269b40fa5d31b2fdb16e34c51d0b52776ec34d4dbf49ad\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_formatter_ownership.py\": \"f782d8ec686f3b5ae4be0faa27d2622a735d692d47e9cbca98e66815808f18c8\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_report_corruption.py\": \"d0c7ceb60a1b8d1886501bcbc0790e76f37874c588f8dc1a5d40de327e281e9f\",",
+      "    \"policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md\": \"a8f11a038a76454fcb66d52d518f7c82c484f6546be8d872ed3108b48a4ef371\"",
+      "  }",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-check.json",
+    "sha256": "cf912dccb542776eda6ec246902a912042aee8704e68ca8dd0f0b8e17ff3aa73",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m tools.quality.validation.check_trust_claim_posture --repo-root . --check",
+    "returncode": 0,
+    "elapsed_seconds": 59.07916483399458,
+    "stdout_terminal_lines": [
+      "      \"carries_only\": 5,",
+      "      \"consumes_only\": 6,",
+      "      \"declares_and_consumes\": 35,",
+      "      \"declares_only\": 75,",
+      "      \"substring_collision\": 1",
+      "    },",
+      "    \"row_digest\": \"sha256:eac33e2c55bde0dacdc740885ffd7f903f2428c97252dddb2c80164f3b78a481\",",
+      "    \"scanned_python_count\": 138,",
+      "    \"wrapper_literal_file_count\": 33,",
+      "    \"wrapper_literal_site_count\": 71,",
+      "    \"wrapper_literal_subject_count\": 35",
+      "  },",
+      "  \"write_set\": []",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-corruption.json",
+    "sha256": "e411c7fb823cb56364287b78e9a492903ecb59f25338a5ddbe7d16c3cecb2948",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.posture_report_corruption",
+    "returncode": 0,
+    "elapsed_seconds": 47.31071229104418,
+    "stdout_terminal_lines": [
+      "    \"--repo-root\",",
+      "    \".\",",
+      "    \"--check\"",
+      "  ],",
+      "  \"PATH\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources\",",
+      "  \"PYTHONPATH\": \".:src\",",
+      "  \"returncode\": 1,",
+      "  \"elapsed_seconds\": 47.2176491250284,",
+      "  \"stdout\": \"\",",
+      "  \"stderr\": \"Traceback (most recent call last):\\n  File \\\"<frozen runpy>\\\", line 198, in _run_module_as_main\\n  File \\\"<frozen runpy>\\\", line 88, in _run_code\\n  File \\\"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tools/quality/validation/check_trust_claim_posture.py\\\", line 2856, in <module>\\n    raise SystemExit(main())\\n                     ~~~~^^\\n  File \\\"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tools/quality/validation/check_trust_claim_posture.py\\\", line 2824, in main\\n    raise ValueError(\\\"DS11-GENERATED-DRIFT\\\")\\nValueError: DS11-GENERATED-DRIFT\\n\",",
+      "  \"original_sha256\": \"4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa\",",
+      "  \"restored_sha256\": \"4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa\",",
+      "  \"byte_identical_restoration\": true",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-harness-ruff.json",
+    "sha256": "8c0b47f773de1e093a1fb36ff8fa3ccfc39c67c07a2a35439807c299f0e5cb12",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/shared/posture_report_corruption.py",
+    "returncode": 0,
+    "elapsed_seconds": 0.06618195900227875,
+    "stdout_terminal_lines": [
+      "All checks passed!"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-posture-write.json",
+    "sha256": "6b5ae1f03fd13f8f1db47ff7b1f185f3cfc1b46c63772f3b015da1c77eceeebb",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m tools.quality.validation.check_trust_claim_posture --repo-root . --write --write-generated-reference",
+    "returncode": 0,
+    "elapsed_seconds": 48.92822933301795,
+    "stdout_terminal_lines": [
+      "      \"declares_only\": 75,",
+      "      \"substring_collision\": 1",
+      "    },",
+      "    \"row_digest\": \"sha256:eac33e2c55bde0dacdc740885ffd7f903f2428c97252dddb2c80164f3b78a481\",",
+      "    \"scanned_python_count\": 138,",
+      "    \"wrapper_literal_file_count\": 33,",
+      "    \"wrapper_literal_site_count\": 71,",
+      "    \"wrapper_literal_subject_count\": 35",
+      "  },",
+      "  \"write_set\": [",
+      "    \"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\",",
+      "    \"docs/reference/generated-artifacts.md\"",
+      "  ]",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-formatter-harness-ruff.json",
+    "sha256": "c567305501e3b565154f829622dd9989d8c00117103fc81cf51b7af790ee8be3",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/shared/posture_formatter_ownership.py",
+    "returncode": 0,
+    "elapsed_seconds": 0.1317738329526037,
+    "stdout_terminal_lines": [
+      "All checks passed!"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-formatter-ownership-removal.json",
+    "sha256": "752c06184fb55967d7ffb9f608c237ba9756f40130e1c68874a9886b10fd2d1d",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.posture_formatter_ownership",
+    "returncode": 0,
+    "elapsed_seconds": 52.24616295803571,
+    "stdout_terminal_lines": [
+      "    ],",
+      "    \"cwd\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine\",",
+      "    \"PATH\": \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources\",",
+      "    \"PYTHONPATH\": \".:src\",",
+      "    \"returncode\": 1,",
+      "    \"elapsed_seconds\": 50.081389874976594,",
+      "    \"stdout\": \"\",",
+      "    \"stderr\": \"Traceback (most recent call last):\\n  File \\\"<frozen runpy>\\\", line 198, in _run_module_as_main\\n  File \\\"<frozen runpy>\\\", line 88, in _run_code\\n  File \\\"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tools/quality/validation/check_trust_claim_posture.py\\\", line 2856, in <module>\\n    raise SystemExit(main())\\n                     ~~~~^^\\n  File \\\"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/tools/quality/validation/check_trust_claim_posture.py\\\", line 2824, in main\\n    raise ValueError(\\\"DS11-GENERATED-DRIFT\\\")\\nValueError: DS11-GENERATED-DRIFT\\n\"",
+      "  },",
+      "  \"writer_sha256\": \"4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa\",",
+      "  \"restored_sha256\": \"4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa\",",
+      "  \"artifact_restored_exactly\": true,",
+      "  \"configuration_restored_exactly\": true",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-hook-rewrite-measurement.json",
+    "sha256": "69922b8cd519b5147aef697df1c38cd1200f6291e020a83ea934f8ca60b83f1d",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -c 'import hashlib,json,pathlib,subprocess\np=pathlib.Path(\"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\")\nfrozen=subprocess.run([\"git\",\"show\",\":policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\"],capture_output=True,check=True).stdout\nlive=p.read_bytes()\ncmd=[\"git\",\"diff\",\"--name-only\",\"-z\"]\nresult=subprocess.run(cmd,capture_output=True,check=True)\na={i.decode() for i in result.stdout.split(b\"\\0\") if i}\nb={i.split(b\"\\t\",2)[2].decode() for i in subprocess.run([\"git\",\"diff\",\"--numstat\",\"-z\"],capture_output=True,check=True).stdout.split(b\"\\0\") if i}\nprint(json.dumps({\"head\":subprocess.run([\"git\",\"rev-parse\",\"HEAD\"],capture_output=True,text=True,check=True).stdout.strip(),\"branch\":subprocess.run([\"git\",\"symbolic-ref\",\"--short\",\"HEAD\"],capture_output=True,text=True,check=True).stdout.strip(),\"canonical_staged_sha256\":hashlib.sha256(frozen).hexdigest(),\"hook_worktree_sha256\":hashlib.sha256(live).hexdigest(),\"bytes_equal\":frozen==live,\"full_parsed_values_equal\":json.loads(frozen)==json.loads(live),\"complete_unstaged_path_set\":sorted(a),\"independent_path_set\":sorted(b),\"identity_sets_equal\":a==b},indent=2))\nassert a==b and json.loads(frozen)==json.loads(live) and frozen!=live\n'",
+    "returncode": 0,
+    "elapsed_seconds": 0.806372458988335,
+    "stdout_terminal_lines": [
+      "  \"head\": \"7fdcec9bde6d4a1cbad532edc91e075bb37d1227\",",
+      "  \"branch\": \"codex/gy-phase5-execution\",",
+      "  \"canonical_staged_sha256\": \"4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa\",",
+      "  \"hook_worktree_sha256\": \"15b4d9f031f5034895e3a2bbafcbfa971fd3652e8632737631b25cf762e28a17\",",
+      "  \"bytes_equal\": false,",
+      "  \"full_parsed_values_equal\": true,",
+      "  \"complete_unstaged_path_set\": [",
+      "    \"policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\"",
+      "  ],",
+      "  \"independent_path_set\": [",
+      "    \"policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\"",
+      "  ],",
+      "  \"identity_sets_equal\": true",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d8-posture-rewrite.json",
+    "sha256": "62675f2c7c25d46ad4de9bdaaa953611a800af818825e5e613ae0f55439f63d9",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m tools.quality.validation.check_trust_claim_posture --repo-root . --write --write-generated-reference",
+    "returncode": 0,
+    "elapsed_seconds": 58.2216112089809,
+    "stdout_terminal_lines": [
+      "      \"declares_only\": 75,",
+      "      \"substring_collision\": 1",
+      "    },",
+      "    \"row_digest\": \"sha256:eac33e2c55bde0dacdc740885ffd7f903f2428c97252dddb2c80164f3b78a481\",",
+      "    \"scanned_python_count\": 138,",
+      "    \"wrapper_literal_file_count\": 33,",
+      "    \"wrapper_literal_site_count\": 71,",
+      "    \"wrapper_literal_subject_count\": 35",
+      "  },",
+      "  \"write_set\": [",
+      "    \"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\",",
+      "    \"docs/reference/generated-artifacts.md\"",
+      "  ]",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
     "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/ds17-dependency-analysis.json",
     "sha256": "532ba476b46aee912d347824ac580eacccd5d38c0a860ac54987192b4516362b",
     "stdout_terminal_lines": [],
@@ -751,6 +1036,144 @@
     "sha256": "07936321b6bf5a192e0580e681afb69a7aefe19ba09753341037d97e50eba2de"
   },
   {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails-v2.json",
+    "sha256": "419532c5d187ea173e59b234c678addd79ad20693046f97c80f4faf63e513575",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": "env DYLD_LIBRARY_PATH=/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib .venv/bin/python -m tools.cli architecture guardrails check",
+    "returncode": 1,
+    "elapsed_seconds": 74.39647479105042,
+    "stdout_terminal_lines": [
+      "",
+      "\u2728 openapi-typescript 7.13.0",
+      "\ud83d\ude80 schemas/runtime_api_v1.openapi.json \u2192 /var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/outputs/runtime-api-client/packages/runtime-api-client/types.ts [836.6ms]",
+      "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/source/packages/runtime-api-client:",
+      "\u2009ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL\u2009 @polisyos/runtime-api-client@0.1.0 generate: `bash ./scripts/generate-runtime-api-client.sh -- --output-root /var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/outputs/runtime-api-client`",
+      "Exit status 134",
+      "dyld[40222]: Library not loaded: @rpath/libpython3.14.dylib",
+      "  Referenced from: <4C4C44BD-5555-3144-A182-492C989DFDAF> /private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/environment/bin/python",
+      "  Reason: tried: '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/environment/lib/libpython3.14.dylib' (no such file), '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/environment/lib/libpython3.14.dylib' (no such file)",
+      "./scripts/generate-runtime-api-client.sh: line 49: 40222 Abort trap: 6           PYTHONPATH=src:. \"${PROJECT_ROOT}/.venv/bin/python\" tools/ops_runners/runtime/generate_runtime_client.py --openapi \"${OPENAPI_FILE}\" --out-ts \"${RUNTIME_TS_OUT}\" --out-js \"${RUNTIME_JS_OUT}\"",
+      "- trust-claim-posture-register generator-observed output probe failed:",
+      "dyld[40282]: Library not loaded: @rpath/libpython3.14.dylib",
+      "  Referenced from: <4C4C44BD-5555-3144-A182-492C989DFDAF> /private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/environment/bin/python",
+      "  Reason: tried: '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/environment/lib/libpython3.14.dylib' (no such file), '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_gtwwx6yq/environment/lib/libpython3.14.dylib' (no such file)"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails-v3.json",
+    "sha256": "9f61c8638ddcc42c62269b40fa5d31b2fdb16e34c51d0b52776ec34d4dbf49ad",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".tmp/gyphase5-framework/.venv/bin/python -m tools.cli architecture guardrails check",
+    "returncode": 1,
+    "elapsed_seconds": 337.3991045000148,
+    "stdout_terminal_lines": [
+      "Generated artifact freshness clean: runtime-openapi-snapshot (1 generator-observed outputs).",
+      "Generated artifact freshness clean: runtime-api-client (5 generator-observed outputs).",
+      "Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).",
+      "Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.",
+      "Architecture guardrail check FAILED:",
+      "- trust-claim-posture-register generated output apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json does not match /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json."
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails-v4.json",
+    "sha256": "c3e481181b727fc1d5c587b98276d3461e0cd1d3bf2d5b5e82ff71a652d19ee2",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".tmp/gyphase5-framework/.venv/bin/python -m tools.cli architecture guardrails check",
+    "returncode": 0,
+    "elapsed_seconds": 343.8359783340129,
+    "stdout_terminal_lines": [
+      "Generated artifact freshness clean: runtime-openapi-snapshot (1 generator-observed outputs).",
+      "Generated artifact freshness clean: runtime-api-client (5 generator-observed outputs).",
+      "Generated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).",
+      "Generated artifact freshness clean: trust-claim-posture-register (1 generator-observed outputs).",
+      "Standalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.",
+      "Architecture guardrail check passed."
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails.json",
+    "sha256": "6401d5df27495e56588e30aae049afa6eada3d7fe7e98c0fb51815ffbcd38977",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m tools.cli architecture guardrails check",
+    "returncode": 1,
+    "elapsed_seconds": 30.3151571250055,
+    "stdout_terminal_lines": [
+      "-    },",
+      "-    {",
+      "-      \"source_module\": \"polisyos.runtime.quality.acquisition_planner\",",
+      "-      \"source_root\": \"runtime\",",
+      "-      \"source_file\": \"src/polisyos/runtime/quality/acquisition_planner.py\",",
+      "       \"target_module\": \"polisyos.data_forge.domains.academic.openalex.client\",",
+      "       \"target_root\": \"data_forge\"",
+      "     },",
+      "- Required freshness environment preparation failed: error: Querying Python at `/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/bin/python3` failed with exit status signal: 6 (SIGABRT)",
+      "",
+      "[stderr]",
+      "dyld[39266]: Library not loaded: @rpath/libpython3.14.dylib",
+      "  Referenced from: <4C4C44BD-5555-3144-A182-492C989DFDAF> /private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/bin/python3",
+      "  Reason: tried: '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/lib/libpython3.14.dylib' (no such file), '/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/polisyos_generated_freshness_lr8lmbng/environment/lib/libpython3.14.dylib' (no such file)"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/framework-python-provision.json",
+    "sha256": "7b82127ca5570a1ca4e83283af40b663da2f1ec0ab7e310d92bfc2489605d925",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": "env UV_PROJECT_ENVIRONMENT=/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5-framework/.venv uv sync --frozen --python /opt/homebrew/bin/python3.14",
+    "returncode": 0,
+    "elapsed_seconds": 10.139740000013262,
+    "stdout_terminal_lines": [],
+    "stderr": "Using CPython 3.14.0 interpreter at: /opt/homebrew/opt/python@3.14/bin/python3.14\nCreating virtual environment at: .tmp/gyphase5-framework/.venv\n   Building policy-engine @ file:///Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine\nDownloading jaxlib (53.4MiB)\nDownloading jax (2.8MiB)\nDownloading pydantic-core (1.8MiB)\nDownloading libcst (2.0MiB)\nDownloading pillow (4.6MiB)\nDownloading grpcio (11.3MiB)\nDownloading matplotlib (7.8MiB)\nDownloading cryptography (6.8MiB)\nDownloading duckdb (13.1MiB)\nDownloading fonttools (2.7MiB)\nDownloading pyarrow (32.6MiB)\nDownloading scipy (19.9MiB)\nDownloading pymoo (1.8MiB)\nDownloading numpy (4.9MiB)\nDownloading pandas (10.3MiB)\n Downloaded pydantic-core\n Downloaded pymoo\n Downloaded libcst\n      Built policy-engine @ file:///Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine\n Downloaded fonttools\n Downloaded jax\n Downloaded pillow\n Downloaded numpy\n Downloaded cryptography\n Downloaded matplotlib\n Downloaded grpcio\n Downloaded pandas\n Downloaded duckdb\n Downloaded scipy\n Downloaded pyarrow\n Downloaded jaxlib\nPrepared 115 packages in 9.55s\nInstalled 115 packages in 381ms\n + about-time==4.2.1\n + absl-py==2.3.1\n + aiohappyeyeballs==2.6.1\n + aiohttp==3.13.3\n + aiosignal==1.4.0\n + alive-progress==3.3.0\n + annotated-types==0.7.0\n + anyio==4.12.0\n + attrs==25.4.0\n + autograd==1.8.0\n + certifi==2025.11.12\n + cffi==2.0.0\n + charset-normalizer==3.4.4\n + chex==0.1.91\n + click==8.3.1\n + cma==4.4.1\n + contourpy==1.3.3\n + cryptography==46.0.4\n + cycler==0.12.1\n + defusedxml==0.7.1\n + deprecated==1.3.1\n + diffrax==0.7.0\n + distro==1.9.0\n + duckdb==1.4.3\n + equinox==0.13.2\n + et-xmlfile==2.0.0\n + fonttools==4.61.1\n + frozenlist==1.8.0\n + googleapis-common-protos==1.72.0\n + graphemeu==0.7.2\n + grpcio==1.78.0\n + h11==0.16.0\n + httpcore==1.0.9\n + httpx==0.28.1\n + idna==3.11\n + importlib-metadata==8.7.1\n + jax==0.8.2\n + jaxlib==0.8.2\n + jaxtyping==0.3.4\n + jiter==0.13.0\n + jsonpatch==1.33\n + jsonpointer==3.0.0\n + kiwisolver==1.4.9\n + langchain==1.2.0\n + langchain-core==1.2.6\n + langgraph==1.0.5\n + langgraph-checkpoint==3.0.1\n + langgraph-prebuilt==1.0.5\n + langgraph-sdk==0.3.1\n + langsmith==0.6.0\n + libcst==1.8.6\n + lineax==0.0.8\n + loguru==0.7.3\n + matplotlib==3.10.8\n + ml-dtypes==0.5.4\n + moocore==0.1.10\n + multidict==6.7.1\n + numpy==2.3.5\n + odfpy==1.4.1 (from file:///Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl)\n + openai==1.109.1\n + openpyxl==3.1.5\n + opentelemetry-api==1.39.1\n + opentelemetry-exporter-otlp-proto-common==1.39.1\n + opentelemetry-exporter-otlp-proto-grpc==1.39.1\n + opentelemetry-exporter-prometheus==0.60b1\n + opentelemetry-proto==1.39.1\n + opentelemetry-sdk==1.39.1\n + opentelemetry-semantic-conventions==0.60b1\n + opt-einsum==3.4.0\n + optax==0.2.6\n + optimistix==0.0.11\n + orjson==3.11.5\n + ormsgpack==1.12.1\n + packaging==25.0\n + pandas==2.3.3\n + pillow==12.3.0\n + platformdirs==4.5.1\n + policy-engine==0.1.0 (from file:///Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine)\n + prometheus-client==0.23.1\n + propcache==0.4.1\n + protobuf==6.33.2\n + pyarrow==22.0.0\n + pycparser==2.23\n + pydantic==2.12.5\n + pydantic-core==2.41.5\n + pydantic-settings==2.12.0\n + pymoo==0.6.1.6\n + pyparsing==3.3.1\n + pypdf==6.7.4\n + python-dateutil==2.9.0.post0\n + python-dotenv==1.2.1\n + pytz==2025.2\n + pyyaml==6.0.3\n + regex==2026.9.3\n + requests==2.32.5\n + requests-toolbelt==1.0.0\n + scipy==1.16.3\n + six==1.17.0\n + sniffio==1.3.1\n + tenacity==9.1.2\n + tiktoken==0.12.0\n + toolz==1.1.0\n + tqdm==4.67.3\n + typing-extensions==4.15.0\n + typing-inspection==0.4.2\n + tzdata==2025.3\n + urllib3==2.6.2\n + uuid-utils==0.12.0\n + wadler-lindig==0.1.7\n + wrapt==2.0.1\n + xlrd==2.0.2\n + xxhash==3.6.0\n + yarl==1.22.0\n + zipp==3.23.0\n + zstandard==0.25.0\n",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/framework-python-station-probe.json",
+    "sha256": "4bfe5f0313f01b672fb71cc2738234de6fdf8ecd364bd2566f05206e60cb79bb",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": "/opt/homebrew/bin/python3.14 -m docs.superpowers.journals.gy-phase5-evidence.shared.probe_framework_python",
+    "returncode": 0,
+    "elapsed_seconds": 0.5279342909925617,
+    "stdout_terminal_lines": [
+      "      \"argv\": [",
+      "        \"/bin/bash\",",
+      "        \"-c\",",
+      "        \"exec \\\"$1\\\" -c \\\"$2\\\"\",",
+      "        \"probe\",",
+      "        \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5-framework-copy-r10vk2ni/environment/bin/python3\",",
+      "        \"import json,sys; print(json.dumps({'version':sys.version,'prefix':sys.prefix}))\"",
+      "      ],",
+      "      \"returncode\": 0,",
+      "      \"stdout\": \"{\\\"version\\\": \\\"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\\\", \\\"prefix\\\": \\\"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5-framework-copy-r10vk2ni/environment\\\"}\\n\",",
+      "      \"stderr\": \"\"",
+      "    }",
+      "  ]",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/framework-python-station-ruff-v2.json",
+    "sha256": "b36423b8d4612635a1b8e3189f4a9f523bf29aea8d1f584b4bbff5d597f76292",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/shared/probe_framework_python.py",
+    "returncode": 0,
+    "elapsed_seconds": 0.06274291704175994,
+    "stdout_terminal_lines": [
+      "All checks passed!"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
     "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/frozen-source-ruff.json",
     "sha256": "985ea7f8a35c93a67d8bde48311fcbfdac154cb4671932c4311b109ed25a5494",
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
@@ -771,6 +1194,32 @@
       "help: Remove repeated key literal `\"admit_epoch_validity_batch\"`",
       "",
       "Found 1 error."
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/handback-protected-state.json",
+    "sha256": "efbedcef480d9aef693a4177b5811e2c0aeeb77092b11300c6b1c8500524233e",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -c 'import hashlib,json,pathlib,subprocess\nroot=pathlib.Path.cwd().parent\naux=root.parent/\"gyphase5-lane-basecheck\"\nbase=\"3d572c146f9d021cb6daad64ebb7b093121ed124\"\ndef git(*args,cwd=root):\n r=subprocess.run([\"git\",*args],cwd=cwd,capture_output=True,text=True,check=True)\n return r.stdout\ntracked={p for p in git(\"ls-files\").splitlines() if pathlib.PurePosixPath(p).name in {\"DEBT-REGISTER.md\",\"LEDGER.md\"}}\nhead_paths={p for p in git(\"ls-tree\",\"-r\",\"--name-only\",\"HEAD\").splitlines() if pathlib.PurePosixPath(p).name in {\"DEBT-REGISTER.md\",\"LEDGER.md\"}}\nbase_paths={p for p in git(\"ls-tree\",\"-r\",\"--name-only\",base).splitlines() if pathlib.PurePosixPath(p).name in {\"DEBT-REGISTER.md\",\"LEDGER.md\"}}\nassert tracked==head_paths==base_paths and tracked\nprotected=[]\nfor p in sorted(tracked|{\"policy-engine/src/polisyos/runtime/quality/evaluation_safety.py\"}):\n old=subprocess.run([\"git\",\"show\",base+\":\"+p],cwd=root,capture_output=True,check=True).stdout\n committed=subprocess.run([\"git\",\"show\",\"HEAD:\"+p],cwd=root,capture_output=True,check=True).stdout\n live=(root/p).read_bytes()\n protected.append({\"path\":p,\"base_sha256\":hashlib.sha256(old).hexdigest(),\"head_sha256\":hashlib.sha256(committed).hexdigest(),\"worktree_sha256\":hashlib.sha256(live).hexdigest(),\"all_bytes_equal\":old==committed==live})\nnames={v for v in git(\"diff\",\"--name-only\").splitlines()}\nstats={v.split(\"\\t\",2)[2] for v in git(\"diff\",\"--numstat\").splitlines()}\nuntracked=git(\"ls-files\",\"--others\",\"--exclude-standard\").splitlines()\nrecord={\"denominator\":\"complete tracked DEBT-REGISTER.md and LEDGER.md paths from index, HEAD and exact slice-base trees, plus the complete safety-core file\",\"base\":base,\"head\":git(\"rev-parse\",\"HEAD\").strip(),\"branch\":git(\"symbolic-ref\",\"--short\",\"HEAD\").strip(),\"protected_identity_sets_equal\":tracked==head_paths==base_paths,\"protected\":protected,\"complete_unstaged_tracked_paths\":sorted(names),\"independent_numstat_paths\":sorted(stats),\"tracked_change_sets_equal\":names==stats,\"untracked_paths_at_capture_entry\":untracked,\"primary_status_before_final_record_commit\":git(\"status\",\"-sb\"),\"auxiliary\":{\"path\":str(aux),\"head\":git(\"rev-parse\",\"HEAD\",cwd=aux).strip(),\"branch\":git(\"symbolic-ref\",\"--short\",\"HEAD\",cwd=aux).strip(),\"status\":git(\"status\",\"-sb\",cwd=aux),\"porcelain\":git(\"status\",\"--porcelain=v1\",\"--untracked-files=all\",cwd=aux)}}\nprint(json.dumps(record,indent=2))\nassert all(p[\"all_bytes_equal\"] for p in protected)\nassert names==stats and all(p.startswith(\"policy-engine/docs/superpowers/\") for p in names|set(untracked))\nassert record[\"branch\"]==\"codex/gy-phase5-execution\" and record[\"auxiliary\"][\"branch\"]==\"codex/gyphase5-lane-basecheck\"\nassert record[\"auxiliary\"][\"head\"]==base and not record[\"auxiliary\"][\"porcelain\"]\n'",
+    "returncode": 0,
+    "elapsed_seconds": 1.3033072089892812,
+    "stdout_terminal_lines": [
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-d8-commit.json\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-d8-delivery-readback.json\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails-v4.json\",",
+      "    \"policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/handback-link-audit-final-command.json\"",
+      "  ],",
+      "  \"primary_status_before_final_record_commit\": \"## codex/gy-phase5-execution\\n M policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md\\n M policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/handback-link-audit-evidence-visible.txt\\n M policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/handback-link-audit-evidence.json\\n M policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/handback-link-audit-visible.txt\\n M policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/handback-link-audit.json\\n M policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md\\n?? policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-d8-commit.json\\n?? policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d7-d8-delivery-readback.json\\n?? policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/final-architecture-guardrails-v4.json\\n?? policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/handback-link-audit-final-command.json\\n\",",
+      "  \"auxiliary\": {",
+      "    \"path\": \"/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck\",",
+      "    \"head\": \"3d572c146f9d021cb6daad64ebb7b093121ed124\",",
+      "    \"branch\": \"codex/gyphase5-lane-basecheck\",",
+      "    \"status\": \"## codex/gyphase5-lane-basecheck\\n\",",
+      "    \"porcelain\": \"\"",
+      "  }",
+      "}"
     ],
     "stderr": "",
     "json_readable": true
@@ -854,6 +1303,61 @@
     "stdout_terminal_lines": [],
     "stderr": null,
     "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_formatter_ownership.py",
+    "sha256": "f782d8ec686f3b5ae4be0faa27d2622a735d692d47e9cbca98e66815808f18c8"
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/posture_report_corruption.py",
+    "sha256": "d0c7ceb60a1b8d1886501bcbc0790e76f37874c588f8dc1a5d40de327e281e9f"
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/private-python-station-probe.json",
+    "sha256": "d5bd0370d117478a87cffc8a198ce98310d3c1f10458d544cb47783bc775ece2",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.probe_private_python",
+    "returncode": 0,
+    "elapsed_seconds": 0.5138037909637205,
+    "stdout_terminal_lines": [
+      "    {",
+      "      \"mode\": \"base_library_path\",",
+      "      \"argv\": [",
+      "        \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5-python-copy-4gkdm59q/environment/bin/python3\",",
+      "        \"-c\",",
+      "        \"import json,sys; print(json.dumps({'version':sys.version,'base_prefix':sys.base_prefix,'executable':sys.executable}))\"",
+      "      ],",
+      "      \"DYLD_LIBRARY_PATH\": \"/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib\",",
+      "      \"returncode\": 0,",
+      "      \"stdout\": \"{\\\"version\\\": \\\"3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]\\\", \\\"base_prefix\\\": \\\"/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none\\\", \\\"executable\\\": \\\"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5-python-copy-4gkdm59q/environment/bin/python3\\\"}\\n\",",
+      "      \"stderr\": \"\"",
+      "    }",
+      "  ]",
+      "}"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/private-python-station-ruff.json",
+    "sha256": "da552bb44b222847542b142a433770d9004d6ee021c09803f5a32d24c428bbdf",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+    "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/shared/probe_private_python.py",
+    "returncode": 0,
+    "elapsed_seconds": 0.05819854198489338,
+    "stdout_terminal_lines": [
+      "All checks passed!"
+    ],
+    "stderr": "",
+    "json_readable": true
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/probe_framework_python.py",
+    "sha256": "71adff70ee3a100665a9a0cf8b5c0c61c3b12a9130e856f72018cdffcf414e81"
+  },
+  {
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/probe_private_python.py",
+    "sha256": "dbdf028e29b44c5b9140acec9100f3a3a888c1ebf11fd654ce35011dd4bbc0fd"
   },
   {
     "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/public-surface-identity-delta.json",

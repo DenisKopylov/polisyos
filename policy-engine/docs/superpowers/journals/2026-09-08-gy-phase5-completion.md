@@ -28,6 +28,22 @@ P31/P37/P38 class one level deeper under P40. Source-available sidecar omission
 or corruption must preserve candidate fronts and produce a typed request;
 source-unavailable population is declared `not_established`, never zero.
 
+**S3-D1b:** the existing credal L6 projection unconditionally confirms a law-map
+edge after reading the law owner. Its modality is law-to-knob admissibility,
+and CG1/CG2 consume that authority. The dependent S3 handoff must carry the
+new correspondence refusal without losing the knob association and thereby
+dropping the blocking edge from scope. This is the same P37/P38 class under
+P40. The change is confined to S3's input projection; general S2/CG1 and their
+scientific acceptance rules remain outside this repair.
+
+The D1b receipt decision precedes its source edit: current credal reference v2,
+explicit v1 hashing for historical replay, no historical restamp. The independent
+[executed consumer audit](gy-phase5-evidence/s3/credal-consumer-audit.md) reconciles
+the real raw-knob/WMR atom identities with CG1's actual projection. Both the
+original unconditional confirmation and a status-only repair which drops the
+knob association leave the same atoms falsely admitted; association-preserving
+uncertainty reaches the existing contested consumer without changing its algorithm.
+
 Implementation starts with failing behavioral tests through the actual N8/N4 and
 natural-language control-worker seams. Evidence is retained in
 `gy-phase5-evidence/s3/` and `gy-phase5-evidence/pa1/` with actual subprocess exit

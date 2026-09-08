@@ -29,6 +29,36 @@ The deeper law finding is the same P38 class: the current code checks the numeri
 
 Epoch decision: lift `.v1 -> .v2`, S3 report `.v1 -> .v2`, selection context `.v3 -> .v4`. Preserve current method-selection receipt v2 shape and authority labels; add a new receipt epoch only if actual shape/authority changes are necessary and recorded before that edit. Historical v1 lift records remain readable under their own epoch as historical/candidate evidence, not current authority. N9 stays at promotion v6 / obligation scope v3 / evidence bridge v2 / owner projection v3 because this plan does not change N9 obligation records.
 
+**D1b, required S3 status handoff:** independent consumer inspection found
+`credal_reference._l6_edges` ignores law-resolution status and emits confirmed
+`L6_LEX_INTERVENTION_MAP`. The existing modality owner calls this law-to-knob
+admissibility; CG1 puts it in atom scope and all-confirmed scope becomes
+`admissibility="passed"`, consumed by CG2. S3 owns propagation of its new typed
+law correspondence refusal through this existing handoff. Preserve the
+declared knob association in uncertain edge content so the blocked relation
+cannot disappear from the consumer's scope. Do not change general S2/CG1
+algorithms, acceptance constants or scientific vintage rules; this is the
+dependent S3 input seam, not reopening an executed task. The falsifier runs the
+actual edge-to-atom consumer: restoring unconditional confirmation or dropping
+the refused edge's knob association must turn the gate red. Any affected
+projection rule epoch must be decided before its receipt-affecting edit and
+prior receipts remain historical under their own epoch.
+
+**D1b epoch ruling, before the handoff edit:** current credal production moves
+`policyos.runtime.grounding_credal_reference.v1 -> .v2`, because propagated
+law authority changes edge content and the reference hash. `_reference_hash`
+must accept the reference's explicit schema for historical replay, and
+`replace_reference_edge` must retain it. The promotion replay record already
+preserves the serialized schema and recomputes through that function; its
+historical v1 input must remain readable without a v2 restamp. A supplied
+historical reference's scoped confirmation result describes that historical
+reference, not current authority. Current certificate comparison must observe
+the changed reference/edge hash. Acceptance requires historical hash replay,
+current v2 refusal, and old-certificate staleness controls. The independent
+executed evidence is `s3/credal-consumer-audit.md`: merely deleting the blocked
+edge's association leaves the actual atom consumer falsely green, whereas
+preserving the association makes the same complete atom identity set contested.
+
 Falsifiers: every actual manifest route target corrupted; unrelated but registered explicit method; novel route by data only; real budget/tax target transposition while preserving source declarations; owner-validation removal with happy path unchanged; report field corruption. Any silent selection, authority grant or green decisive-removal gate rejects the implementation.
 
 ### D2 — GY-PR1 preserve working gates; do not invent an authority producer
@@ -80,6 +110,12 @@ existing GAP7/PA1 refusal requirements at sibling egress, not new authority.
 ## Ordered execution and exact owners
 
 Only one writer per source file. S3 owns `intervention_substrate.py`, `design_generation.py`, its part of `generation_cycle.py`, Foundry selection and S3 validator/tests. PA1 owns existing S8 plus HTTP control generation/lifecycle/container files and mirrored tests. The selected PA1 design needs no shared generation-cycle write. PR1 has no production edits. Root owns the plan/journals, commits, final review, generated-companion integration and verification wave.
+
+D1b adds only `credal_reference.py`'s L6 law-map projection and its mirrored
+consumer tests to the S3 writer. The independent PR1 audit is read-only and
+does not share that write surface. PA1's deployment configuration reaches the
+existing HTTP `app.py` factory as well as container/service; PA1 owns that
+additive constructor argument and its actual factory test.
 
 Serialize S3's `.tmp/gy-s-composed-wmr-*` world/CAS scratch and each governed artifact writer. PA1 gets unique test/CAS scratch. Ruff, isolated logic tests and read-only censuses may run beside those owners. No directory-wide or backend suite is permitted; retain measured wall times and explicit process budgets rather than killing healthy unmeasured gates.
 

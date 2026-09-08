@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/pr1/credal_reissue_readback.py",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 0.144,
+  "stdout": "ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`\n  --> docs/superpowers/journals/gy-phase5-evidence/pr1/credal_reissue_readback.py:22:22\n   |\n22 | def recursive(value: Any, path: tuple[str | int, ...] = ()) -> dict[tuple[str | int, ...], Any]:\n   |                      ^^^\n23 |     \"\"\"Walk all leaves, retaining null and empty containers as explicit values.\"\"\"\n24 |     if isinstance(value, dict) and value:\n   |\n\nANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`\n  --> docs/superpowers/journals/gy-phase5-evidence/pr1/credal_reissue_readback.py:39:22\n   |\n39 | def iterative(value: Any) -> dict[tuple[str | int, ...], Any]:\n   |                      ^^^\n40 |     \"\"\"Independently walk the complete object using a work stack.\"\"\"\n41 |     pending = [((), value)]\n   |\n\nE501 Line too long (102 > 100)\n  --> docs/superpowers/journals/gy-phase5-evidence/pr1/credal_reissue_readback.py:97:101\n   |\n95 |     \"complete_value_differences\": differences,\n96 |     \"current_receipt_identities\": receipts,\n97 |     \"authority_limit\": \"Governed verification-only sequence artifact; no production candidate claim.\",\n   |                                                                                                     ^^\n98 | }\n99 | output = root / \"docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-artifact-readback.json\"\n   |\n\nFound 3 errors.\n",
+  "stderr": ""
+}

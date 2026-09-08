@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_normative_evidence_openapi_example_preserves_actual_fixture_response tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_normative_evidence_openapi_registration_removal_restores_exact_refusal -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_normative_evidence_openapi_example_preserves_actual_fixture_response",
+    "tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_normative_evidence_openapi_registration_removal_restores_exact_refusal",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 0,
+  "elapsed_seconds": 41.70272741600638,
+  "stdout": "..                                                                       [100%]\n",
+  "stderr": ""
+}

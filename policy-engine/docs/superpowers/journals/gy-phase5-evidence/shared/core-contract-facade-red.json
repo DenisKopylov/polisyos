@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/repo_quality/architecture/test_public_api_facades.py::test_normative_job_surface_uses_the_core_contract_facade",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/repo_quality/architecture/test_public_api_facades.py::test_normative_job_surface_uses_the_core_contract_facade"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 5.594654957996681,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________ test_normative_job_surface_uses_the_core_contract_facade ___________\n\n    def test_normative_job_surface_uses_the_core_contract_facade() -> None:\n        contracts = importlib.import_module(\"polisyos.core.contracts\")\n        owner = importlib.import_module(\"polisyos.core.contracts.control\")\n>       response = contracts.ControlJobResponse\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/repo_quality/architecture/test_public_api_facades.py:79: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nname = 'ControlJobResponse'\n\n    def __getattr__(name: str) -> Any:\n        if name in _SUBMODULES:\n            module = importlib.import_module(f\"polisyos.core.contracts.{name}\")\n            globals()[name] = module\n            return module\n        if name not in _LAZY_IMPORTS:\n>           raise AttributeError(f\"module 'polisyos.core.contracts' has no attribute {name!r}\")\nE           AttributeError: module 'polisyos.core.contracts' has no attribute 'ControlJobResponse'. Did you mean: 'ControlWorkersResponse'?\n\nsrc/polisyos/core/contracts/__init__.py:1364: AttributeError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/architecture/test_public_api_facades.py::test_normative_job_surface_uses_the_core_contract_facade\n",
+  "stderr": ""
+}

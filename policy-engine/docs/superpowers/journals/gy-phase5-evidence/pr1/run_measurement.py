@@ -1,13 +1,13 @@
 """Capture a research command, its actual return code, and its complete streams."""
+# ruff: noqa: S603, T201 - exact requested argv and complete research command streams
 
 import json
 import os
-from pathlib import Path
 import shlex
 import subprocess
 import sys
 import time
-
+from pathlib import Path
 
 root = Path(__file__).resolve().parents[5]
 output = Path(__file__).resolve().parent
@@ -19,6 +19,7 @@ started = time.time()
 completed = subprocess.run(command, cwd=root, env=env, capture_output=True, text=True)
 record = {
     "command": shlex.join(command),
+    "argv": command,
     "cwd": str(root),
     "path_prefix": str(root / ".venv/bin"),
     "pythonpath_prefix": str(root / "src"),

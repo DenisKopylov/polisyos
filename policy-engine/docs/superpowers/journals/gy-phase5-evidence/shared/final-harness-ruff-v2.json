@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/gy-phase5-evidence/shared/openapi_delta.py docs/superpowers/journals/gy-phase5-evidence/shared/reconcile_pytest.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/gy-phase5-evidence/shared/openapi_delta.py",
+    "docs/superpowers/journals/gy-phase5-evidence/shared/reconcile_pytest.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.12502116698306054,
+  "stdout": "TC003 Move standard library import `collections.abc.Iterator` into a type-checking block\n --> docs/superpowers/journals/gy-phase5-evidence/shared/openapi_delta.py:6:29\n  |\n4 | import subprocess\n5 | import sys\n6 | from collections.abc import Iterator\n  |                             ^^^^^^^^\n7 | from pathlib import Path\n  |\nhelp: Move into type-checking block\n\nS603 `subprocess` call: check for execution of untrusted input\n  --> docs/superpowers/journals/gy-phase5-evidence/shared/openapi_delta.py:41:9\n   |\n39 |     source = \"schemas/runtime_api_v1.openapi.json\"\n40 |     original = json.loads(\n41 |         subprocess.check_output(\n   |         ^^^^^^^^^^^^^^^^^^^^^^^\n42 |             [  # noqa: S603,S607 - fixed local git read\n43 |                 \"git\",\n   |\n\nRUF100 [*] Unused `noqa` directive (unused: `S603`)\n  --> docs/superpowers/journals/gy-phase5-evidence/shared/openapi_delta.py:42:16\n   |\n40 |     original = json.loads(\n41 |         subprocess.check_output(\n42 |             [  # noqa: S603,S607 - fixed local git read\n   |                ^^^^^^^^^^^^^^^^^\n43 |                 \"git\",\n44 |                 \"show\",\n   |\nhelp: Remove unused `noqa` directive\n\nE501 Line too long (106 > 100)\n  --> docs/superpowers/journals/gy-phase5-evidence/shared/openapi_delta.py:81:101\n   |\n79 |                 \"base\": \"3d572c146\",\n80 |                 \"denominator\": (\n81 |                     \"every JSON node in both complete documents; recursive and iterative traversals agree\"\n   |                                                                                                     ^^^^^^\n82 |                 ),\n83 |                 \"complete_identity_sets_independently_reconciled\": True,\n   |\n\nFound 4 errors.\n[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).\n",
+  "stderr": ""
+}

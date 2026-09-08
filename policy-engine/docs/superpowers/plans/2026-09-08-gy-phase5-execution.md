@@ -297,8 +297,14 @@ Serialize S3's `.tmp/gy-s-composed-wmr-*` world/CAS scratch and each governed ar
 
 ### Step S3-A — demonstrate and repair the actual manifest consumers
 
-- [ ] Add targeted tests under `tests/unit/runtime/quality/test_intervention_substrate.py`, `test_generation_cycle.py`, `test_design_generation.py` and the existing Foundry selection test owner, deriving the entire real family set from the actual manifest.
-- [ ] Run the new tests red before source edits. The decisive assertion is behavioral:
+Checked steps record the executed mechanism actions, not full-task acceptance.
+The unchanged Done-when conjuncts and remaining scientific/authority boundaries
+are decided separately in the completion journal. The exact source/test shape
+follows the subsequent D1a–D1d and D3a–D3f decisions, which refine these initial
+implementation sketches without narrowing their behavioral gates.
+
+- [x] Add targeted tests under `tests/unit/runtime/quality/test_intervention_substrate.py`, `test_generation_cycle.py`, `test_design_generation.py` and the existing Foundry selection test owner, deriving the entire real family set from the actual manifest.
+- [x] Run the new tests red before source edits. The decisive assertion is behavioral:
 
 ```python
 assert fake_selection["status"] == "blocked"
@@ -307,13 +313,13 @@ assert unprojected_nested_selection["status"] == "blocked"
 assert explicit_foreign_method_selection["status"] == "blocked"
 ```
 
-- [ ] Extend the existing route owner with complete projection, wire generation→Foundry and N4→owner, retire the predecessor family/flat-authority default. Bind the route's effective content in context v4, preserving native method output requirements.
-- [ ] Re-run every real route, fake variant, ambiguous/missing family and data-only new route. Assert source-derived identity sets, not a fixed count or sampled family.
-- [ ] Run a removal that deletes the real owner's fake-target validation while keeping happy bindings and markers; the consumer contract must fail. Commit this coherent step only after diff/attachment check, naming that falsifier in the message.
+- [x] Extend the existing route owner with complete projection, wire generation→Foundry and N4→owner, retire the predecessor family/flat-authority default. Bind the route's effective content in context v4, preserving native method output requirements.
+- [x] Re-run every real route, fake variant, ambiguous/missing family and data-only new route. Assert source-derived identity sets, not a fixed count or sampled family.
+- [x] Run a removal that deletes the real owner's fake-target validation while keeping happy bindings and markers; the consumer contract must fail. Commit this coherent step only after diff/attachment check, naming that falsifier in the message.
 
 ### Step S3-B — stop threshold truth from becoming mapping authority
 
-- [ ] Add a real budget/tax target-transposition regression preserving registry uniqueness and source declarations. Before repair it must fail on falsely admissible law mapping.
+- [x] Add a real budget/tax target-transposition regression preserving registry uniqueness and source declarations. Before repair it must fail on falsely admissible law mapping.
 
 ```python
 assert resolution.legal_threshold_evaluation["status"] == "admitted"
@@ -322,18 +328,18 @@ assert resolution.mapping_evidence_ref is None
 assert resolution.mapping_predicate_provenance in {"consumer_asserted", "not_established"}
 ```
 
-- [ ] Implement typed candidate trace/current-epoch correspondence refusal in the existing owner. Preserve full knob/law trace, units, time and provision evidence. Read prior epoch as historical/candidate only.
-- [ ] Extend the single S3 report/validator with consumer probes, unknown mapping, complete data growth and actual property removals; preserve every old meaningful negative. Add run-emitted strangles for the N8 default, N4 default and law-admission default with complete caller census plus behavioral guards.
-- [ ] Use the canonical S3 writer to generate the v2 report; run `--check`, corrupt a decisive field and run the same check red, then restore the exact writer-emitted bytes. Capture exact identity-set drift. Existing source-base report drift is not silently attributed inherited; its source provenance stays `not_established` until P41 replay/disjoint proof.
-- [ ] Commit only the coherent mechanism and mandatory companions. Record the still-empty independent mapping evidence as a residual, not a passed authority conjunct.
+- [x] Implement typed candidate trace/current-epoch correspondence refusal in the existing owner. Preserve full knob/law trace, units, time and provision evidence. Read prior epoch as historical/candidate only.
+- [x] Extend the single S3 report/validator with consumer probes, unknown mapping, complete data growth and actual property removals; preserve every old meaningful negative. Add run-emitted strangles for the N8 default, N4 default and law-admission default with complete caller census plus behavioral guards.
+- [x] Use the canonical S3 writer to generate the v2 report; run `--check`, corrupt a decisive field and run the same check red, then restore the exact writer-emitted bytes. Capture exact identity-set drift. Existing source-base report drift is not silently attributed inherited; its source provenance stays `not_established` until P41 replay/disjoint proof.
+- [x] Commit only the coherent mechanism and mandatory companions. Record the still-empty independent mapping evidence as a residual, not a passed authority conjunct.
 
 ### Step PA1-A — source-aware owner and real production entry
 
-- [ ] Add a mirrored worker integration test first: `_process_control_job` persists a real compiled-run source and must complete with a replayable sidecar containing the original candidate fronts, zero rankings and a NormativeDecisionRequest. Observe its missing-sidecar failure before implementing.
-- [ ] Extend S8 with source-bound v2 authorization/admission and additive generation-disposition v1; extend `control/generation_cycle.py` with typed current-CAS compiled/leaf resolution and complete source reconciliation. No candidate payload can install trust or assert dominance.
-- [ ] Add `ControlPlaneService.resolve_generation_value_choices(*, compiled_run_ref: str, evidence: NormativeRunEvidenceRefs | None, evaluated_at: datetime) -> NormativeRunDisposition`, wired unconditionally at the observed worker seam and using the deployed CAS and deployment-only trust.
-- [ ] Add current sidecar replay in the existing job-status consumer, exposing derived status and refs through existing progress/diagnostics. Preserve old standalone S8 and generation epochs.
-- [ ] Run same-path positive authorization under clearly declared fixture trust, then missing schedule, wrong role/case/source/mode, stale/revoked/tampered/unresolved inputs. Tests assert actual owner reason codes and persisted outputs, not a generic blocked fallback.
+- [x] Add a mirrored worker integration test first: `_process_control_job` persists a real compiled-run source and must complete with a replayable sidecar containing the original candidate fronts, zero rankings and a NormativeDecisionRequest. Observe its missing-sidecar failure before implementing.
+- [x] Extend S8 with source-bound v2 authorization/admission and additive generation-disposition v1; extend `control/generation_cycle.py` with typed current-CAS compiled/leaf resolution and complete source reconciliation. No candidate payload can install trust or assert dominance.
+- [x] Add `ControlPlaneService.resolve_generation_value_choices(*, compiled_run_ref: str, evidence: NormativeRunEvidenceRefs | None, evaluated_at: datetime) -> NormativeRunDisposition`, wired unconditionally at the observed worker seam and using the deployed CAS and deployment-only trust.
+- [x] Add current sidecar replay in the existing job-status consumer, exposing derived status and refs through existing progress/diagnostics. Preserve old standalone S8 and generation epochs.
+- [x] Run same-path positive authorization under clearly declared fixture trust, then missing schedule, wrong role/case/source/mode, stale/revoked/tampered/unresolved inputs. Tests assert actual owner reason codes and persisted outputs, not a generic blocked fallback.
 
 ```python
 assert status["normative_disposition"]["ranked_recommendations"] == []
@@ -342,8 +348,8 @@ assert actual_candidate_identity_set == persisted_candidate_identity_set
 assert source_bound_authorized_control["ranked_recommendations"] == [expected_selection]
 ```
 
-- [ ] Exercise all silent-default injections at CAS and job-status emission. Add data-only leaf/candidate growth and a source-substitution probe with identical display IDs but different source bytes. Delete the real worker call and current replay separately; each unchanged gate goes red while positive owner behavior remains valid.
-- [ ] Emit/recompute the actual default-change StrangleReceipt with the complete predecessor/default call denominator and run witness. Commit a coherent source/consumer/verification step; do not leave an opt-in owner beside the old default.
+- [x] Exercise all silent-default injections at CAS and job-status emission. Add data-only leaf/candidate growth and a source-substitution probe with identical display IDs but different source bytes. Delete the real worker call and current replay separately; each unchanged gate goes red while positive owner behavior remains valid.
+- [x] Emit/recompute the actual default-change StrangleReceipt with the complete predecessor/default call denominator and run witness. Commit a coherent source/consumer/verification step; do not leave an opt-in owner beside the old default.
 
 ### Step FINAL — freeze, review, one targeted integration wave
 

@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": "corepack pnpm --filter @polisyos/runtime-api-client run typecheck",
+  "argv": [
+    "corepack",
+    "pnpm",
+    "--filter",
+    "@polisyos/runtime-api-client",
+    "run",
+    "typecheck"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 6.491648791998159,
+  "stdout": "\n> @polisyos/runtime-api-client@0.1.0 typecheck /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client\n> tsc -p tsconfig.json --noEmit\n\n",
+  "stderr": ""
+}

@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m gyphase5_pa1_openapi_example_inspect",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "gyphase5_pa1_openapi_example_inspect"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src:.tmp",
+  "returncode": 1,
+  "elapsed_seconds": 80.29266445798567,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5_pa1_openapi_example_inspect.py\", line 8, in <module>\n    from polisyos.runtime.http.services.control.generation_cycle import (\n        NormativeEvidenceSubmissionResponse,\n    )\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py\", line 11, in <module>\n    from polisyos.core.contracts import ControlJobResponse  # noqa: TC001 - Pydantic DTO\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nImportError: cannot import name 'ControlJobResponse' from 'polisyos.core.contracts' (/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src/polisyos/core/contracts/__init__.py)\n"
+}

@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/runtime/http/openapi_contract.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_capture.py docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_inline_capture.py docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_format_capture.py docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_wrap_literal.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/http/openapi_contract.py",
+    "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+    "docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_capture.py",
+    "docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_inline_capture.py",
+    "docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_format_capture.py",
+    "docs/superpowers/journals/gy-phase5-evidence/pa1/openapi_wrap_literal.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 0.11277395900106058,
+  "stdout": "F601 Dictionary key literal `\"admit_epoch_validity_batch\"` repeated\n    --> src/polisyos/runtime/http/openapi_contract.py:4231:5\n     |\n4229 |         \"message\": \"Decision validity event published; 1 packet(s) affected.\",\n4230 |     },\n4231 |     \"admit_epoch_validity_batch\": {\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n4232 |         \"meta\": _META_NO_SOURCE,\n4233 |         \"batch_id\": \"epoch-validity-batch-001\",\n     |\nhelp: Remove repeated key literal `\"admit_epoch_validity_batch\"`\n\nFound 1 error.\n",
+  "stderr": ""
+}

@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m ruff check tools/quality/validation/check_layer3_gy_promotion_contract.py tests/repo_quality/tools/test_layer3_gy_promotion_contract.py docs/superpowers/journals/gy-phase5-evidence/pr1/promotion_compare_observer.py docs/superpowers/journals/gy-phase5-evidence/pr1/promotion_compare_runner.py docs/superpowers/journals/gy-phase5-evidence/pr1/promotion_compare_archive.py",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 1,
+  "duration_seconds": 0.058,
+  "stdout": "SIM114 [*] Combine `if` branches using logical `or` operator\n  --> docs/superpowers/journals/gy-phase5-evidence/pr1/promotion_compare_observer.py:18:9\n   |\n16 |   def lookup(value, path):\n17 |       for part in path:\n18 | /         if isinstance(value, dict) and part in value:\n19 | |             value = value[part]\n20 | |         elif isinstance(value, (list, tuple)) and isinstance(part, int) and part < len(value):\n21 | |             value = value[part]\n   | |_______________________________^\n22 |           else:\n23 |               return missing\n   |\nhelp: Combine `if` branches\n\nRUF043 Pattern passed to `match=` contains metacharacters but is neither escaped nor raw\n   --> tests/repo_quality/tools/test_layer3_gy_promotion_contract.py:161:42\n    |\n159 |     monkeypatch.setattr(checker, \"OUTPUT_PATH\", str(output))\n160 |\n161 |     with pytest.raises(ValueError, match=\"promotion_.*(?:drift|mismatch)\"):\n    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n162 |         checker._reconcile_frozen_contract(POLICY_ENGINE_ROOT, *live_credal_epoch_comparison)\n    |\nhelp: Use a raw string or `re.escape()` to make the intention explicit\n\nFound 2 errors.\n[*] 1 fixable with the `--fix` option.\n",
+  "stderr": ""
+}

@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": "corepack pnpm --filter @polisyos/runtime-dashboard run generate:api",
+  "argv": [
+    "corepack",
+    "pnpm",
+    "--filter",
+    "@polisyos/runtime-dashboard",
+    "run",
+    "generate:api"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 9.782541166001465,
+  "stdout": "\n> @polisyos/runtime-dashboard@0.1.0 generate:api /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/apps/runtime-dashboard\n> ./scripts/generate-api-client.sh\n\n✨ openapi-typescript 7.13.0\n🚀 /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/schemas/runtime_api_v1.openapi.json → /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/apps/runtime-dashboard/src/api/types.ts [2.3s]\nsrc/api/types.ts 1544ms\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/apps/runtime-dashboard/src/api/types.ts\n",
+  "stderr": ""
+}

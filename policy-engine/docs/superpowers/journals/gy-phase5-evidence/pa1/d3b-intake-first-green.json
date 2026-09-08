@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_normative_evidence_intake.py::test_post_source_signature_advances_both_current_job_readers -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/http/test_normative_evidence_intake.py::test_post_source_signature_advances_both_current_job_readers",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 33.76308229198912,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________ test_post_source_signature_advances_both_current_job_readers _________\n\ncompleted_worker = (<polisyos.runtime.http.services.control.run_lifecycle.ControlPlaneService object at 0x1326a6120>, ControlJobResponse(...application/octet-stream')),), content_hash='sha256:ef8da5162aa8031b3b73385ecc2f14f87dc8000838d7a9eff57979c0c97d6637'))\n\n    def test_post_source_signature_advances_both_current_job_readers(completed_worker):\n        service, before, compiled = completed_worker\n        assert before.progress[\"normative_disposition\"][\"authorization_status\"] == \"blocked\"\n        evidence = _signed_generation_evidence(service, compiled, fault=\"authorized\")\n        client, opa = _secure_client(service)\n        with client:\n            response = client.post(\n                f\"/api/v1/control/runs/{before.run_id}/normative-evidence\",\n                headers={\"Authorization\": \"Bearer fixture-token\", \"X-Cell-Id\": \"cell-fixture\"},\n                json={\"job_id\": before.job_id, \"expected_prior_head_ref\": None, \"evidence\": evidence},\n            )\n>           assert response.status_code == 200, response.text\nE           AssertionError: {\"type\":\"https://polisyos.dev/problems/forbidden\",\"title\":\"Authorization binding run unresolved\",\"status\":403,\"detail\":\"Run resource could not be resolved\",\"code\":\"authorization_binding_run_unresolved\",\"instance\":\"/api/v1/control/runs/R_a332bb475e331195/normative-evidence\",\"request_id\":null,\"error\":\"forbidden\",\"status_code\":403}\nE           assert 403 == 200\nE            +  where 403 = <Response [403 Forbidden]>.status_code\n\ntests/unit/runtime/http/test_normative_evidence_intake.py:107: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/http/test_normative_evidence_intake.py::test_post_source_signature_advances_both_current_job_readers\n",
+  "stderr": ""
+}

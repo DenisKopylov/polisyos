@@ -1,0 +1,676 @@
+[
+  {
+    "document": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-research.md",
+    "fence_closed": true,
+    "link_parser_identity_sets_equal": true,
+    "regex_only": [],
+    "scanner_only": [],
+    "local_links": [
+      {
+        "line": 525,
+        "label": "census.log",
+        "target": "gy-phase5-evidence/pa1/census.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/census.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 526,
+        "label": "census-expanded.log",
+        "target": "gy-phase5-evidence/pa1/census-expanded.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/census-expanded.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 527,
+        "label": "refusals.log",
+        "target": "gy-phase5-evidence/pa1/refusals.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/refusals.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 528,
+        "label": "targeted.log",
+        "target": "gy-phase5-evidence/pa1/targeted.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/targeted.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 529,
+        "label": "defaults.log",
+        "target": "gy-phase5-evidence/pa1/defaults.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/defaults.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 530,
+        "label": "signature-removal.log",
+        "target": "gy-phase5-evidence/pa1/signature-removal.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/signature-removal.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 531,
+        "label": "emission-removal.log",
+        "target": "gy-phase5-evidence/pa1/emission-removal.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/emission-removal.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 532,
+        "label": "validator.log",
+        "target": "gy-phase5-evidence/pa1/validator.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/validator.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 533,
+        "label": "n8-refusal.log",
+        "target": "gy-phase5-evidence/pa1/n8-refusal.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/n8-refusal.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 533,
+        "label": "../pr1/n8-owner-assignment.json",
+        "target": "gy-phase5-evidence/pr1/n8-owner-assignment.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/n8-owner-assignment.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 543,
+        "label": "emission-removal-all-defaults.log",
+        "target": "gy-phase5-evidence/pa1/emission-removal-all-defaults.log",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/emission-removal-all-defaults.log",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      }
+    ]
+  },
+  {
+    "document": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md",
+    "fence_closed": true,
+    "link_parser_identity_sets_equal": true,
+    "regex_only": [],
+    "scanner_only": [],
+    "local_links": []
+  },
+  {
+    "document": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md",
+    "fence_closed": true,
+    "link_parser_identity_sets_equal": true,
+    "regex_only": [],
+    "scanner_only": [],
+    "local_links": [
+      {
+        "line": 5,
+        "label": "decision and plan",
+        "target": "../plans/2026-09-08-gy-phase5-execution.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/plans/2026-09-08-gy-phase5-execution.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 6,
+        "label": "executed research",
+        "target": "2026-09-08-gy-phase5-research.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-research.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 56,
+        "label": "readback record",
+        "target": "gy-phase5-evidence/shared/pa1-first-delivery-readback.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/pa1-first-delivery-readback.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 61,
+        "label": "The executed witness",
+        "target": "gy-phase5-evidence/pa1/independent-temporal-intake.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/independent-temporal-intake.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 62,
+        "label": "full review",
+        "target": "gy-phase5-evidence/pa1/independent-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/independent-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 97,
+        "label": "executed consumer audit",
+        "target": "gy-phase5-evidence/s3/credal-consumer-audit.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/credal-consumer-audit.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 114,
+        "label": "execution-scope audit",
+        "target": "gy-phase5-evidence/pr1/stage3-scope-audit.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-scope-audit.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 126,
+        "label": "source-bridge challenge",
+        "target": "gy-phase5-evidence/pr1/source-bridge-challenge.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 140,
+        "label": "the complete record",
+        "target": "gy-phase5-evidence/shared/ruff-station.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/ruff-station.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 147,
+        "label": "finding",
+        "target": "gy-phase5-evidence/shared/law-owner-discovery.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/law-owner-discovery.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 148,
+        "label": "complete command record",
+        "target": "gy-phase5-evidence/shared/law-owner-discovery.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/law-owner-discovery.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 170,
+        "label": "S3 findings",
+        "target": "gy-phase5-evidence/s3/findings.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/findings.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 171,
+        "label": "S3 stage 3",
+        "target": "gy-phase5-evidence/s3/stage3.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/stage3.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 239,
+        "label": "two executed challenges",
+        "target": "gy-phase5-evidence/pr1/source-bridge-challenge.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/source-bridge-challenge.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 287,
+        "label": "S3 RV02",
+        "target": "gy-phase5-evidence/s3/independent-rv02-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/independent-rv02-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 288,
+        "label": "PA1 D3d",
+        "target": "gy-phase5-evidence/pa1/independent-d3d-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/independent-d3d-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 351,
+        "label": "Full command and streams",
+        "target": "gy-phase5-evidence/s3/final-targeted.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-targeted.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 352,
+        "label": "complete collection/JUnit identity reconciliation",
+        "target": "gy-phase5-evidence/s3/final-test-identities.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-test-identities.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 363,
+        "label": "identity reconciliation",
+        "target": "gy-phase5-evidence/pa1/final-test-identities.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/final-test-identities.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 373,
+        "label": "Independent client/Core delta review",
+        "target": "gy-phase5-evidence/shared/independent-surface-delta-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/independent-surface-delta-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 375,
+        "label": "Foundry facade review",
+        "target": "gy-phase5-evidence/shared/independent-foundry-facade-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/independent-foundry-facade-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 376,
+        "label": "D3f example review",
+        "target": "gy-phase5-evidence/shared/independent-openapi-example-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/independent-openapi-example-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 381,
+        "label": "worker observation",
+        "target": "gy-phase5-evidence/shared/ds17-worker-observation.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/ds17-worker-observation.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 382,
+        "label": "dependency analysis",
+        "target": "gy-phase5-evidence/shared/ds17-dependency-analysis.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/ds17-dependency-analysis.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 383,
+        "label": "exact generator substitution",
+        "target": "gy-phase5-evidence/shared/ds17-exact-generator-delta.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/ds17-exact-generator-delta.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 388,
+        "label": "executed script text",
+        "target": "gy-phase5-evidence/shared/ds17_dependency_audit.py.txt",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/ds17_dependency_audit.py.txt",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 406,
+        "label": "Complete record",
+        "target": "gy-phase5-evidence/shared/public-surface-identity-delta.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/public-surface-identity-delta.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 411,
+        "label": "Deciding green",
+        "target": "gy-phase5-evidence/s3/d4-facade-python-stack-green.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/d4-facade-python-stack-green.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 415,
+        "label": "Exact command and complete output",
+        "target": "gy-phase5-evidence/shared/frozen-source-ruff.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/frozen-source-ruff.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 416,
+        "label": "The complete defining-expression/history audit",
+        "target": "gy-phase5-evidence/pa1/openapi-epoch-duplicate-audit.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/openapi-epoch-duplicate-audit.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 443,
+        "label": "Exact owner execution",
+        "target": "gy-phase5-evidence/s3/final-report-write-check.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-report-write-check.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 449,
+        "label": "Complete corrupt-field execution and byte restoration",
+        "target": "gy-phase5-evidence/s3/final-report-corruption.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-report-corruption.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 459,
+        "label": "Complete JSON delta",
+        "target": "gy-phase5-evidence/shared/runtime-openapi-frozen-delta.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/runtime-openapi-frozen-delta.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 465,
+        "label": "runtime-api-contract-frozen.json",
+        "target": "gy-phase5-evidence/shared/runtime-api-contract-frozen.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/runtime-api-contract-frozen.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 466,
+        "label": "example review",
+        "target": "gy-phase5-evidence/shared/independent-openapi-example-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/independent-openapi-example-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 470,
+        "label": "full current-owner failure",
+        "target": "gy-phase5-evidence/s3/final-credal-current-check.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-credal-current-check.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 472,
+        "label": "epoch identity census",
+        "target": "gy-phase5-evidence/s3/final-epoch-census.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-epoch-census.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 481,
+        "label": "exact current check",
+        "target": "gy-phase5-evidence/s3/final-promotion-current-check.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-promotion-current-check.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 491,
+        "label": "independent frozen delta review",
+        "target": "gy-phase5-evidence/shared/independent-d1d-review.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/independent-d1d-review.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 493,
+        "label": "expanded final targeted run",
+        "target": "gy-phase5-evidence/pr1/d1d-reissue-final-tests.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-reissue-final-tests.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 496,
+        "label": "transition removal",
+        "target": "gy-phase5-evidence/pr1/d1d-transition-removal.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-transition-removal.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 498,
+        "label": "governing-comparison removal",
+        "target": "gy-phase5-evidence/pr1/d1d-governing-comparison-removal.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-governing-comparison-removal.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 504,
+        "label": "write",
+        "target": "gy-phase5-evidence/pr1/d1d-canonical-write.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-write.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 506,
+        "label": "check",
+        "target": "gy-phase5-evidence/pr1/d1d-canonical-check.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-check.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 508,
+        "label": "corrupt-field check",
+        "target": "gy-phase5-evidence/pr1/d1d-canonical-corruption.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-canonical-corruption.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 518,
+        "label": "Execution",
+        "target": "gy-phase5-evidence/pr1/d1d-identity-execution.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-identity-execution.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 520,
+        "label": "complete collection/JUnit reconciliation",
+        "target": "gy-phase5-evidence/pr1/d1d-test-identities.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/d1d-test-identities.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 524,
+        "label": "complete reissue journal",
+        "target": "gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 529,
+        "label": "OpenAPI generator",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-openapi-generate.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-openapi-generate.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 530,
+        "label": "client generator",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-client-generate.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-client-generate.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 531,
+        "label": "dashboard generator",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-dashboard-generate.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-dashboard-generate.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 533,
+        "label": "JSON identity delta",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-openapi-delta.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-openapi-delta.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 537,
+        "label": "client tests",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-client-tests.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-client-tests.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 538,
+        "label": "client typecheck",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-client-typecheck.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-client-typecheck.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 539,
+        "label": "dashboard typecheck",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-dashboard-typecheck.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-dashboard-typecheck.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 540,
+        "label": "Runtime API contract",
+        "target": "gy-phase5-evidence/shared/d1d-runtime-api-contract.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-runtime-api-contract.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 546,
+        "label": "full command and output",
+        "target": "gy-phase5-evidence/shared/d1d-full-source-ruff.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-full-source-ruff.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 560,
+        "label": "Complete branch bytes",
+        "target": "gy-phase5-evidence/shared/s3-delivery-readback.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/s3-delivery-readback.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 561,
+        "label": "Complete branch bytes",
+        "target": "gy-phase5-evidence/shared/pa1-final-delivery-readback.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/pa1-final-delivery-readback.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 562,
+        "label": "Decision branch bytes",
+        "target": "gy-phase5-evidence/shared/d1d-decision-delivery-readback.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-decision-delivery-readback.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      },
+      {
+        "line": 563,
+        "label": "Complete branch bytes",
+        "target": "gy-phase5-evidence/shared/d1d-source-delivery-readback.json",
+        "resolved": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-source-delivery-readback.json",
+        "fragment": "",
+        "exists": true,
+        "is_file": true
+      }
+    ]
+  }
+]

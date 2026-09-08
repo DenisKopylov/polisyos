@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": "corepack pnpm --filter @polisyos/runtime-api-client test",
+  "argv": [
+    "corepack",
+    "pnpm",
+    "--filter",
+    "@polisyos/runtime-api-client",
+    "test"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 4.668984625022858,
+  "stdout": "\n> @polisyos/runtime-api-client@0.1.0 test /Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/packages/runtime-api-client\n> node --test runtimeApiClient.test.mjs scripts/canonicalize-runtime-client.test.mjs scripts/normalize-recursive-openapi-types.test.mjs\n\nTAP version 13\n# Subtest: normative evidence submission forwards the source head and signed refs\nok 1 - normative evidence submission forwards the source head and signed refs\n  ---\n  duration_ms: 117.791792\n  type: 'test'\n  ...\n# Subtest: batch POST methods forward request bodies to fetch\nok 2 - batch POST methods forward request bodies to fetch\n  ---\n  duration_ms: 1.46125\n  type: 'test'\n  ...\n# Subtest: cycle board static operation forwards both complete replay identities\nok 3 - cycle board static operation forwards both complete replay identities\n  ---\n  duration_ms: 11.776792\n  type: 'test'\n  ...\n# Subtest: mobility POST methods forward request bodies to fetch\nok 4 - mobility POST methods forward request bodies to fetch\n  ---\n  duration_ms: 2.123166\n  type: 'test'\n  ...\n# Subtest: human decision methods bind the exact exposure header and POST body\nok 5 - human decision methods bind the exact exposure header and POST body\n  ---\n  duration_ms: 3.734625\n  type: 'test'\n  ...\n# Subtest: canonicalization aliases every generated OpenAPI component to types.ts\nok 6 - canonicalization aliases every generated OpenAPI component to types.ts\n  ---\n  duration_ms: 13.34375\n  type: 'test'\n  ...\n# Subtest: canonicalization is byte-stable when replayed\nok 7 - canonicalization is byte-stable when replayed\n  ---\n  duration_ms: 0.52875\n  type: 'test'\n  ...\n# Subtest: recursive graph compiles mutual, self and cross-component edges without widening consumers\nok 8 - recursive graph compiles mutual, self and cross-component edges without widening consumers\n  ---\n  duration_ms: 1935.366458\n  type: 'test'\n  ...\n# Subtest: unguarded recursive schemas are rejected without inventing a permissive type\nok 9 - unguarded recursive schemas are rejected without inventing a permissive type\n  ---\n  duration_ms: 1.100875\n  type: 'test'\n  ...\n1..9\n# tests 9\n# suites 0\n# pass 9\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 3334.059042\n",
+  "stderr": ""
+}

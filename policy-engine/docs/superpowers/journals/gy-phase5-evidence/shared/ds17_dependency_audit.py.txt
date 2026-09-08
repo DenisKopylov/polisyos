@@ -1,0 +1,88 @@
+"""Observe the unchanged actual DS17 example worker and retain its full dependencies."""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+
+
+ROOT = Path.cwd()
+SCRATCH = ROOT / ".tmp" / "gyphase5-ds17-dependency-audit"
+SCRATCH.mkdir(exist_ok=True)
+original_run = subprocess.run
+workers = []
+
+
+def observe_run(*args, **kwargs):
+    result = original_run(*args, **kwargs)
+    argv = args[0] if args else kwargs.get("args")
+    if isinstance(argv, (list, tuple)) and any(
+        str(part).endswith("governed_projection_validation_worker.py") for part in argv
+    ):
+        workers.append({
+            "argv": list(argv),
+            "cwd": str(kwargs.get("cwd")),
+            "request": kwargs.get("input"),
+            "returncode": result.returncode,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+        })
+    return result
+
+
+started = time.monotonic()
+subprocess.run = observe_run
+try:
+    from polisyos.runtime.http.openapi_contract import _confidence_ledger_risk_spend_example
+    packet = _confidence_ledger_risk_spend_example()
+finally:
+    subprocess.run = original_run
+
+(SCRATCH / "worker-observation.json").write_text(json.dumps({
+    "invocation": "python -m gyphase5_ds17_dependency_audit",
+    "cwd": str(ROOT), "PATH": os.environ.get("PATH"),
+    "PYTHONPATH": os.environ.get("PYTHONPATH"),
+    "elapsed_seconds": time.monotonic() - started,
+    "workers": workers, "example": packet,
+}, indent=2, default=str) + "\n")
+if len(workers) != 1:
+    raise RuntimeError("unexpected_worker_identity_set")
+receipt = json.loads(workers[0]["stdout"])
+bindings = receipt["dependency_bindings"]
+from polisyos.runtime.http.services.governed_projection_dependencies import DependencyTracker
+tracker = DependencyTracker(ROOT)
+recomputed = {path: tracker.identity(ROOT / path) for path in sorted(bindings)}
+delta = [{"path": path, "worker": bindings[path], "now": recomputed[path]}
+         for path in sorted(bindings) if bindings[path] != recomputed[path]]
+changed = subprocess.run(
+    ["git", "diff", "--name-only", "3d572c146", "--", "."],
+    cwd=ROOT, capture_output=True, text=True, check=True,
+).stdout.splitlines()
+changed = [path.removeprefix("policy-engine/") for path in changed]
+categories = {
+    "openapi": [path for path in bindings if "openapi" in path.lower()],
+    "lane_documents": [path for path in bindings if "gy-phase5" in path],
+    "runtime_clients": [path for path in bindings if path.startswith("packages/runtime-api-client/")],
+    "client_generator": [path for path in bindings if path == "tools/ops_runners/runtime/generate_runtime_client.py"],
+    "slice_changed_dependencies": sorted(set(bindings).intersection(changed)),
+}
+out = {
+    "worker_status": receipt["status"], "worker_issue_codes": receipt["issue_codes"],
+    "dependency_aggregate_identity": receipt["dependency_aggregate_identity"],
+    "complete_dependency_bindings": bindings,
+    "independent_identity_recompute_delta": delta,
+    "categories": {key: {path: bindings[path] for path in sorted(paths)} for key, paths in categories.items()},
+    "actual_example": packet,
+}
+(SCRATCH / "dependency-analysis.json").write_text(json.dumps(out, indent=2, default=str) + "\n")
+print(json.dumps({
+    "receipt_path": str(SCRATCH / "worker-observation.json"),
+    "analysis_path": str(SCRATCH / "dependency-analysis.json"),
+    "worker_status": out["worker_status"], "issues": out["worker_issue_codes"],
+    "dependency_aggregate_identity": out["dependency_aggregate_identity"],
+    "independent_identity_recompute_delta": delta,
+    "categories": out["categories"],
+}, indent=2))

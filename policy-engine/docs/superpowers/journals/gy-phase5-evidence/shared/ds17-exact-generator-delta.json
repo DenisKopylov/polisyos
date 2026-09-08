@@ -1,0 +1,16 @@
+{
+  "basis": "Complete emitted dependency map, replace only exact pre-D3e generator identity from decision commit; no file/source/receipt mutation",
+  "current_aggregate": "sha256:4fcd900f4f2f6ac678c03379068d13537bd86cc1d0c2f629c30d04007390d7ef",
+  "replacement_path": "tools/ops_runners/runtime/generate_runtime_client.py",
+  "current_identity": "file:sha256:bdddf12790d0410c30b278401de900ff32b631332bf9bd6e27c9cdaeb5045487",
+  "pre_d3e_identity": "file:sha256:fba5e8e152341673300bc60e93e01c695b9fca05f0ecf6245c19b3085a752ccd",
+  "counterfactual_aggregate": "sha256:b32a4ac5be52311accb53f1483663b18db3613b658632cf3a3e069c4b9f3c852",
+  "matches_committed_openapi_dependency": true,
+  "identity_set_difference": [],
+  "changed_binding_identities": [
+    "tools/ops_runners/runtime/generate_runtime_client.py"
+  ],
+  "all_document_dependencies": {},
+  "exact_generated_openapi_membership": false,
+  "api_generator_export_identity": "file:sha256:6bf393292226b83046fb83f9f998eec0ec9e1fd6d27223277a6f52f321070d4f"
+}

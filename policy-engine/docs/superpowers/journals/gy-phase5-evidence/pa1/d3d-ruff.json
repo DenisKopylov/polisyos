@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/runtime/http/services/control/run_lifecycle.py tests/unit/runtime/http/test_normative_generation_bridge.py tests/unit/runtime/http/test_normative_evidence_intake.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "tests/unit/runtime/http/test_normative_generation_bridge.py",
+    "tests/unit/runtime/http/test_normative_evidence_intake.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": "src",
+  "returncode": 1,
+  "elapsed_seconds": 0.11163183394819498,
+  "stdout": "E501 Line too long (103 > 100)\n    --> src/polisyos/runtime/http/services/control/run_lifecycle.py:1527:101\n     |\n1525 |         evidence = submission.evidence\n1526 |         if compiled_ref != record.progress.get(\"compiled_recursive_generation_cycle_ref\"):\n1527 |             evidence = NormativeRunEvidenceRefs(input_limitation=\"p20_normative_sidecar_replay_failed\")\n     |                                                                                                     ^^^\n1528 |         disposition = self.resolve_generation_value_choices(\n1529 |             compiled_run_ref=compiled_ref, evidence=evidence, evaluated_at=now\n     |\n\nE501 Line too long (105 > 100)\n    --> src/polisyos/runtime/http/services/control/run_lifecycle.py:2236:101\n     |\n2234 |                 event = self._control_store.get_normative_evidence_head(record.job_id)\n2235 |                 if event is None:\n2236 |                     if copied_head_ref is not None or stored_disposition_ref != original_disposition_ref:\n     |                                                                                                     ^^^^^\n2237 |                         raise ValueError(\"normative_admitted_head_missing\")\n2238 |                     disposition_ref = original_disposition_ref\n     |\n\nFound 2 errors.\n",
+  "stderr": ""
+}

@@ -1,0 +1,26 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_normative_evidence_intake.py tests/unit/runtime/http/test_control_plane_store.py::test_normative_head_compare_and_append_has_one_sqlite_winner tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_routes_have_exactly_one_action_permission_dependency tests/unit/runtime/http/test_runtime_api_authz.py::test_openapi_mutating_denominator_matches_live_router tests/unit/runtime/http/test_runtime_api_authz.py::test_each_mutating_operation_projects_action_permission_extension 'tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_operation_without_permission_is_denied_403[submit-normative-evidence]' 'tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_operation_without_identity_is_denied_401[submit-normative-evidence]' 'tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_operation_authorized_request_reaches_handler[submit-normative-evidence]' -q tests/unit/runtime/http/test_normative_generation_bridge.py::test_every_current_job_reader_replays_persisted_authority --junitxml=docs/superpowers/journals/gy-phase5-evidence/pa1/final-targeted.xml",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/http/test_normative_evidence_intake.py",
+    "tests/unit/runtime/http/test_control_plane_store.py::test_normative_head_compare_and_append_has_one_sqlite_winner",
+    "tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_routes_have_exactly_one_action_permission_dependency",
+    "tests/unit/runtime/http/test_runtime_api_authz.py::test_openapi_mutating_denominator_matches_live_router",
+    "tests/unit/runtime/http/test_runtime_api_authz.py::test_each_mutating_operation_projects_action_permission_extension",
+    "tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_operation_without_permission_is_denied_403[submit-normative-evidence]",
+    "tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_operation_without_identity_is_denied_401[submit-normative-evidence]",
+    "tests/unit/runtime/http/test_runtime_api_authz.py::test_mutating_operation_authorized_request_reaches_handler[submit-normative-evidence]",
+    "-q",
+    "tests/unit/runtime/http/test_normative_generation_bridge.py::test_every_current_job_reader_replays_persisted_authority",
+    "--junitxml=docs/superpowers/journals/gy-phase5-evidence/pa1/final-targeted.xml"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 216.81704245798755,
+  "stdout": ".......................                                                  [100%]\n",
+  "stderr": ""
+}

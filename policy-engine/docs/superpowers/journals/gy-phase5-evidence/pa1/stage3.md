@@ -308,3 +308,179 @@ used as an identity proof.
 
 Source is frozen; the shared quality README also contains the concurrently
 implemented S3 documentation and should be staged with that ownership understood.
+
+
+## D3b/D3c appended completion delta — PA1-R01 temporal bridge
+
+The prior initial-package qualification remains in the record. The subsequent
+D3b/D3c mechanism closes the measured temporal gap: the actual default worker first
+finishes with missing normative evidence; its actual compiled CAS source is signed
+only afterward; the new production HTTP intake conditionally appends a current
+head; both existing current job readers consume that head through current S8
+replay. This uses an explicit signed fixture appointment solely to test the
+mechanism. It does not claim a canonical production appointment, complete evidence
+candidate, empirical result, or promotion.
+
+The first architectural extension is NEW class PA1-R01 (P01/P02): a standalone
+post-source producer persisted a new sidecar without a production intake or head
+consumer. The second finding is that same temporal bridge class one level deeper:
+the NL worker did not publish a canonical owned core run, so the real owned-run
+resolver returned `authorization_binding_run_unresolved`. Under P40 the design was
+widened to the complete actual chain, not patched with an authorization bypass:
+actual compiled source → canonical core-run publication → owned post-source intake
+→ conditional event head → shared current readers. D3b and D3c were recorded by the
+root before their production seams were changed.
+
+### Existing owners extended
+
+- `control/generation_cycle.py`: strict submission DTOs and additive
+  `policyos.normative_generation_head.v1`, plus the real CAS/epoch head loader.
+  Existing S8, generation and composition receipt epochs are unchanged.
+- `control/run_lifecycle.py`: existing worker uses canonical `RunContext` to publish
+  its actual compiled/initial normative outputs with the persisted job tenant and
+  cell. Existing terminal output is replayed and checked instead of overwritten.
+  The service derives exact run/compiled/initial-sidecar identity from that immutable
+  owner, receives typed external refs, invokes the existing S8 composition producer,
+  persists a head, and reads the admitted event back through the shared projection.
+- `control_plane_store.py`: the existing `control_job_events` table owns the head
+  index through `normative_evidence_admitted`. Compare-and-append runs inside
+  SQLite `BEGIN IMMEDIATE` or PostgreSQL's existing transaction context with an
+  owning-job `FOR UPDATE` lock. No new table and no progress rewrite.
+- `routes/control.py` and the closed `resource_binding.py` resolver map:
+  `POST /api/v1/control/runs/{run_id}/normative-evidence` requires the existing
+  `EVIDENCE_RESOLVE` permission and verified ownership of that exact run. The strict
+  body supplies exact job ID, required nullable prior-head ref, and existing
+  `NormativeRunEvidenceRefs`. It supplies no compiled source or deployment trust.
+  The added resolver entry changes supported resource vocabulary; it does not
+  alter the existing authorization receipt/hash semantics.
+
+Successful receipt returns HTTP 200, a typed refusal HTTP 422, and a stale-head
+conflict HTTP 409. Refusal/conflict attempts persist their disposition and immutable
+attempt audit event without advancing the admitted head. Wrong-job and malformed
+requests fail at the existing bound request boundary. Both GET readers and the
+submission response use `_current_normative_job_record`; source/head corruption
+cannot resurrect an old worker ranking. If the compiled source remains available,
+a broken head produces the same source-preserving refusal producer and typed NDR.
+
+General approval progress updates can copy a current projection. The head's
+StrangleReceipt therefore binds its initial disposition to the immutable canonical
+core-run output, not to a copied progress field. The retained probe covers this
+real sibling-write class and proves that source substitution subsequently blocks.
+
+### Decisive evidence
+
+The corrected final targeted wave is `d3b-final-targeted-v3.json` (actual RC 0,
+132.91363483300665 seconds). Its full JUnit is `d3b-final-targeted-v3.xml`; all test
+identities are reconciled independently by `d3b_collect.py`. It includes the entire
+new intake test file, the actual two-connection SQLite race, complete live-router
+versus OpenAPI operation identities, and the new route's permission/identity/handler
+controls. This is a targeted blast-radius wave, not a directory suite.
+
+The primary test executes the actual worker before signing. It then enters the
+real secured HTTP route and observes an authorized current head at both readers.
+A source-substituted authorization signed by the same valid fixture signer returns
+`p20_normative_generation_binding_mismatch`, zero ranked recommendations and a
+persisted typed NDR. Its prior admitted head remains authorized and unchanged.
+The same run proves predecessor conflict, permission absence, foreign-tenant denial,
+wrong job rejection and strict source/trust-override rejection. Original job progress
+is unchanged by admission, refusal and conflict.
+
+`d3b-source-census.json` walks every `src/**/*.py` file and reconciles the complete
+filesystem and git identity sets: 2,630/2,630, no ambiguous files. AST and independent
+token identities agree for every temporal owner/call reference. The complete head
+schema has nine fields; AST declarations and Pydantic fields agree on the identity
+set. Mutation parameters derive from that actual schema, with additional missing-CAS
+and artifact-epoch cases. Each admitted-head mutation retains actual candidate
+fronts and a typed request while blocking current recommendations. Novel metadata
+must really be changed: equal CAS bytes reuse an existing manifest, so the corrected
+epoch probe preserves decoded head meaning while using distinct timestamp spelling
+to expose a distinct artifact manifest.
+
+The run-emitted `NormativeEvidenceHeadStrangleReceipt` flips the default current-job
+projection from worker-only sidecar to the admitted event head and binds both exact
+dispositions. The reader recomputes its fields from the immutable core-run output
+and admitted sidecar. Removing actual head attachment keeps the signed producer,
+append event and all receipt markers but the unchanged post-source positive fails
+at missing current head (`d3b-head-attachment-removal.json`, RC 1). Removing canonical
+run publication keeps the markers and worker outputs but that same positive fails
+at the real owner resolver's HTTP 403 (`d3c-owned-publication-removal.json`, RC 1).
+The head-binding removal separately disables the actual source-binding predicate
+while preserving its marker/reason strings; the happy path remains valid and the
+wrong-job head mutation must fail the unchanged refusal assertion.
+
+### Preserved reds and bounded verification
+
+No earlier red was erased or credited as completion. `d3b-intake-red.json` is a
+legacy test-scope UUID setup failure; `-v2` is a harness CAS-owner mismatch;
+`-v3` reaches the decisive absent route (404). `d3b-intake-first-green.json` is the
+real missing owned-run producer (403), which caused D3c. Subsequent source-head reds
+include shared fixture shutdown/creation-time ordering and a temporary schema
+attribute implementation error. The first final wave also caught an unsorted
+expected authorization operation identity list. The second final wave found that
+its metadata-corruption probe had not changed metadata because CAS reused the
+existing manifest. Those records remain complete and linked; the corrected third
+wave passed every case without weakening a semantic assertion.
+
+Actual concurrent PostgreSQL execution is **not_established**: this station delta
+executes SQLite concurrency. The PostgreSQL transaction/row-lock path is implemented
+using the existing persistence owner; no PostgreSQL runtime result is claimed.
+Canonical OpenAPI/client generation, generated-artifact recomputation and common
+architecture guardrails remain the root's serialized closeout work. No generated
+writer, register/debt edit, push, stash or commit was performed by this subagent.
+
+Proposed PA1 terminal after the root's frozen delta review and common checks:
+`executed` for its refusal/authorization/orchestration contract. The earlier
+`not_executable` standing is superseded by the measured buildable mechanism.
+Production institutional/scientific appointment and upstream N8/N9 evidence remain
+with the named shared N7 fork / first-complete-promotion row; this delta neither
+manufactures them nor depends on falsely declaring them present.
+
+
+### Frozen-review qualification: head arrival must survive mutable progress copying
+
+The 21-case green above is preserved, not the final PA1 completion receipt.
+`d3b-head-absence-challenge.json` subsequently measured a real escape (RC 1):
+the actual worker's initial disposition was blocked, later signed fixture evidence
+was admitted through the owner, its current projection was copied through the real
+progress store, and omission by the event owner left an authorized recommendation
+and copied head ref. This is the same P31/P37 head-arrival/emission class, one level
+deeper. A scalar blocked result is also insufficient when the immutable core source
+remains available: source mismatch must preserve that source's frontier and typed
+request, not fall back to an unbound progress source.
+
+The independent reviewer also distinguished the initial attachment-removal witness:
+it failed first on head-ref presence before reaching the semantic reader assertions.
+That record proves reference attachment, not yet the authorization effect. The
+source-binding removal is semantic: the happy path passes and a wrong-job head
+produces unauthorized ranking at the unchanged refusal assertion. The next approved
+batch must move authorization/ranking assertions before reference assertions and
+widen the single current-reader source selection to immutable core output for both
+head-present and no-head cases. No raw-progress authority fallback may be introduced
+to preserve a constructor-only test. Source remained frozen while these findings
+were measured and routed to the root.
+
+
+### D3d — one immutable source selection boundary
+
+Root decision `D3d` was committed before editing. The shared reader now resolves
+canonical core outputs before choosing either the no-event default or an admitted
+head. Mutable progress supplies neither source nor default authority. Copied head
+metadata is cleared before replay; missing head arrival produces a fresh typed
+refusal. If progress names another compiled ref, the reader retains the already
+resolved canonical compiled source for that refusal, so the original candidate
+frontier survives. Only an unresolved immutable owner makes source binding
+`not_established`. The submission owner likewise refuses a progress/source mismatch
+using the canonical source and existing refusal producer.
+
+The initial standalone job-reader fixture was corrected to publish its actual
+source through canonical `RunContext` before asserting job authority. No raw-progress
+compatibility path was introduced. The post-source HTTP positive captures both
+current readers and asserts authorization and nonempty rankings before checking any
+head/receipt marker. The progress-copy test now removes the event owner and checks
+both readers' zero ranking, complete original frontier, typed request and cleared
+head metadata; the same assertions cover a rebound progress source.
+
+D3d changes no public request/response schema, endpoint, head epoch or S8 receipt
+epoch. Generated companion owners remain with the root. Delta results below replace
+only the insufficient source-default and attachment assertions; prior evidence and
+reds remain retained.

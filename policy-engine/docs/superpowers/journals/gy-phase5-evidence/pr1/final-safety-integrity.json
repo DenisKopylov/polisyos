@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "command": ".venv/bin/python -c 'import hashlib,json,subprocess; from pathlib import Path; p=\"src/polisyos/runtime/quality/evaluation_safety.py\"; current=Path(p).read_bytes(); base=subprocess.check_output([\"git\",\"show\",\"3d572c146:policy-engine/\"+p]); print(json.dumps({\"path\":p,\"denominator\":\"entire file bytes from exact slice base and current worktree\",\"base\":\"3d572c146\",\"base_sha256\":hashlib.sha256(base).hexdigest(),\"current_sha256\":hashlib.sha256(current).hexdigest(),\"byte_equal\":current==base})); raise SystemExit(0 if current==base else 1)'",
+  "argv": [
+    ".venv/bin/python",
+    "-c",
+    "import hashlib,json,subprocess; from pathlib import Path; p=\"src/polisyos/runtime/quality/evaluation_safety.py\"; current=Path(p).read_bytes(); base=subprocess.check_output([\"git\",\"show\",\"3d572c146:policy-engine/\"+p]); print(json.dumps({\"path\":p,\"denominator\":\"entire file bytes from exact slice base and current worktree\",\"base\":\"3d572c146\",\"base_sha256\":hashlib.sha256(base).hexdigest(),\"current_sha256\":hashlib.sha256(current).hexdigest(),\"byte_equal\":current==base})); raise SystemExit(0 if current==base else 1)"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 0.14332224999088794,
+  "stdout": "{\"path\": \"src/polisyos/runtime/quality/evaluation_safety.py\", \"denominator\": \"entire file bytes from exact slice base and current worktree\", \"base\": \"3d572c146\", \"base_sha256\": \"22edd5916472bbe5e186c2a0091ab2e65c40d3b06d94c72cbefaaafdb4d6537c\", \"current_sha256\": \"22edd5916472bbe5e186c2a0091ab2e65c40d3b06d94c72cbefaaafdb4d6537c\", \"byte_equal\": true}\n",
+  "stderr": ""
+}

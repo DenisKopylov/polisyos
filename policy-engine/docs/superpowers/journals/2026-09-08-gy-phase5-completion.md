@@ -7,7 +7,8 @@ after the committed [executed research](2026-09-08-gy-phase5-research.md).
 The lane is `/Users/deniskopylov/polisyos/.worktrees/gy-phase5`, attached branch
 `codex/gy-phase5-execution`, immutable slice base `3d572c146`.
 Research commits are `fb6f3e722` and `bbb67f864`; decisions are `be2388baa`.
-Source and tests were unchanged before those decisions. No auxiliary worktree exists.
+Source and tests were unchanged before those decisions. At that initial boundary,
+no auxiliary worktree existed.
 
 **Auxiliary worktree registration (appended before creation):**
 `/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck`, branch
@@ -17,8 +18,9 @@ lane only; no production repair or commit is planned there. Its isolated venv
 uses the same measured dependency versions and read-only production data.
 The earlier no-auxiliary statement describes the initial delivery state.
 
-This journal is in progress. No full task completion is asserted yet. S3 and PA1
-implementation use disjoint owners; root serializes commits and governed records.
+S3 and PA1 implementation used disjoint owners; root serializes commits and
+governed records. The task-level dispositions below distinguish delivered
+mechanisms from unestablished full-task conjuncts.
 No push, GitHub plugin, history rewrite, storage stash, active debt/register write,
 or directory/full Python suite is authorized or used.
 
@@ -139,7 +141,7 @@ binary; `.venv/bin/python -m ruff --version` returns RC0, `0.14.10`, in
 FileNotFoundError runs are harness nonreceipts, retained by PA1; no tracked
 dependency or lockfile changed.
 
-## Pending acceptance and final status
+## Full-task acceptance map
 
 `P5-S3-MAP-01` extends S3-R11/AR-S3-01 by executed reusable-owner discovery:
 [finding](gy-phase5-evidence/shared/law-owner-discovery.md),
@@ -148,7 +150,7 @@ The real registry resolves the entire declared relation set, while the compiler,
 GL map bridge, claim-competence report and heuristic transport mapper do not
 establish the missing law→lever correspondence. This is a semantic
 producer/acceptance dependency, not a write boundary. The route and honest
-law-refusal repair remain executable and continue.
+law-refusal repair were executable and are delivered below.
 
 The following is the full acceptance map; final verification and delivery receipts
 are appended below when their actual commands finish. A mechanism's passing test
@@ -290,8 +292,8 @@ actual RC1 is the semantic failure, not an arbitrary missing-ref failure.
 
 ## Final targeted verification and delivery
 
-Pending actual final-wave results and branch readback. No final green or Phase 5
-closure is claimed by this in-progress section.
+The measured records below retain both passing and failing gates and the exact
+branch delivery readbacks. Mechanism delivery does not assert Phase 5 closure.
 
 ## Built mechanisms and their falsifiers
 
@@ -329,7 +331,7 @@ belongs to the architect and was not performed by this lane.
 | PR1 complete canonical promotion and protected near-miss premise | `first-promotion-candidate-with-complete-evidence`, `eval-safety-promotion-authority-producer-missing`, `GY-O0-NC-01`; genuine scientific inputs and promotion-purpose protection semantics |
 | **PR1 source-carrying and measurement/portfolio bridge remains unfinished** | **Still inside GY-PR1**, `bridge_missing` / `producer_missing`; no global engineering impossibility claimed. N4 source preservation, pre-admission evidence stage and actual candidate/source binding remain the identified engineering seams |
 | Education pair current registry owner rederivation fails | Existing education cycle-substrate / GY-S0 capture owner, **P41**. Exact slice-base replay is red too, but complete-input disjointness is `not_established`; neither inherited nor excluded from the final target set |
-| Historical credal/promotion/depth/second-domain captures | Their existing recomputing owners and **P07/P08**. Prior epochs remain readable; current freshness is credited only by an actual current-owner check. No blanket restamp of executed tasks |
+| Historical credal/depth/second-domain captures | Their existing recomputing owners and **P07/P08**. Prior epochs remain readable; current freshness is credited only by an actual current-owner check. No blanket restamp of executed tasks. The N9 credal-input delta is our S3 D1d companion and is handled inside this lane |
 | S3-R12: LegalKnowledgeStore provision API selects unavailable `version_id` | **Lex knowledge-store owner / P32** source-schema compatibility; exact read-only API failure and complete SQL fallback retained. No active row established: architect may register |
 | S3 requirement-spec flat manifest consumer | `foundry/methods/selection/requirements.py`, **P27**. Actual behavior remains `not_established`; source seam alone is not a second proven defect |
 | Malformed retained UDF source schema | **DataForge source-contract artifact integrity / P35**; active-row map explicitly nowhere. The unreadable document stays `ambiguous`, never an empty portfolio source |
@@ -369,7 +371,10 @@ existing curated operation owner; actual raw/canonical fetch tests and the
 regenerate-after-removal probe decide closure. D4 extends existing Core/Foundry
 facades for exact owned objects rather than adding deep-import exceptions.
 [Independent client/Core delta review](gy-phase5-evidence/shared/independent-surface-delta-review.md)
-approves those changes; the Foundry delta and D3f example are still under verification.
+approves those changes; the subsequent
+[Foundry facade review](gy-phase5-evidence/shared/independent-foundry-facade-review.md)
+and [D3f example review](gy-phase5-evidence/shared/independent-openapi-example-review.md)
+also approve their frozen deltas.
 
 **DS17 dependency drift:** the actual unchanged example worker's complete
 dependency bindings and independent rehash are preserved in
@@ -423,7 +428,12 @@ DS11 reads the debt register as input without editing it or executing its comman
 strings. Canonical internal probe scripts still invoke Python generators by
 file path, and the dashboard shell may prefer bare pnpm; this is existing
 internal owner behavior, not a claim of complete child-command compliance with
-the lane's invocation rule. The outer lane commands use `-m` and `corepack pnpm`.
+the lane's invocation rule. The current outer verification commands use `-m`
+and `corepack pnpm`. The historical PR1 recorder description in
+`pr1/stage3-scope-audit.md` shows a file-path recorder invocation; its child-only
+JSON does not independently capture that outer invocation. This is a retained
+lane-harness invocation nonreceipt, not a product result or universal compliance
+claim.
 Home for that invocation mismatch: **architecture/generated artifact tool owners,
 module-invocation and station-PATH rules; explicit nowhere active task row**.
 No canonical probe is replaced or weakened.
@@ -463,3 +473,97 @@ The final [epoch identity census](gy-phase5-evidence/s3/final-epoch-census.json)
 reconciles both complete enumerations without unreadable/ambiguous cases;
 historical v1 captures remain historical evidence, with current freshness withheld
 where the actual producer cannot currently run.
+
+## Governed credal-input fan-out: S3 D1d
+
+The current N9 owner check returned RC1 in 73.542 seconds with
+`current_governing_projection_drift`:
+[exact current check](gy-phase5-evidence/s3/final-promotion-current-check.json).
+The complete frozen/live owner projection comparison identifies S3 D1b's credal
+input v1 → v2 as the differing governing quantity. This is our dependent
+artifact repair, not an external blocker or an inherited failure. The D1d
+decision was committed and read back before changing its existing reconciliation
+owner. Production obligation semantics and the generic receipt comparator stay
+unchanged; the decision requires a freshly admitted owner replay, exact full
+envelope reconciliation, preserved historical bytes, and refusal for any other
+governing drift.
+
+The [independent frozen delta review](gy-phase5-evidence/shared/independent-d1d-review.md)
+approves this exact boundary. The
+[expanded final targeted run](gy-phase5-evidence/pr1/d1d-reissue-final-tests.json)
+returns RC0 in 292.919 seconds, including the real writer/check positive and
+the old v3 → v6 transition control. The
+[transition removal](gy-phase5-evidence/pr1/d1d-transition-removal.json) returns
+RC1 because the unchanged writer positive again encounters the generic semantic
+mismatch. The [governing-comparison removal](gy-phase5-evidence/pr1/d1d-governing-comparison-removal.json)
+returns RC1 because the unchanged negative fails to observe the required refusal
+for an extra governing field. Both probes keep disk source unchanged. These
+results prove the transition and its bound; canonical output freshness is
+decided separately by the actual owner write/check below.
+
+The canonical [write](gy-phase5-evidence/pr1/d1d-canonical-write.json) returns
+RC0 in 83.787 seconds, and the unchanged current
+[check](gy-phase5-evidence/pr1/d1d-canonical-check.json) returns RC0 in 120.637
+seconds. The owner's in-memory
+[corrupt-field check](gy-phase5-evidence/pr1/d1d-canonical-corruption.json)
+returns the required RC1 in 63.478 seconds without mutating disk bytes. The new
+canonical report SHA256 is
+`3925c1e9f2474d6c950877f27860c3e8409b57ae2f37f088b40aebb4742b36e9`.
+The historical capture remains exactly
+`4825fd7adac74ef35a351d023dbd0069952b602b26b1c124c7795ef696f1a59a`.
+No canonical promotion has been created: the actual admitted receipt identities
+retain their refusal/non-promotability. D1d closes S3's governed companion only.
+
+The exact same targeted matrix was replayed with JUnit to repair the missing
+execution-identity receipt. [Execution](gy-phase5-evidence/pr1/d1d-identity-execution.json)
+returns RC0 in 320.487 seconds; the
+[complete collection/JUnit reconciliation](gy-phase5-evidence/pr1/d1d-test-identities.json)
+returns RC0 in 41.947 seconds, with equal identity sets and no missing,
+unexpected, ambiguous, duplicate or nonpassing case. The earlier `-q` output
+remains behavioral evidence with its original recording limit. The
+[complete reissue journal](gy-phase5-evidence/pr1/promotion-credal-epoch-reissue.md)
+retains the full diagnosis, input denominator, current and historical bytes,
+and all exact commands and streams.
+
+After this final source/artifact freeze, the canonical
+[OpenAPI generator](gy-phase5-evidence/shared/d1d-runtime-openapi-generate.json),
+[client generator](gy-phase5-evidence/shared/d1d-runtime-client-generate.json)
+and [dashboard generator](gy-phase5-evidence/shared/d1d-runtime-dashboard-generate.json)
+all return RC0. The complete
+[JSON identity delta](gy-phase5-evidence/shared/d1d-runtime-openapi-delta.json)
+still has no removed node or operation. The delta from the preceding committed
+schema is confined to DS17's actual source-bound example; both regenerated
+client surfaces are byte-identical to their preceding committed versions.
+The fresh [client tests](gy-phase5-evidence/shared/d1d-runtime-client-tests.json),
+[client typecheck](gy-phase5-evidence/shared/d1d-runtime-client-typecheck.json),
+[dashboard typecheck](gy-phase5-evidence/shared/d1d-runtime-dashboard-typecheck.json)
+and full [Runtime API contract](gy-phase5-evidence/shared/d1d-runtime-api-contract.json)
+all return RC0. The final API contract took 137.951 seconds. No generated API
+schema field or operation was narrowed to obtain these results.
+
+The complete slice source/test/tool Ruff command after the D1d source freeze
+still returns RC1 solely for the preserved DS18/DS15 `F601` finding:
+[full command and output](gy-phase5-evidence/shared/d1d-full-source-ruff.json).
+The path denominator is every changed `.py` under `src/`, `tests/` and `tools/`
+against the exact slice base, reconciled from full Git name and numstat walks;
+the untracked walk adds no Python source path. No changed source is omitted.
+
+## Read-back delivery boundaries
+
+Each row was committed from the attached branch only after its writers stopped.
+The readback walks the complete actual commit path set and reads every committed
+blob from that branch, comparing it with the prepared staged bytes and parent.
+Failed hook/readback attempts remain nonreceipts in the earlier execution record.
+
+| Delivered boundary | Commit | Actual branch readback |
+| --- | --- | --- |
+| S3 manifest/law/credal mechanism, report, facade and public companions | `f79e18ad888b0725a4863d28545fae3ec7d35839` | [Complete branch bytes](gy-phase5-evidence/shared/s3-delivery-readback.json) |
+| PA1 later signed-evidence intake, immutable source/head readers, actual HTTP example and generated clients | `7839a6b9f8e83f78af1d840bd2cf5935f1dac7df` | [Complete branch bytes](gy-phase5-evidence/shared/pa1-final-delivery-readback.json) |
+| S3 D1d governed reissue decision, before implementation | `33efaade30089e8ef5a08c8fde9e76e6e01d9610` | [Decision branch bytes](gy-phase5-evidence/shared/d1d-decision-delivery-readback.json) |
+| S3 D1d actual owner reissue, history, semantic tests and generated OpenAPI companion | `0821766940356f260cb5afc55370acf6f7ae1ed1` | [Complete branch bytes](gy-phase5-evidence/shared/d1d-source-delivery-readback.json) |
+
+The copied stage-1 PA1 evidence links were repaired only in visible Markdown;
+verbatim command/output fences were preserved. The independent final audit
+reconciles both link parsers over all three lane documents, resolves their direct
+local targets, and reads their linked JSON evidence. Earlier missing-link audit
+records are retained as lane-document findings, now corrected.

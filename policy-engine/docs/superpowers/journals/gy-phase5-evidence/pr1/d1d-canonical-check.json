@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m tools.quality.validation.check_layer3_gy_promotion_contract --check --output-format json",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 120.637,
+  "stdout": "{\n  \"issues\": [],\n  \"status\": \"pass\",\n  \"wall_time_seconds\": 56.317183\n}\n",
+  "stderr": ""
+}

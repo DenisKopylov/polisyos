@@ -1,0 +1,16 @@
+{
+  "pytest_returncode": 0,
+  "captures": [
+    {
+      "method": "POST",
+      "path": "/api/v1/control/runs/R_9bfa9624a0a11eef/normative-evidence",
+      "status_code": 200,
+      "content_type": "application/json",
+      "body_file": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.tmp/gyphase5-pa1-openapi-example/response-1.json",
+      "body_sha256": "becbcde583102a388069266d50e0dbee946b7c642223a958f8234652b8e4ed65",
+      "body_bytes": 11502,
+      "scope": "fixture_only_transport_example",
+      "authority_limitation": "Emitted by the actual worker, later fixture-signed evidence intake and current-reader replay. Fixture principals, fixture trust and fixture source are not an institutional appointment, production candidate, canonical denominator, or a reusable admitted authority receipt."
+    }
+  ]
+}

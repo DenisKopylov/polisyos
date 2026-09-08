@@ -492,7 +492,7 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 488,
+          "export_count": 489,
           "exports": [
             "*_CHRONOLOGY_EXPORTS",
             "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
@@ -600,6 +600,7 @@
             "ContinuationBranchPoint",
             "ContinuationBranchRef",
             "ControlFailureEnvelope",
+            "ControlJobResponse",
             "ControlOutboxEventInfo",
             "ControlOutboxEventsResponse",
             "ControlWorkerLeaseInfo",
@@ -2262,11 +2263,12 @@
         "polisyos.foundry.execute"
       ],
       "major_subsystem": true,
-      "export_count": 11,
+      "export_count": 13,
       "exports": [
         "DependencyProfileResolutionFailure",
         "EmbedderProtocol",
         "MethodCatalogDependencyAuthorityRequest",
+        "MethodRouteConstraint",
         "SentenceTransformerEmbedder",
         "TFIDFEmbedder",
         "build_method_catalog_provenance_manifest",
@@ -2274,6 +2276,7 @@
         "compile",
         "compile_program",
         "execute",
+        "method_accepts_input_contract",
         "select_method_candidates_for_requirements"
       ],
       "has___getattr__": true,
@@ -2285,11 +2288,12 @@
         {
           "module": "polisyos.foundry",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 11,
+          "export_count": 13,
           "exports": [
             "DependencyProfileResolutionFailure",
             "EmbedderProtocol",
             "MethodCatalogDependencyAuthorityRequest",
+            "MethodRouteConstraint",
             "SentenceTransformerEmbedder",
             "TFIDFEmbedder",
             "build_method_catalog_provenance_manifest",
@@ -2297,6 +2301,7 @@
             "compile",
             "compile_program",
             "execute",
+            "method_accepts_input_contract",
             "select_method_candidates_for_requirements"
           ],
           "has___getattr__": true,

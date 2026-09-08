@@ -115,6 +115,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState  # noqa: 
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 if TYPE_CHECKING:
+    from polisyos.foundry import MethodRouteConstraint
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
     from polisyos.runtime.quality.open_world_risk import (
@@ -1837,6 +1838,40 @@ def simulation_value_execution_context(
     )
 
 
+_OBSERVATION_MANIFEST_UNSUPPLIED = object()
+
+
+def _value_method_selection_inputs(
+    *, requested_method_fqn: str | None = None,
+    observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED,
+    observation_family: str | None = None,
+    runtime_budget_ms: float | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
+) -> dict[str, Any]:
+    """Project candidate selection config from a freshly verified bound context."""
+    source = observation_to_contract_manifest
+    if cycle_substrate_context is not None:
+        from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
+
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+        bundle = context.intervention_substrate
+        if source is _OBSERVATION_MANIFEST_UNSUPPLIED:
+            if bundle is not None:
+                source = bundle.observation_manifest
+        elif bundle is None or not isinstance(source, Mapping) or (
+            gy_content_hash(source) != gy_content_hash(bundle.observation_manifest)
+        ):
+            raise ValueError("value_method_manifest_context_mismatch")
+    inputs: dict[str, Any] = {
+        "method_fqn": requested_method_fqn, "runtime_budget_ms": runtime_budget_ms,
+    }
+    if source is not _OBSERVATION_MANIFEST_UNSUPPLIED:
+        inputs["observation_to_contract_manifest"] = source
+    if observation_family is not None:
+        inputs["observation_family"] = observation_family
+    return inputs
+
+
 class FoundryValuePort:
     """Default N8 port delegating value authority to Foundry and S10 owners."""
 
@@ -1848,7 +1883,8 @@ class FoundryValuePort:
         owner_gateway: ValueOwnerGateway | None = None,
         data_trust: DataTrust | None = None,
         requested_method_fqn: str | None = None,
-        observation_to_contract_manifest: object | None = None,
+        observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED,
+        observation_family: str | None = None,
         runtime_budget_ms: float | None = None,
         repo_root: Path | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
@@ -1862,6 +1898,7 @@ class FoundryValuePort:
         self._data_trust = data_trust
         self._requested_method_fqn = requested_method_fqn
         self._observation_to_contract_manifest = observation_to_contract_manifest
+        self._observation_family = observation_family
         self._runtime_budget_ms = runtime_budget_ms
         self._cycle_substrate_context = cycle_substrate_context
         self._world_cache: dict[str, object] = {}
@@ -2041,7 +2078,13 @@ class FoundryValuePort:
                     started=started,
                     candidate_id=candidate_id,
                 )
-        inputs = self._selection_inputs()
+        try:
+            inputs = self._selection_inputs()
+        except ValueError as exc:
+            return _blocked_value_observation(
+                code=str(exc), reason="Value selection source failed its bound context owner.",
+                mode=mode, started=started, candidate_id=candidate_id,
+            )
         data_trust = self._data_trust
         if mode in {"retrospective", "measurement_audit"} and data_trust is None:
             return _blocked_value_observation(
@@ -2155,7 +2198,10 @@ class FoundryValuePort:
                     candidate=candidate,
                     problem=selector_problem,
                     requested_method_fqn=_optional_text(inputs.get("method_fqn")),
-                    observation_to_contract_manifest=inputs.get("observation_to_contract_manifest"),
+                    observation_to_contract_manifest=None,
+                    route_constraint=_value_method_route_constraint(
+                        candidate=candidate, problem=selector_problem, inputs=inputs,
+                    ),
                     runtime_budget_ms=(
                         float(inputs["runtime_budget_ms"])
                         if inputs.get("runtime_budget_ms") is not None
@@ -2210,11 +2256,13 @@ class FoundryValuePort:
         )
 
     def _selection_inputs(self) -> dict[str, Any]:
-        return {
-            "method_fqn": self._requested_method_fqn,
-            "observation_to_contract_manifest": self._observation_to_contract_manifest,
-            "runtime_budget_ms": self._runtime_budget_ms,
-        }
+        return _value_method_selection_inputs(
+            requested_method_fqn=self._requested_method_fqn,
+            observation_to_contract_manifest=self._observation_to_contract_manifest,
+            observation_family=self._observation_family,
+            runtime_budget_ms=self._runtime_budget_ms,
+            cycle_substrate_context=self._cycle_substrate_context,
+        )
 
     def _world_record_from_simulation(
         self,
@@ -2246,8 +2294,19 @@ class _DefaultSimulationBoundFoundryValuePort:
     eval_safety_verifier: EvalSafetyVerifierPort | None = None
     data_trust: DataTrust | None = None
     requested_method_fqn: str | None = None
-    observation_to_contract_manifest: object | None = None
+    observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED
+    observation_family: str | None = None
     runtime_budget_ms: float | None = None
+
+    def _selection_configuration(self) -> dict[str, Any]:
+        """Preserve selection scope while the execution context awaits N5."""
+        return {
+            "requested_method_fqn": self.requested_method_fqn,
+            "observation_to_contract_manifest": self.observation_to_contract_manifest,
+            "observation_family": self.observation_family,
+            "runtime_budget_ms": self.runtime_budget_ms,
+            "cycle_substrate_context": self.cycle_substrate_context,
+        }
 
     def __call__(
         self,
@@ -2276,11 +2335,8 @@ class _DefaultSimulationBoundFoundryValuePort:
             eval_safety_verifier=self.eval_safety_verifier,
             owner_gateway=self.owner_gateway,
             data_trust=self.data_trust,
-            requested_method_fqn=self.requested_method_fqn,
-            observation_to_contract_manifest=self.observation_to_contract_manifest,
-            runtime_budget_ms=self.runtime_budget_ms,
             repo_root=self.repo_root,
-            cycle_substrate_context=self.cycle_substrate_context,
+            **self._selection_configuration(),
         )(
             candidate=candidate,
             simulation=simulation,
@@ -2414,6 +2470,8 @@ class GenerationCycleController:
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED,
+        observation_family: str | None = None,
         authority_scope: Literal["production", "contract_testing"] = "production",
         generated_at: datetime | None = None,
         high_proxy_threshold: float = 0.8,
@@ -2434,6 +2492,8 @@ class GenerationCycleController:
         self._value_port = value_port or _DefaultSimulationBoundFoundryValuePort(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
+            observation_to_contract_manifest=observation_to_contract_manifest,
+            observation_family=observation_family,
         )
         if authority_scope == "production" and promotion_port is not None:
             raise ValueError("production_promotion_port_must_be_container_derived")
@@ -2757,6 +2817,7 @@ class GenerationCycleController:
                 "observation_to_contract_manifest": (
                     existing_port._observation_to_contract_manifest
                 ),
+                "observation_family": existing_port._observation_family,
                 "runtime_budget_ms": existing_port._runtime_budget_ms,
             }
         elif isinstance(existing_port, _DefaultSimulationBoundFoundryValuePort):
@@ -2767,6 +2828,7 @@ class GenerationCycleController:
                 "observation_to_contract_manifest": (
                     existing_port.observation_to_contract_manifest
                 ),
+                "observation_family": existing_port.observation_family,
                 "runtime_budget_ms": existing_port.runtime_budget_ms,
             }
         reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
@@ -5088,16 +5150,56 @@ def _select_value_method(
             "blockers": ("value_method_selector_unavailable",),
             "reason": str(exc),
         }
+    try:
+        route_constraint = _value_method_route_constraint(
+            candidate=candidate, problem=problem, inputs=inputs,
+        )
+    except ValueError as exc:
+        return {"status": "blocked", "blockers": (getattr(exc, "code", str(exc)),),
+                "reason": str(exc)}
     return select_value_method_for_problem(
         candidate=candidate,
         problem=problem,
         requested_method_fqn=_optional_text(inputs.get("method_fqn")),
-        observation_to_contract_manifest=inputs.get("observation_to_contract_manifest"),
+        observation_to_contract_manifest=None,
+        route_constraint=route_constraint,
         runtime_budget_ms=(
             float(inputs["runtime_budget_ms"])
             if inputs.get("runtime_budget_ms") is not None
             else None
         ),
+    )
+
+
+def _value_method_route_constraint(
+    *, candidate: object, problem: object, inputs: Mapping[str, Any],
+) -> MethodRouteConstraint | None:
+    """Recompute the S3 owner constraint from source at selection and receipt replay."""
+    if "observation_to_contract_manifest" not in inputs:
+        if inputs.get("observation_family") is not None:
+            raise ValueError("observation_manifest_missing")
+        return None
+    from polisyos.runtime.quality.intervention_substrate import (
+        load_l6_intervention_substrate,
+        project_value_method_route_constraint,
+        replace_intervention_substrate_bundle,
+    )
+
+    raw = inputs["observation_to_contract_manifest"]
+    if not isinstance(raw, Mapping):
+        raise ValueError("value_method_manifest_source_invalid")
+    bundle = load_l6_intervention_substrate(Path(__file__).resolve().parents[4])
+    bundle = replace_intervention_substrate_bundle(
+        bundle, update={"observation_manifest": dict(raw)},
+    )
+    atom = _object_get(candidate, "atom")
+    candidates = list(_object_get(atom, "target_world_slots") or ())
+    outcome = _object_get(_object_get(problem, "outcome_of_interest"), "target_variable")
+    if isinstance(outcome, str):
+        candidates.append(outcome)
+    return project_value_method_route_constraint(
+        bundle, family=_optional_text(inputs.get("observation_family")),
+        family_candidates=tuple(str(item) for item in candidates),
     )
 
 

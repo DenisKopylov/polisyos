@@ -7,16 +7,19 @@ content-addressed resolution records that N2/N4/N8 can consume.
 
 from __future__ import annotations
 
+import ast
+import copy
 import importlib
 import importlib.util
 import json
 import math
-import re
+import os
 from collections.abc import Callable, Mapping, Sequence
 from decimal import Decimal
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args, get_origin
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -63,16 +66,14 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.foundry import MethodRouteConstraint
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
-INTERVENTION_SUBSTRATE_SCHEMA_VERSION = (
-    "policyos.runtime.intervention_substrate_lift.v1"
-)
+INTERVENTION_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.intervention_substrate_lift.v2"
 INTERVENTION_SUBSTRATE_ARTIFACT_KIND = "runtime.quality.intervention_substrate_lift"
 
 DEFAULT_L6_BUNDLE_ROOT = Path(
-    "production_data/ukraine_agent_simulation_baseline_20260410/"
-    "production_bundle/bundles"
+    "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles"
 )
 DEFAULT_L3_LEX_DB_PATH = Path(
     "production_data/lex/lex-amendment-only-optimized-20260501-v3/"
@@ -105,7 +106,6 @@ _COMPOSED_WMR_REQUIRED_SUBSTRATE_FAMILIES = (
     "l6_observation_contract_routes",
     "l6_policy_scenario_templates",
 )
-_CAMEL_TOKEN_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
 
 
 class _MethodSlotProtocol(Protocol):
@@ -135,6 +135,8 @@ class _MethodRegistryProtocol(Protocol):
     def list_all(self) -> Sequence[_MethodSignatureProtocol]: ...
 
     def get_entry(self, fqn: str) -> _MethodEntryProtocol | None: ...
+
+    def get(self, fqn: str) -> object: ...
 
 
 class _ThresholdRefProtocol(Protocol):
@@ -304,7 +306,11 @@ class LawAuthorityRef(_StrictModel):
 
 
 class LawLeverResolution(_StrictModel):
-    """Resolved law -> knob -> L3 admissibility binding."""
+    """Candidate law/knob trace with independently bounded current authority.
+
+    A real threshold evaluation does not verify its correspondence to a knob.
+    Historical v1 records remain readable, but never grant current authority.
+    """
 
     schema_version: str = INTERVENTION_SUBSTRATE_SCHEMA_VERSION
     law_token: str = Field(..., min_length=1)
@@ -314,7 +320,38 @@ class LawLeverResolution(_StrictModel):
     provision_ref: str = Field(..., min_length=1)
     legal_threshold_evaluation: dict[str, Any]
     temporal_competence: dict[str, Any]
+    mapping_predicate_provenance: Literal["consumer_asserted", "not_established"] = (
+        "not_established"
+    )
+    mapping_evidence_ref: None = None
+    current_authority_status: Literal["blocked"] = "blocked"
+    mapping_reason_code: Literal["law_mapping_correspondence_not_established"] = (
+        "law_mapping_correspondence_not_established"
+    )
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _current_mapping_authority_requires_evidence(self) -> LawLeverResolution:
+        if self.schema_version == INTERVENTION_SUBSTRATE_SCHEMA_VERSION:
+            if self.status != "blocked":
+                raise ValueError("law_mapping_correspondence_not_established")
+            if self.content_hash != gy_content_hash(gy_artifact_self_identity_projection(self)):
+                raise ValueError("law_mapping_resolution_content_hash_mismatch")
+        elif self.schema_version == "policyos.runtime.intervention_substrate_lift.v1":
+            historical = self.model_dump(mode="json")
+            for key in (
+                "mapping_evidence_ref",
+                "mapping_predicate_provenance",
+                "current_authority_status",
+                "mapping_reason_code",
+                "content_hash",
+            ):
+                historical.pop(key)
+            if self.content_hash != gy_content_hash(historical):
+                raise ValueError("law_mapping_historical_content_hash_mismatch")
+        else:
+            raise ValueError("law_mapping_epoch_unsupported")
+        return self
 
 
 class ObservationMethodRoute(_StrictModel):
@@ -691,18 +728,19 @@ def resolve_law_bound_lever(
         threshold_id=threshold.threshold_id,
         as_of=authority.as_of,
     )
-    status: Literal["admissible", "blocked"] = (
-        "admissible" if evaluation.status == "admitted" else "blocked"
-    )
     fields = {
         "schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
         "law_token": token,
-        "status": status,
+        "status": "blocked",
         "knob": lever.model_dump(mode="json"),
         "threshold_id": threshold.threshold_id,
         "provision_ref": threshold.provision_ref,
         "legal_threshold_evaluation": evaluation.model_dump(mode="json"),
         "temporal_competence": temporal.model_dump(mode="json"),
+        "mapping_predicate_provenance": "consumer_asserted",
+        "mapping_evidence_ref": None,
+        "current_authority_status": "blocked",
+        "mapping_reason_code": "law_mapping_correspondence_not_established",
     }
     return LawLeverResolution(**fields, content_hash=gy_content_hash(fields))
 
@@ -777,12 +815,81 @@ def route_observation_family_method(
     )
 
 
+def resolve_observation_manifest_routes(
+    bundle: InterventionSubstrateBundle,
+) -> tuple[ObservationMethodRoute, ...]:
+    """Validate the full manifest and resolve every family through its existing owner."""
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
+    raw_routes = bundle.observation_manifest.get("routes")
+    if not isinstance(raw_routes, list) or not raw_routes:
+        raise InterventionSubstrateError("observation_manifest_invalid")
+    families: list[str] = []
+    for row in raw_routes:
+        if not isinstance(row, Mapping) or not isinstance(row.get("family"), str):
+            raise InterventionSubstrateError("observation_manifest_invalid")
+        family = row["family"].strip()
+        if not family:
+            raise InterventionSubstrateError("observation_family_missing")
+        families.append(family)
+    if len(set(families)) != len(families):
+        raise InterventionSubstrateError("family_route_ambiguous")
+    registry_module = importlib.import_module("polisyos.foundry.extensions.registry")
+    with registry_module.controlled_builtin_foundry_method_registry_scope() as (registry, _report):
+        return tuple(
+            route_observation_family_method(bundle, family=family, registry=registry)
+            for family in sorted(families)
+        )
+
+
+def project_value_method_route_constraint(
+    bundle: InterventionSubstrateBundle,
+    *,
+    family: str | None = None,
+    family_candidates: Sequence[str] = (),
+) -> MethodRouteConstraint:
+    """Project one unambiguous owner route as a Foundry candidate constraint.
+
+    All manifest rows are validated before selecting the requested family. An
+    unresolvable source is never converted to an unconstrained advisor query.
+    """
+    from polisyos.foundry import MethodRouteConstraint
+
+    routes = resolve_observation_manifest_routes(bundle)
+    invalid = [
+        row
+        for row in routes
+        if row.status == RouteStatus.BLOCKED and row.reason_code != "method_unavailable_python314"
+    ]
+    if invalid:
+        raise InterventionSubstrateError(invalid[0].reason_code or "method_route_unresolved")
+    by_family = {row.family: row for row in routes}
+    if family is None:
+        matches = set(family_candidates).intersection(by_family)
+        if len(matches) != 1:
+            raise InterventionSubstrateError(
+                "observation_family_ambiguous" if matches else "observation_family_missing"
+            )
+        family = next(iter(matches))
+    if family not in by_family:
+        raise InterventionSubstrateError("family_route_unresolved", family)
+    route = by_family[family]
+    if route.status != RouteStatus.ROUTED:
+        raise InterventionSubstrateError(route.reason_code or "method_route_unresolved", family)
+    return MethodRouteConstraint(
+        family=family,
+        target_contract_id=route.target_contract_id,
+        allowed_method_fqns=tuple(
+            fqn for fqn in route.candidate_method_fqns if fqn not in route.unavailable_method_fqns
+        ),
+        manifest_content_hash=gy_content_hash(bundle.observation_manifest),
+        route_content_hashes=tuple(row.content_hash for row in routes),
+    )
+
+
 def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     """Exercise the L6 intervention substrate over real data and mutation witnesses."""
 
-    registry_module = importlib.import_module(
-        "polisyos.foundry.extensions.registry"
-    )
+    registry_module = importlib.import_module("polisyos.foundry.extensions.registry")
     from polisyos.runtime.quality.substrate_registry import (
         SubstrateLayer,
         build_substrate_registry_from_existing_catalogs,
@@ -845,10 +952,7 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     world_coverage = coverage["world_slot"]
     record(
         case_id="all_real_knobs_resolve_world_slots",
-        passed=(
-            world_coverage["total"] > 0
-            and world_coverage["bound"] == world_coverage["total"]
-        ),
+        passed=(world_coverage["total"] > 0 and world_coverage["bound"] == world_coverage["total"]),
         expected="all_real_knobs_bind_through_n2_n3_owner",
         actual=f"{world_coverage['bound']}/{world_coverage['total']}",
         detail=world_coverage,
@@ -906,10 +1010,7 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     law_coverage = coverage["law_trace"]
     record(
         case_id="all_real_laws_trace_l3_thresholds",
-        passed=(
-            law_coverage["total"] > 0
-            and law_coverage["traced"] == law_coverage["total"]
-        ),
+        passed=(law_coverage["total"] > 0 and law_coverage["traced"] == law_coverage["total"]),
         expected="all_real_law_routes_trace_real_l3_provisions_and_knobs",
         actual=f"{law_coverage['traced']}/{law_coverage['total']}",
         detail=law_coverage,
@@ -934,17 +1035,39 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     record(
         case_id="law_bound_lever_traces_l3_threshold_and_blocks_violation",
         passed=(
-            admitted.status == "admissible"
+            admitted.status == "blocked"
+            and admitted.legal_threshold_evaluation.get("status") == "admitted"
+            and admitted.mapping_evidence_ref is None
             and admitted.provision_ref == threshold.provision_ref
             and blocked.status == "blocked"
             and blocked.legal_threshold_evaluation.get("reason") == "threshold_violated"
         ),
-        expected="law_to_knob_to_real_l3_threshold_admit_and_block",
+        expected="real_threshold_admit_and_block_with_unverified_correspondence_ceiling",
         actual=f"{admitted.status}|{blocked.legal_threshold_evaluation.get('reason')}",
         detail={
             "admitted": admitted.model_dump(mode="json"),
             "blocked": blocked.model_dump(mode="json"),
         },
+    )
+    transposed_manifest = copy.deepcopy(bundle.lex_authority_manifest)
+    law_entries = {row["law_token"]: row
+                   for row in transposed_manifest["intervention_map_entries"]}
+    budget_entry, tax_entry = law_entries[_BUDGET_LAW], law_entries["tax_relief_statute"]
+    budget_entry["provision_ref"], tax_entry["provision_ref"] = (
+        tax_entry["provision_ref"], budget_entry["provision_ref"])
+    transposed = resolve_law_bound_lever(
+        replace_intervention_substrate_bundle(
+            bundle, update={"lex_authority_manifest": transposed_manifest},
+        ), law_token=tax_entry["law_token"], knob_id="tax_relief_rate", parameter_value=0.24,
+        legal_store=lex_store, world_model_record=world_record,
+    )
+    record(
+        case_id="real_unrelated_law_target_cannot_authorize",
+        passed=(transposed.status == "blocked" and transposed.mapping_evidence_ref is None
+                and transposed.mapping_predicate_provenance == "consumer_asserted"
+                and transposed.legal_threshold_evaluation["status"] == "admitted"),
+        expected="numeric_success_cannot_authorize_transposed_real_law_correspondence",
+        actual=transposed.status, detail=transposed.model_dump(mode="json"),
     )
 
     dangling_bundle = replace_intervention_substrate_bundle(
@@ -954,7 +1077,7 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
                 **bundle.lex_intervention_map,
                 _DANGLING_LAW: ("not_a_real_knob",),
             }
-        }
+        },
     )
     dangling_code = _error_code(
         lambda: resolve_law_bound_lever(
@@ -1002,8 +1125,7 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
                 and method_coverage["available"] > 0
                 and method_coverage["unresolved"] == 0
                 and (
-                    method_coverage["available"]
-                    + method_coverage["unavailable_python314"]
+                    method_coverage["available"] + method_coverage["unavailable_python314"]
                     == method_coverage["total"]
                 )
             ),
@@ -1022,16 +1144,32 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
             registry=registry,
         )
         record(
-            case_id="family_method_route_python314_unavailable_truthful_blocker",
+            case_id="nonexistent_contract_cannot_borrow_bart_metadata",
             passed=(
                 unavailable_route.status == RouteStatus.BLOCKED
-                and unavailable_route.reason_code == "method_unavailable_python314"
-                and bool(unavailable_route.candidate_method_fqns)
-                and bool(unavailable_route.unavailable_method_fqns)
+                and unavailable_route.reason_code == "method_route_unresolved"
+                and not unavailable_route.candidate_method_fqns
             ),
-            expected="registered_method_with_missing_dependency_blocks_truthfully",
+            expected="nonexistent_bart_input_type_is_unresolved_despite_matching_tokens",
             actual=f"{unavailable_route.status}|{unavailable_route.reason_code}",
             detail=unavailable_route.model_dump(mode="json"),
+        )
+        from unittest.mock import patch
+
+        with patch(__name__ + "._missing_method_dependencies", return_value=("absent_probe_dep",)):
+            dependency_removed = route_observation_family_method(
+                bundle, family="budget_flows", registry=registry,
+            )
+        record(
+            case_id="family_method_route_python314_unavailable_truthful_blocker",
+            passed=(dependency_removed.status == RouteStatus.BLOCKED
+                    and dependency_removed.reason_code == "method_unavailable_python314"
+                    and bool(dependency_removed.candidate_method_fqns)
+                    and not dependency_removed.selected_method_fqn),
+            expected="dependency_removal_control_blocks_a_real_input_contract",
+            actual=str(dependency_removed.reason_code),
+            detail={"control": "dependency availability removed in memory; not a station census",
+                    "route": dependency_removed.model_dump(mode="json")},
         )
         grown = _free_grow_bundle(
             bundle,
@@ -1061,10 +1199,11 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
             case_id="free_grow_knob_law_family_routes",
             passed=(
                 grown_lever.target_world_slots == (_FREE_GROW_SLOT,)
-                and grown_law.status == "admissible"
+                and grown_law.status == "blocked"
+                and grown_law.mapping_evidence_ref is None
                 and grown_route.status == RouteStatus.ROUTED
             ),
-            expected="synthetic_new_entries_route_without_code_change",
+            expected="new_candidate_entries_route_without_code_change_with_law_authority_blocked",
             actual=f"{grown_lever.target_world_slots}|{grown_law.status}|{grown_route.status}",
             detail={
                 "lever": grown_lever.model_dump(mode="json"),
@@ -1094,9 +1233,7 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     registry = build_substrate_registry_from_existing_catalogs(repo_root)
     l6_entries = registry.resolve(layer=SubstrateLayer.L6)
     l6_agent_sim = [
-        entry
-        for entry in l6_entries
-        if entry.source_id == "production_data:ukraine_simulation"
+        entry for entry in l6_entries if entry.source_id == "production_data:ukraine_simulation"
     ]
     record(
         case_id="s0_registers_l6_agent_sim_bundle",
@@ -1111,11 +1248,18 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         },
     )
 
-    mutation_green = [
-        mutation
-        for mutation in mutations
-        if mutation["status"] != "red"
-    ]
+    consumers = _manifest_consumer_behavior_report(bundle, world_record)
+    if consumers["status"] != "pass":
+        issues.append({"code": "manifest_consumer_behavior_failed", "detail": consumers})
+    law_consumers = _law_credal_consumer_behavior_report(repo_root, bundle, world_record)
+    if law_consumers["status"] != "pass":
+        issues.append({"code": "law_credal_consumer_behavior_failed", "detail": law_consumers})
+    strangles = _intervention_substrate_strangle_receipts(
+        repo_root, consumers=consumers, law_resolution=admitted, law_consumers=law_consumers,
+    )
+    if any(receipt["status"] != "strangled" for receipt in strangles):
+        issues.append({"code": "intervention_substrate_default_not_strangled"})
+    mutation_green = [mutation for mutation in mutations if mutation["status"] != "red"]
     if mutation_green:
         issues.append(
             {
@@ -1131,9 +1275,496 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         "issues": issues,
         "remove_property_mutations": mutations,
         "coverage": coverage,
+        "manifest_consumers": consumers,
+        "law_credal_consumers": law_consumers,
+        "strangle_receipts": strangles,
+        "authority_limitations": [
+            {
+                "conjunct": "law_to_knob_correspondence_and_authorized_law_free_growth",
+                "status": "not_established",
+                "capability": "verification_missing",
+                "reason": "No independent correspondence source/verifier in the admitted chain.",
+            }
+        ],
         "source_content_hashes": dict(bundle.source_content_hashes),
         "bundle_content_hash": bundle.content_hash,
     }
+
+
+def _law_credal_consumer_behavior_report(
+    repo_root: Path, bundle: InterventionSubstrateBundle, world_record: WorldModelRecord,
+) -> dict[str, Any]:
+    """Recompute the scoped L6/WMR handoff without issuing a full K_ref or certificate."""
+    from dataclasses import replace
+
+    from polisyos.runtime.quality import credal_reference, grounding_relation
+
+    edges = [*credal_reference._iter_l6_edges(repo_root, world_model_record=world_record),
+             *credal_reference._iter_wmr_edges(world_record)]
+    laws = [edge for edge in edges if edge.modality == "L6_LEX_INTERVENTION_MAP"]
+    source_ids = sorted(bundle.lex_intervention_map)
+    raw_ids = sorted(_read_json_object(default_l6_bundle_paths(repo_root)["lex_intervention_map"]))
+    actual_ids = sorted(edge.edge_id for edge in laws)
+
+    def project(rows: Sequence[Any]) -> tuple[Any, tuple[Any, ...]]:
+        index = {edge.key: edge for edge in rows}
+        versions = credal_reference._component_versions(index, world_model_record=world_record)
+        digest = credal_reference._reference_hash(component_versions=versions, edge_index=index,
+                                                 as_of=credal_reference.DEFAULT_REFERENCE_AS_OF)
+        reference = credal_reference.CredalReference(
+            credal_reference.CREDAL_REFERENCE_SCHEMA_VERSION,
+            "kref:" + digest.removeprefix("sha256:")[:16], digest,
+            credal_reference.DEFAULT_REFERENCE_AS_OF, versions, index,
+        )
+        return reference, grounding_relation._reference_atoms_from_cg0(reference)
+
+    reference, atoms = project(edges)
+    expected = []
+    for operator, raw_knob in sorted(bundle.knob_dictionary.items()):
+        knob = resolve_intervention_lever(bundle, operator_kind=operator,
+            parameter_value=_representative_knob_value(raw_knob, knob_id=operator),
+            world_model_record=world_record)
+        for slot in world_record.policy_slot_map:
+            if grounding_relation._operator_target_compatible(
+                reference, op_id=operator, domain=knob.domain.model_dump(mode="json"),
+                target_slot=slot.slot_id, explicit_slots=knob.target_world_slots,
+            ):
+                expected.append((operator, (slot.slot_id,)))
+    actual = sorted((atom.signature.op, atom.signature.X_do) for atom in atoms)
+
+    def valid(rows: Sequence[Any], projected_atoms: Sequence[Any]) -> bool:
+        law_keys = {credal_reference._edge_key_text(edge.key) for edge in rows
+                    if edge.modality == "L6_LEX_INTERVENTION_MAP"}
+        return all(edge.status == "incomplete" for edge in rows
+                   if edge.modality == "L6_LEX_INTERVENTION_MAP") and all(
+            atom.signature.admissibility == "reference_contested"
+            and bool(law_keys.intersection(atom.edge_scope))
+            for atom in projected_atoms)
+
+    confirmed_removed = [replace(edge, status="confirmed").with_content_hash()
+                         if edge in laws else edge for edge in edges]
+    association_removed = [replace(edge, admissible_completions=
+        credal_reference._incomplete_completions("law_mapping_correspondence_not_established")
+    ).with_content_hash() if edge in laws else edge for edge in edges]
+    _ref, confirmed_atoms = project(confirmed_removed)
+    _ref, dropped_atoms = project(association_removed)
+    status_red = not valid(confirmed_removed, confirmed_atoms)
+    association_red = not valid(association_removed, dropped_atoms)
+    passed = (source_ids == raw_ids == actual_ids and actual == sorted(expected)
+              and bool(atoms) and valid(edges, atoms) and status_red and association_red)
+    return {"status": "pass" if passed else "fail",
+        "scope": "Actual L6 and WMR owner outputs only; not a complete K_ref or certificate",
+        "source_law_identities": source_ids, "raw_law_identities": raw_ids,
+        "consumer_law_identities": actual_ids,
+        "semantic_atom_identities": actual, "independent_knob_x_wmr_identities": sorted(expected),
+        "laws": [edge.to_payload() for edge in laws],
+        "atoms": [{"operator": atom.signature.op, "targets": atom.signature.X_do,
+                   "admissibility": atom.signature.admissibility, "edge_scope": atom.edge_scope}
+                  for atom in atoms],
+        "remove_status_keep_markers_goes_red": status_red,
+        "remove_association_keep_incomplete_goes_red": association_red}
+
+
+def _manifest_consumer_behavior_report(
+    bundle: InterventionSubstrateBundle,
+    world_record: WorldModelRecord,
+) -> dict[str, Any]:
+    """Run the real candidate consumers; these probes never create a governed design."""
+    from unittest.mock import patch
+
+    from polisyos.runtime.quality import design_generation, generation_cycle
+
+    raw_rows = bundle.observation_manifest["routes"]
+    source_ids = sorted(row["family"] for row in raw_rows)
+    routes = resolve_observation_manifest_routes(bundle)
+    owner_ids = sorted(route.family for route in routes)
+    results: list[dict[str, Any]] = []
+
+    def select(manifest: object, family: str, **inputs: object) -> dict[str, Any]:
+        return generation_cycle._select_value_method(
+            candidate={"candidate_id": family},
+            problem={},
+            inputs={
+                "observation_to_contract_manifest": manifest,
+                "observation_family": family,
+                **inputs,
+            },
+        )
+
+    for route in routes:
+        positive = select(bundle.observation_manifest, route.family)
+        broken = copy.deepcopy(bundle.observation_manifest)
+        for row in broken["routes"]:
+            if row["family"] == route.family:
+                row["target_contract"] = {"contract_id": "gy.invalid.contract"}
+        negative = select(
+            broken,
+            route.family,
+            owner_validated=True,
+            route_constraint={
+                "manifest_content_hash": gy_content_hash(bundle.observation_manifest)
+            },
+        )
+        explicit = select(
+            bundle.observation_manifest, route.family, method_fqn="bayesian.gp.gp_regression@1.0.0"
+        )
+        positive_valid = (
+            positive.get("selected_method_fqn") in route.candidate_method_fqns
+            if positive["status"] == "selected"
+            else positive.get("blockers") == ("value_method_route_no_native_value_output",)
+        )
+        results.append(
+            {
+                "family": route.family,
+                "owner": route.model_dump(mode="json"),
+                "positive": _json_ready(positive),
+                "fake_source": _json_ready(negative),
+                "outside_request": _json_ready(explicit),
+                "passed": positive_valid
+                and negative["status"] == "blocked"
+                and explicit["status"] == "blocked",
+            }
+        )
+
+    eligible = [row for row in results if row["positive"]["status"] == "selected"]
+    if not eligible:
+        return {"status": "fail", "reason": "real_native_value_route_missing", "routes": results}
+    exemplar = eligible[0]["family"]
+    from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+    )
+
+    registry = build_substrate_registry_from_existing_catalogs(_repo_root_for_bundle(bundle))
+    context = build_cycle_substrate_context(
+        design_problem_ref=gy_content_hash({"candidate_route_probe": bundle.content_hash}),
+        domain="candidate_route_probe", substrate_registry=registry,
+        selected_registry_entry_hashes=tuple(
+            entry.entry_content_hash
+            for entry in world_record.substrate_registry_ref.resolved_entries
+        ),
+        world_model_record=world_record, intervention_substrate=bundle,
+        candidate_levers=(), transport_context=None,
+        source_pack_content_hash=None, substrate_input_content_hash=None,
+    )
+    configured_default = generation_cycle._DefaultSimulationBoundFoundryValuePort(
+        repo_root=_repo_root_for_bundle(bundle), cycle_substrate_context=context,
+        observation_family=exemplar,
+    )
+
+    def configured_selection() -> dict[str, Any]:
+        inputs = generation_cycle._value_method_selection_inputs(
+            **configured_default._selection_configuration(),
+        )
+        return generation_cycle._select_value_method(candidate={}, problem={}, inputs=inputs)
+
+    configured_positive = configured_selection()
+    actual_configuration_inputs = generation_cycle._value_method_selection_inputs(
+        **configured_default._selection_configuration(),
+    )
+    original_configuration = generation_cycle._value_method_selection_inputs
+
+    def remove_family_configuration(**kwargs: object) -> dict[str, Any]:
+        inputs = original_configuration(**kwargs)
+        inputs.pop("observation_family", None)
+        return inputs
+
+    def remove_source_configuration(**kwargs: object) -> dict[str, Any]:
+        inputs = original_configuration(**kwargs)
+        inputs.pop("observation_to_contract_manifest", None)
+        return inputs
+
+    with patch.object(
+        generation_cycle, "_value_method_selection_inputs", remove_family_configuration,
+    ):
+        configured_family_removed = configured_selection()
+    with patch.object(
+        generation_cycle, "_value_method_selection_inputs", remove_source_configuration,
+    ):
+        configured_source_removed = configured_selection()
+    configured_owner_methods = set(
+        next(route for route in routes if route.family == exemplar).candidate_method_fqns,
+    )
+    configured_valid = (configured_positive["status"] == "selected"
+                        and configured_positive["selected_method_fqn"] in configured_owner_methods)
+    configured_family_red = configured_family_removed["status"] != "selected"
+    configured_source_red = (
+        configured_source_removed.get("selected_method_fqn") not in configured_owner_methods
+    )
+    source_without_routes = copy.deepcopy(bundle.observation_manifest)
+    del source_without_routes["routes"]
+    malformed_controls = {
+        "routes_deleted_declarations_retained": source_without_routes,
+        "explicit_null": None,
+        "empty_object": {},
+        "empty_array": [],
+        "scalar": "not a source manifest",
+        "legacy_advisory_shape_in_source_slot": {"contracts": [{"data_modality": "panel"}]},
+    }
+    shape_results = {}
+    for name, malformed in malformed_controls.items():
+        selection = select(malformed, exemplar)
+        try:
+            generation_cycle._value_method_route_constraint(
+                candidate={}, problem={}, inputs={
+                    "observation_to_contract_manifest": malformed,
+                    "observation_family": exemplar,
+                },
+            )
+        except ValueError as exc:
+            replay = {"status": "blocked", "reason": str(exc)}
+        else:
+            replay = {"status": "accepted"}
+        shape_results[name] = {"selection": _json_ready(selection), "context_intake": replay}
+    original_intake = generation_cycle._value_method_route_constraint
+
+    def removed_presence_intake(
+        *, candidate: object, problem: object, inputs: Mapping[str, Any],
+    ) -> MethodRouteConstraint | None:
+        raw = inputs.get("observation_to_contract_manifest")
+        if not isinstance(raw, Mapping) or "routes" not in raw:
+            return None
+        return original_intake(candidate=candidate, problem=problem, inputs=inputs)
+
+    with patch.object(generation_cycle, "_value_method_route_constraint", removed_presence_intake):
+        missing_source_removed = select(source_without_routes, exemplar)
+        source_shape_happy = select(bundle.observation_manifest, exemplar)
+    grown = copy.deepcopy(bundle.observation_manifest)
+    new_row = copy.deepcopy(next(row for row in raw_rows if row["family"] == exemplar))
+    new_row["family"] = "gy_data_only_novel_family"
+    grown["routes"].append(new_row)
+    grown_result = select(grown, new_row["family"])
+    duplicate = copy.deepcopy(grown)
+    duplicate["routes"].append({**new_row, "mode": "different_mode"})
+    ambiguous = select(duplicate, new_row["family"])
+    missing_family = generation_cycle._select_value_method(
+        candidate={},
+        problem={},
+        inputs={"observation_to_contract_manifest": grown},
+    )
+    invalid_compilation = copy.deepcopy(grown)
+    exemplar_target = new_row["target_contract"]["contract_id"]
+    for artifact in invalid_compilation["artifacts"]:
+        if artifact["target_contract"]["contract_id"] == exemplar_target:
+            artifact["target_contract"]["contract_id"] = "gy.different.contract"
+    n8_invalid_compilation = select(invalid_compilation, new_row["family"])
+    broken_all = copy.deepcopy(bundle.observation_manifest)
+    for row in broken_all["routes"]:
+        row["target_contract"] = {"contract_id": "gy.invalid.contract"}
+    invalid_bundle = replace_intervention_substrate_bundle(
+        bundle,
+        update={"observation_manifest": broken_all},
+    )
+    atom, _binding = _resolve_owner_atom_world_binding(
+        bundle=bundle,
+        operator_kind="budget_allocation_multiplier",
+        raw_knob=bundle.knob_dictionary["budget_allocation_multiplier"],
+        parameter_value=1.25,
+        world_model_record=world_record,
+    )
+    # A candidate input for the search-only consumer, not an assembled promotion candidate.
+    candidate = SimpleNamespace(candidate_id="gy_s3_route_probe", atom=atom)
+    problem = SimpleNamespace(
+        outcome_of_interest=SimpleNamespace(
+            target_variable="government.balance", metric_id="budget"
+        ),
+        problem_statement="Budget",
+    )
+
+    def rank() -> object:
+        return design_generation.rank_shadow_candidates_with_graph_causal_surrogate(
+            (candidate,),
+            design_problem=problem,
+            repo_root=_repo_root_for_bundle(bundle),
+        )[0]
+
+    with patch.object(design_generation, "load_l6_intervention_substrate", return_value=bundle):
+        n4_valid = rank()
+    with patch.object(
+        design_generation, "load_l6_intervention_substrate", return_value=invalid_bundle
+    ):
+        n4_invalid = rank()
+    # Remove actual source validation, retaining a valid declaration and all markers.
+    # The same negative assertion must go red while the happy path remains valid.
+    with patch(__name__ + "._assert_compiled_contract", return_value=None):
+        n8_removed = select(invalid_compilation, new_row["family"])
+        n8_happy = select(grown, new_row["family"])
+    with (
+        patch.object(
+            design_generation, "load_l6_intervention_substrate", return_value=invalid_bundle
+        ),
+        patch.object(design_generation, "resolve_observation_manifest_routes", return_value=routes),
+    ):
+        n4_removed = rank()
+    n4_families = sorted(
+        ref.removeprefix("observation_family:")
+        for ref in n4_valid.feature_refs
+        if ref.startswith("observation_family:")
+    )
+    passed = (
+        source_ids == owner_ids == n4_families
+        and all(row["passed"] for row in results)
+        and configured_valid and configured_family_red and configured_source_red
+        and actual_configuration_inputs["observation_to_contract_manifest"]
+        == bundle.observation_manifest
+        and all(row["selection"]["status"] == "blocked"
+                and row["context_intake"]["status"] == "blocked"
+                for row in shape_results.values())
+        and missing_source_removed["status"] == "selected"
+        and source_shape_happy["status"] == "selected"
+        and grown_result["status"] == "selected"
+        and n8_invalid_compilation["status"] == "blocked"
+        and ambiguous["status"] == "blocked"
+        and missing_family["status"] == "blocked"
+        and n4_valid.trust_level == "search_guiding"
+        and not n4_valid.promotion_allowed
+        and n4_invalid.trust_level == "proposal_only"
+        and not n4_invalid.promotion_allowed
+        and n8_removed["status"] == "selected"
+        and n8_happy["status"] == "selected"
+        and n4_removed.trust_level == "search_guiding"
+        and not n4_removed.promotion_allowed
+    )
+    return {
+        "status": "pass" if passed else "fail",
+        "source_identity_set": source_ids,
+        "owner_identity_set": owner_ids,
+        "n4_identity_set": n4_families,
+        "routes": results,
+        "configured_default_bridge": {
+            "scope": (
+                "Actual candidate-only context producer over the real WMR/registry/bundle; "
+                "no N5 execution or promotion receipt"
+            ),
+            "context_content_hash": context.content_hash,
+            "source_bundle_content_hash": bundle.content_hash,
+            "requested_family": configured_default.observation_family,
+            "positive": _json_ready(configured_positive),
+            "remove_family_forwarding_goes_red": configured_family_red,
+            "remove_bound_source_forwarding_goes_red": configured_source_red,
+        },
+        "supplied_source_shape_controls": shape_results,
+        "supplied_source_presence_removal": {
+            "missing_routes_negative_goes_red": missing_source_removed["status"] == "selected",
+            "happy_source_stays_valid": source_shape_happy["status"] == "selected",
+        },
+        "data_only_growth": _json_ready(grown_result),
+        "invalid_compilation_keeps_native_target": _json_ready(n8_invalid_compilation),
+        "ambiguous_family": _json_ready(ambiguous),
+        "missing_family": _json_ready(missing_family),
+        "n4_positive": n4_valid.model_dump(mode="json"),
+        "n4_fake_source": n4_invalid.model_dump(mode="json"),
+        "owner_validation_removal": {
+            "n8_negative_goes_red": n8_removed["status"] == "selected",
+            "n8_happy_stays_valid": n8_happy["status"] == "selected",
+            "n4_negative_goes_red": n4_removed.trust_level == "search_guiding",
+            "n8_actual": _json_ready(n8_removed),
+            "n4_actual": n4_removed.model_dump(mode="json"),
+        },
+    }
+
+
+def _intervention_substrate_strangle_receipts(
+    repo_root: Path,
+    *,
+    consumers: Mapping[str, Any],
+    law_resolution: LawLeverResolution,
+    law_consumers: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Reconcile the complete Python call set and execute replaced default behavior."""
+    paths = sorted(
+        path.relative_to(repo_root).as_posix() for path in (repo_root / "src").rglob("*.py")
+    )
+    walked = sorted(
+        (Path(root) / filename).relative_to(repo_root).as_posix()
+        for root, _dirs, files in os.walk(repo_root / "src")
+        for filename in files
+        if filename.endswith(".py")
+    )
+    if paths != walked:
+        raise InterventionSubstrateError("strangle_source_denominator_mismatch")
+    names = {
+        "_observation_manifest_families",
+        "_select_value_method",
+        "select_value_method_for_problem",
+        "rank_shadow_candidates_with_graph_causal_surrogate",
+        "resolve_law_bound_lever",
+    }
+    callers: dict[str, list[str]] = {name: [] for name in sorted(names)}
+    for path in paths:
+        tree = ast.parse((repo_root / path).read_text(encoding="utf-8"), filename=path)
+        aliases = {
+            alias.asname or alias.name: alias.name
+            for node in ast.walk(tree)
+            if isinstance(node, ast.ImportFrom)
+            for alias in node.names
+        }
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            name = (
+                node.func.id
+                if isinstance(node.func, ast.Name)
+                else node.func.attr
+                if isinstance(node.func, ast.Attribute)
+                else ""
+            )
+            name = aliases.get(name, name)
+            if name in callers:
+                callers[name].append(f"{path}:{node.lineno}")
+    specs = (
+        (
+            "n8_raw_manifest_ignored",
+            "_select_value_method",
+            "manifest ignored as flat hints",
+            "source-derived owner constraint",
+            consumers["status"] == "pass",
+        ),
+        (
+            "_observation_manifest_families",
+            "rank_shadow_candidates_with_graph_causal_surrogate",
+            "family names earn route bonus",
+            "complete validated routes earn candidate bonus",
+            consumers["status"] == "pass" and not callers["_observation_manifest_families"],
+        ),
+        (
+            "threshold_pass_implies_law_admissible",
+            "resolve_law_bound_lever",
+            "numeric threshold admits law/knob mapping",
+            "unverified correspondence blocks authority",
+            law_consumers["status"] == "pass"
+            and law_resolution.status == "blocked"
+            and law_resolution.mapping_evidence_ref is None
+            and law_resolution.legal_threshold_evaluation["status"] == "admitted",
+        ),
+    )
+    receipts = []
+    for predecessor, replacement, before, after, passed in specs:
+        payload = {
+            "schema_version": "policyos.runtime.intervention_substrate_strangle.v1",
+            "predecessor_ref": predecessor,
+            "replacement_ref": replacement,
+            "default_before": before,
+            "default_after": after,
+            "disposition": "default_flipped",
+            "status": "strangled" if passed else "drift",
+            "remaining_callers": callers.get(predecessor, []),
+            "replacement_callers": sorted(callers[replacement]),
+            "source_file_denominator": {
+                "file_type": "src/**/*.py",
+                "identities": paths,
+                "independent_identity_hash": gy_content_hash(walked),
+            },
+            "verified_by": "intervention_substrate_behavior_report",
+            "behavior_content_hash": gy_content_hash(
+                consumers
+                if replacement != "resolve_law_bound_lever"
+                else {"resolution": law_resolution.model_dump(mode="json"),
+                      "handoff": law_consumers}
+            ),
+        }
+        receipts.append({**payload, "content_hash": gy_content_hash(payload)})
+    return receipts
 
 
 def _read_json_object(path: Path) -> dict[str, Any]:
@@ -2499,9 +3130,11 @@ def _lex_owner_registry(
 
 def _manifest_route(observation_manifest: Mapping[str, Any], family: str) -> dict[str, Any]:
     routes = _mapping_list(observation_manifest.get("routes"))
-    for route in routes:
-        if str(route.get("family") or "").strip() == family:
-            return route
+    matches = [route for route in routes if str(route.get("family") or "").strip() == family]
+    if len(matches) > 1:
+        raise InterventionSubstrateError("family_route_ambiguous", family)
+    if matches:
+        return matches[0]
     raise InterventionSubstrateError("family_route_unresolved", family)
 
 
@@ -2539,84 +3172,18 @@ def _registered_methods_for_contract(
     *,
     contract_fqn: str | None = None,
 ) -> tuple[_MethodSignatureProtocol, ...]:
-    matches: list[_MethodSignatureProtocol] = []
+    # Metadata tokens can neither prove nor exhaust the actual input relation.
+    from polisyos.foundry import method_accepts_input_contract
+
+    matches = []
     for signature in registry.list_all():
-        entry = registry.get_entry(signature.fqn)
-        values = {signature.fqn, signature.family, *signature.data_modalities}
-        values.update(slot.contract_id for slot in signature.input_slots if slot.contract_id)
-        values.update(slot.contract_id for slot in signature.output_slots if slot.contract_id)
-        if entry is not None:
-            values.update(str(tag) for tag in entry.metadata.tags)
-            if entry.metadata.contracts is not None:
-                values.update(_contract_values(entry.metadata.contracts))
-        if contract_id in values:
+        try:
+            method = registry.get(signature.fqn)
+        except (ImportError, KeyError, ValueError):
+            continue
+        if method_accepts_input_contract(method, contract_id):
             matches.append(signature)
-    if matches:
-        return tuple(sorted(matches, key=lambda item: item.fqn))
-
-    contract_tokens = _contract_semantic_tokens(contract_id, contract_fqn)
-    if not contract_tokens:
-        return ()
-    fallback_matches: list[_MethodSignatureProtocol] = []
-    for signature in registry.list_all():
-        entry = registry.get_entry(signature.fqn)
-        values = {signature.fqn, signature.family, *signature.data_modalities}
-        if entry is not None:
-            values.update(str(tag) for tag in entry.metadata.tags)
-            if entry.metadata.contracts is not None:
-                values.update(_contract_values(entry.metadata.contracts))
-        method_tokens = _metadata_tokens(values)
-        if contract_tokens <= method_tokens:
-            fallback_matches.append(signature)
-    return tuple(sorted(fallback_matches, key=lambda item: item.fqn))
-
-
-def _contract_semantic_tokens(contract_id: str, contract_fqn: str | None) -> set[str]:
-    raw_tokens = _metadata_tokens({contract_id, contract_fqn or ""})
-    stop = {
-        "foundry",
-        "data",
-        "micro",
-        "contract",
-        "protocols",
-        "polisyos",
-        "methods",
-        "catalog",
-        "v1",
-    }
-    return {token for token in raw_tokens if token not in stop and len(token) > 1}
-
-
-def _metadata_tokens(values: set[str]) -> set[str]:
-    tokens: set[str] = set()
-    for value in values:
-        expanded = _CAMEL_TOKEN_BOUNDARY.sub(" ", str(value or ""))
-        cleaned = "".join(
-            char.lower() if char.isalnum() else " "
-            for char in expanded
-        )
-        tokens.update(token for token in cleaned.split() if token)
-    return tokens
-
-
-def _contract_values(contracts: object) -> set[str]:
-    if hasattr(contracts, "__dict__"):
-        payload = {
-            key: value
-            for key, value in vars(contracts).items()
-            if not key.startswith("_")
-        }
-    elif isinstance(contracts, Mapping):
-        payload = dict(contracts)
-    else:
-        return set()
-    values: set[str] = set()
-    for value in payload.values():
-        if isinstance(value, str):
-            values.add(value)
-        elif isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-            values.update(str(item) for item in value if item)
-    return values
+    return tuple(sorted(matches, key=lambda item: item.fqn))
 
 
 def _missing_method_dependencies(entry: _MethodEntryProtocol | None) -> tuple[str, ...]:
@@ -2766,9 +3333,11 @@ __all__ = [
     "intervention_substrate_bundle_content_hash",
     "load_l6_intervention_substrate",
     "production_composed_world_model_record",
+    "project_value_method_route_constraint",
     "replace_intervention_substrate_bundle",
     "resolve_intervention_lever",
     "resolve_law_bound_lever",
+    "resolve_observation_manifest_routes",
     "route_observation_family_method",
     "verify_intervention_substrate_bundle_content_hash",
 ]

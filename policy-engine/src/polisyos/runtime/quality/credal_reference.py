@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from polisyos.data_forge.read_api import academic
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
-CREDAL_REFERENCE_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v1"
+CREDAL_REFERENCE_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v2"
 GROUNDING_BACKEND_AVAILABILITY_SCHEMA_VERSION = (
     "policyos.runtime.grounding_backend_availability.v1"
 )
@@ -540,6 +540,7 @@ def replace_reference_edge(
         component_versions=component_versions,
         edge_index=updated,
         as_of=reference.as_of,
+        schema_version=reference.schema_version,
     )
     return CredalReference(
         schema_version=reference.schema_version,
@@ -2098,35 +2099,41 @@ def _iter_l6_edges(
                 provenance,
             )
             continue
-        knob_id = knob_ids[0]
-        raw_knob = _mapping(bundle.knob_dictionary.get(knob_id))
-        try:
-            resolved = resolve_law_bound_lever(
-                bundle,
-                law_token=str(law_token),
-                knob_id=knob_id,
-                parameter_value=_representative_knob_value(raw_knob),
-                legal_store=lex_store,
-                world_model_record=world_model_record,
-            )
-        except InterventionSubstrateError as exc:
-            yield _edge(
-                "L6_LEX_INTERVENTION_MAP",
-                str(law_token),
-                "incomplete",
-                _incomplete_completions(exc.code),
-                provenance,
-            )
-            continue
-        yield _confirmed_edge(
+        completions: list[AdmissibleCompletion] = []
+        resolutions: list[dict[str, Any]] = []
+        for knob_id in knob_ids:
+            raw_knob = _mapping(bundle.knob_dictionary.get(knob_id))
+            mapping_value: dict[str, Any] = {"knob_id": knob_id}
+            try:
+                resolved = resolve_law_bound_lever(
+                    bundle,
+                    law_token=str(law_token),
+                    knob_id=knob_id,
+                    parameter_value=_representative_knob_value(raw_knob),
+                    legal_store=lex_store,
+                    world_model_record=world_model_record,
+                )
+            except InterventionSubstrateError as exc:
+                reason = exc.code
+                resolutions.append({"knob_id": knob_id, "status": "blocked", "reason": reason})
+            else:
+                reason = resolved.mapping_reason_code
+                mapping_value.update(provision_ref=resolved.provision_ref,
+                                     threshold_id=resolved.threshold_id)
+                resolutions.append(resolved.model_dump(mode="json"))
+            # Preserve every declared association, including unresolved ones. Empty
+            # completions erase the dependency before the existing CG1 status gate.
+            completions.append(AdmissibleCompletion("may_exist", mapping_value, reason))
+        completions.append(AdmissibleCompletion("may_not_exist", {},
+                                               "law_mapping_correspondence_not_established"))
+        yield _edge(
             "L6_LEX_INTERVENTION_MAP",
             str(law_token),
-            {
-                "knob_id": resolved.knob.operator_kind,
-                "provision_ref": resolved.provision_ref,
-                "threshold_id": resolved.threshold_id,
-            },
-            provenance,
+            "incomplete",
+            completions,
+            {**provenance, "mapping_resolutions": resolutions,
+             "mapping_predicate_provenance": "consumer_asserted",
+             "mapping_reason_code": "law_mapping_correspondence_not_established"},
         )
 
     for route in _mapping_list(bundle.observation_manifest.get("routes")):
@@ -2247,13 +2254,14 @@ def _reference_hash(
     component_versions: Mapping[str, str],
     edge_index: Mapping[EdgeKey, CredalReferenceEdge],
     as_of: str,
+    schema_version: str = CREDAL_REFERENCE_SCHEMA_VERSION,
 ) -> str:
     return gy_content_hash(
         {
             "as_of": as_of,
             "component_versions": dict(sorted(component_versions.items())),
             "edge_content_hashes": sorted(edge.content_hash for edge in edge_index.values()),
-            "schema_version": CREDAL_REFERENCE_SCHEMA_VERSION,
+            "schema_version": schema_version,
         }
     )
 

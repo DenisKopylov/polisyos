@@ -71,3 +71,12 @@ def test_scientist_claim_authority_facade_preserves_owner_objects() -> None:
     assert set(expected) <= set(scientist.__all__)
     for name, owner_object in expected.items():
         assert getattr(scientist, name) is owner_object
+
+
+def test_normative_job_surface_uses_the_core_contract_facade() -> None:
+    contracts = importlib.import_module("polisyos.core.contracts")
+    owner = importlib.import_module("polisyos.core.contracts.control")
+    response = contracts.ControlJobResponse
+    assert response is owner.ControlJobResponse
+    consumer = importlib.import_module("polisyos.runtime.http.services.control.generation_cycle")
+    assert consumer.NormativeEvidenceSubmissionResponse.model_fields["job"].annotation is response

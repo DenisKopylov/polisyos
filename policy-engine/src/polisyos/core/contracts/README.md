@@ -58,6 +58,7 @@ Main ref families:
 - compatibility facades: `backtest.py`, `causal.py`, `distributional.py`, `hte.py`, `uncertainty.py`
 
 Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDetailsResponse`,
+`ControlJobResponse` (the existing control-job DTO used by normative-evidence intake),
 `DecisionValidityEnvelope`, `ProvenanceCoreRef`, and `CalibrationValidationBundleRef`.
 
 ## Current State

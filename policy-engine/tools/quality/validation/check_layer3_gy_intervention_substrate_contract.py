@@ -16,7 +16,7 @@ from typing import Any
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v1"
+SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v2"
 EXPECTED_REMOVE_PROPERTY_MUTATIONS = {
     "unknown_op_admits",
     "out_of_domain_clamps",
@@ -67,10 +67,14 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "src/polisyos/runtime/quality/intervention_atom_binding.py",
             "src/polisyos/runtime/quality/world_model_record.py",
             "src/polisyos/runtime/quality/substrate_registry.py",
+            "src/polisyos/runtime/quality/generation_cycle.py",
+            "src/polisyos/runtime/quality/design_generation.py",
+            "src/polisyos/runtime/quality/credal_reference.py",
             "src/polisyos/ir/kernel/mechanisms.py",
             "src/polisyos/lex/intervention_artifacts.py",
             "src/polisyos/lex/knowledge/store.py",
             "src/polisyos/foundry/methods/selection/registry.py",
+            "src/polisyos/foundry/methods/selection/advisor.py",
         ],
         "real_l6_substrates": {
             "intervention_knob_dictionary": (
@@ -105,8 +109,16 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "LegalKnowledgeStore.resolve_threshold_temporal_competence",
             "foundry.methods.selection.registry.get_registry().list_all()",
             "SubstrateRegistry L6 entries",
+            "Foundry actual input-contract relation and native-value selection owner",
+            "CredalReference L6 projection and existing CG0 law-edge dependency scope",
         ],
-        "truthful_data_limitations": [],
+        "truthful_data_limitations": behavior["authority_limitations"],
+        "task_acceptance": {
+            "status": "not_established",
+            "unmet_conjuncts": ["independently_verified_law_to_knob_correspondence",
+                               "authorized_law_free_growth"],
+            "mechanism_validation_is_task_completion": False,
+        },
         "coverage_gate": {
             "world_slot": "bound must equal total over the real L6 knob dictionary",
             "law_trace": "traced must equal total over the real lex_intervention_map",
@@ -138,16 +150,13 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "resolve_law_bound_lever + route_observation_family_method"
             ),
             "persisted_artifact_event": OUTPUT_PATH,
-            "orchestration_bridge": (
-                "N2 atom lever-space resolution, GY-S2 L3 admissibility, "
-                "N8/N4 method route input"
-            ),
-            "consumer": "GY-N2/GY-N8/GY-N4 via existing owner APIs",
+            "orchestration_bridge": "N2 atom resolution; candidate law trace; N8/N4 owner routes; L6 credal status handoff",
+            "consumer": "GY-N2/GY-N8/GY-N4 and existing CG0 law-edge dependency projection via existing owner APIs",
             "verification": "intervention_substrate_behavior_report",
             "surface": "GY-S0 substrate registry + generated contract artifact",
             "semantic_test": "real-data behavior cases + remove-property mutation witnesses",
         },
-        "patterns_closed": [
+        "mechanism_patterns_addressed": [
             "P01",
             "P02",
             "P03",
@@ -165,7 +174,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "P33",
             "P34",
         ],
-        "missing_capability_labels": [],
+        "missing_capability_labels": ["verification_missing: law-to-knob correspondence"],
         "json_schemas": {
             "intervention_substrate_bundle": InterventionSubstrateBundle.model_json_schema(),
             "intervention_lever_resolution": InterventionLeverResolution.model_json_schema(),

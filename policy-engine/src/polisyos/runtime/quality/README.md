@@ -246,6 +246,30 @@ Workspace ownership:
   budget arithmetic. Every amount retains its exact rational,
   envelope/scope/owner binding, and both conditionality disclosures; no parent,
   family, sequence, or cross-scope total is asserted.
+# S3 observation routing and law correspondence
+
+`intervention_substrate` owns the generic L6 manifest parser and resolves every
+route against actual Foundry input contracts. N8 derives its route constraint from
+the manifest at selection and receipt replay; N4 consumes the same full route set
+for candidate search. Repeated families are ambiguous even when their modes or
+targets differ. The closed IR observation-family enum is not a registration gate
+for data-only family growth.
+
+`FoundryValuePort` and the controller's lazy default accept an optional
+`observation_family`. The selection input preserves it through reentry and binds
+it through the existing route owner. An omitted manifest uses the freshly
+verified `CycleSubstrateContext.intervention_substrate` source when available;
+an explicit override must match that bound source. Missing family scope remains
+an honest refusal for ambiguous source routes. Explicit null source is invalid,
+and the private omission sentinel is preserved through configuration forwarding.
+
+Lift records use `policyos.runtime.intervention_substrate_lift.v2`; the generated
+S3 report uses contract v2. Law threshold and temporal evaluations remain visible,
+while law-to-knob correspondence is `consumer_asserted` and current authority is
+`blocked` with an empty independent-evidence slot. Historical lift v1 law records
+are read under their original content hash and remain blocked for current authority.
+The mechanism report explicitly retains the unmet correspondence/free-growth
+acceptance condition; a green validator does not close GY-S3.
 
 ## S8 generation disposition
 

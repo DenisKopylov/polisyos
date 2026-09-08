@@ -1,0 +1,16 @@
+id = "2026-09-08-gy-s3-manifest-correspondence"
+title = "Bind S3 consumers to actual manifest routes and cap unverified law correspondence"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "N8 and N4 use the existing manifest owner; Foundry resolves actual input contracts over its complete registry. Numeric threshold success no longer authorizes an unverified law-to-knob mapping."
+evidence = ["tests/unit/runtime/quality/test_intervention_substrate.py", "tests/unit/foundry/methods/test_selection_advisor.py", "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json"]
+compatibility = "Governed lift v1 advances to v2 and S3 report v1 to v2; selector context v3 advances to v4; current grounding_credal_reference v1 advances to v2. Selection receipt v2 shape and authority labels remain unchanged. Historical lift v1 law records retain their original hash and are blocked for current authority. Historical credal references and replay hashes preserve their source epoch; current v2 changes stale their old bindings."
+change_class = "python-contract"
+surface_classification = "public_stable: Foundry facade candidate route constraint and input-contract relation interface; internal: method-selection implementation, runtime S3 lift and recomputed report"
+migration = "Use the runtime manifest owner before Foundry selection. Recompute current selection context from source. Treat all current law correspondence as blocked until an independently verified mapping owner is available."
+limitations = "The law-to-knob correspondence and authoritative law free-growth conjuncts remain unestablished. Candidate routing evidence is not observed-data, legal, effect, or promotion authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/foundry/methods/selection/README.md"]
+runbook_docs = []

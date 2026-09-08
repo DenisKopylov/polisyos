@@ -5,7 +5,7 @@ CAS-backed execution plans, binds runtime state, executes patch-first program
 graphs, and hands off to methods, calibration, uncertainty, and agent-based
 simulation surfaces.
 
-- Last updated: 2026-08-27
+- Last updated: 2026-09-08
 
 ## Purpose
 
@@ -56,6 +56,13 @@ agent-sim tooling.
 | `EmbedderProtocol`            | Structural contract for fixed-dimensional text embedders.                                                 |
 | `TFIDFEmbedder`               | Dependency-free fitted TF-IDF text embedder.                                                               |
 | `SentenceTransformerEmbedder` | Optional sentence-transformers adapter whose dependency loads only on construction.                        |
+| `MethodRouteConstraint`       | Stable candidate route constraint contract, implemented by the existing method-selection owner. |
+| `method_accepts_input_contract()` | Stable relation predicate over a method's actual input slots and executable type hints. |
+
+The route interface's stable import boundary does not grant evidence authority.
+Its output remains a candidate search constraint; it certifies neither a source
+manifest nor observed data, causal effects, legal admissibility, or promotion.
+Internal method-selection implementation paths retain their existing maturity.
 
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of

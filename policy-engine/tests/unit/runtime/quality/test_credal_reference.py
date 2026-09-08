@@ -43,6 +43,97 @@ from polisyos.runtime.quality.credal_reference import (
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
+def _phase5_l6_law_scope():
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality import grounding_relation as atoms
+    from polisyos.runtime.quality import intervention_substrate as substrate
+
+    world = substrate.production_composed_world_model_record(REPO_ROOT)
+    bundle = substrate.load_l6_intervention_substrate(REPO_ROOT)
+    edges = [*owner._iter_l6_edges(REPO_ROOT, world_model_record=world),
+             *owner._iter_wmr_edges(world)]
+    index = {edge.key: edge for edge in edges}
+    versions = owner._component_versions(index, world_model_record=world)
+    digest = owner._reference_hash(component_versions=versions, edge_index=index,
+                                   as_of=owner.DEFAULT_REFERENCE_AS_OF)
+    scoped = CredalReference(owner.CREDAL_REFERENCE_SCHEMA_VERSION,
+                            "kref:" + digest.removeprefix("sha256:")[:16], digest,
+                            owner.DEFAULT_REFERENCE_AS_OF, versions, index)
+    return bundle, scoped, atoms._reference_atoms_from_cg0(scoped)
+
+
+def _assert_phase5_law_scope_preserved_and_nonconfirmed(bundle, scoped, atoms):
+    laws = {edge.edge_id: edge for edge in scoped.essential_edges.values()
+            if edge.modality == "L6_LEX_INTERVENTION_MAP"}
+    raw = json.loads((REPO_ROOT / "production_data/ukraine_agent_simulation_baseline_20260410/"
+                      "production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json")
+                     .read_text())
+    assert set(laws) == set(bundle.lex_intervention_map) == set(raw)
+    assert {edge.status for edge in laws.values()} == {"incomplete"}
+    expected_knobs = set(bundle.knob_dictionary)
+    assert {atom.signature.op for atom in atoms} == expected_knobs
+    law_keys = {f"{edge.modality}::{edge.edge_id}" for edge in laws.values()}
+    for atom in atoms:
+        assert law_keys.intersection(atom.edge_scope)
+        assert atom.signature.admissibility == "reference_contested"
+
+
+def test_phase5_law_owner_refusal_survives_credal_and_atom_consumers() -> None:
+    _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
+
+
+def test_phase5_law_resolution_exception_keeps_declared_dependency(monkeypatch) -> None:
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.intervention_substrate import InterventionSubstrateError
+
+    def unresolved(*args, **kwargs):
+        raise InterventionSubstrateError("law_threshold_unresolved")
+
+    monkeypatch.setattr(owner, "resolve_law_bound_lever", unresolved)
+    _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
+
+
+@pytest.mark.parametrize("removed", ["status", "association"])
+def test_phase5_law_handoff_removal_goes_red(monkeypatch, removed) -> None:
+    from polisyos.runtime.quality import credal_reference as owner
+
+    original = owner._edge
+
+    def removed_property(modality, edge_id, status, completions, provenance, **kwargs):
+        if modality == "L6_LEX_INTERVENTION_MAP":
+            if removed == "status":
+                status = "confirmed"
+            else:
+                completions = owner._incomplete_completions("law_mapping_correspondence_not_established")
+        return original(modality, edge_id, status, completions, provenance, **kwargs)
+
+    monkeypatch.setattr(owner, "_edge", removed_property)
+    with pytest.raises(AssertionError):
+        _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
+
+
+def test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it() -> None:
+    from dataclasses import replace
+
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
+
+    _bundle, current, _atoms = _phase5_l6_law_scope()
+    historical_schema = "policyos.runtime.grounding_credal_reference.v1"
+    old_hash = owner._reference_hash(component_versions=current.component_versions,
+        edge_index=current.essential_edges, as_of=current.as_of, schema_version=historical_schema)
+    historical = replace(current, schema_version=historical_schema, reference_hash=old_hash,
+                         reference_epoch="kref:" + old_hash.removeprefix("sha256:")[:16])
+    assert _CredalReferenceReplayRecord.from_reference(historical).to_reference() == historical
+    edge = next(iter(historical.essential_edges.values()))
+    assert owner.replace_reference_edge(historical, edge) == historical
+    assert current.schema_version == "policyos.runtime.grounding_credal_reference.v2"
+    certificate = owner.bind_grounding_certificate_reference(
+        historical, certificate_id="historical_epoch_replay_control", edge_scope=(edge.key,),
+    )
+    assert owner.reference_certificate_staleness(certificate, current).status != "current"
+
+
 def test_credal_reference_consumes_bound_layer_vintage_before_first_yield(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

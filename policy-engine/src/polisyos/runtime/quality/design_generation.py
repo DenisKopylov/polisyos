@@ -75,6 +75,7 @@ from polisyos.runtime.quality.intervention_substrate import (
     load_l6_intervention_substrate,
     production_composed_world_model_record,
     resolve_intervention_lever,
+    resolve_observation_manifest_routes,
 )
 from polisyos.runtime.quality.world_model_record import resolve_intervention_atom_world_binding
 from polisyos.scientist.agent.critic import create_critic_agent
@@ -1695,10 +1696,15 @@ def rank_shadow_candidates_with_graph_causal_surrogate(
 
     try:
         substrate = load_l6_intervention_substrate(repo_root.resolve())
-        routed_families = _observation_manifest_families(substrate.observation_manifest)
-        trust: SurrogateTrustLevel = "search_guiding"
+        routes = resolve_observation_manifest_routes(substrate)
+        routed_families = tuple(row.family for row in routes if row.status == "routed")
+        route_refs = tuple(f"observation_route:{row.family}:{row.content_hash}" for row in routes)
+        trust: SurrogateTrustLevel = (
+            "search_guiding" if len(routed_families) == len(routes) else "proposal_only"
+        )
     except (InterventionSubstrateError, OSError, ValueError):
         routed_families = ()
+        route_refs = ()
         trust = "proposal_only"
     owner_feature_refs = _resolved_surrogate_owner_feature_refs()
     if not owner_feature_refs:
@@ -1735,7 +1741,8 @@ def rank_shadow_candidates_with_graph_causal_surrogate(
                 feature_refs=(
                     atom.content_hash,
                     *owner_feature_refs,
-                    *tuple(f"observation_family:{family}" for family in routed_families[:3]),
+                    *tuple(f"observation_family:{family}" for family in routed_families),
+                    *route_refs,
                 ),
                 owner_refs=tuple(_SEARCH_SURROGATE_OWNERS),
             )
@@ -4009,25 +4016,6 @@ def _id_token(value: object) -> str:
     if not cleaned or not cleaned[0].isalpha():
         cleaned = f"generated_{cleaned}"
     return cleaned[:80]
-
-
-def _observation_manifest_families(manifest: Mapping[str, Any]) -> tuple[str, ...]:
-    routes = manifest.get("routes")
-    if isinstance(routes, Mapping):
-        return tuple(sorted(str(item) for item in routes))
-    if isinstance(routes, Sequence) and not isinstance(routes, str | bytes):
-        families: list[str] = []
-        for item in routes:
-            if not isinstance(item, Mapping):
-                continue
-            family = item.get("family") or item.get("observation_family")
-            if family is not None:
-                families.append(str(family))
-        return tuple(sorted(set(families)))
-    families = manifest.get("families")
-    if isinstance(families, Sequence) and not isinstance(families, str | bytes):
-        return tuple(sorted(str(item) for item in families))
-    return ()
 
 
 def _resolved_surrogate_owner_feature_refs() -> tuple[str, ...]:

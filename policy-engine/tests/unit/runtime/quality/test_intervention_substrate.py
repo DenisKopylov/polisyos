@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import lru_cache
@@ -58,6 +59,307 @@ L6_MECHANISM_IDS = {
 FREE_GROW_KNOB = "future_child_benefit_intensity"
 FREE_GROW_MECHANISM = "future_child_benefit_transfer"
 FREE_GROW_SLOT = "household_cells.transfer_intensity"
+
+
+def test_phase5_n8_default_rejects_every_corrupted_real_route() -> None:
+    """The real N8 bridge must consume every real route's target validity."""
+    from polisyos.runtime.quality.generation_cycle import _select_value_method
+
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    identities = {row["family"] for row in bundle.observation_manifest["routes"]}
+    for family in sorted(identities):
+        broken = copy.deepcopy(bundle.observation_manifest)
+        for row in broken["routes"]:
+            if row["family"] == family:
+                row["target_contract"] = {
+                    "contract_id": "phase5.nonexistent.contract",
+                    "contract_fqn": "phase5.NonexistentContract",
+                }
+        result = _select_value_method(
+            candidate={"candidate_id": family, "atom": {"target_world_slots": [family]}},
+            problem={"outcome_of_interest": {"target_variable": family}},
+            inputs={"observation_to_contract_manifest": broken, "observation_family": family},
+        )
+        assert result["status"] == "blocked", (family, result)
+
+
+def test_phase5_n8_real_routes_are_constraints_and_explicit_requests_cannot_escape() -> None:
+    """All source routes constrain actual selection, including explicit requests."""
+    from polisyos.runtime.quality.generation_cycle import _select_value_method
+
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    for raw in bundle.observation_manifest["routes"]:
+        family = raw["family"]
+        owner = route_observation_family_method(bundle, family=family)
+        inputs = {
+            "observation_to_contract_manifest": bundle.observation_manifest,
+            "observation_family": family,
+        }
+        candidate = {"candidate_id": family, "atom": {"target_world_slots": [family]}}
+        problem = {"outcome_of_interest": {"target_variable": family}}
+        result = _select_value_method(candidate=candidate, problem=problem, inputs=inputs)
+        if result["status"] == "selected":
+            assert result["selected_method_fqn"] in owner.candidate_method_fqns
+        else:
+            assert result["blockers"] == ("value_method_route_no_native_value_output",)
+        escaped = _select_value_method(
+            candidate=candidate,
+            problem=problem,
+            inputs={**inputs, "method_fqn": "bayesian.gp.gp_regression@1.0.0"},
+        )
+        assert escaped["status"] == "blocked"
+        assert "value_method_request_outside_manifest_route" in escaped["blockers"]
+
+
+def test_phase5_supplied_manifest_cannot_disappear_from_selection_or_context() -> None:
+    """Missing source structure cannot replay the context of absent source input."""
+    from polisyos.runtime.quality.generation_cycle import (
+        _select_value_method,
+        _value_method_route_constraint,
+    )
+
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    missing_routes = copy.deepcopy(bundle.observation_manifest)
+    del missing_routes["routes"]
+    assert _select_value_method(candidate={}, problem={}, inputs={})["status"] == "selected"
+    assert _select_value_method(candidate={}, problem={}, inputs={
+        "observation_to_contract_manifest": bundle.observation_manifest,
+        "observation_family": "budget_flows",
+    })["status"] == "selected"
+    for malformed in (missing_routes, None, {}, [], "", 0, {"contracts": [{"data_modality": "panel"}]}):
+        inputs = {"observation_to_contract_manifest": malformed,
+                  "observation_family": "budget_flows"}
+        assert _select_value_method(candidate={}, problem={}, inputs=inputs)["status"] == "blocked", malformed
+        # The receipt verification path calls this exact source intake again.
+        with pytest.raises(ValueError):
+            _value_method_route_constraint(candidate={}, problem={}, inputs=inputs)
+
+
+def test_phase5_configured_value_port_family_reaches_owner_selection_and_replay(monkeypatch) -> None:
+    """Known route scope travels through the real port's configuration bridge."""
+    from polisyos.foundry.methods.selection import (
+        MethodSelectionReceipt,
+        method_selection_context_hash,
+    )
+    from polisyos.runtime.quality import generation_cycle as runtime
+    from tests.unit.runtime.http.test_control_service_di import (
+        _explicit_simulation_execution_context,
+    )
+    from tests.unit.runtime.quality.test_cycle_substrate import _cycle_context
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
+
+    problem = _problem()
+    context = _explicit_simulation_execution_context(problem)
+    source = load_l6_intervention_substrate(REPO_ROOT).observation_manifest
+
+    def port(family: str | None, method: str | None = None):
+        return runtime.FoundryValuePort(
+            evaluation_context=context, observation_to_contract_manifest=source,
+            observation_family=family, requested_method_fqn=method,
+        )
+
+    configured = port("budget_flows")
+    source_missing = runtime.FoundryValuePort(
+        evaluation_context=context, observation_family="budget_flows",
+    )
+    assert runtime._select_value_method(candidate={}, problem=problem,
+        inputs=source_missing._selection_inputs())["status"] == "blocked"
+    inputs = configured._selection_inputs()
+    positive = runtime._select_value_method(candidate={}, problem=problem, inputs=inputs)
+    assert positive["status"] == "selected", positive
+    for refused in (port(None), port("unknown_observation_family"),
+                    port("budget_flows", "bayesian.gp.gp_regression@1.0.0")):
+        result = runtime._select_value_method(candidate={}, problem=problem,
+                                               inputs=refused._selection_inputs())
+        assert result["status"] == "blocked", result
+    receipt = MethodSelectionReceipt.model_validate(positive["selection_receipt"])
+    constraint = runtime._value_method_route_constraint(candidate={}, problem=problem, inputs=inputs)
+    receipt.verify_selection_context(method_selection_context_hash(
+        candidate={}, problem=problem, route_constraint=constraint,
+    ))
+    changed = runtime._value_method_route_constraint(
+        candidate={}, problem=problem, inputs=port("firm_fundamentals")._selection_inputs(),
+    )
+    with pytest.raises(ValueError):
+        receipt.verify_selection_context(method_selection_context_hash(
+            candidate={}, problem=problem, route_constraint=changed,
+        ))
+    controller = runtime.GenerationCycleController(
+        repo_root=REPO_ROOT, observation_to_contract_manifest=source,
+        observation_family="budget_flows",
+    )
+    assert controller._value_port.observation_family == "budget_flows"
+    # A typed candidate context binds the complete real manifest, with no source
+    # override. Its other fixture fields are not a canonical population claim.
+    bound = _cycle_context(intervention_substrate=load_l6_intervention_substrate(REPO_ROOT))
+    bound_controller = runtime.GenerationCycleController(
+        repo_root=REPO_ROOT, cycle_substrate_context=bound, observation_family="budget_flows",
+    )
+    lazy = bound_controller._value_port
+    bound_port = runtime.FoundryValuePort(
+        evaluation_context=context, **lazy._selection_configuration(),
+    )
+    default_inputs = bound_port._selection_inputs()
+    assert default_inputs["observation_to_contract_manifest"] == source
+    assert runtime._select_value_method(candidate={}, problem=problem,
+                                       inputs=default_inputs)["status"] == "selected"
+    mismatched = copy.deepcopy(source)
+    mismatched["annotation"] = "different source"
+    with pytest.raises(ValueError, match="value_method_manifest_context_mismatch"):
+        runtime.FoundryValuePort(evaluation_context=context, cycle_substrate_context=bound,
+            observation_to_contract_manifest=mismatched, observation_family="budget_flows",
+        )._selection_inputs()
+    tampered = bound.model_copy(deep=True)
+    tampered.intervention_substrate.observation_manifest["routes"] = []
+    with pytest.raises(ValueError, match="cycle_substrate_intervention_bundle_hash_mismatch"):
+        runtime.FoundryValuePort(evaluation_context=context, cycle_substrate_context=tampered,
+                               observation_family="budget_flows")._selection_inputs()
+    original = runtime._value_method_selection_inputs
+
+    def remove_family_forwarding(**kwargs):
+        result = original(**kwargs)
+        result.pop("observation_family", None)
+        return result
+
+    monkeypatch.setattr(runtime, "_value_method_selection_inputs", remove_family_forwarding)
+    # Constructor/configuration marker remains; removing only the forwarding
+    # breaks the unchanged positive control through the actual selection owner.
+    assert configured._observation_family == "budget_flows"
+    removed = runtime._select_value_method(candidate={}, problem=problem,
+                                           inputs=configured._selection_inputs())
+    with pytest.raises(AssertionError):
+        assert removed["status"] == "selected", removed
+    def remove_bound_source_forwarding(**kwargs):
+        result = original(**kwargs)
+        result.pop("observation_to_contract_manifest", None)
+        return result
+
+    monkeypatch.setattr(runtime, "_value_method_selection_inputs", remove_bound_source_forwarding)
+    source_removed = runtime._select_value_method(candidate={}, problem=problem,
+                                                  inputs=bound_port._selection_inputs())
+    with pytest.raises(AssertionError):
+        assert source_removed.get("selected_method_fqn") == positive["selected_method_fqn"]
+
+
+def test_phase5_real_unrelated_law_target_cannot_authorize_a_knob() -> None:
+    """Real threshold truth cannot establish a different law/lever correspondence."""
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    manifest = copy.deepcopy(bundle.lex_authority_manifest)
+    entries = {row["law_token"]: row for row in manifest["intervention_map_entries"]}
+    budget, tax = entries["budget_law"], entries["tax_relief_statute"]
+    budget["provision_ref"], tax["provision_ref"] = tax["provision_ref"], budget["provision_ref"]
+    changed = replace_intervention_substrate_bundle(
+        bundle,
+        update={"lex_authority_manifest": manifest},
+    )
+    result = resolve_law_bound_lever(
+        changed,
+        law_token=tax["law_token"],
+        knob_id="tax_relief_rate",
+        parameter_value=0.24,
+        legal_store=_lex_store(),
+    )
+    assert result.legal_threshold_evaluation["status"] == "admitted"
+    assert result.status == "blocked"
+    assert result.mapping_evidence_ref is None
+    assert result.mapping_predicate_provenance == "consumer_asserted"
+
+
+def test_phase5_route_growth_ambiguity_and_source_substitution() -> None:
+    from polisyos.runtime.quality.generation_cycle import _select_value_method
+    from polisyos.runtime.quality.intervention_substrate import (
+        project_value_method_route_constraint,
+        resolve_observation_manifest_routes,
+    )
+
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    original = project_value_method_route_constraint(bundle, family="budget_flows")
+    manifest = copy.deepcopy(bundle.observation_manifest)
+    novel = copy.deepcopy(
+        next(row for row in manifest["routes"] if row["family"] == "budget_flows")
+    )
+    novel["family"] = "new_data_only_observation_family"
+    manifest["routes"].append(novel)
+    grown = replace_intervention_substrate_bundle(bundle, update={"observation_manifest": manifest})
+    assert {route.family for route in resolve_observation_manifest_routes(grown)} == {
+        row["family"] for row in manifest["routes"]
+    }
+    projected = project_value_method_route_constraint(grown, family=novel["family"])
+    assert projected.allowed_method_fqns == original.allowed_method_fqns
+    result = _select_value_method(
+        candidate={},
+        problem={},
+        inputs={
+            "observation_to_contract_manifest": manifest,
+            "observation_family": novel["family"],
+        },
+    )
+    assert result["status"] == "selected"
+    assert result["selected_method_fqn"] in projected.allowed_method_fqns
+    duplicate = copy.deepcopy(manifest)
+    duplicate["routes"].append({**novel, "mode": "another_mode"})
+    with pytest.raises(InterventionSubstrateError, match="family_route_ambiguous"):
+        resolve_observation_manifest_routes(
+            replace_intervention_substrate_bundle(
+                bundle,
+                update={"observation_manifest": duplicate},
+            )
+        )
+    # Leave a valid, caller-authored projection declaration intact; break its source.
+    novel["target_contract"] = {"contract_id": "phase5.nonexistent.contract"}
+    substituted = _select_value_method(
+        candidate={},
+        problem={},
+        inputs={
+            "observation_to_contract_manifest": manifest,
+            "observation_family": novel["family"],
+            "route_constraint": projected.model_dump(mode="json"),
+            "owner_validated": True,
+        },
+    )
+    assert substituted["status"] == "blocked"
+
+
+def test_phase5_historical_law_record_remains_readable_without_current_authority() -> None:
+    import json
+
+    from polisyos.runtime.quality.intervention_substrate import LawLeverResolution
+
+    legacy = json.loads(
+        (Path(__file__).parent / "fixtures/intervention_law_lift_v1.json").read_text()
+    )
+    historical = LawLeverResolution.model_validate(legacy)
+    assert historical.status == "admissible"
+    assert historical.current_authority_status == "blocked"
+    assert historical.mapping_evidence_ref is None
+
+
+def test_phase5_route_context_binds_source_and_rejects_forged_method_constraint() -> None:
+    from polisyos.foundry.methods.selection.advisor import select_value_method_for_problem
+    from polisyos.runtime.quality.generation_cycle import _select_value_method
+    from polisyos.runtime.quality.intervention_substrate import (
+        project_value_method_route_constraint,
+    )
+
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    inputs = {"observation_to_contract_manifest": bundle.observation_manifest,
+              "observation_family": "budget_flows"}
+    first = _select_value_method(candidate={}, problem={}, inputs=inputs)
+    assert first["status"] == "selected"
+    changed = copy.deepcopy(bundle.observation_manifest)
+    changed["projection_probe_annotation"] = "same method, different manifest content"
+    second = _select_value_method(candidate={}, problem={}, inputs={
+        **inputs, "observation_to_contract_manifest": changed,
+    })
+    assert second["status"] == "selected"
+    assert first["selected_method_fqn"] == second["selected_method_fqn"]
+    assert first["selection_receipt"]["selection_context_hash"] != (
+        second["selection_receipt"]["selection_context_hash"])
+    constraint = project_value_method_route_constraint(bundle, family="budget_flows")
+    fake = constraint.model_copy(update={"allowed_method_fqns": ("bayesian.gp.gp_regression@1.0.0",)})
+    result = select_value_method_for_problem(candidate={}, problem={}, route_constraint=fake)
+    assert result["status"] == "blocked"
+    assert result["blockers"] == ("value_method_route_contract_mismatch",)
 
 
 @dataclass(frozen=True)
@@ -229,7 +531,8 @@ def test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value() -
         legal_store=lex,
     )
 
-    assert admitted.status == "admissible"
+    assert admitted.status == "blocked"
+    assert admitted.mapping_evidence_ref is None
     assert admitted.legal_threshold_evaluation["status"] == "admitted"
     assert admitted.provision_ref.startswith("duckdb://")
     assert admitted.knob.operator_kind == "budget_allocation_multiplier"
@@ -319,9 +622,7 @@ def test_family_method_routing_uses_real_manifest_registry_and_python314_blocker
                         "identification_mode": "point_identified",
                         "target_contract": {
                             "contract_id": dead_contract,
-                            "contract_fqn": (
-                                "polisyos.foundry.methods.catalog.dead.Unregistered"
-                            ),
+                            "contract_fqn": ("polisyos.foundry.methods.catalog.dead.Unregistered"),
                         },
                     },
                     {
@@ -350,7 +651,7 @@ def test_family_method_routing_uses_real_manifest_registry_and_python314_blocker
                     },
                 ],
             }
-        }
+        },
     )
     with registry_scope():
         registry = get_registry()
@@ -395,9 +696,8 @@ def test_family_method_routing_uses_real_manifest_registry_and_python314_blocker
     assert unresolved.reason_code == "method_route_unresolved"
     assert unresolved.selected_method_fqn is None
     assert unavailable.status == "blocked"
-    assert unavailable.reason_code == "method_unavailable_python314"
-    assert any("bart" in fqn for fqn in unavailable.candidate_method_fqns)
-    assert any("bart" in fqn for fqn in unavailable.unavailable_method_fqns)
+    assert unavailable.reason_code == "method_route_unresolved"
+    assert not unavailable.candidate_method_fqns
 
     with pytest.raises(InterventionSubstrateError) as unknown:
         route_observation_family_method(bundle, family="unknown_family")
@@ -525,9 +825,7 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
                         "reads_slots": [FREE_GROW_SLOT],
                         "writes_slots": [FREE_GROW_SLOT],
                         "default_merge": {FREE_GROW_SLOT: "override"},
-                        "provenance_refs": [
-                            "tests:free-grow-owner-mechanism-writes-real-wmr-slot"
-                        ],
+                        "provenance_refs": ["tests:free-grow-owner-mechanism-writes-real-wmr-slot"],
                     },
                 },
             },
@@ -578,7 +876,7 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
                     },
                 ],
             },
-        }
+        },
     )
 
     lever = resolve_intervention_lever(
@@ -603,7 +901,8 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
         )
 
     assert lever.target_world_slots == (FREE_GROW_SLOT,)
-    assert law.status == "admissible"
+    assert law.status == "blocked"
+    assert law.mapping_evidence_ref is None
     assert route.status == "routed"
 
     malformed = replace_intervention_substrate_bundle(
@@ -620,7 +919,7 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
                     "param_path": "params.intensity",
                 },
             }
-        }
+        },
     )
     with pytest.raises(InterventionSubstrateError) as missing_owner:
         resolve_intervention_lever(

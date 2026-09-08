@@ -1783,7 +1783,7 @@ def _candidate_unbound_refusal(
 
     candidate = context.candidate_levers[0]
     payload = {
-        "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+        "schema_version": "policyos.runtime.intervention_substrate_lift.v2",
         "status": "candidate_unbound",
         "operator_kind": candidate.lever_id,
         "instrument": candidate.instrument,
@@ -3510,6 +3510,40 @@ class _OverlayDataGapValuePort:
 
 
 @_requires_owner_catalog
+def test_phase5_value_port_configuration_preserves_manifest_omission() -> None:
+    """Constructor serialization preserves omission and explicit invalid source."""
+    problem, context, candidate = _canonical_strict_world_case()
+    simulation = SimulationPortObservation(
+        candidate_id=candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref="sha256:" + "9" * 64,
+        world_model_record=context.world_model_record,
+        k_world_ref_before=context.world_model_record.content_hash,
+        k_world_ref_after=context.world_model_record.content_hash,
+    )
+    execution_context = generation_cycle_module.simulation_value_execution_context(
+        candidate=candidate, simulation=simulation, problem=problem,
+    )
+    omitted = generation_cycle_module.FoundryValuePort(evaluation_context=execution_context)
+    omitted_inputs = omitted._selection_inputs()
+    assert "observation_to_contract_manifest" not in omitted_inputs
+    assert generation_cycle_module._select_value_method(
+        candidate={}, problem={}, inputs=omitted_inputs,
+    )["status"] == "selected"
+    supplied_null = generation_cycle_module.FoundryValuePort(
+        evaluation_context=execution_context, observation_to_contract_manifest=None,
+    )
+    null_inputs = supplied_null._selection_inputs()
+    assert "observation_to_contract_manifest" in null_inputs
+    assert generation_cycle_module._select_value_method(
+        candidate={}, problem={}, inputs=null_inputs,
+    )["status"] == "blocked"
+    with pytest.raises(ValueError, match="value_method_manifest_source_invalid"):
+        generation_cycle_module._value_method_route_constraint(
+            candidate={}, problem={}, inputs=null_inputs,
+        )
+
+
 def test_default_value_port_binds_the_actual_n5_context(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -3550,6 +3584,7 @@ def test_default_value_port_binds_the_actual_n5_context(
         def __init__(self, **kwargs: Any) -> None:
             captured_init.append(kwargs)
             self._delegate = real_foundry_port(**kwargs)
+            assert "observation_to_contract_manifest" not in self._delegate._selection_inputs()
 
         def __call__(self, **kwargs: Any) -> ValuePortObservation:
             return self._delegate(**kwargs)

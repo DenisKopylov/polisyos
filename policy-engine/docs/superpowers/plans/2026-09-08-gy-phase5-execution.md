@@ -136,6 +136,22 @@ readers. Refuse source substitution and conflicting expected heads. Remove the
 head attachment while preserving the producer and record markers: the unchanged
 post-source positive must go red. Review this delta before the final expensive wave.
 
+**D3b concrete owner placement:** use
+`POST /api/v1/control/runs/{run_id}/normative-evidence` so the existing run-ownership
+check and `EVIDENCE_RESOLVE` permission govern receipt. The strict request identifies
+the exact completed job belonging to that run, its expected prior head and the
+existing typed `NormativeRunEvidenceRefs`; do not select an ambiguous job or accept
+compiled source/trust overrides. Reuse that existing ref shape rather than a second
+evidence parser. The additive `policyos.normative_generation_head.v1` CAS record
+binds job, run, compiled source, predecessor, disposition, refs and evaluation time.
+The existing append-only `control_job_events` table indexes the head through
+`normative_evidence_admitted`. The store owns compare-and-append in one transaction
+(SQLite write transaction / PostgreSQL owning-job row lock), preserving immutable
+progress and requiring no new table. Both job readers resolve and bind the head
+to their owned source before current S8 replay. Invalid attempts have durable
+refusal/audit evidence without advancing the admitted head. These details extend
+the D3b decision; they do not reopen any executed promotion or institutional role.
+
 ## Ordered execution and exact owners
 
 Only one writer per source file. S3 owns `intervention_substrate.py`, `design_generation.py`, its part of `generation_cycle.py`, Foundry selection and S3 validator/tests. PA1 owns existing S8 plus HTTP control generation/lifecycle/container files and mirrored tests. The selected PA1 design needs no shared generation-cycle write. PR1 has no production edits. Root owns the plan/journals, commits, final review, generated-companion integration and verification wave.

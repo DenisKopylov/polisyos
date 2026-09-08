@@ -61,6 +61,25 @@ preserving the association makes the same complete atom identity set contested.
 
 Falsifiers: every actual manifest route target corrupted; unrelated but registered explicit method; novel route by data only; real budget/tax target transposition while preserving source declarations; owner-validation removal with happy path unchanged; report field corruption. Any silent selection, authority grant or green decisive-removal gate rejects the implementation.
 
+**D1c / S3-RV02, NEW P01/P02 configuration bridge:** the existing low-level
+route owner accepts an explicit observation family and selects the real budget
+native method, but `FoundryValuePort` cannot receive that family. Its complete
+manifest therefore correctly refuses unknown scope while its public configuration
+cannot express known scope. This is buildable `bridge_missing`, not an external
+dependency. Extend the existing port, lazy/default composition and reentry with an
+optional requested `observation_family`; carry it unchanged into the same owner
+input used by selection and receipt replay. Keep absence explicit and never choose
+the first route or a convenient native family. The existing owner decides whether
+the supplied family is real and consistent with its complete manifest.
+
+The unchanged source-derived constraint binds the requested family in context v4;
+no additional receipt epoch or authority is introduced. Acceptance runs the actual
+configured constructor/default bridge into the real selector with the complete
+manifest: budget native positive, nonexistent family refusal, out-of-route explicit
+method refusal, and receipt-context mutation. Removing only family forwarding must
+turn that positive green-path control red while its marker/constructor remains.
+S3 owns this correction in the same files; it must land before final verification.
+
 ### D2 — GY-PR1 preserve working gates; do not invent an authority producer
 
 Research refuted all old vacuous-pass premises and ran their actual controls: inadmissibility/independence reject caller `True`, actual N5 emits its blocker, honest PARAM scope control exists, EFFECT and MEASUREMENT real producer/bridge positives pass. Repeating their repairs or their already-landed epoch bumps is prohibited scope expansion.

@@ -1,0 +1,47 @@
+# S3 RV01 independent delta review — 2026-09-08
+
+## Decision at first delta boundary: repair still required
+
+**S3-RV01 continuation, same P38 presence/absence class:** the new intake correctly rejects explicit null, but the actual default producer serializes an omitted manifest configuration as null. At `src/polisyos/runtime/quality/generation_cycle.py:2216`, `FoundryValuePort._selection_inputs` always includes `observation_to_contract_manifest`; its constructor default is `None` (`:1852`). The default simulation wrapper (`:2253`, `:2284`) also forwards the absent configuration. The new owner helper at `:5120` treats every supplied key as present and rejects that null. The new absence control only uses manually assembled `inputs={}`, so it misses the default producer's representation.
+
+The independent narrow execution uses an actual typed fixture evaluation context and real `FoundryValuePort` constructor with the manifest argument **omitted**, then calls its real `_selection_inputs` and `_select_value_method`. Result: actual inputs include `observation_to_contract_manifest:null`; selection blocks with `value_method_manifest_source_invalid`. The manually empty-input positive still selects GP. This is a false refusal introduced at the owner serialization handoff, not a lawful reason to weaken null-source validation.
+
+- Exact sole child gate: `.venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.s3.review_default_manifest_presence`.
+- Cwd: `/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine`.
+- RC **0**, wall **28.94 seconds**; the witness asserts the observed mismatch.
+- Full streams: [independent-default-manifest-presence.json](independent-default-manifest-presence.json); [source](review_default_manifest_presence.py).
+- Venv-first PATH and lane `src` first in PYTHONPATH; no WMR builder, shared scratch, broad tests, source edit or commit.
+
+P40 disposition: this folds into **the existing RV01 structural invariant**, not a new class or another independent instance patch. Complete the property through configuration representation → source-input serialization → selector → receipt replay. Preserve actual omitted default behavior through the real producer/wrapper/reentry, while explicit runtime null and malformed source remain refused. Do not reinterpret all null as absent at the helper; that would reopen the measured negative. A private absence representation or an explicitly defined optional-config serialization rule belongs to the existing port owner, without a second manifest parser or new authority subsystem.
+
+Acceptance for this delta requires a real default-port serialization positive in addition to the already green complete-budget-route positive and missing-routes/null/empty/scalar negatives. Root and implementer received this finding before final verification. Approval remains pending that correction.
+
+## What the reviewed correction does establish
+
+The removed `_has_observation_manifest` marker predicate is replaced with one runtime source helper. It keys on actual input-slot presence, requires a mapping for a supplied value, and passes supplied mappings to the existing bundle/manifest owner. Both selection and receipt-context reconstruction invoke that helper and never forward the raw source artifact to Foundry. Therefore deleting `routes` no longer escapes into the absent branch at that level.
+
+Foundry's shared `_manifest_targets` now validates the explicitly supported, nonempty flat advisory grammar for both selection and context hashing. Unsupported mappings/sequences cannot silently become empty hints. It does not parse the nested source schema or maintain a list of alternate artifact marker names. Direct `None` remains the existing optional advisory argument convention; the runtime source slot is separately checked and is not forwarded to that convention.
+
+The report additions retain source shape controls, source-field removal with artifact declarations unchanged, a real positive route and actual in-memory intake removal. Existing owner-validation/removal proofs and the full law-correspondence residual remain unchanged. The added source-owner inventory is appropriate. Read `rv01-intake-red.json`, `rv01-intake-green.json` and the actual changed controls; did not duplicate that targeted run or regenerate the report.
+
+No second new blocker was established in this delta scope. General law/credal/routing architecture conclusions remain those of [initial review](independent-review.md). This record does not claim latest generated report freshness or final lane verification.
+
+## Second delta boundary — RV01 approved; separate family intake gap
+
+The omission correction is approved within this delta scope. The same private `_OBSERVATION_MANIFEST_UNSUPPLIED` sentinel now defaults both the actual `FoundryValuePort` constructor and lazy simulation wrapper. `_selection_inputs` omits only that sentinel, retains explicitly supplied `None`, and both reentry branches copy the stored value unchanged. Thus omission survives the real production configuration chain, while supplied null/empty/malformed input still reaches the strict source owner. Read the complete production constructor/manifest-keyword census, with independent filesystem and AST visitor reconciliation and no ambiguous inputs: [manifest-configuration-census.json](manifest-configuration-census.json). Read actual-constructor and actual-wrapper red/green controls: [rv01-configuration-green.json](rv01-configuration-green.json), RC0, 82.632 seconds; scoped Ruff RC0. These controls include the real native budget positive and supplied malformed refusal. No further run of that targeted group was necessary.
+
+**S3-RV02 — P1 / NEW P01/P02 configuration-to-owner bridge gap:** the low-level owner accepts a requested observation family, but the actual value port cannot receive it. `FoundryValuePort.__init__` accepts the full manifest but no family argument (`generation_cycle.py:1844`); `_selection_inputs` (`:2219`) therefore never supplies `observation_family`. The lazy wrapper and reentry configuration also have no such field. `_value_method_route_constraint` (`:5121`) can infer only an exact equality between a family name and a candidate world-slot/outcome identifier. Those are different vocabularies in ordinary inputs, so an explicit legitimate family request needs a real configuration path.
+
+The independent witness constructs the actual port with the full real manifest and an ordinary fixture outcome `firm_survival`. Its real selection inputs produce `observation_family_missing`. Passing `observation_family="budget_flows"` to that port raises `TypeError: unexpected keyword argument`. Passing that same explicit family with the port's inputs directly to the existing owner helper reaches the real native `econometrics.panel.event_study@1.0.0` route. This positive is a routing/configuration witness, not an empirical claim that budget data estimates the fixture's outcome; native method/outcome admissibility remains with existing downstream owners.
+
+- Exact sole child gate: `.venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.s3.review_port_family_intake`.
+- RC **0**, wall **36.324 seconds**; full streams: [independent-port-family-intake.json](independent-port-family-intake.json); [source](review_port_family_intake.py).
+- Same lane cwd and venv-first environment; no WMR builder, full suite, source edits or commits.
+
+The missing-family refusal is truthful. The absent configuration inlet is nevertheless **buildable engineering owned by S3**, not an external semantic blocker or a reason to claim the production bridge complete. Smallest move: add an optional explicit observation-family request to the existing value-port configuration, preserve it through lazy wrapper and reentry, and include it in the owner input mapping used by both selection and context replay. The existing source owner validates it. Do not guess the first family, prefer whichever family happens to have native value output, or create another mapping authority. A real port configuration control must reach the positive route, unknown/mismatched family requests must refuse, and changing the family must be reflected by the same source-bound context. Root was notified before implementation.
+
+P40: RV02 is **NEW P01/P02 producer/configuration-to-consumer reachability**, distinct from RV01's source-presence semantic class. No further repair of the absence classifier is requested. Root's final-wave start should wait for this small bridge to be made concrete and reviewed, unless it is explicitly left incomplete rather than described as completed engineering.
+
+## Scoped P28 check requested by root
+
+The existing law strangle already encompasses D1b's dependent credal emission. Its pass condition requires `law_consumers.status == "pass"`; its behavior hash covers both the law resolution and the full `handoff` report (`intervention_substrate.py:1686`). That report runs actual law-edge→atom consumption and removes status/association as decisive controls. The complete replacement-caller census for `resolve_law_bound_lever` includes the concrete `credal_reference.py` call. This is one replaced law-authority path with its downstream propagation, not a reason to create a fourth decorative receipt. Explicitly naming the dependent emitter in the same receipt would aid navigation, but no separate P28 blocking gap was established. Final regenerated artifact freshness remains root-owned.

@@ -24,6 +24,15 @@ or directory/full Python suite is authorized or used.
 
 ## Execution record
 
+**S3-RV02 / D1c:** independent execution accepted the completed RV01 omission
+invariant, then established a NEW P01/P02 configuration bridge gap. A full manifest
+plus explicit budget family selects through the owner, while the actual port
+constructor rejects that argument. The lane will expose the existing requested
+family through its actual port/default/reentry chain and preserve missing/unknown
+scope refusal. It is buildable within S3 and is not folded into the separate law
+correspondence blocker. The decision precedes source edits; final replay remains
+paused until this bounded correction is reviewed.
+
 **PA1 first implementation boundary:** `f412d424a` persists source-bound worker
 choices and current replay. Its targeted test identity sets reconcile and its
 four property-removal probes are red. The whole committed package was read back

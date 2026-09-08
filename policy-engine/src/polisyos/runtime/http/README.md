@@ -119,3 +119,29 @@ Run commands from the repository root `policy-engine/`.
 ## Last updated date
 
 2026-07-18
+
+## Source-bound value selection
+
+The default `natural_language_run` worker persists an additive normative composition
+sidecar after the compiled generation run. Each leaf preserves the actual candidate
+fronts with `dominance_status=not_established`; an absent or unauthorized schedule
+produces zero recommendations and a persisted `NormativeDecisionRequest`.
+`get_job_status` and `get_latest_job_for_run` share current replay: compiled membership,
+leaf source bytes, signatures, deployment scope and expiry are checked at each read.
+A missing or invalid sidecar produces a fresh refusal from the available compiled
+source. An unresolved source is reported explicitly as `not_established`.
+
+Deployment code may pass a typed `NormativeAuthorityTrust` through
+`create_runtime_api_app(normative_authority_trust=...)`; the default slot is empty.
+Request context accepts only `normative_evidence.by_node` references to a genuine S8
+frontier and a signed `policyos.normative_authorization.v2` record binding the exact
+compiled source, leaf source and node. This permission authorizes the recorded
+selection; it confers no empirical, Pareto, legal or publication authority. The
+canonical ambient filesystem CAS is reused with its ownership checks. Other CAS
+backends require an independently verified signed-store adapter.
+
+The sidecar contracts are internal Python owner surfaces; the existing HTTP
+`ControlJobResponse.progress` carries their additive projection and CAS references.
+Existing generation DTOs and standalone S8 authorization v1 artifacts retain their
+epochs. Targeted replay and removal controls live in
+`tests/unit/runtime/http/test_normative_generation_bridge.py`.

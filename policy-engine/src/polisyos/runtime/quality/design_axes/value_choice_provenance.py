@@ -29,6 +29,10 @@ P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE = "p20_value_schedule_resolver_absent"
 # Reserved for a future owner-backed resolver's per-reference failure.
 P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE = "p20_value_schedule_ref_unresolvable"
 NORMATIVE_AUTHORIZATION_SCHEMA_VERSION = "policyos.normative_authorization.v1"
+NORMATIVE_GENERATION_AUTHORIZATION_SCHEMA_VERSION = "policyos.normative_authorization.v2"
+NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION = "policyos.normative_generation_disposition.v1"
+NORMATIVE_GENERATION_DISPOSITION_KIND = "runtime_quality.normative_generation_disposition"
+NORMATIVE_GENERATION_SOURCE_KIND = "runtime_quality.normative_generation_source"
 NORMATIVE_AUTHORIZATION_KIND = "runtime_quality.normative_authorization"
 NORMATIVE_SCHEDULE_KIND = "runtime_quality.normative_value_schedule"
 NORMATIVE_FRONTIER_KIND = "runtime_quality.normative_frontier"
@@ -477,6 +481,70 @@ class NormativeDecisionRequest(_NormativeModel):
     authoritative_for: Literal["value_authorization_request"] = "value_authorization_request"
 
 
+class NormativeGenerationBinding(_NormativeModel):
+    """Signed generation coordinates; compiled membership belongs to the HTTP source owner."""
+
+    compiled_run_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_run_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    node_ref: str = Field(min_length=1)
+
+
+class NormativeAuthorizationRecordV2(NormativeAuthorizationRecord):
+    """Permission bound to exact generation bytes, without upgrading empirical authority."""
+
+    schema_version: Literal["policyos.normative_authorization.v2"] = (
+        NORMATIVE_GENERATION_AUTHORIZATION_SCHEMA_VERSION
+    )
+    generation_binding: NormativeGenerationBinding
+
+
+class NormativeGenerationEvidenceRefs(_NormativeModel):
+    """Untrusted references to an existing frontier and external signed permission."""
+
+    frontier_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authorization_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    scope_ref: str = Field(min_length=1)
+
+
+class NormativeGenerationDisposition(_NormativeModel):
+    """Leaf-scoped selection or typed refusal preserving actual unvalued candidate fronts."""
+
+    schema_version: Literal["policyos.normative_generation_disposition.v1"] = (
+        NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION
+    )
+    generation_binding: NormativeGenerationBinding
+    compiled_membership_status: Literal["not_established"] = "not_established"
+    case_id: str
+    candidate_fronts: dict[str, tuple[str, ...]]
+    dominance_status: Literal["not_established"] = "not_established"
+    evidence: NormativeGenerationEvidenceRefs | None
+    input_limitation: (
+        Literal[
+            "p20_normative_evidence_invalid",
+            "p20_normative_evidence_node_mismatch",
+            "p20_normative_generation_disposition_missing",
+            "p20_normative_sidecar_replay_failed",
+        ]
+        | None
+    ) = None
+    authorization_status: Literal["authorized", "blocked"]
+    ranked_recommendations: tuple[str, ...] = ()
+    decision_request: NormativeDecisionRequest | None = None
+    ranking_bundle_ref: str | None = None
+    admitted_at: AwareDatetime
+    trust_epoch: str
+    authoritative_for: Literal["value_schedule_for_ranking"] = "value_schedule_for_ranking"
+    may_not_use_for: tuple[str, ...] = (
+        "compiled_run_membership",
+        "pareto_dominance",
+        "empirical_value_authority",
+        "legal_competence",
+        "democratic_legitimacy",
+        "claim_evidence",
+        "publication_authority",
+    )
+
+
 class _NormativeScheduleAdmission(_NormativeModel):
     schema_version: Literal["policyos.normative_schedule_admission.v1"] = (
         "policyos.normative_schedule_admission.v1"
@@ -492,6 +560,13 @@ class _NormativeScheduleAdmission(_NormativeModel):
     claimant_key_id: str
     trust_epoch: str
     admitted_at: AwareDatetime
+
+
+class _NormativeGenerationScheduleAdmission(_NormativeScheduleAdmission):
+    schema_version: Literal["policyos.normative_schedule_admission.v2"] = (
+        "policyos.normative_schedule_admission.v2"
+    )
+    generation_binding: NormativeGenerationBinding
 
 
 class NormativeRankingResult(_NormativeModel):
@@ -601,6 +676,7 @@ class NormativeValueScheduleOwner:
         scope_ref: str,
         evaluated_at: datetime,
         admitted_at: datetime,
+        generation_binding: NormativeGenerationBinding | None = None,
     ) -> tuple[_NormativeScheduleAdmission, AuthorizedValueSchedule, ParetoArchive, str]:
         from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
             build_decision_rights_matrix,
@@ -609,12 +685,25 @@ class NormativeValueScheduleOwner:
 
         if not self._trust.principals:
             raise P20NormativeChoiceError("p20_normative_authority_slot_empty")
+        authorization_schema = (
+            NORMATIVE_GENERATION_AUTHORIZATION_SCHEMA_VERSION
+            if generation_binding is not None
+            else NORMATIVE_AUTHORIZATION_SCHEMA_VERSION
+        )
         payload, authorizer, authorizer_key = self._signed(
             authorization_ref,
             kind=NORMATIVE_AUTHORIZATION_KIND,
-            schema=NORMATIVE_AUTHORIZATION_SCHEMA_VERSION,
+            schema=authorization_schema,
         )
-        authorization = NormativeAuthorizationRecord.model_validate(payload)
+        authorization = (
+            NormativeAuthorizationRecordV2.model_validate(payload)
+            if generation_binding is not None
+            else NormativeAuthorizationRecord.model_validate(payload)
+        )
+        if generation_binding is not None and (
+            authorization.generation_binding != generation_binding
+        ):
+            raise P20NormativeChoiceError("p20_normative_generation_binding_mismatch")
         role = (
             build_decision_rights_matrix(
                 case_id=case_id,
@@ -682,8 +771,13 @@ class NormativeValueScheduleOwner:
             or authorization.selected_alternative_id not in frontier.nondominated_alternative_ids
         ):
             raise P20NormativeChoiceError("p20_resolved_schedule_not_authorized")
+        admission_type = (
+            _NormativeGenerationScheduleAdmission
+            if generation_binding is not None
+            else _NormativeScheduleAdmission
+        )
         return (
-            _NormativeScheduleAdmission(
+            admission_type(
                 authorization_ref=authorization_ref,
                 case_id=case_id,
                 scope_ref=scope_ref,
@@ -695,6 +789,7 @@ class NormativeValueScheduleOwner:
                 claimant_key_id=claimant_key,
                 trust_epoch=self._trust.epoch,
                 admitted_at=admitted_at,
+                **({"generation_binding": generation_binding} if generation_binding else {}),
             ),
             schedule,
             frontier,
@@ -709,6 +804,7 @@ class NormativeValueScheduleOwner:
         case_id: str,
         scope_ref: str,
         evaluated_at: datetime,
+        generation_binding: NormativeGenerationBinding | None = None,
     ) -> str:
         """Persist a recomputable admission only after independent authorization verifies."""
         admission, _, _, _ = self._resolve_authorization(
@@ -718,6 +814,7 @@ class NormativeValueScheduleOwner:
             scope_ref=scope_ref,
             evaluated_at=evaluated_at,
             admitted_at=evaluated_at,
+            generation_binding=generation_binding,
         )
         return str(
             self._store.put_json(
@@ -737,11 +834,18 @@ class NormativeValueScheduleOwner:
 
     def resolve_archive(self, admission_ref: str, *, evaluated_at: datetime) -> ParetoArchive:
         """Recompute the persisted admission and exact authorized archive from signed inputs."""
-        admission = _NormativeScheduleAdmission.model_validate(
+        manifest = self._store.get_manifest(artifacts.ArtifactID.model_validate(admission_ref))
+        version = manifest.artifact_schema.version if manifest.artifact_schema else ""
+        admission_type = (
+            _NormativeGenerationScheduleAdmission
+            if version == "policyos.normative_schedule_admission.v2"
+            else _NormativeScheduleAdmission
+        )
+        admission = admission_type.model_validate(
             self._read(
                 admission_ref,
                 kind=_NORMATIVE_ADMISSION_KIND,
-                schema="policyos.normative_schedule_admission.v1",
+                schema=version,
             )
         )
         expected, _, frontier, selected = self._resolve_authorization(
@@ -751,6 +855,7 @@ class NormativeValueScheduleOwner:
             scope_ref=admission.scope_ref,
             evaluated_at=evaluated_at,
             admitted_at=admission.admitted_at,
+            generation_binding=getattr(admission, "generation_binding", None),
         )
         if expected != admission:
             raise P20NormativeChoiceError("p20_normative_admission_content_mismatch")
@@ -790,6 +895,7 @@ class NormativeValueScheduleOwner:
         case_id: str,
         scope_ref: str,
         evaluated_at: datetime,
+        generation_binding: NormativeGenerationBinding | None = None,
     ) -> tuple[NormativeRankingResult, str]:
         """Persist a verified selection or zero selections plus the frontier and a request."""
         frontier = ParetoArchive.model_validate(
@@ -810,6 +916,7 @@ class NormativeValueScheduleOwner:
                 case_id=case_id,
                 scope_ref=scope_ref,
                 evaluated_at=evaluated_at,
+                generation_binding=generation_binding,
             )
             archive = self.resolve_archive(admission_ref, evaluated_at=evaluated_at)
             token = _RANKED_ARCHIVE_PAYLOAD.set(archive.model_dump(mode="json"))
@@ -856,6 +963,160 @@ class NormativeValueScheduleOwner:
             schema=LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
         )
         return _admit_normative_emission(payload, owner=self, evaluated_at=evaluated_at)
+
+    def produce_generation_disposition(
+        self,
+        *,
+        binding: NormativeGenerationBinding,
+        evidence: NormativeGenerationEvidenceRefs | None,
+        evaluated_at: datetime,
+        input_limitation: Literal[
+            "p20_normative_evidence_invalid",
+            "p20_normative_evidence_node_mismatch",
+            "p20_normative_generation_disposition_missing",
+            "p20_normative_sidecar_replay_failed",
+        ]
+        | None = None,
+    ) -> str:
+        """Persist a source-derived leaf result; compiled membership is not asserted here."""
+        result = self._generation_disposition(
+            binding=binding,
+            evidence=evidence,
+            evaluated_at=evaluated_at,
+            input_limitation=input_limitation,
+        )
+        return str(
+            self._store.put_json(
+                result.model_dump(mode="json"),
+                artifacts.PutOptions(
+                    kind=NORMATIVE_GENERATION_DISPOSITION_KIND,
+                    media_type="application/json",
+                    schema=artifacts.SchemaInfo(
+                        name=NORMATIVE_GENERATION_DISPOSITION_KIND,
+                        version=NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION,
+                    ),
+                ),
+            ).artifact_id
+        )
+
+    def project_generation_disposition(
+        self, disposition_ref: str, *, evaluated_at: datetime
+    ) -> NormativeGenerationDisposition:
+        """Recompute persisted leaf content, then recheck current signature, scope and TTL."""
+        recorded = NormativeGenerationDisposition.model_validate(
+            self._read(
+                disposition_ref,
+                kind=NORMATIVE_GENERATION_DISPOSITION_KIND,
+                schema=NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION,
+            )
+        )
+        expected = self._generation_disposition(
+            binding=recorded.generation_binding,
+            evidence=recorded.evidence,
+            evaluated_at=recorded.admitted_at,
+            input_limitation=recorded.input_limitation,
+        )
+        if expected != recorded:
+            raise P20NormativeChoiceError("p20_normative_generation_disposition_mismatch")
+        if evaluated_at < recorded.admitted_at:
+            raise P20NormativeChoiceError("p20_normative_generation_time_reversal")
+        return self._generation_disposition(
+            binding=recorded.generation_binding,
+            evidence=recorded.evidence,
+            evaluated_at=evaluated_at,
+            input_limitation=recorded.input_limitation,
+        )
+
+    def _generation_disposition(
+        self,
+        *,
+        binding: NormativeGenerationBinding,
+        evidence: NormativeGenerationEvidenceRefs | None,
+        evaluated_at: datetime,
+        input_limitation: Literal[
+            "p20_normative_evidence_invalid",
+            "p20_normative_evidence_node_mismatch",
+            "p20_normative_generation_disposition_missing",
+            "p20_normative_sidecar_replay_failed",
+        ]
+        | None = None,
+    ) -> NormativeGenerationDisposition:
+        from polisyos.runtime.quality.generation_cycle import (
+            GENERATION_CYCLE_SCHEMA_VERSION,
+            GenerationCycleRun,
+            validate_generation_cycle_run,
+        )
+
+        run = GenerationCycleRun.model_validate(
+            self._read(
+                binding.source_run_ref,
+                kind=NORMATIVE_GENERATION_SOURCE_KIND,
+                schema=GENERATION_CYCLE_SCHEMA_VERSION,
+            )
+        )
+        if validate_generation_cycle_run(run):
+            raise P20NormativeChoiceError("p20_normative_generation_source_invalid")
+        case_id = run.cycles[0].revision_request.revised_problem.design_problem_id
+        fronts = run.fronts.candidate_ids_by_front()
+        candidate_ids = {row.candidate_id for row in run.candidate_summaries}
+        scope_ref = (
+            evidence.scope_ref if evidence else f"unknown:value-scope:{run.design_problem_ref}"
+        )
+        result = None
+        bundle_ref = None
+        reason = input_limitation or "p20_normative_authorization_missing"
+        if evidence is not None and input_limitation is None:
+            try:
+                frontier = ParetoArchive.model_validate(
+                    self._read(
+                        evidence.frontier_ref,
+                        kind=NORMATIVE_FRONTIER_KIND,
+                        schema=LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
+                    )
+                )
+                if binding.source_run_ref not in frontier.frontier_refs:
+                    raise P20NormativeChoiceError("p20_normative_frontier_source_mismatch")
+                if not set(frontier.nondominated_alternative_ids).issubset(candidate_ids):
+                    raise P20NormativeChoiceError("p20_normative_frontier_population_mismatch")
+                result, bundle_ref = self.recommend(
+                    frontier_ref=evidence.frontier_ref,
+                    authorization_ref=evidence.authorization_ref,
+                    case_id=case_id,
+                    scope_ref=scope_ref,
+                    evaluated_at=evaluated_at,
+                    generation_binding=binding,
+                )
+                if result.decision_request is not None:
+                    reason = result.decision_request.reason_codes[0]
+            except (ValueError, TypeError) as exc:
+                reason = (
+                    str(exc)
+                    if isinstance(exc, P20NormativeChoiceError)
+                    else ("p20_normative_payload_invalid")
+                )
+        authorized = result is not None and result.authorization_status == "authorized"
+        return NormativeGenerationDisposition(
+            generation_binding=binding,
+            case_id=case_id,
+            candidate_fronts=fronts,
+            evidence=evidence,
+            input_limitation=input_limitation,
+            authorization_status="authorized" if authorized else "blocked",
+            ranked_recommendations=result.ranked_recommendations if authorized else (),
+            decision_request=None
+            if authorized
+            else NormativeDecisionRequest(
+                case_id=case_id,
+                scope_ref=scope_ref,
+                frontier_ref=evidence.frontier_ref if evidence else binding.source_run_ref,
+                authorization_ref=evidence.authorization_ref if evidence else None,
+                reason_codes=(reason,),
+                requested_at=evaluated_at,
+            ),
+            ranking_bundle_ref=bundle_ref if authorized else None,
+            admitted_at=evaluated_at,
+            trust_epoch=self._trust.epoch,
+        )
 
 
 def coerce_social_weight_provenance_for_s8(

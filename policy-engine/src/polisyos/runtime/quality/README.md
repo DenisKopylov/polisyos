@@ -246,3 +246,20 @@ Workspace ownership:
   budget arithmetic. Every amount retains its exact rational,
   envelope/scope/owner binding, and both conditionality disclosures; no parent,
   family, sequence, or cross-scope total is asserted.
+
+## S8 generation disposition
+
+`design_axes.value_choice_provenance.NormativeValueScheduleOwner` owns the source-aware
+S8 admission and selection projection. The generation path uses authorization and
+admission v2; standalone v1 remains readable under its own schema. A generation
+binding identifies exact compiled and leaf CAS sources plus the node. S8 verifies
+the leaf source and signed frontier; the existing HTTP compiled-run owner verifies
+the parent-to-leaf association. A standalone S8 leaf explicitly records compiled
+membership as `not_established`.
+
+Generation dispositions preserve every source candidate front and carry a typed
+request when authorization is missing. Existing authorized Pareto evidence reaches
+the same ranked consumer when its source, independent signatures, deployment role,
+scope and time are valid. Current projection recomputes persisted content and
+rechecks authority; it does not copy a historical `authorized` field. The additive
+artifacts do not change the generation, promotion or standalone S8 epochs.

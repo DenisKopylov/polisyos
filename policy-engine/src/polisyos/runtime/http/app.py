@@ -72,6 +72,7 @@ from polisyos.runtime.http.step_up import (
     assert_high_stakes_step_up_contract,
     install_step_up_openapi_contract,
 )
+from polisyos.runtime.quality.design_axes.value_choice_provenance import NormativeAuthorityTrust
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
@@ -119,6 +120,7 @@ def create_runtime_api_app(
     metrics_factory: Callable[[], Any] | None = None,
     tracer_factory: Callable[[], Any] | None = None,
     container_overrides: RuntimeContainerOverrides | None = None,
+    normative_authority_trust: NormativeAuthorityTrust | None = None,
     enable_csrf_protection: bool | None = None,
     step_up_verifier: StepUpAssertionVerifier | None = None,
     step_up_replay_store: StepUpReplayStore | None = None,
@@ -225,6 +227,7 @@ def create_runtime_api_app(
             metrics_factory=metrics_factory,
             tracer_factory=tracer_factory,
             overrides=container_overrides or RuntimeContainerOverrides(),
+            normative_authority_trust=(normative_authority_trust or NormativeAuthorityTrust()),
         ),
         deployment_policy=deployment_policy,
         runtime_security=RuntimeSecurityConfig(

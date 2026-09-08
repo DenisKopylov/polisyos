@@ -1,0 +1,10 @@
+{
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.pa1.review_temporal_intake",
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine",
+  "path_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/.venv/bin",
+  "pythonpath_prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/policy-engine/src",
+  "returncode": 0,
+  "duration_seconds": 33.129,
+  "stdout": "{\n  \"scope\": \"Actual worker and actual current readers; explicit signed fixture permission created AFTER source exists; upstream compiler is the existing injected canonical fixture port, not a production governed-design claim\",\n  \"job_id\": \"a9962f2dac0444da99cdc2ec46558e7a\",\n  \"compiled_run_ref\": \"sha256:a0a905a1a5fd5627c132179828da81a108533c217d5ec0a79ad4ef9003e95a9b\",\n  \"before_status\": \"blocked\",\n  \"before_sidecar_ref\": \"sha256:a31e2eb2bce3d8a5c9db81b52eabaf476077a243ba0ba0549aa1c2ddec8b9ff5\",\n  \"post_source_owner_status\": \"authorized\",\n  \"post_source_owner_rankings\": [\n    \"candidate_cgf_shadow\"\n  ],\n  \"post_source_owner_sidecar_ref\": \"sha256:2260f178e775f1035049880c416fcee9a02d7295580eb74e5d03c0bdee3213f7\",\n  \"after_status\": \"blocked\",\n  \"after_sidecar_ref\": \"sha256:a31e2eb2bce3d8a5c9db81b52eabaf476077a243ba0ba0549aa1c2ddec8b9ff5\",\n  \"latest_status\": \"blocked\",\n  \"latest_sidecar_ref\": \"sha256:a31e2eb2bce3d8a5c9db81b52eabaf476077a243ba0ba0549aa1c2ddec8b9ff5\",\n  \"new_sidecar_consumed_by_current_job\": false\n}\n",
+  "stderr": "2026-09-08 12:54:00.301 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized\n"
+}

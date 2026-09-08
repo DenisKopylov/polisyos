@@ -6,7 +6,7 @@ import time
 import uuid
 from collections.abc import Mapping
 from contextlib import AbstractContextManager, contextmanager, nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -140,6 +140,10 @@ from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClos
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationReport,
     reconcile_authority_ref,
+)
+from polisyos.runtime.quality.design_axes.value_choice_provenance import (
+    NormativeAuthorityTrust,
+    P20NormativeChoiceError,
 )
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -372,6 +376,8 @@ if TYPE_CHECKING:
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
+        NormativeRunDisposition,
+        NormativeRunEvidenceRefs,
     )
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
@@ -1220,11 +1226,15 @@ class ControlPlaneService(
         epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
         evaluation_safety_persistence_service: EvaluationSafetyPersistenceService | None = None,
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
+        normative_authority_trust: NormativeAuthorityTrust | None = None,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
+        self._normative_authority_trust = normative_authority_trust or NormativeAuthorityTrust()
+        if type(self._normative_authority_trust) is not NormativeAuthorityTrust:
+            raise TypeError("normative_deployment_trust_must_be_typed")
         self._metrics = metrics if metrics is not None else _default_runtime_metrics()
         self._tracer = tracer if tracer is not None else _default_runtime_tracer()
         self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
@@ -1436,6 +1446,86 @@ class ControlPlaneService(
     def step_up_replay_store(self) -> StepUpReplayStore:
         """Expose the narrow durable one-use assertion store."""
         return cast("StepUpReplayStore", self._control_store)
+
+    def resolve_generation_value_choices(
+        self,
+        *,
+        compiled_run_ref: str,
+        evidence: NormativeRunEvidenceRefs | None = None,
+        evaluated_at: datetime,
+    ) -> NormativeRunDisposition:
+        """Persist and replay current source-bound S8 choices through the deployment owner."""
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            normative_owner_for_runtime_store,
+            produce_normative_run_disposition,
+        )
+
+        owner = normative_owner_for_runtime_store(
+            self._artifact_store, self._normative_authority_trust
+        )
+        return produce_normative_run_disposition(
+            store=self._artifact_store,
+            owner=owner,
+            compiled_run_ref=compiled_run_ref,
+            evidence=evidence,
+            evaluated_at=evaluated_at,
+        )
+
+    def _current_normative_generation_projection(
+        self, *, disposition_ref: str | None, compiled_run_ref: str | None, evaluated_at: datetime
+    ) -> dict[str, object]:
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            NormativeRunEvidenceRefs,
+            normative_owner_for_runtime_store,
+            project_normative_run_disposition,
+        )
+
+        try:
+            if disposition_ref is None or compiled_run_ref is None:
+                raise P20NormativeChoiceError("p20_normative_generation_disposition_missing")
+            owner = normative_owner_for_runtime_store(
+                self._artifact_store, self._normative_authority_trust
+            )
+            return project_normative_run_disposition(
+                store=self._artifact_store,
+                owner=owner,
+                disposition_ref=disposition_ref,
+                compiled_run_ref=compiled_run_ref,
+                evaluated_at=evaluated_at,
+            ).model_dump(mode="json")
+        except (ValueError, TypeError, OSError, KeyError) as exc:
+            reason = (
+                str(exc)
+                if isinstance(exc, P20NormativeChoiceError)
+                else "p20_normative_current_replay_unavailable"
+            )
+            if compiled_run_ref is not None:
+                try:
+                    refusal = self.resolve_generation_value_choices(
+                        compiled_run_ref=compiled_run_ref,
+                        evidence=NormativeRunEvidenceRefs(
+                            input_limitation=(
+                                "p20_normative_generation_disposition_missing"
+                                if disposition_ref is None
+                                else "p20_normative_sidecar_replay_failed"
+                            )
+                        ),
+                        evaluated_at=evaluated_at,
+                    )
+                    return {
+                        **refusal.model_dump(mode="json"),
+                        "refusal_disposition_ref": refusal.disposition_ref,
+                        "reason_codes": [reason],
+                    }
+                except (ValueError, TypeError, OSError, KeyError):
+                    pass
+            return {
+                "authorization_status": "blocked",
+                "ranked_recommendations": [],
+                "reason_codes": [reason],
+                "source_status": "not_established",
+                "candidate_fronts": None,
+            }
 
     @property
     def human_decision_sink(self) -> HumanDecisionAuthoritySink:
@@ -1993,11 +2083,26 @@ class ControlPlaneService(
                 endpoint = str(proof_payload.get("endpoint") or endpoint)
             self._finalize_workspace_loop_run_proof(job_id=job_id, endpoint=endpoint)
             record = self._control_store.get_job(job_id) or record
-        return record.to_response(request_id=request_id)
+        return self._current_normative_job_record(record).to_response(request_id=request_id)
+
+    def _current_normative_job_record(self, record: ControlJobRecord) -> ControlJobRecord:
+        """Replay normative authority once for every outward job-record reader."""
+        if record.kind == "natural_language_run" and record.state == "completed":
+            progress = dict(record.progress)
+            disposition_ref = progress.get("normative_disposition_ref")
+            compiled_ref = progress.get("compiled_recursive_generation_cycle_ref")
+            progress["normative_disposition"] = self._current_normative_generation_projection(
+                disposition_ref=disposition_ref if isinstance(disposition_ref, str) else None,
+                compiled_run_ref=compiled_ref if isinstance(compiled_ref, str) else None,
+                evaluated_at=datetime.now(UTC),
+            )
+            return replace(record, progress=progress)
+        return record
 
     def get_latest_job_for_run(self, run_id: str) -> ControlJobRecord | None:
         """Return the newest durable control job attached to one runtime run."""
-        return self._control_store.get_latest_job_by_run(run_id)
+        record = self._control_store.get_latest_job_by_run(run_id)
+        return self._current_normative_job_record(record) if record is not None else None
 
     def record_production_approval_packet(
         self,
@@ -2716,6 +2821,16 @@ class ControlPlaneService(
                         kind="runtime.compiled_recursive_generation_cycle",
                         schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
                     )
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        parse_normative_run_evidence,
+                    )
+
+                    normative_raw = (payload.get("context") or {}).get("normative_evidence")
+                    normative = self.resolve_generation_value_choices(
+                        compiled_run_ref=compiled_ref,
+                        evidence=parse_normative_run_evidence(normative_raw),
+                        evaluated_at=datetime.now(UTC),
+                    )
                     refusal_reasons = tuple(
                         receipt.reason
                         for leaf in compiled.recursive_run.leaf_nodes
@@ -2728,6 +2843,8 @@ class ControlPlaneService(
                         "phase": "natural_language_run",
                         "run_id": str(job.run_id or payload.get("run_id") or ""),
                         "compiled_recursive_generation_cycle_ref": compiled_ref,
+                        "normative_disposition_ref": normative.disposition_ref,
+                        "normative_disposition": normative.model_dump(mode="json"),
                         "promotion_refusal_reasons": list(refusal_reasons),
                     }
                     self._control_store.complete_job(
@@ -2749,13 +2866,18 @@ class ControlPlaneService(
                             "job_kind": job.kind,
                             "capability_manifest_ref": str(capability_manifest_ref),
                             "compiled_recursive_generation_cycle_ref": compiled_ref,
+                            "normative_disposition_ref": normative.disposition_ref,
                             "epoch_strangle_disposition": (
                                 "candidate_only_typed_negative"
                                 if refusal_reasons
                                 else "candidate_only"
                             ),
                         },
-                        artifact_refs=[str(capability_manifest_ref), compiled_ref],
+                        artifact_refs=[
+                            str(capability_manifest_ref),
+                            compiled_ref,
+                            str(normative.disposition_ref),
+                        ],
                     )
                     return
                 if job.kind == "lex_pipeline":

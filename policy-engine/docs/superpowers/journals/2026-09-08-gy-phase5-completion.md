@@ -404,9 +404,11 @@ The exact public export identity delta is independently reconciled over both
 complete inventory JSON documents: `ControlJobResponse` under Core contracts,
 and `MethodRouteConstraint`/`method_accepts_input_contract` under Foundry; no
 export is removed. [Complete record](gy-phase5-evidence/shared/public-surface-identity-delta.json).
-The canonical sync used `--skip-deep-import-baseline`; the existing import baseline,
-exceptions, public contract, import policy and generated-family manifest remain
-byte-identical to the slice base. D4's original unmocked fresh-process import
+The canonical sync used `--skip-deep-import-baseline`; at that boundary the import
+baseline, exceptions, public contract, import policy and generated-family manifest
+were byte-identical to the slice base. D5 later retires only the independently
+measured stale baseline identity; it changes none of those policies or exceptions.
+D4's original unmocked fresh-process import
 now returns RC0 in 53.641 seconds, with the same entrypoint and bound as the
 actual recursive-lock failure. [Deciding green](gy-phase5-evidence/s3/d4-facade-python-stack-green.json).
 
@@ -567,3 +569,40 @@ verbatim command/output fences were preserved. The independent final audit
 reconciles both link parsers over all three lane documents, resolves their direct
 local targets, and reads their linked JSON evidence. Earlier missing-link audit
 records are retained as lane-document findings, now corrected.
+
+## Normal architecture guardrails: station and baseline diagnosis
+
+The unchanged normal [guardrail command](gy-phase5-evidence/shared/final-architecture-guardrails.json)
+returned RC1 in 30.315 seconds. It reported a stale deep-import baseline entry
+for `acquisition_planner → data_forge.domains.academic.knowledge` and a separate
+failure to provision its private Python. This result is not a passing freshness
+receipt; the generated-output probes had not completed. No skip flag, baseline
+absorption or substitute generated check was used.
+
+The [station probe](gy-phase5-evidence/shared/private-python-station-probe.json)
+executes the same `venv.EnvBuilder(with_pip=False)` copy operation. Its child
+reproduces SIGABRT / missing `@rpath/libpython3.14.dylib`; adding only
+`DYLD_LIBRARY_PATH` pointing to the measured original Python library directory
+makes that copied child run with exactly the same Python version. The existing
+library is `/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/libpython3.14.dylib`.
+No product source, installed dependency version, owner predicate or probe
+denominator changes. [Probe source](gy-phase5-evidence/shared/probe_private_python.py)
+and [Ruff](gy-phase5-evidence/shared/private-python-station-ruff.json) are retained.
+This is a local station remedy; home for a durable portable fix is the existing
+architecture private-environment owner, explicit nowhere active product row.
+The next normal invocation carries this environment value. Baseline provenance
+and disposition are measured separately before accepting or declining a change.
+
+The independent [complete baseline audit](gy-phase5-evidence/pr1/deep-import-baseline-audit.md)
+executes the actual owner at current and exact slice base, independently
+reconciles the entire source/import vocabulary, and retains all expected/frozen
+edge identities. Both roots have the same sole stale baseline identity and no
+new creep. The actual old import was already replaced by the supported DataForge
+`read_api` in `68689784a`. A scratch baseline rendered from the complete real
+edge set passes; reintroducing the stale edge produces the exact creep finding.
+The D5 decision therefore removes only that stale object, reducing the tolerated
+set. It does not reopen executed N7 semantics or accept a new dependency.
+The full guardrail's P41 inherited provenance remains `not_established`, since
+the focused base replay is narrower and the full source-input intersection is
+nonempty. Home: continuous architecture baseline maintenance, `@platform-owners`
+with `@tools-owners` backup; the exact tightening is owned inside this lane.

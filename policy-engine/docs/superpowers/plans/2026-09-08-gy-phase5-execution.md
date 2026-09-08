@@ -448,3 +448,41 @@ receipts parse under their own epoch. Use complete recursive/independent identit
 walks, not a two-row exception list. The same source change legitimately affects
 DS17 source-binding pins, so regenerate OpenAPI/clients once after this delta is
 reviewed; earlier source-independent tests do not need another broad run.
+
+## D5 — final guardrail ratchet companion and copied-interpreter station
+
+The unchanged normal guardrail reports a stale baseline identity and fails its
+private interpreter before generated freshness can run. These are new final
+verification findings, not reasons to narrow the gate. Root owns this decision,
+the surgical generated baseline edit and the final normal invocation. PR1's
+independent investigation owns the full current/base owner evidence.
+
+The real deep-import owner and independent file/AST enumeration agree at both
+the lane and exact slice base: the baseline contains the removed
+`polisyos.runtime.quality.acquisition_planner → polisyos.data_forge.domains.academic.knowledge`
+edge; actual source imports the existing DataForge `read_api` instead. That source
+replacement already landed in `68689784a`. There is no newly tolerated edge to
+accept. Remove only this stale object from
+`architecture/baselines/imports/deep_import.json`, surgically, as the canonical
+owner's generated ratchet companion. The tolerated set shrinks. Import rules,
+public ownership, source denominator, exception policy and executed N7 code remain
+unchanged. This is not a repair to N7's already-landed runtime behavior.
+
+Falsifier: the original stale row makes the unchanged actual owner report drift;
+after deletion its complete expected/current identities must agree, with no
+additional tolerated edge or creep. Any additional identity difference or a
+required exception would refute this bounded decision and require a separate
+measurement. P27 reuses the existing owner; P29 uses its actual whole-set output;
+P35 preserves independent complete identities. P41 inherited provenance of the
+**full** guardrail remains `not_established`: the focused base replay is not the
+full normal command and lane source changes intersect its full input set.
+
+Separately, the exact `venv.EnvBuilder(with_pip=False)` station probe reproduces
+the loader failure and fixes it solely with `DYLD_LIBRARY_PATH` pointing to the
+measured original Python 3.14.3 library directory. The copied interpreter's
+version remains identical. Carry that value into the unchanged full normal
+guardrail, with every writer frozen. No product code, locked dependency, gate
+predicate or freshness family is replaced. The source is not a new runtime path,
+so no new receipt epoch or runtime StrangleReceipt is claimed. A failing actual
+private preparation or output probe remains a failure, irrespective of this
+minimal interpreter positive.

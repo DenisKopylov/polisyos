@@ -41,6 +41,10 @@ from polisyos.scientist.methods.autotune.claim_adjudication_runtime import (
     ClaimAdjudicationRuntime,
     assert_claim_adjudication_authority_purpose,
 )
+from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+    evidence_fixture,
+    tamper_pointer,
+)
 
 
 class _FakeClient:
@@ -185,9 +189,15 @@ async def test_promoted_champion_executes_and_publishes_strong_fulltext(tmp_path
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
-    _promote_champion(store, registry)
+    evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
 
-    outcome = await ClaimAdjudicationRuntime(store=store, registry=registry).adjudicate(
+    outcome = await ClaimAdjudicationRuntime(
+        store=store,
+        registry=registry,
+        verifier=evidence.verifier,
+        evaluation_receipt_ref=evidence.evaluation_receipt_ref,
+        execution_receipt_ref=evidence.execution_receipt_ref,
+    ).adjudicate(
         raw_ref,
         client=_FakeClient(_positive_candidate()),
         model="fake-model",
@@ -208,9 +218,15 @@ async def test_model_positive_cannot_publish_abstract_only_claim(tmp_path) -> No
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store, source_basis=SourceBasis.ABSTRACT_ONLY)
-    _promote_champion(store, registry)
+    evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
 
-    outcome = await ClaimAdjudicationRuntime(store=store, registry=registry).adjudicate(
+    outcome = await ClaimAdjudicationRuntime(
+        store=store,
+        registry=registry,
+        verifier=evidence.verifier,
+        evaluation_receipt_ref=evidence.evaluation_receipt_ref,
+        execution_receipt_ref=evidence.execution_receipt_ref,
+    ).adjudicate(
         raw_ref,
         client=_FakeClient(_positive_candidate()),
         model="fake-model",
@@ -229,19 +245,26 @@ async def test_evaluation_candidate_mismatch_blocks_admission(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
-    _promote_champion(store, registry)
+    evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
     pointer = registry.get("claim_adjudication")
     assert pointer is not None
     replacement = persist_mutation_artifact(
         store,
         ClaimAdjudicationSearchConfig(passes=2),
     )
-    registry.write_pointer(
+    tamper_pointer(
+        tmp_path / "registry",
         "claim_adjudication",
         pointer.model_copy(update={"candidate_ref": replacement}),
     )
 
-    outcome = await ClaimAdjudicationRuntime(store=store, registry=registry).adjudicate(
+    outcome = await ClaimAdjudicationRuntime(
+        store=store,
+        registry=registry,
+        verifier=evidence.verifier,
+        evaluation_receipt_ref=evidence.evaluation_receipt_ref,
+        execution_receipt_ref=evidence.execution_receipt_ref,
+    ).adjudicate(
         raw_ref,
         client=_FakeClient(_positive_candidate()),
         model="fake-model",
@@ -256,7 +279,8 @@ async def test_required_guardrail_false_blocks_admission(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
-    _, evaluation_ref = _promote_champion(store, registry)
+    evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
+    evaluation_ref = evidence.evaluation_ref
     pointer = registry.get("claim_adjudication")
     assert pointer is not None
     evaluation = BenchmarkEvaluation.model_validate(
@@ -268,21 +292,26 @@ async def test_required_guardrail_false_blocks_admission(tmp_path) -> None:
         store,
         evaluation.model_copy(update={"guardrails": guardrails}),
     )
-    registry.write_pointer(
+    tamper_pointer(
+        tmp_path / "registry",
         "claim_adjudication",
         pointer.model_copy(update={"evaluation_ref": rejected_ref}),
     )
 
-    outcome = await ClaimAdjudicationRuntime(store=store, registry=registry).adjudicate(
+    outcome = await ClaimAdjudicationRuntime(
+        store=store,
+        registry=registry,
+        verifier=evidence.verifier,
+        evaluation_receipt_ref=evidence.evaluation_receipt_ref,
+        execution_receipt_ref=evidence.execution_receipt_ref,
+    ).adjudicate(
         raw_ref,
         client=_FakeClient(_positive_candidate()),
         model="fake-model",
     )
 
     assert outcome.status == "blocked"
-    assert outcome.blockers == (
-        "claim_adjudication_guardrail_failed:abstract_only_publishable_fp_rate_zero",
-    )
+    assert outcome.blockers == ("claim_adjudication_promotion_basis_pointer_mismatch",)
 
 
 @pytest.mark.asyncio
@@ -290,12 +319,18 @@ async def test_tampered_raw_blob_is_rejected_before_execution(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
-    _promote_champion(store, registry)
+    evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
     blob_path, _ = store.get_paths(raw_ref.artifact_id)
     blob_path.write_bytes(b"{}")
     client = _FakeClient(_positive_candidate())
 
-    outcome = await ClaimAdjudicationRuntime(store=store, registry=registry).adjudicate(
+    outcome = await ClaimAdjudicationRuntime(
+        store=store,
+        registry=registry,
+        verifier=evidence.verifier,
+        evaluation_receipt_ref=evidence.evaluation_receipt_ref,
+        execution_receipt_ref=evidence.execution_receipt_ref,
+    ).adjudicate(
         raw_ref,
         client=client,
         model="fake-model",
@@ -311,8 +346,14 @@ async def test_execution_result_cannot_be_presented_as_validity_evidence(tmp_pat
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
-    _promote_champion(store, registry)
-    outcome = await ClaimAdjudicationRuntime(store=store, registry=registry).adjudicate(
+    evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
+    outcome = await ClaimAdjudicationRuntime(
+        store=store,
+        registry=registry,
+        verifier=evidence.verifier,
+        evaluation_receipt_ref=evidence.evaluation_receipt_ref,
+        execution_receipt_ref=evidence.execution_receipt_ref,
+    ).adjudicate(
         raw_ref,
         client=_FakeClient(_positive_candidate()),
         model="fake-model",
@@ -335,14 +376,17 @@ async def test_scientist_cli_route_executes_real_transport_and_materializes_rece
 ) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
-    config, _ = _input_ref(tmp_path, store)
-    _promote_champion(store, registry)
+    config, raw_ref = _input_ref(tmp_path, store)
+    evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
 
     metrics = await run_claim_adjudication_command(
         config,
         client=_FakeClient(_positive_candidate()),
         store=store,
         registry=registry,
+        verifier=evidence.verifier,
+        evaluation_receipt_ref=evidence.evaluation_receipt_ref,
+        execution_receipt_ref=evidence.execution_receipt_ref,
     )
 
     assert metrics == {"claims": 1, "published": 1}

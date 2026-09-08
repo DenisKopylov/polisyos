@@ -225,3 +225,22 @@ def test_ir_index_links_public_surface_reference() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     index_page = repo_root / "docs" / "reference" / "ir" / "index.md"
     assert "[Public Surface](public-surface.md)" in index_page.read_text(encoding="utf-8")
+
+
+def test_analytics_facade_exports_existing_adjudication_contracts() -> None:
+    """Resolve the actual existing runtime types through the supported facade."""
+    from polisyos.ir.analytics import literature
+
+    names = (
+        "AdmittedClaimAdjudicationBatch",
+        "CausalCredibility",
+        "ClaimAdjudicationInputBatch",
+        "ClaimAdjudicationInputItem",
+        "ClaimAdjudicationResult",
+        "ClaimType",
+        "RiskOfBias",
+        "SupportStatus",
+    )
+    for name in names:
+        assert getattr(analytics, name) is getattr(literature, name)
+        assert name in analytics.__all__

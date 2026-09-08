@@ -11,12 +11,16 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import (
     load_verified_claim_adjudication_rows,
+    resolve_current_claim_adjudication,
 )
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+        ClaimAdjudicationVerifier,
+    )
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 _CONTESTED_DIRECTIONS = {"positive", "negative"}
@@ -105,11 +109,13 @@ def _resolution_for_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
+def run_conflict_resolve(
+    config: AcademicBatchConfig, *, verifier: ClaimAdjudicationVerifier | None = None
+) -> dict[str, int]:
     """Run conflict resolve."""
     started_at = datetime.now(UTC).isoformat()
     claim_rows = _claim_rows(config)
-    adjudications = load_verified_claim_adjudication_rows(config)
+    adjudications = load_verified_claim_adjudication_rows(config, verifier=verifier)
     if not claim_rows:
         write_stage_manifest(
             manifest_path=config.manifests_dir / "conflict_resolve.json",
@@ -156,8 +162,7 @@ def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
         supported_claims = 0
         best_confidence = 0.0
         for row in rows:
-            claim_id = str(row.get("claim_id") or "").strip()
-            adjudication = adjudications.get(claim_id, {})
+            adjudication = resolve_current_claim_adjudication(adjudications, claim=row) or {}
             if bool(adjudication.get("publishable_edge")):
                 publishable_claims += 1
             if str(adjudication.get("support_status") or "").strip().lower() == "supported":

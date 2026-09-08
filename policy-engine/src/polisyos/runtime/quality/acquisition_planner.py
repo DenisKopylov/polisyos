@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import weakref
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -37,7 +38,46 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.data_forge.read_api import academic
     from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.production_grounding_calibration import (
+        ProductionCG2CalibrationSource,
+        SourceGroundingRequest,
+    )
+
+_VERIFIED_SOURCE_EMISSIONS: dict[int, tuple[weakref.ReferenceType, bytes, object]] = {}
+_VERIFIED_RECEIPT_EMISSIONS: dict[int, tuple[weakref.ReferenceType, bytes, object]] = {}
+_UNSPECIFIED_EMISSION_CONTEXT = object()
+
+
+def _canonical_model_bytes(model: BaseModel) -> bytes:
+    return json.dumps(
+        model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode()
+
+
+def _seal_emission(model: BaseModel, registry: dict, context: object = None) -> None:
+    identity = id(model)
+
+    def release(reference: weakref.ReferenceType) -> None:
+        current = registry.get(identity)
+        if current is not None and current[0] is reference:
+            registry.pop(identity, None)
+
+    registry[identity] = (weakref.ref(model, release), _canonical_model_bytes(model), context)
+
+
+def _emission_is_sealed(
+    model: BaseModel, registry: dict, context: object = _UNSPECIFIED_EMISSION_CONTEXT
+) -> bool:
+    stored = registry.get(id(model))
+    return bool(
+        stored is not None
+        and stored[0]() is model
+        and stored[1] == _canonical_model_bytes(model)
+        and (context is _UNSPECIFIED_EMISSION_CONTEXT or stored[2] == context)
+    )
+
 
 ACQUISITION_PLANNER_SCHEMA_VERSION = "policyos.runtime.acquisition_planner.v1"
 ACQUISITION_PLANNER_KIND = "runtime.acquisition_planner_report"
@@ -1152,7 +1192,13 @@ class AcquisitionStrangleReceipt(BaseModel):
 
 
 class AcquisitionReceipt(BaseModel):
-    """Durable content-bound receipt for an N7 acquisition execution and N6 re-entry."""
+    """N7 execution projection; raw/deserialized bytes require current-context replay.
+
+    The private emission seal binds complete bytes to this producer execution.
+    It neither authenticates external institutions nor survives serialization.
+    Replay recorded artifacts through the configured source owner and current
+    request/world to obtain a freshly verified emission before N6 consumption.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -1215,6 +1261,7 @@ class RecordedAcquisitionOwnerGateway:
         self,
         *,
         artifacts_by_requirement: Mapping[str, AcquisitionOwnerArtifact | Mapping[str, Any]],
+        skg_calibration_source: ProductionCG2CalibrationSource | None = None,
     ) -> None:
         self._artifacts = {
             str(key): (
@@ -1224,6 +1271,7 @@ class RecordedAcquisitionOwnerGateway:
             )
             for key, value in artifacts_by_requirement.items()
         }
+        self._skg_calibration_source = skg_calibration_source
 
     def acquire(
         self,
@@ -1233,9 +1281,16 @@ class RecordedAcquisitionOwnerGateway:
     ) -> AcquisitionOwnerArtifact | None:
         """Replay a recorded owner artifact by compiled requirement ref."""
 
-        del compiled_requirement_spec
         ref = record.compiled_requirement_ref or record.requirement_gap_ref or record.gap_id
-        return self._artifacts.get(str(ref))
+        artifact = self._artifacts.get(str(ref))
+        if artifact is None:
+            return None
+        return _admit_source_artifact(
+            artifact=artifact,
+            record=record,
+            spec=compiled_requirement_spec,
+            source_owner=self._skg_calibration_source,
+        )
 
 
 class RealAcquisitionOwnerGateway:
@@ -1255,12 +1310,15 @@ class RealAcquisitionOwnerGateway:
         allow_openalex_network: bool = False,
         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
         captured_at: datetime | None = None,
+        skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
         self._repo_root = Path(repo_root)
         self._network_counter = network_counter or AcquisitionNetworkCallCounter()
         self._allow_openalex_network = bool(allow_openalex_network)
         self._dataset_catalog_factory = dataset_catalog_factory
         self._captured_at = _utc(captured_at)
+        self._skg_source_snapshot = skg_source_snapshot
+        self._skg_calibration_source: ProductionCG2CalibrationSource | None = None
 
     @property
     def network_counter(self) -> AcquisitionNetworkCallCounter:
@@ -1373,30 +1431,45 @@ class RealAcquisitionOwnerGateway:
         record: AcquisitionActionRecord,
         spec: Mapping[str, Any],
     ) -> AcquisitionOwnerArtifact | None:
-        import duckdb
-
-        from polisyos.data_forge.domains.academic.knowledge import skg_store
-
-        families = _required_families_for_spec(spec)
-        if not families:
-            return None
-        con = duckdb.connect(":memory:")
-        try:
-            skg_store.ensure_skg_schema(con)
-            tables = con.execute("SHOW TABLES").fetchall()
-        finally:
-            con.close()
-        payload = _fabric_response_payload(
-            spec=spec,
-            response={
-                "owner_response_kind": "skg_local_schema_probe",
-                "table_count": len(tables),
-                "families": families,
-            },
+        from polisyos.data_forge.read_api import academic
+        from polisyos.runtime.quality.production_grounding_calibration import (
+            ProductionCG2CalibrationSource,
         )
-        return _artifact_from_owner_response(
+        from polisyos.runtime.quality.substrate_registry import DEFAULT_L2_SCHOLAR_KG_PATH
+
+        source = self._skg_source_snapshot
+        if source is None:
+            path = self._repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
+            if path.is_file():
+                with path.open("rb") as stream:
+                    digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                source = academic.SourceSnapshot(
+                    path=path, reference=f"duckdb://{path.resolve()}", sha256=digest
+                )
+        request = _source_grounding_request(record, spec)
+        owner = ProductionCG2CalibrationSource(
+            source=source,
+            store=artifacts.FileSystemCAS(self._repo_root / ".n7-live-cas"),
+            scratch=self._repo_root / ".n7-live-cas" / "source-query-scratch",
+        )
+        self._skg_calibration_source = owner
+        ref = owner.produce(request)
+        resolution = owner.replay(ref=ref, request=request)
+        response = {
+            "owner_response_kind": "skg_exact_request_source_resolution",
+            "resolution_ref": ref.model_dump(mode="json"),
+            "resolution": resolution.model_dump(mode="json"),
+        }
+        payload = {
+            "owner_response_kind": "real_owner_capture",
+            "owner_response": response,
+            "raw_owner_response_hash": _stable_content_hash(response),
+            "acquired_substrate_registrations": [],
+            "candidate_bindings": [],
+        }
+        artifact = _artifact_from_owner_response(
             owner_component="data_forge.skg",
-            owner_endpoint="skg_store.ensure_skg_schema",
+            owner_endpoint="ProductionCG2CalibrationSource.produce/replay",
             record=record,
             spec=spec,
             payload=payload,
@@ -1404,6 +1477,10 @@ class RealAcquisitionOwnerGateway:
             network_call=False,
             cost_usd=0.0,
         )
+        _seal_emission(
+            artifact, _VERIFIED_SOURCE_EMISSIONS, (owner, _canonical_model_bytes(request))
+        )
+        return artifact
 
     def _capture_openalex(
         self,
@@ -1453,6 +1530,108 @@ class RealAcquisitionOwnerGateway:
             network_call=True,
             cost_usd=0.0,
         )
+
+
+def _source_grounding_request(
+    record: AcquisitionActionRecord, spec: Mapping[str, Any]
+) -> SourceGroundingRequest:
+    from polisyos.runtime.quality.production_grounding_calibration import SourceGroundingRequest
+
+    context = spec.get("runtime_grounding_context")
+    context = context if isinstance(context, Mapping) else {}
+    return SourceGroundingRequest.model_validate_json(
+        json.dumps(
+            {
+                "requirement_ref": str(record.compiled_requirement_ref or record.gap_id),
+                "claim_ref": spec.get("claim_ref") or spec.get("claim_id"),
+                "compiled_requirement": {
+                    key: value for key, value in spec.items() if key != "runtime_grounding_context"
+                },
+                "design_problem": context.get("design_problem"),
+                "world_snapshot": context.get("world_snapshot"),
+            },
+            allow_nan=False,
+        )
+    )
+
+
+def _admit_source_artifact(
+    *,
+    artifact: AcquisitionOwnerArtifact,
+    record: AcquisitionActionRecord,
+    spec: Mapping[str, Any],
+    source_owner: ProductionCG2CalibrationSource | None,
+) -> AcquisitionOwnerArtifact:
+    from polisyos.runtime.quality.production_grounding_calibration import (
+        ProductionCG2CalibrationSource,
+        UnverifiedSourceGroundingRefusal,
+    )
+
+    expected_owner = _owner_component_for_record(record, spec)
+    if expected_owner != "data_forge.skg" and not artifact.owner_component.startswith(
+        "data_forge.skg"
+    ):
+        return artifact
+    request = _source_grounding_request(record, spec)
+    context = (source_owner, _canonical_model_bytes(request))
+    reasons: list[str] = []
+    if artifact.owner_component != "data_forge.skg" or expected_owner != "data_forge.skg":
+        reasons.append("source_capture_expected_owner_route_mismatch")
+    if type(source_owner) is not ProductionCG2CalibrationSource:
+        reasons.append("source_capture_replay_context_unavailable")
+    if not reasons:
+        try:
+            response = artifact.payload["owner_response"]
+            ref = artifacts.ArtifactRef.model_validate(response["resolution_ref"])
+            current = source_owner.replay(ref=ref, request=request)
+            expected_response = {
+                "owner_response_kind": "skg_exact_request_source_resolution",
+                "resolution_ref": ref.model_dump(mode="json"),
+                "resolution": current.model_dump(mode="json"),
+            }
+            expected_payload = {
+                "owner_response_kind": "real_owner_capture",
+                "owner_response": expected_response,
+                "raw_owner_response_hash": _stable_content_hash(expected_response),
+                "acquired_substrate_registrations": [],
+                "candidate_bindings": [],
+            }
+            if artifact.requirement_ref != request.requirement_ref or _stable_content_hash(
+                artifact.payload
+            ) != _stable_content_hash(expected_payload):
+                raise ValueError("source_capture_complete_emission_mismatch")
+        except (KeyError, TypeError, ValueError, OSError) as exc:
+            reasons.append(f"source_capture_replay_refused:{type(exc).__name__}:{exc}")
+    if reasons:
+        refusal = UnverifiedSourceGroundingRefusal(
+            request=request,
+            submitted_artifact_ref=artifact.artifact_ref,
+            submitted_content_hash=artifact.content_hash,
+            refusal_reasons=tuple(reasons),
+        )
+        response = {
+            "owner_response_kind": "skg_unverified_source_refusal",
+            "refusal": refusal.model_dump(mode="json"),
+        }
+        expected_payload = {
+            "owner_response_kind": "real_owner_capture",
+            "owner_response": response,
+            "raw_owner_response_hash": _stable_content_hash(response),
+            "acquired_substrate_registrations": [],
+            "candidate_bindings": [],
+        }
+    emitted = _artifact_from_owner_response(
+        owner_component="data_forge.skg",
+        owner_endpoint="N7.current_context_source_admission",
+        record=record,
+        spec=spec,
+        payload=expected_payload,
+        captured_at=_utc(None),
+        network_call=False,
+        cost_usd=artifact.cost_usd,
+    )
+    _seal_emission(emitted, _VERIFIED_SOURCE_EMISSIONS, context)
+    return emitted
 
 
 class _RankedVOI(BaseModel):
@@ -1857,10 +2036,7 @@ def run_acquisition_closed_loop(
     counter = network_counter or getattr(gateway, "network_counter", None)
     if not isinstance(counter, AcquisitionNetworkCallCounter):
         counter = AcquisitionNetworkCallCounter()
-    spec_by_ref = {
-        str(spec.get("requirement_id") or spec.get("data_requirement_id")): spec
-        for spec in specs
-    }
+    spec_by_ref = {_requirement_id(spec): spec for spec in specs}
     owner_artifacts: list[AcquisitionOwnerArtifact] = []
     journal_entries: list[AcquisitionJournalEntry] = []
     fail_closed: list[str] = []
@@ -1881,7 +2057,12 @@ def run_acquisition_closed_loop(
                 )
             )
             continue
-        artifact = gateway.acquire(record=record, compiled_requirement_spec=spec)
+        owner_spec = dict(spec)
+        owner_spec["runtime_grounding_context"] = {
+            "design_problem": design_problem.model_dump(mode="json") if design_problem else None,
+            "world_snapshot": world.model_dump(mode="json"),
+        }
+        artifact = gateway.acquire(record=record, compiled_requirement_spec=owner_spec)
         if artifact is None:
             reason = f"owner_artifact_missing:{requirement_ref}"
             fail_closed.append(reason)
@@ -1894,6 +2075,16 @@ def run_acquisition_closed_loop(
                 )
             )
             continue
+        artifact = _admit_source_artifact(
+            artifact=artifact,
+            record=record,
+            spec=owner_spec,
+            source_owner=(
+                gateway._skg_calibration_source
+                if type(gateway) in {RealAcquisitionOwnerGateway, RecordedAcquisitionOwnerGateway}
+                else None
+            ),
+        )
         owner_artifacts.append(artifact)
         journal_entries.append(
             AcquisitionJournalEntry(
@@ -1993,7 +2184,18 @@ def run_acquisition_closed_loop(
         },
         network_call_count=counter.network_calls,
     )
+    _seal_emission(receipt, _VERIFIED_RECEIPT_EMISSIONS)
     return receipt
+
+
+def acquisition_receipt_has_verified_emission(receipt: AcquisitionReceipt) -> bool:
+    """Require complete bytes from current owner execution, not a self-issued hash.
+
+    This checks our recomputed emission, not an external institutional signature.
+    Deserialized receipts must be replayed through ``run_acquisition_closed_loop``
+    with the deployment's owner context and current request/world before use.
+    """
+    return _emission_is_sealed(receipt, _VERIFIED_RECEIPT_EMISSIONS)
 
 
 def validate_acquisition_receipt(
@@ -2010,6 +2212,8 @@ def validate_acquisition_receipt(
     except ValueError as exc:
         return ({"code": "acquisition_receipt_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
+    if not acquisition_receipt_has_verified_emission(normalized):
+        issues.append({"code": "acquisition_receipt_current_context_replay_unavailable"})
     if normalized.compiled_spec_count != len(normalized.compiled_requirement_specs):
         issues.append({"code": "acquisition_compiled_first_gap_only"})
     if len(normalized.planner_report.acquisition_records) != len(
@@ -2410,7 +2614,7 @@ def _required_families_by_requirement_ref(
 ) -> dict[str, tuple[str, ...]]:
     by_ref: dict[str, tuple[str, ...]] = {}
     for spec in specs:
-        ref = str(spec.get("requirement_id") or spec.get("data_requirement_id") or "")
+        ref = _requirement_id(spec)
         if ref:
             by_ref[ref] = _text_tuple(spec.get("required_data_families"))
     return by_ref
@@ -2442,14 +2646,23 @@ def _owner_artifact_validation_issues(artifact: AcquisitionOwnerArtifact) -> tup
     raw_owner_response = artifact.payload.get("owner_response")
     raw_owner_response_hash = artifact.payload.get("raw_owner_response_hash")
     owner_response_kind = artifact.payload.get("owner_response_kind")
-    raw_response_hash_mismatch = (
-        not isinstance(raw_owner_response, Mapping)
-        or raw_owner_response_hash != _stable_content_hash(raw_owner_response)
-    )
+    raw_response_hash_mismatch = not isinstance(
+        raw_owner_response, Mapping
+    ) or raw_owner_response_hash != _stable_content_hash(raw_owner_response)
     if _is_real_owner_component(artifact.owner_component) and (
         owner_response_kind != "real_owner_capture" or raw_response_hash_mismatch
     ):
         issues.append("provenance_not_recomputable_from_real_owner_response")
+    if artifact.owner_component.startswith("data_forge.skg"):
+        # The complete payload must come from current-context source replay.
+        # No producer label, renamed response kind or partial DTO grants this.
+        if not _emission_is_sealed(artifact, _VERIFIED_SOURCE_EMISSIONS):
+            issues.append("skg_source_resolution_not_replayed")
+        if (
+            isinstance(raw_owner_response, Mapping)
+            and raw_owner_response.get("owner_response_kind") == "skg_unverified_source_refusal"
+        ):
+            issues.append("skg_source_resolution_unverified")
     return tuple(_dedupe_text(issues))
 
 
@@ -2590,6 +2803,12 @@ def _owner_component_for_record(
     record: AcquisitionActionRecord,
     spec: Mapping[str, Any],
 ) -> str:
+    if spec.get("schema_version") == "policyos.runtime.acquisition_requirement_gap.v1":
+        gap = AcquisitionRequirementGap.model_validate(
+            {key: value for key, value in spec.items() if key != "runtime_grounding_context"}
+        )
+        if gap.metadata.get("source") == _VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE:
+            return "data_forge.skg"
     expected = str(record.producer_expected or "")
     if "scholar" in expected or spec.get("required_publication_tier"):
         return "data_forge.openalex"
@@ -3091,7 +3310,11 @@ def requirement_gaps_from_compiled_specs(
 
     gaps: list[AcquisitionRequirementGap] = []
     for spec in data_requirement_specs:
-        gaps.append(_data_requirement_gap(_spec_payload(spec)))
+        payload = _spec_payload(spec)
+        if payload.get("schema_version") == "policyos.runtime.acquisition_requirement_gap.v1":
+            gaps.append(AcquisitionRequirementGap.model_validate(payload))
+        else:
+            gaps.append(_data_requirement_gap(payload))
     for spec in legal_authority_requirement_specs:
         payload = _spec_payload(spec)
         if _bool(payload.get("out_of_scope")) or not _bool(payload.get("mandatory"), True):
@@ -4828,6 +5051,7 @@ def _requirement_id(payload: Mapping[str, Any]) -> str:
         or payload.get("data_requirement_id")
         or payload.get("method_requirement_ref")
         or payload.get("legal_requirement_ref")
+        or payload.get("compiled_requirement_ref")
     )
 
 
@@ -5130,6 +5354,7 @@ __all__ = [
     "acquisition_gaps_from_capability_failure_modes",
     "acquisition_planner_reports_from_quality_evidence",
     "acquisition_planner_scorecard_gates",
+    "acquisition_receipt_has_verified_emission",
     "acquisition_report_deficit_records",
     "acquisition_report_inputs",
     "acquisition_request_from_world_acquirable",

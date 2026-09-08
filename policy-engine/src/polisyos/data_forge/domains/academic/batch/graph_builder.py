@@ -13,7 +13,10 @@ import duckdb
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import (
+    VerifiedClaimAdjudicationRows,
     load_verified_claim_adjudication_rows,
+    require_verified_claim_adjudication_rows,
+    resolve_current_claim_adjudication,
 )
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
@@ -47,6 +50,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+        ClaimAdjudicationVerifier,
+    )
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
@@ -378,13 +384,13 @@ def _admitted_claim_parts(
 
 def _load_claim_adjudications(
     path: Path | None,
-    admitted_rows: dict[str, dict[str, Any]] | None,
-) -> dict[str, dict[str, Any]]:
+    admitted_rows: VerifiedClaimAdjudicationRows | None,
+) -> VerifiedClaimAdjudicationRows | None:
     if admitted_rows is not None:
-        return dict(admitted_rows)
+        return require_verified_claim_adjudication_rows(admitted_rows)
     if path is not None and path.exists() and path.stat().st_size:
         raise ValueError("claim adjudication rows require an admitted CAS receipt")
-    return {}
+    return None
 
 
 def _load_rows_grouped_by_openalex_id(path: Path | None) -> dict[str, list[dict[str, Any]]]:
@@ -1033,10 +1039,12 @@ def load_graph(
     topics_catalog_path: Path | None = None,
     ingest_errors_path: Path | None = None,
     claim_adjudications_path: Path | None = None,
-    admitted_claim_adjudications: dict[str, dict[str, Any]] | None = None,
+    admitted_claim_adjudications: VerifiedClaimAdjudicationRows | None = None,
     simulation_ready_numeric_path: Path | None = None,
 ) -> GraphStats:
     """Load records into DuckDB tables (without creating indexes)."""
+    if admitted_claim_adjudications is not None:
+        require_verified_claim_adjudication_rows(admitted_claim_adjudications)
     stats = GraphStats()
     con = duckdb.connect(str(db_path))
 
@@ -1118,8 +1126,7 @@ def load_graph(
 
         for record in records:
             admitted_claims = [
-                _admitted_claim_parts(claim_transport)
-                for claim_transport in record.causal_claims
+                _admitted_claim_parts(claim_transport) for claim_transport in record.causal_claims
             ]
             work_batch.append(
                 (
@@ -1220,9 +1227,7 @@ def load_graph(
                         design_tier,
                         bool(claim.get("publish_to_graph") or False),
                         "; ".join(
-                            str(v)
-                            for v in (claim.get("publish_blockers") or [])
-                            if str(v).strip()
+                            str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()
                         ),
                         bool(claim.get("span_contamination_detected") or False),
                         claim.get("mechanism", ""),
@@ -1230,16 +1235,16 @@ def load_graph(
                         record.trust_score,
                     )
                 )
-                adjudication = claim_adjudications.get(cid)
+                adjudication = resolve_current_claim_adjudication(
+                    claim_adjudications,
+                    claim=claim,
+                    work=record.model_dump(mode="json"),
+                )
                 publishable = False
                 published_trust = float(record.trust_score)
                 if adjudication:
-                    adjudicated_design_family = str(
-                        adjudication.get("design_family") or ""
-                    ).strip()
-                    recalculated_tier = _design_quality_tier_from_family(
-                        adjudicated_design_family
-                    )
+                    adjudicated_design_family = str(adjudication.get("design_family") or "").strip()
+                    recalculated_tier = _design_quality_tier_from_family(adjudicated_design_family)
                     if recalculated_tier is not None:
                         design_tier = recalculated_tier
                     claim_adjudication_batch.append(
@@ -1601,10 +1606,13 @@ def load_graph(
                 if bool(record.is_retracted):
                     continue
                 cid = _claim_id(record.id, claim)
-                adjudication = claim_adjudications.get(cid)
+                adjudication = resolve_current_claim_adjudication(
+                    claim_adjudications,
+                    claim=claim,
+                    work=record.model_dump(mode="json"),
+                )
                 publishable = bool(
-                    adjudication is not None
-                    and adjudication.get("publishable_edge")
+                    adjudication is not None and adjudication.get("publishable_edge")
                 )
                 if not publishable:
                     continue
@@ -1662,9 +1670,7 @@ def load_graph(
                 if design_hint:
                     payload["design_family_hints"].append(design_hint)  # type: ignore[index]
                 payload["claim_confidences"].append(
-                    float(
-                        vocabulary_values["claim_extraction_confidence"] or 0.0
-                    )
+                    float(vocabulary_values["claim_extraction_confidence"] or 0.0)
                 )  # type: ignore[index]
                 payload["publish_blockers"].extend(claim.get("publish_blockers") or [])  # type: ignore[index]
                 payload["strong_design_flags"].append(
@@ -1799,7 +1805,9 @@ def build_indexes(db_path: Path) -> None:
         con.close()
 
 
-def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
+def run_graph_load(
+    config: AcademicBatchConfig, *, verifier: ClaimAdjudicationVerifier | None = None
+) -> GraphStats:
     """Run graph load."""
     started_at = datetime.now(UTC).isoformat()
 
@@ -1826,7 +1834,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
         ensure_ascii=False,
     )
 
-    admitted_claim_adjudications = load_verified_claim_adjudication_rows(config)
+    admitted_claim_adjudications = load_verified_claim_adjudication_rows(config, verifier=verifier)
     stats = load_graph(
         records=_iter_records(),
         db_path=config.db_path,
@@ -1876,9 +1884,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
             "skg_simulation_parameters": stats.skg_simulation_parameters,
             "skg_versions": stats.skg_versions,
             "schema_generation": skg_schema_generation_basis().to_dict(),
-            "materialized_schema_identity": skg_materialized_schema_identity(
-                config.db_path
-            ),
+            "materialized_schema_identity": skg_materialized_schema_identity(config.db_path),
             "json_validation_failures": stats.json_validation_failures,
         },
         artifacts=[config.db_path],
@@ -1908,7 +1914,7 @@ def build_graph(
     db_path: Path,
     insert_batch_size: int = 10_000,
     claim_adjudications_path: Path | None = None,
-    admitted_claim_adjudications: dict[str, dict[str, Any]] | None = None,
+    admitted_claim_adjudications: VerifiedClaimAdjudicationRows | None = None,
 ) -> GraphStats:
     """Build graph."""
     stats = load_graph(

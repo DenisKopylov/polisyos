@@ -886,6 +886,5710 @@ print(json.dumps({"before": sorted(before_ids), "after": sorted(after_ids),
 raise SystemExit(1 if after else 0)
 ```
 
+## Continuation — extended DataForge grant
+
+The architect's continuation closes the 21-row census and adopts the previous
+investigation. Those settled findings and the stale branch are not remeasured.
+The current prompt is the specification; DEBT-REGISTER/LEDGER are neither read nor
+used to verify this continuation, and their checker remains prohibited.
+
+Entry branch was clean at `d4ba9901cbcb29e5d27a71dac7b359b28fe1adec`.
+Local `main` was `58f8073e44f44519003b5b10c1ccf0d38d7de43a`, one transcription
+commit beyond the prompt's `5df4b16e4`; ancestry was verified first. The requested
+`git merge main` fast-forwarded the existing branch to that commit. This is the
+continuation measurement base, not a retroactive replacement of the original
+slice base for P41. No rebase, stash, push or stale-ref change. Auxiliary worktrees:
+none added at continuation entry.
+
+### Investigation hypotheses, recorded before new measurements
+
+- **Adjudication:** the previous dual-entry forgery is accepted evidence. With
+  DataForge granted, one non-producing verifier can own signed observation-bound
+  evaluation and champion replay, with both Scientist and direct DataForge intake
+  consuming it. DataForge may not import Scientist; pure arithmetic must be
+  extracted to the lower owner and reused, not copied or supplied as a claimant
+  callback. Deployment appointment stays typed-empty. Test both entry paths and
+  remove substantive verification while keeping receipt markers.
+- **PA1 upstream:** a certified SKG bridge is buildable only if available stored
+  evidence establishes canonical variables, independently admitted source/effect
+  support, target scope and numeric uncertainty. Investigate complete relevant
+  local artifact/table populations before choosing implementation or a measured
+  input gap. Confidence, a compatible schema or a newly named receipt cannot
+  substitute for those predicates. The already tested S8 mechanism is retained.
+- **DEF22:** the lock resolver appears to collapse a universal lock by package
+  name before edge marker/version/source can select its applicable identity.
+  Traverse selected identities and fail on actual unresolved ambiguity; do not
+  let out-of-closure duplicates decide the diagnostic. Independently trace the
+  frozen owner pin to exact source bytes without weakening digest equality.
+  Acceptance here means that the original five tests reach their intended
+  assertions; a resulting substantive failure is reported separately.
+- **Acquisition facade:** all nine bound objects used by the three offending
+  import statements are already exported from `polisyos.core.artifacts`.
+  Hypothesis: resolving them through that facade preserves consumer behavior and
+  removes the three actual import edges without changing a baseline. A runtime
+  rebind probe will substitute the facade exports and reload the real consumer;
+  restoring private imports should fail that probe with all symbols still present.
+  The architect supplies Atlas's inherited attribution; no new attribution census
+  is needed here.
+
+Pattern pass: P31/P32/P37/P38 govern the shared grade intake; P01/P02 distinguish a
+working producer from an ungrounded carrier; P35 requires complete input sets;
+P40 forbids a per-escape repair ladder; P41 keeps the original slice base for any
+new inherited-red assertion. Source ownership is disjoint across adjudication,
+academic knowledge/SKG, Foundry dependency-profile, and the coordinator's one HTTP
+module. Shared CAS/DuckDB writes and governed artifacts will be serialized if met.
+Targeted module-form gates only, with local `.venv/bin` first in PATH for literal
+`python3` children. Root integrates, commits clean boundaries and reads back from
+the branch. Institutional absence limits output authority, never engineering work.
+
+### GGA-FACADE-02 — inherited import edges repaired through the existing facade
+
+The architect's continuation supplies the inherited attribution from Atlas:
+canonical finding identity differences `main_only=[]`, `base_only=[]`, with the
+stated 2,626-member denominator and empty changed-path intersection. This is an
+accepted handoff, not a new attribution proof invented here.
+
+Fresh scoped source enumeration walks the complete AST of
+`runtime/http/services/acquisition_admission_bundle.py` (one Python file): the
+three private import statements bind nine symbols. All nine are in the complete
+`core/artifacts/__init__.py` `__all__`; missing-export identity set is empty.
+The repair resolves that exact symbol set through `polisyos.core.artifacts`.
+No baseline or exception is changed.
+
+New regression `test_acquisition_producer_resolves_artifact_dependencies_through_facade`
+observes actual Python import requests while loading the real consumer in an
+isolated child using `sys.executable`. Before repair: **exit 1, one failed,
+25.71 s**, with the complete unexpected set `manifest`, `signing`,
+`write_contract` beneath `polisyos.core.artifacts`. After repair, its gate plus
+all six existing acquisition admission integration tests: **exit 0, seven
+passed, 23.30 s**. Empty signer, wrong purpose/resource, incomplete denominator,
+trusted signed readback and untrusted signer behavior are exercised unchanged.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m pytest tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py tests/integration/core_runtime/test_acquisition_admission_bundle.py -q --override-ini addopts=''
+```
+
+Actual removal control replays only this consumer's pre-facade source from the
+continuation base in an isolated loader. Its markers, types and business code
+remain; no worktree file or branch is reverted. The same runtime probe returns
+**exit 1** and the exact three private import identities again. Ruff passes both
+changed paths. Whole architecture finding sets will be read at final integration.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.facade_removal_probe
+```
+
+### GGA-DEF22-04 — universal-lock identities, before the pin reissue
+
+Fresh original five-node replay at unchanged continuation source: **five failed,
+23.65 s, exit 1**. CB-I01 stops at `DigestPredicateMismatch`; the other four at
+`selected_lock_graph`. The lock-file population is 418 complete package rows and
+1,140 dependency edges; 16 edges request extras. These are graph coordinates, not
+an assumption that package names are unique across a universal lock.
+
+The canonical Foundry reducer now retains all candidates by name and resolves
+selected edges by exact version/source plus declared edge/row markers. A selected
+edge must resolve uniquely; conflicting selected identities, malformed selected
+rows or missing marker inputs refuse. It traverses requested transitive extras
+even when their package was previously seen. Out-of-closure alternatives no
+longer veto the selected graph. Marker values remain declared, content-bound
+inputs; no ambient platform observation is substituted. Digest equality and the
+owner's frozen-source equality guard remain intact.
+
+The first novel-lock wave was **eight failed, three passed, 214 deselected,
+24.55 s**, before repair. Final focused identity/marker wave: **16 passed,
+212 deselected, 24.99 s, exit 0**. Root independently reviewed the complete source
+and mirrored-test delta. The mechanism's removal probe erases incoming edge
+identity while retaining source SHA, schema and rule markers: **exit 1, two
+failed and two passed, 8.57 s**. Restored fresh-process control: **exit 0, four
+passed, one observed warning, 7.52 s**.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" GY_DEF22_REMOVE_LOCK_IDENTITY=1 PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.def22_lock_removal_probe
+```
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.def22_lock_removal_probe
+```
+
+Two original CB tests now pass completely; the other two diagnostic tests reach
+and pass their torch/profile assertions, then stop at the correctly enforced
+uncommitted-source guard before consumer-byte assertions. A source commit is the
+next prerequisite. The fifth test still needs the pin repair. This is **not yet
+five-test closure** and no appointed acceptance is supplied.
+
+A concrete, owner-decoded surgical pin proposal is prepared at
+`_build/gy_grade_authority/def22-owner-pins.proposed.patch`: two current file
+hashes in `architecture/production_quality/method_catalog_dependency_profiles.toml`
+and two derived declaration identity fields in
+`method_catalog_dependency_authority.toml`. Both are outside the prompt's write
+list; the coordinator requested explicit extension while other work continues.
+No architecture file has been changed at this point. Updating the pins does not
+baseline an import finding or appoint an authority.
+
+### GGA-DEF22-05 — source committed; remaining stops are owner pins
+
+Append-only correction to the pre-commit observation above: Foundry source and
+its mirrored probes were committed as `057d5f7be7b7c918f25078a89c14c26d2b95c676`
+after branch-attachment verification. Both files were reread from the named
+branch and matched the independently reviewed bytes. The exact original five
+acceptance nodes then returned **exit 1, three failed and two passed, 23.64 s**.
+The uncommitted-source guard is no longer the stopping point.
+
+- CB-I01 stops in its producer before consumer assertions at lines 2504–2507.
+- CB-I02 passes the torch and diagnostic assertions, then stops before the
+  governing comparison at line 7523.
+- CB-I02A passes both data-generated incompatibility assertions, then stops
+  before the governing comparison and same-label checks at lines 7580–7582.
+- CB-I03 and CB-I03A execute their intended assertions completely and pass.
+
+The remaining three stop at `check_layer3_gy_value_gate_contract.py:982`,
+`DigestPredicateMismatch`, against the stale owner-declaration pins. This is not
+an inherited-red claim and is not five-test closure. The prepared four-value
+patch has been decoded and resolved by the real owner in memory. Its application
+requires the explicit architecture-file extension requested by the coordinator;
+no appointment or digest-equality relaxation is involved.
+
+### GGA-DEF22-06 — authorized pin remeasurement from committed owner inputs
+
+The architect extended the write grant to exactly the two production-quality
+TOMLs and prohibited applying the prepared patch. The new station therefore read
+all input bytes from git objects at the measured merge base
+`58f8073e44f44519003b5b10c1ccf0d38d7de43a`, recomputed the four authored values,
+validated the resulting declaration with its owner, and only then opened the
+earlier patch as a comparison target. The comparison is exact: **all four values
+match; the complete proposal-difference string is empty**. The patch was not
+applied or used as the source of any value.
+
+Cause is **upstream dependency change**, not this lane or its acceptance tests.
+The architect identified `2021f81d6b8178cfe31f708704b34bbc33a44b6d` and
+`753e0458ad41ef362a5dd9e8ee126621c2cd1c1c`: dependency work including the Pillow
+CI group, hnswlib extra, regex bump and odfpy source. Both are ancestors of this
+station's merge base. At that base, `git log` names `753e0458a` as the last change
+to both complete input files. The owner pins had not been remeasured after the
+decided dependency changes. Updating them preserves the equality invariant.
+
+The raw input hashes agree with the architect's measurement:
+
+| Committed input | Bytes | Raw SHA-256 |
+| --- | ---: | --- |
+| `policy-engine/pyproject.toml` at the base above | 11,189 | `b420723ef2454bce7685b01ff11d7cf29399be8f31399366a2559ffae34a9c48` |
+| `policy-engine/uv.lock` at the base above | 779,174 | `d409a3d90e1ddbf72ec5c64fd3031a203d3963495fc8ca5079e716b3960c6ffd` |
+
+The two TOML field names do not identify the hash vocabulary. The declaration
+decoder gives them the `PYPROJECT` and `UV_LOCK` digest domains. The declared
+`dependency_evidence.domain_digest` hashes
+`ASCII("polisyos.foundry." + domain + ".v1\\0") || uint64be(len(raw)) || raw`.
+Thus the recomputed authored pins are `sha256:a25bc559fb92ba39e357babc2961f4e8981b39bb51e599632a8224dcfed52484`
+and `sha256:ed542325c18b409047b5c81bfff3f242ca8ab6c22591b43a135d0e6caa1b4d68`;
+they are not alternative raw-file hashes.
+
+`dependency_profile.declaration_ref` canonicalizes the strict updated declaration.
+Its raw canonical-byte hash gives
+`declaration_artifact_id=sha256:f5f2ab920e1ea44c6c2cbb9bdc3a6da2dd7e2e7e067d23dd0dc1ee91ee000aca`;
+the `PROFILE_DECLARATION` framed digest gives
+`declaration_semantic_hash=sha256:016d01f2315ac1eabad0cffff17bb45a94fd63883a50eb33929cb6f7f491c56a`.
+The station records the named inputs, derivation, comparison and readback in
+`_build/gy_grade_authority/def22-pin-recomputation.json`.
+
+All four capability rows are parsed and compared before and after, unchanged at
+`absent/unallocated`: `owner_enforced_runtime_subtree_cutoff`,
+`owner_resolved_resolution_receipt_store`, `platform_toolchain_admission`,
+`production_data_trust_policy`. This lock-identity reducer does not appoint a
+runtime cutoff owner, receipt store, platform admission or production trust
+policy; no capability-state amendment is established by these changes.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.def22_recompute_pins
+```
+
+The two TOMLs were written from the computed declaration and read back. The
+following test replay will report assertion reachability separately from pass,
+and separately from the still-outstanding appointed acceptance.
+
+### GGA-PA1-02 — available evidence cannot support the positive upstream grade
+
+The hypothesis was narrower than “there are no estimates”: a positive DataForge
+producer needs independently admitted treatment/outcome and estimand identity,
+source-bound effect support, applicable scope and numeric uncertainty. Initial
+exploration found enough numeric material to make this a real question. The
+complete-set measurements below reject absence of numbers as the explanation;
+they do not turn the numbers into causal authority.
+
+Station: the continuation worktree with its existing read-only `production_data`
+link; local `.venv/bin` first in PATH. Complete production-data enumeration found
+6,562 files, including 27 files with academic/scholar path components (17 JSON,
+three JSONL and one academic DuckDB among the other files). All eight production
+DuckDB files were readable. The academic holder is 2,390,503,424 bytes and has 27
+`ac_` tables; `ac_skg_span_grounded_claims` is absent from the complete table set.
+JSON root keys and every JSONL record were walked rather than inferred from an
+index. Four additional worktree test DuckDB files are invalid stubs: their
+contents are **ambiguous/unreadable**, never four zero-evidence holders.
+
+The separate main `_build` holder enumeration found 59 readable DuckDB files.
+Its 13 academic holders have the same byte digest
+`9696bc7e129300767ca3f805879ab9a17d691740b34e4c2eef974c485a077d6a`,
+five tables with one row each and no span-grounding table. These existing holders
+were read only; none was used as independently admitted production evidence.
+
+Complete relational populations, with explicit denominators:
+
+- `ac_parameter_estimates`: 62,248 estimates; 4,106 have both CI endpoints and
+  4,032 have nonzero intervals. Of 919 exact UA/Ukraine country rows, 24 have
+  nonzero intervals. None of those 24 satisfies the old candidate trust-score
+  filter of 0.5; that filter is not adopted as an authority rule.
+- `ac_causal_claims`: 7,868 rows; `ac_skg_edges`: 7,607 rows. Every row in these
+  two complete tables is candidate material. The edge count also agrees with
+  the separately stored `ac_skg_versions.n_edges` value of 7,607.
+- `ac_article_extractions`: 137,714 claim subtrees. The complete subtree-key
+  walk does not find the current `evidence_strength` axis. A separate exploratory
+  nested-span key walk was reported in stdout, but its exact query was not
+  retained. No span-population conclusion in this handback depends on that
+  unpreserved measurement; the admitted-table and candidate-row measurements
+  above are the decisive evidence.
+- The L1 catalog has ten tables and 3,708,006 observations spanning 101 canonical
+  variables. Exactly 94 variables have numeric UA observations with a period.
+  Their exact-name intersection with all 55,176 stored SKG variable names is
+  `education_outcomes`, `gdp_growth`, `health_outcomes`, `poverty_rate`,
+  `tax_revenue`, `unemployment_rate`. Four are exact edge endpoints. Walking all
+  7,607 edges finds two whose endpoints both belong to the 94-variable set:
+  unemployment → poverty (null meta-effect) and growth → poverty (0.0
+  meta-effect). Both are candidate rows.
+- Running the real canonical resolver for all 94 variables yields 35 exact,
+  three synonym and 56 embedding resolutions, with 93 approved. This measures
+  lexical resolution, not causal identity or source/effect admission.
+- The source-owner AST station walked all 2,623 Python files then present under
+  `src/polisyos` (including the two new adjudication modules), with zero parse
+  errors. Its seven `ValueOuterSet` construction/factory sites are four SKGQuery
+  methods, the empty Foundry household result, household measurement and the N8
+  proxy helper. This is the carrier's constructor denominator, not a claim that
+  the repository contains no other estimator or evidence producer.
+
+The named runtime witness is separate from those population claims. The real
+`resolve_grounded_causal_prior` refuses a stored edge with
+`confidence_layer_vintage`; its referenced snapshot digest is
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+This was a live exception, not a persisted refusal receipt. The source-bound
+intake is doing useful work that a new carrier must not bypass.
+
+One tempting reuse does bypass it. On actual estimate
+`00217008765d4f975631a764` (work `W2165913734`, health PTSD, AU/CH/NL,
+tier 1, trust 0.51963, CI [4.7, 14.5]),
+`SKGQuery.parameter_estimate_value_outer_set` emits `representation_status=
+certified` with `assumption_status=declared` from a direct database read. The
+substantive falsifier `assert value.representation_status != "certified"`
+returned **exit 1** against unchanged data and code. This is an existing-property
+violation probe, not a removal run for a repair made in this continuation.
+The previous S8 removal evidence remains accepted and is not rerun or relabelled.
+
+**Proposed row `skg-numeric-lowering-certifies-declared-premises`**, proposed owner
+DataForge academic/knowledge SKG/value-evidence: a numerical candidate can issue
+its own certified grade. This is the same authority class at another producer.
+Cheapest honest close is independent resolution and binding of numeric and
+identity evidence, or an explicit candidate-only ceiling. This unused alternative
+does not obstruct the row's measured conclusion, so it is recorded and not added
+to this repair's diff.
+
+The existing ValueOwnerGateway supplies L1 outcome rows and explicitly unresolved
+treatment assignment. The Foundry method evidence is
+`contract_only_nonproduction` and not production-value eligible. Ukraine receipt
+identity, lexical canonicalization and schema identity establish different
+properties. Reusing any of them as treatment/estimand/causal support would issue
+the grade from the claim it is meant to grade.
+
+**Result:** the positive producer cannot be completed from the admitted inputs
+available here. The missing input is source-bound independently admitted
+treatment/outcome and estimand support with numeric uncertainty (or owner-issued
+treatment assignment and observations), plus target population/unit/time and
+measurement mapping with applicable transport/calibration evidence. DataForge
+produces that world evidence, N7 admits it, N8 dispatches and persists its value
+receipt, and S8 authorizes selection. No institution is appointed by describing
+that engineering chain. PA1 remains open with `producer_missing`; the previously
+implemented S8 authorization/persistence/ranking/refusal/projection is retained.
+
+Successful original station bodies and the negative witness are preserved below.
+The packaged replay artifact was syntax-checked, not rerun; original measurements
+were separate `python -m timeit` invocations. Original wall times: inventory
+1.12 ms, tables 376 ms, holders 2.02 s, academic files 99.3 ms, numeric 2.87 s,
+claims 2.15 s, UA 279 ms, UA edges 64.9 ms, canonical 8.17 s, owners 10.5 s,
+runtime 2.47 s. The red exited before timeit emitted a duration.
+One optional metadata query attempted a spill beside the read-only holder and
+failed; its metadata-key/retained-abstract counts are `not_established` and are
+not used above. A first numeric query had an SQL alias parse error; the corrected
+complete run is the stated numeric receipt.
+
+### GGA-PA1-03 — independent challenge refutes the stronger impossibility claim
+
+The conclusion in GGA-PA1-02 was too strong. Absence of admitted rows measures the
+current chain; it does not prove that the DataForge producer cannot be built.
+Independent source review identified existing retained-text and span-grounding
+intake seams, and the following new complete source measurement then refuted
+absence of usable source text. This is an append-only correction, not a reason
+to discard the earlier measurements or redo the accepted S8 work.
+
+The new station used read-only DuckDB connections with its spill directory in
+this worktree's scratch. It returned exit 0. Every one of the 4,032 estimates
+with a nonzero CI joins a retained work, spanning 1,468 work IDs. Of those 4,032
+estimate rows, 4,029 join a nonempty abstract, 1,309 carry candidate raw context,
+and 1,080 contexts occur exactly in the retained abstract. Those are complete
+join denominators, not a sampled claim of source availability.
+
+Both edges whose endpoints lie in the complete 94-variable UA observation set
+come from Indonesian papers, `W2914599766` and `W2992159319`. Both abstracts are
+retained; one lacks numeric uncertainty and the other reports a qualitative null
+finding. UA transport is not established by that two-edge source set.
+
+A named positive source witness, separate from the census, is `W7124317257`:
+its abstract reports IVR anxiety SMD −0.77 with 95% CI [−1.32, −0.22]. Stored
+candidate estimate `00f13cb02291b2ba616ebd3f` instead labels the unit `percent`
+and the variable `ArtTherapyMentalHealth`. Source availability therefore opens
+producer work while independently demonstrating why source-byte matching alone
+must not validate the candidate's numerical and identity fields.
+
+The next implementation decision is reuse-first: identify the missing bridge
+around the existing `ingest_openalex_span_grounded_claims` and its source/semantic
+verifier before adding any carrier. Source-grounded extraction, candidate-specific
+causal/estimand validity and target transport remain distinct predicates. This
+entry establishes buildable source work and corrects the impossibility claim;
+it does not issue a positive N8 grade or claim the producer is already delivered.
+
+### GGA-ADJ-02 — shared verifier, and the premises the first repair missed
+
+The first implementation moved deterministic arithmetic to the lower DataForge
+owner and made Scientist execution and direct DataForge materialization share a
+non-producing verifier. It authenticated separately signed benchmark and raw-run
+observations, recomputed metrics/guardrails/promotion and the complete batch, and
+left deployment appointment slots empty. The execution receipt is necessary:
+passing a valid benchmark receipt alone cannot certify arbitrarily fabricated
+runtime results. CAS reads reuse the existing content-hash verification; the
+hypothesis that this needed another hash implementation was rejected on source.
+
+A fieldless, owner-minted row capability then replaced raw mapping admission at
+graph/conflict consumers. Actual removal of `verify_batch` while all DTOs, CAS
+artifacts and fixture signatures remained made both original negatives red:
+Scientist completed with one published claim, and direct DataForge materialized
+the forged batch. Each command returned exit 1 on its refusal assertion. These
+first removal receipts have no retained complete wall duration; a packaged
+station preserves their exact command bodies for the final-source replay.
+
+Independent review exposed two missing premises in that first implementation.
+Both were classified in writing as **the same grade-authority/content-binding
+class**, rather than counted as a sequence of unrelated flag repairs.
+
+- **Subject binding:** an authentic receipt for `c-1`, work `W1`,
+  `tax_rate → employment` was borrowed at graph and conflict joins for another
+  work, or `unrelated_budget → unrelated_hospital_access`, while keeping `c-1`.
+  Four refusal cells failed and two matching controls passed, **exit 1, 15.68 s**.
+  The graph persisted the substituted subject and the conflict artifact marked
+  it publishable. No production monkeypatching or signature changes were needed.
+  A token proved receipt provenance, not that the current projection was its
+  subject. Comparing only the witnessed four fields would repeat this mistake:
+  the signed raw input also carries text, direction, effect size, scope and
+  supporting evidence that the result DTO does not fully retain.
+- **Transition-basis completeness:** the real registry rejected an equal-score
+  challenger to a perfect incumbent as `not_better_than_champion`. After replacing
+  the mutable current pointer, accurate and genuinely fixture-signed challenger
+  observations could omit the optional incumbent context, and replay accepted.
+  Two controls passed and the omitted-incumbent refusal failed, **exit 1**;
+  complete wall duration was not retained. Supplying the real incumbent's
+  observations correctly rejected the challenger. The missing premise was not a
+  false observation: this receipt schema did not establish the completeness of
+  its transition basis. The existing registry retains no predecessor history.
+
+The scoped consumer census parsed all 2,623 Python files then present beneath
+`src/polisyos`, with no parse failures. Its eight named authority APIs had 13
+direct calls; the two graph joins and one conflict join were the demonstrated
+binding boundary. This is a scoped API-call denominator, not a declaration about
+every possible future publication consumer.
+
+The repair decision, before the next measurement: use one complete, source-bound
+subject projection shared by both consumers; missing transport cannot be filled
+from the trusted original to make a comparison pass. Retain the promotion basis
+independently of candidate receipts, require the bound predecessor observations
+when it exists, and distinguish explicit first promotion from missing history.
+No reconstruction of unrecorded legacy transitions is claimed. These corrections
+are batched before the next freeze. This entry records the investigation and
+decision, not a claim that the corrected mechanism has passed.
+
+### Durable continuation station sources (completed investigation)
+
+These are exact preserved scratch sources, not fresh run receipts. Restore each Python body at its named ignored path and invoke it with `python -m`; commands and observed outcomes are recorded in the corresponding finding. The pin patch remains a proposal pending permission. No invocation here writes a governing architecture file.
+
+`_build/gy_grade_authority/facade_removal_probe.py` — SHA-256 `cc6218eefe0110bbe8888f487c33bc83d78b49cd3a38ef839634cb7254a80265`
+
+```python
+"""Replay only the consumer's pre-facade imports inside the isolated runtime probe."""
+import runpy
+import subprocess
+
+checks = runpy.run_path("tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py")
+real_run = subprocess.run
+prefix = """
+import importlib.machinery
+import subprocess
+original_get_code = importlib.machinery.SourceFileLoader.get_code
+
+def pre_facade_code(self, fullname):
+    if fullname == "polisyos.runtime.http.services.acquisition_admission_bundle":
+        source = subprocess.check_output([
+            "git", "show", "58f8073e44f44519003b5b10c1ccf0d38d7de43a:policy-engine/src/polisyos/runtime/http/services/acquisition_admission_bundle.py"
+        ])
+        return compile(source, self.path, "exec")
+    return original_get_code(self, fullname)
+
+importlib.machinery.SourceFileLoader.get_code = pre_facade_code
+"""
+
+def removed_facade_run(args, **kwargs):
+    assert args[1] == "-c"
+    return real_run([*args[:2], prefix + args[2]], **kwargs)
+
+subprocess.run = removed_facade_run
+checks["test_acquisition_producer_resolves_artifact_dependencies_through_facade"]()
+```
+
+`_build/gy_grade_authority/def22_lock_removal_probe.py` — SHA-256 `719ce7d81d78b575afa9c117f27867e83e3872f68f7012244cfa42474aa0b7c0`
+
+```python
+"""Remove exact edge selection in memory while retaining every source marker."""
+
+import hashlib
+import json
+import os
+from pathlib import Path
+
+import pytest
+
+from polisyos.foundry.methods.catalog import dependency_profile as profile
+
+source = Path(profile.__file__)
+before = hashlib.sha256(source.read_bytes()).hexdigest()
+markers_before = (
+    profile.DependencyProfileDiscriminant.model_fields["schema_version"].annotation,
+    profile.DependencyProfileDiscriminant.model_fields["rule_version"].annotation,
+)
+if os.environ.get("GY_DEF22_REMOVE_LOCK_IDENTITY") == "1":
+    def first_named_row(edge, packages_by_name, marker_environment, *, used_marker_keys):
+        return packages_by_name[profile.canonicalize_name(edge["name"])][0]
+
+    profile._resolve_selected_lock_row = first_named_row
+after = hashlib.sha256(source.read_bytes()).hexdigest()
+assert before == after
+assert markers_before == (
+    profile.DependencyProfileDiscriminant.model_fields["schema_version"].annotation,
+    profile.DependencyProfileDiscriminant.model_fields["rule_version"].annotation,
+)
+print(json.dumps({"source_sha256": before, "marker_and_source_bytes_preserved": True}))
+raise SystemExit(pytest.main([
+    "tests/unit/foundry/methods/test_dependency_profile.py::test_universal_lock_resolves_selected_edge_identity",
+    "-q", "--override-ini", "addopts=",
+]))
+```
+
+`_build/gy_grade_authority/def22_owner_pin_proposal.py` — SHA-256 `6993b1d2d2bb593eccff4066e46a27308a32739abae548be99c52ad0c3a3d337`
+
+```python
+"""Prepare a surgical proposal; never write to tracked owner artifacts."""
+
+import difflib
+import json
+from pathlib import Path
+
+from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, domain_digest
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    declaration_ref,
+    load_dependency_profile_registry,
+    decode_dependency_profile_registry_toml,
+    resolve_profile_declaration_for_purpose,
+)
+
+root = Path.cwd()
+profile_path = root / "architecture/production_quality/method_catalog_dependency_profiles.toml"
+authority_path = root / "architecture/production_quality/method_catalog_dependency_authority.toml"
+registry = load_dependency_profile_registry(profile_path)
+old_profile_bytes = profile_path.read_bytes()
+old_authority_bytes = authority_path.read_bytes()
+original = resolve_profile_declaration_for_purpose(
+    registry,
+    authority_registry_bytes=old_authority_bytes,
+    authority_purpose="n8_method_catalog_reconstruction",
+)
+proposed = original.model_copy(update={
+    "pyproject_ref": domain_digest(DigestDomain.PYPROJECT, (root / "pyproject.toml").read_bytes()),
+    "lockfile_ref": domain_digest(DigestDomain.UV_LOCK, (root / "uv.lock").read_bytes()),
+})
+old_ref, new_ref = declaration_ref(original), declaration_ref(proposed)
+profile_text = old_profile_bytes.decode()
+authority_text = old_authority_bytes.decode()
+for field in ("pyproject_ref", "lockfile_ref"):
+    old, new = getattr(original, field).value, getattr(proposed, field).value
+    assert profile_text.count(old) == 1
+    profile_text = profile_text.replace(old, new)
+for old, new in (
+    (old_ref.artifact_id, new_ref.artifact_id),
+    (old_ref.semantic_hash.value, new_ref.semantic_hash.value),
+):
+    assert authority_text.count(old) == 1
+    authority_text = authority_text.replace(old, new)
+assert resolve_profile_declaration_for_purpose(
+    decode_dependency_profile_registry_toml(profile_text.encode()),
+    authority_registry_bytes=authority_text.encode(),
+    authority_purpose="n8_method_catalog_reconstruction",
+) == proposed
+patch = "".join(
+    "".join(difflib.unified_diff(
+        before.decode().splitlines(keepends=True), after.splitlines(keepends=True),
+        fromfile="a/policy-engine/" + str(path.relative_to(root)),
+        tofile="b/policy-engine/" + str(path.relative_to(root)),
+    ))
+    for path, before, after in (
+        (profile_path, old_profile_bytes, profile_text),
+        (authority_path, old_authority_bytes, authority_text),
+    )
+)
+destination = root / "_build/gy_grade_authority/def22-owner-pins.proposed.patch"
+destination.write_text(patch)
+assert profile_path.read_bytes() == old_profile_bytes
+assert authority_path.read_bytes() == old_authority_bytes
+print(json.dumps({
+    "proposed_patch": str(destination),
+    "tracked_owner_artifacts_unchanged": True,
+    "old_declaration_ref": old_ref.model_dump(mode="json"),
+    "new_declaration_ref": new_ref.model_dump(mode="json"),
+    "pyproject_ref": proposed.pyproject_ref.model_dump(mode="json"),
+    "lockfile_ref": proposed.lockfile_ref.model_dump(mode="json"),
+}, indent=2))
+```
+
+`_build/gy_grade_authority/def22-owner-pins.proposed.patch` — SHA-256 `9bd8b7585700ba08dbabad066108504da5989653cb116857036928a379cc2d6e`
+
+JSON-encoded exact patch bytes (decode this string to reconstruct the patch):
+
+```json
+"--- a/policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml\n+++ b/policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml\n@@ -8,5 +8,5 @@\n python_constraint = \">=3.14,<3.15\"\n resolver_name = \"uv\"\n resolver_version = \"0.9.21\"\n-pyproject_sha256 = \"sha256:803cbfb79c7727807db1c98d07413e8ef2f1b2a08929bd99bc2f8e638ee5142d\"\n-uv_lock_sha256 = \"sha256:d3ca8737e0ce78b1deade715174576cb5449b443d96180e7029d9999d0584572\"\n+pyproject_sha256 = \"sha256:a25bc559fb92ba39e357babc2961f4e8981b39bb51e599632a8224dcfed52484\"\n+uv_lock_sha256 = \"sha256:ed542325c18b409047b5c81bfff3f242ca8ab6c22591b43a135d0e6caa1b4d68\"\n--- a/policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml\n+++ b/policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml\n@@ -7,8 +7,8 @@\n [[purpose_admissions]]\n authority_purpose = \"n8_method_catalog_reconstruction\"\n profile_id = \"n8-method-catalog-reconstruction-py314-uv0921-v1\"\n-declaration_artifact_id = \"sha256:c8bd2bdcef4791dc06685bbfa919aff2b0ff068f0603edded195e05d001d3e8e\"\n-declaration_semantic_hash = \"sha256:211d8fdd5454db593208abc6a5e88b516509955e0b32059f0864cbf4392bb103\"\n+declaration_artifact_id = \"sha256:f5f2ab920e1ea44c6c2cbb9bdc3a6da2dd7e2e7e067d23dd0dc1ee91ee000aca\"\n+declaration_semantic_hash = \"sha256:016d01f2315ac1eabad0cffff17bb45a94fd63883a50eb33929cb6f7f491c56a\"\n predicate_class = \"recomputed\"\n \n [[capabilities]]\n"
+```
+
+`_build/gy_grade_authority/pa1_dataforge_stations.py` — SHA-256 `8f6c9b77652f62861d09442485fb8e12bd41fdd64b8cbdf8ead482de276c027e`
+
+```python
+"""Read-only replay bodies for the PA1 DataForge investigation.
+
+The station bodies were originally executed using ``python -m timeit``.
+This replay artifact preserves their queries; its creation is not a new run.
+Results describe the files present at execution, never a future branch census.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import hashlib
+import json
+from collections import Counter
+from dataclasses import asdict
+from pathlib import Path
+
+import duckdb
+
+
+def emit(value: object) -> None:
+    print(json.dumps(value, indent=2, default=str))
+
+
+def academic_path() -> Path:
+    return next(Path("production_data").rglob("scholar_knowledge.duckdb"))
+
+
+def inventory() -> None:
+    root = Path("production_data")
+    files = sorted(p for p in root.rglob("*") if p.is_file())
+    relevant = [p for p in files if any("academic" in part or "scholar" in part for part in p.parts)]
+    emit({
+        "root": str(root.resolve()), "all_files": len(files),
+        "academic_path_files": len(relevant),
+        "academic_extensions": dict(Counter(p.suffix for p in relevant)),
+        "db_files": [{"path": str(p), "size": p.stat().st_size} for p in files
+                     if p.suffix in {".duckdb", ".db", ".sqlite", ".sqlite3"}],
+    })
+
+
+def tables() -> None:
+    rows = []
+    for path in sorted(Path("production_data").rglob("*.duckdb")):
+        con = duckdb.connect(str(path), read_only=True)
+        names = con.execute(
+            "select table_name from information_schema.tables where table_schema = 'main' order by table_name"
+        ).fetchall()
+        academic = [name for (name,) in names if name.startswith("ac_")]
+        census = []
+        for name in academic:
+            quoted = '"' + name.replace('"', '""') + '"'
+            count = con.execute("select count(*) from " + quoted).fetchone()[0]
+            columns = con.execute(
+                "select column_name,data_type from information_schema.columns where table_schema='main' and table_name=? order by ordinal_position",
+                [name],
+            ).fetchall()
+            census.append({"table": name, "rows": count, "columns": columns})
+        rows.append({"path": str(path), "table_denominator": len(names),
+                     "academic_table_denominator": len(academic), "academic": census})
+        con.close()
+    emit(rows)
+
+
+def holders() -> None:
+    output = []
+    for root in (Path("."), Path("/Users/deniskopylov/polisyos/policy-engine/_build")):
+        candidates = sorted(p for p in root.rglob("*.duckdb") if not any(part in {".venv", "node_modules", "production_data"} for part in p.parts))
+        matches, rejected = [], 0
+        for path in candidates:
+            try:
+                con = duckdb.connect(str(path), read_only=True)
+                names = [r[0] for r in con.execute("select table_name from information_schema.tables where table_schema='main' order by table_name").fetchall()]
+                if any(name.startswith("ac_") for name in names):
+                    counts = {name: con.execute('select count(*) from "' + name.replace('"', '""') + '"').fetchone()[0] for name in names}
+                    with path.open("rb") as stream:
+                        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                    matches.append({"path": str(path), "sha256": digest, "tables": counts})
+                con.close()
+            except duckdb.Error:
+                rejected += 1
+        output.append({"root": str(root.resolve()), "duckdb_file_denominator": len(candidates),
+                       "invalid_duckdb_files": rejected, "academic_holders": matches})
+    emit(output)
+
+
+def academic_files() -> None:
+    root = Path("production_data")
+    files = sorted(p for p in root.rglob("*") if p.is_file() and any("academic" in part or "scholar" in part for part in p.parts))
+    rows = []
+    for path in files:
+        row = {"path": str(path), "size": path.stat().st_size, "suffix": path.suffix}
+        if path.suffix == ".json":
+            value = json.loads(path.read_text())
+            row["root_keys"] = list(value) if isinstance(value, dict) else type(value).__name__
+        elif path.suffix == ".jsonl":
+            count, keys = 0, set()
+            with path.open() as stream:
+                for line in stream:
+                    if not line.strip():
+                        continue
+                    value = json.loads(line)
+                    count += 1
+                    if isinstance(value, dict):
+                        keys.update(value)
+            row.update(records=count, root_keys=sorted(keys))
+        rows.append(row)
+    emit({"root": str(root.resolve()), "academic_file_denominator": len(files), "files": rows})
+
+
+def numeric() -> None:
+    path = academic_path()
+    con = duckdb.connect(str(path), read_only=True)
+    queries = {
+        "extraction_root_keys": "select k,count(*) from ac_article_extractions,unnest(json_keys(extraction_json)) x(k) group by k order by k",
+        "parameters": "select count(*) total,count(*) filter(where ci_low is not null and ci_high is not null) with_both_ci,count(*) filter(where ci_low < ci_high) with_nonzero_ci,count(*) filter(where estimate is not null) numeric_estimates,count(*) filter(where lower(country) in ('ua','ukraine')) ukraine from ac_parameter_estimates",
+        "published_claims": "select candidate_layer,strong_design_evidence,count(*) from ac_causal_claims group by all order by all",
+        "edges": "select candidate_layer,evidence_strength,count(*) from ac_skg_edges group by all order by all",
+        "adjudications": "select source_basis,support_status,publishable_edge,count(*) from ac_claim_adjudications group by all order by all",
+        "transport_targets": "select target_context_id,count(*) from ac_skg_transport_scores group by all order by all",
+        "canonization": "select resolution_method,is_approved_canonical,count(*) from ac_skg_variables group by all order by all",
+        "simulation_parameter_origins": "select source_layer,uncertainty_source,count(*) from ac_skg_simulation_parameters group by all order by all",
+        "version": "select * from ac_skg_versions",
+    }
+    print("holder", str(path))
+    for key, query in queries.items():
+        emit({key: con.execute(query).fetchall()})
+    con.close()
+
+
+def claims() -> None:
+    con = duckdb.connect(str(academic_path()), read_only=True)
+    queries = {
+        "claim_subtree_denominator": "select count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims')",
+        "claim_subtree_keys": "select k,count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims') claim,unnest(json_keys(claim.value)) x(k) group by k order by k",
+        "claim_source_basis": "select json_extract_string(claim.value,'$.source_basis'),count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims') claim group by all order by all",
+        "claim_supporting_spans": "select json_type(claim.value,'$.supporting_spans'),count(*) from ac_article_extractions,json_each(extraction_json,'$.causal_claims') claim group by all order by all",
+        "parameter_json_keys": "select k,count(*) from ac_skg_parameters,unnest(json_keys(parameter_json)) x(k) group by k order by k",
+        "numeric_eligible": "select count(*) from ac_parameter_estimates where ci_low < ci_high and trust_score >= 0.5",
+    }
+    for key, query in queries.items():
+        emit({key: con.execute(query).fetchall()})
+    con.close()
+
+
+def ua() -> None:
+    path = next(Path("production_data").glob("datasets_*/dataset_catalog.duckdb"))
+    con = duckdb.connect(str(path), read_only=True)
+    names = [r[0] for r in con.execute(
+        "select table_name from information_schema.tables where table_schema='main' order by table_name"
+    ).fetchall()]
+    counts, columns = {}, {}
+    for name in names:
+        counts[name] = con.execute('select count(*) from "' + name + '"').fetchone()[0]
+        columns[name] = [r[0] for r in con.execute(
+            "select column_name from information_schema.columns where table_name=? order by ordinal_position", [name]
+        ).fetchall()]
+    variables = con.execute(
+        "select canonical_var,count(*) from ds_observations where country_code='UA' and value is not null and coalesce(year,survey_year,wave) is not null group by canonical_var order by canonical_var"
+    ).fetchall()
+    denominator = con.execute("select count(distinct canonical_var),count(*) from ds_observations").fetchone()
+    academic = duckdb.connect(str(academic_path()), read_only=True)
+    skg_names = {r[0] for r in academic.execute("select canonical_name from ac_skg_variables").fetchall()}
+    edges = academic.execute("select src,dst from ac_skg_edges").fetchall()
+    endpoints = {value for edge in edges for value in edge}
+    emit({"holder": str(path), "table_denominator": len(names), "tables": counts, "columns": columns,
+          "observation_variable_and_row_denominator": denominator,
+          "ua_numeric_period_variable_denominator": len(variables), "ua_variables": variables,
+          "exact_ua_variable_name_intersection": [(v, n) for v, n in variables if v in skg_names],
+          "exact_ua_edge_endpoint_intersection": [v for v, n in variables if v in endpoints]})
+    con.close()
+    academic.close()
+
+
+def ua_edges() -> None:
+    academic = duckdb.connect(str(academic_path()), read_only=True)
+    path = next(Path("production_data").glob("datasets_*/dataset_catalog.duckdb"))
+    con = duckdb.connect(str(path), read_only=True)
+    variables = {r[0] for r in con.execute(
+        "select distinct canonical_var from ds_observations where country_code='UA' and value is not null and coalesce(year,survey_year,wave) is not null"
+    ).fetchall()}
+    edges = academic.execute("select edge_id,src,dst,meta_effect_size,candidate_layer from ac_skg_edges").fetchall()
+    ci = academic.execute("select count(*),count(*) filter(where ci_low<ci_high),count(*) filter(where ci_low<ci_high and trust_score>=0.5) from ac_parameter_estimates where lower(country) in ('ua','ukraine')").fetchone()
+    emit({"academic_edge_denominator": len(edges), "ua_numeric_owner_variables": len(variables),
+          "both_endpoints_exact_ua_owner_variable": [r for r in edges if r[1] in variables and r[2] in variables],
+          "exact_country_UA_estimates_total_ci_candidate_trust": ci})
+    academic.close()
+    con.close()
+
+
+def canonical() -> None:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+    path = academic_path()
+    con = duckdb.connect(str(next(Path("production_data").glob("datasets_*/dataset_catalog.duckdb"))), read_only=True)
+    variables = [r[0] for r in con.execute("select distinct canonical_var from ds_observations where country_code='UA' and value is not null and coalesce(year,survey_year,wave) is not null order by canonical_var").fetchall()]
+    query = SKGQuery(path, path.parent.parent)
+    results = [asdict(query.resolve_runtime_canonical(v, need_type="causal_edge")) for v in variables]
+    emit({"ua_owner_variables_denominator": len(variables),
+          "resolution_methods": dict(Counter(r["method"] for r in results)),
+          "approved": sum(r["approved"] for r in results),
+          "non_similarity_results": [r for r in results if r["method"] in {"exact", "exact_alias", "synonym"}]})
+    query.close()
+    con.close()
+
+
+def owners() -> None:
+    root = Path("src/polisyos")
+    files = sorted(root.rglob("*.py"))
+    constructors, bridges, errors = [], [], []
+    def dotted(node: ast.AST) -> str:
+        if isinstance(node, ast.Name):
+            return node.id
+        if isinstance(node, ast.Attribute):
+            return dotted(node.value) + "." + node.attr
+        return ""
+    for path in files:
+        try:
+            tree = ast.parse(path.read_text())
+        except (SyntaxError, UnicodeError):
+            errors.append(str(path))
+            continue
+        aliases = {"ValueOuterSet"}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                for name in node.names:
+                    if name.name == "ValueOuterSet":
+                        aliases.add(name.asname or name.name)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                target = dotted(node.func)
+                parts = target.split(".")
+                if any(name in parts for name in aliases) and parts[-1] in aliases | {"interval_box"}:
+                    constructors.append({"path": str(path), "line": node.lineno, "call": target})
+            if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and all(term in node.name.lower() for term in ("skg", "identity")):
+                bridges.append({"path": str(path), "line": node.lineno, "name": node.name})
+    emit({"source_python_denominator": len(files), "parse_errors": errors,
+          "value_outer_set_constructors": constructors, "named_skg_identity_definitions": bridges})
+
+
+def runtime() -> None:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+    path = academic_path()
+    con = duckdb.connect(str(path), read_only=True)
+    edge = con.execute("select src,dst from ac_skg_edges order by edge_id limit 1").fetchone()
+    estimate = con.execute("select e.id from ac_parameter_estimates e where ci_low < ci_high and trust_score >= 0.5 and exists(select 1 from ac_claim_adjudications a where a.work_id=e.work_id and a.design_quality_tier=1) order by e.id limit 1").fetchone()
+    query = SKGQuery(path, path.parent.parent / "index")
+    try:
+        result = query.resolve_grounded_causal_prior(cause=edge[0], effect=edge[1], estimand="ATE", scope_context_id="UA", required_skg_version_id=1)
+        print("grounded_prior", result)
+    except ValueError as exc:
+        print("grounded_prior_refusal", str(exc))
+    if estimate:
+        result = query.parameter_estimate_value_outer_set(estimate_id=estimate[0], world_model_record_ref="probe://not-production-wmr", epoch="probe-only")
+        emit({"actual_estimate_lowering": {"estimate_id": estimate[0], "representation_status": result.representation_status,
+              "assumption_status": result.assumption_status, "coordinates": result.coordinates, "lower": result.lower,
+              "upper": result.upper, "calibration_scope": result.calibration_scope, "data_trust": result.data_trust.model_dump(mode="json")}})
+    else:
+        print("no_qualifying_estimate")
+    query.close()
+    con.close()
+
+
+def red() -> None:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+    path = academic_path()
+    query = SKGQuery(path, path.parent.parent)
+    value = query.parameter_estimate_value_outer_set(estimate_id="00217008765d4f975631a764", world_model_record_ref="probe://not-production-wmr", epoch="probe-only")
+    assert value.representation_status != "certified", (value.representation_status, value.assumption_status, value.calibration_scope)
+
+
+if __name__ == "__main__":
+    stations = {function.__name__: function for function in (inventory, tables, holders, academic_files, numeric, claims, ua, ua_edges, canonical, owners, runtime, red)}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("station", choices=tuple(stations))
+    args = parser.parse_args()
+    stations[args.station]()
+```
+
+### GGA-DEF22-07 — all five intended assertions execute after authorized repinning
+
+The four fresh owner-derived values in GGA-DEF22-06 match the old proposal
+exactly; the proposal was compared only after computation and was not applied.
+For avoidance of an escape-notation ambiguity in that entry, the domain digest
+prefix is `ASCII("polisyos.foundry." + domain + ".v1") || NUL`, followed by
+`uint64be(len(raw)) || raw`. The NUL is one zero byte, not printable backslash text.
+The pin update follows upstream dependency changes `753e0458a` and `2021f81d6`,
+both ancestors of the measured merge base. It repairs the architect's identified
+repinning omission; it does not change an invariant to accommodate this lane.
+
+At committed pin station `03555b6e2da49e065a26726a54b6eed1118d9c21`, the exact
+five-test acceptance denominator reports **5 passed, exit 0, 40.11 seconds**.
+JUnit: `_build/gy_grade_authority/def22-five-after-pins.xml`.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m pytest tests/repo_quality/tools/test_execute_gy_n12_artifact_transition.py::test_cb_i01_n8_n10a_and_chronology_share_one_foundry_discriminant tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i02_research_profile_names_torch_as_first_generic_case tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilities tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i03_outside_closure_difference_is_diagnostic_irrelevant tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i03a_novel_admitted_profile_verifies_from_owner_data -q --override-ini addopts='' --tb=short --junitxml=_build/gy_grade_authority/def22-five-after-pins.xml
+```
+
+These execute their actual assertions: CB-I01 compares the shared N8/N10a/
+chronology Foundry discriminant, content reference, profile, root and resolved
+distributions; CB-I02 checks torch's diagnostic role without altering governing
+bytes; CB-I02A checks two data-generated incompatibilities despite unchanged
+labels/shapes; CB-I03 checks outside-closure diagnostic irrelevance; CB-I03A
+verifies a novel admitted profile from owner data. The lock-identity removal
+probe in GGA-DEF22-04 already goes red while markers remain. The engineering
+closure requested in this continuation is met. Appointed acceptance remains
+outstanding; neither this green nor the pin updates appoints anyone. All four
+authored `absent/unallocated` capability states are unchanged.
+
+### GGA-FACADE-03 — the first facade repair was one boundary too shallow
+
+The complete architecture gate refuted the sufficiency of GGA-FACADE-02:
+`polisyos.core.artifacts` is itself outside the declared supported entry points.
+The actual supported `polisyos.core` facade already exports `artifacts`, so the
+runtime consumer now obtains every artifact symbol through that existing object.
+No implementation or baseline exception is introduced. The runtime import
+observer was strengthened to require the supported root; restoring the original
+consumer with all symbols present gives **exit 1**, listing exactly the three
+private import requests alongside the root import. This is the same import
+boundary one level deeper, not an unrelated repair.
+
+The restored runtime facade probe plus the six existing acquisition integration
+tests report **7 passed, exit 0, 26.09 seconds**; Ruff on the two changed Python
+files reports an empty finding set. Commands (each invoked alone):
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m pytest tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py tests/integration/core_runtime/test_acquisition_admission_bundle.py -q --override-ini addopts='' --tb=short
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.facade_removal_probe
+PATH="$PWD/.venv/bin:$PATH" .venv/bin/python -m ruff check src/polisyos/runtime/http/services/acquisition_admission_bundle.py tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py
+```
+
+### GGA-ADJ-03 — final behavioral package and explicit gate limitations
+
+The initial combined test collection collided on the two existing mirror test
+basenames. Running the identical explicit file set with
+`--import-mode=importlib` reaches **143 tests: 142 passed, one failed, exit 1,
+26.95 seconds**. Complete file list is
+`_build/gy_grade_authority/adjudication_final_gate.json`; JUnit is
+`_build/gy_grade_authority/adjudication-final.xml`. The sole failure identity is
+`tests/unit/data_forge/mirror_contracts/test_claim_adjudication.py::test_claim_adjudication_source_modules_have_static_contracts`.
+It asks a source-tree filename walk for a DataForge module with exact stem
+`claim_adjudication.py`, which that tree does not contain. No fake module is
+added to satisfy this marker assertion. Attribution is **not_established**:
+no exact slice-base replay with a disjoint input denominator has been shown.
+Proposed row: `data-forge-adjudication-mirror-requires-absent-module-stem`, proposed
+owner DataForge test maintainers. This does not obstruct the behavioral closure.
+
+The frozen 20-Python-file Ruff denominator reports 116 identities, all in
+`_resolve_extract_transformers.py`: F401 30, TC001 1, E501 53, F821 29, N806 1,
+SIM102 2. The other 19 files have empty finding sets. These are retained in
+`_build/gy_grade_authority/adjudication_ruff.json`, not baselined or described as
+inherited. Changed-line disjointness is not P41 input-denominator disjointness.
+Proposed row: `data-forge-resolve-transformer-lint-findings`, proposed owner
+DataForge batch maintainers. Unrelated import/refactor cleanup is outside this
+grade-authority diff.
+
+The final architecture gate exposed new invalid subfacade imports in addition to
+the already corrected HTTP instance. Root `core` and `data_forge.read_api`
+facades offer the needed objects. Eight literature IR types lack a callable
+public facade export; the IR schema catalog is descriptive reflection, not a
+model resolver. That remaining file boundary is being handed back concretely,
+without dynamic import tricks or absorbing findings into a baseline.
+
+### GGA-SURFACE-01 — authorized public-surface expansion and coordination
+
+The architect has authorized eight existing IR types to become supported through
+the analytics facade via `polisyos.ir.api`, a declared supported entry point
+owned by **team-polisyos**. This is a backward-compatible public-surface expansion,
+not internal cleanup. The complete use census is retained in
+`_build/gy_grade_authority/ir-exports-before.json`; every proposed type is used by
+the shared verifier/policy/subject-replay mechanism. The existing definitions are
+frozen by hashes before publication; new definitions or shape changes are not
+authorized. The two IR reference pages will be written from the resulting live
+facade and compared with the prepared proposal, not patched from its values.
+
+The shared `architecture/public_surface/inventory.json` and
+`docs/reference/public-surface.md` are deliberately left untouched. A parallel
+lane is changing their inputs; the architect will regenerate once from the
+combined merged tree. No `guardrails sync` is run. This semantic surface change
+is an input to what those companions should describe; any observed stale-output
+consequence is an accepted coordination condition, not a new finding.
+
+**Additional hypothesis, recorded before its measurement:** the current global
+inventory implementation may not observe this expansion at all.
+`tools/devx/architecture/guardrails.py::_extract_exports` evaluates only literal
+`__all__` lists; the IR analytics facade derives its list from a map. If the
+read-only renderer reports no change while the runtime gains the eight types,
+that would be a distinct proxy-measurement finding, not the expected temporary
+companion staleness. I will compare both complete rendered outputs with their
+committed versions and reconcile actual runtime exports against the facade map.
+The scoped repair continues regardless; the renderer is outside this lane.
+
+### GGA-SURFACE-02 — read-only measurement of the coordinated companions
+
+The hypothesis in GGA-SURFACE-01 is confirmed, with a narrower and different
+result than the anticipated stale-output warning. Sole command, **exit 0**:
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.public_surface_readonly_probe > _build/gy_grade_authority/public-surface-readonly-probe.log 2>&1
+```
+
+Both complete global outputs (denominator: exactly the two coordinated companion
+files) render byte-identically to the untouched current files. Inventory SHA-256:
+`e083af735b7d0a5fc8a79aae5b52f57d0cfbdaf5607cdec9c7fc2884e30132d6`;
+global reference-page SHA-256:
+`7bbfc047903e053482deca8c6440ff18e88c78a451ba533cb850afc9ef325ac8`.
+The live analytics facade has **274 exports**, independently reconciled against
+all 274 keys of `ANALYTICS_FACADE_EXPORTS`, with both difference sets empty.
+The global inventory records **zero** for that same facade and omits all 274
+identities. This zero is the renderer's reported value, not an absence claim.
+The complete omitted identity set is in
+`_build/gy_grade_authority/public-surface-readonly-reconciliation.json`.
+
+The implementation observes literal `__all__` syntax, while the property is the
+callable public facade's actual exports. The eight newly supported types are a
+concrete divergent case. Proposed row:
+`public-surface-inventory-omits-derived-facade-exports`, proposed owner
+**team-polisyos / architecture tooling**, P38. It is not the accepted temporary
+staleness consequence and does not obstruct the current row. No renderer repair,
+baseline change or synchronization is made. The architect's combined-tree
+regeneration coordination remains in force; this observation explains why the
+current renderer cannot itself evidence these eight additions.
+
+### GGA-ADJ-04 — shared authentication and replay capability delivered
+
+The shared owner is
+`data_forge/domains/academic/batch/claim_adjudication_verifier.py::ClaimAdjudicationVerifier`.
+It is non-producing: it holds separately configured evaluator public-key
+appointments, CAS and the deployment registry root, and exposes verification,
+not a receipt signer. The trusted appointment tuple defaults empty. The verifier
+authenticates domain-bound Ed25519 receipts, resolves their complete benchmark
+and execution observation sets, recomputes consensus metrics, guardrails and
+the canonical promotion policy, and reconstructs every publishability result.
+Both Scientist and direct DataForge admission/materialization use that owner.
+Negative cases cover both entries with corrupted signatures, unappointed
+signers, missing observations, forged champion metrics and declared metric drift.
+A missing deployment appointment refuses both entries.
+
+Review showed that the first implementation's quantity was too narrow in two
+ways. A grade for claim ID `c-1` could be borrowed by another work or altered
+causal subject; the fixed consumer binds the complete **22-field** actual input
+schema and the real rich-producer transport, not a hand-maintained subset or
+default-filled reconstruction. Graph and conflict consumers share this lookup.
+An accurate challenger receipt could also omit its incumbent after replacement
+of the public pointer, and an alternate MINIMIZE policy could demote then restore
+an equal original champion. The registry now retains a deployment-owned promotion
+basis, verifies the incumbent's observations, and admits only the canonical claim
+policy. The baseline loader emits a candidate without creating an authority
+pointer. These are the same authority-premise class widened coherently, P40.
+
+The complete final call census walks **2,624 `src/**/*.py` files**, including the
+new PA1 source module. AST call identities are reconciled against an independent
+token-position derivation, with no parse errors, binding ambiguities or identity
+differences. Qualified facade calls and local aliases are included. Source and
+full identity sets are retained in `adjudication_final_census.py/.json`.
+
+After the public-surface change, the explicit six-file adjudication/IR delta gate
+reports **55 passed, exit 0, 31.41 seconds**. The broader preceding 143-test
+package's single form-based mirror failure remains recorded in GGA-ADJ-03.
+Actual shared-verifier removal was replayed through both entries after the source
+batch: Scientist **exit 1**, because the real path completed and published a
+claim; DataForge **exit 1**, because the forged batch materialized without the
+expected refusal. The signatures, CAS, markers and test assertions were retained.
+Station-body times were 0.188766 and 0.155928 seconds respectively; these exclude
+imports and are not total gate durations. The separate subject, baseline-loader,
+canonical-policy and retained-incumbent removal probes also go red as recorded
+in their preserved modules and earlier review receipts.
+
+This completes the capability repair within the configured verifier/CAS/registry
+trust boundary. It does not appoint a production evaluator or establish real
+production evaluation observations. Rewriting both registry files as a host
+administrator or replacing the trusted verifier configuration is outside this
+claim. Missing appointments and evidence continue to block authority.
+
+### GGA-SURFACE-03 — actual export expansion, page derivation and removal
+
+The eight existing types are `AdmittedClaimAdjudicationBatch`,
+`ClaimAdjudicationInputBatch`, `ClaimAdjudicationInputItem`,
+`ClaimAdjudicationResult`, `CausalCredibility`, `ClaimType`, `RiskOfBias` and
+`SupportStatus`. Their complete use census covers the three new verifier/policy/
+subject consumers; none is unused. All eight definition hashes and the entire
+`ir/analytics/literature.py` hash remain unchanged. The analytics facade expands
+266 to 274 exports, and its IR catalog's public type population 435 to 443.
+Both approved IR pages were derived from the actual changed facade and its owner
+catalog, then compared against the prepared pages: **both byte-identical, no
+differences**. Measurement: `ir-reference-generation.json`.
+
+The IR export probe resolves actual objects before consulting `__all__`.
+Removing actual resolution while preserving the complete manifest and `__all__`
+gives **one failure, exit 1, 0.28 seconds**, at `None is AdmittedClaimAdjudicationBatch`.
+The existing generator's read-only `--check` passes. No shared global companion,
+architecture baseline or type shape is changed.
+
+The page investigation found a generation-provenance gap: the actual owner
+`tools/quality/diagnostics/generate_ir_reference_catalog.py::render_ir_schema_catalog`
+renders `docs/reference/ir/schema-catalog.md`; its default CLI also writes
+`docs/reference/schemas.md`. Only the two approved IR pages were written here,
+and `schemas.md` was compared without writing. A complete walk of the one
+`architecture/generated_artifacts.toml` registry yields 61 output-bearing
+families and no matching output, prefix or glob for the IR schema-catalog page.
+Proposed row: `ir-schema-catalog-generator-provenance-unregistered`, proposed
+owner **team-polisyos / IR documentation**. This is evidence of an existing
+generator without the expected registration, not a reason to stop this row.
+
+### GGA-PA1-04 — source-identity component, with full producer work continuing
+
+The now-built DataForge component resolves an explicitly selected native
+numeric→claim→edge-evidence→edge→article→work→version chain against separately
+supplied snapshot bytes. It persists complete typed row projections to CAS and
+replays them against that same independently selected subject and snapshot.
+The supported academic read API exposes producer and audit/replay consumer.
+Its positive status means only `source_reference_identity_recomputed`;
+source authenticity, numeric semantics, native uncertainty, causal identification,
+world binding, target transport and calibration are explicitly `not_established`.
+N8 remains `blocked`, and `production_value_eligible` is type-constrained false.
+
+Independent review measured four scalar-fidelity failures: Decimal rounding,
+lost timestamp nanoseconds, and int→bool/float substitutions accepted by Python
+model equality. A distinct fifth failure used a stored view over mutable external
+CSV bytes outside the snapshot hash. The coherent correction encodes each live
+native column as typed text, checks its native database round trip, compares the
+entire canonical envelope, requires materialized columns in all seven base
+relations, refuses an unbound WAL, and disables external reads before queries.
+The guarantee is a complete native typed textual projection with a checked
+relational round trip and full snapshot hash, not physical SQL-cell byte identity.
+
+The mirrored behavioral gate reports **24 passed, 3.55 seconds**, and independent
+delta review reports **5 passed, 4.04 seconds**. Ruff and format pass. Source hash:
+`d305e73f8854faf647291ff3ad43215e076a7c774dbd37f7b338213955327603`;
+test hash: `18c3f7fe6b26404c90cc6f33840810fbbccaa5ce6d94c35783850d05566d13ae`.
+Removing joins gives **6 failed, 2 passed, exit 1, 2.26 seconds**; removing full
+replay comparison gives **2 failed, 5 passed, exit 1, 1.54 seconds**; restored
+selected controls give **15 passed, exit 0, 1.87 seconds**. Source hashes and
+markers remain unchanged in those process-local removals.
+
+The real retained snapshot produces and replays seven rows in **16.116321 seconds**,
+persisting 56,506 bytes as
+`sha256:e5025109ca9f1f09da335cefd4d05157bb94f9ef5250bbb7416016b4cc43de79`.
+This worked source is W1570787406, a goat-feed experiment, with a selected estimate
+25 g/day, no native CI/SE and unknown target context. It is a positive reference-
+identity witness; it cannot establish a Ukrainian `avg_income` effect. A single
+worked source also cannot establish insufficiency of the whole retained corpus.
+
+**This is a clean component boundary, not the PA1 handback.** Independent scope
+review rejected another premature inference: `_capture_skg` lives in the allowed
+`runtime/quality/acquisition_planner.py`, and the empty production CG2 store lives
+in allowed `grounding_bind.py`. Their missing wiring is engineering work, not an
+external file boundary. Full-positive producer feasibility remains unestablished.
+Work continues on exact-request grounding and complete independent calibration
+evidence, rather than treating an empty admitted table or this goat example as a
+reason to stop. No owner has been appointed.
+
+### Durable final continuation stations
+
+These are the exact local station modules, preserved because `_build` is ignored. They are invoked with `python -m`; removal stations intentionally return nonzero. No secret values are included. The prior stale-branch analysis remains the final section.
+
+#### `_build/gy_grade_authority/def22_recompute_pins.py`
+
+SHA-256 `ea13ccc6141eefc1c8f7153c6507a1f87acfeae02ff532cd9080e03fca63d963`; 4952 bytes.
+
+````python
+"""Recompute authored pins from named committed inputs, then compare proposal."""
+
+import difflib
+import hashlib
+import json
+import subprocess
+import tomllib
+from pathlib import Path
+
+from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, domain_digest
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    declaration_ref,
+    decode_dependency_profile_registry_toml,
+    resolve_profile_declaration_for_purpose,
+)
+
+root = Path.cwd()
+repo = root.parent
+base = subprocess.check_output(["git", "merge-base", "HEAD", "main"], cwd=repo, text=True).strip()
+assert base == "58f8073e44f44519003b5b10c1ccf0d38d7de43a"
+
+def committed(path: str) -> bytes:
+    return subprocess.check_output(["git", "show", f"{base}:policy-engine/{path}"], cwd=repo)
+
+profiles = "architecture/production_quality/method_catalog_dependency_profiles.toml"
+authority = "architecture/production_quality/method_catalog_dependency_authority.toml"
+before = {name: committed(name) for name in (profiles, authority)}
+for name, raw in before.items():
+    assert (root / name).read_bytes() == raw, name
+inputs = {name: committed(name) for name in ("pyproject.toml", "uv.lock")}
+for name, raw in inputs.items():
+    assert (root / name).read_bytes() == raw, name
+original = resolve_profile_declaration_for_purpose(
+    decode_dependency_profile_registry_toml(before[profiles]),
+    authority_registry_bytes=before[authority],
+    authority_purpose="n8_method_catalog_reconstruction",
+)
+computed = original.model_copy(update={
+    "pyproject_ref": domain_digest(DigestDomain.PYPROJECT, inputs["pyproject.toml"]),
+    "lockfile_ref": domain_digest(DigestDomain.UV_LOCK, inputs["uv.lock"]),
+})
+computed = type(original).model_validate(computed.model_dump(mode="python"))
+old_ref, computed_ref = declaration_ref(original), declaration_ref(computed)
+after = {name: raw.decode() for name, raw in before.items()}
+replacements = (
+    (profiles, original.pyproject_ref.value, computed.pyproject_ref.value),
+    (profiles, original.lockfile_ref.value, computed.lockfile_ref.value),
+    (authority, old_ref.artifact_id, computed_ref.artifact_id),
+    (authority, old_ref.semantic_hash.value, computed_ref.semantic_hash.value),
+)
+for name, old, new in replacements:
+    assert after[name].count(old) == 1
+    after[name] = after[name].replace(old, new)
+assert resolve_profile_declaration_for_purpose(
+    decode_dependency_profile_registry_toml(after[profiles].encode()),
+    authority_registry_bytes=after[authority].encode(),
+    authority_purpose="n8_method_catalog_reconstruction",
+) == computed
+old_capabilities = tomllib.loads(before[authority].decode())["capabilities"]
+assert tomllib.loads(after[authority])["capabilities"] == old_capabilities
+fresh_patch = "".join("".join(difflib.unified_diff(
+    before[name].decode().splitlines(keepends=True), text.splitlines(keepends=True),
+    fromfile="a/policy-engine/" + name, tofile="b/policy-engine/" + name,
+)) for name, text in after.items())
+# Only now read the earlier proposal, strictly as a comparison target.
+proposal = (root / "_build/gy_grade_authority/def22-owner-pins.proposed.patch").read_text()
+comparison = "".join(difflib.unified_diff(
+    proposal.splitlines(keepends=True), fresh_patch.splitlines(keepends=True),
+    fromfile="earlier-proposal", tofile="fresh-committed-input-derivation",
+))
+input_facts = {}
+for name, raw in inputs.items():
+    last_change = subprocess.check_output(
+        ["git", "log", "-1", "--format=%H", base, "--", "policy-engine/" + name],
+        cwd=repo, text=True,
+    ).strip()
+    input_facts[name] = {"commit": base, "bytes": len(raw),
+                        "sha256": hashlib.sha256(raw).hexdigest(), "last_change": last_change}
+upstream = {}
+for revision in ("753e0458a", "2021f81d6"):
+    full = subprocess.check_output(["git", "rev-parse", revision], cwd=repo, text=True).strip()
+    ancestor = subprocess.run(["git", "merge-base", "--is-ancestor", full, base], cwd=repo)
+    assert ancestor.returncode in (0, 1)
+    upstream[full] = {"ancestor_of_station_base": ancestor.returncode == 0}
+receipt = {"base": base, "inputs": input_facts, "upstream_changes_named_by_architect": upstream,
+           "pyproject_sha256": computed.pyproject_ref.value,
+           "uv_lock_sha256": computed.lockfile_ref.value,
+           "declaration_artifact_id": computed_ref.artifact_id,
+           "declaration_semantic_hash": computed_ref.semantic_hash.value,
+           "matches_earlier_proposal": proposal == fresh_patch,
+           "proposal_difference": comparison, "unchanged_capabilities": old_capabilities}
+# Write computed text, never apply/read values from the proposal.
+for name, text in after.items():
+    (root / name).write_text(text)
+    assert (root / name).read_text() == text
+destination = root / "_build/gy_grade_authority/def22-pin-recomputation.json"
+destination.write_text(json.dumps(receipt, indent=2) + "\n")
+print(json.dumps(receipt, indent=2))
+````
+
+#### `_build/gy_grade_authority/pa1_source_sufficiency.py`
+
+SHA-256 `9a7b60d775d413cf296fa1c5387d457260a2e9e8427f714b8570c76bca05b029`; 3760 bytes.
+
+````python
+"""Read-only retained-source station with worktree-local DuckDB scratch."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import duckdb
+
+
+def main() -> None:
+    root = Path("production_data")
+    paths = sorted(root.rglob("scholar_knowledge.duckdb"))
+    scratch = Path("_build/gy_grade_authority/duckdb_source_sufficiency")
+    scratch.mkdir(parents=True, exist_ok=True)
+    if len(paths) != 1:
+        raise ValueError(f"academic_holder_ambiguous:{paths}")
+    con = duckdb.connect(str(paths[0]), read_only=True)
+    con.execute("SET temp_directory = ?", [str(scratch.resolve())])
+    con.execute("SET threads = 2")
+    names = [row[0] for row in con.execute("SHOW TABLES").fetchall()]
+    selected = [name for name in names if name in {
+        "ac_works", "ac_article_extractions", "ac_skg_articles", "ac_skg_edge_evidence",
+        "ac_skg_edges", "ac_parameter_estimates",
+    }]
+    schema = {name: con.execute(
+        "SELECT column_name,data_type FROM information_schema.columns WHERE table_name=? ORDER BY ordinal_position",
+        [name],
+    ).fetchall() for name in selected}
+    relevant = sorted(path for path in root.rglob("*") if path.is_file()
+                      and any("academic" in part or "scholar" in part for part in path.parts))
+    print(json.dumps({"holder": str(paths[0].resolve()), "table_denominator": len(names),
+                      "selected_table_schemas": schema,
+                      "academic_file_denominator": len(relevant),
+                      "academic_files": [{"path": str(path), "size": path.stat().st_size}
+                                         for path in relevant]}, indent=2))
+    rows = con.execute("SELECT edge_id,src,dst,article_refs,meta_effect_size FROM ac_skg_edges "
+                       "WHERE (src='unemployment_rate' AND dst='poverty_rate') "
+                       "OR (src='gdp_growth' AND dst='poverty_rate')").fetchall()
+    print(json.dumps({"named_target_edges": rows}, indent=2))
+    work_ids = [work for row in rows for work in json.loads(row[3])]
+    print(json.dumps({"named_target_sources": con.execute(
+        "SELECT id,title,doi,abstract,year,full_text_url FROM ac_works WHERE id IN (SELECT unnest(?))",
+        [work_ids],
+    ).fetchall()}, indent=2))
+    print(json.dumps({"named_target_extractions": con.execute(
+        "SELECT extraction_id,work_id,extraction_json FROM ac_article_extractions WHERE work_id IN (SELECT unnest(?))",
+        [work_ids],
+    ).fetchall()}, indent=2))
+    print(json.dumps({"numeric_source_denominator": con.execute(
+        "SELECT count(*) estimate_rows,count(DISTINCT p.work_id) source_work_ids,"
+        "count(*) FILTER(WHERE w.id IS NOT NULL) matched_source_rows,"
+        "count(*) FILTER(WHERE length(trim(coalesce(w.abstract,'')))>0) with_retained_abstract,"
+        "count(*) FILTER(WHERE length(trim(coalesce(p.raw_context,'')))>0) with_candidate_context,"
+        "count(*) FILTER(WHERE length(trim(coalesce(p.raw_context,'')))>0 AND contains(w.abstract,p.raw_context)) exact_context_in_source "
+        "FROM ac_parameter_estimates p LEFT JOIN ac_works w ON p.work_id=w.id WHERE p.ci_low<p.ci_high"
+    ).fetchall()}, indent=2))
+    print(json.dumps({"candidate_numeric_sources": con.execute(
+        "SELECT p.id,p.work_id,p.variable_name,p.estimate,p.ci_low,p.ci_high,p.unit,p.raw_context,w.abstract,w.title "
+        "FROM ac_parameter_estimates p JOIN ac_works w ON p.work_id=w.id "
+        "WHERE p.ci_low<p.ci_high AND length(trim(coalesce(w.abstract,'')))>0 "
+        "ORDER BY CASE WHEN contains(w.abstract,p.raw_context) AND length(trim(coalesce(p.raw_context,'')))>0 THEN 0 ELSE 1 END,p.id LIMIT 4"
+    ).fetchall()}, indent=2))
+    con.close()
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_span_support_witness.py`
+
+SHA-256 `9a9f86f4146444ccf4b68d2e63f5a7c2edf98aef5fcec2fc9a37f0cd41ee093a`; 3562 bytes.
+
+````python
+"""Exercise the real span-support owner against retained academic source bytes."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+import duckdb
+
+from polisyos.ir.analytics.literature import (
+    CausalClaim, EvidenceSpan, OpenAlexWorkText, validate_causal_claim_span_grounding,
+)
+
+
+def main() -> None:
+    owner_config = "--owner-config" in sys.argv
+    if owner_config:
+        env_path = Path("/Users/deniskopylov/polisyos/policy-engine/.env")
+        for raw in env_path.read_text().splitlines():
+            if not raw.strip() or raw.lstrip().startswith("#") or "=" not in raw:
+                continue
+            name, value = raw.split("=", 1)
+            if name.strip() in {"POLISYOS_LLM_GATEWAY_API_KEY", "POLISYOS_LLM_GATEWAY_BASE_URL",
+                                "POLISYOS_LLM_GATEWAY_MODEL", "POLISYOS_LLM_GATEWAY_SPAN_SUPPORT_MODEL"}:
+                os.environ.setdefault(name.strip(), value.strip().strip('"').strip("'"))
+        os.environ["POLISYOS_LLM_GATEWAY_TIMEOUT_S"] = "25"
+        os.environ["POLISYOS_LLM_GATEWAY_MAX_RETRIES"] = "0"
+    holder = next(Path("production_data").rglob("scholar_knowledge.duckdb"))
+    con = duckdb.connect(str(holder), read_only=True)
+    row = con.execute(
+        "SELECT id,title,abstract FROM ac_works WHERE id=?",
+        ["https://openalex.org/W7124317257"],
+    ).fetchone()
+    con.close()
+    assert row is not None
+    work_id, title, abstract = row
+    source = title + "\n" + abstract
+    digest = hashlib.sha256(source.encode()).hexdigest()
+    sentence = abstract[abstract.index("Data pooling suggested"):abstract.index(" Synthesis without")]
+    start = source.index(sentence)
+    work = OpenAlexWorkText(openalex_id=work_id, title=title, abstract_text=abstract,
+                            source_text=source, content_sha256=digest)
+    claim = CausalClaim(
+        claim_id="retained-ivr-anxiety-source-witness",
+        cause_variable="IVR psychological intervention", effect_variable="anxiety symptoms",
+        direction="negative", claim_text="The cited review reports reduced anxiety after IVR interventions, with SMD -0.77 and 95% CI (-1.32, -0.22).",
+        claim_type="causal_assertion", claim_explicitness="explicit",
+        design_family_hint="rct", source_basis="abstract_only", effect_size=-0.77,
+        supporting_spans=[EvidenceSpan(span_id="retained-results", section="abstract",
+                                      text=sentence, source_ref=work_id,
+                                      start_char=start, end_char=start+len(sentence),
+                                      content_sha256=digest)],
+    )
+    result = validate_causal_claim_span_grounding(work, claim)
+    assert source[start:start + len(sentence)] == sentence
+    output = {"source_holder": str(holder.resolve()), "work_id": work_id,
+              "existing_owner_config_loaded_in_process": owner_config,
+              "source_sha256": digest, "span": sentence, "exact_span_dereference": True,
+              "candidate_claim": claim.model_dump(mode="json"),
+              "real_default_verifier_result": result.model_dump(mode="json"),
+              "scope": "paper statement support only; causal validity and UA transport not established"}
+    text = json.dumps(output, indent=2)
+    output_name = "pa1-span-support-owner-config-output.json" if owner_config else "pa1-span-support-witness-output.json"
+    Path("_build/gy_grade_authority", output_name).write_text(text+"\n")
+    print(text)
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_identity_real_replay.py`
+
+SHA-256 `7497e3a61e43e0354d96f63596362b187049b626a26fc8537b67e78f13bf8540`; 1831 bytes.
+
+````python
+"""Exercise the real source-reference producer; never a positive N8 witness."""
+import hashlib
+import json
+import time
+from pathlib import Path
+
+from polisyos.core import artifacts
+from polisyos.data_forge.read_api import academic
+
+
+def main():
+    start = time.monotonic()
+    path = next(Path('production_data').rglob('scholar_knowledge.duckdb'))
+    with path.open('rb') as stream:
+        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    source = academic.SourceSnapshot(path=path, reference=str(path.resolve()), sha256=digest)
+    selection = academic.SourceIdentitySelection(numeric_id='001fc1ad7237830ccb273e58',
+        work_id='https://openalex.org/W1570787406', claim_id='7fd2b1e8b7ee42f5d1f21c7d',
+        edge_id='66a2297da6ab82980a09e735', skg_version=1)
+    scratch = Path('_build/gy_grade_authority/pa1_identity_real')
+    store = artifacts.FileSystemCAS(scratch / 'cas')
+    ref = academic.produce_source_identity_bundle(source=source, selection=selection,
+        store=store, scratch=scratch / 'spill')
+    result = academic.replay_source_identity_bundle(ref=ref, source=source, selection=selection,
+        store=store, scratch=scratch / 'spill')
+    output = {'artifact_ref':ref.model_dump(mode='json'), 'bundle':result.model_dump(mode='json'),
+        'bundle_bytes':len(store.get_bytes(ref.artifact_id)), 'source_bytes':path.stat().st_size,
+        'elapsed_seconds':time.monotonic()-start}
+    Path('_build/gy_grade_authority/pa1-identity-real-replay-v2-output.json').write_text(json.dumps(output, indent=2)+'\n')
+    print(json.dumps({key:value for key,value in output.items() if key!='bundle'}))
+    print(json.dumps({'status':result.status, 'reasons':result.refusal_reasons,
+        'n8_admission':result.n8_admission, 'row_count':len(result.rows)}))
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_identity_removal.py`
+
+SHA-256 `5a4f4872712d73eadeba3eefd61767a1e272b0aa8821cc50b0833caf8f140e84`; 1268 bytes.
+
+````python
+"""Remove runtime identity checks in memory, retaining every source marker."""
+import hashlib
+import os
+from pathlib import Path
+
+import pytest
+
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+
+
+def main():
+    path = Path(bridge.__file__)
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+    mutation = os.environ.get('GY_PA1_REMOVE', '')
+    if mutation == 'joins':
+        bridge._require_joins = lambda rows, selection: None
+    elif mutation == 'replay':
+        bridge._require_same_bundle = lambda persisted, current: None
+    print({'mutation': mutation or 'restored', 'source_sha256': before}, flush=True)
+    result = pytest.main([
+        'tests/unit/data_forge/domains/academic/knowledge/test_skg_identity_bridge.py',
+        '-q', '--override-ini', 'addopts=',
+        '-k', ('source_join_mismatch' if mutation == 'joins' else
+               'new_valid_cas_object' if mutation == 'replay' else
+               'source_join_mismatch or new_valid_cas_object'),
+    ])
+    after = hashlib.sha256(path.read_bytes()).hexdigest()
+    print({'source_unchanged': before == after, 'source_sha256': after}, flush=True)
+    assert before == after
+    raise SystemExit(result)
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/test_skg_identity_scalar_review.py`
+
+SHA-256 `a92edfa325fb545d8ae58659b246ad74a0fa6634385bd90052fc94f323912bff`; 3335 bytes.
+
+````python
+"""Independent exact-source projection and replay witnesses."""
+
+from __future__ import annotations
+
+import json
+
+import duckdb
+import pytest
+
+from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS, ProducerInfo, SchemaInfo
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+from tests.unit.data_forge.domains.academic.knowledge.test_skg_identity_bridge import (
+    _owner,
+    source,
+)
+
+
+@pytest.mark.parametrize("kind", ["decimal", "timestamp_ns"])
+def test_native_scalar_is_exact_or_refused(source, tmp_path, kind):
+    path, selection = source
+    with duckdb.connect(str(path)) as con:
+        if kind == "decimal":
+            con.execute("ALTER TABLE ac_works ADD COLUMN exact_measure DECIMAL(21,20)")
+            con.execute("UPDATE ac_works SET exact_measure=CAST('1.12345678901234567890' AS DECIMAL(21,20))")
+            expected = {"1.12345678901234567890"}
+        else:
+            con.execute("ALTER TABLE ac_works ADD COLUMN exact_measure TIMESTAMP_NS")
+            con.execute("UPDATE ac_works SET exact_measure=CAST('2026-09-07 01:02:03.123456789' AS TIMESTAMP_NS)")
+            expected = {"2026-09-07 01:02:03.123456789", "2026-09-07T01:02:03.123456789"}
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = bridge.produce_source_identity_bundle(source=_owner(path), selection=selection,
+                                               store=store, scratch=tmp_path / "spill")
+    result = bridge.replay_source_identity_bundle(ref=ref, source=_owner(path), selection=selection,
+                                                 store=store, scratch=tmp_path / "spill")
+    if result.status == "refused":
+        assert result.refusal_reasons
+        return
+    row = next(row for row in result.rows if row.table == "ac_works")
+    cell = next(cell for cell in row.cells if cell.name == "exact_measure")
+    assert cell.value in expected, (kind, cell.database_type, cell.value)
+
+
+@pytest.mark.parametrize("changed", [True, 1.0])
+def test_replay_rejects_scalar_type_substitution_even_if_python_compares_equal(source, tmp_path, changed):
+    path, selection = source
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = bridge.produce_source_identity_bundle(source=_owner(path), selection=selection,
+                                               store=store, scratch=tmp_path / "spill")
+    payload = json.loads(store.get_bytes(ref.artifact_id))
+    row = next(row for row in payload["rows"] if row["table"] == "ac_skg_versions")
+    cell = next(cell for cell in row["cells"] if cell["name"] == "version_id")
+    assert type(cell["value"]) is int
+    assert cell["value"] == changed
+    cell["value"] = changed
+    # Keep the real row hash and all grade/scope markers; only its typed value changes.
+    forged = store.put_bytes(json.dumps(payload).encode(), ArtifactWriteOptions(
+        kind="academic.source_reference_identity", media_type="application/json",
+        schema=SchemaInfo(name="academic.source_reference_identity", version="1.0"),
+        producer=ProducerInfo(component="candidate", version="1")))
+    with pytest.raises(ValueError, match="replay_mismatch"):
+        bridge.replay_source_identity_bundle(ref=forged, source=_owner(path), selection=selection,
+                                             store=store, scratch=tmp_path / "spill")
+````
+
+#### `_build/gy_grade_authority/test_skg_identity_snapshot_review.py`
+
+SHA-256 `60427b8b8c1876afa7b2ce24469712aa5733bcacc9c0d59fb24ece950b732d6c`; 1965 bytes.
+
+````python
+"""Source identity cannot silently acquire unpinned external query inputs."""
+
+from __future__ import annotations
+
+import duckdb
+
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+from tests.unit.data_forge.domains.academic.knowledge.test_skg_identity_bridge import _owner, source
+
+
+def test_snapshot_only_claim_refuses_unbound_external_relation(source, tmp_path):
+    path, selection = source
+    external = tmp_path / "unbound_work.csv"
+    external.write_text("id,abstract\nW1,First unbound text\n")
+    with duckdb.connect(str(path)) as con:
+        con.execute("DROP TABLE ac_works")
+        quoted = str(external).replace("'", "''")
+        con.execute("CREATE VIEW ac_works AS SELECT * FROM read_csv('" + quoted + "', header=true)")
+    owner = _owner(path)
+    store = FileSystemCAS(tmp_path / "cas")
+    first_ref = bridge.produce_source_identity_bundle(source=owner, selection=selection,
+                                                     store=store, scratch=tmp_path / "spill")
+    first = bridge.replay_source_identity_bundle(ref=first_ref, source=owner, selection=selection,
+                                                 store=store, scratch=tmp_path / "spill")
+    if first.status == "refused":
+        assert first.refusal_reasons
+        return
+    external.write_text("id,abstract\nW1,Second unbound text\n")
+    assert _owner(path).sha256 == owner.sha256
+    second_ref = bridge.produce_source_identity_bundle(source=owner, selection=selection,
+                                                      store=store, scratch=tmp_path / "spill")
+    second = bridge.replay_source_identity_bundle(ref=second_ref, source=owner, selection=selection,
+                                                  store=store, scratch=tmp_path / "spill")
+    assert first.rows != second.rows
+    assert second.status == "refused", (first.status, second.status, owner.sha256)
+````
+
+#### `_build/gy_grade_authority/adjudication_final_census.py`
+
+SHA-256 `646a87bb7724057714018799951570fd9610b1e0adac0e9b588beadc9bcd84c7`; 4828 bytes.
+
+````python
+"""Complete Python census with bound facade routes and independent token call check."""
+from __future__ import annotations
+import ast
+import io
+import json
+import tokenize
+from collections import defaultdict
+from pathlib import Path
+
+TARGETS = {
+    'load_admitted_claim_adjudication_batch', 'load_verified_claim_adjudication_rows',
+    'materialize_claim_adjudication_result', 'resolve_current_claim_adjudication',
+    'aggregate_claim_rows', 'claim_metrics', 'claim_guardrails', 'claim_promotion_policy',
+    'metric_is_improved', 'claim_policy_publishable', 'read_claim_promotion_predecessor',
+}
+files = sorted(p for p in Path('src').rglob('*.py') if '__pycache__' not in p.parts)
+hits = {target: [] for target in TARGETS}
+errors, ambiguities, mismatches = [], [], []
+for file in files:
+    source = file.read_text()
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        errors.append([str(file), str(exc)])
+        continue
+    parts = list(file.with_suffix('').parts[1:])
+    module = '.'.join(parts[:-1] if parts[-1] == '__init__' else parts)
+    package = parts[:-1]
+    bindings = defaultdict(set)
+    nodes = list(ast.walk(tree))
+    for node in nodes:
+        if isinstance(node, ast.ImportFrom):
+            owner = '.'.join(package[:len(package)-node.level+1]) if node.level else ''
+            owner = '.'.join(part for part in (owner,node.module) if part)
+            for alias in node.names:
+                bindings[alias.asname or alias.name].add(f'{owner}.{alias.name}')
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                bindings[alias.asname or alias.name.split('.')[0]].add(alias.name if alias.asname else alias.name.split('.')[0])
+        elif isinstance(node, (ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+            bindings[node.name].add(f'{module}.{node.name}')
+    def resolve(node):
+        if isinstance(node, ast.Name):
+            return bindings.get(node.id,set())
+        if isinstance(node, ast.Attribute):
+            return {f'{owner}.{node.attr}' for owner in resolve(node.value)}
+        return set()
+    for _ in range(len(nodes)):
+        changed = False
+        for node in nodes:
+            if isinstance(node, ast.Assign):
+                values = resolve(node.value)
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and not values <= bindings[target.id]:
+                        bindings[target.id].update(values)
+                        changed = True
+        if not changed:
+            break
+    ast_positions = set()
+    for node in nodes:
+        if not isinstance(node,ast.Call) or not isinstance(node.func,(ast.Name,ast.Attribute)):
+            continue
+        leaf = node.func.id if isinstance(node.func,ast.Name) else node.func.attr
+        resolutions = resolve(node.func)
+        relevant = {value.rsplit('.',1)[-1] for value in resolutions} & TARGETS
+        if leaf in TARGETS:
+            relevant.add(leaf)
+        if not relevant:
+            continue
+        position = (node.func.lineno, node.func.col_offset if isinstance(node.func,ast.Name)
+                    else node.func.end_col_offset-len(leaf))
+        ast_positions.add(position)
+        item = {'file':str(file),'line':node.lineno,'call':ast.unparse(node.func),
+                'bound_routes':sorted(resolutions)}
+        if len(resolutions)!=1 or len(relevant)!=1:
+            ambiguities.append(item)
+        for target in relevant:
+            hits[target].append(item)
+    # A separate lexical walk settles whether the AST call filter omitted a
+    # named or qualified spelling; strings/comments are not code call sites.
+    spellings = TARGETS | {name for name,values in bindings.items()
+                          if any(value.rsplit('.',1)[-1] in TARGETS for value in values)}
+    tokens = [token for token in tokenize.generate_tokens(io.StringIO(source).readline)
+              if token.type not in {tokenize.NL,tokenize.NEWLINE,tokenize.INDENT,
+                                    tokenize.DEDENT,tokenize.COMMENT}]
+    token_positions = {token.start for index,token in enumerate(tokens[:-1])
+        if token.type==tokenize.NAME and token.string in spellings
+        and tokens[index+1].string=='('
+        and (index==0 or tokens[index-1].string not in {'def','class'})}
+    if ast_positions != token_positions:
+        mismatches.append({'file':str(file),'ast_only':sorted(ast_positions-token_positions),
+                           'token_only':sorted(token_positions-ast_positions)})
+result = {'denominator_file_type':'src/**/*.py excluding __pycache__',
+          'denominator_count':len(files),'parse_errors':errors,'binding_ambiguities':ambiguities,
+          'independent_token_mismatches':mismatches,'identity_set':hits}
+print(json.dumps(result,indent=2))
+````
+
+#### `_build/gy_grade_authority/adjudication_removal_stations.py`
+
+SHA-256 `bca6ac95a2c197ffdd1454c10c69e71469a1bf47155b9c5927ff4d83256a5e41`; 3845 bytes.
+
+````python
+"""Frozen marker-preserving adjudication removal controls.
+
+Run from policy-engine with the local Python and PYTHONPATH=.:src:
+  .venv/bin/python -m _build.gy_grade_authority.adjudication_removal_stations scientist
+  .venv/bin/python -m _build.gy_grade_authority.adjudication_removal_stations data_forge
+
+Both original timeit commands below were observed before this preservation.
+The frozen module was replayed after the source batch; see REPLAY_OBSERVED.
+"""
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from time import perf_counter
+
+ORIGINAL_COMMANDS = {
+    "scientist": '''PYTHONPATH=.:src .venv/bin/python -m timeit -n 1 -r 1 -s 'import asyncio; from pathlib import Path; from tempfile import TemporaryDirectory; from tests.unit.data_forge.domains.academic.batch import test_claim_adjudication_verifier as checks; from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import ClaimAdjudicationVerifier; ClaimAdjudicationVerifier.verify_batch = lambda *args, **kwargs: None' 'with TemporaryDirectory(dir="tests") as root: asyncio.run(checks.test_valid_champion_does_not_authorize_fabricated_run_result(Path(root), "scientist"))' ''',
+    "data_forge": '''PYTHONPATH=.:src .venv/bin/python -m timeit -n 1 -r 1 -s 'import asyncio; from pathlib import Path; from tempfile import TemporaryDirectory; from tests.unit.data_forge.domains.academic.batch import test_claim_adjudication_verifier as checks; from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import ClaimAdjudicationVerifier; ClaimAdjudicationVerifier.verify_batch = lambda *args, **kwargs: None' 'with TemporaryDirectory(dir="tests") as root: asyncio.run(checks.test_valid_champion_does_not_authorize_fabricated_run_result(Path(root), "data_forge"))' ''',
+}
+OBSERVED = {
+    "scientist": {
+        "exit": 1,
+        "duration": "not_established: timeit assertion exited before timing was printed",
+        "output": "AssertionError: expected blocked; actual status='completed', input_claims=1, published_claims=1; result_ref present",
+    },
+    "data_forge": {
+        "exit": 1,
+        "duration": "not_established: timeit assertion exited before timing was printed",
+        "output": "Failed: DID NOT RAISE <class 'ValueError'>; forged batch materialized",
+    },
+}
+
+
+REPLAY_OBSERVED = {
+    "scientist": {"exit": 1, "station_body_seconds": 0.036385417042765766,
+                  "output": "AssertionError: completed, result_ref present, published_claims=1"},
+    "data_forge": {"exit": 1, "station_body_seconds": 0.0357904169941321,
+                   "output": "Failed: DID NOT RAISE ValueError; forged batch materialized"},
+}
+# Station timing excludes import/setup before the timer; full process duration not_established.
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("station", choices=tuple(OBSERVED))
+    args = parser.parse_args()
+    from tests.unit.data_forge.domains.academic.batch import test_claim_adjudication_verifier as checks
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import ClaimAdjudicationVerifier
+    # The actual shared replay is removed; genuine signatures, CAS, schemas,
+    # owner names, enums, receipt refs and the full assertion remain unchanged.
+    ClaimAdjudicationVerifier.verify_batch = lambda *args, **kwargs: None
+    started = perf_counter()
+    try:
+        with TemporaryDirectory(dir="tests") as root:
+            asyncio.run(checks.test_valid_champion_does_not_authorize_fabricated_run_result(
+                Path(root), args.station,
+            ))
+    finally:
+        print(json.dumps({"station": args.station, "elapsed_seconds": perf_counter() - started}), flush=True)
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/test_adjudication_final_removals.py`
+
+SHA-256 `638eaedbd1201f2c3e5fe29b7675f4d0e75ed137ed40e200b9033c3b93db8e78`; 2459 bytes.
+
+````python
+"""Intentional red stations: remove runtime properties while keeping evidence/markers."""
+from __future__ import annotations
+
+import ast
+import inspect
+import textwrap
+
+from tests.unit.data_forge.domains.academic.batch import (
+    test_claim_adjudication_autotune as autotune_checks,
+    test_claim_adjudication_subject_binding as subject_checks,
+    test_claim_adjudication_verifier as intake_checks,
+)
+
+
+def test_subject_property_removed(tmp_path, monkeypatch):
+    from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import VerifiedClaimAdjudicationRows
+    # Actual signed rows are retained. Only current-subject comparison is removed.
+    monkeypatch.setattr(VerifiedClaimAdjudicationRows, "for_current_subject",
+                        lambda self, subject: self._read().get(subject.get("claim_id")))
+    subject_checks.test_every_current_input_field_is_required_and_content_bound(tmp_path)
+
+
+def test_baseline_property_removed(tmp_path, monkeypatch):
+    from polisyos.scientist.methods.autotune.claim_adjudication import ClaimAdjudicationRuntimeLoader
+    from polisyos.scientist.methods.autotune.runtime import ChampionBackedRuntimeLoader
+    # Preserve both classes and all markers; restore the old real seeding behavior.
+    monkeypatch.setattr(ClaimAdjudicationRuntimeLoader, "load", ChampionBackedRuntimeLoader.load)
+    autotune_checks.test_successful_claim_promotion_changes_runtime_selection(tmp_path)
+
+
+def test_canonical_policy_property_removed(tmp_path, monkeypatch):
+    from polisyos.scientist.methods.autotune import registry
+    original = registry.ChampionRegistry.consider_promotion
+    source = ast.parse(textwrap.dedent(inspect.getsource(original)))
+    removed = 0
+    for node in ast.walk(source):
+        if isinstance(node, ast.If) and ast.unparse(node.test) == "policy.model_dump(mode='json') != claim_promotion_policy()":
+            # Keep the original rejection branch, names and messages, but delete
+            # the deciding predicate in this process only.
+            node.test = ast.Constant(False)
+            removed += 1
+    assert removed == 1
+    namespace = dict(original.__globals__)
+    exec(compile(ast.fix_missing_locations(source), "<policy-property-removal>", "exec"), namespace)
+    monkeypatch.setattr(registry.ChampionRegistry, "consider_promotion", namespace[original.__name__])
+    intake_checks.test_claim_transition_rejects_alternate_policy_without_changing_basis(tmp_path)
+````
+
+#### `_build/gy_grade_authority/test_adjudication_incumbent_delta.py`
+
+SHA-256 `c0b1b10a5a86b6da5643f5bd88a4fc0aea713671ae0c94497e5b32a08d2158d0`; 3991 bytes.
+
+````python
+"""Delta review under a fixed deployment-owned verifier/root/appointment."""
+
+from __future__ import annotations
+
+import hashlib
+import os
+
+import pytest
+
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.data_forge.domains.academic.batch import claim_adjudication_verifier as owner
+from polisyos.scientist.methods.autotune import (
+    BenchmarkEvaluation,
+    persist_benchmark_evaluation,
+    persist_mutation_artifact,
+)
+from polisyos.scientist.methods.autotune.claim_adjudication import (
+    ClaimAdjudicationSearchConfig,
+    default_claim_adjudication_promotion_policy,
+)
+from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+    canonical,
+    put,
+    signed_receipt,
+)
+from tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier import (
+    setup_evidence,
+)
+
+
+def _challenger(f):
+    candidate = persist_mutation_artifact(
+        f.store, ClaimAdjudicationSearchConfig(passes=1, notes=["second equal-score candidate"])
+    )
+    evaluation = BenchmarkEvaluation.model_validate(
+        from_canonical_bytes(f.store.get_bytes(f.evaluation_ref.artifact_id))
+    ).model_copy(update={"candidate_ref": candidate})
+    return candidate, persist_benchmark_evaluation(f.store, evaluation)
+
+
+def test_real_first_promotion_replays(tmp_path):
+    _, f = setup_evidence(tmp_path)
+    pointer = f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+    assert pointer["candidate_ref"]["artifact_id"] == str(f.candidate_ref.artifact_id)
+
+
+def test_equal_challenger_cannot_change_current_or_basis(tmp_path):
+    _, f = setup_evidence(tmp_path)
+    basis_path = tmp_path / "registry/claim_adjudication/promotion_basis.json"
+    basis_before = basis_path.read_bytes()
+    pointer_before = f.registry.get("claim_adjudication")
+    candidate, evaluation = _challenger(f)
+    decision = f.registry.consider_promotion(
+        "claim_adjudication", candidate, evaluation,
+        default_claim_adjudication_promotion_policy(),
+    )
+    assert not decision.promoted
+    assert decision.reason == "not_better_than_champion"
+    assert f.registry.get("claim_adjudication") == pointer_before
+    assert basis_path.read_bytes() == basis_before
+    f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+
+
+def test_legacy_pointer_without_basis_is_not_genesis(tmp_path):
+    _, f = setup_evidence(tmp_path)
+    # Missing legacy state is a migration condition, not an administrator attack.
+    (tmp_path / "registry/claim_adjudication/promotion_basis.json").unlink()
+    with pytest.raises(ValueError, match="promotion_basis_missing"):
+        f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+
+
+def test_public_alias_pointer_replacement_cannot_erase_incumbent(tmp_path, monkeypatch):
+    _, f = setup_evidence(tmp_path)
+    candidate, evaluation = _challenger(f)
+    first = f.registry.get("claim_adjudication")
+    pointer = first.model_copy(update={"candidate_ref": candidate, "evaluation_ref": evaluation})
+    # Ordinary public API in the same fixed root: bypass its lexical loop guard.
+    f.registry.write_pointer("claim_adjudication/.", pointer)
+    observations_ref = put(f.store, {**f.observations, "candidate_ref": str(candidate.artifact_id)})
+    receipt = signed_receipt(f.store, {
+        **f.benchmark_payload,
+        "candidate_ref": str(candidate.artifact_id),
+        "evaluation_ref": str(evaluation.artifact_id),
+        "observations_ref": str(observations_ref.artifact_id),
+        "champion_pointer_sha256": hashlib.sha256(canonical(pointer.model_dump(mode="json"))).hexdigest(),
+    }, f.key)
+    if os.environ.get("GY_REVIEW_REMOVE_COMPARATOR") == "1":
+        # Delete the semantic admission-state resolution, keep its names/markers.
+        monkeypatch.setattr(owner, "read_claim_promotion_predecessor", lambda *_args: None)
+    with pytest.raises(ValueError, match="promotion_basis_pointer_mismatch"):
+        f.verifier.replay_champion(str(receipt.artifact_id))
+````
+
+#### `_build/gy_grade_authority/prepare_ir_exports.py`
+
+SHA-256 `583a827c31e5669d63bf06ca273f10b7a9e14b9c4dce40ac5e31797bcef4f2f8`; 5075 bytes.
+
+````python
+"""Build a review-only export patch; never mutate IR source or reference documents."""
+from __future__ import annotations
+import ast
+from dataclasses import replace
+import difflib
+import json
+from pathlib import Path
+
+from polisyos.ir import get_ir_schema_catalog, IRExportInfo, IRPublicStatus
+from tools.quality.diagnostics.generate_ir_reference_catalog import render_ir_schema_catalog, render_schema_reference
+
+NAMES = tuple(sorted(('AdmittedClaimAdjudicationBatch','ClaimAdjudicationInputBatch',
+    'ClaimAdjudicationInputItem','ClaimAdjudicationResult','CausalCredibility',
+    'ClaimType','RiskOfBias','SupportStatus')))
+module = 'polisyos.ir.analytics.literature'
+p=Path('src/polisyos/ir/api.py'); original=p.read_text(); tree=ast.parse(original)
+assignment=next(n for n in tree.body if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name) and n.target.id=='ANALYTICS_FACADE_EXPORTS')
+keys=[n.value for n in assignment.value.keys]
+assert not set(NAMES)&set(keys)
+lines=original.splitlines(keepends=True)
+insertions={}
+for name in NAMES:
+    nextkey=next((key for key in assignment.value.keys if key.value>name),None)
+    line=nextkey.lineno-1 if nextkey else assignment.end_lineno-1
+    insertions.setdefault(line,[]).append(name)
+for line,names in sorted(insertions.items(),reverse=True):
+    lines[line:line]=[f'    "{name}": (\n        "{module}",\n        "{name}",\n    ),\n' for name in names]
+changes={str(p): ''.join(lines)}
+p=Path('tests/unit/ir/test_public_surface.py'); original_test=p.read_text()
+changes[str(p)]=original_test+'''\n\ndef test_analytics_facade_exports_existing_adjudication_contracts() -> None:
+    """Resolve the actual existing runtime types through the supported facade."""
+    from polisyos.ir.analytics import literature
+
+    names = (
+'''+''.join(f'        "{name}",\n' for name in NAMES)+'''    )
+    for name in names:
+        assert getattr(analytics, name) is getattr(literature, name)
+        assert name in analytics.__all__
+'''
+p=Path('docs/reference/ir/public-surface.md'); page=p.read_text()
+old=f'| `polisyos.ir.analytics` | {len(keys)} | curated lazy facade |'
+new=f'| `polisyos.ir.analytics` | {len(keys)+len(NAMES)} | curated lazy facade |'
+assert old in page
+changes[str(p)]=page.replace(old,new)
+catalog=get_ir_schema_catalog()
+fqns={f'{module}.{name}' for name in NAMES}
+selected=[entry for entry in catalog.types if entry.fqn in fqns]
+assert len(selected)==len(NAMES)
+assert all(not entry.exported_from for entry in selected)
+modified=replace(catalog,types=tuple(replace(entry,
+    public_status=IRPublicStatus.PACKAGE_FACADE,
+    exported_from=(f'polisyos.ir.analytics:{entry.name}',)) if entry.fqn in fqns else entry
+    for entry in catalog.types), exports=tuple(sorted((*catalog.exports,*[
+        IRExportInfo(package='polisyos.ir.analytics', export_name=name,target_fqn=f'{module}.{name}')
+        for name in NAMES]),key=lambda entry:(entry.package,entry.export_name))))
+# Apply only the owner-rendered changed lines to the current docs, preserving unrelated drift.
+def transfer_delta(current, before, after):
+    old=before.splitlines(keepends=True);new=after.splitlines(keepends=True)
+    result=current
+    for tag,i,j,k,l in reversed(difflib.SequenceMatcher(a=old,b=new).get_opcodes()):
+        if tag=='equal':continue
+        assert tag=='replace'
+        context_start=i
+        previous=''.join(old[context_start:j])
+        while result.count(previous)>1 and context_start>0:
+            context_start-=1
+            previous=''.join(old[context_start:j])
+        desired=''.join(old[context_start:i])+''.join(new[k:l])
+        assert result.count(previous)==1,(previous,result.count(previous))
+        result=result.replace(previous,desired,1)
+    return result
+renderers={'docs/reference/ir/schema-catalog.md':render_ir_schema_catalog,
+           'docs/reference/schemas.md':render_schema_reference}
+render_status={}
+for name,render in renderers.items():
+    before=render(catalog);after=render(modified);current=Path(name).read_text()
+    render_status[name]={'current_matches_owner_render':current==before,
+                         'export_delta_changes_render':before!=after}
+    if before!=after:changes[name]=transfer_delta(current,before,after)
+patch=''
+for name,after in changes.items():
+    patch+=''.join(difflib.unified_diff(Path(name).read_text().splitlines(keepends=True),
+        after.splitlines(keepends=True),fromfile='a/policy-engine/'+name,tofile='b/policy-engine/'+name))
+Path('_build/gy_grade_authority/ir-adjudication-exports-proposal.patch').write_text(patch)
+result={'changed_paths':list(changes),'changed_path_count':len(changes),'new_exports':NAMES,
+        'analytics_exports_before':len(keys),'analytics_exports_after':len(keys)+len(NAMES),
+        'public_types_before':len(catalog.public_types),'public_types_after':len(modified.public_types),
+        'render_status':render_status,'ir_source_written':False}
+Path('_build/gy_grade_authority/ir-adjudication-exports-proposal.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))
+````
+
+#### `_build/gy_grade_authority/public_surface_readonly_probe.py`
+
+SHA-256 `4b23b72c874042387b8d7591819cd3fdd356f95fe6425dbcc690943a928c1aaf`; 1819 bytes.
+
+````python
+"""Read-only complete companion and live IR-facade reconciliation; never sync."""
+from pathlib import Path
+import hashlib
+import json
+from tools.devx.architecture import guardrails as g
+from polisyos.ir import analytics
+from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+
+manifest = g.REPO_ROOT / "architecture/public_surface/contract.toml"
+policies = g._parse_public_surface(manifest)
+inventory = g.build_public_surface_inventory(policies)
+families = g._parse_public_generated_artifact_families(manifest)
+outputs = {
+ "architecture/public_surface/inventory.json": g.render_public_surface_json(inventory, generated_artifact_families=families),
+ "docs/reference/public-surface.md": g.render_public_surface_markdown(inventory),
+}
+result = {"companion_denominator": len(outputs), "outputs": {}}
+for name, expected in outputs.items():
+ raw = Path(name).read_bytes(); computed = expected.encode()
+ result["outputs"][name] = {"matches_current": raw == computed,
+  "current_sha256": hashlib.sha256(raw).hexdigest(), "rendered_sha256": hashlib.sha256(computed).hexdigest()}
+entry = next(entry for package in inventory for entry in package.entrypoints if entry.module == "polisyos.ir.analytics")
+actual = set(analytics.__all__); independently_derived = set(ANALYTICS_FACADE_EXPORTS)
+result["analytics_export_reconciliation"] = {
+ "runtime_count": len(actual), "map_count": len(independently_derived),
+ "runtime_only": sorted(actual - independently_derived), "map_only": sorted(independently_derived - actual),
+ "inventory_count": entry.export_count, "omitted_identity_set": sorted(actual - set(entry.exports)),
+ "invented_identity_set": sorted(set(entry.exports) - actual),
+}
+text = json.dumps(result, indent=2) + "\n"
+Path("_build/gy_grade_authority/public-surface-readonly-reconciliation.json").write_text(text)
+print(text)
+````
+
+#### `_build/gy_grade_authority/write_ir_exposure_reference.py`
+
+SHA-256 `d25e2058233288c23a106a0dbd07bd8f58c3370b7bb27d3dd0f236fa35183430`; 2609 bytes.
+
+````python
+"""Write only the two granted reference pages from actual facade exposure."""
+from __future__ import annotations
+import ast
+import difflib
+import hashlib
+import json
+from pathlib import Path
+import re
+
+import polisyos.ir.analytics as analytics
+from polisyos.ir import get_ir_schema_catalog
+from polisyos.ir.api import PACKAGE_FACADE_IMPORT_POLICY
+from tools.quality.diagnostics.generate_ir_reference_catalog import (
+    render_ir_schema_catalog, render_schema_reference,
+)
+
+before=json.loads(Path('_build/gy_grade_authority/ir-exports-before.json').read_text())
+typefile=Path(before['existing_type_source'])
+assert hashlib.sha256(typefile.read_bytes()).hexdigest()==before['source_sha256']
+resolved={name:getattr(analytics,name) for name in analytics.__all__}
+catalog=get_ir_schema_catalog()
+page=Path('docs/reference/ir/public-surface.md')
+text=page.read_text()
+replacement=f'| `polisyos.ir.analytics` | {len(resolved)} | {PACKAGE_FACADE_IMPORT_POLICY["analytics"]} |'
+text,count=re.subn(r'^\| `polisyos\.ir\.analytics` \| \d+ \| [^\n]+$',replacement,text,flags=re.M)
+assert count==1
+outputs={str(page):text,'docs/reference/ir/schema-catalog.md':render_ir_schema_catalog(catalog)}
+report={'existing_types_unchanged':True,'actual_resolved_analytics_export_count':len(resolved),
+        'generator_path':'tools/quality/diagnostics/generate_ir_reference_catalog.py',
+        'generator_function':'render_ir_schema_catalog(get_ir_schema_catalog())',
+        'documented_cli':'PYTHONPATH=src .venv/bin/python -m tools.quality.diagnostics.generate_ir_reference_catalog',
+        'cli_write_scope_note':'Default CLI writes schema-catalog.md and schemas.md. This bounded invocation writes only granted schema-catalog.md; schemas.md is compared without writing.',
+        'public_surface_derivation':'Actual resolved analytics.__all__ exposure, with PACKAGE_FACADE_IMPORT_POLICY; authored narrative retained.',
+        'schemas_md_unchanged':render_schema_reference(catalog)==Path('docs/reference/schemas.md').read_text(),
+        'proposal_comparison':{}}
+for name,content in outputs.items():
+    proposal=Path('_build/gy_grade_authority/proposed-'+Path(name).name).read_text()
+    difference=''.join(difflib.unified_diff(proposal.splitlines(keepends=True),content.splitlines(keepends=True),fromfile='prepared/'+name,tofile='actual/'+name))
+    report['proposal_comparison'][name]={'identical':proposal==content,'difference':difference}
+    Path(name).write_text(content)
+Path('_build/gy_grade_authority/ir-reference-generation.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report,indent=2))
+````
+
+#### `_build/gy_grade_authority/test_ir_export_resolution_removal.py`
+
+SHA-256 `4e3a0b41868391ed1e8c0e7e5d3be0b5dc8ac35c4ef8213dfe87496ef86e1467`; 1116 bytes.
+
+````python
+"""Intentional red: facade names/manifest remain while actual resolution is removed."""
+import polisyos.ir.analytics as analytics
+from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+from tests.unit.ir import test_public_surface as checks
+
+
+def test_remove_actual_export_resolution_keep_all_markers(monkeypatch):
+    names = {
+        'AdmittedClaimAdjudicationBatch', 'CausalCredibility',
+        'ClaimAdjudicationInputBatch', 'ClaimAdjudicationInputItem',
+        'ClaimAdjudicationResult', 'ClaimType', 'RiskOfBias', 'SupportStatus',
+    }
+    original_names = tuple(analytics.__all__)
+    original_manifest = dict(ANALYTICS_FACADE_EXPORTS)
+    original_resolver = analytics.__getattr__
+    for name in names:
+        monkeypatch.delattr(analytics, name, raising=False)
+    def unavailable(name):
+        return None if name in names else original_resolver(name)
+    monkeypatch.setattr(analytics, '__getattr__', unavailable)
+    assert tuple(analytics.__all__) == original_names
+    assert ANALYTICS_FACADE_EXPORTS == original_manifest
+    checks.test_analytics_facade_exports_existing_adjudication_contracts()
+````
+
+#### `_build/gy_grade_authority/test_skg_identity_scalar_delta.py`
+
+SHA-256 `7f76fecdbf0c567245af122c73464616b125a8380fda4aa43ebcdd03bc9b1f7b`; 1777 bytes.
+
+````python
+"""Original scalar witnesses adapted only to the explicit native-text encoding."""
+
+import json
+
+import pytest
+
+from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS, ProducerInfo, SchemaInfo
+from polisyos.data_forge.domains.academic.knowledge import skg_identity_bridge as bridge
+from tests.unit.data_forge.domains.academic.knowledge.test_skg_identity_bridge import _owner, source
+from _build.gy_grade_authority.test_skg_identity_scalar_review import (
+    test_native_scalar_is_exact_or_refused,
+)
+
+
+@pytest.mark.parametrize("changed", [True, 1.0])
+def test_replay_rejects_nontext_scalar_substitution(source, tmp_path, changed):
+    path, selection = source
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = bridge.produce_source_identity_bundle(source=_owner(path), selection=selection,
+                                               store=store, scratch=tmp_path / "spill")
+    payload = json.loads(store.get_bytes(ref.artifact_id))
+    row = next(row for row in payload["rows"] if row["table"] == "ac_skg_versions")
+    cell = next(cell for cell in row["cells"] if cell["name"] == "version_id")
+    assert cell["value"] == "1"
+    assert cell["encoding"] == "duckdb_varchar_roundtrip"
+    cell["value"] = changed
+    forged = store.put_bytes(json.dumps(payload).encode(), ArtifactWriteOptions(
+        kind="academic.source_reference_identity", media_type="application/json",
+        schema=SchemaInfo(name="academic.source_reference_identity", version="1.0"),
+        producer=ProducerInfo(component="candidate", version="1")))
+    with pytest.raises(ValueError):
+        bridge.replay_source_identity_bundle(ref=forged, source=_owner(path), selection=selection,
+                                             store=store, scratch=tmp_path / "spill")
+````
+
+#### Exact proposed IR facade handback
+
+SHA-256 `c20a9be78c0ab94a5e23a25933725b00977ee4441982c290da3c7cefda6a03cc`. This is a proposed out-of-scope patch, not authorization to apply it.
+
+````json
+"--- a/policy-engine/src/polisyos/ir/api.py\n+++ b/policy-engine/src/polisyos/ir/api.py\n@@ -186,6 +186,10 @@\n \n ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {\n     \"AccessTier\": (\"polisyos.ir.analytics.data_views\", \"AccessTier\"),\n+    \"AdmittedClaimAdjudicationBatch\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"AdmittedClaimAdjudicationBatch\",\n+    ),\n     \"BacktestReport\": (\"polisyos.ir.analytics.backtest\", \"BacktestReport\"),\n     \"BacktestScenario\": (\"polisyos.ir.analytics.backtest\", \"BacktestScenario\"),\n     \"BiasDirection\": (\"polisyos.ir.analytics.backtest\", \"BiasDirection\"),\n@@ -223,6 +227,10 @@\n     ),\n     \"ABMResult\": (\"polisyos.ir.analytics.phase4_dynamics\", \"ABMResult\"),\n     \"ABMResultRef\": (\"polisyos.ir.registry.refs\", \"ABMResultRef\"),\n+    \"CausalCredibility\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"CausalCredibility\",\n+    ),\n     \"CausalDiscoveryReport\": (\n         \"polisyos.ir.analytics.causal_discovery\",\n         \"CausalDiscoveryReport\",\n@@ -250,6 +258,22 @@\n     \"CausalEdge\": (\"polisyos.ir.analytics.causal_graph\", \"CausalEdge\"),\n     \"CausalEffectReport\": (\"polisyos.ir.analytics.causal\", \"CausalEffectReport\"),\n     \"CausalGraphModel\": (\"polisyos.ir.analytics.causal_graph\", \"CausalGraphModel\"),\n+    \"ClaimAdjudicationInputBatch\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimAdjudicationInputBatch\",\n+    ),\n+    \"ClaimAdjudicationInputItem\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimAdjudicationInputItem\",\n+    ),\n+    \"ClaimAdjudicationResult\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimAdjudicationResult\",\n+    ),\n+    \"ClaimType\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"ClaimType\",\n+    ),\n     \"ClaimVocabularyAxisStatus\": (\n         \"polisyos.ir.analytics.literature\",\n         \"ClaimVocabularyAxisStatus\",\n@@ -308,6 +332,10 @@\n         \"polisyos.ir.analytics.dependent_sensitivity\",\n         \"DependentSensitivityResultRef\",\n     ),\n+    \"RiskOfBias\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"RiskOfBias\",\n+    ),\n     \"SensitivityAnalysisBundle\": (\n         \"polisyos.ir.analytics.sensitivity\",\n         \"SensitivityAnalysisBundle\",\n@@ -317,6 +345,10 @@\n         \"SensitivityAnalysisIndex\",\n     ),\n     \"SourceBasis\": (\"polisyos.ir.analytics.literature\", \"SourceBasis\"),\n+    \"SupportStatus\": (\n+        \"polisyos.ir.analytics.literature\",\n+        \"SupportStatus\",\n+    ),\n     \"load_dependent_sensitivity_result\": (\n         \"polisyos.ir.analytics.dependent_sensitivity\",\n         \"load_dependent_sensitivity_result\",\n--- a/policy-engine/tests/unit/ir/test_public_surface.py\n+++ b/policy-engine/tests/unit/ir/test_public_surface.py\n@@ -225,3 +225,22 @@\n     repo_root = Path(__file__).resolve().parents[3]\n     index_page = repo_root / \"docs\" / \"reference\" / \"ir\" / \"index.md\"\n     assert \"[Public Surface](public-surface.md)\" in index_page.read_text(encoding=\"utf-8\")\n+\n+\n+def test_analytics_facade_exports_existing_adjudication_contracts() -> None:\n+    \"\"\"Resolve the actual existing runtime types through the supported facade.\"\"\"\n+    from polisyos.ir.analytics import literature\n+\n+    names = (\n+        \"AdmittedClaimAdjudicationBatch\",\n+        \"CausalCredibility\",\n+        \"ClaimAdjudicationInputBatch\",\n+        \"ClaimAdjudicationInputItem\",\n+        \"ClaimAdjudicationResult\",\n+        \"ClaimType\",\n+        \"RiskOfBias\",\n+        \"SupportStatus\",\n+    )\n+    for name in names:\n+        assert getattr(analytics, name) is getattr(literature, name)\n+        assert name in analytics.__all__\n--- a/policy-engine/docs/reference/ir/public-surface.md\n+++ b/policy-engine/docs/reference/ir/public-surface.md\n@@ -17,7 +17,7 @@\n \n | Facade | Symbol count | Import policy |\n | --- | --- | --- |\n-| `polisyos.ir.analytics` | 266 | curated lazy facade |\n+| `polisyos.ir.analytics` | 274 | curated lazy facade |\n | `polisyos.ir.kernel` | 52 | full lazy facade |\n | `polisyos.ir.world` | 54 | full lazy facade |\n \n--- a/policy-engine/docs/reference/ir/schema-catalog.md\n+++ b/policy-engine/docs/reference/ir/schema-catalog.md\n@@ -13,14 +13,14 @@\n ## Summary\n \n - Total IR types: `1586`.\n-- Public/root-or-package facade types: `435`.\n+- Public/root-or-package facade types: `443`.\n - ABI snapshot-backed types: `95`.\n - Export enumeration covers these public packages:\n \n | Package | Export count |\n | ------- | ------------ |\n | `polisyos.ir` | 280 |\n-| `polisyos.ir.analytics` | 266 |\n+| `polisyos.ir.analytics` | 274 |\n | `polisyos.ir.kernel` | 52 |\n | `polisyos.ir.world` | 54 |\n \n@@ -28,7 +28,7 @@\n \n | Section | Type count | Public types | Snapshot-backed |\n | ------- | ---------- | ------------ | ---------------- |\n-| `analytics` | 976 | 244 | 37 |\n+| `analytics` | 976 | 252 | 37 |\n | `artifacts` | 25 | 0 | 0 |\n | `governance` | 99 | 21 | 8 |\n | `kernel` | 47 | 38 | 0 |\n@@ -12022,9 +12022,9 @@\n ### `polisyos.ir.analytics.literature.AdmittedClaimAdjudicationBatch` { #polisyos-ir-analytics-literature-admittedclaimadjudicationbatch }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n+- Public status: `package_facade`\n - Current version: `1.0`\n-- Exported from: —\n+- Exported from: `polisyos.ir.analytics:AdmittedClaimAdjudicationBatch`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.ClaimAdjudicationResult`\n@@ -12166,9 +12166,9 @@\n ### `polisyos.ir.analytics.literature.CausalCredibility` { #polisyos-ir-analytics-literature-causalcredibility }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:CausalCredibility`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n@@ -12205,9 +12205,9 @@\n ### `polisyos.ir.analytics.literature.ClaimAdjudicationInputBatch` { #polisyos-ir-analytics-literature-claimadjudicationinputbatch }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n+- Public status: `package_facade`\n - Current version: `1.0`\n-- Exported from: —\n+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationInputBatch`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem`\n@@ -12223,9 +12223,9 @@\n ### `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem` { #polisyos-ir-analytics-literature-claimadjudicationinputitem }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationInputItem`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.CausalDirection`, `polisyos.ir.analytics.literature.ClaimExplicitness`, `polisyos.ir.analytics.literature.ClaimType`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.EvidenceSpan`, `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.TextQuality`\n@@ -12259,9 +12259,9 @@\n ### `polisyos.ir.analytics.literature.ClaimAdjudicationResult` { #polisyos-ir-analytics-literature-claimadjudicationresult }\n \n - Kind: `pydantic_model`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:ClaimAdjudicationResult`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: `polisyos.ir.analytics.literature.CausalCredibility`, `polisyos.ir.analytics.literature.ClaimType`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.RiskOfBias`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.SupportStatus`\n@@ -12355,9 +12355,9 @@\n ### `polisyos.ir.analytics.literature.ClaimType` { #polisyos-ir-analytics-literature-claimtype }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:ClaimType`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n@@ -12846,9 +12846,9 @@\n ### `polisyos.ir.analytics.literature.RiskOfBias` { #polisyos-ir-analytics-literature-riskofbias }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:RiskOfBias`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n@@ -12905,9 +12905,9 @@\n ### `polisyos.ir.analytics.literature.SupportStatus` { #polisyos-ir-analytics-literature-supportstatus }\n \n - Kind: `enum`\n-- Public status: `internal`\n-- Current version: `—`\n-- Exported from: —\n+- Public status: `package_facade`\n+- Current version: `—`\n+- Exported from: `polisyos.ir.analytics:SupportStatus`\n - ABI snapshot: `—` / `—`\n - Compatibility mode: `—`\n - References: —\n"
+````
+
+### GGA-GATE-02 — verified local boundary, 2026-09-08
+
+The coordinator caught one remaining single-line literature import in
+`admitted_claim_adjudications.py` after the initial facade batch and changed it
+to the now-supported analytics facade. The final delta gate reports **19 passed,
+exit 0, 206.19 seconds**; delta Ruff passes. Its authority checks include full
+subject transport, real pipeline, IR resolution, both signed entry paths,
+empty appointments, legacy pointers and unminted tokens.
+
+Architecture now reports **exit 0, complete finding identity set empty**:
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check --skip-generated-checks > _build/gy_grade_authority/architecture-after-admitted-facade.log 2>&1
+```
+
+The saved whole finding-set differences remove the initial ten creep identities
+and baseline-drift identity, then the final remaining admitted-row import and
+drift identity; no identity is added. The guardrail owner's complete Python
+input set and a separate `os.walk` derivation both contain 2,624 paths and have
+empty set difference. Recomputed current deep-import creep is empty.
+`_build/gy_grade_authority/architecture-finding-identity-diff.json` retains the
+full sets. The scratch reconciler's first invocation misspelled the owner's
+constant and raised `AttributeError`; after correcting that station error the
+complete comparison ran successfully. No crashed output was counted as a zero.
+
+This is the local commit boundary for the shared publication verifier, authorized
+IR surface expansion and PA1 source-identity component. It is not a claim that
+all repository quality checks pass: the one static mirror failure and transformer
+Ruff identities remain recorded without inherited attribution. PA1 exact-request
+grounding and calibration work continues. The stale branch, global public-surface
+companions and all ungranted architecture files remain untouched; no push occurs.
+
+### GGA-PA1-05 — continued investigation before the exact-request bridge
+
+The preceding verified component boundary is committed as
+`d421575d31808796b8a2a66a98c6ca75dfc3f163`. All 28 committed paths were read back
+from named branch `codex/gy-grade-authority` and compared byte-for-byte with the
+working tree; the tree was clean after readback. No branch publication occurred.
+
+Before the next repair, the mechanism hypothesis is that N7's current SKG
+capture measures an empty in-memory schema and routes `table_count` through a
+shared wrapper as acquired content. That does not evaluate the exact income
+request against retained evidence or CG2's actual premise. The candidate repair
+must freeze the request's candidate/problem/world/epoch/outcome/context identity,
+enumerate actual retained evidence through the DataForge read API, resolve its
+source and independent adjudication lineage, and persist/replay the resulting
+request-specific corpus and refusal or verified resolution before N7 consumes it.
+Fabric and OpenAlex use the same response wrapper; its shared authority class
+must not be declared closed by a per-SKG flag check.
+
+A separate semantic question is being checked before any calibration conversion:
+the ratified PR1a source expects independently adjudicated **relation-outcome**
+evidence, while the new claim adjudicator grades publication eligibility,
+source/design and causal credibility. `publishable` cannot silently become
+`correct exact relation` or a CG2 false-binding label. One investigation checks
+existing calibration-owner semantics and any accepted mapping; another enumerates
+actual retained target and independent CAS evidence. A missing table or empty
+CG2 constant is not itself proof that the producer cannot be built. A genuine
+missing scientific acceptance decision or empirical premise must be named and
+measured before it can become a handback.
+
+### GGA-PA1-06 — a measured scientific acceptance gap, distinct from appointment
+
+The independent owner-contract investigation found no accepted conversion from
+the Row 1 grade to CG2 relation-calibration gold. The existing admitted batch is
+explicitly authoritative only for `academic_claim_edge_publishability`
+(`ir/analytics/literature.py`); `claim_metrics` evaluates `publish_to_graph`, and
+the publication predicate uses source, design, support and confidence. CG1's
+`exact`/`certified-specialization` judgment concerns a particular proposal and
+reference atom across nine critical denotation axes, including do-value, scope,
+population and estimand (`runtime/quality/grounding_relation.py`). A study may
+remain publishable while a changed proposal binds it to the wrong atom. Thus
+publication eligibility cannot distinguish correct from false relation binding.
+
+The existing CG6 `_is_false_bind` mechanism instead requires an independently
+derived must-obligation and the actual identifying decision. Its existing
+wrong-atom semantic check passes, **one test, exit 0, 42.91 seconds**:
+
+```sh
+PYTHONPATH=src .venv/bin/python -m pytest -q -o addopts= tests/unit/runtime/quality/test_grounding_benchmark.py::test_must_negative_wrong_atom_identification_counts_false_bind
+```
+
+The complete 2,624-source-Python symbol census locates the existing calibration
+owners in `grounding_bind.py` and `grounding_benchmark.py`, and finds no production
+relation-observation source/schema implementation. `CalibrationStratumRecord`
+has stratum, status, count and hash fields; it has no per-observation relation
+gold or false-bind count. Its current status recomputation checks owner, hash,
+epoch and count; `_risk_ledger` uses configured bounds. The PR1a plan defines
+lineage, observation identity, an exact stratum and at least 20 observations,
+but does not define the relation-specific gold or an outcome-sensitive production
+calibration acceptance rule.
+
+This is a specific missing scientific acceptance decision, not an appointment
+being treated as permission to build. The architect handback must define the
+independently adjudicated proposal/reference relation and exact contextual
+binding, the accepted adjudicator authority, and how observed correct/incorrect
+bindings determine production calibration acceptance. Counting publishable
+papers or merely accumulating 20 signed observations would invent that rule.
+Proposed row: `cg2-production-relation-gold-acceptance-unspecified`; proposed
+owners team-architecture for acceptance semantics and runtime/quality for
+execution, with institutional appointment unallocated. Source/CAS projection,
+exact-request replay and honest N7 refusal remain buildable and are continuing.
+
+### GGA-PA1-07 — complete local calibration evidence and independent reconciliation
+
+This is a new transparent read-only measurement, not the registered PR1a firstness attempt.
+No source, plan, register, ledger or retained-data changes were made. All artifacts below
+are ignored scratch. Measurement UTC: 2026-09-07 21:05–21:14 (local date 2026-09-08).
+
+Hypothesis recorded before measurement: retained claims and stored numeric intervals
+can support candidate grounding, but an exact-stratum CG2 positive additionally needs
+independently appointed relation-outcome evidence with readable, bound CAS lineage.
+Candidate publication labels do not supply the relation outcome they would calibrate.
+
+#### Disposition
+
+The currently exercised avg_income test request specifies target/metric avg_income
+and average_treatment_effect. Its atom does not specify treatment, amount, eligibility
+or timing. Its diversity-key word grant is not an intervention authority. Engineering
+can still assemble a concrete candidate and owner-bound treatment/assignment; this
+omission is not an external impossibility.
+
+The actual configured retained Academic loader resolves **zero verified rows**. Its six
+CAS/registry/input/result/pass/compatibility paths are absent before and after the read.
+No independent CG2 relation-outcome observation is currently available through that
+configured path. The complete retained production tree has no FileSystemCAS manifest
+or blob files. Historical original/remap/backup roots declared by source_lineage.json
+are unavailable locally; their contents are not_established, not counted as zero.
+
+Row1 ClaimAdjudicationVerifier authenticates publication/source/design benchmark and
+execution results. Its gold schema is item_id, split, publish_to_graph, source_basis,
+design_family; precision_publishable uses publish_to_graph. It cannot turn those gold
+labels into an exact/specialization relation label. The retained benchmark_suite.json
+is a scenario-query suite and the real independent corpus parser refuses it for missing
+suite_version/cases and forbidden scenarios. The three retained claim_gold seed rows
+have no signed observation/CAS lineage and concern publication, not relation outcomes.
+
+The smallest further engineering component is a relation-outcome evidence producer and
+verifier that binds actual source/operator/context/epoch cases to separately established
+relation truth and projects their complete distinct population into CG2. Row1's shared
+CAS, signed receipt authentication, complete observation binding and recomputation can
+be reused, but publication yes/no is not the target label. Its deployment appointment
+slot is empty on the actual production default invocation. Deployment-selected trust
+configuration and genuine independent relation observations are external inputs; this
+task cannot appoint their evaluator or manufacture their labels. Existing raw source
+could support subsequent candidate extraction/annotation once an actual operator is
+bound. This report makes no global claim that semantic source recovery is impossible.
+
+#### Denominators and source adequacy
+
+- Full retained production tree: 6,562 files, 88 JSON, 6,329 JSONL, 8 DuckDB, 43 Parquet
+  plus other enumerated formats. Inventory metadata errors: 0.
+- Complete structured authority inspection: all 88 JSON plus all 3 academic/scholar-path
+  JSONL; 90 readable, 1 malformed JSON (curated/udf_schema.json at line 49). Other JSONL
+  data rows were not rescanned: their presence cannot replace the required absent CAS
+  manifest/blob ABI. The malformed schema remains explicitly unreadable.
+- All three academic JSONL: 3 publication seed examples, 45 acquisition backlog records,
+  7,607 heuristic transport-score records. Nine metadata files carry artifact_id keys;
+  they are Ukraine simulation bundle/build manifests, not claim independent evaluation
+  receipts. No key-presence check was used to admit authority.
+- Complete production-source constructor audit at measurement time: 2,624 Python files,
+  0 unreadable/parse errors, one terminal-symbol ClaimAdjudicationVerifier constructor
+  in the DataForge loader, which passes no appointments; no ClaimEvaluatorAppointment
+  constructor. This bounds current source invocation, not external deployment history
+  or an arbitrary caller's ability to inject configured objects.
+- Previous complete retained-source station, reread from its saved bytes: 4,032 stored
+  nonzero-CI parameters, 1,468 works, 4,032 work joins, 4,029 retained abstracts, 1,309
+  nonempty raw contexts, 1,080 literal raw-context-in-abstract matches. These figures
+  are source availability, not causal validity or independently certified native CIs.
+- New one-query missing-field supplement exports all 4,032 rows, with raw context,
+  source title/abstract, units, country and periods. A separate full name aggregation
+  covers all 62,248 parameters and 45,707 distinct names. No literal avg_income name.
+  The lexical income/earnings/wage/salary subset has 27 rows from 12 works; all 12
+  retained abstracts were read. No row in that named subset has exact country UA.
+  All 24 exact-country-UA nonzero-CI rows are retained in the summary. These exhaustive
+  named subsets do not exhaust multilingual or other semantic relevance.
+- Relevant source candidates are real: US SNAP spending propensity, Paraguay wage
+  decomposition, terrorism and county total earnings, and income as a covariate in
+  health/nutrition studies. They do not by themselves bind a chosen policy to UA
+  average-income ATE, its unit conversion, target transport, or CG2 relation truth.
+  Stored intervals are not uniformly native confidence intervals: the UA shadow
+  economy record's 18–46 bounds come from a range across estimation methods in its
+  retained text. A producer must verify the source meaning before using CI fields.
+
+#### Commands and receipts
+
+All commands run from `/Users/deniskopylov/polisyos/.worktrees/gy/policy-engine` and are
+sole module-form commands:
+
+```
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census saved
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census inventory
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census calls
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census metadata
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census runtime
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census native
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census summary
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_evidence_census income_sources
+```
+
+All final station executions exited 0. Recorded times: saved .110 s, inventory .623 s,
+metadata 6.652 s, final runtime .980 s, native query/export 1.102 s (internal timer),
+summary .172 s. Constructor census total process duration was not retained. A first
+runtime attempt exited 1 because AcademicBatchConfig initializes stage directories and
+the retained source refused academic/raw creation. The final station initializes that
+mutable config in scratch and then sets its public snapshot_root to the existing
+retained holder; it invokes the real owner read and confirms no artifact path appeared.
+This is a harness failure/correction, not a product refusal or a semantic removal red.
+
+No new semantic source gate was implemented in this census lane, so no new property
+removal control is claimed. Earlier accepted Row1/identity behavioral removal evidence
+is unchanged; DEF22 owns tests for the new exact-request/CG2 producer mechanism.
+
+Artifacts (all relative to `_build/gy_grade_authority/`):
+
+| Artifact | SHA-256 |
+| --- | --- |
+| pa1-calibration-saved-output.json | 49ba9f977f4c012b46073cd0f047a7114787cfa3ad4869bd6261cb1a9c0479c9 |
+| pa1-calibration-inventory-output.json | 479fd227a388bd35cb49187b11372763217c2b85889772844c4cab089f0806b7 |
+| pa1-calibration-calls-output.json | a6264bc1db6fb24b84f1cb8c5ae33906e5297ccbb6cc1e9e4ad022e67d478308 |
+| pa1-calibration-metadata-output.json | b601d39959a477f4d9a89a3006ca2fe687d4b212950e6a4d7d55e505281c5e0e |
+| pa1-calibration-runtime-output.json | 410254a05dcee8fcc5961e9e5f8d226fdfaa9211672ebc1c553545b08d63a32a |
+| pa1-calibration-native-output.json | 0df67f563ea2d9d69049507015553bb913a61ab2617c881c0efb86d155513a6a |
+| pa1-calibration-native-population.jsonl | c395cbca101c606d59be01aac1ff71aa9c850a321622ebf2f5603ca47a0cff59 |
+| pa1-calibration-summary-output.json | bc656d3551b791d3278d78393ad2d610521503b1d0b1a6cbc29dc11b2d6708fb |
+| pa1-calibration-income-sources-output.json | 3d12e1e307cda7f0ff822208fa261e94873cb8c816523ac8facebbe68d20d975 |
+
+Full artifact bytes, not truncated stdout, are the count receipts. The census script
+contains exact queries and selection rules. The native station does not use the old
+registered selector or narrow the population by successful outcome.
+
+Independent reconciliation subsequently completed: **exit 0, 2.066643 seconds**. All eight complete identity/multiset comparisons have empty missing/extra sets, and all ten count crosschecks agree. A separate `os.walk` derives the full inventory and metadata frame; SQL derives complete numeric/name/subset identity sets independently of the saved Python projections. Reconciler source SHA-256 `f55173b958bb73e51d12a7647a6cf60ae37699d3a1c61b4a04218a91a5782acc`; output SHA-256 `cf3a4516c6cc745428cfed610597a82e55725a93e2009569bf7256b614722647`.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=src .venv/bin/python -m _build.gy_grade_authority.pa1_calibration_census_reconcile
+```
+
+### Durable calibration investigation stations
+
+The relation-owner inspection is pinned to committed source `d421575d31808796b8a2a66a98c6ca75dfc3f163`. Its initial census was a filesystem walk; no retrospective all-file hash snapshot is claimed. The pinned owner inspection preserves complete DTO fields and decision bodies separately from token absence.
+
+#### `_build/gy_grade_authority/pa1_calibration_evidence_census.py`
+
+SHA-256 `7877efe464184021a2da2118018c3cdb7bf68fcce175a2fff59f63634579b9b4`; 18437 bytes.
+
+````python
+"""Transparent read-only census of retained PA1 evidence, not PR1a selection."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+from collections import Counter
+from datetime import UTC, datetime
+import hashlib
+import json
+from pathlib import Path
+import re
+from time import perf_counter
+
+BASE = Path('_build/gy_grade_authority')
+
+
+def digest(path: Path) -> str:
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def emit(name: str, value: object) -> None:
+    out = BASE / ('pa1-calibration-' + name + '-output.json')
+    out.write_text(json.dumps(value, indent=2, default=str) + '\n')
+    print(json.dumps({'artifact': str(out), 'sha256': digest(out), 'result': value}, indent=2, default=str))
+
+
+def saved() -> None:
+    path = BASE / 'pa1-identity-inputs-output.json'
+    data = json.loads(path.read_text())
+    rows = data['numeric_claim_join_rows']
+    terms = re.compile(r'income|earning|wage|salary|poverty|employment|unemployment|gdp|cash|grant|transfer', re.I)
+    relevant = [r for r in rows if any(terms.search(str(r[i] or '')) for i in (2, 9, 10))]
+    exact = [r for r in rows if 'avg_income' in (r[2], r[9], r[10])]
+    stream_path = BASE / 'pa1-source-sufficiency-output.json.txt'
+    text = stream_path.read_text()
+    decoder = json.JSONDecoder()
+    objects = []
+    offset = 0
+    while offset < len(text):
+        while offset < len(text) and text[offset].isspace():
+            offset += 1
+        if offset == len(text):
+            break
+        value, offset = decoder.raw_decode(text, offset)
+        objects.append(value)
+    summary = {k: value for obj in objects for k, value in obj.items()
+               if k not in ('named_target_extractions', 'candidate_numeric_sources')}
+    emit('saved', {
+        'measured_at': datetime.now(UTC).isoformat(),
+        'inputs': {str(path): digest(path), str(stream_path): digest(stream_path)},
+        'join_query_source': str(BASE / 'pa1_identity_inputs.py'),
+        'join_is': 'native nonzero CI parameter estimate matched to same-work extraction claim by numeric effect_size equality; NOT an admitted lineage or a semantic match',
+        'columns': ['numeric_id', 'work_id', 'variable_name', 'point', 'ci_low', 'ci_high', 'unit', 'extraction_id', 'claim_id', 'cause', 'effect', 'direction'],
+        'rows': len(rows), 'reported_rows_crosscheck': data['numeric_claim_join_count'],
+        'distinct_numeric_ids': len({r[0] for r in rows}),
+        'distinct_work_ids': len({r[1] for r in rows}),
+        'exact_avg_income_rows': exact,
+        'relevance_filter': terms.pattern,
+        'complete_lexical_relevant_rows': relevant,
+        'lexical_relevant_count': len(relevant),
+        'prior_source_sufficiency_summary': summary,
+    })
+
+
+def inventory() -> None:
+    root = Path('production_data')
+    files = []
+    errors = []
+    for path in sorted(root.rglob('*')):
+        try:
+            if path.is_file():
+                files.append({'path': str(path), 'size': path.stat().st_size, 'suffix': path.suffix})
+        except OSError as exc:
+            errors.append({'path': str(path), 'error': repr(exc)})
+    out = {
+        'measured_at': datetime.now(UTC).isoformat(), 'root': str(root.resolve()),
+        'file_denominator': len(files), 'extensions': dict(Counter(r['suffix'] for r in files)),
+        'structured_bytes': sum(r['size'] for r in files if r['suffix'] in ('.json', '.jsonl')),
+        'files': files, 'unreadable_metadata': errors,
+    }
+    path = BASE / 'pa1-calibration-inventory-output.json'
+    path.write_text(json.dumps(out, indent=2) + '\n')
+    print(json.dumps({**{k: v for k, v in out.items() if k != 'files'},
+                      'artifact': str(path), 'sha256': digest(path),
+                      'adjudication_named_files': [r for r in files if 'adjudicat' in r['path'].lower()],
+                      'manifest_files': [r for r in files if r['path'].endswith('.manifest.json')]}, indent=2))
+
+
+def calls() -> None:
+    files = sorted(Path('src/polisyos').rglob('*.py'))
+    matches = []
+    errors = []
+    for path in files:
+        try:
+            tree = ast.parse(path.read_text())
+        except (OSError, UnicodeError, SyntaxError) as exc:
+            errors.append({'path': str(path), 'error': repr(exc)})
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                name = ast.unparse(node.func)
+                if name.split('.')[-1] in ('ClaimAdjudicationVerifier', 'ClaimEvaluatorAppointment'):
+                    matches.append({'path': str(path), 'sha256': digest(path), 'line': node.lineno,
+                                    'call': ast.unparse(node)})
+    emit('calls', {'measured_at': datetime.now(UTC).isoformat(),
+                   'root': 'src/polisyos', 'file_type': '.py', 'source_denominator': len(files),
+                   'all_constructor_calls': matches, 'unreadable': errors,
+                   'scope': 'production source calls by terminal symbol; no test fixture appointments, no claim about external deployments'})
+
+
+def metadata() -> None:
+    inventory_path = BASE / 'pa1-calibration-inventory-output.json'
+    inventory = json.loads(inventory_path.read_text())
+    selected = [r for r in inventory['files'] if r['suffix'] == '.json' or
+                (r['suffix'] == '.jsonl' and any('academic' in part or 'scholar' in part
+                                               for part in Path(r['path']).parts))]
+    files = []
+    errors = []
+    authority_keys = {'artifact_id', 'evaluator_id', 'key_id', 'signature_hex', 'observations_ref',
+                      'benchmark_ref', 'candidate_ref', 'evaluation_ref', 'execution_receipt',
+                      'evaluation_receipt', 'result_artifact_id', 'relation_type', 'reference_epoch'}
+    for row in selected:
+        path = Path(row['path'])
+        try:
+            values = ([json.loads(path.read_text())] if path.suffix == '.json' else
+                      [json.loads(line) for line in path.read_text().splitlines() if line.strip()])
+            keys = Counter()
+            root_keys = set()
+            markers = []
+            def walk(value: object, location: str) -> None:
+                if isinstance(value, dict):
+                    for key, child in value.items():
+                        keys[key] += 1
+                        if key in authority_keys:
+                            markers.append({'location': location + '.' + key,
+                                            'value_type': type(child).__name__})
+                        walk(child, location + '.' + key)
+                elif isinstance(value, list):
+                    for index, child in enumerate(value):
+                        walk(child, location + '[' + str(index) + ']')
+            for index, value in enumerate(values):
+                if isinstance(value, dict):
+                    root_keys.update(value)
+                walk(value, str(index))
+            files.append({**row, 'sha256': digest(path), 'records': len(values),
+                          'root_keys': sorted(root_keys), 'complete_nested_key_counts': dict(keys),
+                          'authority_marker_locations_not_verification': markers})
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            errors.append({**row, 'error': repr(exc)})
+    lineage = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/source_lineage.json')
+    data = json.loads(lineage.read_text())
+    remote = [{'source': source, 'role': role, 'declared_path': value,
+               'locally_readable': Path(value).is_file() or Path(value).is_dir()}
+              for source, values in data['sources'].items() for role, value in values.items() if value]
+    out = {'measured_at': datetime.now(UTC).isoformat(), 'inventory_input': str(inventory_path),
+           'inventory_sha256': digest(inventory_path),
+           'selected_denominator': len(selected), 'file_types': dict(Counter(r['suffix'] for r in selected)),
+           'selection': 'ALL production .json metadata plus ALL academic/scholar-path .jsonl, complete nested keywalk; other JSONL rows not reread because admitted CAS ABI requires independently present manifest/blob files',
+           'files': files, 'unreadable': errors, 'declared_source_locations': remote,
+           'scope': 'Markers inventory only. Authority still requires real admitted CAS verifier; missing original remote locations are unavailable, not zero observations there.'}
+    path = BASE / 'pa1-calibration-metadata-output.json'
+    path.write_text(json.dumps(out, indent=2) + '\n')
+    print(json.dumps({k: v for k, v in out.items() if k != 'files'} | {
+        'artifact': str(path), 'sha256': digest(path),
+        'readable_files': len(files), 'authority_marker_files': [r['path'] for r in files if r['authority_marker_locations_not_verification']],
+        'academic_jsonl': [{k: v for k, v in r.items() if k not in ('complete_nested_key_counts', 'authority_marker_locations_not_verification')} for r in files if r['suffix'] == '.jsonl'],
+    }, indent=2))
+
+
+def runtime() -> None:
+    from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import load_verified_claim_adjudication_rows
+    from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import _Corpus, _GoldCase
+    from pydantic import ValidationError
+    snapshot = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z')
+    assert (snapshot / 'academic').is_dir()
+    # The public initializer mkdirs stage folders. Initialize in our scratch,
+    # then configure the existing read-only holder through its mutable field.
+    config = AcademicBatchConfig(snapshot_root=BASE / 'pa1_calibration_runtime_config')
+    config.snapshot_root = snapshot
+    paths = {key: getattr(config, key) for key in (
+        'claim_adjudication_cas_root', 'claim_adjudication_registry_root',
+        'claim_adjudication_result_ref_path', 'claim_adjudication_input_ref_path',
+        'claim_adjudications_path', 'claim_adjudication_passes_path')}
+    before = {key: value.exists() for key, value in paths.items()}
+    capability = load_verified_claim_adjudication_rows(config)
+    complete_verified_rows = capability._read()
+    # Empty current production receipt set takes the actual no-match branch before
+    # current-subject validation. This is absence evidence, not a fabricated subject.
+    observation = capability.for_current_subject({'claim_id': 'd276db167d011acdff858c28'})
+    after = {key: value.exists() for key, value in paths.items()}
+    assert before == after
+    benchmark = snapshot / 'academic/benchmark_suite.json'
+    benchmark_error = None
+    try:
+        _Corpus.model_validate_json(benchmark.read_bytes())
+    except ValidationError as exc:
+        benchmark_error = [{'type': err['type'], 'loc': err['loc']} for err in exc.errors()]
+    emit('runtime', {
+        'measured_at': datetime.now(UTC).isoformat(), 'configured_snapshot': str(snapshot.resolve()),
+        'configuration_note': 'Constructor was initialized in worktree scratch before setting its public snapshot_root field to the retained holder; direct production initialization previously refused an attempted academic/raw mkdir with PermissionError. No retained-data writes.',
+        'paths': {key: str(value) for key, value in paths.items()},
+        'before_exists': before, 'after_exists': after,
+        'real_loader': 'load_verified_claim_adjudication_rows(config).for_current_subject',
+        'existing_income_claim_id': 'd276db167d011acdff858c28',
+        'actual_consumer_result': observation,
+        'complete_owner_row_read': 'VerifiedClaimAdjudicationRows._read()',
+        'verified_current_row_count': len(complete_verified_rows),
+        'production_benchmark_path': str(benchmark), 'production_benchmark_sha256': digest(benchmark),
+        'independent_benchmark_schema_refusal': benchmark_error,
+        'gold_case_schema_fields': list(_GoldCase.model_fields),
+        'ceiling': 'Publication eligibility labels cannot establish CG2 relation-outcome labels. No claim about unavailable remote source roots.',
+    })
+
+
+def native() -> None:
+    import duckdb
+    start = perf_counter()
+    source = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+    before = source.stat()
+    con = duckdb.connect(str(source), read_only=True)
+    scratch = BASE / 'pa1_calibration_duckdb'
+    scratch.mkdir(parents=True, exist_ok=True)
+    con.execute('SET temp_directory = ?', [str(scratch.resolve())])
+    con.execute('SET threads = 2')
+    query = '''SELECT p.id AS numeric_id,p.work_id,p.variable_name,p.estimate,p.ci_low,p.ci_high,
+        p.std_error,p.unit,p.study_design,p.sample_size,p.country,p.period_start,p.period_end,
+        p.trust_score,p.raw_context,w.title,w.abstract,w.year,w.is_retracted,w.full_text_url
+        FROM ac_parameter_estimates p LEFT JOIN ac_works w ON p.work_id=w.id
+        WHERE p.ci_low < p.ci_high ORDER BY p.id'''
+    cursor = con.execute(query)
+    columns = [item[0] for item in cursor.description]
+    rows = [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
+    names = con.execute('SELECT variable_name,count(*) FROM ac_parameter_estimates GROUP BY variable_name ORDER BY variable_name').fetchall()
+    con.close()
+    after = source.stat()
+    assert (before.st_size, before.st_mtime_ns) == (after.st_size, after.st_mtime_ns)
+    artifact = BASE / 'pa1-calibration-native-population.jsonl'
+    artifact.write_text(''.join(json.dumps(row, ensure_ascii=False) + '\n' for row in rows))
+    terms = re.compile(r'(?:^|[._\s])(income|earnings?|wages?|salary|poverty|employment|unemployment|gdp|cash|grants?|transfers?)(?:$|[._\s])', re.I)
+    lexical = [row for row in rows if terms.search(row['variable_name'] or '')]
+    emit('native', {
+        'measured_at': datetime.now(UTC).isoformat(), 'elapsed_seconds': perf_counter() - start,
+        'source': str(source.resolve()), 'source_size': before.st_size,
+        'source_mtime_ns': before.st_mtime_ns, 'source_stat_unchanged': True,
+        'query': query, 'columns': columns, 'complete_native_ci_rows': len(rows),
+        'distinct_works': len({r['work_id'] for r in rows}),
+        'full_population_artifact': str(artifact), 'full_population_sha256': digest(artifact),
+        'all_parameter_row_count': sum(n for _, n in names),
+        'all_parameter_distinct_variable_count': len(names),
+        'all_parameter_variable_counts': names,
+        'lexical_filter_only': terms.pattern,
+        'lexical_native_ci_count': len(lexical),
+        'complete_lexical_native_ci_rows': lexical,
+        'scope': 'Raw extraction evidence. Numeric interval existence and lexical relevance do not prove native source support, causal effect, transport or independent relation labels.',
+    })
+
+
+def summary() -> None:
+    path = BASE / 'pa1-calibration-native-output.json'
+    data = json.loads(path.read_text())
+    rows = [json.loads(line) for line in (BASE / 'pa1-calibration-native-population.jsonl').read_text().splitlines()]
+    income_pattern = re.compile(r'(?:^|[._\s])(income|earnings?|wages?|salary)(?:$|[._\s])', re.I)
+    income = [r for r in rows if income_pattern.search(r['variable_name'] or '')]
+    ua = [r for r in rows if str(r['country']).lower() in ('ua', 'ukraine')]
+    def compact(row: dict) -> dict:
+        return {key: value for key, value in row.items() if key not in ('abstract', 'full_text_url', 'study_design')}
+    out = {
+        'input': str(path), 'input_sha256': digest(path),
+        'complete_native_ci_rows': len(rows), 'all_parameter_rows': data['all_parameter_row_count'],
+        'all_parameter_distinct_names': data['all_parameter_distinct_variable_count'],
+        'all_parameter_exact_avg_income_names': [row for row in data['all_parameter_variable_counts'] if row[0] == 'avg_income'],
+        'native_ci_exact_avg_income_rows': [compact(r) for r in rows if r['variable_name'] == 'avg_income'],
+        'native_ci_income_name_filter': income_pattern.pattern, 'native_ci_income_name_rows': len(income),
+        'native_ci_income_name_works': len({r['work_id'] for r in income}),
+        'complete_income_name_rows': [compact(r) for r in income],
+        'native_ci_exact_country_UA_rows': len(ua), 'complete_exact_country_UA_rows': [compact(r) for r in ua],
+        'native_ci_income_name_and_UA_rows': [compact(r) for r in income if str(r['country']).lower() in ('ua','ukraine')],
+        'ceiling': 'Name filters exhaust named subsets, not semantic potential of every paper or future source recovery.',
+    }
+    emit('summary', out)
+
+
+def income_sources() -> None:
+    summary = json.loads((BASE / 'pa1-calibration-summary-output.json').read_text())
+    work_ids = {row['work_id'] for row in summary['complete_income_name_rows']}
+    all_rows = [json.loads(line) for line in (BASE / 'pa1-calibration-native-population.jsonl').read_text().splitlines()]
+    works = {}
+    for row in all_rows:
+        if row['work_id'] in work_ids:
+            works[row['work_id']] = {key: row[key] for key in ('work_id', 'title', 'abstract', 'country', 'year', 'study_design')}
+    emit('income-sources', {'complete_named_income_work_count': len(works),
+                            'works': [works[key] for key in sorted(works)],
+                            'scope': 'Entire lexical income-name native-CI work subset, not all semantically relevant sources'})
+
+
+def receipts() -> None:
+    report = BASE / 'pa1-calibration-evidence-handback.md'
+    rows = re.findall(r'^\| ([^|]+) \| ([0-9a-f]{64}) \|$', report.read_text(), re.M)
+    actual = {name: digest(BASE / name) for name, _ in rows}
+    assert all(actual[name] == expected for name, expected in rows)
+    print(json.dumps({'report': str(report), 'report_sha256': digest(report),
+                      'script': __file__, 'script_sha256': digest(Path(__file__)),
+                      'artifact_table_rows_verified': len(rows), 'artifact_hashes': actual}, indent=2))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('station', choices=('saved', 'inventory', 'calls', 'metadata', 'runtime', 'native', 'summary', 'income_sources', 'receipts'))
+    args = parser.parse_args()
+    globals()[args.station]()
+````
+
+#### `_build/gy_grade_authority/pa1_calibration_census_reconcile.py`
+
+SHA-256 `f55173b958bb73e51d12a7647a6cf60ae37699d3a1c61b4a04218a91a5782acc`; 9515 bytes.
+
+````python
+"""Independent os.walk and SQL reconciliation of the saved PA1 census."""
+
+from __future__ import annotations
+
+from collections import Counter
+from datetime import UTC, datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+from time import perf_counter
+
+import duckdb
+
+BASE = Path('_build/gy_grade_authority')
+
+
+def sha(path: Path) -> str:
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def canonical(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+
+
+def compare(label: str, first: list[object], second: list[object]) -> dict:
+    left = Counter(canonical(item) for item in first)
+    right = Counter(canonical(item) for item in second)
+    return {
+        'label': label,
+        'saved_count': sum(left.values()), 'independent_count': sum(right.values()),
+        'saved_distinct': len(left), 'independent_distinct': len(right),
+        'saved_multiset_sha256': hashlib.sha256(canonical(sorted(left.items())).encode()).hexdigest(),
+        'independent_multiset_sha256': hashlib.sha256(canonical(sorted(right.items())).encode()).hexdigest(),
+        'missing_from_independent': list((left - right).elements()),
+        'extra_in_independent': list((right - left).elements()),
+        'equal': left == right,
+    }
+
+
+def main() -> None:
+    start = perf_counter()
+    inputs = {name: BASE / name for name in (
+        'pa1-calibration-inventory-output.json', 'pa1-calibration-metadata-output.json',
+        'pa1-calibration-native-output.json', 'pa1-calibration-native-population.jsonl',
+        'pa1-calibration-summary-output.json', 'pa1-calibration-saved-output.json',
+    )}
+    inventory = json.loads(inputs['pa1-calibration-inventory-output.json'].read_text())
+    metadata = json.loads(inputs['pa1-calibration-metadata-output.json'].read_text())
+    numeric = json.loads(inputs['pa1-calibration-native-output.json'].read_text())
+    summary = json.loads(inputs['pa1-calibration-summary-output.json'].read_text())
+    saved = json.loads(inputs['pa1-calibration-saved-output.json'].read_text())
+    rows = [json.loads(line) for line in inputs['pa1-calibration-native-population.jsonl'].read_text().splitlines()]
+
+    errors = []
+    walked = []
+    def walk_error(exc: OSError) -> None:
+        errors.append({'path': exc.filename, 'error': repr(exc)})
+    for directory, _, names in os.walk('production_data', followlinks=False, onerror=walk_error):
+        for name in names:
+            path = os.path.join(directory, name)
+            try:
+                if os.path.isfile(path):
+                    walked.append({'path': path, 'size': os.stat(path).st_size,
+                                   'suffix': os.path.splitext(name)[1]})
+            except OSError as exc:
+                walk_error(exc)
+    frame = []
+    for row in walked:
+        components = os.path.normpath(row['path']).split(os.sep)
+        if row['suffix'] == '.json' or (row['suffix'] == '.jsonl' and
+                any('academic' in part or 'scholar' in part for part in components)):
+            frame.append(row)
+    comparisons = [
+        compare('complete production path/size/type multiset: rglob vs os.walk', inventory['files'], walked),
+        compare('complete metadata frame including unreadable member',
+                [{key: row[key] for key in ('path', 'size', 'suffix')} for row in metadata['files'] + metadata['unreadable']], frame),
+    ]
+    source = Path(numeric['source'])
+    before = source.stat()
+    con = duckdb.connect(str(source), read_only=True)
+    scratch = BASE / 'pa1_calibration_reconcile_duckdb'
+    scratch.mkdir(parents=True, exist_ok=True)
+    con.execute('SET temp_directory = ?', [str(scratch.resolve())])
+    con.execute('SET threads = 2')
+    regex = r'(?i)(^|[._\s])(income|earnings?|wages?|salary)($|[._\s])'
+    queries = {
+        'counts': '''SELECT count(*) AS all_parameters,
+            count(DISTINCT variable_name) AS distinct_nonnull_names,
+            count(*) FILTER(WHERE variable_name IS NULL) AS null_name_rows,
+            count(*) FILTER(WHERE ci_low < ci_high) AS stored_nonzero_ci,
+            count(DISTINCT work_id) FILTER(WHERE ci_low < ci_high) AS native_ci_works,
+            count(*) FILTER(WHERE ci_low < ci_high AND regexp_matches(variable_name, ?)) AS income_rows,
+            count(DISTINCT work_id) FILTER(WHERE ci_low < ci_high AND regexp_matches(variable_name, ?)) AS income_works,
+            count(*) FILTER(WHERE ci_low < ci_high AND lower(country) IN ('ua','ukraine')) AS ua_rows,
+            count(*) FILTER(WHERE variable_name='avg_income') AS exact_avg_income_rows
+            FROM ac_parameter_estimates''',
+        'native_identity': '''SELECT id,work_id,variable_name,country,
+            coalesce(regexp_matches(variable_name, ?),false) AS income,
+            coalesce(lower(country) IN ('ua','ukraine'),false) AS ua
+            FROM ac_parameter_estimates WHERE ci_low < ci_high ORDER BY id''',
+        'all_names': 'SELECT variable_name,count(*) FROM ac_parameter_estimates GROUP BY variable_name ORDER BY variable_name',
+    }
+    cursor = con.execute(queries['counts'], [regex, regex])
+    counts = dict(zip([r[0] for r in cursor.description], cursor.fetchone(), strict=True))
+    native = con.execute(queries['native_identity'], [regex]).fetchall()
+    name_rows = con.execute(queries['all_names']).fetchall()
+    con.close()
+    after = source.stat()
+    comparisons.extend([
+        compare('native-CI full identity occurrences',
+                [[r['numeric_id'], r['work_id'], r['variable_name'], r['country']] for r in rows],
+                [list(r[:4]) for r in native]),
+        compare('all variable names plus exact multiplicities', numeric['all_parameter_variable_counts'], [list(r) for r in name_rows]),
+        compare('native-CI work ID set', sorted({r['work_id'] for r in rows}), sorted({r[1] for r in native})),
+        compare('income native-CI exact numeric ID set',
+                [r['numeric_id'] for r in summary['complete_income_name_rows']], [r[0] for r in native if r[4]]),
+        compare('income native-CI exact work ID set',
+                sorted({r['work_id'] for r in summary['complete_income_name_rows']}), sorted({r[1] for r in native if r[4]})),
+        compare('UA native-CI exact numeric ID set',
+                [r['numeric_id'] for r in summary['complete_exact_country_UA_rows']], [r[0] for r in native if r[5]]),
+    ])
+    prior_join_count = saved['prior_source_sufficiency_summary']['numeric_source_denominator'][0][0]
+    count_checks = {
+        'file_count_equals_walk_and_extensions_sum': inventory['file_denominator'] == len(walked) == sum(Counter(r['suffix'] for r in walked).values()),
+        'metadata_88_json_plus_3_jsonl_equals_90_readable_plus_1_unreadable': len(frame) == 91 == len(metadata['files']) + len(metadata['unreadable']) and Counter(r['suffix'] for r in frame) == {'.json': 88, '.jsonl': 3},
+        'all_parameters_count_equals_group_sum': counts['all_parameters'] == numeric['all_parameter_row_count'] == sum(n for _, n in name_rows),
+        'distinct_names_count_equals_group_population': counts['distinct_nonnull_names'] + int(counts['null_name_rows'] > 0) == len(name_rows) == numeric['all_parameter_distinct_variable_count'],
+        'stored_ci_count_equals_export_and_prior_independent_work_join': counts['stored_nonzero_ci'] == len(rows) == prior_join_count,
+        'native_ci_works_count_equals_export': counts['native_ci_works'] == len({r['work_id'] for r in rows}),
+        'income_count_equals_saved_population': counts['income_rows'] == len(summary['complete_income_name_rows']),
+        'income_works_count_equals_saved_population': counts['income_works'] == len({r['work_id'] for r in summary['complete_income_name_rows']}),
+        'ua_count_equals_saved_population': counts['ua_rows'] == len(summary['complete_exact_country_UA_rows']),
+        'exact_avg_income_count_equals_saved_name_aggregation': counts['exact_avg_income_rows'] == sum(n for name, n in numeric['all_parameter_variable_counts'] if name == 'avg_income'),
+    }
+    result = {
+        'measured_at': datetime.now(UTC).isoformat(), 'elapsed_seconds': perf_counter() - start,
+        'script_sha256': sha(Path(__file__)), 'input_sha256': {str(p): sha(p) for p in inputs.values()},
+        'inventory_root': inventory['root'], 'independent_inventory_mechanism': 'os.walk, os.stat, os.path.splitext',
+        'walk_file_count': len(walked), 'walk_extensions': dict(Counter(r['suffix'] for r in walked)),
+        'walk_errors': errors, 'metadata_frame_count': len(frame),
+        'source': str(source), 'source_stat_unchanged': (before.st_size, before.st_mtime_ns) == (after.st_size, after.st_mtime_ns),
+        'sql_queries': queries, 'sql_income_regex': regex, 'sql_counts': counts,
+        'complete_identity_multiset_comparisons': comparisons, 'independent_count_crosschecks': count_checks,
+        'scope': 'No abstract/source-text SQL columns read. Exact complete identity and count reconciliation, not semantic selection or authority admission.',
+    }
+    out = BASE / 'pa1-calibration-reconciliation-output.json'
+    out.write_text(json.dumps(result, indent=2) + '\n')
+    print(json.dumps({'artifact': str(out), 'sha256': sha(out), 'result': result}, indent=2))
+    assert not errors and result['source_stat_unchanged']
+    assert all(check['equal'] for check in comparisons) and all(count_checks.values())
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_cg2_relation_mapping_census.py`
+
+SHA-256 `ebbe922ea0a60ef6fa524f24974b820a133773b9fbd4d91c0f9f6bb701d3665e`; 1713 bytes.
+
+````python
+import ast,json,re
+from pathlib import Path
+files=sorted(p for p in Path('src').rglob('*.py') if '__pycache__' not in p.parts)
+requested={'ProductionCG2CalibrationSource','ProductionCalibrationObservation','ProductionCalibrationCorpus','ProductionCalibrationResolution'}
+occurrences=[]
+errors=[]
+owners={}
+for path in files:
+ text=path.read_text()
+ if any(word in text for word in ('ProductionCG2','production_calibration_observation','cg2_production_academic','CalibrationStratumRecord','GroundingCalibrationLedger','CalibrationAnchorSet')):
+  occurrences.append(str(path))
+ for symbol in requested:
+  if symbol in text: owners.setdefault(symbol,[]).append(str(path))
+print(json.dumps({'file_type':'src/**/*.py excluding __pycache__','count':len(files),'calibration_candidate_paths':occurrences,'requested_production_symbols':owners},indent=2))
+for filename in ('grounding_bind.py','grounding_benchmark.py','grounding_relation.py'):
+ path=Path('src/polisyos/runtime/quality')/filename
+ tree=ast.parse(path.read_text())
+ rows=[]
+ for node in ast.walk(tree):
+  if isinstance(node,(ast.ClassDef,ast.FunctionDef,ast.AsyncFunctionDef)) and re.search('calibrat|false_bind|promotability|relation_from_axes|^GroundingRelation|^GroundingBenchmarkCase|^GroundingBenchmarkDecision|^LabelDerivation',node.name,re.I):
+   rows.append([node.name,node.lineno])
+ print(filename, json.dumps(sorted(rows,key=lambda x:x[1])))
+path=Path('src/polisyos/ir/analytics/literature.py')
+for node in ast.parse(path.read_text()).body:
+ if isinstance(node,ast.ClassDef) and node.name in ('ClaimAdjudicationResult','AdmittedClaimAdjudicationBatch'):
+  print(node.name,[(x.target.id,x.lineno) for x in node.body if isinstance(x,ast.AnnAssign)])
+````
+
+#### `_build/gy_grade_authority/pa1_cg2_relation_mapping_owner_inspection.py`
+
+SHA-256 `3c5a4a319e2b7c5ed62a2f351b8e6d7a51e4986403dbdec5ef08607de112c409`; 2148 bytes.
+
+````python
+"""Reproduce the narrow owner-interface inspection from the historical source pin."""
+import ast
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+PIN = 'd421575d31808796b8a2a66a98c6ca75dfc3f163'
+OWNERS = {
+ 'src/polisyos/runtime/quality/grounding_bind.py': (
+  'CalibrationStratumRecord', 'GroundingCalibrationLedger',
+  '_OwnedCalibrationStore', '_recompute_owned_calibration_status', '_risk_ledger',
+  '_owned_calibration_store', '_calibration_evidence_hash'),
+ 'src/polisyos/runtime/quality/grounding_benchmark.py': (
+  'LabelDerivation', 'GroundingBenchmarkCase', 'GroundingBenchmarkDecision',
+  'CalibrationAnchorSet', '_is_false_bind'),
+ 'src/polisyos/runtime/quality/grounding_relation.py': (
+  'MechanisticSignature', '_relation_from_axes'),
+ 'src/polisyos/ir/analytics/literature.py': (
+  'ClaimAdjudicationInputItem', 'ClaimAdjudicationResult', 'AdmittedClaimAdjudicationBatch'),
+ 'src/polisyos/data_forge/domains/academic/batch/claim_adjudication_policy.py': (
+  'claim_metrics', 'claim_policy_publishable'),
+}
+result = {'source_commit': PIN, 'scope': 'five pinned owner Python files; no current-tree census', 'owners': {}}
+for path, names in OWNERS.items():
+ data = subprocess.run(['git', 'show', f'{PIN}:policy-engine/{path}'], check=True, capture_output=True).stdout
+ source = data.decode()
+ definitions = []
+ for node in ast.walk(ast.parse(source)):
+  if not isinstance(node, (ast.ClassDef, ast.FunctionDef)) or node.name not in names:
+   continue
+  row = {'name': node.name, 'line': node.lineno, 'kind': type(node).__name__}
+  if isinstance(node, ast.ClassDef):
+   row['complete_annotated_field_set'] = [
+    {'name': item.target.id, 'annotation': ast.unparse(item.annotation),
+     'default': ast.unparse(item.value) if item.value else None}
+    for item in node.body if isinstance(item, ast.AnnAssign)
+   ]
+  else:
+   row['complete_definition'] = ast.get_source_segment(source, node)
+  definitions.append(row)
+ result['owners'][path] = {'sha256': hashlib.sha256(data).hexdigest(),
+                          'definitions': sorted(definitions, key=lambda row: row['line'])}
+print(json.dumps(result, indent=2))
+````
+
+#### `_build/gy_grade_authority/architecture_identity_diff.py`
+
+SHA-256 `b2fd300ead6104ea0f1dacf10eab3bce8685d7bc2cc969ae350009b98f5f601e`; 1588 bytes.
+
+````python
+"""Diff complete gate finding identities, never summary totals."""
+import json
+import os
+from pathlib import Path
+from tools.devx.architecture import guardrails as g
+
+logs = ("architecture-final.log", "architecture-after-facades.log", "architecture-after-admitted-facade.log")
+sets = {}
+for log in logs:
+    lines = (Path("_build/gy_grade_authority") / log).read_text().splitlines()
+    sets[log] = {line[2:] for line in lines if line.startswith("- ")}
+owner_paths = {str(p.relative_to(g.REPO_ROOT)) for p in g._iter_py_files()}
+independent_paths = {str(Path(root, name).relative_to(g.REPO_ROOT))
+ for root, dirs, files in os.walk(g.SRC_ROOT)
+ if "__pycache__" not in Path(root).parts for name in files if name.endswith(".py")}
+assert owner_paths == independent_paths
+policies = g._parse_public_surface(g.DEFAULT_PUBLIC_MANIFEST)
+current = {edge.key: edge for edge in g.collect_deep_import_edges(policies)}
+baseline = g._load_deep_import_baseline(g.DEFAULT_DEEP_IMPORT_BASELINE)
+result = {"source_file_type": "src/**/*.py excluding __pycache__", "source_denominator": len(owner_paths),
+ "independent_source_denominator": len(independent_paths),
+ "source_identity_difference": [], "finding_sets": {k: sorted(v) for k,v in sets.items()},
+ "diffs": [{"before": a, "after": b, "added": sorted(sets[b]-sets[a]), "removed": sorted(sets[a]-sets[b])}
+ for a,b in zip(logs, logs[1:])], "current_deep_import_creep": sorted(set(current)-set(baseline))}
+text = json.dumps(result, indent=2) + "\n"
+Path("_build/gy_grade_authority/architecture-finding-identity-diff.json").write_text(text)
+print(text)
+````
+
+### GGA-PA1-08 — a passing component did not yet prove the actual N8 bridge
+
+The first exact-request source/runtime test wave reports 31 passed in 45.69
+seconds, but self-review found that the real N8 `any_of` requirement still stops
+in `GenerationCycleController._n7_data_requirement_specs` when there are no legacy
+data-family specifications. Those component greens therefore do not establish
+the row's actual orchestration. The correction passes the existing typed
+`AcquisitionRequirementGap` through N7 unchanged and routes its certified-SKG
+alternative to the source owner. It must not substitute an invented
+`required_method` family or change the v1 gap's grade/schema. This bridge is
+within the granted runtime/quality scope and is being completed before the
+independent review and real N7/N8 station.
+
+### GGA-PA1-09 — independent review refutes the first shared intake
+
+Before repair, the review hypothesis was that parsing the embedded source DTO
+and checking its self-declared owner would not establish the current request,
+source or output grade. The divergent cases were a valid old capture consumed
+for a different world/outcome, and the same canonical SKG requirement carrying
+a response relabeled as Fabric. These are the same source/request/grade-binding
+class as the first intake, not a new general Fabric capability claim (P40).
+
+The independent station
+`_build/gy_grade_authority/test_pa1_n7_independent_review.py` exercised the actual
+live capture and recorded consumer. Its first gate reported **5 failed, 2 passed,
+exit 1, 41.78 seconds**: changed world, changed outcome, altered embedded source
+row and nonexistent CAS reference survived intake; changing the owner label on
+the same SKG gap let a forged registration write `production_msme_panel`.
+The unchanged recorded capture and unchanged-owner rejection were controls.
+A second gate selecting `receipt_emission` reported **2 failed, 7 deselected,
+exit 1, 36.10 seconds**: a forged outer receipt could claim a world write, and a
+forged `current_valid` grounding reached the generation controller. These are
+seven measured escapes in one aggregate review batch. Initial evidence is the
+captured assertion output and executable station, not a retrospectively claimed
+JUnit artifact.
+
+The first implementation therefore measured DTO shape and an owner label where
+the property required independently replayed source/request evidence and an
+output bound to the planned route. The coherent correction is to bind expected
+owner, current requirement/problem/world, deployment-supplied source and CAS
+receipt at intake and at receipt emission. A recorded DTO without that replay
+context cannot establish a recomputed audit result. The source-discovery owner
+already exists within this lane's grants, so declaring this residual outside
+scope would be an omission, not a limitation. The separate missing scientific
+relation-gold/acceptance decision in GGA-PA1-06 remains unchanged.
+
+### GGA-PA1-10 — preserve the refuted station before the coherent correction
+
+All nine initial frozen source/test files were copied only after their bytes
+matched the recorded freeze hashes. The source delta below is a diagnostic
+artifact against `dc95d42c7c77b4eac7e749d865468b8063f2ef17`, not a patch to apply
+to this branch. It preserves the exact state the review refuted. The original
+nine-case station is retained separately from the forthcoming corrected-context
+review. No auxiliary worktree, stash or history rewrite was used.
+
+#### Initial reviewed source delta against dc95d42c7c77b4eac7e749d865468b8063f2ef17
+
+`_build/gy_grade_authority/pa1_n7_initial_delta.patch` — 45770 bytes, SHA-256 `03d9fac0bce2efc04f04882e5be139f76801387a0c5496c0699f9710ab52a878`.
+
+The following JSON line array reconstructs those exact bytes by joining its
+strings; the encoding preserves diff context whitespace without journal lint
+noise.
+
+````json
+[
+  "--- a/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_identity_bridge.py\n",
+  "+++ b/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_identity_bridge.py\n",
+  "@@ -118,12 +118,7 @@\n",
+  "         raise ValueError(\"source_snapshot_hash_mismatch\")\n",
+  " \n",
+  " \n",
+  "-def _read_row(\n",
+  "-    con: duckdb.DuckDBPyConnection,\n",
+  "-    table: str,\n",
+  "-    predicate: str,\n",
+  "-    parameters: list[str | int],\n",
+  "-) -> SourceRow:\n",
+  "+def _retained_columns(con: duckdb.DuckDBPyConnection, table: str) -> list[tuple]:\n",
+  "     relation = con.execute(\n",
+  "         \"SELECT table_type FROM information_schema.tables \"\n",
+  "         \"WHERE table_catalog=current_database() AND table_schema='main' AND table_name=?\",\n",
+  "@@ -143,6 +138,16 @@\n",
+  "     }\n",
+  "     if any(column[0] not in stored_columns for column in description):\n",
+  "         raise ValueError(f\"source_column_not_materialized:{table}\")\n",
+  "+    return description\n",
+  "+\n",
+  "+\n",
+  "+def _read_row(\n",
+  "+    con: duckdb.DuckDBPyConnection,\n",
+  "+    table: str,\n",
+  "+    predicate: str,\n",
+  "+    parameters: list[str | int],\n",
+  "+) -> SourceRow:\n",
+  "+    description = _retained_columns(con, table)\n",
+  "     projections = []\n",
+  "     for column in description:\n",
+  "         identifier = '\"' + column[0].replace('\"', '\"\"') + '\"'\n",
+  "--- a/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_source_population.py\n",
+  "+++ b/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_source_population.py\n",
+  "@@ -0,0 +1,128 @@\n",
+  "+\"\"\"Read a complete retained numeric-reference population for an exact request.\n",
+  "+\n",
+  "+This is a lexical source discovery surface, not a scientific eligibility filter.\n",
+  "+An absent literal label does not establish semantic absence, and a matching label\n",
+  "+does not establish a causal estimand, proposal relation, uncertainty or transport.\n",
+  "+\"\"\"\n",
+  "+\n",
+  "+from __future__ import annotations\n",
+  "+\n",
+  "+import hashlib\n",
+  "+from typing import TYPE_CHECKING, Literal\n",
+  "+\n",
+  "+import duckdb\n",
+  "+from pydantic import Field\n",
+  "+\n",
+  "+from .skg_identity_bridge import (\n",
+  "+    SourceSnapshot,\n",
+  "+    _json_bytes,\n",
+  "+    _require_snapshot,\n",
+  "+    _retained_columns,\n",
+  "+    _StrictModel,\n",
+  "+)\n",
+  "+\n",
+  "+if TYPE_CHECKING:\n",
+  "+    from pathlib import Path\n",
+  "+\n",
+  "+_TABLE = \"ac_skg_simulation_parameters\"\n",
+  "+_COLUMNS = (\n",
+  "+    \"numeric_id\",\n",
+  "+    \"openalex_id\",\n",
+  "+    \"canonical_name\",\n",
+  "+    \"linked_claim_ids_json\",\n",
+  "+    \"linked_edges_json\",\n",
+  "+)\n",
+  "+\n",
+  "+\n",
+  "+class SourceNumericReference(_StrictModel):\n",
+  "+    \"\"\"Stored reference text, including nulls and malformed candidate links.\"\"\"\n",
+  "+\n",
+  "+    numeric_id: str | None\n",
+  "+    openalex_id: str | None\n",
+  "+    canonical_name: str | None\n",
+  "+    linked_claim_ids_json: str | None\n",
+  "+    linked_edges_json: str | None\n",
+  "+\n",
+  "+\n",
+  "+class SourceReferencePopulation(_StrictModel):\n",
+  "+    \"\"\"Complete projected table denominator and a deliberately lexical match set.\"\"\"\n",
+  "+\n",
+  "+    purpose: Literal[\"retained_numeric_reference_discovery\"] = (\n",
+  "+        \"retained_numeric_reference_discovery\"\n",
+  "+    )\n",
+  "+    source_reference: str\n",
+  "+    source_sha256: str = Field(pattern=r\"^[0-9a-f]{64}$\")\n",
+  "+    target_variable: str | None\n",
+  "+    status: Literal[\"reference_population_recomputed\", \"refused\"]\n",
+  "+    table: Literal[\"ac_skg_simulation_parameters\"] = \"ac_skg_simulation_parameters\"\n",
+  "+    columns: tuple[str, ...] = _COLUMNS\n",
+  "+    rows: tuple[SourceNumericReference, ...]\n",
+  "+    row_count: int = Field(ge=0)\n",
+  "+    distinct_numeric_id_count: int = Field(ge=0)\n",
+  "+    distinct_variable_name_count: int = Field(ge=0)\n",
+  "+    projection_sha256: str = Field(pattern=r\"^[0-9a-f]{64}$\")\n",
+  "+    literal_target_row_indices: tuple[int, ...]\n",
+  "+    refusal_reasons: tuple[str, ...]\n",
+  "+    semantic_target_coverage: Literal[\"not_established\"] = \"not_established\"\n",
+  "+    scientific_eligibility: Literal[\"not_established\"] = \"not_established\"\n",
+  "+    source_snapshot_authenticity: Literal[\"not_established\"] = \"not_established\"\n",
+  "+\n",
+  "+\n",
+  "+def read_source_reference_population(\n",
+  "+    *, source: SourceSnapshot, target_variable: str | None, scratch: Path\n",
+  "+) -> SourceReferencePopulation:\n",
+  "+    \"\"\"Recompute all retained numeric references without a LIMIT or fuzzy mapping.\n",
+  "+\n",
+  "+    The selected source is independently supplied. Only materialized native text\n",
+  "+    columns in its base table are accepted; external reads and unbound WALs are\n",
+  "+    refused. Counts describe this projection, never the calibration population.\n",
+  "+    \"\"\"\n",
+  "+    _require_snapshot(source)\n",
+  "+    if target_variable is not None and (type(target_variable) is not str or not target_variable):\n",
+  "+        raise ValueError(\"source_target_variable_invalid\")\n",
+  "+    scratch.mkdir(parents=True, exist_ok=True)\n",
+  "+    rows: tuple[SourceNumericReference, ...] = ()\n",
+  "+    reasons: tuple[str, ...] = ()\n",
+  "+    with duckdb.connect(\n",
+  "+        str(source.path), read_only=True, config={\"temp_directory\": str(scratch.resolve())}\n",
+  "+    ) as con:\n",
+  "+        con.execute(\"SET enable_external_access = false\")\n",
+  "+        try:\n",
+  "+            types = {column[0]: str(column[1]) for column in _retained_columns(con, _TABLE)}\n",
+  "+            if any(types.get(name) not in {\"VARCHAR\", \"JSON\"} for name in _COLUMNS):\n",
+  "+                raise ValueError(\"source_reference_columns_missing_or_nontext\")\n",
+  "+            # The fixed projection preserves native text; sorting uses its complete bytes.\n",
+  "+            values = con.execute(\n",
+  "+                \"SELECT numeric_id, openalex_id, canonical_name, \"\n",
+  "+                \"linked_claim_ids_json, linked_edges_json \"\n",
+  "+                \"FROM main.ac_skg_simulation_parameters\"\n",
+  "+            ).fetchall()\n",
+  "+            projected = [dict(zip(_COLUMNS, value, strict=True)) for value in values]\n",
+  "+            projected.sort(key=_json_bytes)\n",
+  "+            rows = tuple(SourceNumericReference.model_validate(value) for value in projected)\n",
+  "+        except (ValueError, duckdb.Error) as exc:\n",
+  "+            reasons = (f\"{type(exc).__name__}:{exc}\",)\n",
+  "+    _require_snapshot(source)\n",
+  "+    return SourceReferencePopulation(\n",
+  "+        source_reference=source.reference,\n",
+  "+        source_sha256=source.sha256,\n",
+  "+        target_variable=target_variable,\n",
+  "+        status=\"refused\" if reasons else \"reference_population_recomputed\",\n",
+  "+        rows=rows,\n",
+  "+        row_count=len(rows),\n",
+  "+        distinct_numeric_id_count=len(\n",
+  "+            {row.numeric_id for row in rows if row.numeric_id is not None}\n",
+  "+        ),\n",
+  "+        distinct_variable_name_count=len(\n",
+  "+            {row.canonical_name for row in rows if row.canonical_name is not None}\n",
+  "+        ),\n",
+  "+        projection_sha256=hashlib.sha256(\n",
+  "+            _json_bytes([row.model_dump(mode=\"json\") for row in rows])\n",
+  "+        ).hexdigest(),\n",
+  "+        literal_target_row_indices=tuple(\n",
+  "+            index\n",
+  "+            for index, row in enumerate(rows)\n",
+  "+            if target_variable is not None and row.canonical_name == target_variable\n",
+  "+        ),\n",
+  "+        refusal_reasons=reasons,\n",
+  "+    )\n",
+  "--- a/policy-engine/src/polisyos/data_forge/read_api/academic.py\n",
+  "+++ b/policy-engine/src/polisyos/data_forge/read_api/academic.py\n",
+  "@@ -97,6 +97,8 @@\n",
+  "     \"SourceIdentityBundle\": f\"{_ACADEMIC_KNOWLEDGE}.skg_identity_bridge\",\n",
+  "     \"produce_source_identity_bundle\": f\"{_ACADEMIC_KNOWLEDGE}.skg_identity_bridge\",\n",
+  "     \"replay_source_identity_bundle\": f\"{_ACADEMIC_KNOWLEDGE}.skg_identity_bridge\",\n",
+  "+    \"SourceReferencePopulation\": f\"{_ACADEMIC_KNOWLEDGE}.skg_source_population\",\n",
+  "+    \"read_source_reference_population\": f\"{_ACADEMIC_KNOWLEDGE}.skg_source_population\",\n",
+  " }\n",
+  " \n",
+  " \n",
+  "--- a/policy-engine/src/polisyos/runtime/quality/production_grounding_calibration.py\n",
+  "+++ b/policy-engine/src/polisyos/runtime/quality/production_grounding_calibration.py\n",
+  "@@ -0,0 +1,185 @@\n",
+  "+\"\"\"Persist and replay exact-request source discovery with an honest CG2 refusal.\n",
+  "+\n",
+  "+This implements the source-discovery half of production calibration. Publication\n",
+  "+adjudication does not determine a CG1 proposal/reference relation. The scientific\n",
+  "+acceptance slot is deliberately empty until relation gold, an accepted adjudicator\n",
+  "+and an outcome-sensitive calibration rule are supplied by their proper owners.\n",
+  "+No number of retained rows or publication labels can populate that slot here.\n",
+  "+\"\"\"\n",
+  "+\n",
+  "+from __future__ import annotations\n",
+  "+\n",
+  "+import hashlib\n",
+  "+import json\n",
+  "+from typing import TYPE_CHECKING, Literal\n",
+  "+\n",
+  "+from pydantic import BaseModel, ConfigDict, Field, JsonValue\n",
+  "+\n",
+  "+from polisyos.core import artifacts\n",
+  "+from polisyos.data_forge.read_api import academic\n",
+  "+from polisyos.runtime.quality import grounding_bind\n",
+  "+\n",
+  "+if TYPE_CHECKING:\n",
+  "+    from pathlib import Path\n",
+  "+\n",
+  "+_KIND = \"runtime.production_grounding_source_resolution\"\n",
+  "+_VERSION = \"1.0\"\n",
+  "+\n",
+  "+\n",
+  "+class _StrictModel(BaseModel):\n",
+  "+    model_config = ConfigDict(extra=\"forbid\", strict=True, frozen=True)\n",
+  "+\n",
+  "+\n",
+  "+class SourceGroundingRequest(_StrictModel):\n",
+  "+    \"\"\"Exact N7 request and current runtime context, without inferred treatment.\"\"\"\n",
+  "+\n",
+  "+    requirement_ref: str = Field(min_length=1)\n",
+  "+    claim_ref: str | None\n",
+  "+    compiled_requirement: dict[str, JsonValue]\n",
+  "+    design_problem: dict[str, JsonValue] | None\n",
+  "+    world_snapshot: dict[str, JsonValue] | None\n",
+  "+\n",
+  "+\n",
+  "+class RelationAcceptanceSlot(_StrictModel):\n",
+  "+    \"\"\"Empty scientific acceptance decision, distinct from edge publishability.\"\"\"\n",
+  "+\n",
+  "+    purpose: Literal[\"cg1_proposal_reference_relation\"] = \"cg1_proposal_reference_relation\"\n",
+  "+    status: Literal[\"not_established\"] = \"not_established\"\n",
+  "+    relation_gold_context: None = None\n",
+  "+    accepted_relation_adjudicator: None = None\n",
+  "+    outcome_sensitive_calibration_rule: None = None\n",
+  "+\n",
+  "+\n",
+  "+class ProductionGroundingSourceResolution(_StrictModel):\n",
+  "+    \"\"\"Replayable source feasibility result; never a calibration authority token.\"\"\"\n",
+  "+\n",
+  "+    schema_version: Literal[\"policyos.runtime.production_grounding_source_resolution.v1\"] = (\n",
+  "+        \"policyos.runtime.production_grounding_source_resolution.v1\"\n",
+  "+    )\n",
+  "+    purpose: Literal[\"exact_request_source_discovery_and_refusal\"] = (\n",
+  "+        \"exact_request_source_discovery_and_refusal\"\n",
+  "+    )\n",
+  "+    request: SourceGroundingRequest\n",
+  "+    request_sha256: str = Field(pattern=r\"^[0-9a-f]{64}$\")\n",
+  "+    source_population: academic.SourceReferencePopulation | None\n",
+  "+    target_variable: str | None\n",
+  "+    estimand: str | None\n",
+  "+    candidate_operator: None = None\n",
+  "+    reference_epoch: None = None\n",
+  "+    relation_acceptance: RelationAcceptanceSlot = Field(default_factory=RelationAcceptanceSlot)\n",
+  "+    cg2_owner_ledger_id: str\n",
+  "+    cg2_owner_source_id: str\n",
+  "+    cg2_status: Literal[\"cold_start\"] = \"cold_start\"\n",
+  "+    admitted_relation_observation_count: Literal[0] = 0\n",
+  "+    refusal_reasons: tuple[str, ...]\n",
+  "+    n7_disposition: Literal[\"no_acquired_grounding\"] = \"no_acquired_grounding\"\n",
+  "+    n8_admission: Literal[\"blocked\"] = \"blocked\"\n",
+  "+    production_value_eligible: Literal[False] = False\n",
+  "+\n",
+  "+\n",
+  "+def _bytes(value: object) -> bytes:\n",
+  "+    return json.dumps(value, sort_keys=True, separators=(\",\", \":\"), allow_nan=False).encode()\n",
+  "+\n",
+  "+\n",
+  "+def _target(request: SourceGroundingRequest) -> tuple[str | None, str | None]:\n",
+  "+    problem = request.design_problem\n",
+  "+    outcome = problem.get(\"outcome_of_interest\") if problem is not None else None\n",
+  "+    if not isinstance(outcome, dict):\n",
+  "+        return None, None\n",
+  "+    target, estimand = outcome.get(\"target_variable\"), outcome.get(\"estimand\")\n",
+  "+    return (\n",
+  "+        target if isinstance(target, str) and target else None,\n",
+  "+        estimand if isinstance(estimand, str) and estimand else None,\n",
+  "+    )\n",
+  "+\n",
+  "+\n",
+  "+class ProductionCG2CalibrationSource:\n",
+  "+    \"\"\"Produce/replay source discovery; keep the unimplemented truth mapping empty.\n",
+  "+\n",
+  "+    The owner supplies snapshot and request separately from candidate CAS bytes.\n",
+  "+    This does not produce the planned positive production-calibration corpus:\n",
+  "+    its relation acceptance decision has not been established.\n",
+  "+    \"\"\"\n",
+  "+\n",
+  "+    def __init__(\n",
+  "+        self,\n",
+  "+        *,\n",
+  "+        source: academic.SourceSnapshot | None,\n",
+  "+        store: artifacts.FileSystemCAS,\n",
+  "+        scratch: Path,\n",
+  "+    ) -> None:\n",
+  "+        self._source = source\n",
+  "+        self._store = store\n",
+  "+        self._scratch = scratch\n",
+  "+\n",
+  "+    def _recompute(self, request: SourceGroundingRequest) -> ProductionGroundingSourceResolution:\n",
+  "+        request = SourceGroundingRequest.model_validate_json(request.model_dump_json())\n",
+  "+        target, estimand = _target(request)\n",
+  "+        reasons = [\n",
+  "+            \"relation_gold_context_not_established\",\n",
+  "+            \"accepted_relation_adjudicator_not_established\",\n",
+  "+            \"outcome_sensitive_calibration_rule_not_established\",\n",
+  "+            \"candidate_operator_not_established\",\n",
+  "+            \"reference_epoch_not_established\",\n",
+  "+        ]\n",
+  "+        if target is None or estimand is None:\n",
+  "+            reasons.append(\"exact_outcome_request_not_established\")\n",
+  "+        if request.world_snapshot is None:\n",
+  "+            reasons.append(\"current_world_context_not_established\")\n",
+  "+        population = None\n",
+  "+        if self._source is None:\n",
+  "+            reasons.append(\"source_snapshot_unavailable\")\n",
+  "+        else:\n",
+  "+            population = academic.read_source_reference_population(\n",
+  "+                source=self._source, target_variable=target, scratch=self._scratch\n",
+  "+            )\n",
+  "+            reasons.extend(population.refusal_reasons)\n",
+  "+            if population.status != \"refused\" and not population.literal_target_row_indices:\n",
+  "+                reasons.append(\"literal_target_reference_absent_semantic_coverage_unestablished\")\n",
+  "+        # Reuse the production owner, without populating it from counts or caller labels.\n",
+  "+        owned = grounding_bind._owned_calibration_store(\n",
+  "+            \"unknown\", source=\"production\", calibration_min_samples=20\n",
+  "+        )\n",
+  "+        return ProductionGroundingSourceResolution(\n",
+  "+            request=request,\n",
+  "+            request_sha256=hashlib.sha256(_bytes(request.model_dump(mode=\"json\"))).hexdigest(),\n",
+  "+            source_population=population,\n",
+  "+            target_variable=target,\n",
+  "+            estimand=estimand,\n",
+  "+            cg2_owner_ledger_id=owned.ledger.ledger_id,\n",
+  "+            cg2_owner_source_id=owned.ledger.source_id,\n",
+  "+            refusal_reasons=tuple(reasons),\n",
+  "+        )\n",
+  "+\n",
+  "+    def produce(self, request: SourceGroundingRequest) -> artifacts.ArtifactRef:\n",
+  "+        \"\"\"Persist the complete current request/source projection and refusal.\"\"\"\n",
+  "+        result = self._recompute(request)\n",
+  "+        return self._store.put_bytes(\n",
+  "+            _bytes(result.model_dump(mode=\"json\")),\n",
+  "+            artifacts.ArtifactWriteOptions(\n",
+  "+                kind=_KIND,\n",
+  "+                media_type=\"application/json\",\n",
+  "+                schema=artifacts.SchemaInfo(name=_KIND, version=_VERSION),\n",
+  "+                producer=artifacts.ProducerInfo(component=__name__, version=_VERSION),\n",
+  "+            ),\n",
+  "+        )\n",
+  "+\n",
+  "+    def replay(\n",
+  "+        self, *, ref: artifacts.ArtifactRef, request: SourceGroundingRequest\n",
+  "+    ) -> ProductionGroundingSourceResolution:\n",
+  "+        \"\"\"Recompute source and exact request before returning any audit projection.\"\"\"\n",
+  "+        manifest = self._store.get_manifest(ref.artifact_id)\n",
+  "+        if (\n",
+  "+            manifest.kind != _KIND\n",
+  "+            or manifest.artifact_schema is None\n",
+  "+            or (manifest.artifact_schema.name, manifest.artifact_schema.version)\n",
+  "+            != (_KIND, _VERSION)\n",
+  "+        ):\n",
+  "+            raise ValueError(\"production_grounding_source_schema_mismatch\")\n",
+  "+        persisted = ProductionGroundingSourceResolution.model_validate_json(\n",
+  "+            self._store.get_bytes(ref.artifact_id)\n",
+  "+        )\n",
+  "+        current = self._recompute(request)\n",
+  "+        if _bytes(persisted.model_dump(mode=\"json\")) != _bytes(current.model_dump(mode=\"json\")):\n",
+  "+            raise ValueError(\"production_grounding_source_replay_mismatch\")\n",
+  "+        return current\n",
+  "--- a/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py\n",
+  "+++ b/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py\n",
+  "@@ -37,6 +37,7 @@\n",
+  " )\n",
+  " \n",
+  " if TYPE_CHECKING:\n",
+  "+    from polisyos.data_forge.read_api import academic\n",
+  "     from polisyos.runtime.quality.design_problem import DesignProblem\n",
+  " \n",
+  " ACQUISITION_PLANNER_SCHEMA_VERSION = \"policyos.runtime.acquisition_planner.v1\"\n",
+  "@@ -1255,12 +1256,14 @@\n",
+  "         allow_openalex_network: bool = False,\n",
+  "         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,\n",
+  "         captured_at: datetime | None = None,\n",
+  "+        skg_source_snapshot: academic.SourceSnapshot | None = None,\n",
+  "     ) -> None:\n",
+  "         self._repo_root = Path(repo_root)\n",
+  "         self._network_counter = network_counter or AcquisitionNetworkCallCounter()\n",
+  "         self._allow_openalex_network = bool(allow_openalex_network)\n",
+  "         self._dataset_catalog_factory = dataset_catalog_factory\n",
+  "         self._captured_at = _utc(captured_at)\n",
+  "+        self._skg_source_snapshot = skg_source_snapshot\n",
+  " \n",
+  "     @property\n",
+  "     def network_counter(self) -> AcquisitionNetworkCallCounter:\n",
+  "@@ -1373,30 +1376,62 @@\n",
+  "         record: AcquisitionActionRecord,\n",
+  "         spec: Mapping[str, Any],\n",
+  "     ) -> AcquisitionOwnerArtifact | None:\n",
+  "-        import duckdb\n",
+  "-\n",
+  "-        from polisyos.data_forge.domains.academic.knowledge import skg_store\n",
+  "-\n",
+  "-        families = _required_families_for_spec(spec)\n",
+  "-        if not families:\n",
+  "-            return None\n",
+  "-        con = duckdb.connect(\":memory:\")\n",
+  "-        try:\n",
+  "-            skg_store.ensure_skg_schema(con)\n",
+  "-            tables = con.execute(\"SHOW TABLES\").fetchall()\n",
+  "-        finally:\n",
+  "-            con.close()\n",
+  "-        payload = _fabric_response_payload(\n",
+  "-            spec=spec,\n",
+  "-            response={\n",
+  "-                \"owner_response_kind\": \"skg_local_schema_probe\",\n",
+  "-                \"table_count\": len(tables),\n",
+  "-                \"families\": families,\n",
+  "-            },\n",
+  "-        )\n",
+  "+        from polisyos.data_forge.read_api import academic\n",
+  "+        from polisyos.runtime.quality.production_grounding_calibration import (\n",
+  "+            ProductionCG2CalibrationSource,\n",
+  "+            SourceGroundingRequest,\n",
+  "+        )\n",
+  "+        from polisyos.runtime.quality.substrate_registry import DEFAULT_L2_SCHOLAR_KG_PATH\n",
+  "+\n",
+  "+        source = self._skg_source_snapshot\n",
+  "+        if source is None:\n",
+  "+            path = self._repo_root / DEFAULT_L2_SCHOLAR_KG_PATH\n",
+  "+            if path.is_file():\n",
+  "+                with path.open(\"rb\") as stream:\n",
+  "+                    digest = hashlib.file_digest(stream, \"sha256\").hexdigest()\n",
+  "+                source = academic.SourceSnapshot(\n",
+  "+                    path=path, reference=f\"duckdb://{path.resolve()}\", sha256=digest\n",
+  "+                )\n",
+  "+        context = spec.get(\"runtime_grounding_context\")\n",
+  "+        context = context if isinstance(context, Mapping) else {}\n",
+  "+        request = SourceGroundingRequest.model_validate_json(\n",
+  "+            json.dumps(\n",
+  "+                {\n",
+  "+                    \"requirement_ref\": str(record.compiled_requirement_ref or record.gap_id),\n",
+  "+                    \"claim_ref\": spec.get(\"claim_ref\") or spec.get(\"claim_id\"),\n",
+  "+                    \"compiled_requirement\": {\n",
+  "+                        key: value\n",
+  "+                        for key, value in spec.items()\n",
+  "+                        if key != \"runtime_grounding_context\"\n",
+  "+                    },\n",
+  "+                    \"design_problem\": context.get(\"design_problem\"),\n",
+  "+                    \"world_snapshot\": context.get(\"world_snapshot\"),\n",
+  "+                },\n",
+  "+                allow_nan=False,\n",
+  "+            )\n",
+  "+        )\n",
+  "+        owner = ProductionCG2CalibrationSource(\n",
+  "+            source=source,\n",
+  "+            store=artifacts.FileSystemCAS(self._repo_root / \".n7-live-cas\"),\n",
+  "+            scratch=self._repo_root / \".n7-live-cas\" / \"source-query-scratch\",\n",
+  "+        )\n",
+  "+        ref = owner.produce(request)\n",
+  "+        resolution = owner.replay(ref=ref, request=request)\n",
+  "+        response = {\n",
+  "+            \"owner_response_kind\": \"skg_exact_request_source_resolution\",\n",
+  "+            \"resolution_ref\": ref.model_dump(mode=\"json\"),\n",
+  "+            \"resolution\": resolution.model_dump(mode=\"json\"),\n",
+  "+        }\n",
+  "+        payload = {\n",
+  "+            \"owner_response_kind\": \"real_owner_capture\",\n",
+  "+            \"owner_response\": response,\n",
+  "+            \"raw_owner_response_hash\": _stable_content_hash(response),\n",
+  "+            \"acquired_substrate_registrations\": [],\n",
+  "+            \"candidate_bindings\": [],\n",
+  "+        }\n",
+  "         return _artifact_from_owner_response(\n",
+  "             owner_component=\"data_forge.skg\",\n",
+  "-            owner_endpoint=\"skg_store.ensure_skg_schema\",\n",
+  "+            owner_endpoint=\"ProductionCG2CalibrationSource.produce/replay\",\n",
+  "             record=record,\n",
+  "             spec=spec,\n",
+  "             payload=payload,\n",
+  "@@ -1857,10 +1892,7 @@\n",
+  "     counter = network_counter or getattr(gateway, \"network_counter\", None)\n",
+  "     if not isinstance(counter, AcquisitionNetworkCallCounter):\n",
+  "         counter = AcquisitionNetworkCallCounter()\n",
+  "-    spec_by_ref = {\n",
+  "-        str(spec.get(\"requirement_id\") or spec.get(\"data_requirement_id\")): spec\n",
+  "-        for spec in specs\n",
+  "-    }\n",
+  "+    spec_by_ref = {_requirement_id(spec): spec for spec in specs}\n",
+  "     owner_artifacts: list[AcquisitionOwnerArtifact] = []\n",
+  "     journal_entries: list[AcquisitionJournalEntry] = []\n",
+  "     fail_closed: list[str] = []\n",
+  "@@ -1881,7 +1913,12 @@\n",
+  "                 )\n",
+  "             )\n",
+  "             continue\n",
+  "-        artifact = gateway.acquire(record=record, compiled_requirement_spec=spec)\n",
+  "+        owner_spec = dict(spec)\n",
+  "+        owner_spec[\"runtime_grounding_context\"] = {\n",
+  "+            \"design_problem\": design_problem.model_dump(mode=\"json\") if design_problem else None,\n",
+  "+            \"world_snapshot\": world.model_dump(mode=\"json\"),\n",
+  "+        }\n",
+  "+        artifact = gateway.acquire(record=record, compiled_requirement_spec=owner_spec)\n",
+  "         if artifact is None:\n",
+  "             reason = f\"owner_artifact_missing:{requirement_ref}\"\n",
+  "             fail_closed.append(reason)\n",
+  "@@ -2410,7 +2447,7 @@\n",
+  " ) -> dict[str, tuple[str, ...]]:\n",
+  "     by_ref: dict[str, tuple[str, ...]] = {}\n",
+  "     for spec in specs:\n",
+  "-        ref = str(spec.get(\"requirement_id\") or spec.get(\"data_requirement_id\") or \"\")\n",
+  "+        ref = _requirement_id(spec)\n",
+  "         if ref:\n",
+  "             by_ref[ref] = _text_tuple(spec.get(\"required_data_families\"))\n",
+  "     return by_ref\n",
+  "@@ -2442,14 +2479,42 @@\n",
+  "     raw_owner_response = artifact.payload.get(\"owner_response\")\n",
+  "     raw_owner_response_hash = artifact.payload.get(\"raw_owner_response_hash\")\n",
+  "     owner_response_kind = artifact.payload.get(\"owner_response_kind\")\n",
+  "-    raw_response_hash_mismatch = (\n",
+  "-        not isinstance(raw_owner_response, Mapping)\n",
+  "-        or raw_owner_response_hash != _stable_content_hash(raw_owner_response)\n",
+  "-    )\n",
+  "+    raw_response_hash_mismatch = not isinstance(\n",
+  "+        raw_owner_response, Mapping\n",
+  "+    ) or raw_owner_response_hash != _stable_content_hash(raw_owner_response)\n",
+  "     if _is_real_owner_component(artifact.owner_component) and (\n",
+  "         owner_response_kind != \"real_owner_capture\" or raw_response_hash_mismatch\n",
+  "     ):\n",
+  "         issues.append(\"provenance_not_recomputable_from_real_owner_response\")\n",
+  "+    if artifact.owner_component.startswith(\"data_forge.skg\"):\n",
+  "+        # One SKG intake covers live, recorded and receipt/world-write consumers.\n",
+  "+        # Until relation acceptance exists, every SKG payload is audit-only.\n",
+  "+        if (\n",
+  "+            not isinstance(raw_owner_response, Mapping)\n",
+  "+            or raw_owner_response.get(\"owner_response_kind\")\n",
+  "+            != \"skg_exact_request_source_resolution\"\n",
+  "+        ):\n",
+  "+            issues.append(\"skg_source_resolution_not_replayed\")\n",
+  "+        else:\n",
+  "+            from polisyos.runtime.quality.production_grounding_calibration import (\n",
+  "+                ProductionGroundingSourceResolution,\n",
+  "+            )\n",
+  "+\n",
+  "+            try:\n",
+  "+                ProductionGroundingSourceResolution.model_validate_json(\n",
+  "+                    json.dumps(raw_owner_response.get(\"resolution\"), allow_nan=False)\n",
+  "+                )\n",
+  "+            except (TypeError, ValueError):\n",
+  "+                issues.append(\"skg_source_resolution_invalid\")\n",
+  "+        if any(\n",
+  "+            artifact.payload.get(name)\n",
+  "+            for name in (\n",
+  "+                \"acquired_substrate_registrations\",\n",
+  "+                \"candidate_bindings\",\n",
+  "+                \"grounding_results\",\n",
+  "+            )\n",
+  "+        ):\n",
+  "+            issues.append(\"skg_relation_acceptance_not_established\")\n",
+  "     return tuple(_dedupe_text(issues))\n",
+  " \n",
+  " \n",
+  "@@ -2590,6 +2655,12 @@\n",
+  "     record: AcquisitionActionRecord,\n",
+  "     spec: Mapping[str, Any],\n",
+  " ) -> str:\n",
+  "+    if spec.get(\"schema_version\") == \"policyos.runtime.acquisition_requirement_gap.v1\":\n",
+  "+        gap = AcquisitionRequirementGap.model_validate(\n",
+  "+            {key: value for key, value in spec.items() if key != \"runtime_grounding_context\"}\n",
+  "+        )\n",
+  "+        if gap.metadata.get(\"source\") == _VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE:\n",
+  "+            return \"data_forge.skg\"\n",
+  "     expected = str(record.producer_expected or \"\")\n",
+  "     if \"scholar\" in expected or spec.get(\"required_publication_tier\"):\n",
+  "         return \"data_forge.openalex\"\n",
+  "@@ -3091,7 +3162,11 @@\n",
+  " \n",
+  "     gaps: list[AcquisitionRequirementGap] = []\n",
+  "     for spec in data_requirement_specs:\n",
+  "-        gaps.append(_data_requirement_gap(_spec_payload(spec)))\n",
+  "+        payload = _spec_payload(spec)\n",
+  "+        if payload.get(\"schema_version\") == \"policyos.runtime.acquisition_requirement_gap.v1\":\n",
+  "+            gaps.append(AcquisitionRequirementGap.model_validate(payload))\n",
+  "+        else:\n",
+  "+            gaps.append(_data_requirement_gap(payload))\n",
+  "     for spec in legal_authority_requirement_specs:\n",
+  "         payload = _spec_payload(spec)\n",
+  "         if _bool(payload.get(\"out_of_scope\")) or not _bool(payload.get(\"mandatory\"), True):\n",
+  "@@ -4828,6 +4903,7 @@\n",
+  "         or payload.get(\"data_requirement_id\")\n",
+  "         or payload.get(\"method_requirement_ref\")\n",
+  "         or payload.get(\"legal_requirement_ref\")\n",
+  "+        or payload.get(\"compiled_requirement_ref\")\n",
+  "     )\n",
+  " \n",
+  " \n",
+  "--- a/policy-engine/src/polisyos/runtime/quality/generation_cycle.py\n",
+  "+++ b/policy-engine/src/polisyos/runtime/quality/generation_cycle.py\n",
+  "@@ -3086,6 +3086,14 @@\n",
+  "         *,\n",
+  "         acquisition_request: Mapping[str, Any],\n",
+  "     ) -> tuple[object, ...]:\n",
+  "+        raw_gap = acquisition_request.get(\"requirement_gap\")\n",
+  "+        if isinstance(raw_gap, Mapping):\n",
+  "+            gap = AcquisitionRequirementGap.model_validate(raw_gap)\n",
+  "+            expected = value_input_world_knowledge_requirement_gap(claim_ref=gap.claim_ref)\n",
+  "+            if gap.model_dump(mode=\"json\") == expected.model_dump(mode=\"json\"):\n",
+  "+                # Carry the actual unsatisfied any_of request, without fabricating\n",
+  "+                # data-family requirements or claiming either alternative is met.\n",
+  "+                return (gap,)\n",
+  "         hinted = problem.runtime_hints.get(\"n7_data_requirement_specs\")\n",
+  "         if hinted is not None:\n",
+  "             return tuple(hinted)\n",
+  "--- a/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_source_population.py\n",
+  "+++ b/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_source_population.py\n",
+  "@@ -0,0 +1,93 @@\n",
+  "+\"\"\"Exercise the public retained reference read against real isolated DuckDB bytes.\"\"\"\n",
+  "+\n",
+  "+from __future__ import annotations\n",
+  "+\n",
+  "+import hashlib\n",
+  "+from pathlib import Path\n",
+  "+\n",
+  "+import duckdb\n",
+  "+import pytest\n",
+  "+\n",
+  "+from polisyos.data_forge.read_api import academic\n",
+  "+\n",
+  "+\n",
+  "+def _snapshot(path: Path) -> academic.SourceSnapshot:\n",
+  "+    return academic.SourceSnapshot(\n",
+  "+        path=path,\n",
+  "+        reference=\"fixture://retained\",\n",
+  "+        sha256=hashlib.sha256(path.read_bytes()).hexdigest(),\n",
+  "+    )\n",
+  "+\n",
+  "+\n",
+  "+@pytest.fixture\n",
+  "+def source_path(tmp_path: Path) -> Path:\n",
+  "+    path = tmp_path / \"source.duckdb\"\n",
+  "+    with duckdb.connect(str(path)) as con:\n",
+  "+        con.execute(\n",
+  "+            \"CREATE TABLE ac_skg_simulation_parameters AS \"\n",
+  "+            \"SELECT 'n1' numeric_id, 'W1' openalex_id, 'avg_income' canonical_name, \"\n",
+  "+            \"'[\\\"c1\\\"]' linked_claim_ids_json, '[\\\"e1\\\"]' linked_edges_json \"\n",
+  "+            \"UNION ALL SELECT 'n2', 'W2', 'income_mean', '{}', NULL \"\n",
+  "+            \"UNION ALL SELECT 'n3', 'W3', NULL, NULL, NULL\"\n",
+  "+        )\n",
+  "+    return path\n",
+  "+\n",
+  "+\n",
+  "+def test_complete_population_retains_unknown_and_malformed_candidate_rows(source_path, tmp_path):\n",
+  "+    result = academic.read_source_reference_population(\n",
+  "+        source=_snapshot(source_path), target_variable=\"avg_income\", scratch=tmp_path / \"spill\"\n",
+  "+    )\n",
+  "+    assert result.status == \"reference_population_recomputed\"\n",
+  "+    assert result.row_count == 3\n",
+  "+    assert result.distinct_numeric_id_count == 3\n",
+  "+    assert result.distinct_variable_name_count == 2\n",
+  "+    assert len(result.literal_target_row_indices) == 1\n",
+  "+    assert result.rows[result.literal_target_row_indices[0]].numeric_id == \"n1\"\n",
+  "+    assert any(row.linked_claim_ids_json == \"{}\" for row in result.rows)\n",
+  "+    assert result.scientific_eligibility == \"not_established\"\n",
+  "+    assert result.semantic_target_coverage == \"not_established\"\n",
+  "+\n",
+  "+\n",
+  "+@pytest.mark.parametrize(\"target\", [None, \"household_income\", \"AVG_INCOME\"])\n",
+  "+def test_no_literal_match_never_claims_semantic_absence(source_path, tmp_path, target):\n",
+  "+    result = academic.read_source_reference_population(\n",
+  "+        source=_snapshot(source_path), target_variable=target, scratch=tmp_path / \"spill\"\n",
+  "+    )\n",
+  "+    assert result.row_count == 3\n",
+  "+    assert result.literal_target_row_indices == ()\n",
+  "+    assert result.semantic_target_coverage == \"not_established\"\n",
+  "+\n",
+  "+\n",
+  "+@pytest.mark.parametrize(\"mutation\", [\"view\", \"virtual\", \"nontext\"])\n",
+  "+def test_unretained_or_inexact_input_refuses_the_population(source_path, tmp_path, mutation):\n",
+  "+    with duckdb.connect(str(source_path)) as con:\n",
+  "+        if mutation == \"view\":\n",
+  "+            con.execute(\"ALTER TABLE ac_skg_simulation_parameters RENAME TO original\")\n",
+  "+            con.execute(\"CREATE VIEW ac_skg_simulation_parameters AS SELECT * FROM original\")\n",
+  "+        elif mutation == \"virtual\":\n",
+  "+            con.execute(\"ALTER TABLE ac_skg_simulation_parameters RENAME TO original\")\n",
+  "+            con.execute(\n",
+  "+                \"CREATE TABLE ac_skg_simulation_parameters \"\n",
+  "+                \"(numeric_id VARCHAR, openalex_id VARCHAR, canonical_name VARCHAR, \"\n",
+  "+                \"linked_claim_ids_json VARCHAR, linked_edges_json VARCHAR, \"\n",
+  "+                \"derived VARCHAR GENERATED ALWAYS AS (numeric_id))\"\n",
+  "+            )\n",
+  "+        else:\n",
+  "+            con.execute(\"ALTER TABLE ac_skg_simulation_parameters DROP COLUMN numeric_id\")\n",
+  "+            con.execute(\"ALTER TABLE ac_skg_simulation_parameters ADD COLUMN numeric_id INTEGER\")\n",
+  "+    result = academic.read_source_reference_population(\n",
+  "+        source=_snapshot(source_path), target_variable=\"avg_income\", scratch=tmp_path / \"spill\"\n",
+  "+    )\n",
+  "+    assert result.status == \"refused\"\n",
+  "+    assert result.row_count == 0\n",
+  "+    assert result.refusal_reasons\n",
+  "+\n",
+  "+\n",
+  "+def test_snapshot_drift_is_not_a_new_owner_pin(source_path, tmp_path):\n",
+  "+    snapshot = _snapshot(source_path)\n",
+  "+    with duckdb.connect(str(source_path)) as con:\n",
+  "+        con.execute(\"UPDATE ac_skg_simulation_parameters SET canonical_name='other'\")\n",
+  "+    with pytest.raises(ValueError, match=\"source_snapshot_hash_mismatch\"):\n",
+  "+        academic.read_source_reference_population(\n",
+  "+            source=snapshot, target_variable=\"avg_income\", scratch=tmp_path / \"spill\"\n",
+  "+        )\n",
+  "--- a/policy-engine/tests/unit/runtime/quality/test_production_grounding_calibration.py\n",
+  "+++ b/policy-engine/tests/unit/runtime/quality/test_production_grounding_calibration.py\n",
+  "@@ -0,0 +1,144 @@\n",
+  "+\"\"\"Verify exact-request/source replay and the publication/relation boundary.\"\"\"\n",
+  "+\n",
+  "+from __future__ import annotations\n",
+  "+\n",
+  "+import hashlib\n",
+  "+import json\n",
+  "+from pathlib import Path\n",
+  "+\n",
+  "+import duckdb\n",
+  "+import pytest\n",
+  "+\n",
+  "+from polisyos.core import artifacts\n",
+  "+from polisyos.data_forge.read_api import academic\n",
+  "+from polisyos.runtime.quality.production_grounding_calibration import (\n",
+  "+    ProductionCG2CalibrationSource,\n",
+  "+    SourceGroundingRequest,\n",
+  "+)\n",
+  "+\n",
+  "+\n",
+  "+@pytest.fixture(name=\"source_request\")\n",
+  "+def request() -> SourceGroundingRequest:\n",
+  "+    return SourceGroundingRequest(\n",
+  "+        requirement_ref=\"requirement:avg-income\",\n",
+  "+        claim_ref=\"claim:avg-income\",\n",
+  "+        compiled_requirement={\"required_data_families\": [\"household_panel\"]},\n",
+  "+        design_problem={\n",
+  "+            \"outcome_of_interest\": {\n",
+  "+                \"target_variable\": \"avg_income\",\n",
+  "+                \"estimand\": \"average_treatment_effect\",\n",
+  "+            },\n",
+  "+            \"jurisdiction_time\": {\"jurisdiction\": \"UA\"},\n",
+  "+        },\n",
+  "+        world_snapshot={\"world_ref\": \"world:current\"},\n",
+  "+    )\n",
+  "+\n",
+  "+\n",
+  "+@pytest.fixture\n",
+  "+def owner(tmp_path: Path):\n",
+  "+    path = tmp_path / \"source.duckdb\"\n",
+  "+    with duckdb.connect(str(path)) as con:\n",
+  "+        con.execute(\n",
+  "+            \"CREATE TABLE ac_skg_simulation_parameters AS \"\n",
+  "+            \"SELECT 'n' || i numeric_id, 'W1' openalex_id, 'avg_income' canonical_name, \"\n",
+  "+            \"'[\\\"c1\\\"]' linked_claim_ids_json, '[\\\"e1\\\"]' linked_edges_json \"\n",
+  "+            \"FROM range(30) t(i)\"\n",
+  "+        )\n",
+  "+    source = academic.SourceSnapshot(\n",
+  "+        path=path,\n",
+  "+        reference=\"fixture://source\",\n",
+  "+        sha256=hashlib.sha256(path.read_bytes()).hexdigest(),\n",
+  "+    )\n",
+  "+    store = artifacts.FileSystemCAS(tmp_path / \"cas\")\n",
+  "+    return ProductionCG2CalibrationSource(\n",
+  "+        source=source, store=store, scratch=tmp_path / \"spill\"\n",
+  "+    ), store\n",
+  "+\n",
+  "+\n",
+  "+def test_source_matches_persist_and_replay_without_becoming_relation_calibration(\n",
+  "+    owner, source_request\n",
+  "+):\n",
+  "+    request = source_request\n",
+  "+    producer, store = owner\n",
+  "+    ref = producer.produce(request)\n",
+  "+    result = producer.replay(ref=ref, request=request)\n",
+  "+    assert store.get_bytes(ref.artifact_id)\n",
+  "+    assert result.source_population.row_count == 30\n",
+  "+    assert len(result.source_population.literal_target_row_indices) == 30\n",
+  "+    assert result.target_variable == \"avg_income\"\n",
+  "+    assert result.estimand == \"average_treatment_effect\"\n",
+  "+    assert result.cg2_status == \"cold_start\"\n",
+  "+    assert result.cg2_owner_ledger_id == \"cg2_production_calibration_empty\"\n",
+  "+    assert result.relation_acceptance.status == \"not_established\"\n",
+  "+    assert result.admitted_relation_observation_count == 0\n",
+  "+    assert result.n7_disposition == \"no_acquired_grounding\"\n",
+  "+    assert result.n8_admission == \"blocked\"\n",
+  "+\n",
+  "+\n",
+  "+@pytest.mark.parametrize(\n",
+  "+    \"field\", [\"claim_ref\", \"compiled_requirement\", \"design_problem\", \"world_snapshot\"]\n",
+  "+)\n",
+  "+def test_replay_requires_complete_current_request(owner, source_request, field):\n",
+  "+    request = source_request\n",
+  "+    producer, _ = owner\n",
+  "+    ref = producer.produce(request)\n",
+  "+    changed = request.model_dump(mode=\"json\")\n",
+  "+    changed[field] = \"claim:other\" if field == \"claim_ref\" else {\"swapped\": True}\n",
+  "+    other = SourceGroundingRequest.model_validate_json(json.dumps(changed))\n",
+  "+    with pytest.raises(ValueError, match=\"replay_mismatch\"):\n",
+  "+        producer.replay(ref=ref, request=other)\n",
+  "+\n",
+  "+\n",
+  "+@pytest.mark.parametrize(\n",
+  "+    \"mutation\", [\"source_row\", \"source_count\", \"match\", \"refusal\", \"publication\", \"grade\"]\n",
+  "+)\n",
+  "+def test_valid_new_cas_cannot_launder_candidate_or_publication_data(\n",
+  "+    owner, source_request, mutation\n",
+  "+):\n",
+  "+    request = source_request\n",
+  "+    producer, store = owner\n",
+  "+    ref = producer.produce(request)\n",
+  "+    payload = json.loads(store.get_bytes(ref.artifact_id))\n",
+  "+    if mutation == \"source_row\":\n",
+  "+        payload[\"source_population\"][\"rows\"][0][\"canonical_name\"] = \"unrelated\"\n",
+  "+    elif mutation == \"source_count\":\n",
+  "+        payload[\"source_population\"][\"row_count\"] += 1\n",
+  "+    elif mutation == \"match\":\n",
+  "+        payload[\"source_population\"][\"literal_target_row_indices\"] = []\n",
+  "+    elif mutation == \"refusal\":\n",
+  "+        payload[\"refusal_reasons\"] = []\n",
+  "+    elif mutation == \"publication\":\n",
+  "+        payload[\"relation_acceptance\"][\"relation_gold_context\"] = {\n",
+  "+            \"publish_to_graph\": \"yes\",\n",
+  "+            \"accepted\": True,\n",
+  "+            \"sample_count\": 30,\n",
+  "+        }\n",
+  "+    else:\n",
+  "+        payload[\"n8_admission\"] = \"certified\"\n",
+  "+    forged = store.put_bytes(\n",
+  "+        json.dumps(payload).encode(),\n",
+  "+        artifacts.ArtifactWriteOptions(\n",
+  "+            kind=\"runtime.production_grounding_source_resolution\",\n",
+  "+            media_type=\"application/json\",\n",
+  "+            schema=artifacts.SchemaInfo(\n",
+  "+                name=\"runtime.production_grounding_source_resolution\", version=\"1.0\"\n",
+  "+            ),\n",
+  "+            producer=artifacts.ProducerInfo(component=\"candidate\", version=\"1.0\"),\n",
+  "+        ),\n",
+  "+    )\n",
+  "+    with pytest.raises(ValueError):\n",
+  "+        producer.replay(ref=forged, request=request)\n",
+  "+\n",
+  "+\n",
+  "+def test_missing_source_and_exact_context_are_persisted_refusals(tmp_path, source_request):\n",
+  "+    request = source_request\n",
+  "+    producer = ProductionCG2CalibrationSource(\n",
+  "+        source=None, store=artifacts.FileSystemCAS(tmp_path / \"cas\"), scratch=tmp_path / \"spill\"\n",
+  "+    )\n",
+  "+    request = request.model_copy(update={\"design_problem\": None, \"world_snapshot\": None})\n",
+  "+    result = producer.replay(ref=producer.produce(request), request=request)\n",
+  "+    assert result.source_population is None\n",
+  "+    assert result.target_variable is None\n",
+  "+    assert \"source_snapshot_unavailable\" in result.refusal_reasons\n",
+  "+    assert \"exact_outcome_request_not_established\" in result.refusal_reasons\n",
+  "+    assert result.production_value_eligible is False\n",
+  "--- a/policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py\n",
+  "+++ b/policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py\n",
+  "@@ -1130,6 +1130,45 @@\n",
+  "     )\n",
+  " \n",
+  " \n",
+  "+def test_real_skg_capture_requires_source_bound_replay_before_audit_emission(\n",
+  "+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch\n",
+  "+) -> None:\n",
+  "+    from polisyos.core import artifacts\n",
+  "+    from polisyos.runtime.quality.production_grounding_calibration import (\n",
+  "+        ProductionCG2CalibrationSource,\n",
+  "+    )\n",
+  "+\n",
+  "+    original = ProductionCG2CalibrationSource.produce\n",
+  "+\n",
+  "+    def tampered_produce(self, request):\n",
+  "+        ref = original(self, request)\n",
+  "+        payload = json.loads(self._store.get_bytes(ref.artifact_id))\n",
+  "+        # Leave purpose/status/provenance markers intact; substitute actual request bytes.\n",
+  "+        payload[\"request\"][\"claim_ref\"] = \"claim:borrowed\"\n",
+  "+        return self._store.put_bytes(\n",
+  "+            json.dumps(payload).encode(),\n",
+  "+            artifacts.ArtifactWriteOptions(\n",
+  "+                kind=\"runtime.production_grounding_source_resolution\",\n",
+  "+                media_type=\"application/json\",\n",
+  "+                schema=artifacts.SchemaInfo(\n",
+  "+                    name=\"runtime.production_grounding_source_resolution\", version=\"1.0\"\n",
+  "+                ),\n",
+  "+                producer=artifacts.ProducerInfo(component=\"candidate\", version=\"1.0\"),\n",
+  "+            ),\n",
+  "+        )\n",
+  "+\n",
+  "+    monkeypatch.setattr(ProductionCG2CalibrationSource, \"produce\", tampered_produce)\n",
+  "+    gap = value_input_world_knowledge_requirement_gap(claim_ref=\"claim:actual\")\n",
+  "+    with pytest.raises(ValueError, match=\"production_grounding_source_replay_mismatch\"):\n",
+  "+        run_acquisition_closed_loop(\n",
+  "+            run_id=\"n7-source-replay-tamper\",\n",
+  "+            acquisition_request={\"cycle_index\": 1},\n",
+  "+            data_requirement_specs=(gap,),\n",
+  "+            world_snapshot=AcquisitionWorldSnapshot(world_ref=\"world:actual\"),\n",
+  "+            owner_gateway=RealAcquisitionOwnerGateway(repo_root=tmp_path),\n",
+  "+        )\n",
+  "+\n",
+  "+\n",
+  " def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:\n",
+  "     data_spec = _compiled_requirement_specs()[0]\n",
+  "     owner_response = {\"owner_response_kind\": \"fabric_retrieval_no_result\", \"rows\": []}\n",
+  "@@ -1358,7 +1397,7 @@\n",
+  "     assert \"acquisition_provenance_not_recomputable_from_real_owner\" in issue_codes\n",
+  " \n",
+  " \n",
+  "-def test_real_owner_gateway_records_local_skg_response_without_network() -> None:\n",
+  "+def test_real_owner_gateway_records_local_skg_response_without_network(tmp_path: Path) -> None:\n",
+  "     base_spec = _compiled_requirement_specs()[0].model_dump(mode=\"json\")\n",
+  "     base_spec[\"requirement_id\"] = \"data-requirement:claim-skg-source-family\"\n",
+  "     base_spec[\"claim_id\"] = \"claim-skg-source-family\"\n",
+  "@@ -1371,7 +1410,7 @@\n",
+  "         generated_at=datetime(2026, 7, 5, tzinfo=UTC),\n",
+  "     )\n",
+  "     gateway = RealAcquisitionOwnerGateway(\n",
+  "-        repo_root=Path(\".\"),\n",
+  "+        repo_root=tmp_path,\n",
+  "         captured_at=datetime(2026, 7, 5, tzinfo=UTC),\n",
+  "     )\n",
+  " \n",
+  "@@ -1383,13 +1422,129 @@\n",
+  "     assert artifact is not None\n",
+  "     assert artifact.owner_component == \"data_forge.skg\"\n",
+  "     assert artifact.capture_provenance is not None\n",
+  "-    assert artifact.capture_provenance.owner_endpoint == \"skg_store.ensure_skg_schema\"\n",
+  "+    assert (\n",
+  "+        artifact.capture_provenance.owner_endpoint\n",
+  "+        == \"ProductionCG2CalibrationSource.produce/replay\"\n",
+  "+    )\n",
+  "     assert artifact.capture_provenance.network_call is False\n",
+  "     assert gateway.network_counter.network_calls == 0\n",
+  "-    assert artifact.payload[\"owner_response\"][\"owner_response_kind\"] == \"skg_local_schema_probe\"\n",
+  "-    assert artifact.payload[\"owner_response\"][\"table_count\"] > 0\n",
+  "+    assert (\n",
+  "+        artifact.payload[\"owner_response\"][\"owner_response_kind\"]\n",
+  "+        == \"skg_exact_request_source_resolution\"\n",
+  "+    )\n",
+  "+    resolution = artifact.payload[\"owner_response\"][\"resolution\"]\n",
+  "+    assert resolution[\"source_population\"] is None\n",
+  "+    assert \"source_snapshot_unavailable\" in resolution[\"refusal_reasons\"]\n",
+  "+    assert resolution[\"n8_admission\"] == \"blocked\"\n",
+  "     assert artifact.payload.get(\"grounding_results\") is None\n",
+  "-    assert artifact.payload[\"acquired_substrate_registrations\"]\n",
+  "+    assert artifact.payload[\"acquired_substrate_registrations\"] == []\n",
+  "+    assert artifact.payload[\"candidate_bindings\"] == []\n",
+  "+\n",
+  "+\n",
+  "+def test_skg_source_capture_replays_exact_current_request_and_cannot_write_world(\n",
+  "+    tmp_path: Path,\n",
+  "+) -> None:\n",
+  "+    import duckdb\n",
+  "+\n",
+  "+    from polisyos.data_forge.read_api import academic\n",
+  "+\n",
+  "+    path = tmp_path / \"source.duckdb\"\n",
+  "+    with duckdb.connect(str(path)) as con:\n",
+  "+        con.execute(\n",
+  "+            \"CREATE TABLE ac_skg_simulation_parameters AS SELECT 'n' || i numeric_id, \"\n",
+  "+            \"'W1' openalex_id, 'avg_income' canonical_name, '[\\\"c1\\\"]' linked_claim_ids_json, \"\n",
+  "+            \"'[\\\"e1\\\"]' linked_edges_json FROM range(30) t(i)\"\n",
+  "+        )\n",
+  "+    source = academic.SourceSnapshot(\n",
+  "+        path=path,\n",
+  "+        reference=\"fixture://n7-source\",\n",
+  "+        sha256=hashlib.sha256(path.read_bytes()).hexdigest(),\n",
+  "+    )\n",
+  "+    problem = _acquisition_design_problem()\n",
+  "+    payload = problem.model_dump(mode=\"json\")\n",
+  "+    payload[\"outcome_of_interest\"] = {\n",
+  "+        \"target_variable\": \"avg_income\",\n",
+  "+        \"metric_id\": \"avg_income\",\n",
+  "+        \"estimand\": \"average_treatment_effect\",\n",
+  "+        \"direction\": \"maximize\",\n",
+  "+    }\n",
+  "+    problem = DesignProblem.model_validate(payload)\n",
+  "+    gap = value_input_world_knowledge_requirement_gap(claim_ref=\"claim:avg_income\")\n",
+  "+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController\n",
+  "+\n",
+  "+    controller = GenerationCycleController(repo_root=tmp_path)\n",
+  "+    specs = controller._n7_data_requirement_specs(\n",
+  "+        problem, acquisition_request={\"requirement_gap\": gap.model_dump(mode=\"json\")}\n",
+  "+    )\n",
+  "+    assert len(specs) == 1\n",
+  "+    assert specs[0].model_dump(mode=\"json\") == gap.model_dump(mode=\"json\")\n",
+  "+    world = AcquisitionWorldSnapshot(world_ref=\"world:request-current\", known_slots=(\"avg_income\",))\n",
+  "+    receipt = run_acquisition_closed_loop(\n",
+  "+        run_id=\"n7-source-refusal\",\n",
+  "+        acquisition_request={\"cycle_index\": 1},\n",
+  "+        data_requirement_specs=specs,\n",
+  "+        world_snapshot=world,\n",
+  "+        design_problem=problem,\n",
+  "+        owner_gateway=RealAcquisitionOwnerGateway(repo_root=tmp_path, skg_source_snapshot=source),\n",
+  "+    )\n",
+  "+    assert len(receipt.owner_artifacts) == 1\n",
+  "+    resolution = receipt.owner_artifacts[0].payload[\"owner_response\"][\"resolution\"]\n",
+  "+    assert resolution[\"request\"][\"design_problem\"] == problem.model_dump(mode=\"json\")\n",
+  "+    assert resolution[\"request\"][\"world_snapshot\"] == world.model_dump(mode=\"json\")\n",
+  "+    assert resolution[\"request\"][\"compiled_requirement\"] == gap.model_dump(mode=\"json\")\n",
+  "+    assert resolution[\"source_population\"][\"row_count\"] == 30\n",
+  "+    assert resolution[\"target_variable\"] == \"avg_income\"\n",
+  "+    assert resolution[\"cg2_status\"] == \"cold_start\"\n",
+  "+    assert all(row.status == \"no_result\" for row in receipt.world_write_outcomes)\n",
+  "+    assert receipt.grounding_rederivations == ()\n",
+  "+    assert receipt.real_grounding_result_count == 0\n",
+  "+    assert validate_acquisition_receipt(receipt) == ()\n",
+  "+\n",
+  "+\n",
+  "+@pytest.mark.parametrize(\n",
+  "+    \"response_kind\", [\"skg_exact_request_source_resolution\", \"skg_local_schema_probe\", \"alternate\"]\n",
+  "+)\n",
+  "+@pytest.mark.parametrize(\n",
+  "+    \"projection\", [\"acquired_substrate_registrations\", \"candidate_bindings\", \"grounding_results\"]\n",
+  "+)\n",
+  "+def test_every_skg_intake_rejects_acquired_projection_even_with_valid_markers(\n",
+  "+    tmp_path: Path, response_kind: str, projection: str\n",
+  "+) -> None:\n",
+  "+    spec = _compiled_requirement_specs()[0].model_dump(mode=\"json\")\n",
+  "+    spec[\"required_method_families\"] = [\"causal_prior\"]\n",
+  "+    gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(spec,))[0]\n",
+  "+    record = plan_requirement_gap_acquisition(\n",
+  "+        run_id=\"skg-forgery\", requirement_gaps=(gap,)\n",
+  "+    ).acquisition_records[0]\n",
+  "+    artifact = RealAcquisitionOwnerGateway(repo_root=tmp_path).acquire(\n",
+  "+        record=record, compiled_requirement_spec=spec\n",
+  "+    )\n",
+  "+    payload = json.loads(json.dumps(artifact.payload))\n",
+  "+    payload[\"owner_response\"][\"owner_response_kind\"] = response_kind\n",
+  "+    payload[projection] = [{\"candidate\": \"self-issued\"}]\n",
+  "+    payload[\"raw_owner_response_hash\"] = acquisition_owner._stable_content_hash(\n",
+  "+        payload[\"owner_response\"]\n",
+  "+    )\n",
+  "+    forged = acquisition_owner._artifact_from_owner_response(\n",
+  "+        owner_component=\"data_forge.skg\",\n",
+  "+        owner_endpoint=\"ProductionCG2CalibrationSource.produce/replay\",\n",
+  "+        record=record,\n",
+  "+        spec=spec,\n",
+  "+        payload=payload,\n",
+  "+        captured_at=datetime(2026, 7, 5, tzinfo=UTC),\n",
+  "+        network_call=False,\n",
+  "+        cost_usd=0.0,\n",
+  "+    )\n",
+  "+    receipt = run_acquisition_closed_loop(\n",
+  "+        run_id=\"skg-forgery-replay\",\n",
+  "+        acquisition_request={\"cycle_index\": 1},\n",
+  "+        data_requirement_specs=(spec,),\n",
+  "+        world_snapshot=AcquisitionWorldSnapshot(world_ref=\"world:current\"),\n",
+  "+        owner_gateway=RecordedAcquisitionOwnerGateway(\n",
+  "+            artifacts_by_requirement={forged.requirement_ref: forged}\n",
+  "+        ),\n",
+  "+    )\n",
+  "+    assert all(row.status == \"rejected\" for row in receipt.world_write_outcomes)\n",
+  " \n",
+  " \n",
+  " def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(\n"
+]
+````
+
+#### Initial independent nine-case station
+
+`_build/gy_grade_authority/test_pa1_n7_initial_review.py` — 7777 bytes, SHA-256 `eebc33e8367517e0596470a753d1b2a814b6b6de39b8c9586237cfefa1a9e24f`.
+
+````python
+"""Independent whole-emission probes for the frozen PA1 source/N7 bridge."""
+
+from __future__ import annotations
+
+from copy import deepcopy
+from datetime import UTC, datetime
+import hashlib
+import json
+
+import duckdb
+import pytest
+
+from polisyos.data_forge.read_api import academic
+from polisyos.runtime.quality import acquisition_planner as n7
+from polisyos.runtime.quality.design_problem import DesignProblem
+from tests.unit.runtime.quality.test_acquisition_planner import (
+    _acquisition_design_problem,
+    _owner_payload,
+    _substrate_registry,
+)
+
+
+@pytest.fixture
+def captured(tmp_path):
+    path = tmp_path / 'retained.duckdb'
+    with duckdb.connect(str(path)) as con:
+        con.execute("CREATE TABLE ac_skg_simulation_parameters AS SELECT 'n1' numeric_id, 'W1' openalex_id, 'avg_income' canonical_name, '[]' linked_claim_ids_json, '[]' linked_edges_json")
+    source = academic.SourceSnapshot(path=path, reference='fixture://independent-source',
+                                    sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    problem_payload = _acquisition_design_problem().model_dump(mode='json')
+    problem_payload['outcome_of_interest'] = {'target_variable': 'avg_income', 'metric_id': 'avg_income',
+                                            'estimand': 'average_treatment_effect', 'direction': 'maximize'}
+    problem = DesignProblem.model_validate(problem_payload)
+    world = n7.AcquisitionWorldSnapshot(world_ref='world:current', known_slots=('avg_income',),
+                                       substrate_registry=_substrate_registry().model_dump(mode='json'))
+    gap = n7.value_input_world_knowledge_requirement_gap(claim_ref='claim:avg_income')
+    receipt = n7.run_acquisition_closed_loop(
+        run_id='review-live', acquisition_request={'cycle_index': 1}, data_requirement_specs=(gap,),
+        world_snapshot=world, design_problem=problem,
+        owner_gateway=n7.RealAcquisitionOwnerGateway(repo_root=tmp_path, skg_source_snapshot=source),
+    )
+    assert n7.validate_acquisition_receipt(receipt) == ()
+    artifact = receipt.owner_artifacts[0]
+    assert artifact.payload['owner_response']['resolution']['source_population']['row_count'] == 1
+    return gap, problem, world, artifact
+
+
+def replay(gap, problem, world, artifact):
+    return n7.run_acquisition_closed_loop(
+        run_id='review-recorded', acquisition_request={'cycle_index': 1},
+        data_requirement_specs=(gap,), world_snapshot=world, design_problem=problem,
+        owner_gateway=n7.RecordedAcquisitionOwnerGateway(artifacts_by_requirement={gap.compiled_requirement_ref: artifact}),
+    )
+
+
+def recapture(gap, payload, owner_component='data_forge.skg'):
+    record = n7.plan_requirement_gap_acquisition(run_id='review-plan', requirement_gaps=(gap,)).acquisition_records[0]
+    payload['raw_owner_response_hash'] = n7._stable_content_hash(payload['owner_response'])
+    return n7._artifact_from_owner_response(
+        owner_component=owner_component, owner_endpoint='ProductionCG2CalibrationSource.produce/replay',
+        record=record, spec=gap.model_dump(mode='json'), payload=payload,
+        captured_at=datetime(2026, 7, 5, tzinfo=UTC), network_call=False, cost_usd=0,
+    )
+
+
+def assert_refused(receipt):
+    issues = n7.validate_acquisition_receipt(receipt)
+    assert issues or all(outcome.status == 'rejected' for outcome in receipt.world_write_outcomes), {
+        'receipt_issues': issues,
+        'world_outcomes': [row.model_dump(mode='json') for row in receipt.world_write_outcomes],
+        'embedded_request': receipt.owner_artifacts[0].payload['owner_response']['resolution']['request'],
+    }
+
+
+def test_matching_recorded_control(captured):
+    gap, problem, world, artifact = captured
+    receipt = replay(gap, problem, world, artifact)
+    assert n7.validate_acquisition_receipt(receipt) == ()
+    assert [row.status for row in receipt.world_write_outcomes] == ['no_result']
+    assert receipt.real_grounding_result_count == 0
+
+
+@pytest.mark.parametrize('mutation', ['current_world', 'current_outcome', 'population', 'cas_ref'])
+def test_recorded_intake_must_rebind_source_and_current_request(captured, mutation):
+    gap, problem, world, artifact = captured
+    if mutation == 'current_world':
+        world = world.model_copy(update={'world_ref': 'world:other-current'})
+    elif mutation == 'current_outcome':
+        payload = problem.model_dump(mode='json')
+        payload['outcome_of_interest']['target_variable'] = 'employment_rate'
+        payload['outcome_of_interest']['metric_id'] = 'employment_rate'
+        problem = DesignProblem.model_validate(payload)
+    else:
+        payload = deepcopy(artifact.payload)
+        if mutation == 'population':
+            payload['owner_response']['resolution']['source_population']['rows'][0]['canonical_name'] = 'invented_other_outcome'
+        else:
+            payload['owner_response']['resolution_ref']['artifact_id'] = 'sha256:' + '7' * 64
+        artifact = recapture(gap, payload)
+    assert_refused(replay(gap, problem, world, artifact))
+
+
+@pytest.mark.parametrize('owner_component', ['data_forge.skg', 'fabric.ingestion'])
+def test_current_skg_gap_cannot_escape_ceiling_by_relabeling_owner(captured, owner_component):
+    gap, problem, world, artifact = captured
+    payload = deepcopy(artifact.payload)
+    projection = _owner_payload(acquired_family='production_msme_panel', source_id='review.self-issued', candidate_id='review:candidate')
+    payload['acquired_substrate_registrations'] = projection['acquired_substrate_registrations']
+    payload['candidate_bindings'] = projection['candidate_bindings']
+    artifact = recapture(gap, payload, owner_component=owner_component)
+    receipt = replay(gap, problem, world, artifact)
+    assert receipt.grown_world_added_slots == (), [row.model_dump(mode='json') for row in receipt.world_write_outcomes]
+    assert_refused(receipt)
+
+
+@pytest.mark.parametrize('grade', ['world_written', 'grounding_valid'])
+def test_receipt_emission_cannot_mint_world_or_grounding_grade_from_skg_refusal(captured, grade):
+    gap, problem, world, artifact = captured
+    receipt = replay(gap, problem, world, artifact)
+    payload = receipt.model_dump(mode='json')
+    assert payload['owner_artifacts'][0]['payload']['owner_response']['resolution']['n8_admission'] == 'blocked'
+    payload['world_write_outcomes'][0].update(status='written', source_id='review:self-issued',
+                                              family_id='avg_income', world_ref_after='world:self-issued', reason=None)
+    payload['grown_world_after_ref'] = 'world:self-issued'
+    payload['grown_world_added_slots'] = ['avg_income']
+    if grade == 'grounding_valid':
+        payload['grounding_rederivations'] = [{'design_id': 'review:candidate', 'source_slots': ['avg_income'],
+            'status': 'current_valid', 'grounding_score': 1.0, 'report_ref': 'report:self-issued',
+            'evidence_refs': [artifact.artifact_ref], 'issue_codes': []}]
+        payload['real_grounding_result_count'] = 1
+        payload['useful_design_rate_after'] = 1.0
+        payload['status'] = 'completed'
+        payload['no_result_costed_gap'] = False
+    payload['content_hash'] = ''
+    forged = n7.AcquisitionReceipt.model_validate(payload)
+    issues = n7.validate_acquisition_receipt(forged)
+    if grade == 'grounding_valid':
+        from polisyos.runtime.quality.generation_cycle import _n7_rederived_grounding_for_candidate
+        consumed = _n7_rederived_grounding_for_candidate(forged, candidate_id='review:candidate')
+        assert consumed is None or consumed.status != 'current_valid' or issues, {
+            'actual_cycle_consumer': consumed.model_dump(mode='json'), 'validator_issues': issues,
+        }
+    assert issues, forged.world_write_outcomes
+````
+
+### GGA-PA1-11 — unreadable population is not a known empty population
+
+Before the final correction freezes, root's source audit found a narrower
+source-truth hypothesis: a refused view/virtual/nontext population returns zero
+counts and an empty-array hash even though it has not read the source
+population. A successfully read empty native table and a refused table therefore
+share the same numeric denominator. The independent two-case probe below will
+require unknown counts for the unreadable case while retaining measured zero
+for the genuinely empty source. This is part of the same source-audit invariant;
+it grants neither semantic eligibility nor a scientific relation grade.
+
+The initial two-case execution returned **2 failed, exit 1, 0.96 seconds**
+(`pa1-population-unknown-before.xml`). The unreadable view reached the intended
+`row_count is None` assertion and exposed zero; my purported empty-table positive
+control failed earlier at its status assertion. Direct inspection showed that
+`_retained_columns` requires physical column segments from `pragma_storage_info`,
+which the empty table lacks. That source is also unproven by this bounded reader;
+the initial assumption that it was an admitted empty population was wrong.
+
+The corrected control is a readable native one-row table. The exact two-case
+station then reports **1 failed, 1 passed, exit 1, 1.03 seconds**, with only the
+unreadable view failing its intended unknown-count assertion. The correction
+keeps the existing materialization boundary and makes refused counts unknown;
+it does not weaken the source guard to admit the failed empty-table control.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts='' _build/gy_grade_authority/test_population_unknown_denominator.py --junitxml=_build/gy_grade_authority/pa1-population-unknown-corrected-before.xml
+```
+
+After correction, the same independent population probe reports **2 passed,
+exit 0, 0.89 seconds** (`pa1-population-unknown-after.xml`). A refused population
+now carries unknown counts and projection hash; the materialization guard is
+unchanged.
+
+One additional hypothesis was recorded before the final review: a process-local
+source seal tied to the same owner object and request bytes proves its earlier
+emission, but cannot replace current replay after source or CAS bytes change.
+The final intake must therefore replay those inputs even when the unchanged
+artifact and owner object are reused. The independent delta will exercise both
+ordinary input mutations with a configured replay control. This is not yet a
+claimed measured red; it is part of the same current-source binding invariant,
+with a removal probe requested for the shortcut.
+
+### GGA-PA1-12 — corrected shared admission and complete receipt emission
+
+The corrected source resolves the owner route from the current planned
+requirement. Recorded SKG evidence requires an independently configured
+`ProductionCG2CalibrationSource`, current requirement/problem/world, bound CAS
+bytes and current source replay. Missing context emits
+`UnverifiedSourceGroundingRefusal` without copying the offered source population
+or its claimed grades. The live owner uses the same admission. An SKG artifact
+cannot escape this route by naming Fabric as its producer.
+
+`run_acquisition_closed_loop` seals its complete canonical receipt bytes after
+the actual projection. The validator and both generation-cycle grade consumers
+require this provenance; nested mutation and raw DTO reconstruction lose it.
+This is provenance for this process's recomputed emission, not an institutional
+signature or authentication of a general Fabric response. A saved receipt must
+be replayed through current owner/request/world context before authority use.
+Source admission always replays source/CAS bytes; a prior source seal is not a
+freshness substitute.
+
+Independent delta: **14 passed, exit 0, 47.43 seconds**, with all testcase
+identities and execution JUnit retained in
+`pa1-n7-independent-delta-handback.json`. Restoring the same-context early return
+while keeping markers and source files unchanged gives **2 failed,
+12 deselected, exit 1, 36.88 seconds**: changed source bytes and changed CAS bytes
+again emit a supposedly recomputed source resolution. All eleven corrected
+Python freeze hashes match before and after these runs. The review found no new
+blocking class within the declared source/reference scope.
+
+The complete source consumer census walks **2,626 Python files**, independently
+reconciled by path, AST binding, token-chain binding and the whole-tree candidate
+search. Its six target calls locate the producer/validator and the two actual
+grade consumers in `acquisition_planner.py` and `generation_cycle.py`; no sibling
+source grade consumer is found in that bound inventory. The HTTP governed
+projection is an audit configuration, not another receipt-to-grounding consumer.
+Final stable evidence is `acquisition_receipt_consumer_census.final.json` and
+`final_audit_freeze_binding.json`.
+
+The final targeted wave reaches **115 cases: 113 passed, one skipped, one setup
+error; exit 1, 163.71 seconds** (`pa1-n7-final-targeted.xml`). The skip is
+`test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle`, which is
+explicitly cloud-gated and must not call the network in routine tests. The error
+is `test_second_domain_pack::test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable`:
+its `live_bundle` fixture stops in the tools historical N4 replay with
+`education_n4_historical_replay_call_denominator_mismatch`, before the test's
+time-stability or receipt assertions. This is **not_established** as to
+provenance; no slice-base isolation/disjoint denominator has been demonstrated.
+It is not counted as evidence for the receipt property.
+
+The separate predicted tools compatibility boundary remains unreached by that
+test: `check_layer3_gy_acquisition_contract.py::_core_issues` reconstructs a raw
+receipt at lines 475–479, and
+`check_layer3_gy_second_domain_pack.py::_validate_n7_receipt_evidence` does so at
+lines 5687–5712. Current-context authority validation must replay independently
+configured owner/request/world evidence there, or retain the result as explicit
+archival evidence without a current authority grade. Those tools are outside
+the grant. Do not mint a live seal from archived bytes or suppress the new
+provenance issue. The permitted unit assertion now expects the typed raw-DTO
+refusal; the later bundle validator assertion is deliberately unchanged, so a
+future reachable compatibility failure remains visible.
+
+The scientific handback is still GGA-PA1-06: define accepted independent
+proposal/reference relation gold and context, its adjudicator authority, and
+the outcome-sensitive production calibration acceptance rule. The source
+producer, CAS replay, actual request bridge and honest refusal are implemented;
+the positive calibration chain remains `producer_missing` pending that decision
+and the corresponding independently admitted observations. The acceptance slot
+stays typed and empty, CG2 stays cold-start and N8 blocked. No owner is appointed.
+General Fabric/OpenAlex count-based admission remains a proposed row, not a
+capability claimed closed by this SKG repair.
+
+### GGA-GATE-03 — obsolete import permission is a companion handback
+
+The final architecture gate exits **1** because replacing the old in-memory SKG
+schema probe removes an existing deep import. Complete source identity sets
+agree at **2,626 Python files**. Recomputed edge differences are
+`current_only=[]` and exactly
+`baseline_only=[polisyos.runtime.quality.acquisition_planner->polisyos.data_forge.domains.academic.knowledge]`.
+This is caused companion drift, not an inherited failure and not new import
+creep. `architecture/baselines/imports/deep_import.json` is outside the grant.
+
+Exact handback: delete the following object from its `edges` array, including
+its following comma. No added permission or baseline absorption is proposed.
+The surgical patch is
+`_build/gy_grade_authority/obsolete-skg-import-baseline.proposed.patch`, SHA-256
+`856a4ba60534052fa60ec23d53270dc545d6ceda1db79986f1e50b1d605a8911`.
+It has not been applied. No sync command was run.
+
+```json
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge",
+      "target_root": "data_forge"
+    }
+```
+
+The finding-set station needed its own correction before handback: matching
+every stdout line beginning `- ` initially counted removed JSON diff lines as
+findings. Stopping at the first diff then dropped genuine findings printed
+after that diff. Both attempts are preserved as v1/v2 artifacts. The final
+parser consumes the complete old/new hunk denominators, excludes only those
+diff lines, and reconciles against a second lexical derivation valid for these
+JSON-only diagnostic diffs. It preserves the genuine historical finding sets
+and the final single drift finding. The gate's real exit status was retained
+throughout; no smaller parsed set was treated as a passing run.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check --skip-generated-checks > _build/gy_grade_authority/architecture-pa1-final.log 2>&1
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.architecture_final_identity_diff
+```
+
+### GGA-PA1-13 — real retained source, independently reconciled artifact set
+
+The real source station executes the canonical N8-request fixture from
+`test_value_gate`, the actual controller adapter, real N7 source owner, CAS
+persistence and independently supplied request replay. It does not execute a
+full live N8 evaluation or claim an empirical positive chain. The source file
+is **2,390,503,424 bytes**, SHA-256
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+
+The denominator is the entire five-column projection of
+`main.ac_skg_simulation_parameters`: **5,124 rows, 5,124 distinct numeric IDs,
+4,050 distinct variable names**. It is separate from the earlier `ac_numeric`
+evidence census and is not a relation-calibration population. Independent direct
+SQL aggregates, a complete Python Counter, SQL GROUP BY and the complete CAS
+Counter agree; missing and extra multisets are both empty. Their common multiset
+SHA-256 is `012e569d358b46a161b8a3725cbadaa4fb2c0023236c464486410ef948f121af`.
+Zero literal `avg_income` matches establishes no semantic absence; semantic
+coverage remains `not_established`.
+
+The persisted resolution is **1,676,572 bytes**, artifact
+`sha256:73a84409f361f0c1d8da8412c8c7fbc6fc4f663ecb510debfd9b9c1f279cbac7`.
+Its exact request SHA-256 is
+`0e9d63f3751eb3dce61d3bed3244ab166a2bad188f7547ad53c2e3fb024efe47`.
+Its native projection SHA-256 is
+`4151ade1789cb779259ebcb6064d301a9a61f5396d3e7928cfc3df46fb9e4e33`.
+The receipt records `completed_no_results`, one `no_result` world outcome,
+zero actual groundings and zero network calls. CG2 is `cold_start`, N8 is
+`blocked`, and all relation acceptance slots remain empty. The real station
+exits **0 in 16.291 seconds**. Independent reconciliation exits **0 in 4.765
+seconds**, with the source streamed once before and once after, both hashes
+equal, mtime unchanged, external reads disabled and spill confined to `_build`.
+
+The final marker-preserving removal modes exercise this shared mechanism:
+
+| Removed property | Actual result | Restored behavior |
+| --- | --- | --- |
+| Current source/request replay at live N7 capture | 1 failed, exit 1, 1.02 s | Tampered request refused |
+| Complete source admission/refusal on the planned SKG route | 2 failed, exit 1, 3.01 s | Both SKG and forged Fabric labels refused |
+| Complete receipt emission provenance | 1 failed, exit 1, 1.92 s | Actual generation consumer refuses forged `current_valid` |
+
+Restoring the same four cases gives **4 passed, exit 0, 2.68 seconds**. All eleven
+frozen source/test hashes remain identical before and after each mode. The
+first v2 wrapper attempts exited 3 before collection because the logging Tee
+omitted `isatty`; those are preserved harness non-receipts, not product reds.
+The v3 wrapper delegates stream attributes and returns the actual pytest status.
+Root independently reconciled the full JUnit and removal logs and reran the
+read-only final-handback reconciler successfully.
+
+Final evidence summary: `pa1-n7-final-handback.json`, SHA-256
+`70c4cff64840157941cc44afca90a1bd575ff43bd923b20d74b0df5627876d39`.
+It binds all 115 targeted testcase identities, the eleven-file freeze and 24
+evidence artifacts. Independent population evidence is
+`pa1_n7_population_independent_reconcile.json`. The reproduction stations are
+preserved below, including their exact module commands.
+
+### GGA-SCOPE-02 — final local handback boundary
+
+The complete slice delta is **76 paths = 48 lane-owned + 28 accepted upstream-only
+paths**. The lane union independently reconciles as four pre-merge paths plus
+45 continuation paths minus the shared journal. There are no out-of-grant lane
+paths or unexplained upstream paths. All eleven final Python freeze hashes
+match. The five newly added source modules have their three nearest README
+companions. Evidence: `closeout_scope_audit.final.json` and
+`final_audit_freeze_binding.json`.
+
+The stale ref remains `ba5946ebc70bb63f30e4776d0426e19f37dffd31`. The accepted
+final stale-analysis section is byte-identical to `d4ba9901cbcb29e5d27a71dac7b359b28fe1adec`,
+SHA-256 `0a3a21f86b778fb2ba86596820b1db458f18ffba9950ce747ec692196bf8628e`.
+Both coordinated global public-surface companions remain untouched. All four
+Foundry authority capability states remain `absent/unallocated`; these changes
+do not appoint their owners or establish their complete authority chains.
+No auxiliary worktree was created. No push, rebase, stash, stale-ref mutation,
+debt-register verification or debt-ledger checker execution occurred.
+
+The owned outcomes are: shared publication verification through both entry
+paths; all five DEF22 intended assertions reached and passed, with institutional
+acceptance outstanding; the supported HTTP artifact facade repair; and the
+buildable PA1 source/request/receipt capability with the specific positive-chain
+scientific decision handed back. Both freshly derived pin values and declaration
+bindings matched their proposal, and the IR reference pages matched the prepared
+version after being written from the actual supported exposure. The eight
+existing IR exports remain the authorized public-surface expansion owned by
+team-polisyos. None of these statements closes the outstanding appointments.
+
+Additional proposed rows, not new appointments:
+
+- `n7-archival-receipt-current-context-replay-missing`: proposed runtime/quality
+  and tools validation owners; raw archival DTOs cannot carry the new current
+  receipt authority. The two exact tool seams are named in GGA-PA1-12.
+- `gy-n4-historical-replay-obstructs-n7-importer-assertions`: proposed GY-N4 /
+  tools validation owners; the measured setup failure prevents those assertions.
+  Provenance remains `not_established`.
+- `n7-fabric-openalex-response-count-is-not-grounding-authority`: proposed
+  Fabric/DataForge and runtime/quality owners; their own-route response-count
+  admission was not repaired or claimed closed by the SKG source mechanism.
+
+The earlier mirror-test and transformer-Ruff findings remain explicit,
+unbaselined and unattributed as recorded in GGA-ADJ-03. The obsolete import
+permission removal is an exact companion handback, not an accepted new baseline.
+The global IR inventory blind spot and unregistered IR reference generator remain
+the proposed findings already recorded above. The failure/repair register was
+reopened at closeout; the source/grade boundary follows P29/P31/P32/P37/P38,
+complete sets and their corrections follow P35, the review correction is one
+P40 class widening, and P41 prevents the remaining reds from acquiring invented
+inheritance.
+
+### GGA-EVIDENCE-04 — durable final station sources
+
+These are executable diagnostic/reconciliation stations retained because `_build`
+is ignored. The committed implementation and tests remain their normal owners.
+Each gate is invoked separately as a package module; the mode-specific commands
+are taken verbatim from the reconciled handback.
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts='' tests/unit/data_forge/domains/academic/knowledge/test_skg_identity_bridge.py tests/unit/data_forge/domains/academic/knowledge/test_skg_source_population.py tests/unit/runtime/quality/test_production_grounding_calibration.py tests/unit/runtime/quality/test_acquisition_planner.py tests/unit/runtime/quality/test_acquisition_source_replay.py tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_invokes_n7_and_records_same_cycle_reentry tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters tests/unit/runtime/quality/test_generation_cycle.py::test_value_data_gap_routes_to_n7_acquisition_terminal tests/unit/runtime/quality/test_generation_cycle.py::test_canonical_n7_route_attaches_exact_owner_cost_basis tests/unit/runtime/quality/test_generation_cycle.py::test_honest_single_cycle_acquisition_terminal_validates tests/unit/runtime/quality/test_second_domain_pack.py::test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable --junitxml=_build/gy_grade_authority/pa1-n7-final-targeted.xml
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src GY_PA1_N7_REMOVE=source_replay .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src GY_PA1_N7_REMOVE=refusal .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src GY_PA1_N7_REMOVE=receipt .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_real_replay
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_population_independent_reconcile
+PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m _build.gy_grade_authority.pa1_n7_final_handback
+```
+
+#### `_build/gy_grade_authority/pa1_n7_real_replay.py`
+
+5292 bytes, SHA-256 `c5d1d69963563b20f8a17bac169ee27ddfbedea3d44fc52169883e68fe2ed8dc`.
+
+````python
+"""Run retained production source through the real N8-request/N7-refusal bridge.
+
+The request/world fixture is the exact avg_income owner test's current request;
+it supplies no empirical treatment assignment or relation-calibration authority.
+"""
+import hashlib
+import json
+import time
+from pathlib import Path
+
+from polisyos.core import artifacts
+from polisyos.data_forge.read_api import academic
+from polisyos.runtime.quality import acquisition_planner as acquisition
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+from polisyos.runtime.quality.production_grounding_calibration import (
+    ProductionCG2CalibrationSource, SourceGroundingRequest,
+)
+from polisyos.runtime.quality.substrate_registry import DEFAULT_L2_SCHOLAR_KG_PATH
+from tests.unit.runtime.quality.test_value_gate import (
+    _avg_income_candidate, _avg_income_problem, _world_record,
+)
+
+
+def main():
+    started = time.monotonic()
+    scratch = Path("_build/gy_grade_authority/pa1_n7_real")
+    source = academic.SourceSnapshot(
+        path=DEFAULT_L2_SCHOLAR_KG_PATH,
+        reference=str(DEFAULT_L2_SCHOLAR_KG_PATH.resolve()),
+        sha256="583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967",
+    )
+    candidate, problem, world_record = _avg_income_candidate(), _avg_income_problem(), _world_record()
+    gap = acquisition.value_input_world_knowledge_requirement_gap(
+        claim_ref=f"value-claim:{candidate.candidate_id}"
+    )
+    request = {"cycle_index": 0, "requirement_gap": gap.model_dump(mode="json")}
+    controller = GenerationCycleController(repo_root=scratch)
+    specs = controller._n7_data_requirement_specs(problem, acquisition_request=request)
+    assert len(specs) == 1 and specs[0] == gap
+    world = acquisition.AcquisitionWorldSnapshot(
+        world_ref=world_record.content_hash,
+        world_model_record_ref=world_record.world_model_record_id,
+        known_slots=("avg_income",),
+    )
+    receipt = acquisition.run_acquisition_closed_loop(
+        run_id="pa1-real-source-avg-income", acquisition_request=request,
+        data_requirement_specs=specs, world_snapshot=world, design_problem=problem,
+        owner_gateway=acquisition.RealAcquisitionOwnerGateway(
+            repo_root=scratch, skg_source_snapshot=source
+        ),
+    )
+    assert not acquisition.validate_acquisition_receipt(receipt)
+    assert receipt.real_grounding_result_count == 0
+    assert len(receipt.owner_artifacts) == 1
+    response = receipt.owner_artifacts[0].payload["owner_response"]
+    ref = artifacts.ArtifactRef.model_validate(response["resolution_ref"])
+    owner = ProductionCG2CalibrationSource(
+        source=source, store=artifacts.FileSystemCAS(scratch / ".n7-live-cas"),
+        scratch=scratch / ".n7-live-cas" / "source-query-scratch",
+    )
+    expected_request = SourceGroundingRequest(
+        requirement_ref=gap.compiled_requirement_ref, claim_ref=gap.claim_ref,
+        compiled_requirement=gap.model_dump(mode="json"),
+        design_problem=problem.model_dump(mode="json"), world_snapshot=world.model_dump(mode="json"),
+    )
+    result = owner.replay(ref=ref, request=expected_request)
+    assert result.target_variable == "avg_income" and result.n8_admission == "blocked"
+    receipt_bytes = json.dumps(receipt.model_dump(mode="json"), sort_keys=True, separators=(",", ":")).encode()
+    receipt_path = scratch / "n7-receipt.json"
+    receipt_path.write_bytes(receipt_bytes)
+    population = result.source_population
+    output = {
+        "request_source": "test_value_gate exact avg_income candidate/problem/world fixture",
+        "source_sha256": source.sha256,
+        "resolution_ref": ref.model_dump(mode="json"),
+        "resolution_bytes": len(owner._store.get_bytes(ref.artifact_id)),
+        "request": result.request.model_dump(mode="json"),
+        "request_sha256": result.request_sha256,
+        "population_status": population.status,
+        "row_count": population.row_count,
+        "distinct_numeric_id_count": population.distinct_numeric_id_count,
+        "distinct_variable_name_count": population.distinct_variable_name_count,
+        "literal_target_match_count": len(population.literal_target_row_indices),
+        "semantic_target_coverage": population.semantic_target_coverage,
+        "projection_sha256": population.projection_sha256,
+        "relation_acceptance": result.relation_acceptance.model_dump(mode="json"),
+        "cg2_status": result.cg2_status,
+        "cg2_owner_ledger_id": result.cg2_owner_ledger_id,
+        "refusal_reasons": result.refusal_reasons,
+        "receipt_status": receipt.status,
+        "world_write_statuses": [row.status for row in receipt.world_write_outcomes],
+        "real_grounding_result_count": receipt.real_grounding_result_count,
+        "n8_admission": result.n8_admission,
+        "network_calls": receipt.network_call_count,
+        "receipt_path": str(receipt_path),
+        "receipt_sha256": hashlib.sha256(receipt_bytes).hexdigest(),
+        "elapsed_seconds": time.monotonic() - started,
+    }
+    Path("_build/gy_grade_authority/pa1-n7-real-replay-output.json").write_text(json.dumps(output, indent=2) + "\n")
+    print(json.dumps({key: value for key, value in output.items() if key != "request"}), flush=True)
+
+
+if __name__ == "__main__":
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_n7_removal_v3.py`
+
+3216 bytes, SHA-256 `0a8561e616054740bef8e131dd8cc7f2351441cfac3c5e0ed2500625a9d32df7`.
+
+````python
+"""Real runtime-property removals; source markers remain byte-identical."""
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+import pytest
+
+from polisyos.runtime.quality import acquisition_planner as acquisition
+from polisyos.runtime.quality import production_grounding_calibration as calibration
+
+mode = os.environ.get("GY_PA1_N7_REMOVE", "restored")
+log = Path(f"_build/gy_grade_authority/pa1-n7-removal-{mode}-v3.txt").open("w")
+
+
+class Tee:
+    def __init__(self, stream):
+        self.stream = stream
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+    def write(self, value):
+        log.write(value)
+        log.flush()
+        return self.stream.write(value)
+    def flush(self):
+        log.flush()
+        self.stream.flush()
+
+
+sys.stdout, sys.stderr = Tee(sys.stdout), Tee(sys.stderr)
+manifest = json.loads(Path("_build/gy_grade_authority/pa1_n7_corrected_freeze.json").read_text())
+
+
+def hashes():
+    actual = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in manifest}
+    assert actual == manifest, "frozen source changed"
+    return actual
+
+
+print(json.dumps({"mode": mode, "frozen_hashes_before": hashes()}), flush=True)
+if mode == "source_replay":
+    def no_replay(self, *, ref, request):
+        return calibration.ProductionGroundingSourceResolution.model_validate_json(
+            self._store.get_bytes(ref.artifact_id)
+        )
+    calibration.ProductionCG2CalibrationSource.replay = no_replay
+    nodes = ["tests/unit/runtime/quality/test_acquisition_planner.py::test_real_skg_capture_requires_source_bound_replay_before_audit_emission"]
+elif mode == "refusal":
+    def no_admission(*, artifact, record, spec, source_owner):
+        return artifact
+    acquisition._admit_source_artifact = no_admission
+    original = acquisition._owner_artifact_validation_issues
+    def no_skg_refusal(artifact):
+        return tuple(issue for issue in original(artifact) if not issue.startswith("skg_"))
+    acquisition._owner_artifact_validation_issues = no_skg_refusal
+    nodes = ["tests/unit/runtime/quality/test_acquisition_source_replay.py::test_expected_skg_route_cannot_escape_by_relabeling_artifact_owner"]
+elif mode == "receipt":
+    original = acquisition._emission_is_sealed
+    def no_receipt_seal(model, registry, context=acquisition._UNSPECIFIED_EMISSION_CONTEXT):
+        if registry is acquisition._VERIFIED_RECEIPT_EMISSIONS:
+            return True
+        return original(model, registry, context)
+    acquisition._emission_is_sealed = no_receipt_seal
+    nodes = ["_build/gy_grade_authority/test_pa1_n7_receipt_removal_behavior.py"]
+else:
+    nodes = [
+        "tests/unit/runtime/quality/test_acquisition_planner.py::test_real_skg_capture_requires_source_bound_replay_before_audit_emission",
+        "tests/unit/runtime/quality/test_acquisition_source_replay.py::test_expected_skg_route_cannot_escape_by_relabeling_artifact_owner",
+        "_build/gy_grade_authority/test_pa1_n7_receipt_removal_behavior.py",
+    ]
+result = pytest.main([*nodes, "--override-ini", "addopts=", "-q"])
+print(json.dumps({"mode": mode, "pytest_exit": result, "frozen_hashes_after": hashes()}), flush=True)
+raise SystemExit(result)
+````
+
+#### `_build/gy_grade_authority/test_pa1_n7_receipt_removal_behavior.py`
+
+1114 bytes, SHA-256 `537c21747a7a50188c3fbf2e23dd28748bc4c36812960acae363ed5fc24addac`.
+
+````python
+"""A live receipt's forged copy must not feed the actual GenerationCycle consumer."""
+from polisyos.runtime.quality import acquisition_planner as n7
+from polisyos.runtime.quality.generation_cycle import _n7_rederived_grounding_for_candidate
+from tests.unit.runtime.quality.test_acquisition_source_replay import captured, _replay
+
+
+def test_actual_cycle_consumer_refuses_forged_complete_receipt(captured):
+    receipt = _replay(*captured)
+    payload = receipt.model_dump(mode="json")
+    payload["grounding_rederivations"] = [{
+        "design_id": "candidate:forged", "source_slots": ["avg_income"],
+        "status": "current_valid", "grounding_score": 1.0, "report_ref": "report:self-issued",
+        "evidence_refs": [], "issue_codes": [],
+    }]
+    payload["real_grounding_result_count"] = 1
+    payload["useful_design_rate_after"] = 1.0
+    payload["status"] = "completed"
+    payload["no_result_costed_gap"] = False
+    payload["content_hash"] = ""
+    forged = n7.AcquisitionReceipt.model_validate(payload)
+    assert _n7_rederived_grounding_for_candidate(forged, candidate_id="candidate:forged") is None
+````
+
+#### `_build/gy_grade_authority/test_pa1_n7_independent_delta.py`
+
+6440 bytes, SHA-256 `f92e896f3675b56a1aa53422dd1a05a1593e9596ad8d1f54eed16ff77d1944f8`.
+
+````python
+"""Delta review of the same PA1 binding class with configured replay controls."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+
+import duckdb
+import pytest
+
+from polisyos.core import artifacts
+from polisyos.data_forge.read_api import academic
+from polisyos.runtime.quality import acquisition_planner as n7
+from polisyos.runtime.quality.production_grounding_calibration import ProductionCG2CalibrationSource
+from _build.gy_grade_authority import test_pa1_n7_independent_review as original
+
+_UNCONFIGURED_REPLAY = original.replay
+
+
+@pytest.fixture(autouse=True)
+def restore_removed_same_context_shortcut_only_for_negative_control(monkeypatch):
+    if os.environ.get('GY_REVIEW_RESTORE_SOURCE_FASTPATH') != '1':
+        return
+    original_admit = n7._admit_source_artifact
+    def shortcut(*, artifact, record, spec, source_owner):
+        expected_owner = n7._owner_component_for_record(record, spec)
+        request = n7._source_grounding_request(record, spec)
+        context = (source_owner, n7._canonical_model_bytes(request))
+        if (expected_owner == artifact.owner_component == 'data_forge.skg' and
+                n7._emission_is_sealed(artifact, n7._VERIFIED_SOURCE_EMISSIONS, context)):
+            return artifact
+        return original_admit(artifact=artifact, record=record, spec=spec, source_owner=source_owner)
+    monkeypatch.setattr(n7, '_admit_source_artifact', shortcut)
+
+
+@pytest.fixture
+def configured_case(tmp_path, monkeypatch):
+    case = original.captured.__wrapped__(tmp_path)
+    path = tmp_path / 'retained.duckdb'
+    source = academic.SourceSnapshot(path=path, reference='fixture://independent-source',
+                                    sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    store = artifacts.FileSystemCAS(tmp_path / '.n7-live-cas')
+    owner = ProductionCG2CalibrationSource(source=source, store=store, scratch=tmp_path / 'configured-spill')
+    def configured_replay(gap, problem, world, artifact):
+        return n7.run_acquisition_closed_loop(
+            run_id='review-configured-replay', acquisition_request={'cycle_index': 1},
+            data_requirement_specs=(gap,), world_snapshot=world, design_problem=problem,
+            owner_gateway=n7.RecordedAcquisitionOwnerGateway(
+                artifacts_by_requirement={gap.compiled_requirement_ref: artifact},
+                skg_calibration_source=owner,
+            ),
+        )
+    monkeypatch.setattr(original, 'replay', configured_replay)
+    return case, owner, store, source
+
+
+def test_matching_configured_replay_control(configured_case):
+    original.test_matching_recorded_control(configured_case[0])
+
+
+@pytest.mark.parametrize('mutation', ['current_world', 'current_outcome', 'population', 'cas_ref'])
+def test_same_four_source_and_request_escape_cases(configured_case, mutation):
+    original.test_recorded_intake_must_rebind_source_and_current_request(configured_case[0], mutation)
+
+
+@pytest.mark.parametrize('owner_component', ['data_forge.skg', 'fabric.ingestion'])
+def test_same_expected_owner_route_and_ceiling_cases(configured_case, owner_component):
+    original.test_current_skg_gap_cannot_escape_ceiling_by_relabeling_owner(configured_case[0], owner_component)
+
+
+@pytest.mark.parametrize('grade', ['world_written', 'grounding_valid'])
+def test_same_complete_receipt_emission_escape_cases(configured_case, grade):
+    original.test_receipt_emission_cannot_mint_world_or_grounding_grade_from_skg_refusal(configured_case[0], grade)
+
+
+def test_missing_replay_context_emits_only_unverified_current_refusal(configured_case):
+    gap, problem, world, artifact = configured_case[0]
+    receipt = _UNCONFIGURED_REPLAY(gap, problem, world, artifact)
+    response = receipt.owner_artifacts[0].payload['owner_response']
+    assert response['owner_response_kind'] == 'skg_unverified_source_refusal'
+    assert 'resolution' not in response
+    assert response['refusal']['verification_status'] == 'not_established'
+    assert response['refusal']['request']['world_snapshot'] == world.model_dump(mode='json')
+    assert response['refusal']['n8_admission'] == 'blocked'
+    assert receipt.grown_world_added_slots == ()
+    assert receipt.real_grounding_result_count == 0
+    assert all(row.status == 'rejected' for row in receipt.world_write_outcomes)
+
+
+@pytest.mark.parametrize('shape', ['mapping', 'dto'])
+def test_deserialized_receipt_requires_fresh_context_replay(configured_case, shape):
+    receipt = original.replay(*configured_case[0])
+    assert n7.validate_acquisition_receipt(receipt) == ()
+    payload = json.loads(receipt.model_dump_json())
+    submitted = payload if shape == 'mapping' else n7.AcquisitionReceipt.model_validate(payload)
+    issues = n7.validate_acquisition_receipt(submitted)
+    assert any(issue['code'] == 'acquisition_receipt_current_context_replay_unavailable' for issue in issues)
+    assert not n7.acquisition_receipt_has_verified_emission(submitted)
+
+
+@pytest.mark.parametrize('mutation', ['source_bytes', 'cas_blob'])
+def test_same_owner_and_request_reuse_does_not_replace_current_replay(configured_case, mutation):
+    case, owner, store, source = configured_case
+    gap, problem, world, artifact = case
+    first = original.replay(gap, problem, world, artifact)
+    assert n7.validate_acquisition_receipt(first) == ()
+    sealed_artifact = first.owner_artifacts[0]
+    if mutation == 'source_bytes':
+        with duckdb.connect(str(source.path)) as con:
+            con.execute("UPDATE ac_skg_simulation_parameters SET canonical_name='changed-after-capture'")
+    else:
+        ref = artifacts.ArtifactRef.model_validate(sealed_artifact.payload['owner_response']['resolution_ref'])
+        blob, _ = store.get_paths(ref.artifact_id)
+        body = json.loads(blob.read_bytes())
+        body['request']['claim_ref'] = 'claim:changed-after-capture'
+        blob.write_text(json.dumps(body))
+    second = original.replay(gap, problem, world, sealed_artifact)
+    response = second.owner_artifacts[0].payload['owner_response']
+    assert response['owner_response_kind'] == 'skg_unverified_source_refusal', {
+        'same_owner_object': owner, 'accepted_response_kind': response['owner_response_kind'],
+        'validation_issues': n7.validate_acquisition_receipt(second),
+    }
+    assert response['refusal']['verification_status'] == 'not_established'
+    assert second.grown_world_added_slots == ()
+    assert second.real_grounding_result_count == 0
+````
+
+#### `_build/gy_grade_authority/pa1_n7_delta_handback.py`
+
+7054 bytes, SHA-256 `d98e6b61cb4785a56d21daf089642b5cb83d6b350171a1c0c0327725d590d180`.
+
+````python
+"""Read back the frozen PA1 delta test receipts; does not run another test wave."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+ROOT = Path.cwd()
+SCRATCH = ROOT / "_build/gy_grade_authority"
+
+
+def digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def read_receipt(name: str, *, expected_tests: int, expected_failures: int) -> dict:
+    path = SCRATCH / name
+    tree = ET.parse(path)
+    cases = tree.findall(".//testcase")
+    rows = [
+        {
+            "identity": f"{case.attrib['classname']}::{case.attrib['name']}",
+            "outcome": "failed" if case.find("failure") is not None else "passed",
+            "failure_message": case.find("failure").get("message")
+            if case.find("failure") is not None
+            else None,
+        }
+        for case in cases
+    ]
+    suites = tree.findall(".//testsuite")
+    totals = {
+        key: sum(int(suite.get(key, "0")) for suite in suites)
+        for key in ("tests", "failures", "errors", "skipped")
+    }
+    assert len(cases) == len({row['identity'] for row in rows}) == totals['tests'] == expected_tests
+    assert sum(row['outcome'] == 'failed' for row in rows) == totals['failures'] == expected_failures
+    assert totals['errors'] == totals['skipped'] == 0
+    return {
+        "path": str(path.relative_to(ROOT)), "sha256": digest(path),
+        "suite_totals": totals,
+        "suite_duration_seconds": sum(float(suite.get("time", "0")) for suite in suites),
+        "complete_case_set": rows,
+    }
+
+
+def main() -> None:
+    manifest_path = SCRATCH / 'pa1_n7_corrected_freeze.json'
+    manifest = json.loads(manifest_path.read_text())
+    observed = {path: digest(ROOT / path) for path in manifest}
+    assert observed == manifest, {path: sha for path, sha in observed.items() if sha != manifest[path]}
+    assert all(Path(path).suffix == '.py' for path in manifest)
+    original_path = SCRATCH / 'test_pa1_n7_independent_review.py'
+    assert digest(original_path) == 'eebc33e8367517e0596470a753d1b2a814b6b6de39b8c9586237cfefa1a9e24f'
+    result = {
+        'disposition': 'GO within declared source-reference and current-request replay ceiling',
+        'bucket': 'SAME source/current-request/route/whole-emission authority class; coherent correction reviewed, no new blocking class found',
+        'frozen_python_path_count': len(manifest),
+        'freeze_manifest': {'path': str(manifest_path.relative_to(ROOT)), 'sha256': digest(manifest_path), 'complete_observed_path_hash_set': observed},
+        'original_probe': {'path': str(original_path.relative_to(ROOT)), 'sha256': digest(original_path)},
+        'delta_probe': {'path': '_build/gy_grade_authority/test_pa1_n7_independent_delta.py', 'sha256': digest(SCRATCH / 'test_pa1_n7_independent_delta.py')},
+        'positive_delta': {
+            'command': 'PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts="" _build/gy_grade_authority/test_pa1_n7_independent_delta.py --junitxml=_build/gy_grade_authority/pa1-n7-independent-delta.xml',
+            'exit_code': 0, 'pytest_duration_seconds': 47.43,
+            **read_receipt('pa1-n7-independent-delta.xml', expected_tests=14, expected_failures=0),
+        },
+        'removal_red': {
+            'command': 'GY_REVIEW_RESTORE_SOURCE_FASTPATH=1 PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src .venv/bin/python -m pytest -q --override-ini addopts="" _build/gy_grade_authority/test_pa1_n7_independent_delta.py -k same_owner_and_request --junitxml=_build/gy_grade_authority/pa1-n7-independent-source-fastpath-red.xml',
+            'exit_code': 1, 'pytest_duration_seconds': 36.88, 'deselected_stdout': 12,
+            'removed_property': 'Every source admission recomputes current source/CAS; scratch wrapper restores old same-owner/request process-local-seal early return without modifying source or markers.',
+            'observed_divergence': 'Both changed source bytes and changed bound CAS blob were accepted as skg_exact_request_source_resolution with validate_acquisition_receipt()==().',
+            **read_receipt('pa1-n7-independent-source-fastpath-red.xml', expected_tests=2, expected_failures=2),
+        },
+        'source_review': [
+            'Shared intake derives the expected owner from the current planned record/spec, replays CAS with the exact current request and independently configured snapshot, and compares the whole canonical payload. Relabeling the SKG response or owner cannot grant acquired substrate for the planned SKG route.',
+            'Missing replay context normalizes to current-request typed unverified refusal without copying submitted resolution/population facts. Refused population counts are None, not a false measured zero.',
+            'A process-local full-byte receipt seal is required at validate_acquisition_receipt and both GenerationCycle consumers (_reenter_cycle_after_n7_acquisition and _n7_rederived_grounding_for_candidate). Raw/deserialized or altered receipts do not regain authority.',
+            'Source admission always replays even after a prior valid emission under the same configured owner/request. Receipt seal is emission provenance, not a scientific appointment or an assertion of later external-source freshness.',
+        ],
+        'bounded_limits': [
+            'Configured deployment source snapshot, CAS/replayer configuration, runtime code and private in-process state are trusted. No arbitrary Python-memory or filesystem-administrator substitution was tested or claimed closed.',
+            'CAS binds recomputed source-reference projection and current request. Source authenticity, semantic target coverage, causal eligibility, native uncertainty adequacy, target transport and calibration authority remain not_established; N8 remains blocked and no acquired SKG registration is issued.',
+            'No independent relation-outcome gold, evaluator appointment, exact-stratum calibration population or scientific grade was created. This is not full positive PA1 closure.',
+            'Other Fabric/OpenAlex general count-to-grade concerns remain outside this bounded correction; the planned SKG route relabel escape is closed.',
+        ],
+    }
+    output = SCRATCH / 'pa1-n7-independent-delta-handback.json'
+    output.write_text(json.dumps(result, indent=2) + '\n')
+    saved = json.loads(output.read_text())
+    assert saved == result
+    print(json.dumps({'output': str(output.relative_to(ROOT)), 'sha256': digest(output), 'script_sha256': digest(Path(__file__)), 'freeze_sha256': digest(manifest_path), 'delta_probe_sha256': result['delta_probe']['sha256'], 'delta_receipt_sha256': result['positive_delta']['sha256'], 'red_receipt_sha256': result['removal_red']['sha256'], 'frozen_python_paths_read_back': len(observed), 'positive_case_count': len(result['positive_delta']['complete_case_set']), 'red_case_count': len(result['removal_red']['complete_case_set'])}, indent=2))
+
+
+if __name__ == '__main__':
+    main()
+````
+
+#### `_build/gy_grade_authority/pa1_n7_final_handback.py`
+
+8563 bytes, SHA-256 `3c4dfa35627427413ca01417c1e67014b4a560a9b4c5c2fa1ee8f36e459ff05f`.
+
+````python
+"""Reconcile the frozen final wave, behavioral removals and retained-source run."""
+
+import hashlib
+import json
+import re
+from pathlib import Path
+
+BASE = Path("_build/gy_grade_authority")
+PREFIX = 'PATH="$PWD/.venv/bin:$PATH" PYTHONPATH=.:src '
+freeze = json.loads((BASE / "pa1_n7_corrected_freeze.json").read_text())
+actual = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in freeze}
+assert actual == freeze
+wave = json.loads((BASE / "pa1-n7-final-targeted-reconciled.json").read_text())
+assert wave["source_hashes"] == freeze
+removals = []
+for mode, expected_exit, expected_count in (
+    ("source_replay", 1, 1), ("refusal", 1, 2), ("receipt", 1, 1), ("restored", 0, 4)
+):
+    path = BASE / f"pa1-n7-removal-{mode}-v3.txt"
+    body = path.read_text()
+    records = [json.loads(line) for line in body.splitlines() if line.startswith('{"mode":')]
+    assert len(records) == 2
+    assert records[0]["frozen_hashes_before"] == records[1]["frozen_hashes_after"] == freeze
+    assert records[1]["pytest_exit"] == expected_exit
+    outcome = "failed" if expected_exit else "passed"
+    match = re.search(rf"{expected_count} {outcome}, 1 warning in ([0-9.]+)s", body)
+    assert match, (mode, body)
+    command = PREFIX + (f"GY_PA1_N7_REMOVE={mode} " if mode != "restored" else "")
+    removals.append({
+        "mode": mode,
+        "command": command + ".venv/bin/python -m _build.gy_grade_authority.pa1_n7_removal_v3",
+        "exit_code": expected_exit,
+        "case_count": expected_count,
+        "outcome": outcome,
+        "pytest_reported_seconds": float(match[1]),
+        "log": str(path),
+        "all_11_source_and_test_hashes_unchanged": True,
+    })
+
+real = json.loads((BASE / "pa1-n7-real-replay-output.json").read_text())
+assert real["n8_admission"] == "blocked" and real["real_grounding_result_count"] == 0
+receipt = Path(real["receipt_path"])
+assert hashlib.sha256(receipt.read_bytes()).hexdigest() == real["receipt_sha256"]
+artifact_names = [
+    "pa1_n7_corrected_freeze.json", "pa1_n7_final_receipts.py",
+    "pa1-n7-final-targeted.xml", "pa1-n7-final-targeted-reconciled.json",
+    "pa1_n7_removal_v2.py", "pa1_n7_removal_v3.py",
+    "test_pa1_n7_receipt_removal_behavior.py", "pa1_n7_real_replay.py",
+    "pa1-n7-real-replay-output.json", "pa1-n7-independent-delta-handback.json",
+    "test_pa1_n7_independent_review.py", "test_pa1_n7_independent_delta.py",
+    "pa1-n7-independent-delta.xml", "pa1-n7-independent-source-fastpath-red.xml",
+    "pa1-population-unknown-corrected-before.xml", "pa1-population-unknown-after.xml",
+]
+artifact_paths = [BASE / name for name in artifact_names] + [receipt]
+artifact_paths += [BASE / f"pa1-n7-removal-{mode}-v{version}.txt"
+    for version, modes in ((2, ("source_replay", "refusal", "receipt")),
+                           (3, ("source_replay", "refusal", "receipt", "restored")))
+    for mode in modes]
+artifact_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in artifact_paths}
+report = {
+    "source_status": "frozen; no commits by this subagent",
+    "source_hashes": actual,
+    "pattern_closeout": ["P29", "P31", "P32", "P35", "P37", "P38", "P40", "P41"],
+    "class": "SAME source/current-request/expected-route/whole-emission authority binding",
+    "capability": "Exact-request source discovery, persistence/replay and N7 honest refusal are wired and exercised; positive relation-calibrated grounding remains verification_missing/producer_missing pending the scientific acceptance decision.",
+    "full_positive_boundary": {
+        "required_decision": ["CG1 proposal-reference relation gold context", "accepted independent relation adjudicator", "outcome-sensitive calibration acceptance rule"],
+        "reason": "Academic edge publication adjudication does not establish the proposal-reference relation. The same publishable study can support a correct or incorrect proposal binding. No accepted mapping is defined; counts and publication labels cannot supply it.",
+        "actual_request_limits": ["avg_income and average_treatment_effect are supplied", "candidate treatment/operator and reference epoch are not established", "No treatment assignment, empirical causal contrast or target transport grade is manufactured"],
+        "remaining_engineering_after_decision": "Implement the chosen relation-evidence producer/admission and CG2 outcome-sensitive calibration against independently supplied gold/context; current refusal artifact is not that positive corpus.",
+    },
+    "final_wave": {
+        "command": PREFIX + ".venv/bin/python -m pytest -q --override-ini addopts='' tests/unit/data_forge/domains/academic/knowledge/test_skg_identity_bridge.py tests/unit/data_forge/domains/academic/knowledge/test_skg_source_population.py tests/unit/runtime/quality/test_production_grounding_calibration.py tests/unit/runtime/quality/test_acquisition_planner.py tests/unit/runtime/quality/test_acquisition_source_replay.py tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_invokes_n7_and_records_same_cycle_reentry tests/unit/runtime/quality/test_generation_cycle.py::test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters tests/unit/runtime/quality/test_generation_cycle.py::test_value_data_gap_routes_to_n7_acquisition_terminal tests/unit/runtime/quality/test_generation_cycle.py::test_canonical_n7_route_attaches_exact_owner_cost_basis tests/unit/runtime/quality/test_generation_cycle.py::test_honest_single_cycle_acquisition_terminal_validates tests/unit/runtime/quality/test_second_domain_pack.py::test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable --junitxml=_build/gy_grade_authority/pa1-n7-final-targeted.xml",
+        "exit_code": 1,
+        "pytest_reported_seconds": 163.71,
+        "complete_case_count": wave["test_count"],
+        "outcomes": wave["outcomes"],
+        "complete_case_set_artifact": "_build/gy_grade_authority/pa1-n7-final-targeted-reconciled.json",
+        "skip": "test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle: explicit cloud-gated network lane",
+        "setup_error": "test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable: tools fixture raises education_n4_historical_replay_call_denominator_mismatch before intended assertions",
+        "setup_error_provenance": "not_established; exact slice-base replay and complete-input disjointness have not been measured",
+        "later_tool_compatibility": "Raw-receipt validator and full bundle assertions were not reached. The new full emission guard requires current-context replay; no bypass or skipped assertion was introduced.",
+    },
+    "removal_gates": removals,
+    "v2_harness_failures": "All three v2 attempts exit 3 before collection because stdout Tee lacked isatty; preserved logs are non-receipts, not product reds. v3 transparently delegates stream attributes.",
+    "real_retained_station": {
+        "command": PREFIX + ".venv/bin/python -m _build.gy_grade_authority.pa1_n7_real_replay",
+        "exit_code": 0,
+        "scope": "Canonical N8-request fixture plus actual retained source through controller adapter, real N7, CAS and independently expected request replay. Not a full live N8 evaluation or empirical positive chain.",
+        "denominator": "All rows of main.ac_skg_simulation_parameters, native five-column reference projection; not all ac_numeric estimates or a calibration population",
+        "complete_result": real,
+    },
+    "remaining_companions": [
+        "Root measured obsolete architecture baseline edge after proper DataForge read_api reuse; exact companion removal outside agent grant, caused drift, not inherited.",
+        "tools check_layer3_gy_acquisition_contract._core_issues and check_layer3_gy_second_domain_pack._validate_n7_attempt reconstruct raw DTOs. To admit authority they need deployment/current-request replay; otherwise report audit-only unverified. Root owns exact handback.",
+        "Other Fabric/OpenAlex count-to-grade owner admission concerns are outside this SKG source-reference correction; no shared-family closure is claimed.",
+    ],
+    "artifact_sha256": artifact_hashes,
+}
+output = BASE / "pa1-n7-final-handback.json"
+output.write_text(json.dumps(report, indent=2) + "\n")
+print(json.dumps({"handback": str(output), "sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
+                  "frozen_python_paths": len(actual), "hashed_evidence_paths": len(artifact_hashes),
+                  "wave": report["final_wave"]["outcomes"], "removals": removals}, indent=2))
+````
+
+#### `_build/gy_grade_authority/test_population_unknown_denominator.py`
+
+1631 bytes, SHA-256 `82217b1958c709158e31554fe11c1a8ff6560d2e7a704a849f3fadd7e186b1b0`.
+
+````python
+"""An unreadable source cannot be graded as a known empty population."""
+import hashlib
+import duckdb
+import pytest
+from polisyos.data_forge.read_api import academic
+
+@pytest.mark.parametrize("unreadable", [False, True])
+def test_unreadable_denominator_is_unknown_while_native_population_is_measured(tmp_path, unreadable):
+    path = tmp_path / "source.duckdb"
+    with duckdb.connect(str(path)) as con:
+        con.execute("CREATE TABLE original(numeric_id VARCHAR, openalex_id VARCHAR, canonical_name VARCHAR, linked_claim_ids_json VARCHAR, linked_edges_json VARCHAR)")
+        con.execute("INSERT INTO original VALUES ('n1', 'W1', 'avg_income', '[]', '[]')")
+        if unreadable:
+            con.execute("CREATE VIEW ac_skg_simulation_parameters AS SELECT * FROM original")
+        else:
+            con.execute("ALTER TABLE original RENAME TO ac_skg_simulation_parameters")
+    source = academic.SourceSnapshot(path=path, reference="fixture://source", sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    result = academic.read_source_reference_population(source=source, target_variable="avg_income", scratch=tmp_path / "spill")
+    if unreadable:
+        assert result.status == "refused"
+        assert result.row_count is None, "Unreadable population was falsely counted as zero"
+        assert result.distinct_numeric_id_count is None
+        assert result.distinct_variable_name_count is None
+    else:
+        assert result.status == "reference_population_recomputed"
+        assert result.row_count == 1
+        assert result.distinct_numeric_id_count == 1
+        assert result.distinct_variable_name_count == 1
+````
+
+#### `_build/gy_grade_authority/pa1_n7_population_independent_reconcile.py`
+
+8803 bytes, SHA-256 `0fab7051a3405f768051a2bf3cf55ae4bdd47fa4fe2b08a2ecc6fe57527b73dc`.
+
+````python
+"""Direct read-only SQL/Counter reconciliation; no owner producer/helper imports."""
+from __future__ import annotations
+import hashlib
+import json
+import stat
+import subprocess
+import time
+from collections import Counter
+from pathlib import Path
+
+import duckdb
+
+BASE = Path('_build/gy_grade_authority')
+REPORT = BASE/'pa1-n7-real-replay-output.json'
+CAS = BASE/'pa1_n7_real/.n7-live-cas/artifacts/sha256'
+SCRATCH = BASE/'pa1_n7_independent_reconcile_spill'
+RESULT = BASE/'pa1_n7_population_independent_reconcile.json'
+EXPECTED_SOURCE_SHA = '583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967'
+EXPECTED_HEAD = 'c7ef95f7a3fd08c6df18277c5feae0ef8f31003f'
+COLUMNS = ('numeric_id','openalex_id','canonical_name','linked_claim_ids_json','linked_edges_json')
+TABLE = 'main.ac_skg_simulation_parameters'
+
+def head() -> str:
+    return subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
+
+def stream_sha(path: Path) -> tuple[str,int]:
+    digest=hashlib.sha256(); size=0
+    with path.open('rb') as handle:
+        while chunk:=handle.read(8*1024*1024): digest.update(chunk);size+=len(chunk)
+    return digest.hexdigest(),size
+
+def encode(value: object) -> bytes:
+    return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode()
+
+def counter_rows(counter: Counter) -> list[dict]:
+    return [{'values':list(row),'multiplicity':count} for row,count in sorted(counter.items(),key=lambda row:encode(row[0]))]
+
+started=time.monotonic()
+report_bytes=REPORT.read_bytes(); report=json.loads(report_bytes)
+artifact_sha=report['resolution_ref']['artifact_id'].removeprefix('sha256:')
+blob=CAS/artifact_sha[:2]/artifact_sha[2:4]/(artifact_sha+'.blob')
+blob_bytes=blob.read_bytes(); resolution=json.loads(blob_bytes)
+population=resolution['source_population']
+source=Path(population['source_reference'])
+assert population['columns']==list(COLUMNS)
+assert population['table']=='ac_skg_simulation_parameters'
+assert report['source_sha256']==population['source_sha256']==EXPECTED_SOURCE_SHA
+assert hashlib.sha256(blob_bytes).hexdigest()==artifact_sha
+assert len(blob_bytes)==report['resolution_bytes']
+assert all(set(row)==set(COLUMNS) for row in population['rows'])
+assert all(value is None or type(value) is str for row in population['rows'] for value in row.values())
+before_stat=source.stat(); before_head=head()
+assert before_head==EXPECTED_HEAD
+before_sha,before_size=stream_sha(source)
+assert before_sha==EXPECTED_SOURCE_SHA
+SCRATCH.mkdir(parents=True,exist_ok=True)
+quoted=', '.join('"'+column+'"' for column in COLUMNS)
+queries={
+ 'rows':f'SELECT {quoted} FROM {TABLE}',
+ 'grouped_rows':f'SELECT {quoted}, COUNT(*) AS multiplicity FROM {TABLE} GROUP BY ALL',
+ 'counters':f'SELECT COUNT(*), COUNT(DISTINCT numeric_id), COUNT(DISTINCT canonical_name) FROM {TABLE}',
+ 'distinct_full_rows':f'SELECT COUNT(*) FROM (SELECT DISTINCT {quoted} FROM {TABLE})',
+ 'literal_target':f'SELECT COUNT(*) FROM {TABLE} WHERE canonical_name = ?',
+ 'lowercase_target':f'SELECT COUNT(*) FROM {TABLE} WHERE lower(canonical_name) = lower(?)',
+ 'null_counts':f'SELECT '+', '.join(f'COUNT(*) FILTER (WHERE "{column}" IS NULL)' for column in COLUMNS)+f' FROM {TABLE}',
+}
+with duckdb.connect(str(source),read_only=True,config={'temp_directory':str(SCRATCH.resolve()),'memory_limit':'512MB'}) as connection:
+    connection.execute('SET enable_external_access = false')
+    settings={name:connection.execute('SELECT current_setting(?)',[name]).fetchone()[0]
+              for name in ('access_mode','enable_external_access','temp_directory','memory_limit')}
+    tables=connection.execute("SELECT table_schema,table_name,table_type FROM information_schema.tables WHERE table_schema='main' AND table_name='ac_skg_simulation_parameters'").fetchall()
+    assert tables==[('main','ac_skg_simulation_parameters','BASE TABLE')],tables
+    sql_rows=connection.execute(queries['rows']).fetchall()
+    grouped=connection.execute(queries['grouped_rows']).fetchall()
+    sql_counts=connection.execute(queries['counters']).fetchone()
+    sql_distinct_rows=connection.execute(queries['distinct_full_rows']).fetchone()[0]
+    sql_literal=connection.execute(queries['literal_target'],[population['target_variable']]).fetchone()[0]
+    sql_lower=connection.execute(queries['lowercase_target'],[population['target_variable']]).fetchone()[0]
+    sql_nulls=connection.execute(queries['null_counts']).fetchone()
+after_sha,after_size=stream_sha(source)
+after_stat=source.stat(); after_head=head()
+direct=Counter(tuple(row) for row in sql_rows)
+cas=Counter(tuple(row[column] for column in COLUMNS) for row in population['rows'])
+group_counter=Counter({tuple(row[:-1]):int(row[-1]) for row in grouped})
+target=population['target_variable']
+python_counts=(len(sql_rows),len({row[0] for row in sql_rows if row[0] is not None}),len({row[2] for row in sql_rows if row[2] is not None}))
+cas_counts=(len(population['rows']),len({row['numeric_id'] for row in population['rows'] if row['numeric_id'] is not None}),len({row['canonical_name'] for row in population['rows'] if row['canonical_name'] is not None}))
+python_nulls=tuple(sum(row[i] is None for row in sql_rows) for i in range(len(COLUMNS)))
+literal_indices=[i for i,row in enumerate(population['rows']) if row['canonical_name']==target]
+casefold_rows=[row for row in sql_rows if isinstance(row[2],str) and row[2].casefold()==target.casefold()]
+missing=direct-cas; extra=cas-direct
+checks={
+ 'source_sha_before_and_after_match':before_sha==after_sha==EXPECTED_SOURCE_SHA,
+ 'source_size_unchanged':before_size==after_size,
+ 'source_mtime_unchanged':before_stat.st_mtime_ns==after_stat.st_mtime_ns,
+ 'source_mode_unchanged':before_stat.st_mode==after_stat.st_mode,
+ 'branch_head_unchanged':before_head==after_head==EXPECTED_HEAD,
+ 'direct_SQL_and_CAS_full_multisets_equal':not missing and not extra,
+ 'direct_SQL_and_grouped_SQL_full_multisets_equal':direct==group_counter,
+ 'SQL_Python_CAS_counts_equal':tuple(sql_counts)==python_counts==cas_counts,
+ 'SQL_full_row_distinct_count_equal':sql_distinct_rows==len(direct)==len(cas),
+ 'SQL_and_Python_null_counts_equal':tuple(sql_nulls)==python_nulls,
+ 'literal_counts_and_CAS_indices_equal':sql_literal==len(literal_indices)==len(population['literal_target_row_indices']) and literal_indices==population['literal_target_row_indices'],
+ 'population_declared_counts_equal':tuple(sql_counts)==(population['row_count'],population['distinct_numeric_id_count'],population['distinct_variable_name_count']),
+ 'report_counts_equal':tuple(sql_counts)==(report['row_count'],report['distinct_numeric_id_count'],report['distinct_variable_name_count']),
+}
+result={
+ 'scope':'all rows of five native columns in main.ac_skg_simulation_parameters; exact retained-reference projection, not ac_numeric evidence or relation/calibration observations',
+ 'source':str(source),'expected_source_sha256':EXPECTED_SOURCE_SHA,'source_sha256_before':before_sha,'source_sha256_after':after_sha,
+ 'source_size_bytes':before_size,'source_mode':stat.filemode(before_stat.st_mode),'source_mtime_ns_before':before_stat.st_mtime_ns,'source_mtime_ns_after':after_stat.st_mtime_ns,
+ 'source_hash_stream_passes':2,'connection_settings':settings,'table':TABLE,'columns':list(COLUMNS),'queries':queries,'query_target':target,
+ 'branch_head_before':before_head,'branch_head_after':after_head,
+ 'CAS_artifact_ref':report['resolution_ref']['artifact_id'],'CAS_blob':str(blob),'CAS_blob_sha256':hashlib.sha256(blob_bytes).hexdigest(),'CAS_blob_bytes':len(blob_bytes),
+ 'input_report_sha256':hashlib.sha256(report_bytes).hexdigest(),
+ 'SQL_counts':dict(zip(('rows','distinct_numeric_ids','distinct_variable_names'),sql_counts)),
+ 'Python_counts':dict(zip(('rows','distinct_numeric_ids','distinct_variable_names'),python_counts)),
+ 'CAS_counts':dict(zip(('rows','distinct_numeric_ids','distinct_variable_names'),cas_counts)),
+ 'distinct_complete_five_column_rows':sql_distinct_rows,'null_counts':dict(zip(COLUMNS,sql_nulls)),
+ 'direct_full_multiset_sha256':hashlib.sha256(encode(counter_rows(direct))).hexdigest(),
+ 'CAS_full_multiset_sha256':hashlib.sha256(encode(counter_rows(cas))).hexdigest(),
+ 'grouped_SQL_full_multiset_sha256':hashlib.sha256(encode(counter_rows(group_counter))).hexdigest(),
+ 'missing_from_CAS':counter_rows(missing),'extra_in_CAS':counter_rows(extra),
+ 'literal_target_count':sql_literal,'lowercase_SQL_target_count':sql_lower,'casefold_Python_target_count':len(casefold_rows),
+ 'literal_absence_scope':'Exact lexical match only; semantic target coverage and scientific eligibility remain not_established.',
+ 'checks':checks,'elapsed_seconds':time.monotonic()-started,
+}
+RESULT.write_text(json.dumps(result,indent=2)+'\n')
+assert all(checks.values()),checks
+print(json.dumps(result,indent=2))
+````
+
+#### `_build/gy_grade_authority/architecture_final_identity_diff.py`
+
+3090 bytes, SHA-256 `a0746a7c0a4d4b2a9972feef5af9fc0575df774fffbe97d43e4383bc71212103`.
+
+````python
+"""Diff complete gate finding identities, never summary totals."""
+import json
+import os
+import re
+from pathlib import Path
+from tools.devx.architecture import guardrails as g
+
+logs = ("architecture-final.log", "architecture-after-facades.log", "architecture-after-admitted-facade.log", "architecture-pa1-final.log")
+sets = {}
+for log in logs:
+    lines = (Path("_build/gy_grade_authority") / log).read_text().splitlines()
+    assert any(marker in lines for marker in (
+        "Architecture guardrail check FAILED:", "Architecture guardrail check passed."
+    )), (log, "incomplete gate output")
+    ignored = set()
+    i = 0
+    while i < len(lines):
+        hunk = re.match(r"^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@", lines[i])
+        if hunk:
+            old, new = (int(value) if value is not None else 1 for value in hunk.groups())
+            i += 1
+            while old or new:
+                line = lines[i]
+                if line.startswith("-"):
+                    old -= 1
+                elif line.startswith("+"):
+                    new -= 1
+                elif line.startswith(" "):
+                    old -= 1
+                    new -= 1
+                elif not line.startswith("\\ No newline"):
+                    raise ValueError((log, "invalid diff hunk", line))
+                assert old >= 0 and new >= 0, (log, "invalid diff count")
+                ignored.add(i)
+                i += 1
+            continue
+        i += 1
+    sets[log] = {line[2:] for i,line in enumerate(lines) if i not in ignored and line.startswith("- ")}
+    # Independent lexical derivation is valid for these JSON-only diagnostic diffs:
+    # removed JSON lines are indented; all owner finding prefixes start nonspace.
+    alternate = {line[2:] for line in lines if re.match(r"^- \S", line)}
+    assert sets[log] == alternate, (log, "independent finding identity mismatch")
+
+owner_paths = {str(p.relative_to(g.REPO_ROOT)) for p in g._iter_py_files()}
+independent_paths = {str(Path(root, name).relative_to(g.REPO_ROOT))
+ for root, dirs, files in os.walk(g.SRC_ROOT)
+ if "__pycache__" not in Path(root).parts for name in files if name.endswith(".py")}
+assert owner_paths == independent_paths
+policies = g._parse_public_surface(g.DEFAULT_PUBLIC_MANIFEST)
+current = {edge.key: edge for edge in g.collect_deep_import_edges(policies)}
+baseline = g._load_deep_import_baseline(g.DEFAULT_DEEP_IMPORT_BASELINE)
+result = {"source_file_type": "src/**/*.py excluding __pycache__", "source_denominator": len(owner_paths),
+ "independent_source_denominator": len(independent_paths),
+ "source_identity_difference": [], "finding_sets": {k: sorted(v) for k,v in sets.items()},
+ "diffs": [{"before": a, "after": b, "added": sorted(sets[b]-sets[a]), "removed": sorted(sets[a]-sets[b])}
+ for a,b in zip(logs, logs[1:])], "current_deep_import_creep": sorted(set(current)-set(baseline)), "obsolete_baseline_identities": sorted(set(baseline)-set(current))}
+text = json.dumps(result, indent=2) + "\n"
+Path("_build/gy_grade_authority/architecture-pa1-finding-identity-diff.json").write_text(text)
+print(text)
+````
+
+#### `_build/gy_grade_authority/closeout_scope_audit.py`
+
+8448 bytes, SHA-256 `58f71191c232a321514ce128dfc279863c9391c4470bd6cb98d4e6d929910e7e`.
+
+````python
+"""Read-only path/ref audit; no governance register contents are read."""
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import tomllib
+from datetime import UTC, datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[3]
+BASE = 'f481538706316b0d94722fd2a3891b2067779a38'
+ACCEPTED = 'd4ba9901cbcb29e5d27a71dac7b359b28fe1adec'
+CONTINUATION = '58f8073e44f44519003b5b10c1ccf0d38d7de43a'
+STALE = 'ba5946ebc70bb63f30e4776d0426e19f37dffd31'
+P = 'policy-engine/'
+
+def git(*args: str) -> bytes:
+    return subprocess.run(['git', *args], cwd=ROOT, check=True, capture_output=True).stdout
+
+def names(*args: str) -> set[str]:
+    return {p.decode() for p in git(*args).split(b'\0') if p}
+
+def diff(start: str, end: str | None = None) -> set[str]:
+    return names('diff', '--no-renames', '--name-only', '-z', start, *((end,) if end else ()), '--')
+
+def pinned(ref: str, path: str) -> bytes:
+    return git('show', f'{ref}:{path}')
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+def independent_worktree_delta(start: str, head: str, untracked: set[str]) -> set[str]:
+    # Independently compose committed and live deltas, then remove paths whose
+    # changes cancel. Commands expose path/status metadata, never register bodies.
+    candidates = diff(start, head) | diff(head) | untracked
+    result = set(untracked)
+    for path in sorted(candidates - untracked):
+        proc = subprocess.run(['git', 'diff', '--quiet', '--no-renames', start, '--', path], cwd=ROOT)
+        if proc.returncode not in (0, 1):
+            raise RuntimeError(f'git diff failed for {path}')
+        if proc.returncode == 1:
+            result.add(path)
+    return result
+
+def authorize(path: str) -> str | None:
+    prefixes = {
+        P+'src/polisyos/foundry/': 'original Foundry source grant',
+        P+'src/polisyos/scientist/': 'original Scientist source grant',
+        P+'src/polisyos/runtime/quality/': 'original Runtime quality source grant',
+        P+'src/polisyos/data_forge/': 'extended DataForge source/facade grant',
+        P+'tests/unit/': 'mirrored unit tests and explicit IR test grant',
+        P+'tests/integration/': 'mirrored integration tests grant',
+    }
+    exact = {
+        P+'src/polisyos/runtime/http/services/acquisition_admission_bundle.py': 'explicit HTTP supported-facade repair',
+        P+'src/polisyos/ir/api.py': 'explicit eight-type IR public export grant',
+        P+'docs/reference/ir/public-surface.md': 'explicit derived IR page grant',
+        P+'docs/reference/ir/schema-catalog.md': 'explicit derived IR page grant',
+        P+'architecture/production_quality/method_catalog_dependency_authority.toml': 'explicit measured dependency pin grant',
+        P+'architecture/production_quality/method_catalog_dependency_profiles.toml': 'explicit measured dependency pin grant',
+        P+'docs/plans/active/layer3-slices/GY-engine-subordination.md': 'original GY plan/census/routing companion grant',
+        P+'docs/superpowers/journals/2026-09-07-gy-grade-authority.md': 'explicit durable journal companion',
+    }
+    return exact.get(path) or next((label for prefix, label in prefixes.items() if path.startswith(prefix)), None)
+
+head = git('rev-parse', 'HEAD').decode().strip()
+untracked = names('ls-files', '--others', '--exclude-standard', '-z')
+aggregate = diff(BASE) | untracked
+premerge = diff(BASE, ACCEPTED)
+continuation = diff(CONTINUATION) | untracked
+lane = premerge | continuation
+upstream = diff(ACCEPTED, CONTINUATION)
+aggregate_check = independent_worktree_delta(BASE, head, untracked)
+continuation_check = independent_worktree_delta(CONTINUATION, head, untracked)
+premerge_check = names('diff-tree', '--no-commit-id', '--no-renames', '--name-only', '-r', '-z', BASE, ACCEPTED)
+sets = {'whole_slice_worktree_delta': aggregate, 'accepted_premerge_lane_delta': premerge,
+        'continuation_worktree_delta': continuation, 'complete_lane_union': lane,
+        'accepted_upstream_merge_delta': upstream, 'whole_slice_upstream_only': aggregate-lane,
+        'untracked_nonignored': untracked}
+
+journal = P+'docs/superpowers/journals/2026-09-07-gy-grade-authority.md'
+marker = b'## codex/gy-def6-e11 analysis\n'
+old_journal = pinned(ACCEPTED, journal)
+new_journal = (ROOT/journal).read_bytes()
+assert old_journal.count(marker) == new_journal.count(marker) == 1
+old_section = old_journal[old_journal.index(marker):]
+new_section = new_journal[new_journal.index(marker):]
+cap_path = P+'architecture/production_quality/method_catalog_dependency_authority.toml'
+old_caps = tomllib.loads(pinned(CONTINUATION, cap_path).decode())
+new_caps = tomllib.loads((ROOT/cap_path).read_text())
+
+def capabilities(value: object) -> dict[str, str]:
+    rows = {}
+    def visit(item: object) -> None:
+        if isinstance(item, dict):
+            if 'capability_id' in item and 'state' in item:
+                rows[item['capability_id']] = item['state']
+            for child in item.values(): visit(child)
+        elif isinstance(item, list):
+            for child in item: visit(child)
+    visit(value)
+    return rows
+
+globals_ = {}
+for path in (P+'architecture/public_surface/inventory.json', P+'docs/reference/public-surface.md'):
+    prior, current = pinned(CONTINUATION, path), (ROOT/path).read_bytes()
+    globals_[path] = {'unchanged': prior == current, 'continuation_sha256': sha(prior), 'current_sha256': sha(current)}
+
+new_source = {p for p in lane if p.startswith(P+'src/') and p.endswith('.py')
+              and subprocess.run(['git', 'cat-file', '-e', f'{BASE}:{p}'], cwd=ROOT, capture_output=True).returncode != 0}
+readmes = {}
+for path in sorted(new_source):
+    directory = (ROOT/path).parent
+    while directory != ROOT and not (directory/'README.md').exists(): directory = directory.parent
+    readme = directory/'README.md'
+    readmes[path] = {'nearest_readme': str(readme.relative_to(ROOT)) if readme.exists() else None,
+                    'module_name_present': Path(path).stem in readme.read_text() if readme.exists() else False,
+                    'note': 'Presence is a discovery aid; semantic adequacy requires the recorded manual README review.'}
+
+result = {
+    'audit_time_utc': datetime.now(UTC).isoformat(), 'status': 'interim_live_PA1_worktree_requires_refreeze_replay',
+    'slice_base': BASE, 'accepted_premerge': ACCEPTED, 'continuation_base': CONTINUATION, 'head': head,
+    'scope_denominator': 'complete changed repository paths, all file types, plus every nonignored untracked file',
+    'sets': {name: {'count': len(paths), 'paths': sorted(paths)} for name, paths in sets.items()},
+    'independent_set_crosschecks': {
+        'aggregate_difference': sorted(aggregate ^ aggregate_check),
+        'continuation_difference': sorted(continuation ^ continuation_check),
+        'premerge_difference': sorted(premerge ^ premerge_check),
+        'lane_union_arithmetic': {'premerge':len(premerge),'continuation':len(continuation),
+                                 'intersection':len(premerge & continuation),'union':len(lane)}},
+    'lane_path_authorization': {path: authorize(path) for path in sorted(lane)},
+    'lane_paths_outside_grants': sorted(p for p in lane if authorize(p) is None),
+    'upstream_only_paths_not_explained_by_accepted_merge': sorted((aggregate-lane)-upstream),
+    'stale_ref': {'actual':git('rev-parse','--verify','codex/gy-def6-e11').decode().strip(),'expected':STALE},
+    'global_companions': globals_,
+    'capability_rows': {'current':capabilities(new_caps), 'continuation':capabilities(old_caps),
+                        'unchanged':capabilities(new_caps)==capabilities(old_caps)},
+    'accepted_final_stale_analysis': {'unchanged':old_section==new_section,'accepted_sha256':sha(old_section),
+                                     'current_sha256':sha(new_section),'bytes':len(new_section)},
+    'new_source_readme_companions': readmes,
+    'lane_path_sha256': {path:sha((ROOT/path).read_bytes()) for path in sorted(lane) if (ROOT/path).is_file()},
+}
+end_untracked = names('ls-files', '--others', '--exclude-standard', '-z')
+result['pathset_stability'] = {
+    'head_unchanged': git('rev-parse', 'HEAD').decode().strip() == head,
+    'aggregate_symmetric_difference_after_inspection': sorted(aggregate ^ (diff(BASE) | end_untracked)),
+    'continuation_symmetric_difference_after_inspection': sorted(continuation ^ (diff(CONTINUATION) | end_untracked)),
+}
+print(json.dumps(result, indent=2))
+````
+
+#### `_build/gy_grade_authority/acquisition_receipt_consumer_census.py`
+
+7834 bytes, SHA-256 `f54892722f8f35b1764226ff24c163c6c1c876f5b368b9710b503f5b5acd855d`.
+
+````python
+"""Complete source receipt-call census with independent token/binding and rg checks."""
+from __future__ import annotations
+import ast
+import hashlib
+import io
+import json
+import re
+import subprocess
+import tokenize
+from collections import defaultdict
+from pathlib import Path
+
+TARGETS = {'AcquisitionReceipt', 'run_acquisition_closed_loop',
+           'validate_acquisition_receipt', 'acquisition_receipt_has_verified_emission'}
+FIELDS = {'acquisition_receipt', 'acquisition_receipts', 'grounding_rederivations',
+          'world_write_outcomes', 'real_grounding_result_count', 'grown_world_after_ref'}
+PATTERN = '|'.join(sorted(TARGETS | FIELDS))
+files = sorted(p for p in Path('src/polisyos').rglob('*.py') if '__pycache__' not in p.parts)
+rg_paths = subprocess.run(['rg','--files','--hidden','--no-ignore','src/polisyos','-g','*.py'],
+                          capture_output=True,text=True,check=True).stdout.splitlines()
+rg_set = {p for p in rg_paths if '__pycache__' not in Path(p).parts}
+sources = {str(p):p.read_text() for p in files}
+calls, fields, imports, errors, ambiguities, differences = [], [], [], [], [], []
+for path, source in sources.items():
+    try: tree = ast.parse(source)
+    except SyntaxError as exc:
+        errors.append({'file':path,'error':str(exc)})
+        continue
+    nodes = list(ast.walk(tree))
+    bindings = defaultdict(set)
+    parts = list(Path(path).with_suffix('').parts[1:])
+    package = parts[:-1]
+    module = '.'.join(parts[:-1] if parts[-1]=='__init__' else parts)
+    for node in nodes:
+        if isinstance(node, ast.ImportFrom):
+            owner = '.'.join(package[:len(package)-node.level+1]) if node.level else ''
+            owner = '.'.join(p for p in (owner,node.module) if p)
+            for alias in node.names:
+                route = f'{owner}.{alias.name}'
+                bindings[alias.asname or alias.name].add(route)
+                if alias.name in TARGETS or owner.endswith('acquisition_planner'):
+                    imports.append({'file':path,'line':node.lineno,'route':route,'as':alias.asname})
+        elif isinstance(node,ast.Import):
+            for alias in node.names:
+                bindings[alias.asname or alias.name.split('.')[0]].add(alias.name if alias.asname else alias.name.split('.')[0])
+        elif isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+            bindings[node.name].add(f'{module}.{node.name}')
+    def resolve(node):
+        if isinstance(node,ast.Name): return bindings.get(node.id,set())
+        if isinstance(node,ast.Attribute): return {r+'.'+node.attr for r in resolve(node.value)}
+        return set()
+    for _ in range(len(nodes)):
+        changed = False
+        for node in nodes:
+            if isinstance(node,ast.Assign):
+                values = resolve(node.value)
+                for target in node.targets:
+                    if isinstance(target,ast.Name) and not values<=bindings[target.id]:
+                        bindings[target.id].update(values); changed=True
+        if not changed: break
+    def relevant(routes): return any(set(route.split('.')) & TARGETS for route in routes)
+    def enclosing(node):
+        owners=[n for n in nodes if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))
+                and n.lineno<=node.lineno<=n.end_lineno]
+        return min(owners,key=lambda n:n.end_lineno-n.lineno).name if owners else None
+    ast_positions = set()
+    for node in nodes:
+        if isinstance(node,ast.Call) and isinstance(node.func,(ast.Name,ast.Attribute)):
+            routes=resolve(node.func)
+            spelling=ast.unparse(node.func)
+            if relevant(routes) or set(spelling.split('.')) & TARGETS:
+                ast_positions.add((node.func.lineno,node.func.col_offset))
+                row={'file':path,'line':node.lineno,'call':spelling,'routes':sorted(routes),'function':enclosing(node)}
+                calls.append(row)
+                if len(routes)!=1: ambiguities.append(row)
+        if isinstance(node,ast.Attribute) and node.attr in FIELDS:
+            fields.append({'file':path,'line':node.lineno,'field':node.attr,'kind':'attribute','function':enclosing(node)})
+        elif isinstance(node,ast.Constant) and isinstance(node.value,str) and node.value in FIELDS:
+            fields.append({'file':path,'line':node.lineno,'field':node.value,'kind':'literal','function':enclosing(node)})
+    tokens=[t for t in tokenize.generate_tokens(io.StringIO(source).readline)
+            if t.type not in {tokenize.NL,tokenize.NEWLINE,tokenize.INDENT,tokenize.DEDENT,tokenize.COMMENT}]
+    token_positions=set()
+    for i,token in enumerate(tokens):
+        if token.type!=tokenize.NAME or (i and tokens[i-1].string in {'.','def','class'}): continue
+        j=i; chain=[token.string]
+        while j+2<len(tokens) and tokens[j+1].string=='.' and tokens[j+2].type==tokenize.NAME:
+            chain.append(tokens[j+2].string); j+=2
+        if j+1>=len(tokens) or tokens[j+1].string!='(': continue
+        routes={'.'.join([route,*chain[1:]]) for route in bindings.get(chain[0],set())}
+        if relevant(routes) or set(chain)&TARGETS: token_positions.add(token.start)
+    if ast_positions!=token_positions:
+        differences.append({'file':path,'ast_only':sorted(ast_positions-token_positions),'token_only':sorted(token_positions-ast_positions)})
+
+raw_files={path for path,source in sources.items() if re.search(PATTERN,source)}
+rg_hit=subprocess.run(['rg','-l','--hidden','--no-ignore',PATTERN,'src/polisyos','-g','*.py'],capture_output=True,text=True)
+assert rg_hit.returncode in (0,1)
+rg_matches={p for p in rg_hit.stdout.splitlines() if '__pycache__' not in Path(p).parts}
+test_files=sorted(p for p in Path('tests').rglob('*.py') if '__pycache__' not in p.parts)
+test_importers=[]
+receipt_tests=[]
+test_errors=[]
+for path in test_files:
+    text=path.read_text()
+    if re.search('|'.join(sorted(TARGETS|FIELDS)),text): receipt_tests.append(str(path))
+    try: tree=ast.parse(text)
+    except SyntaxError as exc:
+        test_errors.append([str(path),str(exc)]); continue
+    for node in ast.walk(tree):
+        if isinstance(node,ast.ImportFrom) and node.module and (
+            node.module in {'polisyos.runtime.quality.acquisition_planner','polisyos.runtime.quality.generation_cycle'}
+            or node.module=='polisyos.runtime.quality' and any(n.name in {'acquisition_planner','generation_cycle'} for n in node.names)):
+            test_importers.append({'file':str(path),'line':node.lineno,'module':node.module,'names':[a.name for a in node.names]})
+result={'cwd':str(Path.cwd()),'head':subprocess.run(['git','rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip(),
+        'status':'live source snapshot during coordinated correction; no tests executed',
+        'source_denominator':{'file_type':'every src/polisyos/**/*.py excluding __pycache__','count':len(files),'files':sorted(sources)},
+        'independent_path_difference':sorted(set(sources)^rg_set),'parse_errors':errors,
+        'complete_bound_calls':calls,'binding_ambiguities':ambiguities,'independent_token_call_differences':differences,
+        'direct_imports':imports,'receipt_field_accesses':fields,
+        'raw_symbol_or_field_candidate_files':sorted(raw_files),'independent_rg_candidate_difference':sorted(raw_files^rg_matches),
+        'test_denominator':{'file_type':'tests/**/*.py excluding __pycache__','count':len(test_files)},
+        'test_parse_errors':test_errors,'all_direct_importer_tests':test_importers,'receipt_specific_text_candidate_tests':receipt_tests,
+        'source_snapshot_sha256':{path:hashlib.sha256(source.encode()).hexdigest() for path,source in sources.items()},
+        'source_changed_during_census':[path for path,source in sources.items() if Path(path).read_text()!=source]}
+print(json.dumps(result,indent=2))
+````
+
+#### Final result artifact identities
+
+Complete row/path/test sets are in these local artifacts and recomputable from
+the preserved stations and their named inputs.
+
+```json
+{
+  "pa1-n7-final-handback.json": {
+    "bytes": 19698,
+    "sha256": "70c4cff64840157941cc44afca90a1bd575ff43bd923b20d74b0df5627876d39"
+  },
+  "pa1-n7-independent-delta-handback.json": {
+    "bytes": 10469,
+    "sha256": "404c2e03e3d466b9411f2722af2b2351e71ea3993abacaf79272274d00b3c219"
+  },
+  "pa1_n7_population_independent_reconcile.json": {
+    "bytes": 4952,
+    "sha256": "d576a8a6f3c878826f31534405f85e02677e8939b5f4aea8d519b463cb7c2e88"
+  },
+  "closeout_scope_audit.final.json": {
+    "bytes": 39393,
+    "sha256": "ecf1ed00e6557913e19488c7cf489a8fdb4d8294e2951b48ef105f54fe4f9417"
+  },
+  "acquisition_receipt_consumer_census.final.json": {
+    "bytes": 523018,
+    "sha256": "626c1dc1ef0288b0eeb0f668a3de6d0194d373b28abc0f1b967f7296fe573438"
+  },
+  "final_audit_freeze_binding.json": {
+    "bytes": 4857,
+    "sha256": "18dda0be6bbe64c60159e460ff668dd74495c58ceb840e506fad2540209715e5"
+  },
+  "architecture-pa1-finding-identity-diff.json": {
+    "bytes": 8279,
+    "sha256": "c7cd63f9a231cde9875fcadcc3c578d460fe93d16dc2e2ab78eba3f20a9c231d"
+  }
+}
+```
+
 ## codex/gy-def6-e11 analysis
 
 ### Intent, population and later incorporation

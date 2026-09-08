@@ -2868,7 +2868,9 @@ def test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable(
     )
     assert "2018-2022" in json.dumps(first_projection, sort_keys=True)
     reconstructed = second_domain_pack.AcquisitionReceipt.model_validate(second_receipt)
-    assert not second_domain_pack.validate_acquisition_receipt(reconstructed)
+    assert second_domain_pack.validate_acquisition_receipt(reconstructed) == (
+        {"code": "acquisition_receipt_current_context_replay_unavailable"},
+    )
 
     shifted_bundle = copy.deepcopy(live_bundle)
     shifted_pack = shifted_bundle["pack"]

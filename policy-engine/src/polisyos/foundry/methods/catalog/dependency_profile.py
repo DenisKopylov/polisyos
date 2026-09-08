@@ -599,6 +599,46 @@ def _marker_selected(
     return parsed.evaluate(environment=dict(marker_environment))
 
 
+def _resolve_selected_lock_row(
+    edge: Mapping[str, object],
+    packages_by_name: Mapping[str, Sequence[Mapping[str, object]]],
+    marker_environment: Mapping[str, str],
+    *,
+    used_marker_keys: set[str],
+) -> Mapping[str, object]:
+    """Resolve one edge to exactly one complete row, never a name-only overwrite."""
+
+    name = edge.get("name")
+    if type(name) is not str or set(edge).difference({"name", "version", "source", "marker", "extra"}):
+        raise ValueError("selected dependency edge is invalid")
+    if "version" in edge and type(edge["version"]) is not str:
+        raise ValueError("selected dependency version is invalid")
+    if "source" in edge and not isinstance(edge["source"], Mapping):
+        raise ValueError("selected dependency source is invalid")
+    candidates: list[Mapping[str, object]] = []
+    for row in packages_by_name.get(canonicalize_name(name), ()):
+        if any(field in edge and row.get(field) != edge[field] for field in ("version", "source")):
+            continue
+        markers = row.get("resolution-markers")
+        if markers is not None:
+            if type(markers) is not list or not markers:
+                raise ValueError("lock resolution markers are invalid")
+            selected_markers = [
+                _marker_selected(
+                    {"marker": marker},
+                    marker_environment,
+                    used_marker_keys=used_marker_keys,
+                )
+                for marker in markers
+            ]
+            if not any(selected_markers):
+                continue
+        candidates.append(row)
+    if len(candidates) != 1:
+        raise ValueError(f"selected dependency must resolve to one lock identity: {name}")
+    return candidates[0]
+
+
 def _selected_lock_rows(
     *,
     lock: Mapping[str, object],
@@ -609,58 +649,60 @@ def _selected_lock_rows(
     packages_raw = lock.get("package")
     if type(packages_raw) is not list:
         raise ValueError("uv lock package denominator is missing")
-    packages = tuple(row for row in packages_raw if isinstance(row, Mapping))
-    by_name: dict[str, Mapping[str, object]] = {}
-    for row in packages:
+    by_name: dict[str, list[Mapping[str, object]]] = {}
+    for row in packages_raw:
+        if not isinstance(row, Mapping):
+            raise ValueError("uv lock package row is invalid")
         name = row.get("name")
         if type(name) is not str:
             raise ValueError("uv lock package name is invalid")
         canonical_name = canonicalize_name(name)
-        if canonical_name in by_name:
-            raise ValueError("uv lock contains an ambiguous package name")
-        by_name[canonical_name] = row
+        by_name.setdefault(canonical_name, []).append(row)
     root_name = canonicalize_name(declaration.root_distribution)
-    root = by_name.get(root_name)
-    if root is None:
-        raise ValueError("root distribution is absent from uv lock")
-    pending: deque[str] = deque([root_name])
-    optional = root.get("optional-dependencies")
-    if not isinstance(optional, Mapping):
-        raise ValueError("root optional-dependency table is missing")
-    for extra in declaration.extras:
-        edges = optional.get(extra)
-        if type(edges) is not list:
-            raise ValueError(f"admitted extra is absent from uv lock: {extra}")
-        for edge in edges:
-            if not isinstance(edge, Mapping) or type(edge.get("name")) is not str:
-                raise ValueError("optional dependency edge is invalid")
-            if _marker_selected(
-                edge,
-                marker_environment,
-                used_marker_keys=used_marker_keys,
-            ):
-                pending.append(canonicalize_name(edge["name"]))
+    pending: deque[Mapping[str, object]] = deque(
+        [{"name": root_name, "extra": list(declaration.extras)}]
+    )
     selected: dict[str, Mapping[str, object]] = {}
+    expanded_extras: dict[str, set[str]] = {}
     while pending:
-        name = pending.popleft()
-        if name in selected:
-            continue
-        row = by_name.get(name)
-        if row is None:
-            raise ValueError(f"selected dependency is absent from uv lock: {name}")
-        selected[name] = row
-        edges = row.get("dependencies", [])
-        if type(edges) is not list:
-            raise ValueError("dependency edge set is invalid")
-        for edge in edges:
-            if not isinstance(edge, Mapping) or type(edge.get("name")) is not str:
-                raise ValueError("dependency edge is invalid")
-            if _marker_selected(
-                edge,
-                marker_environment,
-                used_marker_keys=used_marker_keys,
-            ):
-                pending.append(canonicalize_name(edge["name"]))
+        incoming = pending.popleft()
+        row = _resolve_selected_lock_row(
+            incoming, by_name, marker_environment, used_marker_keys=used_marker_keys
+        )
+        name = canonicalize_name(str(row["name"]))
+        previous = selected.get(name)
+        if previous is not None and previous != row:
+            raise ValueError(f"selected dependency has conflicting lock identities: {name}")
+        edge_sets: list[object] = []
+        if previous is None:
+            selected[name] = row
+            edge_sets.append(row.get("dependencies", []))
+        requested_extras = incoming.get("extra", [])
+        if type(requested_extras) is not list or any(
+            type(extra) is not str for extra in requested_extras
+        ):
+            raise ValueError("selected dependency extras are invalid")
+        already_expanded = expanded_extras.setdefault(name, set())
+        for extra in requested_extras:
+            if extra in already_expanded:
+                continue
+            optional = row.get("optional-dependencies")
+            if not isinstance(optional, Mapping) or extra not in optional:
+                raise ValueError(f"selected extra is absent from uv lock: {name}[{extra}]")
+            already_expanded.add(extra)
+            edge_sets.append(optional[extra])
+        for edges in edge_sets:
+            if type(edges) is not list:
+                raise ValueError("dependency edge set is invalid")
+            for edge in edges:
+                if not isinstance(edge, Mapping) or type(edge.get("name")) is not str:
+                    raise ValueError("dependency edge is invalid")
+                if _marker_selected(
+                    edge,
+                    marker_environment,
+                    used_marker_keys=used_marker_keys,
+                ):
+                    pending.append(edge)
     return tuple(selected[name] for name in sorted(selected))
 
 

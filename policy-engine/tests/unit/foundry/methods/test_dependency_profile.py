@@ -6876,6 +6876,153 @@ def test_marker_replay_preserves_complete_used_key_projection() -> None:
     )
 
 
+def _resolve_universal_lock(
+    edges: str,
+    packages: str,
+    *,
+    marker_environment: dict[str, str] | None = None,
+) -> object:
+    """Resolve novel exact owner bytes through the public candidate reducer."""
+
+    pyproject_bytes = b'[project]\nname = "lock-root"\nversion = "1.0"\n'
+    lockfile_bytes = (
+        'version = 1\nrequires-python = ">=3.14"\n'
+        '[[package]]\nname = "lock-root"\nversion = "1.0"\n'
+        'source = { editable = "." }\n'
+        f'dependencies = [{edges}]\n[package.optional-dependencies]\n'
+        + packages
+    ).encode()
+    declaration = MethodCatalogDependencyProfileDeclaration(
+        schema_version="polisyos.foundry.dependency-profile.v1",
+        profile_id="novel-universal-lock",
+        root_distribution="lock-root",
+        extras=(),
+        python_constraint=">=3.14,<3.15",
+        resolver_name="uv",
+        resolver_version="0.9.21",
+        pyproject_ref=domain_digest(DigestDomain.PYPROJECT, pyproject_bytes),
+        lockfile_ref=domain_digest(DigestDomain.UV_LOCK, lockfile_bytes),
+    )
+    return profile_module.resolve_dependency_discriminant(
+        declaration,
+        pyproject_bytes=pyproject_bytes,
+        lockfile_bytes=lockfile_bytes,
+        marker_environment={} if marker_environment is None else marker_environment,
+    )
+
+
+def _universal_lock_member(name: str, version: str, registry: str) -> str:
+    return (
+        f'\n[[package]]\nname = "{name}"\nversion = "{version}"\n'
+        f'source = {{ registry = "{registry}" }}\n'
+    )
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+@pytest.mark.parametrize("coordinate", ["version", "source"])
+def test_universal_lock_resolves_selected_edge_identity(
+    coordinate: str, reverse: bool
+) -> None:
+    selected = _universal_lock_member("choice", "2.0", "https://selected.invalid")
+    other = _universal_lock_member(
+        "choice",
+        "1.0" if coordinate == "version" else "2.0",
+        "https://selected.invalid" if coordinate == "version" else "https://other.invalid",
+    )
+    result = _resolve_universal_lock(
+        '{ name = "choice", version = "2.0", '
+        'source = { registry = "https://selected.invalid" } }',
+        other + selected if reverse else selected + other,
+    )
+
+    assert isinstance(result, profile_module.DependencyProfileDiscriminant)
+    choice = next(row for row in result.distributions if row.name == "choice")
+    expected = tomllib.loads(selected)["package"][0]
+    assert choice.selected_artifact == domain_digest(
+        DigestDomain.SELECTED_DISTRIBUTION, canonical_json_bytes(expected)
+    )
+
+
+def test_universal_lock_outside_closure_ambiguity_does_not_decide_selection() -> None:
+    result = _resolve_universal_lock(
+        "",
+        _universal_lock_member("irrelevant", "1.0", "https://first.invalid")
+        + _universal_lock_member("irrelevant", "2.0", "https://second.invalid"),
+    )
+    assert isinstance(result, profile_module.DependencyProfileDiscriminant)
+    assert tuple(row.name for row in result.distributions) == ("lock-root",)
+
+
+@pytest.mark.parametrize(
+    "edges",
+    [
+        '{ name = "choice" }',
+        '{ name = "choice", version = "missing" }',
+        '{ name = "choice", version = "1.0" }, { name = "choice", version = "2.0" }',
+    ],
+)
+def test_universal_lock_refuses_unresolved_or_conflicting_selected_identity(edges: str) -> None:
+    result = _resolve_universal_lock(
+        edges,
+        _universal_lock_member("choice", "1.0", "https://example.invalid")
+        + _universal_lock_member("choice", "2.0", "https://example.invalid"),
+    )
+    assert isinstance(result, profile_module.DependencyProfileInputMismatch)
+    assert result.field == "selected_lock_graph"
+
+
+@pytest.mark.parametrize("platform", ["darwin", "linux"])
+def test_universal_lock_replays_marked_edge_identity(platform: str) -> None:
+    result = _resolve_universal_lock(
+        '{ name = "choice", version = "1.0", marker = "sys_platform == \'darwin\'" },'
+        '{ name = "choice", version = "2.0", marker = "sys_platform != \'darwin\'" }',
+        _universal_lock_member("choice", "1.0", "https://example.invalid")
+        + _universal_lock_member("choice", "2.0", "https://example.invalid"),
+        marker_environment={"sys_platform": platform},
+    )
+    assert isinstance(result, profile_module.DependencyProfileDiscriminant)
+    assert result.distributions[0].version == ("1.0" if platform == "darwin" else "2.0")
+    assert result.marker_environment == (("sys_platform", platform),)
+
+
+@pytest.mark.parametrize("platform", ["darwin", "linux", None])
+def test_universal_lock_reconciles_row_resolution_markers_from_declared_environment(
+    platform: str | None,
+) -> None:
+    result = _resolve_universal_lock(
+        '{ name = "choice" }',
+        _universal_lock_member("choice", "1.0", "https://example.invalid")
+        + 'resolution-markers = ["sys_platform == \'darwin\'"]\n'
+        + _universal_lock_member("choice", "2.0", "https://example.invalid")
+        + 'resolution-markers = ["sys_platform != \'darwin\'"]\n',
+        marker_environment={} if platform is None else {"sys_platform": platform},
+    )
+    if platform is None:
+        assert isinstance(result, profile_module.DependencyProfileInputMismatch)
+    else:
+        assert isinstance(result, profile_module.DependencyProfileDiscriminant)
+        assert result.distributions[0].version == ("1.0" if platform == "darwin" else "2.0")
+        assert result.marker_environment == (("sys_platform", platform),)
+
+
+def test_universal_lock_revisits_selected_member_for_requested_transitive_extra() -> None:
+    result = _resolve_universal_lock(
+        '{ name = "choice" }, { name = "later" }',
+        _universal_lock_member("choice", "1.0", "https://example.invalid")
+        + '[package.optional-dependencies]\nfeature = [{ name = "leaf" }]\n'
+        + _universal_lock_member("later", "1.0", "https://example.invalid")
+        + 'dependencies = [{ name = "choice", extra = ["feature"] }]\n'
+        + _universal_lock_member("leaf", "1.0", "https://example.invalid"),
+    )
+    assert isinstance(result, profile_module.DependencyProfileDiscriminant)
+    assert tuple(row.name for row in result.distributions) == (
+        "choice",
+        "later",
+        "leaf",
+        "lock-root",
+    )
+
+
 def _resolve_dependency_discriminant_from_owner_data(
     declaration: MethodCatalogDependencyProfileDeclaration,
     *,

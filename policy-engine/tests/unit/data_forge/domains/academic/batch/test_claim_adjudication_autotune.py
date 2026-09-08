@@ -148,6 +148,8 @@ def test_successful_claim_promotion_changes_runtime_selection(tmp_path) -> None:
     loader = ClaimAdjudicationRuntimeLoader(store=store, registry=registry)
     baseline = loader.load()
     assert baseline.prompt_variants[0] != "promoted-variant"
+    assert registry.get("claim_adjudication") is None
+    assert not (tmp_path / ".polisyos" / "search_registry" / "claim_adjudication").exists()
 
     promoted_config = ClaimAdjudicationSearchConfig(prompt_variants=["promoted-variant"], passes=1)
     candidate_ref = persist_mutation_artifact(store, promoted_config)

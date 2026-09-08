@@ -208,7 +208,7 @@ bindings fail closed. Removing the handoff must break actual N9 source consumpti
 If C1 yields no real forwardable reference, complete this wiring on declared
 controls and prove the real missing-input negative, naming the exact missing input.
 
-C2 advances the N6 run artifact from `generation_cycle.v1` to v2 when its
+C2 advances the N6 run artifact from `policyos.runtime.generation_cycle_controller.v1` to v2 when its
 source-handoff references and run-emitted preservation strangle are added.
 Preserve historical v1 serialization without injecting the new fields. Retain
 actual organ objects during a run and persist their typed payloads through the
@@ -261,3 +261,27 @@ Handback: `2026-09-08-corr-a.md`, `2026-09-08-corr-b.md`,
 cost estimate on its own line. Keep built/falsified work separate from incidental
 findings routed to named rows/rules/explicit nowhere. Do not edit DEBT/LEDGER or
 run their checker. Data requirements are appended to their existing owner doc.
+
+## Source checkpoint and cost-scope correction
+
+The A/C1 foundation is committed at `2ad1e8b47b5ba2bccc6cbba96fb206112c6fbd06`
+and read back from the attached branch without mismatched blobs. This is a source
+checkpoint, not a final workstream claim. The controller epoch above is the actual
+existing `generation_cycle_controller` schema, correcting the earlier shorthand.
+
+C1's unchanged primary declaration covers the whole held-abstract frame. Its
+relationship to the historical raw-claim source works is measured separately
+before provider outcomes. Append a dated secondary cost target over the raw-origin
+works with available abstracts, using their weights in the existing input-length
+terciles; retain unavailable source works explicitly. Do not replace any selected
+pilot input. A secondary forecast applies observed phase costs from the same
+pilot only under a stated exchangeability assumption within those tiers. It is
+a conditional decision estimate, not an empirical representativeness or precision
+claim. Neither forecast is the price of reacquiring fulltext.
+
+C2's marked direct source-provider/EFFECT-writer control and actual protected
+N9 refusal are distinct witnesses. The existing positive epoch test helper
+authors an appointment receipt and cannot satisfy this lane's synthetic marking
+constraint for its strict protected DTOs. It is therefore not used to manufacture
+a protected positive admission. Source retention proceeds; positive protected
+integration remains `not_established` until actual owner input exists.

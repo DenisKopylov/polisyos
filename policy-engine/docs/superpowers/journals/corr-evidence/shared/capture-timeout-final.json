@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.shared.capture_timeout_probe",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.capture_timeout_probe"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.32405591604765505,
+  "timeout_seconds": 10.0,
+  "timed_out": false,
+  "stdout": "{\"capture_exit\": 124, \"record\": {\"PATH\": \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources\", \"PYTHONPATH\": \".:src\", \"argv\": [\"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python\", \"-c\", \"import time; print('partial-output-before-timeout', flush=True); time.sleep(1)\"], \"capture_returncode\": 124, \"command\": \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python -c 'import time; print('\\\"'\\\"'partial-output-before-timeout'\\\"'\\\"', flush=True); time.sleep(1)'\", \"cwd\": \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine\", \"elapsed_seconds\": 0.2050368330674246, \"returncode\": -9, \"stderr\": \"\", \"stdout\": \"partial-output-before-timeout\\n\", \"timed_out\": true, \"timeout_seconds\": 0.2}}\n",
+  "stderr": ""
+}

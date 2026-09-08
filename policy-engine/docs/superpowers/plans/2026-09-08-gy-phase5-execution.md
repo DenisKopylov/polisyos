@@ -80,6 +80,19 @@ method refusal, and receipt-context mutation. Removing only family forwarding mu
 turn that positive green-path control red while its marker/constructor remains.
 S3 owns this correction in the same files; it must land before final verification.
 
+**D1c default-source completion:** the controller already receives a
+`CycleSubstrateContext` owning `intervention_substrate.observation_to_contract_manifest`.
+When explicit source configuration is omitted, derive the source through that
+verified bound owner rather than leaving the default empty behind another optional
+argument. A present invalid context/bundle cannot become absence. If an explicit
+source override is retained, define and enforce its binding to a simultaneously
+supplied context; do not silently substitute another source. The same existing
+projection owns this configuration→port→selection/replay chain. Test an actual
+default controller with its real bound source and explicit family, plus nested
+bundle tampering and source-substitution refusal. Context/bundle absence remains
+declared; family is never guessed. This completes the same RV02 bridge, not a
+parallel manifest owner or an expansion of its authority.
+
 ### D2 — GY-PR1 preserve working gates; do not invent an authority producer
 
 Research refuted all old vacuous-pass premises and ran their actual controls: inadmissibility/independence reject caller `True`, actual N5 emits its blocker, honest PARAM scope control exists, EFFECT and MEASUREMENT real producer/bridge positives pass. Repeating their repairs or their already-landed epoch bumps is prohibited scope expansion.

@@ -34,6 +34,19 @@ encounter.
    not been looked at.
 6. Rows are **append-only in spirit**: when a status changes, record the change and its new basis
    rather than overwriting the old one, so the history of what we believed stays readable.
+7. **A missing dataset never stops the capability from being built.** This is the same ruling that
+   governs institutional absence: an absence binds the **authority of the output**, never the
+   permission to build. Where developing, testing or debugging a capability needs data we do not
+   have, build it against **structurally similar synthetic data**, marked as synthetic in the
+   artifact itself and not only in a journal, and record the real requirement here. A capability
+   that exists and waits for data is worth more than a correct plan for one that does not, because
+   nobody adopts a system they cannot run. The marking is not a formality: an unmarked synthetic
+   input that reaches a governed surface is a fabricated record, which is a different and much
+   worse thing than an honest placeholder.
+8. **Usefulness is a requirement, not a concession.** When the data will not support the claim we
+   wanted, lower the ambition, the authority and the focus of the claim until it is one the
+   evidence carries — and then ship that. A narrower honest output still beats the intuition that
+   policy-making runs on today; refusing to output anything does not.
 
 ## Status vocabulary
 
@@ -58,6 +71,7 @@ encounter.
 | `snapshot-schema-generation-discriminator` | Academic shadow consumer of a pinned snapshot | `present_stale` |
 | `lex-amendment-effective-from` | Lex chronology valid-effect carrier | `present_insufficient` |
 | `claim-level-evidence-axis` | the whole academic confidence layer | `absent` |
+| `lever-legal-subject-key-in-the-norm-namespace` | `GY-S3` law-to-lever recognition rule | `absent` |
 
 ---
 
@@ -99,6 +113,22 @@ the stored form; `strength` and `mechanism` are unmapped and `extra="forbid"` re
 **What would satisfy it.** Re-extraction into the current contract, or an explicit migration that
 maps each legacy key to a field it genuinely means. **A two-line alias is not that migration** — see
 the next row for why.
+
+**Second consumer added 2026-09-08 — `CORR-R4`, and it wants a different thing from the same
+rows.** The constructibility census asked whether an external causal claim can be bound to a typed
+causal atom *by construction*, without an adjudicator. Package-reported and unaudited: **0 of
+7,868** canonical independent causal claims and **0 of 137,589** raw claims can, because the stored
+shape carries no typed intervention expression, no estimand and no identification plan — the three
+things a construction would have to compare. The internal seam is **3 of 3** constructible, so the
+mechanism works exactly where an adjudicator was never needed. This is not a volume problem and
+more rows of the same shape will not move it: it is `present_wrong_vocabulary` for a second,
+stricter consumer.
+
+**What would satisfy that consumer.** Claims carrying a typed `InterventionExpr`, an estimand and
+an identification plan, with the producer independent of the binding claim. **Build it on marked
+synthetic claims first** — the producer, its `unresolved` path and its falsifier can all be
+developed and tested against structurally similar synthetic input, and that work does not wait on
+the corpus. Routed as `CORR-B2`; **no owner exists** for the semantic producer.
 
 ---
 
@@ -155,6 +185,28 @@ door**: ten anchors against a twenty-per-stratum requirement, with incompatible 
 **What would satisfy it.** A genuine production-owned calibration source. Whether one can exist at
 all was never established — that measurement was the first act GY-PR1a never reached.
 
+**Requirement restated 2026-09-08 after the CORR wave, and it grew by more than an order of
+magnitude.** The **20 per stratum** above was never derived from a target error rate. Under an
+exact one-sided binomial bound with zero observed confident-wrong events, a `0.01` ceiling at
+`alpha=0.05` needs **`n = 299`** adjudicated positives per stratum. Two things follow and both are
+harder than the number. First, CGF appendix E.4 declares the minimal stratum as seven keys —
+`operator_family, target_type, domain, proposer_model, prompt_version, atom_birth_cohort,
+reference_epoch` — so the cross-product at 299 per cell is unaffordable, and `proposer_model` and
+`prompt_version` mean **a model or prompt change invalidates the stratum**. Second, positives
+require an adjudicator this project does not have; constructed negatives are free but calibrate
+a different quantity. The eligible frame itself is also missing: no enumerable population with
+source-cluster identity and an **outcome-blind** difficulty tier exists, and a stratum chosen after
+seeing which bindings succeeded is blocked by `INT-K07` regardless of engineering.
+
+**What would satisfy it, in the order the work actually goes.** A dated pre-outcome manifest naming
+the eligible frame with its complete denominator, the source-cluster unit, and the difficulty tier
+declared without looking at outcomes — that part is buildable now and needs no adjudicator. Then a
+stratification coarse enough to afford and demonstrably not vacuous across that tier. Only then the
+adjudicated labels. **The refusal-sensitivity suite is not a substitute and must not be counted
+here**: constructed mismatches bound the sensitivity of refusal, never the correctness of
+acceptance. Register rows `delta-ground-composition-and-stratum-budget` and
+`adversarial-refusal-sensitivity-is-publishable-today` carry the decisions.
+
 ---
 
 ## `snapshot-schema-generation-discriminator`
@@ -205,6 +257,42 @@ which **152,636** carry no non-empty `effective_from`. All 156,196 have `created
 consumer's current behaviour is correct and should not change to accommodate the gap: chronology
 keeps every row in the owner denominator and reports
 `amendment_valid_effect_window_unresolved` rather than substituting transaction time for valid time.
+
+---
+
+## `lever-legal-subject-key-in-the-norm-namespace`
+
+**Consumer.** The `GY-S3` law-to-lever recognition rule, and the intervention bundle at
+`production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json`.
+
+**What is required.** A legal-subject identity on the **lever** side, in the **same namespace** as
+the legal norm's own subject identity, versioned and temporally scoped, so that a declared mapping
+such as `budget_law -> budget_allocation_multiplier` can be checked against the subject the statute
+actually regulates.
+
+**Status `absent`.** Measured 2026-09-08. L3 carries legal-subject semantics; the L6 lever bundle
+carries none, and the native L3 store holds no intervention, mapping, crosswalk or adjudication
+table. The consequence is measurable rather than theoretical: transposing real budget and tax
+threshold targets, while preserving registry uniqueness and every declaration, still returns
+`admissible` for the wrong legal subject, because the check that admitted the mapping was *the
+provision exists and carries a threshold*. Units, ranges, thresholds and registry uniqueness
+**cannot repair a missing semantic dimension** — they are the wrong kind of fact. Package-reported
+and unaudited: **0 of 3** executable law-to-lever pairs and **0 of 374,516** L3 threshold rows can
+complete a subject-aware proof against the current lever schema.
+
+**What would satisfy it, and the trap that makes this harder than a schema change.** The key must be
+**independently authoritative** — minted by the party that owns legal-subject identity, not by the
+producer whose declaration it is supposed to verify. A `legal_subject_id` the mapping's own author
+writes is circular and closes nothing; it would authenticate the assertion without establishing it.
+The mechanical comparison is ownable today by `GY-S3 / foundry`; the semantic authority that mints
+the identity has **no owner**, routed as `CORR-B1`.
+
+**Buildable now, on marked synthetic.** The recognition rule, the subject-aware comparison and the
+transposition falsifier can all be developed and tested against a synthetic subject spine, clearly
+marked as synthetic in the artifact, before any authoritative source exists. That work is what
+turns the eventual data acquisition into a wiring task instead of a design task — and the falsifier
+is the deliverable that proves the rule rejects a transposed pair rather than merely accepting a
+correct one.
 
 ---
 

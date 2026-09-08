@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.cg3_synthetic_probe --record-legacy tests/unit/runtime/quality/fixtures/grounding_admission_v1.json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.cg3_synthetic_probe",
+    "--record-legacy",
+    "tests/unit/runtime/quality/fixtures/grounding_admission_v1.json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 43.945881166961044,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "{\n  \"cg2_decision\": \"novel_candidate\",\n  \"cg2_synthetic\": true,\n  \"cg3_authority_scope\": \"production\",\n  \"cg3_decision\": \"admit_new_lever\",\n  \"cg3_production_promotable\": true,\n  \"cg3_shadow_patch_emitted\": true,\n  \"purpose\": \"bounded_closed_CG3_sibling_consumer_measurement\",\n  \"source_all_edge_provenance_marked\": true,\n  \"status\": \"fail\",\n  \"synthetic\": true\n}\n",
+  "stderr": ""
+}

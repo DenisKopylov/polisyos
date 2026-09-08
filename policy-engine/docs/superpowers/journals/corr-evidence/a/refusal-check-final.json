@@ -1,0 +1,25 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_grounding_refusal_sensitivity --check --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_refusal_sensitivity",
+    "--check",
+    "--world-cas",
+    ".tmp/gy-s-composed-wmr-cas",
+    "--world-ref",
+    "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+    "--declarations",
+    "architecture/policy_design_case/corr/grounding-2026-09-08"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 220.6851497499738,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "{\"issues\": [], \"result_hash\": \"sha256:1d13956955b5177778be5d161796d75c42857d9c4620a76fa0401e25ab3085f9\", \"result_path\": \"architecture/policy_design_case/corr/grounding_refusal_sensitivity.json\", \"statement\": \"On a pre-declared adversarial suite of 3 deliberate mismatches, the binder refused 3. A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.\", \"status\": \"pass\", \"suite_hash\": \"sha256:f2e8931e256664e2946c06c8203bd979b2b733222a3e999447e63e6c227da72f\"}\n",
+  "stderr": ""
+}

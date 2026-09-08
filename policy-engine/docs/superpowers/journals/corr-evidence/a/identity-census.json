@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.identity_census",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.identity_census"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.4332823751028627,
+  "timeout_seconds": 60.0,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/a/identity_census.py\", line 157, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/a/identity_census.py\", line 86, in main\n    raise ValueError(\"owner_source_content_drift\")\nValueError: owner_source_content_drift\n"
+}

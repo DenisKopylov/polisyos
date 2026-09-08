@@ -185,6 +185,11 @@ def source_clusters(inputs: Sequence[CalibrationFrameInput]) -> tuple[tuple[str,
     return tuple(sorted(clusters))
 
 
+def _validated_frame(frame: CalibrationFrame) -> CalibrationFrame:
+    """Recompute full content and detach mutable nested inputs at the common intake."""
+    return CalibrationFrame.model_validate_json(frame.model_dump_json())
+
+
 def calibration_frame_scope(
     frame: CalibrationFrame,
     *,
@@ -192,7 +197,7 @@ def calibration_frame_scope(
     stratum: tuple[str, str, str, str],
 ) -> dict[str, Any]:
     """Consume the frozen frame without mistaking unlabeled inputs for calibration."""
-    CalibrationFrame.model_validate_json(frame.model_dump_json())
+    frame = _validated_frame(frame)
     reason = "calibration_labels_not_collected"
     if frame.epoch_scope != epoch_scope:
         reason = "certificate_epoch_scope_stale"
@@ -353,6 +358,7 @@ def declare_refusal_suite(
     declared_at: datetime | None = None,
 ) -> DeclaredRefusalSuite:
     """Declare every definite-sign mismatch before running CG1 or CG2 decisions."""
+    frame = _validated_frame(frame)
     atoms = GroundingRelationEngine(reference).reference_atoms
     cases: list[AdversarialMismatch] = []
     ambiguous: list[str] = []
@@ -410,6 +416,7 @@ def run_refusal_suite(
     executed_at: datetime | None = None,
 ) -> dict[str, Any]:
     """Run the frozen full mismatch set, preserving each decisive refusal reason."""
+    frame = _validated_frame(frame)
     suite = DeclaredRefusalSuite.model_validate_json(suite.model_dump_json())
     now = executed_at or datetime.now(UTC)
     _require_aware(now)

@@ -16,12 +16,20 @@ from collections import deque
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.grounding_bind import (
     GroundingDecisionCertificate,
+    _synthetic_reference,
     recompute_grounding_decision_content_hash,
     recompute_grounding_relation_content_hash,
 )
@@ -33,8 +41,10 @@ from polisyos.runtime.quality.grounding_relation import (
 if TYPE_CHECKING:
     from polisyos.runtime.quality.credal_reference import CredalReference, CredalReferenceEdge
 
-GROUNDING_ADMISSION_SCHEMA_VERSION = "policyos.runtime.grounding_admission_certificate.v1"
-GROUNDING_ADMISSION_VALIDATOR_VERSION = "policyos.runtime.grounding_admission.cg3.v1"
+GROUNDING_ADMISSION_SCHEMA_VERSION = "policyos.runtime.grounding_admission_certificate.v2"
+GROUNDING_ADMISSION_VALIDATOR_VERSION = "policyos.runtime.grounding_admission.cg3.v2"
+GROUNDING_REGISTRY_PATCH_SCHEMA_VERSION = "policyos.runtime.grounding_lever_registry_patch.v2"
+GROUNDING_ADMISSION_LEDGER_SCHEMA_VERSION = "policyos.runtime.grounding_admission_ledger.v2"
 
 type GroundingAdmissionDecision = Literal[
     "admit_new_lever",
@@ -233,6 +243,11 @@ class DeltaAdmissionLedger(_StrictModel):
 class GroundingLeverRegistryPatch(_StrictModel):
     """Content-addressed GY-S0 free-grow registry patch claim."""
 
+    schema_version: Literal[
+        "policyos.runtime.grounding_lever_registry_patch.v1",
+        "policyos.runtime.grounding_lever_registry_patch.v2",
+    ] = "policyos.runtime.grounding_lever_registry_patch.v1"
+    synthetic: bool = False
     patch_id: str = Field(..., pattern=r"^cg3_patch_[a-f0-9]{16}$")
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     authority_scope: _AuthorityScope
@@ -243,12 +258,16 @@ class GroundingLeverRegistryPatch(_StrictModel):
     owner: str = "GY-S0/L6 intervention substrate"
     source_reference_epoch: str = Field(..., min_length=1)
     source_reference_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
-    application_status: Literal["shadow_applied", "contract_testing_shadow"] = (
-        "shadow_applied"
-    )
+    application_status: Literal["shadow_applied", "contract_testing_shadow"] = "shadow_applied"
     reversible: bool = True
     idempotency_key: str = Field(..., min_length=1)
     decision_front_created: bool = False
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        return _implicit_v1_artifact_projection(
+            handler(self), legacy_epoch="policyos.runtime.grounding_lever_registry_patch.v1"
+        )
 
     @model_validator(mode="after")
     def _patch_hash_matches_payload(self) -> GroundingLeverRegistryPatch:
@@ -266,6 +285,11 @@ class GroundingLeverRegistryPatch(_StrictModel):
 class GroundingAdmissionLedger(_StrictModel):
     """Auditable ledger row for CG3 admission patching."""
 
+    schema_version: Literal[
+        "policyos.runtime.grounding_admission_ledger.v1",
+        "policyos.runtime.grounding_admission_ledger.v2",
+    ] = "policyos.runtime.grounding_admission_ledger.v1"
+    synthetic: bool = False
     ledger_id: str = Field(..., pattern=r"^cg3_ledger_[a-f0-9]{16}$")
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     patch_ids: tuple[str, ...]
@@ -273,6 +297,12 @@ class GroundingAdmissionLedger(_StrictModel):
     authority_scope: _AuthorityScope
     reversible: bool = True
     application_scope: str = "shadow_until_live_gy_s0_writer_is_declared_safe"
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        return _implicit_v1_artifact_projection(
+            handler(self), legacy_epoch="policyos.runtime.grounding_admission_ledger.v1"
+        )
 
     @model_validator(mode="after")
     def _ledger_hash_matches_payload(self) -> GroundingAdmissionLedger:
@@ -304,9 +334,10 @@ class GroundingAdmissionCertificate(_StrictModel):
     with ``apply_grounding_admission_registry_patch`` or the admission engine.
     """
 
-    schema_version: Literal["policyos.runtime.grounding_admission_certificate.v1"] = (
-        GROUNDING_ADMISSION_SCHEMA_VERSION
-    )
+    schema_version: Literal[
+        "policyos.runtime.grounding_admission_certificate.v1",
+        "policyos.runtime.grounding_admission_certificate.v2",
+    ] = GROUNDING_ADMISSION_SCHEMA_VERSION
     certificate_id: str = Field(..., pattern=r"^cg3_cert_[a-f0-9]{16}$")
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     decision: GroundingAdmissionDecision
@@ -322,6 +353,8 @@ class GroundingAdmissionCertificate(_StrictModel):
     reference_versions: Mapping[str, str]
     authority_scope: _AuthorityScope = "production"
     production_promotable: bool = False
+    synthetic: bool = False
+    authority_limitation: Literal["synthetic_input_cannot_grant_authority"] | None = None
     proposal_signature: Mapping[str, Any] = Field(default_factory=dict)
     closed_obligations: tuple[str, ...]
     open_obligations: tuple[str, ...]
@@ -336,6 +369,14 @@ class GroundingAdmissionCertificate(_StrictModel):
     admission_ledger: GroundingAdmissionLedger | None = None
     validator_version: str = GROUNDING_ADMISSION_VALIDATOR_VERSION
 
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version == "policyos.runtime.grounding_admission_certificate.v1":
+            payload.pop("synthetic", None)
+            payload.pop("authority_limitation", None)
+        return payload
+
     @model_validator(mode="after")
     def _content_hash_matches_payload(self) -> GroundingAdmissionCertificate:
         expected = recompute_grounding_admission_content_hash(self)
@@ -346,6 +387,12 @@ class GroundingAdmissionCertificate(_StrictModel):
             raise ValueError("admission_certificate_id_mismatch")
         if self.authority_scope == "contract_testing" and self.production_promotable:
             raise ValueError("contract_testing_admission_must_not_be_promotable")
+        if self.schema_version == GROUNDING_ADMISSION_SCHEMA_VERSION:
+            expected = "synthetic_input_cannot_grant_authority" if self.synthetic else None
+            if self.authority_limitation != expected or (
+                self.synthetic and self.production_promotable
+            ):
+                raise ValueError("synthetic_admission_must_not_grant_authority")
         return self
 
 
@@ -455,9 +502,12 @@ class GroundingAdmissionEngine:
             cg2_validation=cg2_validation,
             cg1_validation=cg1_validation,
         )
+        synthetic = _synthetic_admission_input(cg2_certificate, self.reference)
         patch = None
         if decision == "admit_new_lever":
-            patch = self._registry_patch(signature, stable_unique=stable_unique)
+            patch = self._registry_patch(
+                signature, stable_unique=stable_unique, synthetic=synthetic
+            )
         ledger = None
         raw_payload = {
             "acquisition_need": acquisition.model_dump(mode="json") if acquisition else None,
@@ -479,8 +529,12 @@ class GroundingAdmissionEngine:
             "obligations": [item.model_dump(mode="json") for item in obligations],
             "open_obligations": list(open_obligations),
             "production_promotable": (
-                decision == "admit_new_lever" and self._settings.authority_scope == "production"
+                decision == "admit_new_lever"
+                and self._settings.authority_scope == "production"
+                and not synthetic
             ),
+            "synthetic": synthetic,
+            "authority_limitation": "synthetic_input_cannot_grant_authority" if synthetic else None,
             "proposal_signature": _json_ready(signature),
             "reference_epoch": self.reference.reference_epoch,
             "reference_hash": self.reference.reference_hash,
@@ -663,9 +717,8 @@ class GroundingAdmissionEngine:
             tuple(_edge_key_text(edge.key) for edge in path),
             use_best=self._settings.use_best_edge_trust,
         )
-        if (
-            (len(path) == 1 and path_trust >= self._settings.data_trust_floor)
-            or (self._settings.allow_composed_mechanism_witness and path)
+        if (len(path) == 1 and path_trust >= self._settings.data_trust_floor) or (
+            self._settings.allow_composed_mechanism_witness and path
         ):
             return MechanismWitnessResolution(
                 status="closed",
@@ -1009,11 +1062,14 @@ class GroundingAdmissionEngine:
         signature: Mapping[str, Any],
         *,
         stable_unique: StableUniqueResolution,
+        synthetic: bool,
     ) -> GroundingLeverRegistryPatch:
         target = stable_unique.completions[0].target_slot
         operator = _canonical_token(_first_text(signature.get("op")))
         domain = _domain_from_signature(signature, self.reference, target)
         fields = {
+            "schema_version": GROUNDING_REGISTRY_PATCH_SCHEMA_VERSION,
+            "synthetic": synthetic,
             "application_status": "contract_testing_shadow"
             if self._settings.authority_scope == "contract_testing"
             else "shadow_applied",
@@ -1050,6 +1106,8 @@ class GroundingAdmissionEngine:
         admission_certificate_id: str,
     ) -> GroundingAdmissionLedger:
         fields = {
+            "schema_version": GROUNDING_ADMISSION_LEDGER_SCHEMA_VERSION,
+            "synthetic": patch.synthetic,
             "admission_certificate_id": admission_certificate_id,
             "application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
             "authority_scope": self._settings.authority_scope,
@@ -1111,7 +1169,18 @@ def recompute_grounding_admission_content_hash(
 
     payload = serialization.artifact_self_identity_projection(certificate_or_payload)
     payload.pop("certificate_id", None)
+    if payload.get("schema_version") == "policyos.runtime.grounding_admission_certificate.v1":
+        payload.pop("synthetic", None)
+        payload.pop("authority_limitation", None)
     return gy_content_hash(payload)
+
+
+def _synthetic_admission_input(
+    certificate: GroundingDecisionCertificate,
+    reference: CredalReference,
+) -> bool:
+    """Carry actual source ancestry through the single CG3 authority emission."""
+    return certificate.synthetic or _synthetic_reference(reference)
 
 
 def recompute_registry_patch_content_hash(
@@ -1121,7 +1190,11 @@ def recompute_registry_patch_content_hash(
 
     payload = serialization.artifact_self_identity_projection(patch_or_payload)
     payload.pop("patch_id", None)
-    return gy_content_hash(payload)
+    return gy_content_hash(
+        _implicit_v1_artifact_projection(
+            payload, legacy_epoch="policyos.runtime.grounding_lever_registry_patch.v1"
+        )
+    )
 
 
 def recompute_admission_ledger_content_hash(
@@ -1131,7 +1204,21 @@ def recompute_admission_ledger_content_hash(
 
     payload = serialization.artifact_self_identity_projection(ledger_or_payload)
     payload.pop("ledger_id", None)
-    return gy_content_hash(payload)
+    return gy_content_hash(
+        _implicit_v1_artifact_projection(
+            payload, legacy_epoch="policyos.runtime.grounding_admission_ledger.v1"
+        )
+    )
+
+
+def _implicit_v1_artifact_projection(
+    payload: dict[str, Any], *, legacy_epoch: str
+) -> dict[str, Any]:
+    """Keep pre-versioned CG3 child bodies readable without injecting v2 fields."""
+    if payload.get("schema_version", legacy_epoch) == legacy_epoch:
+        payload.pop("schema_version", None)
+        payload.pop("synthetic", None)
+    return payload
 
 
 def _validate_cg2_binding(
@@ -1244,10 +1331,7 @@ def _admissible_completions(
                 )
             )
     for edge in reference.essential_edges.values():
-        if (
-            edge.modality not in _L2_CONTESTED_MECHANISM_MODALITIES
-            or edge.status != "contested"
-        ):
+        if edge.modality not in _L2_CONTESTED_MECHANISM_MODALITIES or edge.status != "contested":
             continue
         endpoints = _edge_structural_endpoints(edge)
         if endpoints["src"] == target and endpoints["dst"] == _first_text(signature.get("outcome")):
@@ -1373,9 +1457,7 @@ def _target_actuatability(
         return {
             "actuatable": _target_acquirable(target),
             "reason": (
-                "new_slot_acquisition_required"
-                if _target_acquirable(target)
-                else "slot_missing"
+                "new_slot_acquisition_required" if _target_acquirable(target) else "slot_missing"
             ),
         }
     if _slot_is_measurement_or_reporting(reference, target):
@@ -1801,8 +1883,10 @@ def _json_ready(value: object) -> object:
 
 
 __all__ = [
+    "GROUNDING_ADMISSION_LEDGER_SCHEMA_VERSION",
     "GROUNDING_ADMISSION_SCHEMA_VERSION",
     "GROUNDING_ADMISSION_VALIDATOR_VERSION",
+    "GROUNDING_REGISTRY_PATCH_SCHEMA_VERSION",
     "AcquisitionNeed",
     "AdmissionCompletion",
     "AdmissionObligationCheck",

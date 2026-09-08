@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.removal pair_sign",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.removal",
+    "pair_sign"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 165.73522420891095,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "{\"issues\": [\"constructed_mismatch_not_structurally_refused\", \"persisted_refusal_result_drift\"], \"result_hash\": \"sha256:4a1c4dfc42a80f4dc16b0b367fdc8a857ff73ce3f187a7c82dd11bc67350de86\", \"result_path\": \"architecture/policy_design_case/corr/grounding_refusal_sensitivity.json\", \"statement\": \"On a pre-declared adversarial suite of 3 deliberate mismatches, the binder refused 3. A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.\", \"status\": \"fail\", \"suite_hash\": \"sha256:f2e8931e256664e2946c06c8203bd979b2b733222a3e999447e63e6c227da72f\"}\n",
+  "stderr": ""
+}

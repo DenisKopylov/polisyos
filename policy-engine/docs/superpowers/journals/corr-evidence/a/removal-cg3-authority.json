@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.removal cg3_authority",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.removal",
+    "cg3_authority"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 87.00283937493805,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n_______ test_real_novel_lever_admits_and_records_content_addressed_patch _______\ntests/unit/runtime/quality/test_grounding_admission.py:47: in test_real_novel_lever_admits_and_records_content_addressed_patch\n    assert admission.production_promotable is False\nE   AssertionError: assert True is False\nE    +  where True = GroundingAdmissionCertificate(schema_version='policyos.runtime.grounding_admission_certificate.v2', certificate_id='cg...pe='shadow_until_live_gy_s0_writer_is_declared_safe'), validator_version='policyos.runtime.grounding_admission.cg3.v2').production_promotable\n_______ test_synthetic_reference_cannot_be_laundered_by_a_false_cg2_flag _______\ntests/unit/runtime/quality/test_grounding_admission.py:276: in test_synthetic_reference_cannot_be_laundered_by_a_false_cg2_flag\n    assert admission.synthetic is True\nE   AssertionError: assert False is True\nE    +  where False = GroundingAdmissionCertificate(schema_version='policyos.runtime.grounding_admission_certificate.v2', certificate_id='cg...pe='shadow_until_live_gy_s0_writer_is_declared_safe'), validator_version='policyos.runtime.grounding_admission.cg3.v2').synthetic\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_admission.py::test_real_novel_lever_admits_and_records_content_addressed_patch\nFAILED tests/unit/runtime/quality/test_grounding_admission.py::test_synthetic_reference_cannot_be_laundered_by_a_false_cg2_flag\n",
+  "stderr": ""
+}

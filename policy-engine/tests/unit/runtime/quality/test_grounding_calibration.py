@@ -5,6 +5,8 @@ from __future__ import annotations
 import importlib
 from datetime import UTC
 
+import pytest
+
 
 def test_frame_tier_is_blind_to_binding_outcomes_and_shared_sources_cluster() -> None:
     """The same inputs and shared source remain one cluster after outcome changes."""
@@ -216,3 +218,32 @@ def test_refusal_report_rejects_fallback_when_binder_structural_guard_is_removed
     assert report["outcomes"][0]["mismatch_detected"]
     assert report["outcomes"][0]["decision_reason"] != "false_analog_hard_abstain"
     assert "constructed_mismatch_not_structurally_refused" in report["issues"]
+
+
+@pytest.mark.parametrize("intake", ["declaration", "execution"])
+def test_frame_intakes_recompute_mutable_nested_content(intake: str) -> None:
+    from datetime import timedelta
+    from functools import partial
+
+    from tests.unit.runtime.quality.test_grounding_bind import _reference
+
+    owner = importlib.import_module("polisyos.runtime.quality.grounding_calibration")
+    reference = _reference()
+    frame = _frame(reference)
+    suite = owner.declare_refusal_suite(frame, reference, declared_at=frame.declared_at)
+    # Neither the selectors nor the declared hash change. This is the source
+    # property the gate promises to bind, beyond its convenient selector proxy.
+    frame.inputs[0].signature["params"] = {"synthetic": True, "maximum": 200}
+    action = (
+        partial(owner.declare_refusal_suite, frame, reference, declared_at=frame.declared_at)
+        if intake == "declaration"
+        else partial(
+            owner.run_refusal_suite,
+            suite,
+            frame,
+            reference,
+            executed_at=frame.declared_at + timedelta(seconds=1),
+        )
+    )
+    with pytest.raises(ValueError, match="content_hash_mismatch"):
+        action()

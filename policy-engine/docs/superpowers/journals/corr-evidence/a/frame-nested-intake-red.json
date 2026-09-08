@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_calibration.py::test_frame_intakes_recompute_mutable_nested_content -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_grounding_calibration.py::test_frame_intakes_recompute_mutable_nested_content",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": -9,
+  "capture_returncode": 124,
+  "elapsed_seconds": 300.1097436660202,
+  "timeout_seconds": 300.0,
+  "timed_out": true,
+  "stdout": "FF                                                                       [100%]",
+  "stderr": ""
+}

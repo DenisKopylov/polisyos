@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/runtime/quality/test_grounding_admission.py::test_every_independently_addressed_cg3_emission_retains_synthetic_provenance",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/runtime/quality/test_grounding_admission.py::test_every_independently_addressed_cg3_emission_retains_synthetic_provenance"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 67.55149433296174,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_ test_every_independently_addressed_cg3_emission_retains_synthetic_provenance _\n\n    def test_every_independently_addressed_cg3_emission_retains_synthetic_provenance() -> None:\n        reference = _reference(include_mechanism=True)\n        cg1, cg2 = _cg2_novel(reference, _novel_transfer_probe())\n        engine = GroundingAdmissionEngine(reference)\n        admission = engine.decide(cg2, cg1_certificate=cg1)\n        assert admission.decision == \"admit_new_lever\"\n        assert admission.production_promotable is False\n        assert admission.registry_patch is not None\n        assert admission.admission_ledger is not None\n        for artifact, expected_schema in (\n            (admission, \"policyos.runtime.grounding_admission_certificate.v2\"),\n            (admission.registry_patch, \"policyos.runtime.grounding_lever_registry_patch.v2\"),\n            (admission.admission_ledger, \"policyos.runtime.grounding_admission_ledger.v2\"),\n        ):\n            body = artifact.model_dump(mode=\"json\")\n>           assert body.get(\"schema_version\") == expected_schema\nE           AssertionError: assert None == 'policyos.runtime.grounding_lever_registry_patch.v2'\nE            +  where None = <built-in method get of dict object at 0x13f616b00>('schema_version')\nE            +    where <built-in method get of dict object at 0x13f616b00> = {'application_status': 'shadow_applied', 'authority_scope': 'production', 'content_hash': 'sha256:d82626a067db38d4ff58c37d5db0065873be04f8fa768dd082c413a6a3c1a7cd', 'decision_front_created': False, ...}.get\n\ntests/unit/runtime/quality/test_grounding_admission.py:325: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_admission.py::test_every_independently_addressed_cg3_emission_retains_synthetic_provenance\n",
+  "stderr": ""
+}

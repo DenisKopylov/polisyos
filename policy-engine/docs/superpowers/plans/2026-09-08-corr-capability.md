@@ -320,3 +320,92 @@ retained sources must survive that return as well as GenerationCycleRun. Advance
 and the distinct preservation strangle. Preserve historical v1 hash/serialization.
 Reentry continues to consume its original immutable run source and A's same run
 budget; it does not create an independent source index or reset the allowance.
+
+## C2 import ownership correction during integration
+
+The first implementation eagerly imported the complete source capsule from N6,
+thereby loading N4/Trinity/CGF schemas even for unrelated N6/N9 imports. A's
+CG3 probe subsequently timed out during imports and then exited with signal 11
+while Pydantic gathered a schema. That is an execution failure, not evidence of
+the proposed CG3 authority defect; attribution remains unestablished until replay.
+Keep the lightweight source-preservation receipt beside N6's existing run and
+strangle DTOs. Load the source repository only when custody is used, retaining
+full validation at that boundary. This restores N4's existing lazy ownership
+without changing any artifact payload or epoch. The falsifier is the exact
+previously failing CG3 invocation followed by actual source-custody execution;
+moving a failure from import to first use would not satisfy it.
+
+## C2 evidence-bridge provenance companion
+
+The existing N9 evidence bridge v2 stores source references but cannot carry a
+synthetic provenance field in its own body. CORR's newly emitted marked-source
+bridges therefore require a governed v3 bridge epoch. Root owns this narrow
+`promotion_sequence.py` companion and the new CG2 contract-scope compatibility
+predicate; C owns its actual-source controls and controller wiring. The evidence
+union is unchanged. N9 receipt v6 and owner projection v3 remain unchanged, with
+the existing `producer_root_refs` carrying the new bridge epoch. Historical v1/v2
+bridge bodies remain readable under their own epochs and are never restamped.
+
+Derive the bridge's marker from resolved source content and bound candidate
+provenance, then independently recompute it on resolution. Synthetic source
+content cannot yield an authority-grade established resolution. Preserve the
+underlying producer's mechanical outcome as evidence, with the authority
+limitation distinct. The red-first controls require a real marked source to emit
+a marked bridge, reject a concealed marker after complete rehashing, and retain
+the historical bridge's exact body. A source-ref string alone is insufficient.
+
+The existing N9 report input helper also changes a real CG2 result into a claimed
+bind by editing safe candidates, obligations and revalidation before rehashing.
+That is a static P29/P37 finding in the current report input companion, not a
+reason to reopen N9's closed obligation algorithms. Root will measure whether
+the returned certificate equals the actual producer output before any repair.
+The current CORR proof must consume an unchanged, explicitly marked owner result;
+all existing report control identities and historical readers remain required.
+
+## Typed source transport, measured before its correction
+
+The real EFFECT writer rejects the first capsule roundtrip because an original
+Decimal intervention parameter became a string in Trinity's `Any` field. JSON
+equality would hide that material change and is not an acceptable test. CORR-C
+uses the existing Core canonical typed encoder/decoder at the sole capsule
+boundary, hashes that complete typed payload excluding only its own hash, and
+retains full CAS byte binding. The source capsule is an unreleased v1 artifact;
+no historical receipt is rewritten. The falsifier preserves exact original
+Trinity/atom/parsed-candidate values through persistence, then invokes the real
+writer; changing a numeric value to a same-looking string must remain detectable.
+
+The complete current historical N6 comparison found exactly four absent-to-null
+additions: acquisition cost basis hash/record in each retained cycle. Preserve
+the original supplied-field tree when serializing a historical v1 run or reentry,
+using its existing typed models; current v2 emits its full contract. This is
+historical byte preservation for CORR's new envelope, not a repair of the older
+cost-basis algorithms. Keep the complete historical owner-record denominator and
+exact N9 roundtrips in the acceptance test.
+
+CG3's existing registry patch and admission ledger are independently emitted
+content-addressed artifacts as well as children of the certificate. The same
+synthetic-carriage migration covers that complete emitted set: each receives
+its recomputed marker and advances its existing schema from v1 to v2, with exact
+historical v1 serialization and hash behavior. Their shadow-only algorithms and
+authority ceilings are unchanged. A owns the complete emission census and these
+DTO companions; B's current CG3 report consumes them through the existing owner.
+An enclosing marker alone does not mark an independently returned child artifact.
+
+## N9 source-artifact emission boundary
+
+The bridge audit found the same synthetic-carriage class one level deeper (P40):
+the existing effective-independence and EFFECT writer records are independently
+persisted CAS artifacts. Their nested input provenance does not supply each
+artifact's own marker. Widen the existing N9 source-record mechanism to these
+owned emissions, rather than repair individual caller declarations. Both source
+record schemas advance from v1 to v2; exact v1 bodies remain readable and cannot
+be restamped. Derive the marker from the complete actual writer inputs and bound
+candidate, share that derivation with bridge admission, and recompute it when
+resolving. Keep the independent producer result distinct from authority.
+
+The measurement source is consumed from its existing DataForge owner, not
+produced by this bridge. CORR must not invent one to fill C2's missing input.
+The source-boundary falsifier asserts an own marker on each actual synthetic
+source artifact before bridge admission, then conceals a declaration while
+retaining the original ancestry. This belongs to CORR-C's new synthetic input
+compatibility; it does not reopen any closed evidence calculus.

@@ -239,6 +239,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
+    ("POST", "/api/v1/runs/{run_id}/public-verification-record"),
     ("POST", "/api/v1/runs/{run_id}/scenarios"),
 )
 _EXPECTED_MUTATING_PERMISSIONS = {
@@ -308,6 +309,10 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "POST",
         "/api/v1/runs/{run_id}/production-approval",
     ): RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/public-verification-record",
+    ): RuntimePermission.PLATFORM_ADMIN,
     ("POST", "/api/v1/runs/{run_id}/scenarios"): RuntimePermission.SCENARIOS_CREATE,
 }
 _MUTATING_OPERATION_CASE_IDS = {
@@ -350,6 +355,9 @@ _MUTATING_OPERATION_CASE_IDS = {
     ): "execute-run-acquisition-route",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"): ("create-run-production-approval"),
+    ("POST", "/api/v1/runs/{run_id}/public-verification-record"): (
+        "issue-public-verification-record"
+    ),
     ("POST", "/api/v1/runs/{run_id}/scenarios"): "create-run-scenario",
 }
 _HIGH_STAKES_MUTATING_OPERATIONS = (
@@ -923,6 +931,10 @@ def _authorized_mutation_request(
             "quality_scorecard_ref": scorecard_ref,
             **_production_approval_required_input_refs(),
         }
+    if case_id == "issue-public-verification-record":
+        # The real handler must reach its unconfigured-issuer refusal after authorization.
+        _align_decision_packet_owner(runtime_api_env, cell_id=cell_id)
+        return default_path, None
     if case_id == "create-run-scenario":
         quantity_response = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/quantities")
         assert quantity_response.status_code == 200
@@ -1167,6 +1179,7 @@ def test_mutating_operation_authorized_request_reaches_handler(
         "admit-epoch-validity-batch": (422, "verifier_not_configured"),
         "create-run-human-decision": (409, "DS9-DECISION-ARTIFACT-MISSING"),
         "create-run-production-approval": (503, "DS9-DECISION-PRODUCER-MISSING"),
+        "issue-public-verification-record": (503, "http_error"),
     }.get(case_id, (200, None))
     assert response.status_code == expected_status, response.text
     if expected_code is not None:
@@ -1176,6 +1189,12 @@ def test_mutating_operation_authorized_request_reaches_handler(
     assert opa.inputs[0].request_method == method
     assert opa.inputs[0].resource_kind
     assert opa.inputs[0].resource_artifact_id
+    if case_id == "issue-public-verification-record":
+        assert response.json()["detail"] == "verification_issuer_not_configured"
+        assert (
+            opa.inputs[0].resource_kind
+            == "runtime.run.public_verification_record.ownership_verified"
+        )
     authorization_events = [
         entry
         for entry in audit.entries

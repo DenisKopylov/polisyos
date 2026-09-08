@@ -1204,6 +1204,18 @@ export type ProvingGroundFixtureRecord =
 export type ProvingGroundRuntimeOutcomes =
   RuntimeApiComponents["schemas"]["ProvingGroundRuntimeOutcomes"];
 
+export type PublicDecisionJsonValue =
+  RuntimeApiComponents["schemas"]["PublicDecisionJsonValue"];
+
+export type PublicDecisionVerificationDimensions =
+  RuntimeApiComponents["schemas"]["PublicDecisionVerificationDimensions"];
+
+export type PublicDecisionVerificationIssued =
+  RuntimeApiComponents["schemas"]["PublicDecisionVerificationIssued"];
+
+export type PublicDecisionVerificationResponse =
+  RuntimeApiComponents["schemas"]["PublicDecisionVerificationResponse"];
+
 export type QualityRef = RuntimeApiComponents["schemas"]["QualityRef"];
 
 export type QuantityCoverageEntry =
@@ -2558,6 +2570,22 @@ export class RuntimeApiClient {
     const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/diagnostics`;
     const query = undefined;
     return this.request<MobilityDiagnosticsResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async verifyPublicDecisionRecord(params: {
+    record_id: string;
+  }): Promise<PublicDecisionVerificationResponse> {
+    const path = `/api/v1/public-decisions/verification`;
+    const query = this.buildQuery({
+      record_id: params.record_id,
+    });
+    return this.request<PublicDecisionVerificationResponse>(
       "GET",
       path,
       query,

@@ -1635,34 +1635,6 @@ test.describe("runtime-dashboard visual baselines", () => {
       await expect(page.getByTestId("case-workspace-page")).toBeVisible();
       await expect(page.getByTestId("human-decision-gate")).toBeVisible();
     });
-
-    test("remains absent from the public decision route", async ({ page }) => {
-      const humanDecisionRequests: string[] = [];
-      page.on("request", (request) => {
-        const pathname = new URL(request.url()).pathname;
-        if (/^\/api\/v1\/.*human-decision/u.test(pathname)) {
-          humanDecisionRequests.push(pathname);
-        }
-      });
-      const packet = buildPublicDecisionPacket({
-        epochSemantics: epochNonreceipt(),
-        runId: fixtureMetadata.core_run_id,
-      });
-
-      await page.goto(forgeLegacyPublicDecisionUrl(packet));
-      await expect(
-        page.getByTestId("public-decision-unavailable"),
-      ).toBeVisible();
-      await expect(page.getByTestId("publication-packet-panel")).toHaveCount(0);
-      await expect(
-        page.getByText("signature verified", { exact: true }),
-      ).toHaveCount(0);
-      await expect(page.getByTestId("human-decision-gate")).toHaveCount(0);
-      await expect(
-        page.getByTestId("human-decision-machine-export"),
-      ).toHaveCount(0);
-      expect(humanDecisionRequests).toEqual([]);
-    });
   });
 
   test("bureaucratic document A4 print", async ({ page }) => {
@@ -1711,4 +1683,54 @@ test.describe("runtime-dashboard visual baselines", () => {
       maxDiffPixels: 100,
     });
   });
+});
+
+test("remains absent from the public decision route", async ({ page }) => {
+  const humanDecisionRequests: string[] = [];
+  page.on("request", (request) => {
+    const pathname = new URL(request.url()).pathname;
+    if (/^\/api\/v1\/.*human-decision/u.test(pathname)) {
+      humanDecisionRequests.push(pathname);
+    }
+  });
+  const packet = buildPublicDecisionPacket({
+    epochSemantics: epochNonreceipt(),
+    runId: "forged-public-run",
+  });
+
+  const forgedUrl = forgeLegacyPublicDecisionUrl(packet);
+  const recordId = forgedUrl.split("/").at(-1);
+  const verifierResponse = page
+    .waitForEvent("requestfinished", (request) => {
+      const url = new URL(request.url());
+      return (
+        url.pathname === "/api/v1/public-decisions/verification" &&
+        url.searchParams.get("record_id") === recordId
+      );
+    })
+    .then(async (request) => {
+      const response = await request.response();
+      if (!response) throw new Error("verification_response_missing");
+      return response;
+    });
+  await page.goto(forgedUrl);
+  const serverVerdict = await (await verifierResponse).json();
+  expect(serverVerdict.record_id).toBe(recordId);
+  expect(serverVerdict.report_authentication).toBe("invalid");
+  expect(serverVerdict.reason_codes).toContain(
+    "client_token_not_server_issued",
+  );
+  await expect(page.getByTestId("public-decision-unavailable")).toBeVisible();
+  await expect(page.getByTestId("public-decision-unavailable")).toContainText(
+    "client_token_not_server_issued",
+  );
+  await expect(page.getByTestId("publication-packet-panel")).toHaveCount(0);
+  await expect(
+    page.getByText("signature verified", { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByTestId("human-decision-gate")).toHaveCount(0);
+  await expect(page.getByTestId("human-decision-machine-export")).toHaveCount(
+    0,
+  );
+  expect(humanDecisionRequests).toEqual([]);
 });

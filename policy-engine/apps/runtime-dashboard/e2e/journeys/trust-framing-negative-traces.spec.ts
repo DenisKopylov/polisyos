@@ -187,10 +187,32 @@ test.describe("Wave 35G trust-framing negative UI traces", () => {
         runId: `trust-framing-${scenario}`,
       });
 
-      await page.goto(forgeLegacyPublicDecisionUrl(packet));
+      const forgedUrl = forgeLegacyPublicDecisionUrl(packet);
+      const recordId = forgedUrl.split("/").at(-1);
+      const verifierResponse = page
+        .waitForEvent("requestfinished", (request) => {
+          const url = new URL(request.url());
+          return (
+            url.pathname === "/api/v1/public-decisions/verification" &&
+            url.searchParams.get("record_id") === recordId
+          );
+        })
+        .then(async (request) => {
+          const response = await request.response();
+          if (!response) throw new Error("verification_response_missing");
+          return response;
+        });
+      await page.goto(forgedUrl);
+      const serverVerdict = await (await verifierResponse).json();
+      expect(serverVerdict.record_id).toBe(recordId);
+      expect(serverVerdict.report_authentication).toBe("invalid");
+      expect(serverVerdict.reason_codes).toContain(
+        "client_token_not_server_issued",
+      );
 
       const caveats = page.getByTestId("public-decision-unavailable");
       await expect(caveats).toBeVisible();
+      await expect(caveats).toContainText("client_token_not_server_issued");
       await expect(page.getByTestId("publication-packet-panel")).toHaveCount(0);
       await expect(
         page.getByText("signature verified", { exact: true }),

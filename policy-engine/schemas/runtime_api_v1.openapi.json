@@ -27579,6 +27579,254 @@
         "title": "ProvingGroundRuntimeOutcomes",
         "type": "object"
       },
+      "PublicDecisionJsonValue": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "items": {
+              "$ref": "#/components/schemas/PublicDecisionJsonValue"
+            },
+            "type": "array"
+          },
+          {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PublicDecisionJsonValue"
+            },
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "PublicDecisionVerificationDimensions": {
+        "additionalProperties": false,
+        "description": "PV-K01 dimensions withheld until their actual owners provide evidence.",
+        "properties": {
+          "current_authority": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Current Authority",
+            "type": "string"
+          },
+          "durable_verifiability": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Durable Verifiability",
+            "type": "string"
+          },
+          "issuer_issuance": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Issuer Issuance",
+            "type": "string"
+          },
+          "projection_faithfulness": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Projection Faithfulness",
+            "type": "string"
+          },
+          "public_evidence_obtainability": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Public Evidence Obtainability",
+            "type": "string"
+          },
+          "public_history_establishment": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Public History Establishment",
+            "type": "string"
+          },
+          "status_snapshot_selection": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Status Snapshot Selection",
+            "type": "string"
+          }
+        },
+        "title": "PublicDecisionVerificationDimensions",
+        "type": "object"
+      },
+      "PublicDecisionVerificationIssued": {
+        "additionalProperties": false,
+        "description": "Opaque locator returned only after durable issuance and verifier readback.",
+        "properties": {
+          "promoted_record": {
+            "title": "Promoted Record",
+            "type": "null"
+          },
+          "public_path": {
+            "title": "Public Path",
+            "type": "string"
+          },
+          "publication_class": {
+            "const": "verification_report_only",
+            "default": "verification_report_only",
+            "title": "Publication Class",
+            "type": "string"
+          },
+          "record_id": {
+            "title": "Record Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_id",
+          "public_path"
+        ],
+        "title": "PublicDecisionVerificationIssued",
+        "type": "object"
+      },
+      "PublicDecisionVerificationResponse": {
+        "additionalProperties": false,
+        "description": "Authentication result with document bytes exposed only after verification.",
+        "properties": {
+          "cryptographic_signature": {
+            "default": "not_established",
+            "enum": [
+              "valid",
+              "invalid",
+              "not_established"
+            ],
+            "title": "Cryptographic Signature",
+            "type": "string"
+          },
+          "decision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Id"
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/PublicDecisionVerificationDimensions"
+          },
+          "issued_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued At"
+          },
+          "issuer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issuer Id"
+          },
+          "promoted_record": {
+            "title": "Promoted Record",
+            "type": "null"
+          },
+          "public_document": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/PublicDecisionJsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public Document"
+          },
+          "public_document_digest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public Document Digest"
+          },
+          "reason_codes": {
+            "items": {
+              "enum": [
+                "promoted_public_record_not_established",
+                "client_token_not_server_issued",
+                "record_not_issued",
+                "issuance_index_invalid",
+                "issuance_index_write_failed",
+                "verification_issuer_not_configured",
+                "public_document_invalid",
+                "record_evidence_unavailable",
+                "record_signature_missing",
+                "record_signature_invalid",
+                "record_key_untrusted",
+                "record_key_revoked",
+                "record_issuer_purpose_untrusted",
+                "record_binding_invalid",
+                "public_document_binding_invalid"
+              ],
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "record_id": {
+            "title": "Record Id",
+            "type": "string"
+          },
+          "report_authentication": {
+            "enum": [
+              "verified",
+              "invalid",
+              "not_established"
+            ],
+            "title": "Report Authentication",
+            "type": "string"
+          },
+          "report_key_status": {
+            "default": "not_established",
+            "enum": [
+              "trusted",
+              "revoked",
+              "untrusted",
+              "not_established"
+            ],
+            "title": "Report Key Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_id",
+          "report_authentication",
+          "reason_codes"
+        ],
+        "title": "PublicDecisionVerificationResponse",
+        "type": "object"
+      },
       "QualityRef": {
         "additionalProperties": false,
         "description": "Quality evidence reference embedded in a Fabric trust envelope.",
@@ -55063,18 +55311,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:90a2b3c1ff360564a7c2f4c3b4490ab52a8dbe54cffb91b718c8003e87599da0",
+                      "projection_hash": "sha256:e3b9f6f8b9207ece3f63c7cf535119f81ada82c6d6976dbba500206517322d9f",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A90a2b3c1ff360564a7c2f4c3b4490ab52a8dbe54cffb91b718c8003e87599da0&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ae3b9f6f8b9207ece3f63c7cf535119f81ada82c6d6976dbba500206517322d9f&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:90a2b3c1ff360564a7c2f4c3b4490ab52a8dbe54cffb91b718c8003e87599da0",
+                        "projection_hash": "sha256:e3b9f6f8b9207ece3f63c7cf535119f81ada82c6d6976dbba500206517322d9f",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba"
+                        "source_dependency_hash": "sha256:98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -55083,8 +55331,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba",
-                          "bound_dependency_count": 6290,
+                          "bound_dependency_aggregate_identity": "sha256:98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb",
+                          "bound_dependency_count": 6315,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -55099,16 +55347,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:aded30ee6475dd5b127a58440280356e0e0bc7950b28c1b963482a14f3cbd3e1"
+                          "worker_validation_receipt_hash": "sha256:bf674ce2e94643002f12db8880cc42f96a77b18c4236425958f313360536aa2f"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba",
+                      "source_dependency_hash": "sha256:98a4dc346466eb0af5e86ec27e2433662b3a1aad79f7bdddc0200be9c330ffcb",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:aded30ee6475dd5b127a58440280356e0e0bc7950b28c1b963482a14f3cbd3e1",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:aded30ee6475dd5b127a58440280356e0e0bc7950b28c1b963482a14f3cbd3e1"
+                      "worker_validation_receipt_hash": "sha256:bf674ce2e94643002f12db8880cc42f96a77b18c4236425958f313360536aa2f",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:bf674ce2e94643002f12db8880cc42f96a77b18c4236425958f313360536aa2f"
                     }
                   }
                 },
@@ -61361,6 +61609,247 @@
         "summary": "Get Mobility Report Diagnostics",
         "tags": [
           "runtime-mobility"
+        ]
+      }
+    },
+    "/api/v1/public-decisions/verification": {
+      "get": {
+        "description": "Verify an issued locator without admitting any browser-provided document.",
+        "operationId": "verify_public_decision_record",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "record_id",
+            "required": true,
+            "schema": {
+              "maxLength": 16384,
+              "minLength": 1,
+              "title": "Record Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "cryptographic_signature": "not_established",
+                  "dimensions": {
+                    "current_authority": "not_established",
+                    "durable_verifiability": "not_established",
+                    "issuer_issuance": "not_established",
+                    "projection_faithfulness": "not_established",
+                    "public_evidence_obtainability": "not_established",
+                    "public_history_establishment": "not_established",
+                    "status_snapshot_selection": "not_established"
+                  },
+                  "reason_codes": [
+                    "record_not_issued",
+                    "promoted_public_record_not_established"
+                  ],
+                  "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "report_authentication": "not_established",
+                  "report_key_status": "not_established"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicDecisionVerificationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/public-decisions/verification",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/public-decisions/verification",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/public-decisions/verification",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/public-decisions/verification",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/public-decisions/verification",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/public-decisions/verification",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/public-decisions/verification",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Verify Public Decision Record",
+        "tags": [
+          "public-decisions"
         ]
       }
     },
@@ -70884,6 +71373,238 @@
           "source": "owned_existing_path"
         },
         "x-polisyos-step-up-class": "production_approval"
+      }
+    },
+    "/api/v1/runs/{run_id}/public-verification-record": {
+      "post": {
+        "description": "Redact the persisted run packet, then issue a report about those exact bytes.\n\nThe caller selects an owned run, never supplies a document, key or authority\nverdict. The existing public-export producer owns disclosure and projection\nlimits; its refusal is propagated before any record or public link is issued.",
+        "operationId": "issue_public_decision_record",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "public_path": "/public/decisions/pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "publication_class": "verification_report_only",
+                  "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicDecisionVerificationIssued"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/public-verification-record",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/public-verification-record",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/public-verification-record",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/public-verification-record",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/public-verification-record",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/public-verification-record",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/public-verification-record",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Issue Public Decision Record",
+        "tags": [
+          "public-decisions"
+        ],
+        "x-polisyos-action-permission": "platform.admin",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.public_verification_record",
+          "source": "owned_existing_path"
+        }
       }
     },
     "/api/v1/runs/{run_id}/quantities": {

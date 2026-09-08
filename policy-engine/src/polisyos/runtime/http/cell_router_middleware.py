@@ -80,7 +80,7 @@ class CellRouterMiddleware(_BaseHTTPMiddleware):
         call_next: Callable[[_Request], Awaitable[_Response]],
     ) -> _Response:
         path = str(getattr(request.url, "path", ""))
-        if path in {"/health", "/ready", "/metrics"}:
+        if path in {"/health", "/ready", "/metrics", "/api/v1/public-decisions/verification"}:
             return await call_next(request)
         request_id = getattr(getattr(request, "state", object()), "request_id", None)
 

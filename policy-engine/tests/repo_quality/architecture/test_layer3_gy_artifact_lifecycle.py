@@ -1944,6 +1944,136 @@ def test_layer3_gy_production_loop_run_proof_committed_and_authority_path_checke
             assert "authority_derivation_trace_ref" not in proof["artifacts_index_refs"]
 
 
+def _c1_live_admission_station(tmp_path: Path):
+    from types import SimpleNamespace
+
+    from polisyos.pdc import OperationClass, SearchTerminalKind
+    from polisyos.runtime.quality.workspace import workflow_playbook_projection as owner
+    from tests.unit.runtime.quality.test_workspace_scientist_node_adapters import (
+        _node,
+        _ProducingNode,
+        _station,
+    )
+
+    ctx, state = _station(tmp_path)
+    node = _ProducingNode(_node().spec)
+    nodes = SimpleNamespace(get=lambda node_id: node)
+    candidate = owner._step_from_invocation(
+        workflow_id="scientist_policy_design",
+        invocation=SimpleNamespace(
+            alias="run_causal_evaluation", node_id=node.spec.metadata.component_id,
+        ),
+        node_registry=nodes,
+    )
+    admission = owner.admit_playbook_step(
+        candidate, node_registry=nodes, ctx=ctx, state=state,
+        workspace_id="ws-c1-proof", invocation_id="invoke-c1-proof", cycle_index=1,
+    )
+    assert admission.step is not None, admission.conformance.failures
+    execution = admission.conformance.execution
+    assert execution is not None
+    selected = owner.select_playbook_for_intent({"policy_question": "C1 conformance proof"})
+    trajectory = owner.PlaybookTrajectory(
+        playbook_id=selected.playbook_id, source_workflow_id=selected.playbook_id,
+        default_operation_classes=[candidate.operation_class], steps=[candidate],
+        authority_path_disposition="loop_only",
+    )
+    registry = owner.PlaybookRegistry(playbooks={selected.playbook_id: trajectory})
+    stable = SimpleNamespace(
+        adapter_admissions=[admission], operation_invocations=[execution.invocation],
+        search_ledger_events=[execution.ledger_event], artifact_envelopes=execution.artifact_envelopes,
+        terminal_state=SimpleNamespace(kind=SearchTerminalKind.FRONTIER_STABLE),
+        phase2_playbook_trace=SimpleNamespace(out_of_scope_steps=[]),
+    )
+    deviation = SimpleNamespace(
+        terminal_state=SimpleNamespace(kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED),
+        phase2_playbook_trace=SimpleNamespace(deviation_operation=OperationClass.REFINE),
+    )
+    return ctx, stable, deviation, selected, registry
+
+
+def test_c1_playbook_proof_binds_the_admission_the_consumer_used(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    ctx, stable, deviation, selected, registry = _c1_live_admission_station(tmp_path)
+    payload = check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(
+        REPO_ROOT, stable=stable, deviation=deviation, selected=selected,
+        registry=registry, store=ctx.store,
+    )
+    admission = stable.adapter_admissions[0]
+    witness = payload["proofs"][0]["adapter_admissions"][0]
+    raw = json.loads(capsys.readouterr().err.splitlines()[-1])["raw_run_admissions"][0]
+    assert raw["conformance_ref"] == admission.conformance_ref.model_dump(mode="json")
+    assert witness["candidate"] == admission.candidate.model_dump(mode="json")
+    assert raw["conformance"] == admission.conformance.model_dump(mode="json")
+    assert witness["conformance"]["input_state_hash"] == admission.conformance.input_state_hash
+    assert witness["conformance_semantic_digest"].startswith("sha256:")
+    assert witness["admission_state"] == "admitted"
+    assert witness["operation_invocation_id"] == stable.operation_invocations[0].invocation_id
+    assert payload["proofs"][0]["candidate_step_ids"] == [admission.candidate.step_id]
+    assert ctx.calls == ["execute"]
+
+
+def test_c1_playbook_proof_refuses_changed_receipt_with_markers_intact(tmp_path: Path) -> None:
+    import pytest
+
+    ctx, stable, deviation, selected, registry = _c1_live_admission_station(tmp_path)
+    admission = stable.adapter_admissions[0]
+    changed = admission.conformance.model_copy(update={"input_state_hash": "sha256:" + "0" * 64})
+    stable.adapter_admissions = [admission.model_copy(update={"conformance": changed})]
+    with pytest.raises(AssertionError, match="c1_conformance_receipt_payload_mismatch"):
+        check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(
+            REPO_ROOT, stable=stable, deviation=deviation, selected=selected,
+            registry=registry, store=ctx.store,
+        )
+
+
+def test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import datetime
+
+    from polisyos.core.artifacts import manifest
+
+    packets = []
+    raw_refs = []
+    for hour in (1, 2):
+        class EmissionClock(datetime):
+            @classmethod
+            def now(cls, tz=None, *, emission_hour=hour):
+                return datetime(2026, 9, 8, emission_hour, tzinfo=tz)
+
+        with monkeypatch.context() as patch:
+            patch.setattr(manifest, "datetime", EmissionClock)
+            ctx, stable, deviation, selected, registry = _c1_live_admission_station(
+                tmp_path / str(hour),
+            )
+        raw_refs.append(stable.adapter_admissions[0].conformance_ref)
+        packets.append(check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(
+            REPO_ROOT, stable=stable, deviation=deviation, selected=selected,
+            registry=registry, store=ctx.store,
+        ))
+    assert raw_refs[0] != raw_refs[1], "The control must produce distinct raw custody receipts."
+    assert packets[0] == packets[1], "Run-emission time is not a changed admission property."
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "def admit(adapter):\n    run = adapter.execute_candidate\n    return run()\n",
+        "from polisyos.runtime.quality.workspace.workflow_playbook_projection import PlaybookStep\n"
+        "def admit(**kwargs):\n    ctor = PlaybookStep\n    return ctor(**kwargs)\n",
+    ],
+)
+def test_c1_strangle_finds_new_aliased_admission_bypass(tmp_path: Path, source: str) -> None:
+    path = tmp_path / "src/new_owner.py"
+    path.parent.mkdir()
+    path.write_text(source, encoding="utf-8")
+    receipt = check_layer3_gy_phase2_artifacts.recompute_playbook_admission_strangle(tmp_path)
+    assert receipt["unexpected_callers"], "A new aliased production bypass escaped the fence."
+    assert {row["path"] for row in receipt["unexpected_callers"]} == {"src/new_owner.py"}
+
+
 def test_layer3_gy_phase2_proof_artifacts_are_committed_and_semantic() -> None:
     live_payloads = check_layer3_gy_phase2_artifacts.build_live_proof_payloads(REPO_ROOT)
     _assert_live_payloads_match_declared_outputs(

@@ -8,9 +8,12 @@ from time import perf_counter as _timing_perf_counter
 _TIMING_STARTED_AT = _timing_perf_counter()
 
 import argparse
+import ast
 import asyncio
 import contextlib
+import hashlib
 import json
+import os
 import re
 import sys
 import tempfile
@@ -374,40 +377,10 @@ def build_live_proof_payloads(repo_root: Path) -> dict[str, dict[str, Any]]:
     toolkit_registry = build_knowledge_tool_registry(KnowledgeToolkit())
 
     return {
-        PLAYBOOK_PROOF_PATH: {
-            "schema_version": "policyos.policy_design_case.layer3_gy_phase2.playbook_run_proofs.v2",
-            "proofs": [
-                {
-                    "proof_id": "phase2-playbook-runtime-chain",
-                    "playbook_ids": sorted(registry.playbooks),
-                    "playbook_step_source": "canonical_workflow_specs_via_node_registry",
-                    "selected_playbook_id": selected.playbook_id,
-                    "legacy_workflow_id_disposition": selected.legacy_workflow_id_disposition,
-                    "stable_terminal": stable.terminal_state.kind.value,
-                    "executed_legacy_aliases": [
-                        item.internal_trace.get("legacy_alias")
-                        for item in stable.operation_invocations
-                    ],
-                    "out_of_scope_steps": (
-                        stable.phase2_playbook_trace.out_of_scope_steps
-                        if stable.phase2_playbook_trace is not None
-                        else []
-                    ),
-                    "operation_invocation_count": len(stable.operation_invocations),
-                    "search_ledger_event_count": len(stable.search_ledger_events),
-                    "candidate_artifact_envelope_count": len(stable.artifact_envelopes),
-                    "authority_path_disposition": "loop_only",
-                    "deviation_terminal": deviation.terminal_state.kind.value,
-                    "deviation_operation": (
-                        deviation.phase2_playbook_trace.deviation_operation.value
-                        if deviation.phase2_playbook_trace
-                        and deviation.phase2_playbook_trace.deviation_operation
-                        else None
-                    ),
-                    "workflow_id_does_not_select_authority": True,
-                }
-            ],
-        },
+        PLAYBOOK_PROOF_PATH: build_playbook_admission_proof(
+            repo_root, stable=stable, deviation=deviation, selected=selected,
+            registry=registry, store=proof_store,
+        ),
         SPINE_PROOF_PATH: {
             "schema_version": "policyos.policy_design_case.layer3_gy_phase2.spine_repair_proofs.v2",
             "proofs": [
@@ -588,6 +561,303 @@ def build_live_proof_payloads(repo_root: Path) -> dict[str, dict[str, Any]]:
             },
         },
         STRANGLE_RECEIPT_PATH: _build_lex_bounds_strangle_receipt(repo_root),
+    }
+
+
+def build_playbook_admission_proof(
+    repo_root: Path,
+    *,
+    stable: Any,
+    deviation: Any,
+    selected: Any,
+    registry: Any,
+    store: Any,
+) -> dict[str, Any]:
+    """Bind proof to the persisted admissions actually consulted by the loop.
+
+    This callable permits focused C1 verification. The full family producer still
+    requires every Foundry, governance and agent proof before returning artifacts.
+    """
+    from polisyos.core.canon import to_canonical_bytes
+    from polisyos.runtime.quality.workspace.scientist_node_adapters import (
+        _CANON,
+        _read_binding,
+    )
+
+    candidates = {
+        step.step_id: step for playbook in registry.playbooks.values() for step in playbook.steps
+    }
+    if len(candidates) != sum(len(item.steps) for item in registry.playbooks.values()):
+        raise AssertionError("c1_duplicate_candidate_identity")
+    if any(step.admission_state != "candidate_unverified" for step in candidates.values()):
+        raise AssertionError("c1_registry_step_already_admitted")
+    if not stable.adapter_admissions:
+        raise AssertionError("c1_default_trajectory_not_attempted")
+    witnesses = []
+    raw_witnesses = []
+    admitted_invocations = []
+    admitted_events = []
+    admitted_envelopes = []
+    for admission in stable.adapter_admissions:
+        candidate = admission.candidate
+        if candidates.get(candidate.step_id) != candidate:
+            raise AssertionError("c1_admission_candidate_binding_mismatch")
+        report = admission.conformance
+        if admission.conformance_ref is None or admission.conformance_ref != report.conformance_ref:
+            raise AssertionError("c1_conformance_receipt_missing")
+        receipt_binding, raw, manifest = _read_binding(
+            store, admission.conformance_ref, "conformance",
+        )
+        if raw != to_canonical_bytes(report.model_dump(mode="json"), _CANON):
+            raise AssertionError("c1_conformance_receipt_payload_mismatch")
+        if (
+            manifest.producer is None
+            or str(manifest.producer.component) != candidate.node_id
+            or manifest.producer.version != report.rule_version
+            or report.node_spec_hash != candidate.node_spec_hash
+            or report.contract_hash != candidate.adapter_contract_hash
+            or admission.smoke_attempted != report.smoke_attempted
+        ):
+            raise AssertionError("c1_conformance_provenance_binding_mismatch")
+        bindings = [
+            *report.input_bindings, *report.source_output_bindings, *report.output_bindings,
+            *([report.applicability_binding] if report.applicability_binding else []),
+        ]
+        semantic_bindings = {}
+        for binding in bindings:
+            actual, _, bound_manifest = _read_binding(store, binding.artifact_ref, binding.path)
+            if actual != binding:
+                raise AssertionError(f"c1_admission_byte_binding_mismatch:{binding.path}")
+            semantic_manifest = bound_manifest.model_dump(mode="json", by_alias=True)
+            del semantic_manifest["created_at"]
+            semantic_bindings[(binding.path, str(binding.artifact_ref.artifact_id))] = {
+                **binding.model_dump(mode="json", exclude={"manifest_hash"}),
+                "manifest_semantic_digest": "sha256:" + hashlib.sha256(
+                    to_canonical_bytes(semantic_manifest, _CANON),
+                ).hexdigest(),
+            }
+        execution = report.execution
+        if admission.step is not None:
+            if not report.passed or not report.smoke_attempted or execution is None:
+                raise AssertionError("c1_unverified_operation_admitted")
+            if set(candidate.produced_ports) != {item.path for item in report.output_bindings}:
+                raise AssertionError("c1_admitted_output_population_mismatch")
+            admitted_invocations.append(execution.invocation)
+            admitted_events.append(execution.ledger_event)
+            admitted_envelopes.extend(execution.artifact_envelopes)
+        elif admission.blocker is None or report.passed:
+            raise AssertionError("c1_refusal_not_typed")
+        raw_witness = {
+            "candidate": candidate.model_dump(mode="json"),
+            "admission_state": "admitted" if admission.step is not None else "blocked",
+            "conformance": report.model_dump(mode="json"),
+            "conformance_ref": admission.conformance_ref.model_dump(mode="json"),
+            "receipt_byte_binding": receipt_binding.model_dump(mode="json"),
+            "smoke_attempted": admission.smoke_attempted,
+            "operation_invocation_id": (
+                execution.invocation.invocation_id if admission.step is not None else None
+            ),
+            "blocker": admission.blocker.model_dump(mode="json") if admission.blocker else None,
+        }
+        raw_witnesses.append(raw_witness)
+        semantic_report = report.model_dump(mode="json")
+        for field in ("input_bindings", "source_output_bindings", "output_bindings"):
+            semantic_report[field] = [
+                semantic_bindings[(item.path, str(item.artifact_ref.artifact_id))]
+                for item in getattr(report, field)
+            ]
+        if report.applicability_binding is not None:
+            binding = report.applicability_binding
+            semantic_report["applicability_binding"] = semantic_bindings[
+                (binding.path, str(binding.artifact_ref.artifact_id))
+            ]
+        semantic_digest = "sha256:" + hashlib.sha256(
+            to_canonical_bytes(semantic_report, _CANON),
+        ).hexdigest()
+        # These raw receipt identities transitively contain input-manifest
+        # created_at through their full manifest hashes. Rebind them to the
+        # recomputed semantic receipt; retain the originals in command output.
+        receipt_manifest = manifest.model_dump(mode="json", by_alias=True)
+        del receipt_manifest["created_at"]
+        receipt_manifest["artifact_id"] = semantic_digest
+        receipt_manifest["integrity"]["sha256"] = semantic_digest.removeprefix("sha256:")
+        witnesses.append({
+            key: value for key, value in raw_witness.items()
+            if key not in {"conformance", "conformance_ref", "receipt_byte_binding"}
+        } | {
+            "conformance": semantic_report,
+            "conformance_semantic_digest": semantic_digest,
+            "conformance_manifest_semantic_digest": "sha256:" + hashlib.sha256(
+                to_canonical_bytes(receipt_manifest, _CANON),
+            ).hexdigest(),
+        })
+    if (
+        stable.operation_invocations != admitted_invocations
+        or stable.search_ledger_events != admitted_events
+        or stable.artifact_envelopes != admitted_envelopes
+    ):
+        raise AssertionError("c1_loop_did_not_reuse_exact_admitted_execution")
+    strangle = recompute_playbook_admission_strangle(repo_root)
+    if strangle["unexpected_callers"]:
+        raise AssertionError(f"c1_shape_only_admission_bypass:{strangle['unexpected_callers']}")
+    print(json.dumps({
+        "proof_id": "c1-admission-cas-readback",
+        "raw_run_admissions": raw_witnesses,
+    }, sort_keys=True), file=sys.stderr)
+    return {
+        "schema_version": "policyos.policy_design_case.layer3_gy_phase2.playbook_run_proofs.v3",
+        "projection_policy": {
+            "excluded_run_emission_field": "ArtifactManifest.created_at",
+            "recomputed_dependent_identities": [
+                "binding.manifest_hash", "conformance_ref", "receipt_byte_binding",
+            ],
+            "raw_custody_evidence": "complete_deciding_command_output",
+            "semantic_digests_are_cas_addresses": False,
+        },
+        "proofs": [{
+            "proof_id": "phase2-playbook-runtime-chain",
+            "proof_source": "loop_admission_conformance_cas_readback_recompute",
+            "playbook_ids": sorted(registry.playbooks),
+            "playbook_step_source": "canonical_workflow_specs_via_node_registry",
+            "candidate_step_ids": sorted(candidates),
+            "candidate_steps": [candidates[key].model_dump(mode="json") for key in sorted(candidates)],
+            "adapter_admissions": witnesses,
+            "selected_playbook_id": selected.playbook_id,
+            "legacy_workflow_id_disposition": selected.legacy_workflow_id_disposition,
+            "stable_terminal": stable.terminal_state.kind.value,
+            "executed_legacy_aliases": [
+                item.internal_trace["legacy_alias"] for item in admitted_invocations
+            ],
+            "out_of_scope_steps": stable.phase2_playbook_trace.out_of_scope_steps,
+            "operation_invocation_ids": [item.invocation_id for item in admitted_invocations],
+            "search_ledger_event_ids": [item.event_id for item in admitted_events],
+            "candidate_artifact_refs": [item.ref.model_dump(mode="json") for item in admitted_envelopes],
+            "authority_path_disposition": "loop_only",
+            "deviation_terminal": deviation.terminal_state.kind.value,
+            "deviation_operation": (
+                deviation.phase2_playbook_trace.deviation_operation.value
+                if deviation.phase2_playbook_trace.deviation_operation else None
+            ),
+        }],
+        "strangle_receipt": strangle,
+    }
+
+
+def recompute_playbook_admission_strangle(repo_root: Path) -> dict[str, Any]:
+    """Enumerate production constructor/raw-execution callers without git exclusions."""
+    source_root = repo_root / "src"
+    paths = set(source_root.rglob("*.py"))
+    independent = {
+        Path(directory) / filename
+        for directory, _, filenames in os.walk(source_root)
+        for filename in filenames if filename.endswith(".py")
+    }
+    if not paths or paths != independent:
+        raise AssertionError("c1_strangle_source_denominator_unresolved")
+    allowed = {
+        "execute_candidate": (
+            "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py",
+            "validate_adapter_semantic_preservation",
+        ),
+        "PlaybookStep": (
+            "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py",
+            "admit_playbook_step",
+        ),
+    }
+    callers = []
+    for path in sorted(paths):
+        relative = path.relative_to(repo_root).as_posix()
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=relative)
+        aliases = {
+            alias.asname or alias.name: alias.name
+            for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
+            for alias in node.names
+        }
+        while True:
+            previous = dict(aliases)
+            for node in ast.walk(tree):
+                if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+                    continue
+                value = node.value
+                target = (
+                    value.attr if isinstance(value, ast.Attribute)
+                    else aliases.get(value.id, value.id) if isinstance(value, ast.Name)
+                    else ""
+                )
+                if target in allowed:
+                    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                    for target_node in targets:
+                        if isinstance(target_node, ast.Name):
+                            aliases[target_node.id] = target
+            if previous == aliases:
+                break
+
+        class Calls(ast.NodeVisitor):
+            def __init__(self, source_path: str, import_aliases: dict[str, str]) -> None:
+                self.scope: list[str] = []
+                self.source_path = source_path
+                self.aliases = import_aliases
+
+            def visit_FunctionDef(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+                self.scope.append(node.name)
+                self.generic_visit(node)
+                self.scope.pop()
+
+            def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+                self.visit_FunctionDef(node)
+
+            def record(self, node: ast.AST, name: str) -> None:
+                scope = ".".join(self.scope)
+                callers.append({
+                    "path": self.source_path, "function": scope, "line": node.lineno,
+                    "column": node.col_offset, "target": name,
+                    "disposition": (
+                        "verifier_smoke_only" if name == "execute_candidate"
+                        else "verified_admission_only"
+                    ) if (self.source_path, scope) == allowed[name] else "unfenced",
+                })
+
+            def visit_Attribute(self, node: ast.Attribute) -> None:
+                # Fence the raw method reference itself; assigning it to a new
+                # callable name must not create an uncounted sibling path.
+                if node.attr == "execute_candidate" and isinstance(node.ctx, ast.Load):
+                    self.record(node, node.attr)
+                self.generic_visit(node)
+
+            def visit_Call(self, node: ast.Call) -> None:
+                name = (
+                    node.func.attr if isinstance(node.func, ast.Attribute)
+                    else self.aliases.get(node.func.id, node.func.id) if isinstance(node.func, ast.Name)
+                    else ""
+                )
+                if name in allowed and not (
+                    name == "execute_candidate" and isinstance(node.func, ast.Attribute)
+                ):
+                    self.record(node, name)
+                if name == "getattr" and len(node.args) > 1:
+                    member = node.args[1]
+                    if isinstance(member, ast.Constant) and member.value in allowed:
+                        self.record(node, member.value)
+                self.generic_visit(node)
+
+        Calls(relative, aliases).visit(tree)
+    callers.sort(key=lambda item: (item["path"], item["line"], item["column"]))
+    return {
+        "receipt_id": "layer3-gy-c1-operation-admission-strangle",
+        "pattern_id": "P28",
+        "predecessor_ref": "WorkspaceLoop.run_intent->ScientistNodeAdapter.execute_candidate",
+        "replacement_ref": "workflow_playbook_projection.admit_playbook_step",
+        "disposition": "fenced_default_flipped",
+        "default_before": "shape_only_step_then_direct_candidate_execution",
+        "default_after": "verified_admission_then_reuse_checked_execution",
+        "guard_ref": "recompute_playbook_admission_strangle",
+        "source_denominator": {"rglob_py": len(paths), "os_walk_py": len(independent)},
+        "remaining_callers": callers,
+        "unexpected_callers": [item for item in callers if item["disposition"] == "unfenced"],
+        "verified_by": [
+            "test_c1_playbook_proof_binds_the_admission_the_consumer_used",
+            "test_c1_playbook_proof_refuses_changed_receipt_with_markers_intact",
+        ],
     }
 
 

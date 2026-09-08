@@ -92,13 +92,14 @@ from polisyos.runtime.quality.semantic_binding import (
     load_gy_semantic_benchmark,
 )
 from polisyos.runtime.quality.workspace.foundry_consumption import FoundryMethodOutputConsumer
-from polisyos.runtime.quality.workspace.scientist_node_adapters import ScientistNodeAdapter
 from polisyos.runtime.quality.workspace.spine_repair_gates import (
     BlockedInputProducer,
     LexBoundsApplicabilityGate,
 )
 from polisyos.runtime.quality.workspace.workflow_playbook_projection import (
+    PlaybookStepAdmission,
     WorkflowPlaybookTrace,
+    admit_playbook_step,
     build_workflow_playbook_registry,
     select_playbook_for_intent,
     trace_playbook_execution,
@@ -322,6 +323,7 @@ class WorkspaceIntentRunResult(BaseModel):
     method_output_consumption_ref: ArtifactRef | None = None
     foundry_input_provenance: str | None = None
     open_production_findings: list[str] = Field(default_factory=list)
+    adapter_admissions: list[PlaybookStepAdmission] = Field(default_factory=list)
 
 
 def _slug(value: str) -> str:
@@ -1396,9 +1398,10 @@ class WorkspaceLoop:
         operation_invocations: list[OperationInvocationRecord] = []
         search_ledger_events: list[SearchLedgerEvent] = []
         artifact_envelopes: list[ArtifactEnvelope] = []
+        adapter_admissions: list[PlaybookStepAdmission] = []
         executed_aliases: list[str] = []
         out_of_scope_steps: list[dict[str, str]] = []
-        executed_operation_classes: list[OperationClass] = [OperationClass.BIND]
+        executed_operation_classes: list[OperationClass] = []
         method_output_consumption_record: MethodOutputConsumptionRecord | None = None
         method_output_consumption_ref: ArtifactRef | None = None
         authority_boundary: AuthorityBoundary | None = None
@@ -1444,26 +1447,25 @@ class WorkspaceLoop:
                         state=execution_state,
                         intent=projected_intent,
                     )
-                node = node_registry.get(step.node_id)
-                adapter = ScientistNodeAdapter.from_node(
-                    node,
-                    operation_id=step.adapter_operation_id,
-                    operation_class=step.operation_class,
-                    authority_transform={
-                        "kind": "hint_only",
-                        "requested_decision_grade": "descriptive_only",
-                        "rule_ref": "policyos.gy.phase2.playbooks.v1",
-                    },
-                    legacy_alias=step.legacy_alias,
-                )
                 invocation_id = f"invoke-phase2-{_slug(step.legacy_alias)}"
-                execution = adapter.execute_candidate(
+                admission = admit_playbook_step(
+                    step,
+                    node_registry=node_registry,
                     ctx=ctx,
                     state=execution_state,
                     workspace_id=workspace_id,
                     invocation_id=invocation_id,
-                    cycle_index=len(operation_invocations) + 1,
+                    cycle_index=len(adapter_admissions) + 1,
                 )
+                adapter_admissions.append(admission)
+                if admission.step is None:
+                    if admission.blocker is None:
+                        raise WorkspaceInvariantError("adapter_admission_refused_without_blocker")
+                    blockers.append(admission.blocker)
+                    break
+                execution = admission.conformance.execution
+                if execution is None:
+                    raise WorkspaceInvariantError("adapter_admitted_without_checked_execution")
                 operation_invocations.append(execution.invocation)
                 search_ledger_events.append(execution.ledger_event)
                 artifact_envelopes.extend(execution.artifact_envelopes)
@@ -1534,6 +1536,7 @@ class WorkspaceLoop:
             operation_invocations=operation_invocations,
             search_ledger_events=search_ledger_events,
             artifact_envelopes=artifact_envelopes,
+            adapter_admissions=adapter_admissions,
             method_output_consumption_record=method_output_consumption_record,
             method_output_consumption_ref=method_output_consumption_ref,
             foundry_input_provenance=foundry_input_provenance,

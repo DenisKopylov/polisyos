@@ -63,3 +63,15 @@ Broader findings retained without an inherited claim: the `runtime-openapi-snaps
 family fails scratch-boundary and freshness checks; Cycle Board's Atlas DS3
 historical producer-availability row cannot be parsed. Both are routed in the
 M1 journal and have P41 attribution `not_established`.
+
+M1 landed first at `ffbd99321db02ca301b93dec83ce731d44490e4a` and was read back
+from the attached branch before C1 work. Its branch readback reconciled all
+85 committed paths against an independent numstat count and matched their bytes;
+the working tree was clean at that boundary.
+
+C1's admission repair, real consumer falsifiers and v3 proof instrument now form
+the next engineering checkpoint. Its task journal retains the full deciding
+outputs. It remains `not_executed` until C3 supplies the real input/consumption
+chain needed by the shared Phase-2 proof producer. This is not a narrowed proof
+gate or a final blocked verdict. C3 proceeds next, then the lane returns to the
+pending controlled Phase-2 proof reissue.

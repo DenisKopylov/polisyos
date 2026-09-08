@@ -1,0 +1,21 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c1_version_review"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:23:19.113712+00:00",
+  "elapsed_seconds": 7.971,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\"denominator\": {\"head_tree\": {\".json\": 1608, \".py\": 5860, \".toml\": 226}, \"index\": {\".json\": 1608, \".py\": 5860, \".toml\": 226}}, \"denominator_identity_sets_equal\": true, \"head\": \"ffbd99321db02ca301b93dec83ce731d44490e4a\", \"literal_counts\": {\"phase2.v1\": 5, \"phase2.v2\": 2, \"policyos.gy.phase2.adapters.v2\": 1, \"policyos.gy.phase2.legacy_node_candidate.v1\": 1, \"policyos.gy.phase2.legacy_node_candidate.v2\": 1, \"policyos.gy.phase2.playbooks.v2\": 1, \"policyos.policy_design_case.layer3_gy_phase2.playbook_run_proofs.v2\": 1, \"policyos.policy_design_case.layer3_gy_phase2.playbook_run_proofs.v3\": 1}, \"match_identity_sets_equal\": true, \"unreadable\": []}\n{\"literal_locations\": {\"policyos.policy_design_case.layer3_gy_phase2.playbook_run_proofs.v2\": [[35, 21]]}, \"path\": \"architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json\"}\n{\"literal_locations\": {\"phase2.v1\": [[455, 25]]}, \"path\": \"src/polisyos/runtime/quality/data_forge_binding.py\"}\n{\"literal_locations\": {\"phase2.v1\": [[4236, 27]]}, \"path\": \"src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py\"}\n{\"literal_locations\": {\"phase2.v1\": [[158, 29]]}, \"path\": \"src/polisyos/runtime/quality/workspace/agent_proposal_bridge.py\"}\n{\"literal_locations\": {\"phase2.v1\": [[179, 21]]}, \"path\": \"src/polisyos/runtime/quality/workspace/foundry_consumption.py\"}\n{\"literal_locations\": {\"phase2.v1\": [[960, 17]], \"phase2.v2\": [[150, 31], [896, 17]], \"policyos.gy.phase2.adapters.v2\": [[37, 39]], \"policyos.gy.phase2.legacy_node_candidate.v1\": [[958, 20]], \"policyos.gy.phase2.legacy_node_candidate.v2\": [[38, 21]]}, \"path\": \"src/polisyos/runtime/quality/workspace/scientist_node_adapters.py\"}\n{\"literal_locations\": {\"policyos.gy.phase2.playbooks.v2\": [[23, 34]]}, \"path\": \"src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py\"}\n{\"literal_locations\": {\"policyos.policy_design_case.layer3_gy_phase2.playbook_run_proofs.v3\": [[708, 27]]}, \"path\": \"tools/quality/validation/check_layer3_gy_phase2_artifacts.py\"}\n",
+  "stderr": ""
+}

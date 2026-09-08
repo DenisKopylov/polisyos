@@ -285,3 +285,38 @@ authors an appointment receipt and cannot satisfy this lane's synthetic marking
 constraint for its strict protected DTOs. It is therefore not used to manufacture
 a protected positive admission. Source retention proceeds; positive protected
 integration remains `not_established` until actual owner input exists.
+
+The existing N6 report advances from
+`policyos.policy_design_case.layer3_gy.generation_cycle_contract.v1` to v2 with
+the controller run's preservation fields. The separate existing
+`policyos.layer3.gy.n6.generation_cycle.v1` refinement rule is unchanged. The
+new preservation strangle names its own source-custody schema/rule; it does not
+repurpose refinement evidence. Measure the existing comparison owner's actual
+red before admitting a narrowly governed report reissue, and preserve historical
+report bytes rather than restamping their identity.
+
+## Required new-input consumer and reentry companions
+
+CORR-A owns the compatibility migration when new CG2 v2 synthetic provenance
+reaches the existing CG3 consumer. Its closed novelty/obligation/registry
+algorithms are not reopened. The existing single CG3 decision producer must
+recompute complete reference ancestry together with the input certificate marker,
+retain candidate/shadow computation, and refuse production authority. Fresh
+`policyos.runtime.grounding_admission_certificate.v1` and its
+`policyos.runtime.grounding_admission.cg3.v1` validator advance to v2; the
+existing `policyos.policy_design_case.grounding_admission_contract.v1` report
+also advances to v2. Historical v1 serialization/hash omits new source-limitation
+fields. The complete original relation/control/mutation sets remain measured;
+canonical-input withholding and marked structural controls stay separate. The
+pre-existing v1 declaration behavior is routed to closed GY-CG3 history, without
+retrospective receipt repair. The falsifier keeps synthetic source ancestry but
+removes its authority limitation: the fresh governed consumer must go red while
+ordinary candidate and shadow computation still works. This is one complete
+consumer migration for the new input, not a per-caller workaround.
+
+C2's existing acquisition-overlay reentry returns its own receipt, so newly
+retained sources must survive that return as well as GenerationCycleRun. Advance
+`policyos.runtime.acquisition_overlay_reentry.v1` to v2 with immutable source refs
+and the distinct preservation strangle. Preserve historical v1 hash/serialization.
+Reentry continues to consume its original immutable run source and A's same run
+budget; it does not create an independent source index or reset the allowance.

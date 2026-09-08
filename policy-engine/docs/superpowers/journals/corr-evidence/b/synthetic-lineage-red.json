@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/foundry/validation/test_legal_correspondence.py::test_false_child_marker_cannot_erase_synthetic_source_ancestry",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/foundry/validation/test_legal_correspondence.py::test_false_child_marker_cannot_erase_synthetic_source_ancestry"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 46.717712167068385,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________ test_false_child_marker_cannot_erase_synthetic_source_ancestry ________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1364/test_false_child_marker_cannot0')\n\n    def test_false_child_marker_cannot_erase_synthetic_source_ancestry(tmp_path):\n        from polisyos.foundry.validation import legal_correspondence as owner\n    \n        store = artifacts.FileSystemCAS(tmp_path)\n        lever = _source(store, \"lever\", [(\"lever:a\", \"a\", \"alpha\")])\n        norm = _source(store, \"norm\", [(\"norm:a\", \"c\", \"alpha\")])\n        payload = canon.from_canonical_bytes(store.get_bytes(lever.artifact_id))\n        payload[\"synthetic\"] = False\n        changed = owner.persist_legal_subject_membership_source(\n            store, owner.LegalSubjectMembershipSource.model_validate(payload),\n            inputs=[artifacts.InputRef(artifact_id=lever.artifact_id, role=\"source_annotation\")])\n>       with pytest.raises(ValueError, match=\"legal_subject_synthetic_lineage_mismatch\"):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/foundry/validation/test_legal_correspondence.py:208: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/foundry/validation/test_legal_correspondence.py::test_false_child_marker_cannot_erase_synthetic_source_ancestry\n",
+  "stderr": ""
+}

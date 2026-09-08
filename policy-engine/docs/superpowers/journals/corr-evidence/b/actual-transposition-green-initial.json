@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/foundry/validation/test_legal_correspondence.py tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_real_unrelated_law_target_cannot_authorize_a_knob tests/unit/runtime/quality/test_intervention_substrate.py::test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/foundry/validation/test_legal_correspondence.py",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_real_unrelated_law_target_cannot_authorize_a_knob",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 63.10751070897095,
+  "stdout": "...........                                                              [100%]\n",
+  "stderr": ""
+}

@@ -16,7 +16,7 @@ from typing import Any
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v2"
+SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v3"
 EXPECTED_REMOVE_PROPERTY_MUTATIONS = {
     "unknown_op_admits",
     "out_of_domain_clamps",
@@ -46,6 +46,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     from polisyos.runtime.quality.intervention_substrate import (
         INTERVENTION_SUBSTRATE_ARTIFACT_KIND,
         INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        LAW_LEVER_RESOLUTION_SCHEMA_VERSION,
         InterventionLeverResolution,
         InterventionSubstrateBundle,
         LawLeverResolution,
@@ -60,6 +61,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "gy_lifecycle_marker": SCHEMA_VERSION,
         "contract_id": "policyos.runtime.intervention_substrate_lift",
         "intervention_substrate_schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        "law_lever_resolution_schema_version": LAW_LEVER_RESOLUTION_SCHEMA_VERSION,
         "artifact_kind": INTERVENTION_SUBSTRATE_ARTIFACT_KIND,
         "owner": "polisyos.runtime.quality.intervention_substrate over existing N2/Lex/Foundry/S0 owners",
         "source_modules": [
@@ -75,6 +77,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "src/polisyos/lex/knowledge/store.py",
             "src/polisyos/foundry/methods/selection/registry.py",
             "src/polisyos/foundry/methods/selection/advisor.py",
+            "src/polisyos/foundry/validation/legal_correspondence.py",
         ],
         "real_l6_substrates": {
             "intervention_knob_dictionary": (
@@ -111,6 +114,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "SubstrateRegistry L6 entries",
             "Foundry actual input-contract relation and native-value selection owner",
             "CredalReference L6 projection and existing CG0 law-edge dependency scope",
+            "Foundry source-relative legal recognition and Core CAS proof persistence",
         ],
         "truthful_data_limitations": behavior["authority_limitations"],
         "task_acceptance": {
@@ -121,7 +125,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         },
         "coverage_gate": {
             "world_slot": "bound must equal total over the real L6 knob dictionary",
-            "law_trace": "traced must equal total over the real lex_intervention_map",
+            "law_trace": "traced must equal total over every real (law, knob) association; independent owner-binding identities must agree",
             "method_route": (
                 "unresolved must be zero over the real observation manifest; "
                 "available + python314_unavailable must equal total"
@@ -147,7 +151,8 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             ),
             "producer": (
                 "load_l6_intervention_substrate + resolve_intervention_lever + "
-                "resolve_law_bound_lever + route_observation_family_method"
+                "resolve_law_bound_lever + route_observation_family_method + "
+                "produce_intervention_legal_subject_spine / Foundry persisted source recognition"
             ),
             "persisted_artifact_event": OUTPUT_PATH,
             "orchestration_bridge": "N2 atom resolution; candidate law trace; N8/N4 owner routes; L6 credal status handoff",
@@ -174,7 +179,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "P33",
             "P34",
         ],
-        "missing_capability_labels": ["verification_missing: law-to-knob correspondence"],
+        "missing_capability_labels": ["producer_missing: independently authoritative real legal-subject identity (CORR-B1)"],
         "json_schemas": {
             "intervention_substrate_bundle": InterventionSubstrateBundle.model_json_schema(),
             "intervention_lever_resolution": InterventionLeverResolution.model_json_schema(),
@@ -200,7 +205,7 @@ def validate(repo_root: Path | None = None) -> dict[str, Any]:
     if world.get("bound") != world.get("total"):
         issues.append({"code": "intervention_substrate_world_slot_coverage_below_gate"})
     law = coverage.get("law_trace", {})
-    if law.get("traced") != law.get("total"):
+    if law.get("traced") != law.get("total") or law.get("identity_symmetric_difference"):
         issues.append({"code": "intervention_substrate_law_trace_coverage_below_gate"})
     methods = coverage.get("method_route", {})
     if methods.get("unresolved") != 0 or (

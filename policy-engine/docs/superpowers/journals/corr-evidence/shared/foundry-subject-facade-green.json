@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -c 'import polisyos.foundry as foundry; names=(\"LegalCorrespondenceRequest\",\"LegalCorrespondenceResult\",\"LegalSubjectMembership\",\"LegalSubjectMembershipSource\",\"LegalSubjectIdentity\",\"persist_legal_subject_membership_source\",\"produce_legal_subject_spine\",\"recognize_legal_correspondence\",\"persist_legal_correspondence_result\"); missing=[name for name in names if not callable(getattr(foundry,name,None))]; assert not missing,missing'",
+  "argv": [
+    ".venv/bin/python",
+    "-c",
+    "import polisyos.foundry as foundry; names=(\"LegalCorrespondenceRequest\",\"LegalCorrespondenceResult\",\"LegalSubjectMembership\",\"LegalSubjectMembershipSource\",\"LegalSubjectIdentity\",\"persist_legal_subject_membership_source\",\"produce_legal_subject_spine\",\"recognize_legal_correspondence\",\"persist_legal_correspondence_result\"); missing=[name for name in names if not callable(getattr(foundry,name,None))]; assert not missing,missing"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 34.61093270801939,
+  "stdout": "",
+  "stderr": ""
+}

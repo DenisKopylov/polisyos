@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/foundry/validation/test_legal_correspondence.py::test_frozen_annotations_bind_live_entity_content_without_a_mapping_input",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/foundry/validation/test_legal_correspondence.py::test_frozen_annotations_bind_live_entity_content_without_a_mapping_input"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 31.82189829100389,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___ test_frozen_annotations_bind_live_entity_content_without_a_mapping_input ___\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1351/test_frozen_annotations_bind_l0')\n\n    def test_frozen_annotations_bind_live_entity_content_without_a_mapping_input(tmp_path):\n        from polisyos.foundry.validation import legal_correspondence as owner\n    \n        store = artifacts.FileSystemCAS(tmp_path)\n        refs = {}\n        for role, entity, digest in ((\"lever\", \"lever:a\", \"a\"), (\"norm\", \"norm:a\", \"c\")):\n>           declaration = owner.LegalSubjectAnnotationSource(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                synthetic=True, declared_at=\"2026-09-08\", source_role=role,\n                producer_ref=f\"synthetic.{role}.annotation\",\n                annotations=[{\"entity_ref\": entity, \"subject\": {\n                    \"namespace\": \"synthetic.subjects\", \"namespace_version\": \"1\",\n                    \"subject_id\": \"alpha\", \"valid_from\": \"1990-01-01\"}}],\n            )\nE           AttributeError: module 'polisyos.foundry.validation.legal_correspondence' has no attribute 'LegalSubjectAnnotationSource'\n\ntests/unit/foundry/validation/test_legal_correspondence.py:128: AttributeError\n=========================== short test summary info ============================\nFAILED tests/unit/foundry/validation/test_legal_correspondence.py::test_frozen_annotations_bind_live_entity_content_without_a_mapping_input\n",
+  "stderr": ""
+}

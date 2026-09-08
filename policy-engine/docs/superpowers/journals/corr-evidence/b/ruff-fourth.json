@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/foundry/validation/legal_correspondence.py src/polisyos/runtime/quality/intervention_substrate.py tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py tests/unit/foundry/validation/test_legal_correspondence.py tests/unit/runtime/quality/test_intervention_substrate.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/foundry/validation/legal_correspondence.py",
+    "src/polisyos/runtime/quality/intervention_substrate.py",
+    "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+    "tests/unit/foundry/validation/test_legal_correspondence.py",
+    "tests/unit/runtime/quality/test_intervention_substrate.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.07813441602047533,
+  "stdout": "I001 [*] Import block is un-sorted or un-formatted\n   --> tests/unit/runtime/quality/test_intervention_substrate.py:697:5\n    |\n696 |   def test_every_real_law_knob_pair_is_recognized_only_relative_to_synthetic_sources() -> None:\n697 | /     from polisyos.runtime.quality import intervention_substrate as owner\n698 | |     from polisyos.pdc import gy_content_hash\n    | |____________________________________________^\n699 |\n700 |       bundle = _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), _lex_store())\n    |\nhelp: Organize imports\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.\n",
+  "stderr": ""
+}

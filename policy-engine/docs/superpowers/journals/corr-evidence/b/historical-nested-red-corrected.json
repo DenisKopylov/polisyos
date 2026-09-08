@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_nested_serialization_preserves_original_bytes",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_nested_serialization_preserves_original_bytes"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 56.74721645808313,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____ test_historical_v2_law_nested_serialization_preserves_original_bytes _____\n\n    def test_historical_v2_law_nested_serialization_preserves_original_bytes() -> None:\n        import json\n    \n        from pydantic import BaseModel\n    \n        from polisyos.core import canon\n        from polisyos.runtime.quality.intervention_substrate import LawLeverResolution\n    \n        class Container(BaseModel):\n            law: LawLeverResolution\n    \n        raw = json.loads((Path(__file__).parent / \"fixtures/intervention_law_lift_v2.json\").read_text())\n        nested = Container(law=LawLeverResolution.model_validate(raw))\n        spec = canon.CanonSpec(forbid_floats=False, exclude_none=False)\n>       assert canon.to_canonical_bytes(nested.model_dump(mode=\"json\"), spec) == canon.to_canonical_bytes(\n            {\"law\": raw}, spec)\nE       assert b'{\"law\":{\"co...b11ed10b20\"}}' == b'{\"law\":{\"co...b11ed10b20\"}}'\nE         \nE         At index 1283 diff: b'k' != b'l'\nE         Use -v to get more diff\n\ntests/unit/runtime/quality/test_intervention_substrate.py:427: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_nested_serialization_preserves_original_bytes\n",
+  "stderr": ""
+}

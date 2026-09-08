@@ -9,12 +9,34 @@ The lane is `/Users/deniskopylov/polisyos/.worktrees/gy-phase5`, attached branch
 Research commits are `fb6f3e722` and `bbb67f864`; decisions are `be2388baa`.
 Source and tests were unchanged before those decisions. No auxiliary worktree exists.
 
+**Auxiliary worktree registration (appended before creation):**
+`/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck`, branch
+`codex/gyphase5-lane-basecheck`, from the exact slice base `3d572c146`, is reserved
+for P41 replay of the education registry importer failure. It belongs to this
+lane only; no production repair or commit is planned there. Its isolated venv
+uses the same measured dependency versions and read-only production data.
+The earlier no-auxiliary statement describes the initial delivery state.
+
 This journal is in progress. No full task completion is asserted yet. S3 and PA1
 implementation use disjoint owners; root serializes commits and governed records.
 No push, GitHub plugin, history rewrite, storage stash, active debt/register write,
 or directory/full Python suite is authorized or used.
 
 ## Execution record
+
+**PA1 first implementation boundary:** `f412d424a` persists source-bound worker
+choices and current replay. Its targeted test identity sets reconcile and its
+four property-removal probes are red. The whole committed package was read back
+from the attached branch; the [readback record](gy-phase5-evidence/shared/pa1-first-delivery-readback.json)
+distinguishes the deliberately separate S3 README section.
+
+**PA1-R01 / D3b:** independent review found a NEW P01/P02 temporal bridge gap:
+post-source signed evidence creates a new sidecar but neither current job reader
+consumes it. [The executed witness](gy-phase5-evidence/pa1/independent-temporal-intake.json)
+and [full review](gy-phase5-evidence/pa1/independent-review.md) decide this finding.
+The first package is not full closeout. An existing-owner evidence intake and
+conditional current-head transition is the next coherent append, governed in D3b
+before its source edits.
 
 **S3-D1a:** the existing IR route's closed `ObservationFamily` rejects a novel
 data-only family. The runtime artifact owner retains its generic parser and

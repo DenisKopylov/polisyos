@@ -1,0 +1,176 @@
+{
+  "head": "f412d424a90ae31cba52a47f193b6f462ac10a1c",
+  "branch": "codex/gy-phase5-execution",
+  "files": [
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/independent-intake-census.json",
+      "sha256": "7184aa20bf9f3bff17d5634b7588baebedf6617294d84ce454773546587544d9",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/independent-temporal-intake.json",
+      "sha256": "56e1796a26c5e304f3ff405051a87fc65ce543644ee843cb483c784dd5c62f2a",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/review_temporal_intake.py",
+      "sha256": "c5244dd42ac9422540818b6cc9dc341e8874645305986b4edab67a2dafb22de7",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-app-trust-red.json",
+      "sha256": "f6c6de5cfafc6e30dbf8a1af2bb5eb1f4ea6fcc7e63505c72535db0587a11cac",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-early-command-records.json",
+      "sha256": "46cabc15fe15f1b1bf2f7f5e71d3384a68f0fa62e54abc1aa3bb2b4ff5f36bae",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-final-targeted.json",
+      "sha256": "143581f8bc51b6ac98eb114aee8c9585991c1d9bead4f6942fa141ca2e3fae92",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-final-targeted.xml",
+      "sha256": "40c3240f3cfa52c0c264d13bbd984e9553552641960a8b8a89b0cbfb4d3ecdff",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-frontier-source-red.json",
+      "sha256": "15914c67461737cbfd7d66b80efc0fb2f1ac40642df70f168558d3d7baeb0521",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-removal-composition_replay.json",
+      "sha256": "7ea0023a342844185540a382dfb79b13318629ba23b615a5f6f28c250b9fa9bc",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-removal-default_call.json",
+      "sha256": "b93043678d22e1c0916be98a1a0e1178f78aa3e7e45520d9a6eabd5c2c06566d",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-removal-leaf_replay.json",
+      "sha256": "70b3fc35a9ec5330a6227d035848a1be38eeb86c3c0f3509aac2a0f483736ab3",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-removal-signature.json",
+      "sha256": "2bb52fee20f96d8f1dab127adf601a50a9bf9f9a4c110fe5eb32448f97fbc381",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-ruff-final.json",
+      "sha256": "8433a6d3866111143334b5eb6c8f3ea9a1210bc01156234f52a40a7449ce4199",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-semantic-gates-v2.json",
+      "sha256": "154a4338e84bb41f6aee990250dbb2af2b61173e5a11ac31cc0c4e65c418a773",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-semantic-gates-v3.json",
+      "sha256": "2863febbf4179ba7d6d90e2cf0272833250358c9ed8d0c98bfc5f8e01d874d85",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-semantic-gates-v4.json",
+      "sha256": "4d176b29cf5cc3296610ccd76ff1ad2f54366c007cca08d26afafeb98aee804b",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-sidecar-fallback-red.json",
+      "sha256": "5d5a21de0bc294e215c26b19397d228f182d3de20c77abab3fe7dd45841703a1",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-source-census.json",
+      "sha256": "3d03e09bcb523870549b24d14cd6ac85e90675f4f1477fbe3842f039fa393a58",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-targeted-collection.json",
+      "sha256": "c839632f03849cacb31d68011784b114ecf1fce6f4baeacf39a25cca31594631",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3-test-identity-reconciliation.json",
+      "sha256": "c784996288ba9e5940ecf2ba31ee161206db97cf67b10559bdaf8635fe9d53ea",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3.md",
+      "sha256": "284e1ae1608f733017d827304ff6136cef8817029d2fbf23cdbc71a7b7bcbdfc",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3_census.py",
+      "sha256": "316babfc37287e035646c3e0170c371183cd5b19716807b9c0c3a41855dc1a05",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3_collect.py",
+      "sha256": "d1d98e1f96021aeff5912ea51a0bae05e9781743571c904d5773c9e6099e0618",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/stage3_probe.py",
+      "sha256": "1b835e611b9b77556457a772e62bd77dd27a6c52a05bea0881a492b88f8a185c",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-09-08-gy-pa1-generation-disposition.toml",
+      "sha256": "1f7932b4354ec99994098806f5f5b6a5e5b2b7474e098e5053247659fdb24421",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/README.md",
+      "sha256": "297dd5fa0b96a82725aa23a28007f3792a26bb89eadd6b78d96ec7d876b57aca",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/app.py",
+      "sha256": "8bdc5ed3b06605b96a69bb78f3daa0580656c1e63f7806990a5591152ea0340c",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/container.py",
+      "sha256": "276d11989de0dd51bcbc41208999f51bfaf7ba9fcde365ebb1a84e666d6fba09",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "sha256": "1281a52b80d1072c62ff909307d7e76f16aa012f5a41f16fbd5162fc57789b94",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "ac2acd9635c9820f3b7cff2e7c95937259ea8743d4301d330aae62a992544e16",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "sha256": "6cc8c42014e7fe2fe70ce0e3b30378d25ce612cefc590f3393dd3af4aa487024",
+      "match": "PA1 section matches; unstaged S3 section intentionally excluded"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+      "sha256": "9308670836cb8eb0c690f277e1ec4f082ee052499c5c80789402ea090933ae22",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "sha256": "ee0f9de423ab02c247540cfa4c3688d0f16bcb7fda46eb48d199f4093de89173",
+      "match": "exact"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "sha256": "18a71ef5208a1c25443b5fd2a02d7b7eeef9f24be64be5a1d7d6ec66af39fd3c",
+      "match": "exact"
+    }
+  ]
+}

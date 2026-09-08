@@ -107,6 +107,35 @@ be resolved, its population remains explicitly `not_established`; do not return
 stale copied rankings or represent that population as empty. These are the
 existing GAP7/PA1 refusal requirements at sibling egress, not new authority.
 
+**D3b, NEW temporal bridge class PA1-R01 (P01/P02):** the independent review
+executes the actual worker first, signs evidence only after its compiled source
+exists, then calls the existing S8 composition producer. The new authorized
+sidecar is persisted but both current job readers retain the old refusal. A
+precomputed fixture cannot discharge production intake. Extend the existing
+control/job owner with a typed evidence submission for a completed natural-language
+job, exposed adjacent to its existing job-status route. The owner derives the
+compiled source from the stored job; neither source replacement nor deployment
+trust may enter in the request. Reuse the existing source/role/signature/current
+S8 validation and composition producer.
+
+Persist an immutable submission/transition record under its own additive v1
+epoch and conditionally advance the job's current sidecar head against the exact
+expected previous head. Use the existing persistence owner's transaction rather
+than a check-then-write race or another head store. A stale-head, wrong-job/source
+or malformed-evidence attempt cannot replace the honest current state. Typed
+refusals remain durable evidence. Current job readers follow the same shared
+replay boundary. This is our evidence receipt and scoped claim reaction, not an
+institutional appointment, execution, notification or case-management subsystem.
+
+PA1 owns the required existing route/DTO, control persistence adapter and tests,
+plus additive OpenAPI/client companions generated through their canonical owners.
+Preserve old generation and S8 receipt epochs; no source-authority expansion.
+Red-first acceptance: finish the real worker, sign its actual CAS source afterward,
+submit through the production intake, and observe the new head through both
+readers. Refuse source substitution and conflicting expected heads. Remove the
+head attachment while preserving the producer and record markers: the unchanged
+post-source positive must go red. Review this delta before the final expensive wave.
+
 ## Ordered execution and exact owners
 
 Only one writer per source file. S3 owns `intervention_substrate.py`, `design_generation.py`, its part of `generation_cycle.py`, Foundry selection and S3 validator/tests. PA1 owns existing S8 plus HTTP control generation/lifecycle/container files and mirrored tests. The selected PA1 design needs no shared generation-cycle write. PR1 has no production edits. Root owns the plan/journals, commits, final review, generated-companion integration and verification wave.

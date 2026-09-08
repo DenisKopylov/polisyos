@@ -8732,3 +8732,11 @@ tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_par
 }
 
 ````
+
+## Final research corrections before architecture commit
+
+S3-R02 is split: mechanical knob→threshold→provision trace is established; semantic law→lever correspondence is NOT discharged. `s3/mapping-schema.json` and `s3/unrelated-law-target-transposition.json` establish that the current path derives its lookup registry from the very same supplied declaration and falsely admits a tax-relief lever after swapping real unrelated budget/tax thresholds. The property is correspondence, while the implementation checks existence, numeric limit and date. Both full law-map denominator and declared source scope remain intact; a valid reference is not correspondence evidence. S3-R05 is now measured false: the actual N4 surrogate produces identical real/fake-target outputs. Final S3 finding text is in the committed `s3/findings.md`, which resolves any earlier mechanical-trace wording in the table.
+
+PR1-F03 positive EFFECT controls reran with locked dependencies and OR-Tools: all three pass, exit 0, `pr1/effect-positive-locked.json`. The deployed semantic verifier registry executes to no verifier; full six-mode EvaluationMode membership is independently reconciled and every mode executed. A new permanently refusing promotion envelope was considered then rejected before stage-2 ratification: it adds no deciding semantic property (P01/P13/P37). Current persisted scope-gap is real, but a completed promotion-purpose intake is not claimed.
+
+PA1-R05 supersedes PA1-R04's tentative generation DTO edit: default production hook is natural-language control-job completion after compiled CAS persistence. Actual deployed store factory was executed (`pa1/deployed-store.log`, exit 0), revealing a canonical GuardedDependencyProxy over the ambient FileSystemCAS. Composition must preserve that ownership enforcement, not substitute a new store. The complete new store transcript is retained in the committed companion.

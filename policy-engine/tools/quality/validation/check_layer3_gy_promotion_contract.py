@@ -928,6 +928,8 @@ def _reconcile_frozen_contract(
         if not _is_authorized_v3_to_v6_comparison_reissue(frozen, live, plan.manifest):
             raise ValueError("promotion_comparison_admission_manifest_drift")
         return live
+    if _is_authorized_credal_input_epoch_reissue(frozen, live, plan):
+        return live
     identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
     frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
     live_body = {key: value for key, value in live.items() if key not in identity_fields}
@@ -975,6 +977,71 @@ def _frozen_comparison_identity_admissible(
         frozen,
         legacy_plan,
     )
+
+
+def _is_authorized_credal_input_epoch_reissue(
+    frozen: dict[str, Any],
+    live: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Admit only the governed v1-to-v2 credal input transition after live replay.
+
+    Every receipt is projected by its existing typed owner. Only the explicit
+    nested input epoch may differ; all other governing receipt and envelope
+    values retain the ordinary comparison semantics. The returned live record
+    is newly owner-produced, never a restamp of the historical custody bytes.
+    """
+
+    if (
+        frozen.get("comparison_admission_manifest") != plan.manifest
+        or live.get("comparison_admission_manifest") != plan.manifest
+        or any(
+            frozen.get(field) != live.get(field)
+            for field in _COMPARISON_IDENTITY_FIELDS - {"comparison_content_hash"}
+        )
+        or frozen.get("comparison_content_hash") != _comparison_content_hash(frozen, plan)
+    ):
+        return False
+    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
+    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
+    live_body = {key: value for key, value in live.items() if key not in identity_fields}
+    frozen_projection = plan.project(frozen_body)
+    live_projection = plan.project(live_body)
+    transitioned = False
+    try:
+        for entry in plan.entries:
+            previous: Any = frozen_body
+            current: Any = live_body
+            projected_previous: Any = frozen_projection
+            for segment in entry.path:
+                previous = previous[segment]
+                current = current[segment]
+                projected_previous = projected_previous[segment]
+            previous_receipt = entry.projector(previous)
+            current_receipt = entry.projector(current)
+            previous_reference = previous_receipt["owner_projection"]["credal_reference"]
+            current_reference = current_receipt["owner_projection"]["credal_reference"]
+            if previous_reference is None and current_reference is None:
+                if previous_receipt != current_receipt:
+                    return False
+                continue
+            if (
+                previous_reference["schema_version"]
+                != "policyos.runtime.grounding_credal_reference.v1"
+                or current_reference["schema_version"]
+                != "policyos.runtime.grounding_credal_reference.v2"
+            ):
+                return False
+            previous_reference["schema_version"] = current_reference["schema_version"]
+            if previous_receipt != current_receipt:
+                return False
+            projected_previous["owner_projection"]["credal_reference"]["schema_version"] = (
+                current_reference["schema_version"]
+            )
+            transitioned = True
+    except (KeyError, IndexError, TypeError, ValueError):
+        return False
+    return transitioned and frozen_projection == live_projection
 
 
 def _is_authorized_v3_to_v6_comparison_reissue(

@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_admitted_frame_membership_is_immutable",
+    "-q"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.4172922499710694,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________ test_admitted_frame_membership_is_immutable __________________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1439/test_admitted_frame_membership0')\n\n    def test_admitted_frame_membership_is_immutable(tmp_path: Path) -> None:\n        \"\"\"Corpus expansion requires another declared campaign, never a mutated frame.\"\"\"\n        owner = _owner()\n        with owner.CampaignCheckpoint(tmp_path / \"run\", _plan(owner), _safe_write) as checkpoint:\n            checkpoint.prepare_inputs([_work()])\n            first = checkpoint.register_work(_work())\n            checkpoint.begin_attempt(first, phase=\"screening\", model=\"synthetic:model\", prompt=\"p\")\n            before = {path.name for path in (checkpoint.root / \"inputs\").iterdir()}\n>           with pytest.raises(ValueError, match=\"campaign_input_frame_already_admitted\"):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py:191: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_admitted_frame_membership_is_immutable\n",
+  "timed_out": false,
+  "timeout_seconds": 180.0
+}

@@ -1,0 +1,22 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py",
+    "-q",
+    "-s",
+    "--junitxml=.tmp/campaign-final-targets.xml"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 30.123189292033203,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "............{\"attempt_states\": {\"outcome_unknown\": 1, \"returned\": 9}, \"child_returncode\": -9, \"child_stderr\": \"\", \"child_stdout\": \"\", \"complete_candidate_values_equal\": true, \"completed_artifact_ids\": [\"3fed647b5ef27b25c300fb56f7b9cef98fd4f88b2753b1a0b3dc11a098b3f331\", \"ff65e3a7e9bcfaa85238b790f966d89c98f2913d74bec0fe5e01db4de94f3b22\", \"ff7358e98cdc7b2333a7468e3fc049379f427738e224ac1e3611b1d09ff2b62c\"], \"completed_database_ids\": [\"3fed647b5ef27b25c300fb56f7b9cef98fd4f88b2753b1a0b3dc11a098b3f331\", \"ff65e3a7e9bcfaa85238b790f966d89c98f2913d74bec0fe5e01db4de94f3b22\", \"ff7358e98cdc7b2333a7468e3fc049379f427738e224ac1e3611b1d09ff2b62c\"], \"provider_pairs\": [[\"synthetic:0\", \"extraction\"], [\"synthetic:0\", \"screening\"], [\"synthetic:0\", \"self_verification\"], [\"synthetic:1\", \"extraction\"], [\"synthetic:1\", \"screening\"], [\"synthetic:1\", \"self_verification\"], [\"synthetic:2\", \"extraction\"], [\"synthetic:2\", \"screening\"], [\"synthetic:2\", \"self_verification\"]], \"synthetic\": true, \"synthetic_processing_clock\": \"2026-01-01T00:00:00+00:00\", \"unknown_usage_attempts\": 1}\n.{\"synthetic\": true, \"child_returncode\": -9, \"published_work_original_bytes_retained\": true, \"resumed_report\": {\"schema_version\": \"policyos.academic.extraction_campaign.v1\", \"artifact_kind\": \"summary\", \"campaign_binding\": \"sha256:086d4c5ac6c87360f4f92fa17e101ca41387d557fb9d8e38ff6f73726504b3af\", \"synthetic\": true, \"scope\": \"candidate_only\", \"works\": {\"complete\": 3}, \"attempts\": {\"returned\": 9}, \"outcomes\": {\"extracted\": 3}, \"unknown_usage_attempts\": 0, \"queue_peak\": 2, \"graph_finalization\": \"not_started_separate_owner_stage\", \"strangle_ref\": {\"path\": \"strangles/e7a845fc153324358efc72f90f97accc8101e61ed3c6114f3ca894e4089474fb.json\", \"sha256\": \"sha256:e7a845fc153324358efc72f90f97accc8101e61ed3c6114f3ca894e4089474fb\"}}, \"child_stdout\": \"\", \"child_stderr\": \"\"}\n.\n",
+  "timed_out": false,
+  "timeout_seconds": 600.0
+}

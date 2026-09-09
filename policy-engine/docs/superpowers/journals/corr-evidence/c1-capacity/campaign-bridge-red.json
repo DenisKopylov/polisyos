@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_real_extractor_streams_bounded_workers_and_reuses_complete_results tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_complete_frame_mismatch_refuses_before_any_provider_call -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_real_extractor_streams_bounded_workers_and_reuses_complete_results",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_complete_frame_mismatch_refuses_before_any_provider_call",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 15.661999917007051,
+  "timeout_seconds": 180.0,
+  "timed_out": false,
+  "stdout": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n___ test_real_extractor_streams_bounded_workers_and_reuses_complete_results ____\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1417/test_real_extractor_streams_bo0')\n\n    @pytest.mark.asyncio\n    async def test_real_extractor_streams_bounded_workers_and_reuses_complete_results(\n        tmp_path: Path,\n    ) -> None:\n        \"\"\"Removing the bounded queue or durable output replay must fail this control.\"\"\"\n        owner = _owner()\n>       assert hasattr(owner, \"run_campaign\"), \"bounded_campaign_bridge_missing\"\nE       AssertionError: bounded_campaign_bridge_missing\nE       assert False\nE        +  where False = hasattr(<module 'polisyos.data_forge.domains.academic.batch.reextraction_campaign' from '/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/batch/reextraction_campaign.py'>, 'run_campaign')\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py:172: AssertionError\n________ test_complete_frame_mismatch_refuses_before_any_provider_call _________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1417/test_complete_frame_mismatch_r0')\n\n    @pytest.mark.asyncio\n    async def test_complete_frame_mismatch_refuses_before_any_provider_call(tmp_path: Path) -> None:\n        owner = _owner()\n>       assert hasattr(owner, \"run_campaign\"), \"bounded_campaign_bridge_missing\"\nE       AssertionError: bounded_campaign_bridge_missing\nE       assert False\nE        +  where False = hasattr(<module 'polisyos.data_forge.domains.academic.batch.reextraction_campaign' from '/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/batch/reextraction_campaign.py'>, 'run_campaign')\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py:207: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_real_extractor_streams_bounded_workers_and_reuses_complete_results\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_complete_frame_mismatch_refuses_before_any_provider_call\n",
+  "stderr": ""
+}

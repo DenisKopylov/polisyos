@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_grounding_bind_contract --write --output-format json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_bind_contract",
+    "--write",
+    "--output-format",
+    "json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 51.15129391604569,
+  "timeout_seconds": 900.0,
+  "timed_out": false,
+  "stdout": "{\n  \"canonical_attempt\": {\n    \"authority_evidence\": \"not_established\",\n    \"owner_refusal\": {\n      \"confidence_layer_vintage\": {\n        \"adjudication_contradicting_evidence_rows\": 342,\n        \"binding_status\": \"recomputed\",\n        \"claim_evidence_axis\": \"absent\",\n        \"claim_subtrees\": 137714,\n        \"confidence_reproducibility\": \"not_reproducible_under_current_rule\",\n        \"consumer_action\": \"withhold_confidence_forwarding\",\n        \"contradiction_basis\": \"HC-F06/HC-F07; stored observational contradicts retained adjudication\",\n        \"declared_on\": \"2026-09-07\",\n        \"evidence_ref\": \"docs/superpowers/journals/2026-09-05-historical-cohorts.md\",\n        \"extraction_documents\": 310829,\n        \"layers\": [\n          {\n            \"current_rule_outcome\": \"zero_confidence\",\n            \"row_count\": 7607,\n            \"table\": \"ac_skg_edges\"\n          },\n          {\n            \"current_rule_outcome\": \"zero_confidence\",\n            \"row_count\": 15945,\n            \"table\": \"ac_skg_family_edges\"\n          },\n          {\n            \"current_rule_outcome\": \"not_emitted\",\n            \"row_count\": 723,\n            \"table\": \"ac_skg_contested_edges\"\n          }\n        ],\n        \"limitation\": \"Stored values remain historical audit bytes. Outcomes describe retained memberships, not a full data-pass replay, paper truth, or the generating rule. Unregistered or rewritten databases require their own declaration; absence of this restriction is not evidence of current-rule reproducibility.\",\n        \"measurement_basis\": \"independently_reconciled\",\n        \"published_evidence_rows\": 7868,\n        \"rule_ref\": \"claim-explicit-evidence-axis/B1-B2; historical-cohorts/HC-F11-HC-F14\",\n        \"schema_version\": \"academic.confidence_layer_vintage.v1\",\n        \"snapshot_sha256\": \"583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967\"\n      }\n    },\n    \"status\": \"blocked\"\n  },\n  \"issues\": [],\n  \"status\": \"pass\",\n  \"verification_scope\": \"synthetic_mechanism_only\"\n}\n",
+  "stderr": "2026-09-09 09:43:53.260 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/gy-s-composed-wmr-world/fabric-world.duckdb\n2026-09-09 09:43:53.333 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: :memory:\n/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/runtime/quality/grounding_bind.py:416: UserWarning: Pydantic serializer warnings:\n  PydanticSerializationUnexpectedValue(Expected `tuple[str, ...]` - serialized value may not be as expected [field_name='validation_reasons', input_value=['owned_calibration_anchor_validated'], input_type=list])\n  payload = handler(self)\n"
+}

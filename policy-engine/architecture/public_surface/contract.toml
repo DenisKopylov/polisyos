@@ -366,3 +366,31 @@ reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.foundry.agent_sim.world"]
 major_subsystem = false
 notes = "Truth-centric synthetic world generation and evaluation surface under the Foundry agent simulation owner."
+
+[[generated_artifact_family]]
+id = "policy-design-case-cg2-admission-mechanism"
+owner = "team-runtime-quality"
+regenerate = "uv run python -m tools.quality.validation.check_grounding_bind_contract --repo-root . --write --output-format json"
+stale_output_behavior = "fail"
+outputs = ["architecture/policy_design_case/grounding_bind_contract.json"]
+
+[[generated_artifact_family]]
+id = "policy-design-case-grounding-refusal-sensitivity"
+owner = "team-runtime-quality"
+regenerate = "uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --write --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08"
+stale_output_behavior = "fail"
+outputs = ["architecture/policy_design_case/corr/grounding_refusal_sensitivity.json"]
+
+[[generated_artifact_family]]
+id = "policy-design-case-cg3-synthetic-input-admission"
+owner = "team-runtime-quality"
+regenerate = "uv run python -m tools.quality.validation.check_grounding_admission_contract --repo-root . --write --output-format json"
+stale_output_behavior = "fail"
+outputs = ["architecture/policy_design_case/grounding_admission_contract.json"]
+
+[[generated_artifact_family]]
+id = "policy-design-case-n6-source-preservation"
+owner = "team-runtime-quality"
+regenerate = "uv run python -m tools.quality.validation.check_layer3_gy_generation_cycle_contract --repo-root . --write --output-format json"
+stale_output_behavior = "fail"
+outputs = ["architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"]

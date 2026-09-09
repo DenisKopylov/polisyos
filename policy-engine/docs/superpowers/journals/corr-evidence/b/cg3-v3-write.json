@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_grounding_admission_contract --write --output-format json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_admission_contract",
+    "--write",
+    "--output-format",
+    "json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 56.78278695803601,
+  "timeout_seconds": 900.0,
+  "timed_out": false,
+  "stdout": "{\n  \"issues\": [],\n  \"status\": \"pass\"\n}\n",
+  "stderr": "2026-09-09 09:36:14.564 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/gy-s-composed-wmr-world/fabric-world.duckdb\n2026-09-09 09:36:14.645 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: :memory:\n"
+}

@@ -1,6 +1,6 @@
 {
-  "state": "scoped_B_verified_CG3_writer_passed_check_drift_input_diagnosis_pending_S3_global_freeze_pending",
-  "resource": ".tmp/gy-s-composed-wmr-*; serialize actual owner rebuild and report writers with A",
+  "state": "scoped_B_verified_CG2_CG3_v3_fresh_and_persisted_corruption_verified_remaining_source_removal_identity_S3_CG5_pending",
+  "resource": "Root-coordinated runtime/import slots; serialize .tmp/gy-s-composed-wmr-* writes and same-report mutations. CG2/CG3 v3 read the exact declared original CAS input. Actual runtime source-flip probes require an exclusive all-runtime-stop window.",
   "environment": "PATH lane .venv/bin first; PYTHONPATH=.:src; JAX_PLATFORMS=cpu",
   "targeted_timeout_seconds": 900,
   "report_timeout_seconds": 900,
@@ -34,7 +34,7 @@
     "tests/unit/runtime/quality/test_credal_reference.py::test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it",
     "tests/unit/runtime/quality/test_cycle_substrate.py::test_law_resolver_rechecks_bundle_hash_before_lex_authority_use"
   ],
-  "root_integration_state": "required_pending_C2_current_CG2_consumer_migration; no execution credit yet",
+  "root_integration_state": "Root reports both required importers passed in its complete N9 wave; exact final identity reconciliation remains root-owned and is not yet credited here",
   "root_integration_pytest_nodes": [
     "tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_owner_replay_projection_round_trips_through_json",
     "tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2"
@@ -117,10 +117,60 @@
   ],
   "current_authority_limit": "Source-relative synthetic recognition cannot establish real legal truth, full K_ref freshness or current promotion authority; required broader owner captures remain root-coordinated.",
   "cg3_status": {
-    "writer": "RC0; cg3-report-write.json",
-    "independent_check": "RC1 only drift; cg3-report-check.json",
-    "identity_reconciliation": "RC0; cg3-identity-live.json",
-    "actual_persisted_corruption": "not_run_until_independent_check_passes",
-    "input_diagnosis": "Complete actual WMR nodes reconciled; same logical identity, volatile created_at plus provenance_manifest_ref; actual full scaffold replay pending"
-  }
+    "historical_v2_writer": "RC0; cg3-report-write.json",
+    "historical_v2_independent_check": "RC1 only drift; cg3-report-check.json; actual prior v2 preserved at155645235e5a75b9b4053e83770df609eb26ef94",
+    "input_diagnosis": "cg3-world-time-owner-replay.json RC0: all17 actual sources and1134 reference nodes reconciled; actual created_at changes as_of, reference hashes/epoch and derived L6 component only; projected38edge set identical",
+    "v3_writer": "RC0; cg3-v3-write.json;56.783s",
+    "v3_independent_check": "RC0; cg3-v3-check.json;58.935s",
+    "identity_reconciliation": "RC0; cg3-v3-identity.json; all20original probes retained, all12original mutations plus1source-authority removal, no identity delta",
+    "actual_persisted_corruption": "cg3-v3-persisted-corruption.json wrapper0/actualchecker1 exactdrift, 50.651s, exactbyte restoration"
+  },
+  "shared_proof_input": {
+    "decision": "proof-input-decision.md",
+    "source_checkpoint": "664f22a3807ecfc7e9d54aad7a7a0bd68aafdd40",
+    "binding": "architecture/policy_design_case/corr/grounding_proof_world_input.json",
+    "producer": "proof-input-declaration.json RC0",
+    "whole_mirrored_file": "proof-input-green.json RC0; JUnit identity reconciliation pending",
+    "removal_argv": [
+      ".venv/bin/python", "-m",
+      "docs.superpowers.journals.corr-evidence.b.removal", "proof_source_binding"
+    ],
+    "identity_argv": [
+      ".venv/bin/python", "-m",
+      "docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest",
+      "docs/superpowers/journals/corr-evidence/b/proof-input-green.json", "--compact"
+    ]
+  },
+  "cg2_v3_write_argv": [
+    ".venv/bin/python", "-m",
+    "tools.quality.validation.check_grounding_bind_contract", "--write", "--output-format", "json"
+  ],
+  "cg2_v3_check_argv": [
+    ".venv/bin/python", "-m",
+    "tools.quality.validation.check_grounding_bind_contract", "--check", "--output-format", "json"
+  ],
+  "cg2_v3_identity_argv": [
+    ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.a.identity_census"
+  ],
+  "cg2_v3_corruption_argv": [
+    ".venv/bin/python", "-m",
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "architecture/policy_design_case/grounding_bind_contract.json",
+    "tools.quality.validation.check_grounding_bind_contract",
+    "/admission_run_probes/persisted_snapshot/admitted_spend", "0.0",
+    "--checker-arg=--check", "--checker-arg=--output-format", "--checker-arg=json",
+    "--timeout-seconds", "600", "--expect-issue-code", "grounding_bind_contract_drift"
+  ],
+  "cg2_v3_status": {
+    "writer": "cg2-v3-write.json RC0;51.151s",
+    "independent_check": "cg2-v3-check.json RC0;51.364s",
+    "persisted_corruption": "cg2-v3-persisted-corruption.json wrapper0/actualchecker1 exactdrift;51.108s; actual0.04 to0.0; exactbytes restored",
+    "complete_identity_census": "pending existing A owner",
+    "canonical_authority": "actual HC-F11–HC-F14 confidence-layer withholding retained separately"
+  },
+  "cg5_position_argv": [
+    ".venv/bin/python", "-m",
+    "tools.quality.validation.check_grounding_active_controller_contract",
+    "--check", "--output-format", "json"
+  ]
 }

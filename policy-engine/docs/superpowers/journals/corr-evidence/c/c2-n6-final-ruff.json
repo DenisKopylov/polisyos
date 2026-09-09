@@ -1,0 +1,25 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check tools/quality/validation/check_layer3_gy_generation_cycle_contract.py tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py docs/superpowers/journals/corr-evidence/c/c2_n6_projection.py docs/superpowers/journals/corr-evidence/c/c2_n6_output_census.py docs/superpowers/journals/corr-evidence/c/c2_n6_binding_delta.py docs/superpowers/journals/corr-evidence/c/c2_n6_removal.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+    "tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py",
+    "docs/superpowers/journals/corr-evidence/c/c2_n6_projection.py",
+    "docs/superpowers/journals/corr-evidence/c/c2_n6_output_census.py",
+    "docs/superpowers/journals/corr-evidence/c/c2_n6_binding_delta.py",
+    "docs/superpowers/journals/corr-evidence/c/c2_n6_removal.py"
+  ],
+  "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": null,
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.06376749998889863,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

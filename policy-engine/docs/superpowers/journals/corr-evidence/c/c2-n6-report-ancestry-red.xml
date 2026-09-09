@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="56.997" timestamp="2026-09-09T09:46:50.829145+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.repo_quality.tools.test_layer3_gy_generation_cycle_contract" name="test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners" time="27.991"><failure message="AssertionError: standalone_report_synthetic_ancestry_absent&#10;assert 'synthetic' in {'behavioral_mutations': [{'issue_codes': ['new_grammar_element_not_owned'], 'mutation_id': 'revision_not_terminal_dri...c93e7193a16dabc866170687fe9b73a1', 'comparison_projection_schema_version': 'policyos.gy.comparison_projection.v2', ...}">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x12fa49e00&gt;
+
+    def test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        live_session = checker.ConfidenceLedgerSession
+    
+        class _SessionProxy:
+            @classmethod
+            def _for_verification(cls, *args: object, **kwargs: object):
+                del cls
+                return live_session._for_verification(*args, **kwargs)
+    
+            @classmethod
+            def from_repo(cls, *args: object, **kwargs: object) -&gt; None:
+                del cls, args, kwargs
+                raise AssertionError("N6 checker touched the checkout confidence ledger")
+    
+        monkeypatch.setattr(
+            checker,
+            "ConfidenceLedgerSession",
+            _SessionProxy,
+        )
+    
+        emitted = json.loads(checker.build_contract_json_for_write(POLICY_ENGINE_ROOT))
+        assert checker.validate_payload(emitted)["status"] == "pass"
+        assert emitted["schema_version"] == checker.GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION
+        assert emitted["generation_cycle_run"]["source_preservation_receipt"]["status"] == (
+            "not_established"
+        )
+        assert emitted["generation_cycle_run"]["source_handoff_refs"] == []
+&gt;       assert "synthetic" in emitted, "standalone_report_synthetic_ancestry_absent"
+E       AssertionError: standalone_report_synthetic_ancestry_absent
+E       assert 'synthetic' in {'behavioral_mutations': [{'issue_codes': ['new_grammar_element_not_owned'], 'mutation_id': 'revision_not_terminal_dri...c93e7193a16dabc866170687fe9b73a1', 'comparison_projection_schema_version': 'policyos.gy.comparison_projection.v2', ...}
+
+tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py:85: AssertionError</failure></testcase></testsuite></testsuites>

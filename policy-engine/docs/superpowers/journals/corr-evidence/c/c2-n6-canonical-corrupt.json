@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_layer3_gy_generation_cycle_contract --repo-root . --corrupt-field-drift-check --output-format json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+    "--repo-root",
+    ".",
+    "--corrupt-field-drift-check",
+    "--output-format",
+    "json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 33.561300250003114,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "{\n  \"issues\": [\n    {\n      \"code\": \"corrupt_field_drift_detected\",\n      \"detected_issue_codes\": [\n        \"comparison_content_hash_drift\",\n        \"contract_content_hash_drift\",\n        \"generation_cycle_run_invalid\"\n      ]\n    },\n    {\n      \"code\": \"generation_cycle_run_invalid\",\n      \"error\": \"1 validation error for GenerationCycleRun\\ncycles.1\\n  Value error, cycle_acquisition_candidate_binding_mismatch [type=value_error, input_value={'acquisition_cost_basis_...'acquisition_required'}}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error\"\n    },\n    {\n      \"code\": \"comparison_content_hash_drift\"\n    },\n    {\n      \"actual\": \"sha256:1da291f9898447d4b9a292fb28bd3f2b972f03aa607339d9af22c5f26559679e\",\n      \"code\": \"contract_content_hash_drift\",\n      \"expected\": \"sha256:9076fa3ea5280f21755dd1a6ee99ca8ea36998cea4e6ab7dc1e4d1d261e388b3\"\n    }\n  ],\n  \"status\": \"fail\",\n  \"wall_time_seconds\": 0.038916\n}\n",
+  "stderr": ""
+}

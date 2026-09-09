@@ -1,6 +1,6 @@
 # Data Capability Requirements
 
-Freshness: 2026-09-07
+Freshness: 2026-09-09
 Owner: `architect`
 Source of truth: this file; every row's evidence lives in the journal or register entry it cites
 
@@ -306,6 +306,21 @@ marked as synthetic in the artifact, before any authoritative source exists. Tha
 turns the eventual data acquisition into a wiring task instead of a design task — and the falsifier
 is the deliverable that proves the rule rejects a transposed pair rather than merely accepting a
 correct one.
+
+**CORR mechanism evidence, 2026-09-09.** The Foundry recognition owner and existing
+runtime law resolver now consume separate, content-addressed, explicitly
+synthetic membership sources. The actual correct/transposed and missing-subject
+controls, including the removal that preserves declarations while deleting the
+subject comparison, are retained in
+`docs/superpowers/journals/2026-09-08-corr-b.md`. The source-relative comparison
+passes a correct pair and rejects the transposed pair; missing subjects return
+`ambiguous` before numeric evaluation. This does not change the real-data status
+above or supply legal authority. The current result's authority status remains
+`blocked`. The missing authoritative membership evidence is routed to
+`CORR-B1`; verification of that evidence remains Foundry/GY-S3 engineering under
+`S0-K06`, P32 and P37. A real source can replace the membership artifact without
+rewriting recognition, but an unverified source cannot acquire authority merely
+by clearing its synthetic marker.
 
 ---
 

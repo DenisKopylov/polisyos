@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.c.c2_n6_binding_delta",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c.c2_n6_binding_delta"
+  ],
+  "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": null,
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.05988495796918869,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "{\"additional_difference_identities\": [[\"synthetic\"]], \"all_historical_and_admission_values_equal\": true, \"changed_existing_difference_identities\": [], \"current_bindings\": {\"current_comparison_hash\": \"sha256:8538a5321f16525f4460361d94c45e199b792d4309a46aa7b4c71065011e1c94\", \"current_reissue_projection_hash\": \"sha256:10bc7f5de2a466b1993cbc11743096738c7bec854e246fb88c7ddb8f3cb4d5f1\"}, \"denominator\": \"complete previous/current pre-admission observation packets\", \"new_delta\": {\"identity\": [\"synthetic\"], \"new\": {\"node_type\": \"bool\", \"value\": true}, \"new_present\": true, \"old\": \"ABSENT\", \"old_present\": false}, \"recursive_iterative_identity_value_sets_equal\": true, \"removed_difference_identities\": []}\n",
+  "stderr": ""
+}

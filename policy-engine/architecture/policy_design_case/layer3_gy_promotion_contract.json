@@ -70,7 +70,7 @@
       "predicate_provenance": "recomputed"
     }
   ],
-  "comparison_content_hash": "sha256:174390e0275defb205b5542ea0786d311bef7711eee00d7ae7ee54c594c9747b",
+  "comparison_content_hash": "sha256:2fc4ac093eed14ff008faefc452733967748623c985cbfee505beb9df6cf0118",
   "comparison_projection_schema_version": "policyos.gy.comparison_projection.v2",
   "comparison_rule_version": "policyos.gy.non_authority_verification.v3",
   "compute_economics": {
@@ -80,12 +80,12 @@
     "routine_check": "canonical_owner_recomputation_and_exact_byte_comparison",
     "wall_time_recorded_by_validator": true
   },
-  "contract_content_hash": "sha256:395cc00e65ec805fcda6af69950de5bfa7a3a0c6a0459d05ab2f3e7af92b06c1",
+  "contract_content_hash": "sha256:e7b4cc80e8958db0aa4dd6a6a1d8b299b43bd68edb1a755013e7e7b836068cd3",
   "contract_id": "policyos.runtime.quality.canonical_n9_promotion_sequence",
   "contract_lane_anytime_refusal": {
     "authority_derivation_trace": null,
     "candidate_id": "candidate_n9",
-    "cg2_resolution_reason": "non_production_anchor_scope",
+    "cg2_resolution_reason": "synthetic_input_cannot_grant_authority",
     "computed_authority_boundary": {
       "authoritative_for": [
         "grounded_partial_admissible_policy_design"
@@ -115,8 +115,8 @@
       ],
       "source_authority": "deterministic_producer"
     },
-    "confidence_ledger_head_id": "confidence-event:sha256:e793817f3c0ed8b8a54ebe5f945e9b030c6bd40e5a88fc92b5d36dba7f56a675",
-    "confidence_ledger_head_ref": "sha256:12c2824abae7ea939fff757719baea15cf92eff05cb3b7e25829123cc3eba178",
+    "confidence_ledger_head_id": "confidence-event:sha256:e960ea590af024eb6f56a680f539ac6c1b185fd78d0df8267f6fbf0918ca7e4f",
+    "confidence_ledger_head_ref": "sha256:5f077933bff64032b40ef87b3dcdeb2bc26551f0df10fd8e7b04a31ec1c1ea1e",
     "confidence_ledger_projection": {
       "authority_provenance": "verification",
       "budget_delta": {
@@ -125,27 +125,27 @@
       },
       "budget_delta_decimal": "0.01",
       "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-      "deployment_identity": "policy-engine-deployment:sha256:0dd9dd494d61c04dd12b8b959b36f418046347cb0546ea6cbf96d0680a831cf3",
+      "deployment_identity": "policy-engine-deployment:sha256:ba88b7495b40d32fffd03a6992ef9ffc7a60830334ec03693acb1adcfb444eff",
       "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-      "head_event_id": "confidence-event:sha256:e793817f3c0ed8b8a54ebe5f945e9b030c6bd40e5a88fc92b5d36dba7f56a675",
-      "head_event_ref": "sha256:12c2824abae7ea939fff757719baea15cf92eff05cb3b7e25829123cc3eba178",
-      "ledger_receipt_id": "confidence-ledger:sha256:cbb5361d2f139a88b874222a5573b5f04a2a28df7cf15c0b9e358bcb2bcbf643",
-      "ledger_receipt_ref": "sha256:df861cc03666eb4cbe39ff8cf0d7a3aa26753987fc7241adc8d0de239430ae2f",
-      "ledger_root_id": "confidence-ledger-root:sha256:f5dcf59ab08034045a579b5455a8876b2b86998bc81a6c5359289afd968fe94c",
-      "ledger_root_ref": "sha256:2c3fe33cbee8da199faa888eedb7d2c5e16f0238f26f6cecc911e5971529d173",
+      "head_event_id": "confidence-event:sha256:e960ea590af024eb6f56a680f539ac6c1b185fd78d0df8267f6fbf0918ca7e4f",
+      "head_event_ref": "sha256:5f077933bff64032b40ef87b3dcdeb2bc26551f0df10fd8e7b04a31ec1c1ea1e",
+      "ledger_receipt_id": "confidence-ledger:sha256:6c7c3125fe862455f3a2f44e9bdf4620a1b52a7e32a597baf34820a9ba712814",
+      "ledger_receipt_ref": "sha256:d2846fb0404a1ff3251ed6be331c2bd36b318b8e0d84a587c240ece2141c5300",
+      "ledger_root_id": "confidence-ledger-root:sha256:2e6d9f958f08302b186dadeeeb0de56ff4822fc612a9aae28384d101da1cc6bf",
+      "ledger_root_ref": "sha256:f34efc52e8c31336278e5f5e18f45830b1bfb5185fc8a8ef7b8fa16cb3cfa05b",
       "maintained_assumptions": [
         "obligation_completeness",
         "validator_soundness"
       ],
-      "projection_hash": "sha256:c735d3db3622ef5d323c0f1f097d553daf857cf24c89db54d30d7d7f79a13a02",
+      "projection_hash": "sha256:6d79430f263336301cc7e22c5918c508586c07f93218f428e6e09ec9d1a4ba1d",
       "projection_scope": "n9_promotion_certificate",
       "promotion_rows": [
         {
           "anytime_valid": false,
           "certificate_ref": "s10://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
-          "claim_execution_binding_hash": "sha256:5033bb4c8a09b4d7254ea988829c358d5120de0a6e683c8c58889b2e4fb6f09a",
+          "check_id": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
+          "claim_execution_binding_hash": "sha256:3c2aae560024f7ee9de52d27fbd98e73d5145113fbe3a5bed0ecd8ac5ec2006d",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -166,8 +166,8 @@
           "anytime_valid": false,
           "certificate_ref": "data-trust://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
-          "claim_execution_binding_hash": "sha256:9473a8f9ca66f51f085e31b69229ab19802b1cd46a9fd7436144e3ac873dde4a",
+          "check_id": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
+          "claim_execution_binding_hash": "sha256:7420e73afea2e90c0088ac356223786bed65d552043c430235030ebc46649a6e",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -207,7 +207,7 @@
       "total_spend_decimal": "0",
       "within_budget": true
     },
-    "confidence_ledger_receipt_id": "confidence-ledger:sha256:cbb5361d2f139a88b874222a5573b5f04a2a28df7cf15c0b9e358bcb2bcbf643",
+    "confidence_ledger_receipt_id": "confidence-ledger:sha256:6c7c3125fe862455f3a2f44e9bdf4620a1b52a7e32a597baf34820a9ba712814",
     "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:b7e7a179a30f7e35b0e6b33a288cba61a39fc9e1cb57caad1b0d3e19e0b4bfb9",
     "confidence_ledger_semantic_projection": {
       "authority_provenance": "verification",
@@ -443,7 +443,7 @@
       "within_budget": true
     },
     "consumer_promotable": false,
-    "gate_outcome_hash": "sha256:55fcc9eec68f1ad18c4bcd6cd0b104cc4d4fd89e206d7658f5b218b10b366570",
+    "gate_outcome_hash": "sha256:fa1b83dd3aef8fbdb0b62007477526ea5be88e2239816eefacd4d795b01ecea0",
     "non_promotable_reason": "verification_only_replay",
     "obligations": [
       {
@@ -557,7 +557,7 @@
       {
         "detail": "CGF current_valid and CG2 contract-test bind resolved with a non-promotable stamp.",
         "evidence_refs": [
-          "cg2_cert_ead440ec743262d1"
+          "cg2_cert_43e47ff94332eed2"
         ],
         "gate_id": "cg2_bind_promotability",
         "identity_provenance": "recomputed",
@@ -576,7 +576,7 @@
       {
         "detail": "calibration cannot support promotion: confidence ledger refusal or owner-claim binding failure non_anytime_valid; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2"
+          "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359"
         ],
         "gate_id": "n8_calibration",
         "identity_provenance": "recomputed",
@@ -593,7 +593,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
           "obligation_class": "calibration"
         },
         "semantic_scope": "real_semantics",
@@ -621,7 +621,7 @@
       {
         "detail": "data cannot support promotion: confidence ledger refusal or owner-claim binding failure owner_theorem_unavailable; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653"
+          "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49"
         ],
         "gate_id": "n8_value",
         "identity_provenance": "recomputed",
@@ -638,7 +638,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
           "obligation_class": "data"
         },
         "semantic_scope": "real_semantics",
@@ -838,8 +838,8 @@
       "certificate_offers": [],
       "credal_reference": {
         "as_of": "2026-06-29",
-        "reference_epoch": "kref:3c32d66e01528e45",
-        "reference_hash": "sha256:3c32d66e01528e457e9933167606508bc88e168639d7c1a06e5f9fe92abc739c",
+        "reference_epoch": "kref:6eeedec52d3f2eeb",
+        "reference_hash": "sha256:6eeedec52d3f2eeb05f1eac984ff04e30117e9c60cb538fdca5654e286bf00b1",
         "schema_version": "policyos.runtime.grounding_credal_reference.v2"
       },
       "declared_authority_transform": {
@@ -856,17 +856,27 @@
       "force_proof_timeout": false,
       "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
       "grounding_decision_certificate": {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "bind",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
         "authority_scope": "contract_testing",
         "bound_atom_id": "cg0_atom_80795ae5a65c6927",
         "calibration": {
           "calibration_source": "cg2_contract_seed_anchor",
           "decisive_freeze": false,
           "operator_family": "tax_relief_rate",
-          "owned_anchor_content_hash": "sha256:c161bfb5d1ff8651af90df52fc8af38bc35db0ed5c340674cf2884cea86e254b",
-          "owned_anchor_id": "cg2_contract_seed_anchor:kref:3c32d66e01528e45:tax_relief_rate:global:exact",
+          "owned_anchor_content_hash": "sha256:4c0e2af03cf916259c0e1738e96d4548598dd11361ea0b0ea8e314fb4545bf33",
+          "owned_anchor_id": "cg2_contract_seed_anchor:kref:6eeedec52d3f2eeb:tax_relief_rate:global:exact",
           "owner_validated": true,
           "reason": "owned_ledger:cg2_contract_seed_anchor",
-          "reference_epoch": "kref:3c32d66e01528e45",
+          "reference_epoch": "kref:6eeedec52d3f2eeb",
           "reference_region": "global",
           "relation_type": "exact",
           "sample_count": 20,
@@ -876,21 +886,21 @@
             "owned_calibration_anchor_validated"
           ]
         },
-        "certificate_id": "cg2_cert_ead440ec743262d1",
-        "cg1_certificate_id": "cg1_cert_8a97d7b6ea9e9c2b",
-        "cg1_content_hash": "sha256:8a97d7b6ea9e9c2baf527c2edcf6e93d63d2eaa36df023852c7148fd4b50d7b0",
-        "cg1_expected_content_hash": "sha256:8a97d7b6ea9e9c2baf527c2edcf6e93d63d2eaa36df023852c7148fd4b50d7b0",
+        "certificate_id": "cg2_cert_43e47ff94332eed2",
+        "cg1_certificate_id": "cg1_cert_ae598aee0ed82836",
+        "cg1_content_hash": "sha256:ae598aee0ed82836482f9f2424701546fe62a3189d0a3ce5f50f065047f8e198",
+        "cg1_expected_content_hash": "sha256:ae598aee0ed82836482f9f2424701546fe62a3189d0a3ce5f50f065047f8e198",
         "cg3_handoff": false,
         "closed_obligations": [
           "admissibility_closed",
           "estimand_grounded",
-          "l3_l6_consistency",
-          "no_unresolved_critical_axis",
-          "operator_registered_lever",
+          "unit_scale_consistent",
           "target_writable_wmr_slot",
-          "unit_scale_consistent"
+          "operator_registered_lever",
+          "l3_l6_consistency",
+          "no_unresolved_critical_axis"
         ],
-        "content_hash": "sha256:ead440ec743262d1262cc24a0698a1966ef0fc2d90b23d503dbaa41da308e69a",
+        "content_hash": "sha256:43e47ff94332eed2ea07e7298572b2927b04522fc39a7a78070589d0a8c838a3",
         "decision": "bind",
         "decisive_reason": "bind_eligible",
         "obligations": [
@@ -957,12 +967,10 @@
         ],
         "open_obligations": [],
         "production_promotable": false,
-        "reference_epoch": "kref:3c32d66e01528e45",
-        "reference_hash": "sha256:3c32d66e01528e457e9933167606508bc88e168639d7c1a06e5f9fe92abc739c",
+        "reference_epoch": "kref:6eeedec52d3f2eeb",
+        "reference_hash": "sha256:6eeedec52d3f2eeb05f1eac984ff04e30117e9c60cb538fdca5654e286bf00b1",
         "reference_versions": {
-          "L2": "unit-l2",
-          "L3": "unit-l3",
-          "L6": "sha256:058a03f4698863d06cc8615719d2e58467315ee3ea1768fa63a480cef76e5832",
+          "L6": "sha256:ec8974becfb002d5b392840e00328953c81ec8df99e099e606e9ec159a6acbcb",
           "WMR": "unit-wmr"
         },
         "relation_outcome_set": [
@@ -980,12 +988,12 @@
           "content_hash_valid": true,
           "critical_contradiction_tuple_reproduced": true,
           "critical_contradictions_reproduced": true,
-          "expected_content_hash": "sha256:8a97d7b6ea9e9c2baf527c2edcf6e93d63d2eaa36df023852c7148fd4b50d7b0",
+          "expected_content_hash": "sha256:ae598aee0ed82836482f9f2424701546fe62a3189d0a3ce5f50f065047f8e198",
           "not_more_permissive_than_full": true,
           "reference_versions_match": true,
           "replayed": true,
-          "replayed_certificate_id": "cg1_cert_8aa104715c437b65",
-          "replayed_content_hash": "sha256:8aa104715c437b650a6df48784f9d6300739783893572d3418df786e4cd7a94a",
+          "replayed_certificate_id": "cg1_cert_3bfe3dd8a70ec94b",
+          "replayed_content_hash": "sha256:3bfe3dd8a70ec94b3e79c900de9c9ff681a69e89a50d27c2f5719bb5805de2ff",
           "replayed_critical_contradictions": [],
           "replayed_selected_atom_id": "cg0_atom_80795ae5a65c6927",
           "replayed_selected_relation": "exact",
@@ -995,62 +1003,55 @@
           "status": "passed"
         },
         "risk_ledger": {
-          "delta_ground_budget": 0.01,
-          "entries": [
-            {
-              "bound": 0.0002,
-              "component": "delta_RT1",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0002
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_monitor",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_ref",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_retrieval_novel",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_runtime",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_type_adm",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            }
-          ],
+          "delta_ground_budget": 0.05,
+          "entries": [],
           "n11_composition_status": "not_wired",
           "n11_confidence_ledger_ref": null,
-          "total_spend": 0.0007,
+          "total_spend": 0.0,
           "within_budget": true
+        },
+        "run_admission": {
+          "admitted_spend": null,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": null,
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
         },
         "safe_t": {
           "candidates": [
             {
+              "atom_id": "cg0_atom_774be87168287804",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
               "atom_id": "cg0_atom_80795ae5a65c6927",
               "is_adversarial_countercandidate": false,
-              "reason": "contract_owner_bind",
+              "reason": "safe_across_all_admissible_completions",
               "relation": "exact",
               "safe": true,
               "support_edge_scope": [
@@ -1067,6 +1068,657 @@
                 "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
                 "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
               }
+            },
+            {
+              "atom_id": "cg0_atom_aa7d02af8c225a35",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg0_atom_e3b88c06b6e3e4fb",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg0_atom_fe3a192f07f0c104",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_0121d5772c421384",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_0f0ef5760b4a05f5",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_15a1e1a4205b1e57",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_16a1807ee42f8ce5",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_28c47f292296e067",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_3825c3d079d03b0c",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_4507a1e3c2fed0d1",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_504dc86c826acb42",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_578c274fed3ee2e4",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_6c6e1c68eca64508",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_6e2e8ead884dbd03",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_77ceff575821e413",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_7c458dc6fb6ce95b",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_7c59853024ef1e5c",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_945f1bd427769ffd",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a0175ff5b71428c2",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a6669c3ea0b4c712",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a788d6452ea0dce4",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a9f3b3ac4c65c98a",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_b1449fd3e63f2a95",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_b98cce90e7e0c435",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_cd2e7a5993e1b29b",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_e78d64395974c80d",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_e93b84f6285a20e0",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_ebc92fff50480190",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_edee25de9f22d232",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_ee04fa857a714fbc",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_f34c78bfb9106028",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
             }
           ],
           "robust_singleton": true,
@@ -1074,10 +1726,11 @@
             "cg0_atom_80795ae5a65c6927"
           ]
         },
-        "schema_version": "policyos.runtime.grounding_decision_certificate.v1",
+        "schema_version": "policyos.runtime.grounding_decision_certificate.v2",
         "selected_critical_contradictions": [],
         "selected_relation": "exact",
-        "validator_version": "policyos.runtime.grounding_bind.cg2.v1"
+        "synthetic": true,
+        "validator_version": "policyos.runtime.grounding_bind.cg2.v2"
       },
       "open_world_gate": null,
       "operation_invocation_id": "n9.promotion.sequence",
@@ -1085,7 +1738,7 @@
         "deterministic_producer"
       ],
       "producer_root_refs": [],
-      "projection_hash": "sha256:4f288dfab4b73435737479d66d71ad496c2d67d0d148b286851de692da79e430",
+      "projection_hash": "sha256:d669c0fe757227facf60fe13e501b2f0916b02e9bc7fc74e5b170d3a0d027150",
       "s6_blind_spot_posture": {
         "aggregation_validity_record_ref": "s6://aggregation",
         "axis_rows": [],
@@ -1312,7 +1965,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
           "obligation_class": "calibration"
         },
         {
@@ -1322,7 +1975,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
           "obligation_class": "data"
         }
       ],
@@ -1341,7 +1994,7 @@
   "non_promotable_contract_stamp": {
     "authority_derivation_trace": null,
     "candidate_id": "candidate_n9",
-    "cg2_resolution_reason": "non_production_anchor_scope",
+    "cg2_resolution_reason": "synthetic_input_cannot_grant_authority",
     "computed_authority_boundary": {
       "authoritative_for": [
         "grounded_partial_admissible_policy_design"
@@ -1371,8 +2024,8 @@
       ],
       "source_authority": "deterministic_producer"
     },
-    "confidence_ledger_head_id": "confidence-event:sha256:e793817f3c0ed8b8a54ebe5f945e9b030c6bd40e5a88fc92b5d36dba7f56a675",
-    "confidence_ledger_head_ref": "sha256:12c2824abae7ea939fff757719baea15cf92eff05cb3b7e25829123cc3eba178",
+    "confidence_ledger_head_id": "confidence-event:sha256:e960ea590af024eb6f56a680f539ac6c1b185fd78d0df8267f6fbf0918ca7e4f",
+    "confidence_ledger_head_ref": "sha256:5f077933bff64032b40ef87b3dcdeb2bc26551f0df10fd8e7b04a31ec1c1ea1e",
     "confidence_ledger_projection": {
       "authority_provenance": "verification",
       "budget_delta": {
@@ -1381,27 +2034,27 @@
       },
       "budget_delta_decimal": "0.01",
       "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-      "deployment_identity": "policy-engine-deployment:sha256:0dd9dd494d61c04dd12b8b959b36f418046347cb0546ea6cbf96d0680a831cf3",
+      "deployment_identity": "policy-engine-deployment:sha256:ba88b7495b40d32fffd03a6992ef9ffc7a60830334ec03693acb1adcfb444eff",
       "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-      "head_event_id": "confidence-event:sha256:e793817f3c0ed8b8a54ebe5f945e9b030c6bd40e5a88fc92b5d36dba7f56a675",
-      "head_event_ref": "sha256:12c2824abae7ea939fff757719baea15cf92eff05cb3b7e25829123cc3eba178",
-      "ledger_receipt_id": "confidence-ledger:sha256:cbb5361d2f139a88b874222a5573b5f04a2a28df7cf15c0b9e358bcb2bcbf643",
-      "ledger_receipt_ref": "sha256:df861cc03666eb4cbe39ff8cf0d7a3aa26753987fc7241adc8d0de239430ae2f",
-      "ledger_root_id": "confidence-ledger-root:sha256:f5dcf59ab08034045a579b5455a8876b2b86998bc81a6c5359289afd968fe94c",
-      "ledger_root_ref": "sha256:2c3fe33cbee8da199faa888eedb7d2c5e16f0238f26f6cecc911e5971529d173",
+      "head_event_id": "confidence-event:sha256:e960ea590af024eb6f56a680f539ac6c1b185fd78d0df8267f6fbf0918ca7e4f",
+      "head_event_ref": "sha256:5f077933bff64032b40ef87b3dcdeb2bc26551f0df10fd8e7b04a31ec1c1ea1e",
+      "ledger_receipt_id": "confidence-ledger:sha256:6c7c3125fe862455f3a2f44e9bdf4620a1b52a7e32a597baf34820a9ba712814",
+      "ledger_receipt_ref": "sha256:d2846fb0404a1ff3251ed6be331c2bd36b318b8e0d84a587c240ece2141c5300",
+      "ledger_root_id": "confidence-ledger-root:sha256:2e6d9f958f08302b186dadeeeb0de56ff4822fc612a9aae28384d101da1cc6bf",
+      "ledger_root_ref": "sha256:f34efc52e8c31336278e5f5e18f45830b1bfb5185fc8a8ef7b8fa16cb3cfa05b",
       "maintained_assumptions": [
         "obligation_completeness",
         "validator_soundness"
       ],
-      "projection_hash": "sha256:c735d3db3622ef5d323c0f1f097d553daf857cf24c89db54d30d7d7f79a13a02",
+      "projection_hash": "sha256:6d79430f263336301cc7e22c5918c508586c07f93218f428e6e09ec9d1a4ba1d",
       "projection_scope": "n9_promotion_certificate",
       "promotion_rows": [
         {
           "anytime_valid": false,
           "certificate_ref": "s10://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
-          "claim_execution_binding_hash": "sha256:5033bb4c8a09b4d7254ea988829c358d5120de0a6e683c8c58889b2e4fb6f09a",
+          "check_id": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
+          "claim_execution_binding_hash": "sha256:3c2aae560024f7ee9de52d27fbd98e73d5145113fbe3a5bed0ecd8ac5ec2006d",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -1422,8 +2075,8 @@
           "anytime_valid": false,
           "certificate_ref": "data-trust://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
-          "claim_execution_binding_hash": "sha256:9473a8f9ca66f51f085e31b69229ab19802b1cd46a9fd7436144e3ac873dde4a",
+          "check_id": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
+          "claim_execution_binding_hash": "sha256:7420e73afea2e90c0088ac356223786bed65d552043c430235030ebc46649a6e",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -1463,7 +2116,7 @@
       "total_spend_decimal": "0",
       "within_budget": true
     },
-    "confidence_ledger_receipt_id": "confidence-ledger:sha256:cbb5361d2f139a88b874222a5573b5f04a2a28df7cf15c0b9e358bcb2bcbf643",
+    "confidence_ledger_receipt_id": "confidence-ledger:sha256:6c7c3125fe862455f3a2f44e9bdf4620a1b52a7e32a597baf34820a9ba712814",
     "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:b7e7a179a30f7e35b0e6b33a288cba61a39fc9e1cb57caad1b0d3e19e0b4bfb9",
     "confidence_ledger_semantic_projection": {
       "authority_provenance": "verification",
@@ -1699,7 +2352,7 @@
       "within_budget": true
     },
     "consumer_promotable": false,
-    "gate_outcome_hash": "sha256:55fcc9eec68f1ad18c4bcd6cd0b104cc4d4fd89e206d7658f5b218b10b366570",
+    "gate_outcome_hash": "sha256:fa1b83dd3aef8fbdb0b62007477526ea5be88e2239816eefacd4d795b01ecea0",
     "non_promotable_reason": "verification_only_replay",
     "obligations": [
       {
@@ -1813,7 +2466,7 @@
       {
         "detail": "CGF current_valid and CG2 contract-test bind resolved with a non-promotable stamp.",
         "evidence_refs": [
-          "cg2_cert_ead440ec743262d1"
+          "cg2_cert_43e47ff94332eed2"
         ],
         "gate_id": "cg2_bind_promotability",
         "identity_provenance": "recomputed",
@@ -1832,7 +2485,7 @@
       {
         "detail": "calibration cannot support promotion: confidence ledger refusal or owner-claim binding failure non_anytime_valid; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2"
+          "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359"
         ],
         "gate_id": "n8_calibration",
         "identity_provenance": "recomputed",
@@ -1849,7 +2502,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
           "obligation_class": "calibration"
         },
         "semantic_scope": "real_semantics",
@@ -1877,7 +2530,7 @@
       {
         "detail": "data cannot support promotion: confidence ledger refusal or owner-claim binding failure owner_theorem_unavailable; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653"
+          "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49"
         ],
         "gate_id": "n8_value",
         "identity_provenance": "recomputed",
@@ -1894,7 +2547,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
           "obligation_class": "data"
         },
         "semantic_scope": "real_semantics",
@@ -2094,8 +2747,8 @@
       "certificate_offers": [],
       "credal_reference": {
         "as_of": "2026-06-29",
-        "reference_epoch": "kref:3c32d66e01528e45",
-        "reference_hash": "sha256:3c32d66e01528e457e9933167606508bc88e168639d7c1a06e5f9fe92abc739c",
+        "reference_epoch": "kref:6eeedec52d3f2eeb",
+        "reference_hash": "sha256:6eeedec52d3f2eeb05f1eac984ff04e30117e9c60cb538fdca5654e286bf00b1",
         "schema_version": "policyos.runtime.grounding_credal_reference.v2"
       },
       "declared_authority_transform": {
@@ -2112,17 +2765,27 @@
       "force_proof_timeout": false,
       "g4_governed_promotion_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
       "grounding_decision_certificate": {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "bind",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
         "authority_scope": "contract_testing",
         "bound_atom_id": "cg0_atom_80795ae5a65c6927",
         "calibration": {
           "calibration_source": "cg2_contract_seed_anchor",
           "decisive_freeze": false,
           "operator_family": "tax_relief_rate",
-          "owned_anchor_content_hash": "sha256:c161bfb5d1ff8651af90df52fc8af38bc35db0ed5c340674cf2884cea86e254b",
-          "owned_anchor_id": "cg2_contract_seed_anchor:kref:3c32d66e01528e45:tax_relief_rate:global:exact",
+          "owned_anchor_content_hash": "sha256:4c0e2af03cf916259c0e1738e96d4548598dd11361ea0b0ea8e314fb4545bf33",
+          "owned_anchor_id": "cg2_contract_seed_anchor:kref:6eeedec52d3f2eeb:tax_relief_rate:global:exact",
           "owner_validated": true,
           "reason": "owned_ledger:cg2_contract_seed_anchor",
-          "reference_epoch": "kref:3c32d66e01528e45",
+          "reference_epoch": "kref:6eeedec52d3f2eeb",
           "reference_region": "global",
           "relation_type": "exact",
           "sample_count": 20,
@@ -2132,21 +2795,21 @@
             "owned_calibration_anchor_validated"
           ]
         },
-        "certificate_id": "cg2_cert_ead440ec743262d1",
-        "cg1_certificate_id": "cg1_cert_8a97d7b6ea9e9c2b",
-        "cg1_content_hash": "sha256:8a97d7b6ea9e9c2baf527c2edcf6e93d63d2eaa36df023852c7148fd4b50d7b0",
-        "cg1_expected_content_hash": "sha256:8a97d7b6ea9e9c2baf527c2edcf6e93d63d2eaa36df023852c7148fd4b50d7b0",
+        "certificate_id": "cg2_cert_43e47ff94332eed2",
+        "cg1_certificate_id": "cg1_cert_ae598aee0ed82836",
+        "cg1_content_hash": "sha256:ae598aee0ed82836482f9f2424701546fe62a3189d0a3ce5f50f065047f8e198",
+        "cg1_expected_content_hash": "sha256:ae598aee0ed82836482f9f2424701546fe62a3189d0a3ce5f50f065047f8e198",
         "cg3_handoff": false,
         "closed_obligations": [
           "admissibility_closed",
           "estimand_grounded",
-          "l3_l6_consistency",
-          "no_unresolved_critical_axis",
-          "operator_registered_lever",
+          "unit_scale_consistent",
           "target_writable_wmr_slot",
-          "unit_scale_consistent"
+          "operator_registered_lever",
+          "l3_l6_consistency",
+          "no_unresolved_critical_axis"
         ],
-        "content_hash": "sha256:ead440ec743262d1262cc24a0698a1966ef0fc2d90b23d503dbaa41da308e69a",
+        "content_hash": "sha256:43e47ff94332eed2ea07e7298572b2927b04522fc39a7a78070589d0a8c838a3",
         "decision": "bind",
         "decisive_reason": "bind_eligible",
         "obligations": [
@@ -2213,12 +2876,10 @@
         ],
         "open_obligations": [],
         "production_promotable": false,
-        "reference_epoch": "kref:3c32d66e01528e45",
-        "reference_hash": "sha256:3c32d66e01528e457e9933167606508bc88e168639d7c1a06e5f9fe92abc739c",
+        "reference_epoch": "kref:6eeedec52d3f2eeb",
+        "reference_hash": "sha256:6eeedec52d3f2eeb05f1eac984ff04e30117e9c60cb538fdca5654e286bf00b1",
         "reference_versions": {
-          "L2": "unit-l2",
-          "L3": "unit-l3",
-          "L6": "sha256:058a03f4698863d06cc8615719d2e58467315ee3ea1768fa63a480cef76e5832",
+          "L6": "sha256:ec8974becfb002d5b392840e00328953c81ec8df99e099e606e9ec159a6acbcb",
           "WMR": "unit-wmr"
         },
         "relation_outcome_set": [
@@ -2236,12 +2897,12 @@
           "content_hash_valid": true,
           "critical_contradiction_tuple_reproduced": true,
           "critical_contradictions_reproduced": true,
-          "expected_content_hash": "sha256:8a97d7b6ea9e9c2baf527c2edcf6e93d63d2eaa36df023852c7148fd4b50d7b0",
+          "expected_content_hash": "sha256:ae598aee0ed82836482f9f2424701546fe62a3189d0a3ce5f50f065047f8e198",
           "not_more_permissive_than_full": true,
           "reference_versions_match": true,
           "replayed": true,
-          "replayed_certificate_id": "cg1_cert_8aa104715c437b65",
-          "replayed_content_hash": "sha256:8aa104715c437b650a6df48784f9d6300739783893572d3418df786e4cd7a94a",
+          "replayed_certificate_id": "cg1_cert_3bfe3dd8a70ec94b",
+          "replayed_content_hash": "sha256:3bfe3dd8a70ec94b3e79c900de9c9ff681a69e89a50d27c2f5719bb5805de2ff",
           "replayed_critical_contradictions": [],
           "replayed_selected_atom_id": "cg0_atom_80795ae5a65c6927",
           "replayed_selected_relation": "exact",
@@ -2251,62 +2912,55 @@
           "status": "passed"
         },
         "risk_ledger": {
-          "delta_ground_budget": 0.01,
-          "entries": [
-            {
-              "bound": 0.0002,
-              "component": "delta_RT1",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0002
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_monitor",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_ref",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_retrieval_novel",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_runtime",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            },
-            {
-              "bound": 0.0001,
-              "component": "delta_type_adm",
-              "conservative_bound": false,
-              "source": "calibrated_stratum_bound",
-              "spend": 0.0001
-            }
-          ],
+          "delta_ground_budget": 0.05,
+          "entries": [],
           "n11_composition_status": "not_wired",
           "n11_confidence_ledger_ref": null,
-          "total_spend": 0.0007,
+          "total_spend": 0.0,
           "within_budget": true
+        },
+        "run_admission": {
+          "admitted_spend": null,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": null,
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
         },
         "safe_t": {
           "candidates": [
             {
+              "atom_id": "cg0_atom_774be87168287804",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
               "atom_id": "cg0_atom_80795ae5a65c6927",
               "is_adversarial_countercandidate": false,
-              "reason": "contract_owner_bind",
+              "reason": "safe_across_all_admissible_completions",
               "relation": "exact",
               "safe": true,
               "support_edge_scope": [
@@ -2323,6 +2977,657 @@
                 "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
                 "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
               }
+            },
+            {
+              "atom_id": "cg0_atom_aa7d02af8c225a35",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg0_atom_e3b88c06b6e3e4fb",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg0_atom_fe3a192f07f0c104",
+              "is_adversarial_countercandidate": false,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_0121d5772c421384",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_0f0ef5760b4a05f5",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_15a1e1a4205b1e57",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_16a1807ee42f8ce5",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_28c47f292296e067",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "partial",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_3825c3d079d03b0c",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_4507a1e3c2fed0d1",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_504dc86c826acb42",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_578c274fed3ee2e4",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_6c6e1c68eca64508",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_6e2e8ead884dbd03",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_77ceff575821e413",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_7c458dc6fb6ce95b",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_7c59853024ef1e5c",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_945f1bd427769ffd",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a0175ff5b71428c2",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a6669c3ea0b4c712",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a788d6452ea0dce4",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_a9f3b3ac4c65c98a",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_b1449fd3e63f2a95",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance",
+                "WMR_WORLD_SLOT::government.balance"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::budget_slot:government.balance": "confirmed",
+                "WMR_WORLD_SLOT::government.balance": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_b98cce90e7e0c435",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_cd2e7a5993e1b29b",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_e78d64395974c80d",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_e93b84f6285a20e0",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_ebc92fff50480190",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::transfer_slot:household_cells.transfer_intensity": "confirmed",
+                "WMR_WORLD_SLOT::household_cells.transfer_intensity": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_edee25de9f22d232",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_ee04fa857a714fbc",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::tax_relief_rate",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::tax_relief_rate": "confirmed",
+                "L6_KNOB_WORLD_SLOT::tax_relief_rate": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::tax_relief_statute": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
+            },
+            {
+              "atom_id": "cg1_counter_f34c78bfb9106028",
+              "is_adversarial_countercandidate": true,
+              "reason": "relation_not_bind_eligible",
+              "relation": "false-analog",
+              "safe": false,
+              "support_edge_scope": [
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier",
+                "L6_LEX_INTERVENTION_MAP::budget_law",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate",
+                "WMR_WORLD_SLOT::global.tax_rate"
+              ],
+              "support_statuses": {
+                "L6_KNOB_OPERATOR::budget_allocation_multiplier": "confirmed",
+                "L6_KNOB_WORLD_SLOT::budget_allocation_multiplier": "confirmed",
+                "L6_LEX_INTERVENTION_MAP::budget_law": "confirmed",
+                "WMR_POLICY_SLOT_MAP::tax_slot:global.tax_rate": "confirmed",
+                "WMR_WORLD_SLOT::global.tax_rate": "confirmed"
+              }
             }
           ],
           "robust_singleton": true,
@@ -2330,10 +3635,11 @@
             "cg0_atom_80795ae5a65c6927"
           ]
         },
-        "schema_version": "policyos.runtime.grounding_decision_certificate.v1",
+        "schema_version": "policyos.runtime.grounding_decision_certificate.v2",
         "selected_critical_contradictions": [],
         "selected_relation": "exact",
-        "validator_version": "policyos.runtime.grounding_bind.cg2.v1"
+        "synthetic": true,
+        "validator_version": "policyos.runtime.grounding_bind.cg2.v2"
       },
       "open_world_gate": null,
       "operation_invocation_id": "n9.promotion.sequence",
@@ -2341,7 +3647,7 @@
         "deterministic_producer"
       ],
       "producer_root_refs": [],
-      "projection_hash": "sha256:4f288dfab4b73435737479d66d71ad496c2d67d0d148b286851de692da79e430",
+      "projection_hash": "sha256:d669c0fe757227facf60fe13e501b2f0916b02e9bc7fc74e5b170d3a0d027150",
       "s6_blind_spot_posture": {
         "aggregation_validity_record_ref": "s6://aggregation",
         "axis_rows": [],
@@ -2568,7 +3874,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
           "obligation_class": "calibration"
         },
         {
@@ -2578,7 +3884,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
           "obligation_class": "data"
         }
       ],
@@ -2754,8 +4060,8 @@
       ],
       "source_authority": "deterministic_producer"
     },
-    "confidence_ledger_head_id": "confidence-event:sha256:e793817f3c0ed8b8a54ebe5f945e9b030c6bd40e5a88fc92b5d36dba7f56a675",
-    "confidence_ledger_head_ref": "sha256:12c2824abae7ea939fff757719baea15cf92eff05cb3b7e25829123cc3eba178",
+    "confidence_ledger_head_id": "confidence-event:sha256:e960ea590af024eb6f56a680f539ac6c1b185fd78d0df8267f6fbf0918ca7e4f",
+    "confidence_ledger_head_ref": "sha256:5f077933bff64032b40ef87b3dcdeb2bc26551f0df10fd8e7b04a31ec1c1ea1e",
     "confidence_ledger_projection": {
       "authority_provenance": "verification",
       "budget_delta": {
@@ -2764,27 +4070,27 @@
       },
       "budget_delta_decimal": "0.01",
       "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-      "deployment_identity": "policy-engine-deployment:sha256:0dd9dd494d61c04dd12b8b959b36f418046347cb0546ea6cbf96d0680a831cf3",
+      "deployment_identity": "policy-engine-deployment:sha256:ba88b7495b40d32fffd03a6992ef9ffc7a60830334ec03693acb1adcfb444eff",
       "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-      "head_event_id": "confidence-event:sha256:e793817f3c0ed8b8a54ebe5f945e9b030c6bd40e5a88fc92b5d36dba7f56a675",
-      "head_event_ref": "sha256:12c2824abae7ea939fff757719baea15cf92eff05cb3b7e25829123cc3eba178",
-      "ledger_receipt_id": "confidence-ledger:sha256:cbb5361d2f139a88b874222a5573b5f04a2a28df7cf15c0b9e358bcb2bcbf643",
-      "ledger_receipt_ref": "sha256:df861cc03666eb4cbe39ff8cf0d7a3aa26753987fc7241adc8d0de239430ae2f",
-      "ledger_root_id": "confidence-ledger-root:sha256:f5dcf59ab08034045a579b5455a8876b2b86998bc81a6c5359289afd968fe94c",
-      "ledger_root_ref": "sha256:2c3fe33cbee8da199faa888eedb7d2c5e16f0238f26f6cecc911e5971529d173",
+      "head_event_id": "confidence-event:sha256:e960ea590af024eb6f56a680f539ac6c1b185fd78d0df8267f6fbf0918ca7e4f",
+      "head_event_ref": "sha256:5f077933bff64032b40ef87b3dcdeb2bc26551f0df10fd8e7b04a31ec1c1ea1e",
+      "ledger_receipt_id": "confidence-ledger:sha256:6c7c3125fe862455f3a2f44e9bdf4620a1b52a7e32a597baf34820a9ba712814",
+      "ledger_receipt_ref": "sha256:d2846fb0404a1ff3251ed6be331c2bd36b318b8e0d84a587c240ece2141c5300",
+      "ledger_root_id": "confidence-ledger-root:sha256:2e6d9f958f08302b186dadeeeb0de56ff4822fc612a9aae28384d101da1cc6bf",
+      "ledger_root_ref": "sha256:f34efc52e8c31336278e5f5e18f45830b1bfb5185fc8a8ef7b8fa16cb3cfa05b",
       "maintained_assumptions": [
         "obligation_completeness",
         "validator_soundness"
       ],
-      "projection_hash": "sha256:c735d3db3622ef5d323c0f1f097d553daf857cf24c89db54d30d7d7f79a13a02",
+      "projection_hash": "sha256:6d79430f263336301cc7e22c5918c508586c07f93218f428e6e09ec9d1a4ba1d",
       "projection_scope": "n9_promotion_certificate",
       "promotion_rows": [
         {
           "anytime_valid": false,
           "certificate_ref": "s10://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
-          "claim_execution_binding_hash": "sha256:5033bb4c8a09b4d7254ea988829c358d5120de0a6e683c8c58889b2e4fb6f09a",
+          "check_id": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
+          "claim_execution_binding_hash": "sha256:3c2aae560024f7ee9de52d27fbd98e73d5145113fbe3a5bed0ecd8ac5ec2006d",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -2805,8 +4111,8 @@
           "anytime_valid": false,
           "certificate_ref": "data-trust://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
-          "claim_execution_binding_hash": "sha256:9473a8f9ca66f51f085e31b69229ab19802b1cd46a9fd7436144e3ac873dde4a",
+          "check_id": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
+          "claim_execution_binding_hash": "sha256:7420e73afea2e90c0088ac356223786bed65d552043c430235030ebc46649a6e",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -2846,7 +4152,7 @@
       "total_spend_decimal": "0",
       "within_budget": true
     },
-    "confidence_ledger_receipt_id": "confidence-ledger:sha256:cbb5361d2f139a88b874222a5573b5f04a2a28df7cf15c0b9e358bcb2bcbf643",
+    "confidence_ledger_receipt_id": "confidence-ledger:sha256:6c7c3125fe862455f3a2f44e9bdf4620a1b52a7e32a597baf34820a9ba712814",
     "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:b7e7a179a30f7e35b0e6b33a288cba61a39fc9e1cb57caad1b0d3e19e0b4bfb9",
     "confidence_ledger_semantic_projection": {
       "authority_provenance": "verification",
@@ -3082,7 +4388,7 @@
       "within_budget": true
     },
     "consumer_promotable": false,
-    "gate_outcome_hash": "sha256:cfd5be2192c60b52c1369e3c2f4392aeda94626d760e80c54f9dbbb98dffa2ee",
+    "gate_outcome_hash": "sha256:944e02e4206241a131739a58237d05bded8e5484ef4863696551e63b0291e743",
     "non_promotable_reason": "verification_only_replay",
     "obligations": [
       {
@@ -3213,7 +4519,7 @@
       {
         "detail": "calibration cannot support promotion: confidence ledger refusal or owner-claim binding failure non_anytime_valid; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2"
+          "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359"
         ],
         "gate_id": "n8_calibration",
         "identity_provenance": "recomputed",
@@ -3230,7 +4536,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
           "obligation_class": "calibration"
         },
         "semantic_scope": "real_semantics",
@@ -3258,7 +4564,7 @@
       {
         "detail": "data cannot support promotion: confidence ledger refusal or owner-claim binding failure owner_theorem_unavailable; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653"
+          "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49"
         ],
         "gate_id": "n8_value",
         "identity_provenance": "recomputed",
@@ -3275,7 +4581,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
           "obligation_class": "data"
         },
         "semantic_scope": "real_semantics",
@@ -3726,7 +5032,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:c790bf8ad2eaa7596ad19dbe99d90a19871b15e32288d818f6fdcd80476d35c2",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:69238552cd80e600f6f9eaae84fdc84fb36cc24adbf3b114ad1031bb208ee359",
           "obligation_class": "calibration"
         },
         {
@@ -3736,7 +5042,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:6109014e512e0c108d00ccbc376d2750bdeb1a9e3c72c975d11c5de4e2694653",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:2c33d2acbb0feb4a6b3c1b1b4f9e13d8c0ab83164af5da8d1f01b833bb101d49",
           "obligation_class": "data"
         }
       ],
@@ -3751,7 +5057,20 @@
     "value_method_family": "causal.inference.did.standard@1",
     "value_receipt_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
   },
-  "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v3",
+  "proof_input_strangle": {
+    "consumed_content_hash": "sha256:43e47ff94332eed2ea07e7298572b2927b04522fc39a7a78070589d0a8c838a3",
+    "content_hash": "sha256:e214b7bde3038422a6733346e77d88fe3f29740f74cb8fc8532b37bff00b4993",
+    "default_flipped": true,
+    "default_path": "unchanged_actual_cg2_producer_output",
+    "legacy_path": "post_production_cg2_certificate_rewrite",
+    "owner": "polisyos.runtime.quality.grounding_bind.GroundingBindGate",
+    "packet_type": "StrangleReceipt",
+    "predicate_provenance": "recomputed",
+    "recomputed_content_hash": "sha256:43e47ff94332eed2ea07e7298572b2927b04522fc39a7a78070589d0a8c838a3",
+    "schema_version": "policyos.runtime.quality.n9_proof_input_strangle.v1",
+    "synthetic": true
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion_contract.v2",
   "scope_insufficient_promotion_policy": {
     "contract_testing": "A CG2-derived contract-testing lane may retain scope_insufficient obligations only as unsatisfied, non-authoritative sequence coverage; consumer_promotable remains false and no production authority is minted.",
     "production": "Every scope_insufficient obligation is a typed refusal and prevents authoritative promotion."
@@ -3786,7 +5105,8 @@
     "src/polisyos/runtime/quality/generation_cycle.py",
     "src/polisyos/runtime/quality/grounding_bind.py",
     "src/polisyos/core/contracts/value_outer_set.py",
-    "src/polisyos/scientist/methods/search/judge_stack.py"
+    "src/polisyos/scientist/methods/search/judge_stack.py",
+    "src/polisyos/runtime/quality/credal_reference.py"
   ],
   "strangle_receipt": {
     "allowed_legacy_helpers": [
@@ -3797,5 +5117,6 @@
     "predecessor_ref": "polisyos.scientist.methods.search.judge_stack.PolicyPromotionCoordinator",
     "status": "strangled",
     "verified_by": "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
-  }
+  },
+  "synthetic": true
 }

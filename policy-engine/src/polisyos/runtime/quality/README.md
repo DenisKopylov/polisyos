@@ -263,13 +263,88 @@ an explicit override must match that bound source. Missing family scope remains
 an honest refusal for ambiguous source routes. Explicit null source is invalid,
 and the private omission sentinel is preserved through configuration forwarding.
 
-Lift records use `policyos.runtime.intervention_substrate_lift.v2`; the generated
-S3 report uses contract v2. Law threshold and temporal evaluations remain visible,
-while law-to-knob correspondence is `consumer_asserted` and current authority is
-`blocked` with an empty independent-evidence slot. Historical lift v1 law records
-are read under their original content hash and remain blocked for current authority.
-The mechanism report explicitly retains the unmet correspondence/free-growth
-acceptance condition; a green validator does not close GY-S3.
+Bundle, knob and route records retain lift v2. Law-resolution records and the
+current S3 report use v3; the strangle packet uses v2. Foundry's
+`legal_correspondence` owner resolves separately addressed source memberships and
+compares namespace, namespace version and subject identity before runtime asks
+L3 to evaluate a numerical threshold. Missing subject returns ambiguous with
+numeric evaluation not run. Source-relative recognition and the real threshold
+result remain distinct from current legal authority, which is blocked for
+synthetic or unverified source identity. Synthetic annotations are retained in
+both controlling source artifacts and derived results. Historical v1/v2 law
+records retain their original projections and do not acquire current authority.
+
+The real L6 bundle still lacks an independently authorized legal-subject spine.
+The CORR controls exercise every real executable pair against independently
+addressed marked annotations, including correct and transposed pairs. Their
+mechanical proof does not supply the requirement
+`lever-legal-subject-key-in-the-norm-namespace`.
+
+## CG2 admission accounting and pre-outcome frames
+
+`grounding_bind.GroundingBindGate` remains the sole binder. Its v2 decisions
+carry synthetic ancestry, a run-admission observation and a recomputed strangle
+of per-attempt charging. `grounding_risk.GroundingRunBudget` extends existing
+Core CAS and Fabric locking: only admitted bindings debit the configured run
+allowance. Replayed admissions are idempotent; missing cache heads cannot reset
+spend, and unresolved durable state cannot create a new balance. Exhaustion or
+missing persistence retains candidate custody under INT-K06 with no correctness
+number. Historical v1 certificate serialization omits the added v2 fields.
+
+`grounding_calibration` owns dated input-only frames and constructed-mismatch
+suite declarations. Difficulty depends on input structure; source-sharing
+components are the declared observation unit. Model, prompt, birth cohort and
+reference changes stale the epoch scope. No empirical calibration is issued by
+this mechanism. Refusal sensitivity has its own named output and always carries:
+A high refusal rate on constructed mismatches is not evidence that accepted
+bindings are correct.
+
+The current CG2 contract report retains the canonical reference attempt and its
+confidence-withholding result separately from the marked structural mechanism
+controls. A green mechanism report grants no canonical admission credit. The
+registered refusal-result checker recomputes the unchanged dated declaration;
+`--check` never replaces the persisted result.
+
+CG2 and CG3 report envelopes use v3 for their shared complete proof-world input.
+The existing `grounding_calibration` owner resolves the independently addressed
+declaration against the original Core artifact, including its byte identity,
+schema, logical world hash and creation time. A fresh WMR with an equal logical
+hash is not the declared input. Missing source custody fails closed; the marker
+and report purpose keep these synthetic controls outside production authority.
+Certificate epochs remain v2.
+
+CG3 retains the existing novelty and shadow-registration owners. Current v2
+certificates, registry patches and admission ledgers each carry their own
+synthetic provenance. A mechanically admitted novel lever can enter the shadow
+registry while remaining non-promotable. The admission owner recomputes source
+ancestry instead of trusting a caller's CG2 flag. Historical v1 child bodies and
+hashes remain readable without acquiring the added v2 fields.
+
+## N4 source custody through N6 and N9
+
+`generation_source` persists the existing N4 organ's typed Trinity bundle,
+candidate atoms, parsed-candidate provenance, grounding inputs and bound cycle
+substrate in Core CAS. It replays the complete source and resolves the exact
+problem/candidate/atom identity. N6's default N4 port retains the organ instead
+of discarding it after projecting a result. Current run and acquisition-reentry
+v2 envelopes retain the source references, source limitations and a recomputed
+preservation strangle. Repeated identical source occurrences are idempotent;
+conflicting occurrences do not yield writer inputs.
+
+The capsule uses Core's typed canonical codec so Decimal values survive custody.
+N9's existing EFFECT writer owns its JSON wire projection; the handoff accepts
+that projection only when the real grounding owner reproduces the complete
+original certificate. Missing references or changed grounding semantics produce
+`not_established`. Missing writer inputs stay absent. The mechanism neither
+reconstructs a design from catalog defaults nor supplies protected admission.
+
+The N9 evidence bridge uses v3 to separate the real producer's mechanical
+disposition from authority. Its own synthetic marker is recomputed from actual
+source bytes and the bound candidate. The independently persisted independence
+and EFFECT source records use v2 and carry their own marker as well. Synthetic
+evidence cannot resolve as authority-grade established evidence. Historical
+bridge v1/v2 and source v1 bodies retain their original epochs; N9 receipt v6
+and owner projection v3 remain unchanged.
 
 ## S8 generation disposition
 

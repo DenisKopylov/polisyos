@@ -391,3 +391,30 @@ status, and non-emission; P35/P36 preserve the cited denominators; P29/P38 requi
 validation of the vocabulary and consumer outcome, rather than field-name presence. The data
 requirement remains `absent` (`artifact_missing`) until the pass supplies and validates the
 claim-level axis; registering it does not supply those artifacts.
+
+**Acquisition state, updated 2026-09-09 — the constraint moved and it is no longer money.**
+The re-extraction pipeline exists and is verified on a declared marked subset (CORR workstream C1,
+branch `codex/corr-capability`, not yet on `main`). Its first live attempt failed on the configured
+provider returning HTTP 429 `insufficient_quota` — an account billing state, not a technical limit —
+so both campaign cost estimates stood at `not_established`. A second provider is now available at
+roughly a thousandth of the price with a large quota, which **removes cost as the deciding
+question** and leaves three that actually decide it, none of them a dollar figure:
+
+- **Local resource share.** The pass may take about a week, on the machine development happens on.
+  Whether it is I/O-bound and harmless in the background, or competes for CPU and memory, decides
+  whether it runs here or on rented infrastructure. Being measured as a CPU-to-wall ratio, a peak
+  RSS and a memory trend over documents processed, rather than reasoned about.
+- **Throughput.** The achievable request concurrency and the point where added concurrency stops
+  adding throughput. That knee times the corpus is the wall clock, and the provider's documented
+  absence of proxy-side rate limits says nothing about upstream node capacity.
+- **Extraction quality.** Two models are servable and neither is the one originally declared, so the
+  model must be chosen on evidence and named in the artifact's provenance. No gold standard exists
+  for extraction here either; inter-model disagreement is a **lower bound on error** and nothing
+  more.
+
+Two requirements this makes explicit for any future acquisition, including a later expansion of the
+extraction base to more articles. **Resumability must be proven by interruption** — a week-long job
+will be interrupted, and a resumability claim that was never interrupted is not a claim. And
+**nothing may assume the present document count**: no accumulation proportional to the corpus, and
+a stated design limit with what would breach it. The full pass is deliberately not authorised until
+those measurements exist.

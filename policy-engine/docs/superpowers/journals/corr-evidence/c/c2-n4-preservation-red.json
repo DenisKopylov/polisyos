@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_generation_source.py::test_default_n4_port_preserves_actual_organ_bundle -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_generation_source.py::test_default_n4_port_preserves_actual_organ_bundle",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 91.15814045805018,
+  "timeout_seconds": 180.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________ test_default_n4_port_preserves_actual_organ_bundle ______________\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13ed1fe10>\n\n    @pytest.mark.asyncio\n    async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):\n        \"\"\"The real N4 port must not erase the producer's enclosing source object.\"\"\"\n        problem = _test_design_problem()\n>       intervention = _intervention(\"corr.synthetic.source\").model_copy(\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n            update={\"measurement_expectations\": {\"synthetic\": True}}\n        )\n\ntests/unit/runtime/quality/test_generation_source.py:20: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nintervention_id = 'corr.synthetic.source'\n\n    def _intervention(intervention_id: str) -> InterventionSpec:\n>       return InterventionSpec(\n            intervention_id=intervention_id,\n            kind=\"tax_relief_rate\",\n            target=_selector(),\n            schedule=ScheduleSpec(start_step=0, duration_steps=1),\n            params={\"rate\": Decimal(\"0.08\")},\n        )\nE       pydantic_core._pydantic_core.ValidationError: 1 validation error for InterventionSpec\nE       intervention_id\nE         String should match pattern '^[a-z][a-z0-9_]*$' [type=string_pattern_mismatch, input_value='corr.synthetic.source', input_type=str]\nE           For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch\n\ntests/unit/runtime/quality/test_design_generation.py:438: ValidationError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_generation_source.py::test_default_n4_port_preserves_actual_organ_bundle\n",
+  "stderr": ""
+}

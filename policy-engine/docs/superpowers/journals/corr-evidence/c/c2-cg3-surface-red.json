@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_generation_source.py::test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_generation_source.py::test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 185.4138230420649,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______ test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation ______\n\n    def test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation():\n        \"\"\"The actual synthetic CG3 admission stays visible in N4's refusal-path output.\"\"\"\n        from polisyos.runtime.quality.grounding_admission import GroundingAdmissionEngine\n        from tests.unit.runtime.quality.test_grounding_admission import (\n            _cg2_novel,\n            _novel_transfer_probe,\n            _reference,\n        )\n    \n        reference = _reference(include_mechanism=True)\n        cg1, cg2 = _cg2_novel(reference, _novel_transfer_probe())\n        cg3 = GroundingAdmissionEngine(reference).decide(cg2, cg1_certificate=cg1)\n        assert cg3.synthetic is True\n        assert not cg3.production_promotable\n        observed = n4._non_binding_cause(cg1, cg2, cg3)\n>       assert observed[\"synthetic\"] is True\n               ^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'synthetic'\n\ntests/unit/runtime/quality/test_generation_source.py:654: KeyError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_generation_source.py::test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation\n",
+  "stderr": ""
+}

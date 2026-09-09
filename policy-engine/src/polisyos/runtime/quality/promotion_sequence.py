@@ -19,9 +19,18 @@ from pathlib import Path
 from typing import Any, Literal
 from weakref import WeakKeyDictionary
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon
 from polisyos.core import contracts as core_contracts
 
 # The former TC001-suppressed posture DTOs remain eager for Pydantic runtime resolution.
@@ -176,8 +185,8 @@ _PROMOTION_CLASS_GATE_SOURCE_RULE_VERSION = (
     "polisyos.policy_design_case.layer3_gy.n9_class_gate_source.v1"
 )
 _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
-    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
-] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
+    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"
+] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"
 _LEGACY_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
 ] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
@@ -192,11 +201,11 @@ _EFFECT_OBLIGATION_SOURCE_KIND: Literal["polisyos.gy.n9_effect_obligation_produc
     "polisyos.gy.n9_effect_obligation_producer_record"
 )
 _EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION: Literal[
-    "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
-] = "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
+    "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v2"
+] = "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v2"
 _MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
 _PROMOTION_EVIDENCE_VERIFIER_KIND = "polisyos.gy.n9_promotion_evidence_verifier"
-_PROMOTION_EVIDENCE_VERIFIER_BYTES = b"polisyos.n9-promotion-evidence.verifier.v2\n"
+_PROMOTION_EVIDENCE_VERIFIER_BYTES = b"polisyos.n9-promotion-evidence.verifier.v3\n"
 _EFFECTIVE_INDEPENDENCE_BRIDGE_TYPE = "N9EffectiveIndependenceBridge"
 _MEASUREMENT_ROOT_BRIDGE_TYPE = "N9MeasurementRootBridge"
 _EFFECT_OBLIGATION_BRIDGE_TYPE = "N9EffectObligationBridge"
@@ -364,8 +373,10 @@ class _EffectiveIndependenceProducerRecord(_StrictModel):
     """Persist the exact inputs and output of the real independence producer."""
 
     schema_version: Literal[
-        "policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v1"
-    ] = "policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v1"
+        "policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v1",
+        "policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v2",
+    ] = "policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v2"
+    synthetic: Literal[True] | None = None
     evidence_lines: tuple[dict[str, Any], ...]
     portfolio_designs: tuple[dict[str, Any], ...]
     graph_id: str = Field(min_length=1)
@@ -375,13 +386,24 @@ class _EffectiveIndependenceProducerRecord(_StrictModel):
     rare_domain_context: dict[str, Any] | None = None
     graph: dict[str, Any]
 
+    @model_validator(mode="after")
+    def _validate_marker_epoch(self) -> _EffectiveIndependenceProducerRecord:
+        _validate_evidence_source_epoch(self)
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_marker_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        return _evidence_source_epoch_payload(handler(self), self.schema_version)
+
 
 class _EffectObligationProducerRecord(_StrictModel):
     """Exact replay inputs and outcome for the RACE O_effect producer."""
 
     schema_version: Literal[
-        "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
+        "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1",
+        "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v2",
     ] = _EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION
+    synthetic: Literal[True] | None = None
     intervention_atom: InterventionAtomBinding
     intervention_substrate: InterventionSubstrateBundle
     world_model_record: WorldModelRecord
@@ -396,6 +418,48 @@ class _EffectObligationProducerRecord(_StrictModel):
     grounding_relation: GroundingRelationCertificate
     disposition: Literal["established", "blocked"]
     limitation_code: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_marker_epoch(self) -> _EffectObligationProducerRecord:
+        _validate_evidence_source_epoch(self)
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_marker_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        return _evidence_source_epoch_payload(handler(self), self.schema_version)
+
+
+def _validate_evidence_source_epoch(
+    source: _EffectiveIndependenceProducerRecord | _EffectObligationProducerRecord,
+) -> None:
+    if source.schema_version.endswith(".v1") and "synthetic" in source.model_fields_set:
+        raise ValueError("historical_evidence_source_cannot_be_restamped")
+
+
+def _evidence_source_epoch_payload(payload: dict[str, Any], schema_version: str) -> dict[str, Any]:
+    if schema_version.endswith(".v1"):
+        payload.pop("synthetic", None)
+    return payload
+
+
+def _synthetic_evidence_payload(*values: object) -> Literal[True] | None:
+    """Carry any marked ancestry across the complete owned emission payload."""
+    pending = list(values)
+    marked = False
+    while pending:
+        item = pending.pop()
+        if isinstance(item, BaseModel):
+            pending.append(item.model_dump(mode="json"))
+        elif isinstance(item, Mapping):
+            if "synthetic" in item:
+                value = item["synthetic"]
+                if value is not None and type(value) is not bool:
+                    raise ValueError("promotion_evidence_synthetic_marker_invalid")
+                marked = marked or value is True
+            pending.extend(item.values())
+        elif isinstance(item, (tuple, list)):
+            pending.extend(item)
+    return True if marked else None
 
 
 class _LegacyN9PromotionEvidenceBridgeRecordV1(_StrictModel):
@@ -425,9 +489,10 @@ class _LegacyN9PromotionEvidenceBridgeRecordV1(_StrictModel):
 class N9PromotionEvidenceBridgeRecord(_StrictModel):
     """Current candidate/problem binding from a real producer artifact into N9."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"] = (
-        _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
-    )
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2",
+        "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3",
+    ] = _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
     evidence_kind: _PromotionEvidenceKind
     candidate_id: str = Field(min_length=1)
     candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -441,6 +506,33 @@ class N9PromotionEvidenceBridgeRecord(_StrictModel):
     disposition: Literal["established", "blocked"]
     limitation_code: str = Field(min_length=1)
     verifier_provenance_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    synthetic: Literal[True] | None = None
+    source_disposition: Literal["established", "blocked"] | None = None
+    source_limitation_code: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_source_authority_projection(self) -> N9PromotionEvidenceBridgeRecord:
+        fields = {"synthetic", "source_disposition", "source_limitation_code"}
+        if self.schema_version.endswith(".v2"):
+            if fields & self.model_fields_set:
+                raise ValueError("historical_evidence_bridge_cannot_be_restamped")
+        elif self.source_disposition is None or not self.source_limitation_code:
+            raise ValueError("evidence_bridge_source_outcome_missing")
+        elif self.synthetic is True and (
+            self.disposition != "blocked"
+            or self.limitation_code != "synthetic_evidence_cannot_grant_authority"
+        ):
+            raise ValueError("synthetic_evidence_bridge_cannot_grant_authority")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_bridge_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version.endswith(".v2"):
+            for field in ("synthetic", "source_disposition", "source_limitation_code"):
+                payload.pop(field, None)
+        return payload
 
 
 class N9PromotionEvidenceResolution(_StrictModel):
@@ -540,6 +632,9 @@ class N9PromotionEvidenceBridgeRepository:
             graded_independence_config=normalized_config,
             rare_domain_context=normalized_scarcity,
             graph=graph,
+        )
+        producer_record = producer_record.model_copy(
+            update={"synthetic": _synthetic_evidence_payload(producer_record, promotion_input)}
         )
         source_ref, source_semantic_hash, _raw = _persist_model(
             store=self._store,
@@ -662,6 +757,9 @@ class N9PromotionEvidenceBridgeRepository:
             disposition=disposition,
             limitation_code=limitation,
         )
+        source = source.model_copy(
+            update={"synthetic": _synthetic_evidence_payload(source, promotion_input)}
+        )
         source_ref, source_semantic_hash, _raw = _persist_model(
             store=self._store,
             value=source,
@@ -695,7 +793,7 @@ class N9PromotionEvidenceBridgeRepository:
             if (
                 bridge_ref.artifact_type != expected_type
                 or bridge_ref.schema_ref != _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
-                or bridge_ref.version != "v2"
+                or bridge_ref.version != "v3"
                 or bridge_ref.uri != f"cas://{bridge_ref.artifact_id}"
             ):
                 raise ValueError("promotion_evidence_bridge_ref_invalid")
@@ -732,8 +830,20 @@ class N9PromotionEvidenceBridgeRepository:
                     record,
                     promotion_input=promotion_input,
                 )
-            if record.disposition != disposition or record.limitation_code != limitation:
+            if (
+                record.source_disposition != disposition
+                or record.source_limitation_code != limitation
+            ):
                 raise ValueError("promotion_evidence_bridge_disposition_drift")
+            synthetic = self._source_synthetic_provenance(
+                record.source_artifact_id, promotion_input=promotion_input
+            )
+            if record.synthetic is not synthetic:
+                raise ValueError("promotion_evidence_bridge_synthetic_provenance_drift")
+            if synthetic is True:
+                disposition, limitation = "blocked", "synthetic_evidence_cannot_grant_authority"
+            if record.disposition != disposition or record.limitation_code != limitation:
+                raise ValueError("promotion_evidence_bridge_authority_projection_drift")
             return N9PromotionEvidenceResolution(
                 evidence_kind=evidence_kind,
                 status="established" if disposition == "established" else "refused",
@@ -765,6 +875,9 @@ class N9PromotionEvidenceBridgeRepository:
         disposition: Literal["established", "blocked"],
         limitation_code: str,
     ) -> ArtifactRef:
+        synthetic = self._source_synthetic_provenance(
+            source_artifact_id, promotion_input=promotion_input
+        )
         record = N9PromotionEvidenceBridgeRecord(
             evidence_kind=evidence_kind,
             candidate_id=promotion_input.candidate_summary.candidate_id,
@@ -776,8 +889,15 @@ class N9PromotionEvidenceBridgeRepository:
             source_semantic_hash=source_semantic_hash,
             source_schema_ref=source_schema_ref,
             source_root_ref=source_root_ref,
-            disposition=disposition,
-            limitation_code=limitation_code,
+            synthetic=synthetic,
+            source_disposition=disposition,
+            source_limitation_code=limitation_code,
+            disposition="blocked" if synthetic is True else disposition,
+            limitation_code=(
+                "synthetic_evidence_cannot_grant_authority"
+                if synthetic is True
+                else limitation_code
+            ),
             verifier_provenance_ref=str(self._verifier_provenance_ref.artifact_id),
         )
         ref, _semantic, _raw = _persist_model(
@@ -792,7 +912,23 @@ class N9PromotionEvidenceBridgeRepository:
             content_hash=gy_content_hash(record.model_dump(mode="json")),
             schema_ref=_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION,
             uri=f"cas://{ref.artifact_id}",
-            version="v2",
+            version="v3",
+        )
+
+    def _source_synthetic_provenance(
+        self, source_artifact_id: str, *, promotion_input: CanonicalPromotionInput
+    ) -> Literal[True] | None:
+        """Recompute marked ancestry from actual source bytes and their bound candidate.
+
+        An absent marker is retained as unknown, never asserted to establish a
+        real source. Existing evidence owners still decide the source outcome.
+        """
+        raw = self._store.get_bytes(core_artifacts.ArtifactID(source_artifact_id))
+        if _raw_hash(raw) != source_artifact_id or not self._store.verify(source_artifact_id).ok:
+            raise ValueError("promotion_evidence_source_content_mismatch")
+        return _synthetic_evidence_payload(
+            canon.from_canonical_bytes(raw),
+            promotion_input,
         )
 
     def _resolve_independence_record(
@@ -901,6 +1037,8 @@ class N9PromotionEvidenceBridgeRepository:
         )
         if not isinstance(source, _EffectObligationProducerRecord):
             raise TypeError("effect_obligation_source_model_invalid")
+        if source.schema_version != record.source_schema_ref:
+            raise ValueError("effect_obligation_source_schema_mismatch")
         if _semantic_hash(_EFFECT_OBLIGATION_SOURCE_KIND, source) != record.source_semantic_hash:
             raise ValueError("effect_obligation_source_binding_invalid")
         promotion_reference = promotion_input.credal_reference
@@ -4464,9 +4602,15 @@ def _cg2_resolution_is_contract_lane_bind(
         resolution.decision == "bind"
         and resolution.authority_scope == "contract_testing"
         and resolution.store_authority_scope == "contract_testing"
-        and resolution.reason == "non_production_anchor_scope"
+        and resolution.reason
+        in {"non_production_anchor_scope", "synthetic_input_cannot_grant_authority"}
         and resolution.content_hash_valid
         and resolution.reference_epoch_match
+        and not resolution.promotable
+        and not resolution.certificate_promotable_claim
+        and resolution.owned_anchor_id is not None
+        and resolution.certificate_anchor_content_hash is not None
+        and resolution.certificate_anchor_content_hash == resolution.store_anchor_content_hash
     )
 
 

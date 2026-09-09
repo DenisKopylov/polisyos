@@ -178,7 +178,7 @@ async def test_subset_persists_axes_and_refuses_unadjudicated_publication(tmp_pa
         ("structural", "candidate"),
         ("unknown", "candidate"),
         (None, "not_established"),
-    }
+    }, "raw_source_presence_transport_lost:" + json.dumps(sorted(set(axes), key=str))
     missing_axes = con.execute(
         "SELECT design_family_hint,design_family_hint_status,claim_extraction_confidence,"
         "claim_extraction_confidence_status FROM ac_causal_claims_raw "
@@ -299,8 +299,9 @@ async def test_removal_of_source_presence_preservation_breaks_actual_raw_project
         original(self, **kwargs)
 
     monkeypatch.setattr(owner._SubsetExtractor, "__init__", remove_presence)
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError, match="raw_source_presence_transport_lost") as observed:
         await test_subset_persists_axes_and_refuses_unadjudicated_publication(tmp_path)
+    print(json.dumps({"removed_property": "raw_source_presence", "gate_failure": str(observed.value)}))
 
 
 def test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_path: Path) -> None:
@@ -410,7 +411,20 @@ def test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_p
     link.symlink_to(config.db_path)
     edges = tuple(credal._iter_l2_edges(repo))
     assert edges
-    assert all(edge.provenance["synthetic"] is True for edge in edges)
+    assert all(edge.provenance.get("synthetic") is True for edge in edges), (
+        "snapshot_synthetic_ancestry_lost:"
+        + json.dumps(
+            [
+                {
+                    "identity": edge.key,
+                    "marker_present": "synthetic" in edge.provenance,
+                    "value": edge.provenance.get("synthetic", "ABSENT"),
+                }
+                for edge in edges
+            ],
+            sort_keys=True,
+        )
+    )
     original = _reference()
     edge_index = {**original.essential_edges, **{edge.key: edge for edge in edges}}
     digest = credal._reference_hash(
@@ -431,7 +445,17 @@ def test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_p
     ).certificate_for(proposal)
     assert mechanical.decision == "bind"
     production = GroundingBindGate(reference).certificate_for(proposal)
-    assert production.decisive_reason == "synthetic_input_candidate_only"
+    assert production.decisive_reason == "synthetic_input_candidate_only", (
+        "synthetic_specific_refusal_lost:"
+        + json.dumps(
+            {
+                "mechanical_decision": mechanical.decision,
+                "production_decision": production.decision,
+                "production_reason": production.decisive_reason,
+            },
+            sort_keys=True,
+        )
+    )
     assert (
         resolve_grounding_decision_promotability(production, reference).reason
         == "synthetic_input_cannot_grant_authority"
@@ -442,16 +466,18 @@ def test_removal_of_snapshot_provenance_breaks_sibling_consumer_gate(tmp_path, m
     from polisyos.runtime.quality import credal_reference as credal
 
     monkeypatch.setattr(credal, "_iter_l2_edges", credal._iter_l2_source_edges)
-    with pytest.raises((AssertionError, KeyError)):
+    with pytest.raises(AssertionError, match="snapshot_synthetic_ancestry_lost") as observed:
         test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_path)
+    print(json.dumps({"removed_property": "snapshot_ancestry", "gate_failure": str(observed.value)}))
 
 
 def test_removal_of_synthetic_authority_refusal_breaks_downstream_gate(tmp_path, monkeypatch):
     from polisyos.runtime.quality import grounding_bind
 
     monkeypatch.setattr(grounding_bind, "_synthetic_reference", lambda _reference: False)
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError, match="synthetic_specific_refusal_lost") as observed:
         test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_path)
+    print(json.dumps({"removed_property": "synthetic_refusal", "gate_failure": str(observed.value)}))
 
 
 def test_price_uses_observed_tokens_preserves_missing_and_excludes_synthetic():

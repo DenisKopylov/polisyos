@@ -1,0 +1,27 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": "env CORR_C_WORLD_CAS=.tmp/gy-s-composed-wmr-cas CORR_C_WORLD_REF=sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 CORR_C_WORLD_HASH=sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6 .venv/bin/python -m pytest tests/unit/runtime/quality/test_generation_source.py::test_current_effect_bridge_binds_actual_historical_emitter_epoch tests/unit/runtime/quality/test_promotion_evidence_epoch.py -q -rP --junitxml=docs/superpowers/journals/corr-evidence/c/c2-effect-epoch-green.xml",
+  "argv": [
+    "env",
+    "CORR_C_WORLD_CAS=.tmp/gy-s-composed-wmr-cas",
+    "CORR_C_WORLD_REF=sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+    "CORR_C_WORLD_HASH=sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6",
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_generation_source.py::test_current_effect_bridge_binds_actual_historical_emitter_epoch",
+    "tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+    "-q",
+    "-rP",
+    "--junitxml=docs/superpowers/journals/corr-evidence/c/c2-effect-epoch-green.xml"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 32.653156957938336,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "...                                                                      [100%]\n==================================== PASSES ====================================\n_______ test_current_effect_bridge_binds_actual_historical_emitter_epoch _______\n----------------------------- Captured stdout call -----------------------------\n{\"actual_source_schema\": \"policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1\", \"claimed_source_schema\": \"policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v2\", \"consumed_source_ids\": [\"sha256:c460abaa8e95692869f9bef719071dcdb7bd4bf498e995f753c8fe9fde404aef\"], \"mechanical_reader_outcomes\": [], \"outer_disposition\": {\"evidence_kind\": \"effect_obligation\", \"evidence_refs\": [], \"limitation_code\": \"effect_obligation_evidence_not_established\", \"owner_ref\": \"polisyos.runtime.quality.promotion_sequence.N9PromotionEvidenceBridgeRepository.persist_effect_obligation\", \"predicate_class\": \"not_established\", \"status\": \"not_established\"}, \"reader_errors\": [\"effect_obligation_source_schema_mismatch\"]}\n",
+  "stderr": ""
+}

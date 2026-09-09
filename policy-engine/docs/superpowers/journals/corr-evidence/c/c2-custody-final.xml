@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="10" failures="0" skipped="0" tests="18" time="99.871" timestamp="2026-09-09T08:24:11.705782+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_default_n4_port_preserves_actual_organ_bundle" time="0.016" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_synthetic_cg2_contract_mechanism_remains_non_promotable" time="1.288" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_actual_source_roundtrip_and_repeat_identity" time="0.016"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_contract_scope_marks_each_persisted_capsule" time="0.033" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_source_replay_requires_actual_persistence_owner_profile" time="0.044" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_tracked_owner_epochs_remain_exactly_readable" time="0.064" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_default_controller_custody_and_missing_protected_admission" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_data_only_new_candidate_preserves_complete_source_identity" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_actual_retained_source_drives_effect_writer_and_marks_bridge" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_synthetic_independence_source_establishes_mechanics_but_never_authority" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_effect_writer_json_projection_preserves_complete_cg1" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_custody_requires_actual_reference" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_semantically_changed_writer_projection_refuses" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_conflicting_complete_source_for_same_triple_refuses" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_source_intake_recomputes_original_candidate_provenance" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3&quot;">@pytest.fixture(scope="module")
+    def actual_n4_source():
+        """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
+        import hashlib
+        import os
+        from dataclasses import replace
+        from decimal import Decimal
+        from pathlib import Path
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
+        from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+        from polisyos.runtime.quality.intervention_substrate import (
+            load_l6_intervention_substrate,
+            production_composed_world_model_record,
+        )
+        from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+        from polisyos.runtime.quality.world_model_record import load_world_model_record
+        from tests.unit.runtime.quality.test_design_generation import _llm_call
+        from tests.unit.runtime.quality.test_grounding_bind import _reference
+    
+        root = Path(__file__).resolve().parents[4]
+        pin = tuple(
+            os.environ.get(key)
+            for key in ("CORR_C_WORLD_CAS", "CORR_C_WORLD_REF", "CORR_C_WORLD_HASH")
+        )
+        if any(value is not None for value in pin):
+            assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
+            store = artifacts.FileSystemCAS(root / pin[0])
+            assert store.verify(pin[1]).ok
+            assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
+            world = load_world_model_record(store, pin[1])
+            assert world.content_hash == pin[2]
+        else:
+            world = production_composed_world_model_record(root)
+            store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
+&gt;       registry = load_substrate_registry(store, world.substrate_registry_ref.registry_artifact_ref)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_generation_source.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/substrate_registry.py:1032: in load_substrate_registry
+    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x10cf33a10&gt;
+artifact_id = ArtifactID(root='sha256:f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3')
+
+    def get_bytes(self, artifact_id: ArtifactID | str) -&gt; bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+    
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
+        blob, _ = self._paths(artifact_id)
+        if not self._hpc_enabled or self._tracer is None:
+            return self._read_verified_blob(artifact_id, blob)
+    
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+&gt;               raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+E               FileNotFoundError: Artifact not found: f28a728c59997e7cdd2a044587c4c985c0a5d2406a5402351e59fe2d4d9c1db3
+
+src/polisyos/core/artifacts/store.py:446: FileNotFoundError</error></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation" time="0.243" /><testcase classname="tests.unit.runtime.quality.test_promotion_evidence_epoch" name="test_actual_v2_evidence_bridge_retains_its_exact_producer_bytes" time="0.012" /><testcase classname="tests.unit.runtime.quality.test_promotion_evidence_epoch" name="test_actual_v1_independence_source_retains_its_exact_producer_bytes" time="0.012" /></testsuite></testsuites>

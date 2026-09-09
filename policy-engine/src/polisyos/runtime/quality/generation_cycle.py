@@ -27,7 +27,14 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.core import components as core_components
 from polisyos.core import contracts as core_contracts
@@ -118,6 +125,7 @@ if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.open_world_risk import (
         OpenWorldRiskArtifactResolver,
         PromotionRuntime,
@@ -126,9 +134,9 @@ if TYPE_CHECKING:
         N9PromotionEvidenceBridgeRepository,
     )
 
-GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v1"
+GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v2"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
-    "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v1"
+    "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v2"
 )
 GENERATION_CYCLE_RULE_VERSION = "policyos.layer3.gy.n6.generation_cycle.v1"
 GENERATION_CYCLE_CONTROLLER_REF = (
@@ -186,6 +194,30 @@ class _StrictModel(BaseModel):
     """Strict immutable base model for public N6 artifacts."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
+
+
+def _historical_supplied_field_tree(value: object, payload: object) -> object:
+    """Preserve historical source presence without promoting newer nested defaults."""
+    if isinstance(value, BaseModel) and isinstance(payload, dict):
+        fields_by_key = {
+            key: name
+            for name, field in type(value).model_fields.items()
+            for key in (name, field.alias, field.serialization_alias)
+            if isinstance(key, str)
+        }
+        return {
+            key: _historical_supplied_field_tree(getattr(value, fields_by_key[key]), item)
+            for key, item in payload.items()
+            if key in fields_by_key and fields_by_key[key] in value.model_fields_set
+        }
+    if isinstance(value, Mapping) and isinstance(payload, dict):
+        return {key: _historical_supplied_field_tree(value[key], item)
+                for key, item in payload.items() if key in value}
+    if isinstance(value, (tuple, list)) and isinstance(payload, (tuple, list)):
+        return [_historical_supplied_field_tree(original, item)
+                for original, item in zip(value, payload, strict=True)]
+    return payload
+
 
 
 class CandidateGroundingObservation(_StrictModel):
@@ -841,11 +873,49 @@ class GenerationCycleRecord(_StrictModel):
         return self
 
 
+class GenerationSourcePreservationReceipt(_StrictModel):
+    """Run-emitted comparison of actual N4 identities with independently read CAS inputs."""
+
+    schema_version: Literal["policyos.runtime.generation_source_preservation_strangle.v1"] = (
+        "policyos.runtime.generation_source_preservation_strangle.v1"
+    )
+    rule_version: Literal["policyos.runtime.generation_source_preservation.v1"] = (
+        "policyos.runtime.generation_source_preservation.v1"
+    )
+    legacy_path: Literal["N4GenerationPort.result_only"] = "N4GenerationPort.result_only"
+    default_path: Literal["N4GenerationPort.organ_source_custody"] = (
+        "N4GenerationPort.organ_source_custody"
+    )
+    predicate_class: Literal["recomputed"] = "recomputed"
+    synthetic: bool | None
+    run_id: str
+    source_refs: tuple[str, ...]
+    expected_identity_count: int
+    expected_identity_digest: str
+    retained_identity_count: int
+    retained_identity_digest: str
+    issues: tuple[str, ...]
+    status: Literal["strangled", "not_established", "drift"]
+    content_hash: str
+
+    @model_validator(mode="after")
+    def _verify_content_hash(self) -> GenerationSourcePreservationReceipt:
+        if self.content_hash != gy_content_hash(
+            self.model_dump(mode="json", exclude={"content_hash"})
+        ):
+            raise ValueError("generation_source_strangle_hash_mismatch")
+        return self
+
+
+
 class AcquisitionOverlayReentryReceipt(_StrictModel):
     """Immutable proof of direct N6 re-entry over one active owner overlay."""
 
-    schema_version: Literal["policyos.runtime.acquisition_overlay_reentry.v1"] = (
-        "policyos.runtime.acquisition_overlay_reentry.v1"
+    schema_version: Literal[
+        "policyos.runtime.acquisition_overlay_reentry.v1",
+        "policyos.runtime.acquisition_overlay_reentry.v2",
+    ] = (
+        "policyos.runtime.acquisition_overlay_reentry.v2"
     )
     source_run_id: str = Field(min_length=1)
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -864,6 +934,9 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
     semantic_epoch_production_receipt_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     new_cycle: GenerationCycleRecord
     candidate_summaries: tuple[CandidateSummary, ...]
+    synthetic: bool | None = None
+    source_handoff_refs: tuple[str, ...] = ()
+    source_preservation_receipt: GenerationSourcePreservationReceipt | None = None
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @classmethod
@@ -871,7 +944,7 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
         """Content-bind one independently reconciled direct re-entry result."""
 
         identity_payload = {
-            "schema_version": "policyos.runtime.acquisition_overlay_reentry.v1",
+            "schema_version": "policyos.runtime.acquisition_overlay_reentry.v2",
             **payload,
         }
         draft = cls.model_construct(
@@ -885,9 +958,34 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_self_hash(self) -> AcquisitionOverlayReentryReceipt:
+        if self.schema_version.endswith(".v1") and (
+            self.synthetic is not None
+            or self.source_handoff_refs
+            or self.source_preservation_receipt
+        ):
+            raise ValueError("historical_reentry_cannot_acquire_source_custody")
+        receipt = self.source_preservation_receipt
+        if receipt is not None and (
+            receipt.run_id != self.source_run_id
+            or receipt.source_refs != self.source_handoff_refs
+            or receipt.synthetic is not self.synthetic
+        ):
+            raise ValueError("generation_source_reentry_receipt_binding_mismatch")
         if self.content_hash != gy_content_hash(gy_artifact_self_identity_projection(self)):
             raise ValueError("acquisition_overlay_reentry_hash_mismatch")
         return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version.endswith(".v1"):
+            supplied = _historical_supplied_field_tree(self, payload)
+            if not isinstance(supplied, dict):
+                raise TypeError("historical_generation_payload_invalid")
+            payload = supplied
+            for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
+                payload.pop(key, None)
+        return payload
 
 
 class StrangleReceipt(_StrictModel):
@@ -922,7 +1020,10 @@ class StrangleReceipt(_StrictModel):
 class GenerationCycleRun(_StrictModel):
     """N6 run artifact containing cycles, fronts, ports, and strangle evidence."""
 
-    schema_version: str = GENERATION_CYCLE_SCHEMA_VERSION
+    schema_version: Literal[
+        "policyos.runtime.generation_cycle_controller.v1",
+        "policyos.runtime.generation_cycle_controller.v2",
+    ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     controller_ref: str = GENERATION_CYCLE_CONTROLLER_REF
@@ -937,6 +1038,38 @@ class GenerationCycleRun(_StrictModel):
     strangle_receipt: StrangleReceipt
     terminal_status: TerminalStatus = "completed"
     blocked_reason: str | None = None
+    synthetic: bool | None = None
+    source_handoff_refs: tuple[str, ...] = ()
+    source_preservation_receipt: GenerationSourcePreservationReceipt | None = None
+
+    @model_validator(mode="after")
+    def _bind_source_custody_epoch(self) -> GenerationCycleRun:
+        if self.schema_version.endswith(".v1") and (
+            self.synthetic is not None
+            or self.source_handoff_refs
+            or self.source_preservation_receipt
+        ):
+            raise ValueError("historical_generation_cannot_acquire_source_custody")
+        receipt = self.source_preservation_receipt
+        if receipt is not None and (
+            receipt.run_id != self.run_id
+            or receipt.source_refs != self.source_handoff_refs
+            or receipt.synthetic is not self.synthetic
+        ):
+            raise ValueError("generation_source_run_receipt_binding_mismatch")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version.endswith(".v1"):
+            supplied = _historical_supplied_field_tree(self, payload)
+            if not isinstance(supplied, dict):
+                raise TypeError("historical_generation_payload_invalid")
+            payload = supplied
+            for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
+                payload.pop(key, None)
+        return payload
 
 
 class GenerationPort(Protocol):
@@ -1044,6 +1177,15 @@ class N4GenerationPort:
         self._llm_client = llm_client
         self._repo_root = repo_root
         self._cycle_substrate_context = cycle_substrate_context
+        self._grounding_run_budget = None
+
+    def bind_grounding_run_budget(self, budget: object) -> None:
+        """Carry the controller's single CG2 owner handle across calls and reentry."""
+        from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
+
+        if not isinstance(budget, GroundingRunBudget):
+            raise TypeError("grounding_run_budget_owner_required")
+        self._grounding_run_budget = budget
 
     async def __call__(
         self,
@@ -1066,8 +1208,9 @@ class N4GenerationPort:
             llm_client=self._llm_client,
             repo_root=self._repo_root,
             cycle_substrate_context=self._cycle_substrate_context,
+            grounding_run_budget=self._grounding_run_budget,
         )
-        return organ_run.result
+        return organ_run
 
 
 class PolicyGroundingPort:
@@ -2511,6 +2654,7 @@ class GenerationCycleController:
 
             promotion_port = CanonicalN9PromotionPort(
                 repo_root=repo_root,
+                context_provider=self._promotion_source_context,
                 promotion_runtime=promotion_runtime,
                 epoch_n9_evidence_resolver=(
                     epoch_n9_evidence_resolver
@@ -2550,6 +2694,14 @@ class GenerationCycleController:
         self._generated_at = generated_at
         self._high_proxy_threshold = high_proxy_threshold
         self._low_grounding_threshold = low_grounding_threshold
+        self._source_run_id: str | None = None
+        self._source_repository: GenerationSourceRepository | None = None
+        self._source_handoff_refs: list[str] = []
+        self._source_expected_identities: list[tuple[str, str, str]] = []
+        self._source_issues: list[str] = []
+        self._source_organs: list[object] = []
+        self._source_synthetic: Literal[True] | None = None
+        self._grounding_run_budget = None
         self._engine = SimpleLoopEngine(
             [
                 ("generate", self._generate_node),
@@ -2559,6 +2711,94 @@ class GenerationCycleController:
             ],
             terminal_node="revise",
         )
+
+    def _begin_source_run(self, run_id: str) -> None:
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
+
+        root = (self._repo_root or Path.cwd()).resolve()
+        self._source_run_id = run_id
+        self._source_handoff_refs = []
+        self._source_expected_identities = []
+        self._source_issues = []
+        self._source_organs = []
+        self._source_synthetic = True if self._authority_scope == "contract_testing" else None
+        try:
+            store = (
+                self._promotion_runtime.store if self._promotion_runtime is not None
+                else artifacts.FileSystemCAS(root / ".polisyos/runtime/generation_source")
+            )
+            self._source_repository = GenerationSourceRepository(store)
+        except (OSError, ValueError):
+            self._source_repository = None
+            self._source_issues.append("source_store_unavailable")
+        if (
+            self._grounding_run_budget is not None
+            and self._grounding_run_budget.run_id == run_id
+        ):
+            budget = self._grounding_run_budget
+        elif self._authority_scope == "contract_testing":
+            budget = GroundingRunBudget.for_contract_testing(
+                root / ".tmp/n6-grounding-candidate-custody", run_id=run_id
+            )
+        else:
+            try:
+                budget = GroundingRunBudget.from_repo(root, run_id=run_id)
+            except ValueError:
+                budget = GroundingRunBudget(run_id=run_id)
+        self._grounding_run_budget = budget
+        if isinstance(self._generation_port, N4GenerationPort):
+            self._generation_port.bind_grounding_run_budget(budget)
+
+    def _restore_source_run(self, original_run: GenerationCycleRun) -> None:
+        expected_run_id = (
+            "generation_cycle_" + original_run.design_problem_ref.removeprefix("sha256:")[:16]
+        )
+        if original_run.run_id != expected_run_id:
+            raise GenerationCycleError("generation_source_canonical_run_mismatch")
+        self._begin_source_run(original_run.run_id)
+        self._source_handoff_refs = list(original_run.source_handoff_refs)
+        if original_run.synthetic is True:
+            self._source_synthetic = True
+        cycles = {cycle.cycle_index: cycle for cycle in original_run.cycles}
+        self._source_expected_identities = [
+            (
+                cycles[summary.cycle_index].design_problem_ref,
+                summary.candidate_id, summary.content_hash,
+            )
+            for summary in original_run.candidate_summaries
+            if summary.generation_channel == "n4_owner" and summary.cycle_index in cycles
+        ]
+        if not self._source_handoff_refs:
+            self._source_issues.append("original_run_source_not_established")
+        receipt = self._source_preservation_receipt()
+        if receipt is not None:
+            self._source_issues.extend(receipt.issues)
+
+    def _source_preservation_receipt(self) -> GenerationSourcePreservationReceipt | None:
+        if self._source_repository is None or self._source_run_id is None:
+            return None
+        return self._source_repository.preservation_receipt(
+            run_id=self._source_run_id,
+            refs=self._source_handoff_refs,
+            expected=self._source_expected_identities,
+            prior_issues=self._source_issues,
+            scope_synthetic=self._source_synthetic,
+        )
+
+    def _promotion_source_context(
+        self, summary: CandidateSummary, problem: DesignProblem,
+    ) -> Mapping[str, Any]:
+        if self._source_repository is None or self._source_run_id is None:
+            return {}
+        resolution = self._source_repository.resolve(
+            refs=self._source_handoff_refs, run_id=self._source_run_id,
+            summary=summary, problem=problem,
+        )
+        if resolution.status != "resolved":
+            self._source_issues.append(resolution.code)
+        return resolution.context
 
     async def run(
         self,
@@ -2573,6 +2813,8 @@ class GenerationCycleController:
         if max_cycles < 1:
             raise GenerationCycleError("max_cycles_must_be_positive")
         design_problem_ref = _problem_ref(problem)
+        run_id = f"generation_cycle_{design_problem_ref.removeprefix('sha256:')[:16]}"
+        self._begin_source_run(run_id)
         current_problem = problem
         cycles: list[GenerationCycleRecord] = []
         summaries: list[CandidateSummary] = []
@@ -2665,8 +2907,9 @@ class GenerationCycleController:
             promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
+        source_receipt = self._source_preservation_receipt()
         run = GenerationCycleRun(
-            run_id=f"generation_cycle_{design_problem_ref.removeprefix('sha256:')[:16]}",
+            run_id=run_id,
             design_problem_ref=design_problem_ref,
             terminal_denominator=_terminal_denominator(),
             cycles=tuple(cycles),
@@ -2680,6 +2923,11 @@ class GenerationCycleController:
             strangle_receipt=StrangleReceipt.recompute(self._repo_root),
             terminal_status=terminal_status,
             blocked_reason=blocked_reason,
+            synthetic=(
+                source_receipt.synthetic if source_receipt is not None else self._source_synthetic
+            ),
+            source_handoff_refs=tuple(self._source_handoff_refs),
+            source_preservation_receipt=source_receipt,
         )
         return run
 
@@ -2842,6 +3090,7 @@ class GenerationCycleController:
             **value_port_kwargs,
         )
         next_cycle_index = source_cycle.cycle_index + 1
+        self._restore_source_run(original_run)
         new_cycle, summaries = await self._run_cycle(
             problem,
             cycle_index=next_cycle_index,
@@ -2855,6 +3104,7 @@ class GenerationCycleController:
             or any(summary.cycle_index != next_cycle_index for summary in summaries)
         ):
             raise GenerationCycleError("acquisition_reentry_result_binding_mismatch")
+        source_receipt = self._source_preservation_receipt()
         return AcquisitionOverlayReentryReceipt.issue(
             source_run_id=original_run.run_id,
             design_problem_ref=problem_ref,
@@ -2875,6 +3125,11 @@ class GenerationCycleController:
             ),
             new_cycle=new_cycle,
             candidate_summaries=summaries,
+            synthetic=(
+                source_receipt.synthetic if source_receipt is not None else self._source_synthetic
+            ),
+            source_handoff_refs=tuple(self._source_handoff_refs),
+            source_preservation_receipt=source_receipt,
         )
 
     def _promote_completed_generation(
@@ -3344,13 +3599,44 @@ class GenerationCycleController:
         )
 
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
+        from polisyos.runtime.quality.design_generation import (
+            DesignGenerationOrganRun,
+            ShadowGeneratedCandidate,
+        )
+
         result = self._generation_port(
             state["problem"],
             cycle_index=int(state["cycle_index"]),
         )
         if inspect.isawaitable(result):
             result = await result
+        organ = result if isinstance(result, DesignGenerationOrganRun) else None
+        from polisyos.runtime.quality.generation_source import generation_source_synthetic
+
+        if generation_source_synthetic(
+            result, problem=state["problem"], execution_scope=self._authority_scope
+        ) is True:
+            self._source_synthetic = True
+        if organ is not None:
+            self._source_organs.append(organ)
+            result = organ.result
         owner_candidates = tuple(getattr(result, "candidates", ()) or ())
+        self._source_expected_identities.extend(
+            (_problem_ref(state["problem"]), candidate.candidate_id, candidate.atom.content_hash)
+            for candidate in owner_candidates if isinstance(candidate, ShadowGeneratedCandidate)
+        )
+        if organ is not None:
+            if self._source_repository is not None and self._source_run_id is not None:
+                try:
+                    self._source_handoff_refs.append(self._source_repository.persist(
+                        run_id=self._source_run_id, cycle_index=int(state["cycle_index"]),
+                        problem=state["problem"], organ=organ,
+                        execution_scope=self._authority_scope,
+                    ))
+                except (OSError, ValueError, TypeError) as exc:
+                    self._source_issues.append(f"source_persistence_refused:{type(exc).__name__}")
+            else:
+                self._source_issues.append("source_store_unavailable")
         disposition_candidates = _disposition_candidates(
             result,
             existing_candidates=owner_candidates,

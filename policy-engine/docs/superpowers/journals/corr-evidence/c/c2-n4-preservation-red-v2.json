@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_generation_source.py::test_default_n4_port_preserves_actual_organ_bundle -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_generation_source.py::test_default_n4_port_preserves_actual_organ_bundle",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 178.52331395808142,
+  "timeout_seconds": 180.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________ test_default_n4_port_preserves_actual_organ_bundle ______________\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13b05fbb0>\n\n    @pytest.mark.asyncio\n    async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):\n        \"\"\"The real N4 port must not erase the producer's enclosing source object.\"\"\"\n        problem = _test_design_problem()\n        intervention = _intervention(\"corr_synthetic_source\").model_copy(\n            update={\"measurement_expectations\": {\"synthetic\": True}}\n        )\n        result = n4.GenerationUnderAResult(\n            status=\"generation_unavailable\",\n            design_problem_ref=n4.gy_content_hash(problem.model_dump(mode=\"json\")),\n            model_id=\"synthetic-c2\",\n            preflight=n4.ModelProfilePreflight(status=\"gateway_unavailable\", model_id=\"synthetic-c2\"),\n            diversity_report=n4.GenerationDiversityReport(\n                min_required=1, candidate_count=0, unique_diversity_key_count=0\n            ),\n        )\n        organ = result.as_organ_run(trinity_bundle=_bundle([intervention]))\n        incoming_context = object()  # Transport-only witness, never an admitted/persisted context.\n    \n        async def produce(_problem, **kwargs):\n            assert _problem is problem\n            assert kwargs[\"cycle_substrate_context\"] is incoming_context\n            return organ\n    \n        monkeypatch.setattr(n4, \"generate_design_candidate_bundle_under_a\", produce)\n        port = N4GenerationPort(model_id=\"synthetic-c2\", cycle_substrate_context=incoming_context)\n    \n        observed = await port(problem, cycle_index=0)\n    \n>       assert observed is organ\nE       AssertionError: assert GenerationUnderAResult(schema_version='policyos.runtime.design_generation_under_a.v1', artifact_kind='runtime.quality....in_mechanism_hardcode_detected=False), surrogate_rankings=(), llm_calls=(), firewall_evidence=(), strangle_receipts=()) is DesignGenerationOrganRun(result=GenerationUnderAResult(schema_version='policyos.runtime.design_generation_under_a.v1',...rated=False, calibration_ref=None, name=None, description=None, labels=[], version_tag=None, notes=[])), critique=None)\n\ntests/unit/runtime/quality/test_generation_source.py:45: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_generation_source.py::test_default_n4_port_preserves_actual_organ_bundle\n",
+  "stderr": ""
+}

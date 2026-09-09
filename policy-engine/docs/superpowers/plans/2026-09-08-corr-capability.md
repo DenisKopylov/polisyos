@@ -409,3 +409,90 @@ The source-boundary falsifier asserts an own marker on each actual synthetic
 source artifact before bridge admission, then conceals a declaration while
 retaining the original ancestry. This belongs to CORR-C's new synthetic input
 compatibility; it does not reopen any closed evidence calculus.
+
+## N9 proof-input epoch reissue, after the complete owning comparison
+
+The actual current N9 `--check` refuses `promotion_legacy_comparison_semantic_mismatch`.
+The complete recursive and independently breadth-first owning-projection census
+agrees on all finding identities: 1,160 changed leaves/empty containers, against
+2,797 historical and 3,739 current identities. They occur only in the two CG2
+scenarios: the v1-to-v2 CG2 input, its reference epoch/hash, its derived resolution
+reason, and the CG2 obligation's certificate evidence reference. The production
+shadow scenario has no governing difference. The complete deciding output is
+`corr-evidence/shared/n9-owning-projection-diff.json`; the earlier concurrent
+timeout is a nonreceipt.
+
+This is an input-epoch reissue, not semantic equivalence of the old and new input.
+Extend the existing N9 report owner with a narrowly scoped transition after its
+ordinary frozen content-hash and comparison-custody validation. Keep the generic
+comparison owner and old receipt algorithms unchanged. The report acquires its
+own `policyos.policy_design_case.layer3_gy.n9_promotion_contract.v2` epoch, replacing
+the historical report's borrowed `n9_promotion.v3` marker; actual N9 receipts stay
+at v6. Current proof inputs and their source-preservation strangle are explicitly
+synthetic. The strangle independently reruns the real binder and compares its
+entire output with the consumed certificate, so retaining labels while restoring
+post-production authorship must turn it red.
+
+The reissue permits only the declared CG2 input transition and its measured
+dependent fields. Both CG2 scenarios must transition together; the third remains
+identical. Historical CG2 and receipt bytes remain readable under their own
+epochs. All other governing fields, complete admission identity sets and existing
+negative controls remain binding. A fake old hash, wrong epoch, altered unrelated
+governing field, hidden refusal-reason change, omitted scenario, or removal of
+the reissue predicate must refuse. Fresh current records come from the real
+owners; no historical receipt is relabeled or edited into a current one.
+
+## Source-epoch intake review
+
+The independent CORR review found the source-custody class one level deeper
+(P40): widening the EFFECT source reader to historical v1 and current v2 removed
+the old type's implicit equality between the source body epoch and the current
+bridge's claimed epoch. The existing sole EFFECT intake must compare those
+values explicitly. Independence already binds its graph epoch and measurement
+binds its root epoch; neither uses the EFFECT body's epoch convention.
+
+The red-first witness runs the pinned historical emitter on actual retained,
+marked C2 inputs and preserves its emitted v1 bytes. It is a new execution of
+the old owner, not a recovered historical run and not a restamp of a v2 record.
+A correctly resealed adversarial current bridge then claims v2 for those v1
+bytes. The existing resolver must refuse the mismatch while the historical
+reader still roundtrips the actual v1 body. Root owns the intake correction;
+C owns the real-source witness. No source calculus or generic comparator changes.
+
+## Complete proof-world input binding after the measured freshness failure
+
+CG3's v2 report and its source are preserved at
+`155645235e5a75b9b4053e83770df609eb26ef94`, together with the actual successful
+writer and failed independent freshness check. They are an intermediate snapshot,
+not a current proof. The complete stored-source replay in
+`corr-evidence/b/cg3-world-time-owner-replay.json` reconciles all 17 actual WMR
+inputs and their complete reference identities. It reproduces both observed
+report epochs from their exact source artifacts. Creation time varies while the
+WMR's logical content hash stays fixed; the scaffold correctly binds its input's
+time. The checkpoint did not change that owner.
+
+This is one input-custody class across CG2 and CG3: both report intakes ask the
+fresh producer for another WMR instead of resolving the declared immutable
+source. Extend the existing `grounding_calibration` owner with one strict
+`GroundingProofWorldInput` and an existing-Core-backed loader. A data-only binding
+declares the ORIGINAL A source's exact CAS byte identity, logical hash, schema,
+original time, storage locator and explicit synthetic-mechanism purpose. Its
+producer derives those fields from the verified actual source. Both report
+owners consume that binding; neither parses the WMR again. Keep the scaffold's
+time hash and the original WMR bytes unchanged. A missing exact pin refuses;
+equal logical content produced at a later time is not the same source.
+
+B owns this narrow shared intake plus the CG2/CG3 report callers, targeted tests,
+binding artifact and producer extension to the existing refusal CLI. Root owns
+registry/release companions. The report envelopes advance from v2 to v3 because
+the new input binding ref/hash is load-bearing. CG2/CG3 certificate and CG3 child
+epochs remain v2. The original pre-declared frame and suite stay unchanged.
+
+Falsifiers: a repeated actual pin yields the same complete report; incorrect
+time/schema/logical hash, a fake artifact kind or corrupt source refuses through
+the actual loader; selecting a different independently addressed real source
+changes the epoch through data alone and makes the saved report stale. The
+original control and mutation identity sets remain required. This snapshot
+mechanism does not stand in for the withheld canonical reference or calibration.
+Exact-byte custody outside this checkout is a named P07/P08 source-availability
+requirement, not permission to retime an artifact or introduce a fixture fallback.

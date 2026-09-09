@@ -5,8 +5,11 @@
       "note": "Exact outcome-wish+mechanism mutation remains structurally rejected by the reject-proof firewall; reachable fabricated-proof real-shaped lever flips.",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_4a602d7b5c3cccf1",
+        "certificate_id": "cg3_cert_e31e3ce667edc554",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -21,7 +24,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:4a602d7b5c3cccf1097f8fcf52a0a7b7814d9906fa46aad45a2dd1499c86db8e",
+        "content_hash": "sha256:e31e3ce667edc554a01b74320cb9bbe5cedd512c4d57bbf035aa33bb0298af8e",
         "data_trust_cap": 0.85,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -44,10 +47,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_96cb57dcb84eb6d0",
+        "registry_patch_id": "cg3_patch_1382f550d94ec365",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -55,8 +61,11 @@
       "mutation_id": "novel_irreducible_removed",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_0ddc79d48d8b7fca",
+        "certificate_id": "cg3_cert_3b10e3bcd0a596a5",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -71,7 +80,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:0ddc79d48d8b7fca4d6e692afe200cafb1c6d400b6cf3714662639dc8eb82860",
+        "content_hash": "sha256:3b10e3bcd0a596a506eaacd17a769e13d4ca52829adcdeda05980d80851869d9",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -102,10 +111,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_d5bde47ff98b4be5",
+        "registry_patch_id": "cg3_patch_e7651a732ad4a563",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -113,8 +125,11 @@
       "mutation_id": "denotation_comparison_removed",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_b30820ef66ba9333",
+        "certificate_id": "cg3_cert_8273b30b3b3c2e27",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -129,7 +144,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:b30820ef66ba9333228228ae0676822e4c55a86c985b0424c471d67e7ef8a3e1",
+        "content_hash": "sha256:8273b30b3b3c2e27b527f1effb0dff53f06245517c8e804b6a8218c70c6f7760",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -164,10 +179,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_d5bde47ff98b4be5",
+        "registry_patch_id": "cg3_patch_e7651a732ad4a563",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -175,8 +193,11 @@
       "mutation_id": "full_universe_denotation_removed",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_566e4374049081b4",
+        "certificate_id": "cg3_cert_39e24cf4ef334197",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -191,7 +212,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:566e4374049081b407ee18a357eb6aab2da97e85a86eed42197ebc9322e5c358",
+        "content_hash": "sha256:39e24cf4ef334197aa38cb140fb877c833f0665a5aa49f255819af98cc51e548",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -215,10 +236,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_c2dfc79b8957a2be",
+        "registry_patch_id": "cg3_patch_83feedd723c7099d",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -226,8 +250,11 @@
       "mutation_id": "stable_unique_removed",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_76d4826d0c093e76",
+        "certificate_id": "cg3_cert_ce94e33d851bab90",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -242,7 +269,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:76d4826d0c093e76ed4d788e7f5a8d0fd56026d41a1d5d00f8455a45884b007f",
+        "content_hash": "sha256:ce94e33d851bab90d8b5803194906d7368ec3906c8c1464beabc4d4bdddef9f0",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -277,10 +304,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_6e40484ffc4b979c",
+        "registry_patch_id": "cg3_patch_092ec96e02cd9499",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "stable_unique_disabled_contract_testing"
+        "stable_unique_reason": "stable_unique_disabled_contract_testing",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -288,8 +318,11 @@
       "mutation_id": "reject_only_on_proven_removed",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": null,
+        "admission_ledger_synthetic": null,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_39ee45ea3ca9c426",
+        "certificate_id": "cg3_cert_dff5994f9565d707",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -302,7 +335,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:39ee45ea3ca9c426ff75efbed04e168dc1ee7f3ddff02fa9f07f1a104b4e450a",
+        "content_hash": "sha256:dff5994f9565d70783927b55529813f3df32e231284716565354a29db4706fda",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -332,9 +365,12 @@
         ],
         "production_promotable": false,
         "registry_patch_id": null,
+        "registry_patch_schema_version": null,
         "registry_patch_status": null,
+        "registry_patch_synthetic": null,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -350,8 +386,11 @@
       "mutation_id": "do_path_actuatability_resolution_removed",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_5e3a932d381d8217",
+        "certificate_id": "cg3_cert_f237fe6a7eadedeb",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -366,7 +405,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:5e3a932d381d8217b872f50fb7a217df7e86e022033d13356830ce2766673f8e",
+        "content_hash": "sha256:f237fe6a7eadedeb7e82b6f9b51147da0cb63da265af716812d3497f1c2cc50a",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -390,10 +429,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_5d8ef184edab4f3e",
+        "registry_patch_id": "cg3_patch_0bc48442aef8da9e",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -401,8 +443,11 @@
       "mutation_id": "substrate_registry_authority_restored",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_9d0e2c4509688a86",
+        "certificate_id": "cg3_cert_a97e0a91417ea931",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -417,7 +462,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:9d0e2c4509688a860cb98ee8b36246d0aff0afec351ee2433bc90715de209717",
+        "content_hash": "sha256:a97e0a91417ea9313eceedd25ecfd7125bd906ad022d75a48c40f8136372c4c5",
         "data_trust_cap": 0.99,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -440,10 +485,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_a56e902b6e0daaab",
+        "registry_patch_id": "cg3_patch_cdfd8c2b1037fb43",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -452,8 +500,11 @@
       "probe": {
         "best_edge_low_trust_hop": {
           "acquisition_blocker": null,
+          "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+          "admission_ledger_synthetic": true,
+          "authority_limitation": "synthetic_input_cannot_grant_authority",
           "authority_scope": "contract_testing",
-          "certificate_id": "cg3_cert_fddbbd5145f5aa11",
+          "certificate_id": "cg3_cert_3ea5e001a73db486",
           "closed_obligations": [
             "parse",
             "novel_irreducible",
@@ -468,7 +519,7 @@
             "cg2_novel_handoff",
             "cg1_content_bound"
           ],
-          "content_hash": "sha256:fddbbd5145f5aa11f08ac25ae80ee0953e3e1c406c771c2e1ea0ea853eba8443",
+          "content_hash": "sha256:3ea5e001a73db486da4817a19a327484218ea5f4b1a3c06dde36e154d54c5474",
           "data_trust_cap": 0.95,
           "data_trust_status": "closed",
           "decision": "admit_new_lever",
@@ -508,15 +559,21 @@
           },
           "open_obligations": [],
           "production_promotable": false,
-          "registry_patch_id": "cg3_patch_c960d5b9357fb525",
+          "registry_patch_id": "cg3_patch_3d3fade1e0864523",
+          "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
           "registry_patch_status": "contract_testing_shadow",
+          "registry_patch_synthetic": true,
           "stable_unique": true,
-          "stable_unique_reason": "single_existing_world_slot_completion"
+          "stable_unique_reason": "single_existing_world_slot_completion",
+          "synthetic": true
         },
         "composed_two_hop": {
           "acquisition_blocker": null,
+          "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+          "admission_ledger_synthetic": true,
+          "authority_limitation": "synthetic_input_cannot_grant_authority",
           "authority_scope": "contract_testing",
-          "certificate_id": "cg3_cert_1e97862a93e604c6",
+          "certificate_id": "cg3_cert_5f9e90e5ed61c8d5",
           "closed_obligations": [
             "parse",
             "novel_irreducible",
@@ -531,7 +588,7 @@
             "cg2_novel_handoff",
             "cg1_content_bound"
           ],
-          "content_hash": "sha256:1e97862a93e604c672c51771f35fc84db4fb82536660595a94b4d60926e04fe2",
+          "content_hash": "sha256:5f9e90e5ed61c8d58b924d4bdd218edc386baab7ee6b16cf2019a82893803f3b",
           "data_trust_cap": 0.93,
           "data_trust_status": "closed",
           "decision": "admit_new_lever",
@@ -571,10 +628,13 @@
           },
           "open_obligations": [],
           "production_promotable": false,
-          "registry_patch_id": "cg3_patch_a8ca071488cc5f53",
+          "registry_patch_id": "cg3_patch_73ec5c7e1c1415d7",
+          "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
           "registry_patch_status": "contract_testing_shadow",
+          "registry_patch_synthetic": true,
           "stable_unique": true,
-          "stable_unique_reason": "single_existing_world_slot_completion"
+          "stable_unique_reason": "single_existing_world_slot_completion",
+          "synthetic": true
         }
       },
       "status": "red"
@@ -583,8 +643,11 @@
       "mutation_id": "positive_writability_removed",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": true,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_b931e3a6ee5dd3d8",
+        "certificate_id": "cg3_cert_dc2b3e46542d51da",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -599,7 +662,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:b931e3a6ee5dd3d84a5d5a97a31040835266b053e3d1e836e2d1e0b926bc4a08",
+        "content_hash": "sha256:dc2b3e46542d51da8ca9cd4ab3a9486e87283a8afc684fca6370698861c2f940",
         "data_trust_cap": 0.93,
         "data_trust_status": "closed",
         "decision": "admit_new_lever",
@@ -634,10 +697,13 @@
         },
         "open_obligations": [],
         "production_promotable": false,
-        "registry_patch_id": "cg3_patch_78ef248879f52075",
+        "registry_patch_id": "cg3_patch_fbe0472df252cdd0",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
         "registry_patch_status": "contract_testing_shadow",
+        "registry_patch_synthetic": true,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       },
       "status": "red"
     },
@@ -645,8 +711,11 @@
       "mutation_id": "keyword_proxy_reject_restored",
       "probe": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": null,
+        "admission_ledger_synthetic": null,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "contract_testing",
-        "certificate_id": "cg3_cert_21a36e6b556ee42f",
+        "certificate_id": "cg3_cert_27913e6b2b8340c0",
         "closed_obligations": [
           "parse",
           "novel_irreducible",
@@ -658,7 +727,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:21a36e6b556ee42f4f2aa110d639c6a6221ab40e6829e6c515ac4aac0437579c",
+        "content_hash": "sha256:27913e6b2b8340c0bae62840b77edc9d7d2ddba73fb077d81cae962d6d7271db",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -694,30 +763,147 @@
         ],
         "production_promotable": false,
         "registry_patch_id": null,
+        "registry_patch_schema_version": null,
         "registry_patch_status": null,
+        "registry_patch_synthetic": null,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "source_authority_resolution_removed",
+      "note": "Actual source and CG2 markers retained; only owner source-authority resolution removed.",
+      "probe": {
+        "acquisition_blocker": null,
+        "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+        "admission_ledger_synthetic": false,
+        "authority_limitation": null,
+        "authority_scope": "production",
+        "certificate_id": "cg3_cert_965f3292b6f9d120",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:965f3292b6f9d120a3176a7cb3dd86a8b6c4c23e5468e173fad712d67f0f7b75",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "path": [
+            {
+              "direction": "positive",
+              "dst": "cells.output",
+              "src": "cells.distress_score"
+            }
+          ],
+          "path_length": 1,
+          "path_trust_cap": 0.93,
+          "source_modalities": [
+            "L2_CAUSAL_CLAIM"
+          ]
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": true,
+        "registry_patch_id": "cg3_patch_48cf18418dd1e540",
+        "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
+        "registry_patch_status": "shadow_applied",
+        "registry_patch_synthetic": false,
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": false
       },
       "status": "red"
     }
   ],
+  "canonical_attempt": {
+    "authority_evidence": "not_established",
+    "owner_refusal": {
+      "confidence_layer_vintage": {
+        "adjudication_contradicting_evidence_rows": 342,
+        "binding_status": "recomputed",
+        "claim_evidence_axis": "absent",
+        "claim_subtrees": 137714,
+        "confidence_reproducibility": "not_reproducible_under_current_rule",
+        "consumer_action": "withhold_confidence_forwarding",
+        "contradiction_basis": "HC-F06/HC-F07; stored observational contradicts retained adjudication",
+        "declared_on": "2026-09-07",
+        "evidence_ref": "docs/superpowers/journals/2026-09-05-historical-cohorts.md",
+        "extraction_documents": 310829,
+        "layers": [
+          {
+            "current_rule_outcome": "zero_confidence",
+            "row_count": 7607,
+            "table": "ac_skg_edges"
+          },
+          {
+            "current_rule_outcome": "zero_confidence",
+            "row_count": 15945,
+            "table": "ac_skg_family_edges"
+          },
+          {
+            "current_rule_outcome": "not_emitted",
+            "row_count": 723,
+            "table": "ac_skg_contested_edges"
+          }
+        ],
+        "limitation": "Stored values remain historical audit bytes. Outcomes describe retained memberships, not a full data-pass replay, paper truth, or the generating rule. Unregistered or rewritten databases require their own declaration; absence of this restriction is not evidence of current-rule reproducibility.",
+        "measurement_basis": "independently_reconciled",
+        "published_evidence_rows": 7868,
+        "rule_ref": "claim-explicit-evidence-axis/B1-B2; historical-cohorts/HC-F11-HC-F14",
+        "schema_version": "academic.confidence_layer_vintage.v1",
+        "snapshot_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+      }
+    },
+    "status": "blocked"
+  },
   "capability_reality": {
     "consumer": "GY-S0 registry patch resolver in shadow scope; future CG1 can replay ledger",
     "orchestration_bridge": "CG3 consumes CG2 novel handoff plus content-bound CG1 proposal certificate and live CG0/L5 owners",
     "persisted_artifact_event": "architecture/policy_design_case/grounding_admission_contract.json",
     "producer": "GroundingAdmissionEngine.decide",
-    "semantic_test": "admit/acquire/reject/non-new/fail-closed probes and mutation-red checks over live owner-built reference",
+    "semantic_test": "admit/acquire/reject/non-new/fail-closed probes and mutation-red checks over the marked full L6/WMR owner scaffold; no canonical authority claim",
     "surface": "generated Policy Design Case CG3 contract artifact",
     "typed_contract_artifact": "GroundingAdmissionCertificate + StableUniqueResolution + GroundingLeverRegistryPatch + DeltaAdmissionLedger",
     "verification": "this recomputing validator plus unit probes and mutations"
   },
   "contract_id": "policyos.runtime.grounding_admission_rt3",
-  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_admission_contract.v1",
+  "control_reference_scope": "synthetic_structural_full_L6_WMR_owner_projection",
+  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_admission_contract.v2",
   "no_parallel_reference_or_registry": true,
   "owner": "polisyos.runtime.quality.grounding_admission",
   "pattern_pass": {
     "acceptance_signal": "contract check plus corrupt-field check pass; mutations are red",
-    "missing_capability_labels": [],
+    "bounded_limitation": "Canonical authority evidence is not established by synthetic controls.",
+    "missing_capability_labels": [
+      "verification_missing"
+    ],
     "relevant_ids": [
       "P01",
       "P03",
@@ -737,8 +923,11 @@
   "probes": {
     "acquire_missing_mechanism_unknown_never_reject": {
       "acquisition_blocker": "mechanism_witness_required",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_e8627f6d3cf6a52f",
+      "certificate_id": "cg3_cert_560e98af71fe2c79",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -751,7 +940,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:e8627f6d3cf6a52f962b02fa34d909d6462004d86c66859ca43a252de3481708",
+      "content_hash": "sha256:560e98af71fe2c790ce48ab57405e9f814a4074503719b98087fb26e01080777",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -781,14 +970,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "admit_real_novel_data_only_free_grow": {
       "acquisition_blocker": null,
+      "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+      "admission_ledger_synthetic": true,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_06312f14cf2e6aec",
+      "certificate_id": "cg3_cert_6951689f3527af14",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -803,7 +998,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:06312f14cf2e6aecbfa4d5c0470fb10610b35cd32f7cbf426f95ac66f31d5750",
+      "content_hash": "sha256:6951689f3527af1455d5fd52c6260b2c0edfcfb29d6c1085bb61bb2005372d8c",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "admit_new_lever",
@@ -837,16 +1032,22 @@
         "operator_denotation_proof": null
       },
       "open_obligations": [],
-      "production_promotable": true,
-      "registry_patch_id": "cg3_patch_6af1018a9dd0d65e",
+      "production_promotable": false,
+      "registry_patch_id": "cg3_patch_4c38ae1ce626c040",
+      "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
       "registry_patch_status": "shadow_applied",
+      "registry_patch_synthetic": true,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "admit_second_generic_data_only_free_grow": {
       "acquisition_blocker": null,
+      "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+      "admission_ledger_synthetic": true,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_1bcce046bde1cfe4",
+      "certificate_id": "cg3_cert_4bd970202b15ad1e",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -861,7 +1062,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:1bcce046bde1cfe4135f975fcc00b2cb7cb4d5f8059b1d4228a587b008505ad8",
+      "content_hash": "sha256:4bd970202b15ad1ec096517c20185cd7ef6e42d3ffd473d44fa906ae8965915f",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "admit_new_lever",
@@ -895,16 +1096,22 @@
         "operator_denotation_proof": null
       },
       "open_obligations": [],
-      "production_promotable": true,
-      "registry_patch_id": "cg3_patch_52acef6ca8539d21",
+      "production_promotable": false,
+      "registry_patch_id": "cg3_patch_060884ea5c0becbe",
+      "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
       "registry_patch_status": "shadow_applied",
+      "registry_patch_synthetic": true,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "compatibility_derived_alias_no_patch": {
       "acquisition_blocker": null,
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_f4421dbbd3f5673d",
+      "certificate_id": "cg3_cert_b51f48095a9c325d",
       "closed_obligations": [
         "parse",
         "type",
@@ -915,7 +1122,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:f4421dbbd3f5673d4a861d1fd52dee2f353e00673c50e9fcb9a97517f83d709b",
+      "content_hash": "sha256:b51f48095a9c325dadb982e41457dfe41af0dd64bff091a57ba98d16106fbcf9",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "non_new",
@@ -938,7 +1145,7 @@
       "mechanism_status": "open",
       "n11_composition_status": "not_wired",
       "novel_irreducible_evidence": {
-        "existing_atom_id": "cg0_atom_d351089b76f8af37",
+        "existing_atom_id": "cg0_atom_62ec3118c596b07b",
         "existing_atom_match_basis": "compatibility_derived",
         "existing_atom_match_kind": "signature_only",
         "existing_atom_operator": "procurement_shock_intensity",
@@ -952,14 +1159,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "contract_testing_scope": {
       "acquisition_blocker": null,
+      "admission_ledger_schema_version": "policyos.runtime.grounding_admission_ledger.v2",
+      "admission_ledger_synthetic": true,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "contract_testing",
-      "certificate_id": "cg3_cert_e1f79fdc5e65bc77",
+      "certificate_id": "cg3_cert_5d1ccea72529c3b9",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -974,7 +1187,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:e1f79fdc5e65bc7707aa0d1a67ca995c3d769f74afeebbe03eb061a4c31c1006",
+      "content_hash": "sha256:5d1ccea72529c3b9774a5aa50bcf073ff3f9afebb5373f0903c5e0b87bf5f8ab",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "admit_new_lever",
@@ -1009,20 +1222,26 @@
       },
       "open_obligations": [],
       "production_promotable": false,
-      "registry_patch_id": "cg3_patch_488aab6e565133e3",
+      "registry_patch_id": "cg3_patch_7460f357044c3587",
+      "registry_patch_schema_version": "policyos.runtime.grounding_lever_registry_patch.v2",
       "registry_patch_status": "contract_testing_shadow",
+      "registry_patch_synthetic": true,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "deterministic_admission": {
-      "first_content_hash": "sha256:06312f14cf2e6aecbfa4d5c0470fb10610b35cd32f7cbf426f95ac66f31d5750",
+      "first_content_hash": "sha256:6951689f3527af1455d5fd52c6260b2c0edfcfb29d6c1085bb61bb2005372d8c",
       "same_content_hash": true,
-      "second_content_hash": "sha256:06312f14cf2e6aecbfa4d5c0470fb10610b35cd32f7cbf426f95ac66f31d5750"
+      "second_content_hash": "sha256:6951689f3527af1455d5fd52c6260b2c0edfcfb29d6c1085bb61bb2005372d8c"
     },
     "fabricated_mechanism_proof_fail_closed": {
       "acquisition_blocker": "mechanism_witness_required",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_553994fbaad9635b",
+      "certificate_id": "cg3_cert_248304a4b7cf247d",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1035,7 +1254,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:553994fbaad9635bb9c9169e5438005c7ac80e779456a202d8cf533c7cfb3780",
+      "content_hash": "sha256:248304a4b7cf247dc9c2d0c3a08f501d42a2d013b76cb8ff4ef8805faf482022",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1065,9 +1284,12 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "live_actuatability_denominator": {
       "accepted_count": 2,
@@ -1196,8 +1418,11 @@
     },
     "low_trust_hop_chain": {
       "acquisition_blocker": "mechanism_composition_unverified",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_86137a0324e8759a",
+      "certificate_id": "cg3_cert_cde6e6273a0f4539",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1210,7 +1435,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:86137a0324e8759aec4891c205f1e1391cdb9645a5d34b94d500efac8f61b536",
+      "content_hash": "sha256:cde6e6273a0f4539f23393238ccbf9631aa4aea8f0a143d701209254e7bb6130",
       "data_trust_cap": 0.2,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1256,14 +1481,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "non_new_paraphrase_no_registry_patch": {
       "acquisition_blocker": null,
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_9b7a9c3ec69097c9",
+      "certificate_id": "cg3_cert_fc6853cce1bd4188",
       "closed_obligations": [
         "parse",
         "type",
@@ -1277,7 +1508,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:9b7a9c3ec69097c9ce690f7ac9a4de60c6b5c56e31ad9ad9e7faadb43d621f22",
+      "content_hash": "sha256:fc6853cce1bd4188130bbc628cbca9afbc4f96f72fb69c13d509774bcfd09194",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "non_new",
@@ -1304,7 +1535,7 @@
       "mechanism_status": "closed",
       "n11_composition_status": "not_wired",
       "novel_irreducible_evidence": {
-        "existing_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "existing_atom_id": "cg0_atom_4164e221ec82011c",
         "existing_atom_match_basis": "explicit_binding",
         "existing_atom_match_kind": "signature_only",
         "existing_atom_operator": "tax_relief_rate",
@@ -1315,14 +1546,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "outcome_like_map_mentioned_slot": {
       "acquisition_blocker": "mechanism_witness_required",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_8865da79c1428be0",
+      "certificate_id": "cg3_cert_6251095d84150fcd",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1334,7 +1571,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:8865da79c1428be0052dc99af671d43cacfd9b11cab12654da812b0aebe8d4bf",
+      "content_hash": "sha256:6251095d84150fcd70aeb81963faefee714f05ba5205627f2eeb14abb8d13adc",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1370,14 +1607,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "outcome_wish_with_crafted_self_loop_edge": {
       "acquisition_blocker": null,
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_a4f3be8c33d60797",
+      "certificate_id": "cg3_cert_edc34c619267ee50",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1389,7 +1632,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:a4f3be8c33d60797ce8c9ee7fd70fb21a4f25077c836ea062f324b049a1153ce",
+      "content_hash": "sha256:edc34c619267ee5004204c5c5e91d98f0da32de91b8c09688ca9e5b3715d2c80",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "reject_hallucination",
@@ -1425,14 +1668,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "proxy_named_real_unproven_boundary": {
       "acquisition_blocker": "mechanism_witness_required",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_7186a18c7e7bd0c8",
+      "certificate_id": "cg3_cert_c93b535a5a7a3dc9",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1444,7 +1693,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:7186a18c7e7bd0c8d5e78c45fd6b947b8882850f39d2f4cacf0f9456ab5a4f70",
+      "content_hash": "sha256:c93b535a5a7a3dc90406c71ca4809c204dde0f9b43761a26292c498b95a1736e",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1480,14 +1729,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "proxy_slot_with_crafted_edge": {
       "acquisition_blocker": null,
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_2623017efb8fd062",
+      "certificate_id": "cg3_cert_ccad587c1f489e07",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1499,7 +1754,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:2623017efb8fd062d539113ccb4614220ee452b5200e19697478eb678d060558",
+      "content_hash": "sha256:ccad587c1f489e07097700d79d911eaf7c65022a58930e47ae732625d51d863a",
       "data_trust_cap": 0.0,
       "data_trust_status": "open",
       "decision": "reject_hallucination",
@@ -1535,9 +1790,12 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "real_n4_recorded_handoff": {
       "acquisition_blocker": "mechanism_witness_missing",
@@ -1573,14 +1831,17 @@
     },
     "registry_patch_application_reresolved": {
       "applied": true,
-      "patch_id": "cg3_patch_6af1018a9dd0d65e",
+      "patch_id": "cg3_patch_4c38ae1ce626c040",
       "reason": "owner_re_resolution_passed_shadow_patch_applied"
     },
     "reject_hallucination_subtypes": {
       "impossible_type": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": null,
+        "admission_ledger_synthetic": null,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "production",
-        "certificate_id": "cg3_cert_97b0c336cf9d590c",
+        "certificate_id": "cg3_cert_fe3deb703341b181",
         "cg2_decision": "abstain",
         "cg2_reason": "relation_not_bind_eligible",
         "closed_obligations": [
@@ -1590,7 +1851,7 @@
           "admissibility",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:97b0c336cf9d590cbce41ee33921dd9de99451d5e11a1459310ef20fd55e4fa7",
+        "content_hash": "sha256:fe3deb703341b181278e10816f271dfac6fc9bb3bbf7751d1b6fdf783b5d464f",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -1629,14 +1890,20 @@
         ],
         "production_promotable": false,
         "registry_patch_id": null,
+        "registry_patch_schema_version": null,
         "registry_patch_status": null,
+        "registry_patch_synthetic": null,
         "stable_unique": false,
-        "stable_unique_reason": "no_admissible_completion"
+        "stable_unique_reason": "no_admissible_completion",
+        "synthetic": true
       },
       "outcome_wish": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": null,
+        "admission_ledger_synthetic": null,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "production",
-        "certificate_id": "cg3_cert_8a12be4f95d227a4",
+        "certificate_id": "cg3_cert_b3b023cc2e5065a7",
         "cg2_decision": "abstain",
         "cg2_reason": "false_analog_hard_abstain",
         "closed_obligations": [
@@ -1645,7 +1912,7 @@
           "admissibility",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:8a12be4f95d227a47a75cb835e18a0bbcd6cdbb5870877d609291d6f3e129032",
+        "content_hash": "sha256:b3b023cc2e5065a7d9a63102b1997a465ce8e7d783bf1a619459d1802f515809",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -1685,14 +1952,20 @@
         ],
         "production_promotable": false,
         "registry_patch_id": null,
+        "registry_patch_schema_version": null,
         "registry_patch_status": null,
+        "registry_patch_synthetic": null,
         "stable_unique": false,
-        "stable_unique_reason": "no_admissible_completion"
+        "stable_unique_reason": "no_admissible_completion",
+        "synthetic": true
       },
       "proxy_manipulation": {
         "acquisition_blocker": null,
+        "admission_ledger_schema_version": null,
+        "admission_ledger_synthetic": null,
+        "authority_limitation": "synthetic_input_cannot_grant_authority",
         "authority_scope": "production",
-        "certificate_id": "cg3_cert_14bbf6a5bbdb7939",
+        "certificate_id": "cg3_cert_49700abad35d94f5",
         "cg2_decision": "novel_candidate",
         "cg2_reason": "novel_candidate_handoff",
         "closed_obligations": [
@@ -1706,7 +1979,7 @@
           "cg2_novel_handoff",
           "cg1_content_bound"
         ],
-        "content_hash": "sha256:14bbf6a5bbdb7939d4c0f4e44c22eb619b339a6d44cfe3f8e28e51d8414acc1c",
+        "content_hash": "sha256:49700abad35d94f52eba286e86d04d554a6544bb674e1642b93651dc8f115306",
         "data_trust_cap": 0.0,
         "data_trust_status": "open",
         "decision": "reject_hallucination",
@@ -1742,15 +2015,21 @@
         ],
         "production_promotable": false,
         "registry_patch_id": null,
+        "registry_patch_schema_version": null,
         "registry_patch_status": null,
+        "registry_patch_synthetic": null,
         "stable_unique": true,
-        "stable_unique_reason": "single_existing_world_slot_completion"
+        "stable_unique_reason": "single_existing_world_slot_completion",
+        "synthetic": true
       }
     },
     "spoofed_substrate_registry_production_boundary": {
       "acquisition_blocker": "l5_data_trust_floor_required",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_142e1d86ae1c71d6",
+      "certificate_id": "cg3_cert_8e446e30d7d2fc59",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1763,7 +2042,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:142e1d86ae1c71d6d5164d269dbbd0909ab6a26264c749edeefa51ed92eb35c6",
+      "content_hash": "sha256:8e446e30d7d2fc5949d6c1ed5d8ed8296485993fa6db65d698dca04b1738d605",
       "data_trust_cap": 0.2,
       "data_trust_status": "open",
       "decision": "acquire_then_decide",
@@ -1804,18 +2083,24 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "spoof_constructor_accepted": false,
       "spoof_constructor_error": "GroundingAdmissionEngine.__init__() got an unexpected keyword argument 'substrate_registry'",
       "spoof_mutation_decision": "acquire_then_decide",
       "spoof_mutation_reason": "data_trust_below_floor",
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "three_hop_unrelated_chain": {
       "acquisition_blocker": "mechanism_composition_unverified",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_cb16d835848c7241",
+      "certificate_id": "cg3_cert_47e1d9ef7c6f8bb5",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1829,7 +2114,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:cb16d835848c72411c4cf39ccc330b0ea3e7ec6d0ad7310bda149b40b32fedd1",
+      "content_hash": "sha256:47e1d9ef7c6f8bb5a876c6a619c618faae942c40e063c27a4e47a69bb5e8471f",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "acquire_then_decide",
@@ -1879,14 +2164,20 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     },
     "two_hop_unrelated_chain": {
       "acquisition_blocker": "mechanism_composition_unverified",
+      "admission_ledger_schema_version": null,
+      "admission_ledger_synthetic": null,
+      "authority_limitation": "synthetic_input_cannot_grant_authority",
       "authority_scope": "production",
-      "certificate_id": "cg3_cert_c36fbce0b072ba47",
+      "certificate_id": "cg3_cert_7692d7a82362a5cd",
       "closed_obligations": [
         "parse",
         "novel_irreducible",
@@ -1900,7 +2191,7 @@
         "cg2_novel_handoff",
         "cg1_content_bound"
       ],
-      "content_hash": "sha256:c36fbce0b072ba479584d6e50fa0ef743a6adce7406cf914607d0d44a9e4814b",
+      "content_hash": "sha256:7692d7a82362a5cd00a82ae3f3bcf04b38ed3592c279fcabb8948910d2effb52",
       "data_trust_cap": 0.93,
       "data_trust_status": "closed",
       "decision": "acquire_then_decide",
@@ -1945,9 +2236,12 @@
       ],
       "production_promotable": false,
       "registry_patch_id": null,
+      "registry_patch_schema_version": null,
       "registry_patch_status": null,
+      "registry_patch_synthetic": null,
       "stable_unique": true,
-      "stable_unique_reason": "single_existing_world_slot_completion"
+      "stable_unique_reason": "single_existing_world_slot_completion",
+      "synthetic": true
     }
   },
   "production_api_boundary_probes": {
@@ -1974,34 +2268,51 @@
   },
   "reference": {
     "component_versions": {
-      "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
-      "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
-      "L6": "sha256:5e10244a19f700a155bc2a0b4f59eb4b0c3128488c999d48514d0dd9393224d3",
-      "WMR": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf"
+      "L2": "out_of_scope",
+      "L3": "out_of_scope",
+      "L6": "sha256:9021ea6a85391bac68899ee47cba45003bc4204c2acf3e64794f16870865f176",
+      "WMR": "sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6"
     },
-    "edge_count": 791994,
-    "reference_epoch": "kref:956b076b990299fe",
-    "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
-    "substrate_registry_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1",
-    "substrate_registry_id": "substrate_version_f94770b220aa9b6a"
+    "edge_count": 38,
+    "reference_epoch": "synthetic-refusal:9021ea6a85391bac",
+    "reference_hash": "sha256:9021ea6a85391bac68899ee47cba45003bc4204c2acf3e64794f16870865f176",
+    "substrate_registry_hash": "sha256:33f9b7bedd9a8e48f906dd6dd122288dc85f5b1cde48c3361a6ceff15203107c",
+    "substrate_registry_id": "substrate_version_33f9b7bedd9a8e48"
   },
   "reuse_existing_owners": [
     "CG2 GroundingDecisionCertificate novel_candidate handoff",
     "CG1 GroundingRelationCertificate as content-bound proposal replay carrier",
-    "CG0 CredalReference built from real L2/L3/L6/WMR owners",
+    "Complete real L6/WMR structural owner scaffold, explicitly synthetic; L2/L3 authority out of scope",
     "WMR_WORLD_SLOT and WMR_POLICY_SLOT_MAP edges for world bindability",
     "L2 SKG causal evidence edges for mechanism witness resolution",
     "CG0/L2 owner-lifted L5 trust signals on mechanism evidence edges for data_trust",
     "GY-S0/L6 intervention substrate named as registry patch owner; live write remains shadow"
   ],
-  "runtime_schema_version": "policyos.runtime.grounding_admission_certificate.v1",
-  "schema_version": "policyos.policy_design_case.grounding_admission_contract.v1",
+  "runtime_schema_version": "policyos.runtime.grounding_admission_certificate.v2",
+  "schema_version": "policyos.policy_design_case.grounding_admission_contract.v2",
+  "source_authority_strangle": {
+    "content_hash": "sha256:c7577f27413c3f06a0b732f4901a33b20ba2e45638d1d6f5162468b6be3cad1b",
+    "current_certificate_hash": "sha256:6951689f3527af1455d5fd52c6260b2c0edfcfb29d6c1085bb61bb2005372d8c",
+    "default_flipped": true,
+    "default_path": "owner_recomputed_source_authority_with_candidate_and_shadow_continuation",
+    "owner": "polisyos.runtime.quality.grounding_admission",
+    "packet_type": "StrangleReceipt",
+    "predicate_provenance": "recomputed",
+    "reference_hash": "sha256:d53547730c744a2c30cbcc5e6ce77d2ccee027cbc162b745f063152d9c1fd704",
+    "removal_certificate_hash": "sha256:965f3292b6f9d120a3176a7cb3dd86a8b6c4c23e5468e173fad712d67f0f7b75",
+    "replaced_path": "admit_new_lever_and_production_scope_without_source_authority_resolution",
+    "schema_version": "policyos.policy_design_case.grounding_admission_contract.v2",
+    "source_synthetic": true
+  },
   "source_modules": [
     "src/polisyos/runtime/quality/grounding_admission.py",
     "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/runtime/quality/grounding_calibration.py",
     "src/polisyos/runtime/quality/grounding_relation.py",
     "src/polisyos/runtime/quality/credal_reference.py",
+    "src/polisyos/runtime/quality/intervention_substrate.py",
     "src/polisyos/runtime/quality/substrate_registry.py",
     "tools/quality/validation/check_grounding_admission_contract.py"
-  ]
+  ],
+  "synthetic": true
 }

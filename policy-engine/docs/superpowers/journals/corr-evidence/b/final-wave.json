@@ -1,12 +1,16 @@
 {
-  "state": "source_frozen_review_approved_awaiting_serialized_verification",
+  "state": "scoped_B_verified_CG3_writer_passed_check_drift_input_diagnosis_pending_S3_global_freeze_pending",
   "resource": ".tmp/gy-s-composed-wmr-*; serialize actual owner rebuild and report writers with A",
   "environment": "PATH lane .venv/bin first; PYTHONPATH=.:src; JAX_PLATFORMS=cpu",
-  "targeted_timeout_seconds": 300,
+  "targeted_timeout_seconds": 900,
   "report_timeout_seconds": 900,
-  "timeout_basis": "Actual paired owner tests measured 62.857 seconds; pure owner 42.102 seconds. Prior full S3 report generation measured several minutes and --write --check recomputes twice.",
+  "timeout_basis": "Initial expanded B/credal/cycle run reached the 300-second limit under concurrent heavy imports without a completed JUnit artifact (final-targeted.json, capture124 / child-9, 300.197s). Retry preserves its exact pytest argv and starts after A releases, with a 900s budget. Prior paired owner measured62.857s and pure owner42.102s were insufficient estimates for expanded importer scope. Full S3 report generation takes several minutes and --write --check recomputes twice.",
   "pytest_argv": [
-    ".venv/bin/python", "-m", "pytest", "-q", "--tb=short",
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
     "--junitxml=docs/superpowers/journals/corr-evidence/b/final-targeted.xml",
     "tests/unit/foundry/validation/test_legal_correspondence.py",
     "tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_real_unrelated_law_target_cannot_authorize_a_knob",
@@ -36,22 +40,87 @@
     "tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2"
   ],
   "report_argv": [
-    ".venv/bin/python", "-m",
+    ".venv/bin/python",
+    "-m",
     "tools.quality.validation.check_layer3_gy_intervention_substrate_contract",
-    "--write", "--check", "--output-format", "json"
+    "--write",
+    "--check",
+    "--output-format",
+    "json"
   ],
   "drift_argv": [
-    ".venv/bin/python", "-m",
+    ".venv/bin/python",
+    "-m",
     "docs.superpowers.journals.gy-phase5-evidence.shared.s3_report_corruption"
   ],
   "comparison_removal_argv": [
-    ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.b.removal",
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.removal",
     "subject_comparison"
   ],
   "forwarding_removal_argv": [
-    ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.b.removal",
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.removal",
     "source_forwarding"
   ],
-  "collection": "Use shared reconcile_pytest compact output after final-targeted.json; compare complete collected identities with the one JUnit execution artifact, emit hashes/counts/differences only.",
-  "current_authority_limit": "Source-relative synthetic recognition cannot establish real legal truth, full K_ref freshness or current promotion authority; required broader owner captures remain root-coordinated."
+  "cg3_report_write_argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_admission_contract",
+    "--write",
+    "--output-format",
+    "json"
+  ],
+  "cg3_report_check_argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_admission_contract",
+    "--check",
+    "--output-format",
+    "json"
+  ],
+  "cg3_report_corruption_argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "architecture/policy_design_case/grounding_admission_contract.json",
+    "tools.quality.validation.check_grounding_admission_contract",
+    "/source_authority_strangle/default_flipped",
+    "false",
+    "--checker-arg=--check",
+    "--checker-arg=--output-format",
+    "--checker-arg=json",
+    "--timeout-seconds",
+    "600",
+    "--expect-issue-code",
+    "grounding_admission_contract_drift"
+  ],
+  "cg3_report_identity_argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.cg3_identity_census",
+    "--live"
+  ],
+  "collection": "Original43-case execution is retained as RC1 with its single setup failure; final-targeted-identity-retry.json reconciles its complete identities. Only the failed node's store configuration changed, then downstream-canonical-config-green.json and downstream-canonical-config-identity.json prove its passing exact rerun. No original case is excluded or original RC rewritten.",
+  "completed_evidence": [
+    "final-targeted-retry.json",
+    "final-targeted.xml",
+    "final-targeted-identity-retry.json",
+    "downstream-legal-ref-diagnosis.json",
+    "downstream-canonical-config-green.json",
+    "downstream-canonical-config.xml",
+    "downstream-canonical-config-identity.json",
+    "comparison-removal-final.json",
+    "forwarding-removal-final.json"
+  ],
+  "current_authority_limit": "Source-relative synthetic recognition cannot establish real legal truth, full K_ref freshness or current promotion authority; required broader owner captures remain root-coordinated.",
+  "cg3_status": {
+    "writer": "RC0; cg3-report-write.json",
+    "independent_check": "RC1 only drift; cg3-report-check.json",
+    "identity_reconciliation": "RC0; cg3-identity-live.json",
+    "actual_persisted_corruption": "not_run_until_independent_check_passes",
+    "input_diagnosis": "Complete actual WMR nodes reconciled; same logical identity, volatile created_at plus provenance_manifest_ref; actual full scaffold replay pending"
+  }
 }

@@ -443,3 +443,30 @@ are restored to SHA-256
 The failure/repair register was reread before this closeout boundary; the
 facade, scratch confinement and generated companion findings are resolved here,
 not assigned to another lane.
+
+The final source/facade/exporter/trust checkpoint is
+`680decaa9a1aab96375cedb1fba109d03e460061`. Its 53 changed blobs were read
+back from the verified attached branch, byte-exact, with a clean tree.
+The actual OpenAPI exporter then regenerated the canonical schema in
+`openapi-current-write.json` (RC 0, 64.652 seconds). Independent recursive and
+iterative enumeration in `openapi-complete-final-delta.json` (RC 0, 0.387
+seconds) reconciles all 57,290 typed JSON identities before and after. Exactly
+ten existing negative-example values change: the current source dependency
+count/digests and their bound receipt/projection/replay values. Operations,
+DTOs, packet rules, authority states and negative payload semantics are equal.
+The current schema SHA-256 is
+`ee4f75754f8161dd2ad21360babb944d40f3654e13f0869ad10186145caf07b7`;
+the old body is cited at `schemas/runtime_api_v1.openapi.json@680decaa9a1aab96375cedb1fba109d03e460061`,
+not copied into a derived artifact. The existing Runtime API contract checker,
+including its generated-client comparison, passes in `openapi-current-check.json`
+(RC 0, 64.570 seconds). No generated client is hand-edited.
+
+`openapi-persisted-corruption.json` then returns wrapper RC 0 in 65.502
+seconds. Changing only the saved example's `bound_dependency_count` from 6352
+to 0 makes the unmodified real API checker return child RC 1 for OpenAPI drift;
+its full diff names exactly that token. The helper restores the exact current
+schema bytes. The exporter confinement removal is the separate runtime
+property witness; this saved mutation proves freshness refusal, not authority.
+No source changed after the final changed-Python Ruff. Normal architecture
+guardrails will now run with every writer frozen and no baseline or exception
+acceptance.

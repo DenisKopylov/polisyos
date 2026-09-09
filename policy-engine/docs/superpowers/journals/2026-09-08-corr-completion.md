@@ -520,3 +520,417 @@ The final code Ruff and targeted importer/semantic gates are recorded in the
 preceding sections; source did not change after those checks. Only this terminal
 journal record and the deciding guardrail capture follow the frozen check.
 `git diff --check` and exact branch readback accompany the final local commit.
+
+## Continuation handback — 2026-09-09: resources and operating readiness
+
+**Resource verdict: the isolated live API profiles show low worker CPU/RSS,
+suggesting headroom for development; concurrent-workload interference and
+unattended week-long stability were not measured.**
+The DeepSeek and MiniMax six-input pilots used respectively **0.05292 and
+0.07085 observed CPU seconds per wall second**, peaking at **589,021,184 and
+595,001,344 bytes RSS**. On the measured eight-logical-CPU, 16-GiB station,
+that is 0.66%/0.89% of logical CPU capacity and 3.43%/3.46% of RAM. These live
+loops were I/O-bound. Longer constructed runs completed, but their warm RSS
+slopes remained positive; a week-long memory plateau cannot be inferred.
+The separate graph stage consumes approximately one core and substantial write
+I/O, so it must be scheduled separately from the API loop.
+
+This continuation supersedes the earlier C1 account-quota/cost-only handback.
+It measures **different models from the original OpenAI declaration**. The
+original declaration, both failed attempts, and quota diagnosis remain history.
+Original A, B and C2 remain `executed` and closed. No full extraction pass or
+graph over the held corpus ran. There was no new lane, worktree, push, GitHub
+plugin, stash, rebase, register edit or debt-ledger checker.
+
+Evidence locator: `E` below means
+`docs/superpowers/journals/corr-evidence/c1-capacity/` at
+**`35889915ebe8598eb1e379e64db82405ddbefbdd`**; a citation such as
+`E/synthetic-retention-results.md` means that tracked path at this commit.
+Earlier declarations and production owners are also preserved at
+`d24655fbfb56317a4c00ca5323fd8201692e0a32`. Both commits were reread from the
+attached `codex/corr-capability` branch, comparing every changed blob with the
+working bytes (39 and 353 blobs respectively). These are source/evidence
+checkpoints, not permission for a full run.
+
+### Local resource measurements and memory trend
+
+| Complete executed frame | Worker wall, seconds | Observed CPU / wall | Sampled peak RSS, bytes | Native write I/O, bytes |
+| --- | ---: | ---: | ---: | ---: |
+| DeepSeek pilot: original six documents | 117.346 | 0.05292 | 589021184 | 1220608 |
+| MiniMax pilot: same original six | 122.444 | 0.07085 | 595001344 | 1224704 |
+| DeepSeek direct extraction: 12 at concurrency 1 | 135.934 | 0.02078 | 356532224 | 606208 |
+| MiniMax direct extraction: same 12 at concurrency 1 | 730.729 | 0.00392 | 355958784 | 622592 |
+| Marked synthetic campaign: 100 documents | 11.166 | 0.96847 | 325386240 | 33923072 |
+| Marked synthetic campaign: 1000 documents | 91.373 | 0.98946 | 327319552 | 366669824 |
+| Marked synthetic graph finalization and resolution: 100 works | 4.156 | 0.9530 | 315113472 | 145620992 |
+| Marked synthetic graph finalization and resolution: 1000 works | 22.029 | 0.9146 | 333103104 | 1460617216 |
+
+CPU and write counters cover observed process lifetimes, including descendants,
+and are lower bounds when a process can start and exit between samples. RSS is
+the simultaneous sampled sum, not a continuous lifetime maximum. The observer
+is excluded. The actual live/constructed workers had no observed descendants;
+the separate child-process telemetry falsifier is retained. Native profiles
+used 0.25-second sampling and recorded actual gaps and ambiguous observations.
+No ambiguity is credited as zero. Source: pilot profile summaries, both
+throughput primary archives, `E/synthetic-retention-results.md`, and
+`E/graph-finalizer-handoff.md`, with their complete native traces.
+
+Pilot write rates were about 10.4/10.0 kB/s. The constructed 1000-document
+campaign wrote about 4.01 MB/s when network waiting was removed; its active
+work window used 0.993 core. This is local processing capacity evidence, not
+live-provider throughput. Its final logical stored size was 25,216,691 bytes,
+while native write I/O was 366,669,824 bytes. APFS allocated blocks, logical
+space consumed, and cumulative writes are different quantities. Graph writes
+were about 35.0/66.3 MB/s for 100/1000 works; final owned output was
+5,789,423/12,109,586 bytes. Do not extrapolate those raw-only graph shapes to
+an adjudicated or densely connected graph.
+
+Memory was measured through completed work, with startup, active processing,
+final replay and shutdown separated. Removing the active-window property makes
+the unchanged gate fail; including process exit incorrectly makes a declining
+trace. Across every qualified live throughput sample, warm OLS slopes were
+about +517 kB/completion for DeepSeek and +605 kB/completion for MiniMax. These
+small live frames do not identify retained state versus warm-up.
+
+The separately predeclared synthetic frames exercise the unchanged campaign,
+SDK and local token estimator for **100/1000 complete documents and 300/3000
+constructed calls**. Their peak RSS differs by only 1,933,312 bytes, while
+active-window OLS slopes are +14,706/+2,035 bytes per completion. The longer
+run therefore shows a much smaller positive finite slope, not an established
+asymptotic bound. All 44/354 trace records were reconciled independently;
+four initial checkpoint observations per run are ambiguous. Unsampled
+completion bins are not zero. The inputs, responses, traces and results carry
+their own synthetic provenance and grant no authority. Exact traces are
+retained once; repetitive derived bins are reproducible scratch, with hashes
+and compact interpretations retained in `E/synthetic-retention-results.md`.
+
+### Throughput, failure rates and the unavailable knee
+
+The dated throughput declaration is separate from both six-input pilots. Its
+complete eligible frame is 310,710 nonblank abstracts out of 310,829 held work
+identities; 119 are blank, with no missing/unreadable case silently counted as
+blank. Python and SQL reconcile the complete identities and values. The frame
+declares 180 different inputs per model, disjoint from the original six and
+between levels, allocated as 12/24/48/96 at concurrency 1/4/16/32. Both models
+use the same input identities at each level. Only the first complete level ran.
+
+| Model, concurrency 1 | Typed successes / attempted | All-request median / p95 / p99, seconds | Success-only median / p95, seconds | Successful outputs/active second |
+| --- | ---: | --- | --- | ---: |
+| DeepSeek-V4-Flash-0731 | 3 / 12 | 0.811 / 56.401 / 61.886 | 50.791 / 62.011 | 0.02241 |
+| MiniMax-M2.7 | 10 / 12 | 60.034 / 128.435 / 149.169 | 69.668 / 133.148 | 0.01372 |
+
+The fast DeepSeek median is dominated by refusals; it is not successful service
+latency. These are complete observed distributions of the twelve declared
+attempts, not population percentile estimates. Both sweeps exceeded the fixed
+10% error stop threshold at concurrency 1. **Concurrency 4, 16 and 32, the
+operating knee, the chosen full-run model/concurrency and the full-pass wall
+clock are `not_established`.** A first-level error stop is not a knee. The old
+report's erroneous `knee_established: true` remains historical; both
+`E/*-throughput-interpretation-v2.json` files correct its interpretation without
+changing selection, stopping rule or outcomes. The removal that accepts an
+uncompared first level goes red.
+
+| Failure class | DeepSeek level 1 | MiniMax level 1 | Retry/operating treatment |
+| --- | ---: | ---: | --- |
+| HTTP 429 (`upstream_rate_limit` adapter label) | 9/12, 75% | 0/12 | Retryable within a newly declared bounded retry policy; origin is not established. |
+| Malformed output | 0/12 | 2/12, 16.67% | Retryable transport failure; preserve failure and usage. Do not relax the typed contract. |
+| Timeout | 0/12 | 0/12 | Retryable; no observed case here is no guarantee of absence later. |
+| Other upstream error | 0/12 | 0/12 | Retryability follows the existing typed transport classification. |
+| Parsed output violating the extraction contract | 0/12 | 0/12 | Completed explicit contract refusal; never silently repaired into a design. |
+
+Each failed attempt was classified from the complete persisted attempt set;
+archives reconcile filesystem/SQLite identities. The two separately declared
+one-request diagnostics are **outside** these denominators. DeepSeek again
+returned HTTP 429 without a recognized provider code or Retry-After value.
+MiniMax returned HTTP 200 with provider `finish_reason: abort`, zero completion
+tokens and a seven-character non-JSON body. Its structure was retained without
+the body. The producer/network origin of either failure remains unknown; the
+evidence does not establish a billing or proxy-rate-limit cause. This repeatedly
+failed external service behavior is the precise C1 operating-measurement block,
+not a dataset or appointment absence. See the two error-diagnostic-v2 results
+and deciding run captures in `E`.
+
+### Contract and paired model comparison
+
+Live models/pricing/capabilities were read before declarations. The active model
+identities matched the requested DeepSeek and MiniMax routes. The live common
+token rate changed between the first read and codec-v2 declarations; each rate
+is bound to its own measurement epoch. No third model/provider was called.
+The designated credential was located in the authorized dotenv and used only
+in memory; captures and staged bytes were scanned before writing/committing.
+
+The first contract probe passed for DeepSeek. MiniMax first produced wrapped
+JSON that the strict initial transport codec rejected. The repair reused the
+existing article extractor's object parser under a new dated declaration and
+passed; the extraction DTO and its validators were unchanged. Both the original
+red and the corrected contract call remain attributable. The codec strangle and
+removal distinguish the real default from marker-only evidence.
+
+Both pilots retain the exact six original IDs, hashes and input-length terciles.
+DeepSeek's eight phase calls satisfied their contracts; MiniMax had seven
+contract-satisfying returned calls and one malformed screening response among
+eight attempts. Complete work dispositions are respectively one extracted plus
+five screening refusals, and one extracted plus four screening refusals plus one
+provider failure. A screening refusal is not a contract failure.
+
+The predeclared comparison admits five paired screening booleans, with **zero
+disagreements out of five comparable documents**; the sixth is `not_established`
+because one response is malformed. The corresponding observed document-union
+error lower bound is 0/5, and the pooled judgment lower bound is 0/10. Neither
+is correctness evidence or a population bound. One jointly extracted document
+has structurally different outputs. That descriptive 1/1 difference is not a
+contradiction oracle: different claim sets or wording can both be valid. It
+cannot honestly become a positive error lower bound without mutually exclusive
+judgments. There is no gold standard, quality score or accepted-output accuracy
+claim. Complete comparisons, identities, phase contracts and limitations are
+in `E/paired-pilot-analysis/analysis.json`.
+
+### Prepared mechanism, actual interruption and scale limits
+
+The existing academic campaign owner now persists input, attempt intent,
+response/failure and complete work artifacts through one safe atomic writer and
+SQLite checkpoint. A bounded queue streams the source. Completed-work replay
+reuses immutable responses; it does not reissue them. **Actual SIGKILL tests**
+interrupt both a dispatched extraction and the publication-before-checkpoint
+boundary. Restart reconciles the complete expected identity set with no duplicate
+completed call or partial record; uncertain in-flight work stays explicitly
+unknown. The original campaign evidence and removal are preserved alongside
+the current 21-case campaign/recovery wave. V2 adds persistent systemic stops and
+exact-stop, quiescent recovery without erasing attempts or resetting budgets;
+v1 historical receipts remain readable under their original projection.
+
+The graph path extends the existing `graph_builder`, `edge_synthesize` and
+pipeline owners. Disk staging replaces resident corpus collections, carries
+synthetic ancestry at the common intake and bounds complete owned outputs at
+publication. Its run-emitted StrangleReceipt recomputes actual staging use and
+default flip. Separate whole-table/schema/value parity proves migration
+equivalence. Removing either record capacity or complete output-budget
+enforcement makes the original refusal fail while the valid control remains.
+
+The actual graph interruption is **SIGKILL, child RC -9, after load and before
+synthesis**. There is no published completed manifest. Restart rebuilds private
+graph state, preserves all completed extraction bytes and the same six provider
+calls, and produces equal complete database schema/value projections. The
+current finalizer wave reconciles all eight collected/executed identities; graph
+owner and importer waves reconcile 30 and 25 respectively. Synthetic processing
+reaches the real governed consumer and is refused specifically as
+`synthetic_input_candidate_only`; removing that predicate loses the required
+refusal. An empty raw L2 graph is not credited as that synthetic-specific proof.
+
+Both original real six-input pilots were subsequently finalized through the
+same production owners without a provider client. Every one of each pilot's
+43 original files remained byte-identical. Each new graph contains one extracted
+work and three raw claims, with zero admitted claims or SKG edges. Every table
+identity and row count reconciles independently over the complete 30-table
+database. This supplies real candidate graph artifacts, **not an authentic
+forwardable reference or manufactured N9 writer input**.
+`E/original-pilot-graph-finalization-run.json` is RC0, 3.272 seconds; its report
+binds actual graph references and original source hashes.
+
+There is no hard-coded corpus-count limit. A larger source is a new immutable
+complete frame and independently authorized campaign; an old campaign cannot
+silently expand. Real preparation already walked both complete held selections:
+310,710 primary works in 22.776 seconds/341,311,488-byte maximum RSS, and 65,327
+distinct claim-bearing source works in 55.002 seconds/387,579,904-byte maximum
+RSS, both RC0. These preparations made no provider call or extraction output.
+The secondary count is documents, not 137,589 historical claim occurrences.
+
+Actual limits are per work/context/artifact bytes, queue/concurrency, provider
+context/output tokens, declared attempt budgets, available disk and graph
+aggregate/vocabulary capacities. The prepared templates allow 1-MiB work,
+2-MiB context and 8-MiB artifact payloads. Graph defaults allow 1000 rows/8 MiB
+per batch, 64-MiB/100,000-contribution groups, 128-MiB/200,000-contribution
+pairs, a 16-MiB/100,000-entry resolver vocabulary, and 16 GiB of **current-build**
+owned output. Exceeding these refuses rather than silently dropping members.
+Serialized limits are not a hard Python RSS guarantee. Immutable campaign
+history and abandoned/prior graph builds consume disk outside that per-build
+budget; a larger corpus, larger payloads, denser groups, or insufficient disk can
+breach these limits. Retention/global disk management remains an operational
+requirement, not a claim of a drive-wide quota.
+
+### Operator run plan and terminal disposition
+
+`E/campaign-cli.md` and the exact unauthorized `E/prepared-primary.json` /
+`E/prepared-secondary.json` contain working `prepare`, `run`, `recover` and
+`finalize` commands. The 24-case CLI wave, source-growth/novel-input controls,
+authorization/source-binding removals and actual unauthorized module invocation
+prove those boundaries. Neither saved template authorizes spending or selects
+a winning model. Their concurrency 1 and two-attempt policy are structural
+preparation inputs only.
+
+Before any later full pass, the architect needs a new dated operating declaration
+that resolves the repeatable provider failures, establishes an acceptable
+concurrency comparison, and chooses model/retry/delay/resource policy on that
+evidence. The same held snapshot can then be prepared and explicitly authorized;
+source expansion gets a new complete frame with no code change. The run's wall
+estimate must use successful end-to-end work throughput under that chosen policy,
+including screening/refusal frequencies and finalization. **There is no credible
+Monday-to-Friday completion forecast in the current evidence.** Summed request
+latency and a first-level error stop cannot supply one.
+
+An authorized operator resumes the identical plan/checkpoint after interruption.
+Checkpoint granularity is every intent, returned/failed attempt and completed
+work. With `retry_unknown: false`, an uncertain interrupted request is not
+silently repeated. Authentication, rejected configuration, reported-model
+mismatch or unsafe response causes a durable v2 systemic stop. After repair,
+the operator waits for admitted calls to settle and acknowledges the exact stop
+through `recover`; previous usage remains spent. Timeouts, 429s and malformed
+responses consume the explicitly declared retry budget. Contract refusals and
+exhausted failures remain complete dispositions, not successful extractions.
+Reprocessing them requires a new declared campaign; unchanged resume skips them.
+Read `execution_status`, completed/unknown counts, outcomes and `fatal_stop_ref`:
+CLI RC0 alone can describe successful emission of a fatal-stop summary and
+does not mean the corpus completed. Graph finalization is a separate resumable
+owner stage; schedule its measured CPU/write load independently.
+
+| Requested continuation | Terminal status | Deciding evidence |
+| --- | --- | --- |
+| C1 bounded measurements and full-pass operating readiness | `blocked` | Both providers exceeded the predeclared error threshold at concurrency 1 and the separate diagnostics reproduced their failure classes. The operating knee, selected full-run configuration and wall forecast remain `not_established`; week-long memory stability is also unestablished. All locally executable preparation, interruption, graph and bounded resource work described above is delivered. |
+| Section 2 enlarged constructed adversarial suite | `executed` | The dated complete construction, actual owner replay, independent identity reconciliation and property-removal/saved-corruption probes decide the result below. |
+| Original A / B / C2 | `executed`, closed | Their mechanisms were not reopened or improved. |
+
+### Enlarged constructed suite
+
+**Refusal sensitivity: 48 refusals in 48 predeclared deliberate mismatches.**
+**A high refusal rate on constructed mismatches is not evidence that accepted
+bindings are correct.** The input-only construction is all three actual
+categorical sign reversals plus every nonassigned pairing of the three real
+assignments with the sixteen held WMR slots: 45 transpositions. Three original
+matched structural controls remain outside the negative denominator. There is
+one shared support cluster; neither a larger count nor repeated support creates
+independent calibration. Controls remain exact/satisfiable structurally while
+their authority abstentions remain explicit.
+
+This covers categorical sign and held assignment/target consistency. It cannot
+test subtle causal or legal mismatch, effect magnitude/tolerance, or correctness
+of accepted bindings. The proposed magnitude grid was rejected before execution
+because the real signatures expose domain bounds, not effect magnitudes. The
+construction was committed before execution; no outcomes selected its members.
+The official producer/checker were RC0 in 150.528/120.735 seconds. Sign,
+assignment, binder and emitted-identity removals are intended RC1; actual saved
+count corruption makes the owner checker RC1 and restores exact original bytes.
+All five independent identity reconciliations preserve the complete case/control
+sets. Evidence:
+`corr-evidence/a-expansion/2026-09-09-journal.md@7e216d47583eded9ab9ad8f9c0c0e669967d642c`
+and its cited complete captures. No original A production owner changed.
+
+### Built mechanisms and their falsifiers
+
+- C1 SDK contract adapter and dated model/input declarations: wrapped-output,
+  malformed/typed-contract, unsafe decoded-key and wrong-model removals/refusals
+  distinguish attribution and actual contract behavior; no contract relaxation.
+- Durable campaign and CLI: actual interruption, fatal-stop/quiescence/WAL,
+  completed-call replay, complete-source identity/growth and unauthorized-run
+  probes fail at the owning boundary when its property is removed.
+- Existing-owner graph staging/finalization: complete parity, synthetic authority
+  refusal, actual graph kill/restart, complete artifact membership/bytes and
+  shared disk-cap removals; real pilots retain original source bytes.
+- Finite resource/throughput/paired-analysis diagnostics and enlarged suite:
+  recomputed frames, source-at-finish, missing identity, warm-window, knee and
+  decisive mismatch removals. Their limits remain part of their outputs.
+
+### Findings and requirements owned elsewhere
+
+- **GY-PR1 / CORR-C1 provider operating dependency:** repeated DeepSeek HTTP 429
+  and MiniMax aborted/non-JSON responses, with exact issuing component unknown.
+  A newly declared acceptable provider/retry/concurrency measurement is needed;
+  this is not a billing verdict or permission to use another provider.
+- **GY-PR1 / CORR-C1 operating acceptance:** long-duration memory stability,
+  higher concurrency, dense/adjudicated graph scale and global disk-retention
+  policy remain bounded measurement/operations requirements. No synthetic
+  result is promoted into the canonical corpus denominator.
+- **`historical-confidence-carries-a-withdrawn-contribution`**, in the
+  data-capability requirements register: the source bytes and runnable pipeline
+  exist, but the full re-extraction remains unauthorized and unrun. The resulting
+  raw candidate graph does not supply the separately admitted claim-evidence
+  axis or an authentic N9 reference. Existing claim-adjudication/admission owners
+  own those inputs; closed C2 preservation is unchanged.
+- **`adversarial-refusal-sensitivity-is-publishable-today`:** the expanded
+  constructed suite is delivered within its named categorical/assignment limit;
+  accepted-binding calibration remains a separate requirement.
+- The false first-level knee field, scope-probe contamination from concurrent
+  receipt writes, command/module setup failures, uncredited empty-L2 negative,
+  archive projection/whitespace and repetitive derived-bin issues are **this
+  lane's corrected harness findings**, governed by P29/P35/P38/P40 and receipt
+  proportionality. Their home is this journal, not another lane's production
+  debt. The failure/repair register was reread at closeout. No new unallocated
+  production finding or register change is asserted.
+
+### Final verification checkpoint
+
+The complete Python change set from this continuation's entry commit
+`84e633fe53990951b96680295ab66daee60a8af2` to the frozen implementation was
+independently derived by `git diff` and two complete `git ls-tree` blob maps.
+All 66 identities agree, hash
+`99397d724b5ed4fd037de0bee495e528bb31adabab69040d974f7d3de5cd3d5e`;
+the exact independent command/output is `final-changed-python-identities.json`
+(RC0, 0.212 seconds), targeting the frozen `d24655fbf` implementation.
+`E/final-changed-python-ruff.json` is RC0, 0.049 seconds. The subsequently
+added archive helper has its separate final Ruff RC0 in
+`E/graph-profile-archive-final-ruff-v2.json`. No production source changed
+after these checks. Targeted test collections and actual execution identities
+are reconciled in the cited owner reports, rather than aggregated into an
+invented full-suite result.
+
+The initial normal guardrail capture is RC1, 255.998 seconds. Its complete
+output separately names concurrent writes by this lane's still-finishing
+receipt/archive authors and the generated OpenAPI example's stale source
+binding. That is an owned contaminated output-boundary measurement, not an
+inherited production failure. All authors then froze. The existing OpenAPI
+exporter regenerated the snapshot in `openapi-final-source-write.json`, RC0,
+66.210 seconds. No exporter or closed authority algorithm was changed.
+
+`openapi-final-complete-delta.json` independently walks every typed JSON node
+recursively and iteratively: both versions retain exactly 57,290 identities,
+and the ten changed values are the existing negative example's recomputed
+dependency count/digests and corresponding receipt/projection/replay bindings.
+Operations, DTOs, rule epochs and semantic payloads remain equal. The old
+snapshot is `schemas/runtime_api_v1.openapi.json@35889915ebe8598eb1e379e64db82405ddbefbdd`;
+new byte SHA-256 is
+`202c4697556b02b1a033552db57fe86fa89161cbf1deac01fc7c869ef5723684`.
+No governed JSON reformat or drive-by receipt edit was used.
+
+`openapi-final-persisted-corruption.json` is wrapper RC0, 74.223 seconds:
+changing only the saved `bound_dependency_count` from 6363 to 0 makes the
+unmodified API checker return RC1 with exactly that generated-value diff.
+The helper restores the exact original bytes. The checker also logged an
+optional Prometheus exporter port collision; the schema refusal completed
+for its named drift. That incidental station observation is **explicit nowhere
+in the product backlog**, uninvestigated and not a claim of product breakage.
+The final normal guardrail replay follows this frozen checkpoint. No baseline,
+exemption, denominator or gate scope was weakened.
+
+Independent handback review corrected the checkpoint-count ordering and made
+the inferred development headroom explicit: these were quiet resource profiles,
+not measurements of concurrent development interference. It found no other
+substantive contradiction in the inspected status, denominator, quality,
+resource and conditional-cost statements. Verification captures in this section
+without the `E/` prefix are added after the evidence checkpoint above and are
+bound by the subsequent final local verification commit.
+
+### Cost footnote — conditional, not the operating decision
+
+The pilot-v2 live rate was **USD 1.202913e-9 per prompt or completion token**.
+DeepSeek used 8316 prompt + 1557 completion = 9873 tokens, computed cost
+$0.000011876360049. MiniMax used 8447 + 4987 = 13434 tokens, computed cost
+$0.000016159933242. MiniMax's failed screening reply still reported 1100 tokens;
+the forecast includes that transport usage rather than treating checkpoint
+`unknown` as zero. Provider price times usage is not a billing receipt.
+
+**Conditional full-pass token/cost forecast:** primary 310,710 source works:
+DeepSeek 511,273,305 tokens / **$0.6150173051**; MiniMax 695,679,690 /
+**$0.8368421429**. Secondary 65,327 claim-bearing source works: DeepSeek
+90,573,405.5 / **$0.1089519269**; MiniMax 122,588,143 / **$0.1474628709**.
+These point estimates assume exchangeable phase frequencies and token use
+within the unchanged input-length terciles, each with only two pilot inputs.
+They describe the pilots' one-attempt policy, not the prepared two-attempt
+policy, unknown interrupted usage, claim-occurrence extraction or a precision
+guarantee. Selective retries do not justify a blanket multiplication by two.
+
+The repository token estimator produced 8324/8316 prompt tokens for
+DeepSeek/MiniMax. Provider prompt counts were respectively **8 lower / 131
+higher**; provider total tokens were **1549 / 5118 higher** than those local
+prompt-only estimates. Completion tokens explain most of that gap. Conditional
+serial sums of provider latency are preserved in the analysis but are explicitly
+not full-pass wall-clock forecasts. No number is attributed to the old OpenAI
+declaration or represented as a grounding/correctness bound.

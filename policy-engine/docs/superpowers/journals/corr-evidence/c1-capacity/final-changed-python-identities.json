@@ -1,0 +1,18 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-c",
+    "import subprocess,json,hashlib\nfrom pathlib import Path\nbase=\"84e633fe53990951b96680295ab66daee60a8af2\"\ntarget=\"d24655fbfb56317a4c00ca5323fd8201692e0a32\"\nroot=Path.cwd().parent\nactual=set(subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"-z\",base,target],cwd=root).decode().strip(\"\\0\").split(\"\\0\"))\nactual={p for p in actual if p.startswith(\"policy-engine/\") and p.endswith(\".py\")}\ndef tree(ref):\n    result={}\n    for record in subprocess.check_output([\"git\",\"ls-tree\",\"-rz\",ref],cwd=root).split(b\"\\0\"):\n        if record:\n            meta,name=record.split(b\"\\t\",1)\n            name=name.decode()\n            if name.startswith(\"policy-engine/\") and name.endswith(\".py\"):\n                result[name]=meta.split()[2]\n    return result\nold,new=tree(base),tree(target)\nindependent={p for p in old.keys()|new.keys() if p not in old or p not in new or old[p]!=new[p]}\nassert actual==independent\npaths=sorted(p.removeprefix(\"policy-engine/\") for p in actual)\nprint(json.dumps({\"base\":base,\"target\":target,\"denominator\":\"Every changed tracked product Python file, complete git diff and independently compared recursive tree blob maps\",\"changed_count\":len(paths),\"identity_sets_equal\":True,\"identity_digest\":hashlib.sha256(\"\\n\".join(paths).encode()).hexdigest(),\"missing\":[],\"unexpected\":[],\"ambiguous\":[]},sort_keys=True))\n"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.21246816706843674,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"ambiguous\": [], \"base\": \"84e633fe53990951b96680295ab66daee60a8af2\", \"changed_count\": 66, \"denominator\": \"Every changed tracked product Python file, complete git diff and independently compared recursive tree blob maps\", \"identity_digest\": \"99397d724b5ed4fd037de0bee495e528bb31adabab69040d974f7d3de5cd3d5e\", \"identity_sets_equal\": true, \"missing\": [], \"target\": \"d24655fbfb56317a4c00ca5323fd8201692e0a32\", \"unexpected\": []}\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

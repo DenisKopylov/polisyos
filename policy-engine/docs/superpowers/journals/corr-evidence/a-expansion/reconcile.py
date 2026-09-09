@@ -88,8 +88,15 @@ def main() -> int:
     """Read only the new report; the removal changes an in-memory copy."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--remove-one-emission", action="store_true")
+    parser.add_argument("--capture", type=Path)
     args = parser.parse_args()
-    report = _input.read_json(HERE / "2026-09-09-refusal-expansion.json")
+    if args.capture is not None:
+        capture = _input.read_json(args.capture)
+        if capture["timed_out"] is not False or capture["returncode"] not in {0, 1}:
+            raise ValueError("cannot_reconcile_timed_out_or_unexecuted_capture")
+        report = json.loads(capture["stdout"])
+    else:
+        report = _input.read_json(HERE / "2026-09-09-refusal-expansion.json")
     if args.remove_one_emission:
         report = copy.deepcopy(report)
         report["outcomes"].pop()

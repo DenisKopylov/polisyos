@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 133 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 277 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 279 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -1175,7 +1175,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 277 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 279 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `module_doc_only` | 0 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
 
@@ -1185,7 +1185,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (277)</summary>
+<details><summary>Entrypoint exports (279)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1200,6 +1200,7 @@ AdministrativeMissingnessScenarioFamily
 AdministrativeMissingnessUnitScope
 AgentConfig
 AgentTypeConfig
+ArticleExtractionResult
 AssumptionSpec
 AssumptionType
 BacktestPlanBundle
@@ -1441,6 +1442,7 @@ TemporalInterventionStep
 TransportabilityCheckBundle
 TransportabilityResult
 TransportabilityResultRef
+TrinityBundle
 TrustLevel
 TypedFailureCard
 UncertaintyEnvelope
@@ -1499,7 +1501,7 @@ resolve_lazy_export
 
 </details>
 
-<details><summary>Supported exports (277)</summary>
+<details><summary>Supported exports (279)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1514,6 +1516,7 @@ AdministrativeMissingnessScenarioFamily
 AdministrativeMissingnessUnitScope
 AgentConfig
 AgentTypeConfig
+ArticleExtractionResult
 AssumptionSpec
 AssumptionType
 BacktestPlanBundle
@@ -1755,6 +1758,7 @@ TemporalInterventionStep
 TransportabilityCheckBundle
 TransportabilityResult
 TransportabilityResultRef
+TrinityBundle
 TrustLevel
 TypedFailureCard
 UncertaintyEnvelope

@@ -1206,7 +1206,7 @@
         "polisyos.ir.api"
       ],
       "major_subsystem": true,
-      "export_count": 277,
+      "export_count": 279,
       "exports": [
         "ABMBifurcationReport",
         "ABMIdentifiabilityCertificate",
@@ -1220,6 +1220,7 @@
         "AdministrativeMissingnessUnitScope",
         "AgentConfig",
         "AgentTypeConfig",
+        "ArticleExtractionResult",
         "AssumptionSpec",
         "AssumptionType",
         "BacktestPlanBundle",
@@ -1461,6 +1462,7 @@
         "TransportabilityCheckBundle",
         "TransportabilityResult",
         "TransportabilityResultRef",
+        "TrinityBundle",
         "TrustLevel",
         "TypedFailureCard",
         "UncertaintyEnvelope",
@@ -1495,7 +1497,7 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 277,
+          "export_count": 279,
           "exports": [
             "ABMBifurcationReport",
             "ABMIdentifiabilityCertificate",
@@ -1509,6 +1511,7 @@
             "AdministrativeMissingnessUnitScope",
             "AgentConfig",
             "AgentTypeConfig",
+            "ArticleExtractionResult",
             "AssumptionSpec",
             "AssumptionType",
             "BacktestPlanBundle",
@@ -1750,6 +1753,7 @@
             "TransportabilityCheckBundle",
             "TransportabilityResult",
             "TransportabilityResultRef",
+            "TrinityBundle",
             "TrustLevel",
             "TypedFailureCard",
             "UncertaintyEnvelope",

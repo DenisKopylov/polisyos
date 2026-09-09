@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 from tools.lib.imports import repo_root_from
@@ -31,10 +32,13 @@ def main() -> int:
 
     from polisyos.runtime.http.app import create_runtime_api_app
 
-    app = create_runtime_api_app(enable_security_middlewares=False)
-    schema = app.openapi()
-
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="runtime_openapi_", dir=args.output.parent) as scratch:
+        app = create_runtime_api_app(
+            enable_security_middlewares=False, cas_root=Path(scratch) / "cas"
+        )
+        schema = app.openapi()
+
     args.output.write_text(
         json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",

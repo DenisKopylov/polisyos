@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.ir.trinity import TrinityBundle  # noqa: TC001
+from polisyos.ir import TrinityBundle  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import design_generation as n4
 from polisyos.runtime.quality.cycle_substrate import (

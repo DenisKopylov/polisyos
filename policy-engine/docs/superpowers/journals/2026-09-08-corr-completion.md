@@ -364,3 +364,82 @@ The final metadata sync is RC 0 in `final-s3-v4-inventory-sync.json`
 (9.809 seconds), using `--skip-deep-import-baseline`; readback shows only the
 S3 v4 freshness description changed in the generated companion. Normal
 architecture guardrails remain the final pending gate after all writer freezes.
+
+The S3 v4 checkpoint is `778d8ce6b3be5a1730bbd3b10b7af5cf72c5aebe`; all 27
+changed blobs were reread from the verified attached branch and matched the
+worktree, with a clean tree. The first final normal architecture check then
+returns RC 1 in 240.193 seconds (`final-architecture-guardrails.json`). Its
+complete output reports three new deep imports, one OpenAPI probe CAS write
+outside assigned scratch, and stale OpenAPI/trust-posture outputs. These are
+owned closeout findings under P27/P29/P41, not a passing check or inherited debt.
+The appended plan resolves facades without baseline acceptance and measures
+both generated-output deltas before changing their companions.
+
+## Guardrail delta evidence
+
+The three new deep imports are corrected through their declared owners. IR's
+existing facade lazily re-exports the unchanged `ArticleExtractionResult` and
+`TrinityBundle` classes; C's two imports use it. B uses Core's existing
+`artifacts` facade, preserving exact classes and the complete proof-input model
+schema. The C and B journals retain independent owned-edge/class-identity
+measurements and their passing affected behavior controls. No import baseline
+or exception changes.
+
+The real exporter confinement test is red in
+`corr-evidence/shared/openapi-output-boundary-red.json` (RC 1, 69.225 seconds):
+it produces a valid complete OpenAPI schema but writes the existing
+`chronology.open_world_risk_verifier` code artifact and manifest outside assigned
+output. The repair passes the existing app factory a temporary CAS beneath
+that output, leaving the factory and closed verifier untouched. The same test
+is green in `openapi-output-boundary-green.json` (RC 0, 64.455 seconds), with its
+complete single-node identity independently reconciled.
+
+`openapi-output-strangle.json` emits a recomputed `StrangleReceipt` (RC 0,
+60.560 seconds), content hash
+`sha256:34a063dcd37bb5c28a6325d1a41c7cf00afe47061c6a3565f7bbd283ee2a1610`.
+Two fresh working directories run the actual exporter. Removing only its CAS
+binding restores outside writes; both paths produce the identical valid schema.
+Independent rglob/os.walk file identity sets agree, and the current path leaves
+only the assigned schema. The default flip is observed, not declared.
+
+IR's existing facade/catalog importer wave initially fails only its generated
+catalog freshness check. The complete 24-node identity set is reconciled with
+that failure retained. The canonical catalog owner regenerates the two affected
+reference documents, changing only the two newly exposed classes' public
+classification and derived totals. The unchanged exact importer wave then
+passes (RC 0, 5.929 seconds), independently reconciled at the same 24 identities
+(`ir-facade-importer-green.json`, `ir-facade-green-identities.json`).
+
+Independent complete comparisons in `trust-posture-companion-measurement.json`
+find only source content/line and derived digest changes; all public claim
+identities, authority predicates and posture states remain equal. The existing
+writer regenerates that companion in `trust-posture-current-write.json`
+(RC 0, 37.690 seconds). No closed trust-posture algorithm is changed. The
+initial complete OpenAPI comparison (`openapi-complete-initial-delta.json`)
+likewise retains every JSON identity and changes only the DS17 negative
+example's dependency/receipt bindings. The example must be recomputed again
+from the final committed source basis; no value is hand-edited into the schema.
+
+Final source-delta Ruff passes over the complete independently reconciled
+changed Python set in `final-guardrail-delta-python-ruff.json` (RC 0, 0.112
+seconds). Its 79 paths have identity hash
+`5a67577664cddfbaa5d6370c98c98ae81a4bd9cc07c4c5770b888948b8c584b6`.
+The no-baseline metadata sync also passes (`final-guardrail-delta-inventory-sync.json`,
+RC 0, 8.735 seconds). Independent delta review approves the facade and exporter
+changes; root read back the generated inventory and exact two-class catalog diff.
+All remaining work is current generated-artifact verification and final normal
+guardrails, followed by terminal status/branch delivery.
+
+The trust-posture owner independently checks the regenerated companion in
+`trust-posture-current-check.json` (RC 0, 38.836 seconds). The first saved
+corruption attempt selected a string digest, which the scalar-only probe rejects
+before writing; `trust-posture-persisted-corruption.json` is a harness setup
+nonreceipt. The actual numeric-token probe in
+`trust-posture-persisted-corruption-numeric.json` returns wrapper RC 0 in 43.008
+seconds: changing only `/ast_derivation/scanned_python_count` from 138 to 0
+makes the real owner return child RC 1 with `DS11-GENERATED-DRIFT`. Exact bytes
+are restored to SHA-256
+`9ef1d7d3c72f8fdd2e5a3737666c6fcc1fe40fcf5814d9f6943b6eaeb5205d7f`.
+The failure/repair register was reread before this closeout boundary; the
+facade, scratch confinement and generated companion findings are resolved here,
+not assigned to another lane.

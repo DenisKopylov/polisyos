@@ -1,0 +1,28 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json tools.quality.validation.check_trust_claim_posture /ast_derivation/scanned_python_count 0 --checker-arg=--check --checker-arg=--repo-root --checker-arg=. --checker-arg=--json --timeout-seconds 180",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+    "tools.quality.validation.check_trust_claim_posture",
+    "/ast_derivation/scanned_python_count",
+    "0",
+    "--checker-arg=--check",
+    "--checker-arg=--repo-root",
+    "--checker-arg=.",
+    "--checker-arg=--json",
+    "--timeout-seconds",
+    "180"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 43.0079123750329,
+  "timeout_seconds": 240.0,
+  "timed_out": false,
+  "stdout": "{\n  \"artifact\": \"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\",\n  \"mutation_path\": \"/ast_derivation/scanned_python_count\",\n  \"original_value\": 138,\n  \"mutated_value\": 0,\n  \"only_selected_token_changed\": true,\n  \"argv\": [\n    \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python\",\n    \"-m\",\n    \"tools.quality.validation.check_trust_claim_posture\",\n    \"--check\",\n    \"--repo-root\",\n    \".\",\n    \"--json\"\n  ],\n  \"cwd\": \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine\",\n  \"returncode\": 1,\n  \"timeout_seconds\": 180.0,\n  \"timed_out\": false,\n  \"launch_error\": null,\n  \"disposition\": \"completed\",\n  \"elapsed_seconds\": 42.83548270794563,\n  \"stdout\": \"\",\n  \"stderr\": \"Traceback (most recent call last):\\n  File \\\"<frozen runpy>\\\", line 198, in _run_module_as_main\\n  File \\\"<frozen runpy>\\\", line 88, in _run_code\\n  File \\\"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tools/quality/validation/check_trust_claim_posture.py\\\", line 2856, in <module>\\n    raise SystemExit(main())\\n                     ~~~~^^\\n  File \\\"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tools/quality/validation/check_trust_claim_posture.py\\\", line 2824, in main\\n    raise ValueError(\\\"DS11-GENERATED-DRIFT\\\")\\nValueError: DS11-GENERATED-DRIFT\\n\",\n  \"original_sha256\": \"9ef1d7d3c72f8fdd2e5a3737666c6fcc1fe40fcf5814d9f6943b6eaeb5205d7f\",\n  \"corrupted_sha256\": \"0e5e8562fffd5cb104a4e9e83aaf05ca5fe5af0f1b2af536ac80b8530461c25e\",\n  \"restored_sha256\": \"9ef1d7d3c72f8fdd2e5a3737666c6fcc1fe40fcf5814d9f6943b6eaeb5205d7f\",\n  \"byte_identical_restoration\": true,\n  \"observed_issue_codes\": null,\n  \"expected_returncode\": 1,\n  \"expected_issue_codes\": [],\n  \"probe_passed\": true\n}\n",
+  "stderr": ""
+}

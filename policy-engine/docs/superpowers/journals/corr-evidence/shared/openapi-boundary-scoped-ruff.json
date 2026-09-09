@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check tools/ops_runners/runtime/export_runtime_openapi.py tests/repo_quality/tools/test_export_runtime_openapi.py docs/superpowers/journals/corr-evidence/shared/openapi_output_probe.py src/polisyos/ir/__init__.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tools/ops_runners/runtime/export_runtime_openapi.py",
+    "tests/repo_quality/tools/test_export_runtime_openapi.py",
+    "docs/superpowers/journals/corr-evidence/shared/openapi_output_probe.py",
+    "src/polisyos/ir/__init__.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.10934991599060595,
+  "timeout_seconds": 120.0,
+  "timed_out": false,
+  "stdout": "ANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`\n  --> docs/superpowers/journals/corr-evidence/shared/openapi_output_probe.py:53:32\n   |\n51 |     original = app_owner.create_runtime_api_app\n52 |\n53 |     def omit_binding(**kwargs: Any) -> Any:\n   |                                ^^^\n54 |         kwargs.pop(\"cas_root\", None)\n55 |         return original(**kwargs)\n   |\n\nANN401 Dynamically typed expressions (typing.Any) are disallowed in `omit_binding`\n  --> docs/superpowers/journals/corr-evidence/shared/openapi_output_probe.py:53:40\n   |\n51 |     original = app_owner.create_runtime_api_app\n52 |\n53 |     def omit_binding(**kwargs: Any) -> Any:\n   |                                        ^^^\n54 |         kwargs.pop(\"cas_root\", None)\n55 |         return original(**kwargs)\n   |\n\nE501 Line too long (103 > 100)\n  --> docs/superpowers/journals/corr-evidence/shared/openapi_output_probe.py:57:101\n   |\n55 |         return original(**kwargs)\n56 |\n57 |     with tempfile.TemporaryDirectory(prefix=\"corr-openapi-strangle-\", dir=Path.cwd() / \".tmp\") as name:\n   |                                                                                                     ^^^\n58 |         root = Path(name).resolve()\n59 |         current = _observe(root / \"current\")\n   |\n\nE501 Line too long (104 > 100)\n  --> docs/superpowers/journals/corr-evidence/shared/openapi_output_probe.py:77:101\n   |\n75 |         \"scope\": \"generator filesystem confinement; no policy authority\",\n76 |         \"owner\": \"tools.ops_runners.runtime.export_runtime_openapi\",\n77 |         \"source_sha256\": hashlib.sha256(Path(export_runtime_openapi.__file__).read_bytes()).hexdigest(),\n   |                                                                                                     ^^^^\n78 |         \"legacy_path\": \"app_factory_default_working_directory_CAS\",\n79 |         \"default_path\": \"explicit_temporary_CAS_under_assigned_output_root\",\n   |\n\nE501 Line too long (107 > 100)\n  --> docs/superpowers/journals/corr-evidence/shared/openapi_output_probe.py:84:101\n   |\n82 |         \"removed\": removed,\n83 |     }\n84 |     digest = hashlib.sha256(json.dumps(packet, sort_keys=True, separators=(\",\", \":\")).encode()).hexdigest()\n   |                                                                                                     ^^^^^^^\n85 |     sys.stdout.write(json.dumps({**packet, \"content_hash\": f\"sha256:{digest}\"}, indent=2) + \"\\n\")\n86 |     return 0 if flipped else 1\n   |\n\nFound 5 errors.\n",
+  "stderr": ""
+}

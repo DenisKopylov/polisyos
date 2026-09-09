@@ -542,3 +542,39 @@ run the actual saved-artifact corruption through the unchanged checker. These
 are companions to the already executed subject comparison and forwarding
 removals, not replacements for them. Only after this correction and writer freeze
 does the final snapshot-sensitive architecture wave run.
+
+## Final guardrail corrections, 2026-09-09
+
+The first frozen-source normal architecture check at
+`778d8ce6b3be5a1730bbd3b10b7af5cf72c5aebe` is red, retained in
+`corr-evidence/shared/final-architecture-guardrails.json`. These are not credited
+as inherited failures. Three added cross-owner imports bypass the declared
+facades. Extend IR's existing lazy facade with the exact existing
+`ArticleExtractionResult` and `TrinityBundle` objects, then wire the two C
+consumers through it. The Core import must use the existing owner facade if
+available. Falsifiers are exact public-object identity and the unchanged
+import-creep predicate; do not accept a new baseline or exception. Root owns
+shared facade/docs/inventory changes; C and B own their respective import lines.
+
+The same check reports an OpenAPI generator write outside assigned scratch and
+drift in the OpenAPI and trust-posture outputs. Measure each through its actual
+owner before correction. The generated outputs remain companions of the changed
+source; a stale companion is not permission to change a closed algorithm.
+Root owns the OpenAPI producer boundary and shared artifact regeneration; the
+read-only review agent owns the complete trust-posture drift measurement.
+A generated value/identity comparison must distinguish missing, null and types,
+and reconcile the full changed identity set. Production custody semantics and
+prior receipt epochs remain binding throughout this delta.
+
+The actual OpenAPI scratch replay identifies the stray body as the existing
+`chronology.open_world_risk_verifier` code artifact, emitted by normal app
+construction into its default CAS. The exporter omitted the already-supported
+`cas_root` argument. Extend only the existing exporter to give the real app a
+temporary CAS under the assigned output directory; leave the closed verifier
+and HTTP factory unchanged. A real exporter test from a fresh working directory
+must produce a valid complete schema and no files outside its output root.
+Removing only that CAS argument must make the same test fail, with the real
+schema still produced. The actual OpenAPI comparison changes only DS17 example
+dependency/receipt bindings from the enlarged current Python source basis;
+regenerate those through the existing owner after final source freeze, preserving
+the negative example's authority/status and its receipt rules.

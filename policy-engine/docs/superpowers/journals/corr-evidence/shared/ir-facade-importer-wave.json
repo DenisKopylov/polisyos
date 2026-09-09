@@ -1,0 +1,24 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q --tb=short --junitxml=.tmp/corr-ir-facade.xml tests/unit/ir/test_root_facade_closeout.py tests/unit/ir/test_schema_catalog.py tests/unit/ir/test_public_surface.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "--junitxml=.tmp/corr-ir-facade.xml",
+    "tests/unit/ir/test_root_facade_closeout.py",
+    "tests/unit/ir/test_schema_catalog.py",
+    "tests/unit/ir/test_public_surface.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 6.149764333968051,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": ".........F..............                                                 [100%]\n=================================== FAILURES ===================================\n_________________ test_generated_reference_catalog_is_current __________________\ntests/unit/ir/test_schema_catalog.py:51: in test_generated_reference_catalog_is_current\n    assert result.returncode == 0, result.stderr or result.stdout\nE   AssertionError: generated reference out of date: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/reference/ir/schema-catalog.md\nE     generated reference out of date: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/reference/schemas.md\nE     \nE   assert 1 == 0\nE    +  where 1 = CompletedProcess(args=['/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python', 'tools/qualit...ated reference out of date: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/reference/schemas.md\\n').returncode\n=========================== short test summary info ============================\nFAILED tests/unit/ir/test_schema_catalog.py::test_generated_reference_catalog_is_current\n",
+  "stderr": ""
+}

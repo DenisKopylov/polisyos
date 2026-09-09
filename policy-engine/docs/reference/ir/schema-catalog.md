@@ -13,13 +13,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ## Summary
 
 - Total IR types: `1586`.
-- Public/root-or-package facade types: `443`.
+- Public/root-or-package facade types: `445`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 280 |
+| `polisyos.ir` | 282 |
 | `polisyos.ir.analytics` | 274 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
@@ -12047,9 +12047,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.ArticleExtractionResult` { #polisyos-ir-analytics-literature-articleextractionresult }
 
 - Kind: `pydantic_model`
-- Public status: `snapshot_only`
+- Public status: `root_facade`
 - Current version: `1.5`
-- Exported from: —
+- Exported from: `polisyos.ir:ArticleExtractionResult`
 - ABI snapshot: `article_extraction_result` / `schemas/snapshots/ir/article_extraction_result.schema.json`
 - Compatibility mode: `backward`
 - References: `polisyos.ir.analytics.context.ContextProfile`, `polisyos.ir.analytics.literature.BoundaryCondition`, `polisyos.ir.analytics.literature.CausalClaim`, `polisyos.ir.analytics.literature.ContextAttribute`, `polisyos.ir.analytics.literature.EvidenceParameter`, `polisyos.ir.analytics.literature.EvidenceSpan`, `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.HeterogeneityResult`, `polisyos.ir.analytics.literature.Mechanism`, `polisyos.ir.analytics.literature.ModerationEdge`, `polisyos.ir.analytics.literature.PaperKind`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.TextQuality`
@@ -27002,9 +27002,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.trinity.TrinityBundle` { #polisyos-ir-trinity-trinitybundle }
 
 - Kind: `pydantic_model`
-- Public status: `snapshot_only`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:TrinityBundle`
 - ABI snapshot: `trinity_bundle` / `schemas/snapshots/ir/trinity_bundle.schema.json`
 - Compatibility mode: `full`
 - References: `polisyos.ir.governance.policy_spec.PolicySpec`, `polisyos.ir.governance.problem_frame.ProblemFrame`, `polisyos.ir.model_layer.model_spec.ModelSpec`

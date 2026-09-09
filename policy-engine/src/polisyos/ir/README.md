@@ -8,8 +8,9 @@ readiness bundles и аналитических результатов. Корн
 facade для наиболее частых import-path'ов и как локальная точка навигации по
 IR-подсистеме.
 
-Важно: корневой facade не зеркалит весь код `src/polisyos/ir/**`. Например,
-`TrinityBundle` живет в [`trinity`](./trinity/README.md), а linker entrypoint-ы
+Важно: корневой facade не зеркалит весь код `src/polisyos/ir/**`.
+`TrinityBundle` реализован в [`trinity`](./trinity/README.md) и доступен через
+корневой facade; linker entrypoint-ы
 живут в [`linker`](./linker/README.md).
 
 ## Where to Start
@@ -36,7 +37,7 @@ IR-подсистеме.
 | `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Нужен базовый observation surface для record/panel payloads                  | [`observation/contracts.py`](./observation/contracts.py) |
 | `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle`              | Нужны readiness/execution bundles для downstream foundry/scientist execution | [`observation`](./observation/README.md)                 |
 | `polisyos.ir.CausalEffectReport`, `TransportabilityResult`, `HTEResult`   | Нужны canonical analytics result models                                      | [`analytics`](./analytics/README.md)                     |
-| `polisyos.ir.trinity.TrinityBundle`                                       | Нужен сам canonical Trinity container                                        | [`trinity/__init__.py`](./trinity/__init__.py)           |
+| `polisyos.ir.TrinityBundle`                                       | Нужен сам canonical Trinity container                                        | [`trinity/__init__.py`](./trinity/__init__.py)           |
 | `polisyos.ir.linker.link_trinity()`                                       | Нужно связать Trinity payload с registry surface до compile/runtime          | [`linker/README.md`](./linker/README.md)                 |
 
 ## Internal Layout
@@ -143,3 +144,9 @@ analytics coverage is documented in
 - [Merge semantics contract](../../../docs/contracts/MERGE_SEMANTICS.md)
 
 - Last updated: 2026-05-06
+
+`polisyos.ir.ArticleExtractionResult` lazily exposes the unchanged canonical
+literature extraction contract to DataForge. `polisyos.ir.TrinityBundle` exposes
+the existing Trinity container to runtime source custody. Both exports resolve
+to their original defining objects; no contract, validation or serialization
+semantics are duplicated.

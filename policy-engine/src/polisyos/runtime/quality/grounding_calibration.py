@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.artifacts import ArtifactRef  # noqa: TC001 - Pydantic nested contract.
+from polisyos.core import artifacts
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
     CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -36,7 +36,6 @@ from polisyos.runtime.quality.intervention_substrate import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import ArtifactManifest
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 REFUSAL_LIMITATION = (
@@ -60,7 +59,7 @@ class GroundingProofWorldInput(_StrictModel):
     )
     synthetic: Literal[True]
     purpose: Literal["structural_grounding_proof_only"]
-    source_ref: ArtifactRef
+    source_ref: artifacts.ArtifactRef
     cas_root: str = Field(min_length=1)
     source_schema_version: str = Field(min_length=1)
     world_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -87,7 +86,7 @@ class GroundingProofWorldInput(_StrictModel):
 
 def _world_matches_proof_input(
     declaration: GroundingProofWorldInput,
-    manifest: ArtifactManifest,
+    manifest: artifacts.ArtifactManifest,
     world: WorldModelRecord,
 ) -> bool:
     from polisyos.pdc import (
@@ -114,7 +113,6 @@ def resolve_grounding_proof_world_input(
     repo_root: Path, declaration: GroundingProofWorldInput,
 ) -> WorldModelRecord:
     """Resolve complete declared source bytes and reject metadata substitutions."""
-    from polisyos.core.artifacts import FileSystemCAS
     from polisyos.runtime.quality.world_model_record import load_world_model_record
 
     declaration = GroundingProofWorldInput.model_validate_json(declaration.model_dump_json())
@@ -124,7 +122,7 @@ def resolve_grounding_proof_world_input(
         raise ValueError("proof_world_cas_locator_escapes_repo")
     if not location.is_dir():
         raise FileNotFoundError(f"grounding_proof_world_source_unavailable:{location}")
-    store = FileSystemCAS(location)
+    store = artifacts.FileSystemCAS(location)
     # Core verifies the entire original blob/manifest identity. No fresh builder
     # can substitute an equal logical hash with a different genuine creation time.
     manifest = store.get_manifest(declaration.source_ref.artifact_id)
@@ -138,14 +136,13 @@ def produce_grounding_proof_world_input(
     repo_root: Path, *, world_cas: Path, world_ref: str,
 ) -> GroundingProofWorldInput:
     """Emit a synthetic proof-input declaration from an existing verified source."""
-    from polisyos.core.artifacts import FileSystemCAS
     from polisyos.runtime.quality.world_model_record import load_world_model_record
 
     root = repo_root.resolve()
     location = world_cas.resolve()
     if not location.is_dir():
         raise FileNotFoundError(f"grounding_proof_world_source_unavailable:{location}")
-    store = FileSystemCAS(location)
+    store = artifacts.FileSystemCAS(location)
     manifest = store.get_manifest(world_ref)
     world = load_world_model_record(store, world_ref)
     schema = manifest.artifact_schema

@@ -33,7 +33,7 @@ from polisyos.data_forge.domains.academic.knowledge.variable_canonizer import Va
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from polisyos.ir.analytics.literature import ArticleExtractionResult
+    from polisyos.ir import ArticleExtractionResult
 
 SUBSET_STAGE = "declared_abstract_subset"
 SUBSET_SELECTION_RULE = (

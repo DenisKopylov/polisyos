@@ -16,7 +16,7 @@ from typing import Any
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v3"
+SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v4"
 EXPECTED_REMOVE_PROPERTY_MUTATIONS = {
     "unknown_op_admits",
     "out_of_domain_clamps",
@@ -58,6 +58,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     behavior = intervention_substrate_behavior_report(repo_root)
     payload = {
         "schema_version": SCHEMA_VERSION,
+        "synthetic": True,
         "gy_lifecycle_marker": SCHEMA_VERSION,
         "contract_id": "policyos.runtime.intervention_substrate_lift",
         "intervention_substrate_schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
@@ -191,6 +192,11 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     return json.loads(json.dumps(payload, ensure_ascii=False, sort_keys=True))
 
 
+def _report_is_synthetic(payload: dict[str, Any]) -> bool:
+    # This report executes constructed controls regardless of their outcomes.
+    return payload.get("synthetic") is True
+
+
 def validate(repo_root: Path | None = None) -> dict[str, Any]:
     """Validate committed artifact drift and live behavior."""
 
@@ -198,6 +204,8 @@ def validate(repo_root: Path | None = None) -> dict[str, Any]:
     output_path = repo_root / OUTPUT_PATH
     live = build_live_payload(repo_root)
     issues: list[dict[str, Any]] = []
+    if not _report_is_synthetic(live):
+        issues.append({"code": "intervention_substrate_report_synthetic_marker_missing"})
     if live["behavior_report"]["status"] != "pass":
         issues.extend(live["behavior_report"]["issues"])
     coverage = live["behavior_report"].get("coverage", {})

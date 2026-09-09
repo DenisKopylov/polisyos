@@ -1,5 +1,5 @@
 {
-  "state": "B_and_shared_source_verification_complete_CG2_CG3_v3_fresh_CG5_current_refusal_S3_v3_checked_own_envelope_red_before_v4",
+  "state": "B_scoped_verification_complete_CG2_CG3_v3_and_S3_v4_checked_and_corruption_falsified_writer_frozen_for_root_guardrails",
   "resource": "Root-coordinated runtime/import slots; serialize .tmp/gy-s-composed-wmr-* writes and same-report mutations. CG2/CG3 v3 read the exact declared original CAS input. Actual runtime source-flip probes require an exclusive all-runtime-stop window.",
   "environment": "PATH lane .venv/bin first; PYTHONPATH=.:src; JAX_PLATFORMS=cpu",
   "targeted_timeout_seconds": 900,
@@ -179,5 +179,23 @@
     "tools.quality.validation.check_grounding_active_controller_contract",
     "--check", "--output-format", "json"
   ],
-  "cg5_position": "cg5-current-position.json RC1;40.862s; actual canonical confidence_layer_vintage refusal at Academic owner HC-F11–HC-F14, before CG5 live payload; current freshness not_established, no inherited attribution, no closed-owner repair"
+  "cg5_position": "cg5-current-position.json RC1;40.862s; actual canonical confidence_layer_vintage refusal at Academic owner HC-F11–HC-F14, before CG5 live payload; current freshness not_established, no inherited attribution, no closed-owner repair",
+  "s3_v4_status": {
+    "prior_v3_checkpoint": "1fcd5aa53bff08638ffdd4c3b50df0eebf35e757; actualreportblob adec38a93665c880896b0194458305b2de9d0839",
+    "original_red": "s3-own-envelope-red.json RC1; four explicitly named failure witnesses; complete passing execution identity set not_established because originalrun had noJUnit",
+    "wrapper_green": "s3-own-envelope-green.json RC0;33.734s; complete5/5 identities reconciled in s3-own-envelope-green-identities.json",
+    "guard_removal": "s3-own-envelope-removal-final.json RC1;32.935s; full5/5 reconciled in s3-own-envelope-removal-identities.json; bothpositives valid and exactly3 intendednegative failures",
+    "writer_check": "s3-v4-write-check.json RC0;428.741s; actualbehavior pass/issuesempty",
+    "persisted_corruption": "s3-v4-persisted-corruption.json wrapper0/actualchild1;230.500s; exactdrift, behaviorpass, exactbytesrestored",
+    "complete_output_census": "report-emission-complete-green.json RC0;32.672s; wholechangedJSON299/299 and actual6generatedowneroutputs independentlyreconciled; noownmarker gaps",
+    "complete_v3_v4_body_comparison": "samecensus; all3949prior/3950currentnodes compared by recursive/iterativewalks; onlyexact3governedenvelopechanges; allbehavior/coverage equal; cases16/16 andmutations9/9 retained",
+    "runtime_scope": "CORR-B requested synthetic recognition implemented/orchestrated; parentGY-S3 authoritativeacceptance remainsnot_established; rootnormalguardrails stillpending",
+    "census_argv": [
+      ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.b.report_emission_census",
+      "--s3-prior-blob", "adec38a93665c880896b0194458305b2de9d0839"
+    ],
+    "removal_argv": [
+      ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.b.removal", "report_envelope"
+    ]
+  }
 }

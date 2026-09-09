@@ -314,3 +314,53 @@ report-only correction and independent marker validation. Prior passing
 behavior/corruption runs remain evidence for their actual properties; they do
 not establish the newly tested own-envelope invariant. Final closure remains
 pending until that correction and the final architecture wave finish.
+
+The actual v3 S3 artifact and its pre-correction evidence are preserved at
+`1fcd5aa53bff08638ffdd4c3b50df0eebf35e757`. The attached branch was verified
+before committing; all 22 changed blobs were reread from it and matched the
+worktree exactly. The original v3 artifact is Git blob
+`adec38a93665c880896b0194458305b2de9d0839`. Its real writer/check passed, and
+surgically changing only the saved task-completion claim returned child RC 1
+with exactly `intervention_substrate_contract_drift` while behavior stayed valid.
+The independent own-envelope red then demonstrated that absent, false and null
+markers escaped when saved and live bodies agreed. That newer property is not
+credited by the older freshness check. The v4 correction follows this checkpoint.
+
+## Final S3 report correction and frozen-source checks
+
+The v4 report correction passes its exact wrapper tests in
+`corr-evidence/b/s3-own-envelope-green.json`. Independent collection and emitted
+JUnit reconcile the full five-node set. Removing only the independent marker
+predicate produces the intended three failures while both positive controls
+stay valid (`s3-own-envelope-removal-final.json` and its identity reconciliation).
+The original red's explicit failures are retained; its unreported passing
+identity is `not_established`, not inferred from progress dots.
+
+The actual S3 v4 writer/check passes in `s3-v4-write-check.json` (RC 0,
+428.741 seconds). The saved task-completion corruption returns child RC 1 with
+exactly `intervention_substrate_contract_drift` while live behavior remains valid
+(`s3-v4-persisted-corruption.json`, wrapper RC 0, 230.500 seconds). Exact bytes
+are restored to SHA-256
+`cd59989eb13ebea81f80801da9c13bd22d9e9279bb57a936f578923ca07d6146`.
+Independent delta review approves the source/lifecycle change with no blocking
+finding; the runtime captures supply its execution evidence.
+
+The complete product JSON census in `report-emission-complete-green.json`
+(RC 0, 32.672 seconds) independently reconciles the changed-path and declared
+generated-output sets. All six generated report identities agree and have
+their required own marker; the formerly suspected CG2/CG3 omission is refuted.
+The complete recursive and iterative S3 body comparison changes exactly
+`/schema_version`, `/gy_lifecycle_marker` and `/synthetic` from the preserved v3
+body. Behavior, coverage, all 16 case identities and all nine removal identities
+are unchanged. This report-only epoch bump neither changes runtime law epochs
+nor closes the parent GY-S3 authority conjuncts.
+
+Final changed-Python Ruff is RC 0 in
+`corr-evidence/shared/final-frozen-python-ruff.json` (0.142 seconds). The exact
+argv covers the complete changed `.py` source/test/harness set. Independent
+name-only/untracked and numstat/status enumerations agree on 73 paths, identity
+hash `85ce6e945bc3ce88c23f5f56f94cc2a941845255049fc1f3c49d85c7234c30dc`.
+The final metadata sync is RC 0 in `final-s3-v4-inventory-sync.json`
+(9.809 seconds), using `--skip-deep-import-baseline`; readback shows only the
+S3 v4 freshness description changed in the generated companion. Normal
+architecture guardrails remain the final pending gate after all writer freezes.

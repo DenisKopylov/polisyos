@@ -1618,7 +1618,7 @@ uv run python tools/quality/validation/check_layer3_gy_knowledge_substrate_contr
 - Verifier: Layer 3 GY intervention-substrate contract validator and GY-M1 lifecycle gate
 - Promotion target: registered canonical L6 lever, law-route, and method-route substrate lift contract for GY-S3
 - Commit policy: `committed`
-- Freshness rule: Regenerate and commit whenever L6 knob-domain resolution, law-to-lever subject recognition, independent subject-source ancestry, L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change.
+- Freshness rule: Regenerate and commit whenever L6 knob-domain resolution, law-to-lever subject recognition, independent subject-source ancestry, L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change. Report v4 marks its own constructed-control envelope synthetic and validates that invariant independently of drift; historical report epochs remain unchanged.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-runtime-quality`

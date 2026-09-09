@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import fnmatch
 import hashlib
 import importlib
@@ -13,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 BASE = "9619f6d2d892d7994ae3f29d3230362c41862f2d"
+S3_ARTIFACT = "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json"
 
 
 def _git(repo: Path, *args: str) -> bytes:
@@ -66,8 +68,83 @@ def _synthetic_paths(value: object) -> tuple[set[str], set[str]]:
     return recursive, iterative
 
 
+def _nodes(value: object) -> dict[tuple[str, ...], tuple[str, object]]:
+    recursive: dict[tuple[str, ...], tuple[str, object]] = {}
+
+    def walk(node: object, path: tuple[str, ...]) -> None:
+        recursive[path] = (type(node).__name__, None if isinstance(node, (dict, list)) else node)
+        if isinstance(node, dict):
+            for key, nested in node.items():
+                walk(nested, (*path, key))
+        elif isinstance(node, list):
+            for index, nested in enumerate(node):
+                walk(nested, (*path, str(index)))
+
+    walk(value, ())
+    iterative: dict[tuple[str, ...], tuple[str, object]] = {}
+    pending: list[tuple[tuple[str, ...], object]] = [((), value)]
+    while pending:
+        path, node = pending.pop()
+        iterative[path] = (type(node).__name__, None if isinstance(node, (dict, list)) else node)
+        children = node.items() if isinstance(node, dict) else (
+            enumerate(node) if isinstance(node, list) else ()
+        )
+        pending.extend(((*path, str(key)), nested) for key, nested in children)
+    if recursive != iterative:
+        raise ValueError("complete_report_node_walks_disagree")
+    return recursive
+
+
+def _s3_epoch_delta(root: Path, repo: Path, prior_blob: str) -> dict[str, Any]:
+    old = json.loads(_git(repo, "cat-file", "blob", prior_blob), object_pairs_hook=_unique)
+    current = json.loads((root / S3_ARTIFACT).read_bytes(), object_pairs_hook=_unique)
+    old_nodes, new_nodes = _nodes(old), _nodes(current)
+    changed = {
+        path for path in old_nodes.keys() | new_nodes.keys()
+        if path not in old_nodes or path not in new_nodes or old_nodes[path] != new_nodes[path]
+    }
+    expected = {("schema_version",), ("gy_lifecycle_marker",), ("synthetic",)}
+    prefix = "policyos.policy_design_case.layer3_gy.intervention_substrate_contract."
+    exact_transition = (
+        changed == expected and "synthetic" not in old and current["synthetic"] is True
+        and all(old[field] == prefix + "v3" and current[field] == prefix + "v4"
+                for field in ("schema_version", "gy_lifecycle_marker"))
+    )
+    identities = []
+    for key, identity_key in (("cases", "case_id"), ("remove_property_mutations", "mutation_id")):
+        sets = []
+        for payload, nodes in ((old, old_nodes), (current, new_nodes)):
+            rows = payload["behavior_report"][key]
+            direct = [row[identity_key] for row in rows]
+            independent = {
+                value for path, (_kind, value) in nodes.items()
+                if len(path) == 4 and path[:2] == ("behavior_report", key)
+                and path[-1] == identity_key
+            }
+            if len(direct) != len(set(direct)) or set(direct) != independent:
+                raise ValueError(f"ambiguous_or_divergent_report_identity:{key}")
+            sets.append(set(direct))
+        identities.append({
+            "denominator": key, "prior_count": len(sets[0]), "current_count": len(sets[1]),
+            "prior_identity_hash": _hash(sets[0]), "current_identity_hash": _hash(sets[1]),
+            "missing": sorted(sets[0] - sets[1]), "unexpected": sorted(sets[1] - sets[0]),
+        })
+    return {
+        "prior_artifact": f"{S3_ARTIFACT}@{prior_blob}",
+        "complete_prior_node_count": len(old_nodes), "complete_current_node_count": len(new_nodes),
+        "changed_node_paths": sorted("/" + "/".join(path) for path in changed),
+        "exact_governed_transition": exact_transition,
+        "behavior_and_coverage_exactly_equal": old["behavior_report"] == current["behavior_report"],
+        "complete_control_identities": identities,
+        "status": "pass" if exact_transition else "fail",
+    }
+
+
 def main() -> int:
     """Measure actual saved outputs; never run a generator or rewrite a receipt."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--s3-prior-blob")
+    args = parser.parse_args()
     root = Path.cwd()
     repo = root.parent
     prefix = f"{root.name}/"
@@ -189,8 +266,13 @@ def main() -> int:
         "own_marker_gaps": gaps,
         "status": "fail" if gaps else "pass",
     }
+    if args.s3_prior_blob:
+        transition = _s3_epoch_delta(root, repo, args.s3_prior_blob)
+        result["s3_governed_transition"] = transition
+        if transition["status"] != "pass":
+            result["status"] = "fail"
     sys.stdout.write(json.dumps(result, indent=2) + "\n")
-    return int(bool(gaps))
+    return int(result["status"] != "pass")
 
 
 if __name__ == "__main__":

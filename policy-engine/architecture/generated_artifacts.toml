@@ -1743,7 +1743,7 @@ regenerate_commands = [
   "uv run python -m tools.quality.validation.check_layer3_gy_intervention_substrate_contract --repo-root . --write --output-format json",
 ]
 commit_policy = "committed"
-freshness_rule = "Regenerate and commit whenever L6 knob-domain resolution, law-to-lever subject recognition, independent subject-source ancestry, L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change."
+freshness_rule = "Regenerate and commit whenever L6 knob-domain resolution, law-to-lever subject recognition, independent subject-source ancestry, L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change. Report v4 marks its own constructed-control envelope synthetic and validates that invariant independently of drift; historical report epochs remain unchanged."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py"
 check_cwd = "."

@@ -3585,7 +3585,7 @@
     "owner_validation_mutations": "a non-existent owner slot and a non-existent L3 provision must fail closed instead of binding from the tracked artifact alone",
     "world_slot": "bound must equal total over the real L6 knob dictionary"
   },
-  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v3",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v4",
   "intervention_substrate_schema_version": "policyos.runtime.intervention_substrate_lift.v2",
   "json_schemas": {
     "intervention_lever_resolution": {
@@ -4615,7 +4615,7 @@
     "CredalReference L6 projection and existing CG0 law-edge dependency scope",
     "Foundry source-relative legal recognition and Core CAS proof persistence"
   ],
-  "schema_version": "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v3",
+  "schema_version": "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v4",
   "source_modules": [
     "src/polisyos/runtime/quality/intervention_substrate.py",
     "src/polisyos/runtime/quality/intervention_atom_binding.py",
@@ -4631,6 +4631,7 @@
     "src/polisyos/foundry/methods/selection/advisor.py",
     "src/polisyos/foundry/validation/legal_correspondence.py"
   ],
+  "synthetic": true,
   "task_acceptance": {
     "mechanism_validation_is_task_completion": false,
     "status": "not_established",

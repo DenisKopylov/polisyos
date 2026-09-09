@@ -263,8 +263,9 @@ an explicit override must match that bound source. Missing family scope remains
 an honest refusal for ambiguous source routes. Explicit null source is invalid,
 and the private omission sentinel is preserved through configuration forwarding.
 
-Bundle, knob and route records retain lift v2. Law-resolution records and the
-current S3 report use v3; the strangle packet uses v2. Foundry's
+Bundle, knob and route records retain lift v2. Law-resolution records use v3;
+the current S3 report uses v4 and independently requires its own synthetic
+marker. The strangle packet uses v2. Foundry's
 `legal_correspondence` owner resolves separately addressed source memberships and
 compares namespace, namespace version and subject identity before runtime asks
 L3 to evaluate a numerical threshold. Missing subject returns ambiguous with

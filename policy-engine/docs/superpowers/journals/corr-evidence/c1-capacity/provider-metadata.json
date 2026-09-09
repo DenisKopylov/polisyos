@@ -1,0 +1,31 @@
+{
+  "schema_version": "corr.provider_metadata_observation.v1",
+  "observed_at": "2026-09-09T09:17:07.055653+00:00",
+  "authentication": "none",
+  "endpoints": [
+    {
+      "url": "https://api.proxy.gonka.gg/v1/models",
+      "status_code": 200,
+      "elapsed_seconds": 0.350340332952328,
+      "content_type": "application/json",
+      "body": "{\"data\":[{\"id\":\"deepseek-ai/DeepSeek-V4-Flash-0731\",\"object\":\"model\",\"created\":1677610602,\"owned_by\":\"gonka\",\"context_length\":400000,\"max_tokens\":16384},{\"id\":\"MiniMaxAI/MiniMax-M2.7\",\"object\":\"model\",\"created\":1677610602,\"owned_by\":\"gonka\",\"context_length\":180000,\"max_tokens\":16384}],\"object\":\"list\"}\n",
+      "body_sha256": "27719c2684f177a6b2146a852b9c7ba50190502dd36b256f26540ab034394d21"
+    },
+    {
+      "url": "https://api.proxy.gonka.gg/api/pricing",
+      "status_code": 200,
+      "elapsed_seconds": 0.1348207499831915,
+      "content_type": "application/json",
+      "body": "{\"cost_multiplier\":1,\"currency\":\"USD\",\"default_model\":\"MiniMaxAI/MiniMax-M2.7\",\"fx_updated_at\":\"2026-09-09T09:16:21.803445167Z\",\"gonka_usd\":0.1212813,\"margin_pct\":0,\"models\":[{\"model_id\":\"deepseek-ai/DeepSeek-V4-Flash-0731\",\"ngonka_per_token\":10,\"upstream_ngonka_per_token\":1,\"usd_per_token\":1.212813e-9,\"usd_per_million_tokens\":0.001212813},{\"model_id\":\"MiniMaxAI/MiniMax-M2.7\",\"ngonka_per_token\":10,\"upstream_ngonka_per_token\":1,\"usd_per_token\":1.212813e-9,\"usd_per_million_tokens\":0.001212813}],\"pricing_updated_at\":\"2026-09-09T09:16:20.202759894Z\"}\n",
+      "body_sha256": "096f9e9db85a5917612c1c0093e587669d6b893c7a5f360c332a52560c8b0f8f"
+    },
+    {
+      "url": "https://api.proxy.gonka.gg/api/models/capabilities",
+      "status_code": 200,
+      "elapsed_seconds": 0.13457070803269744,
+      "content_type": "application/json",
+      "body": "{\"models\":[{\"context_length\":180000,\"context_window\":0,\"enable_auto_tool_choice\":true,\"hf_commit\":\"d494266a4affc0d2995ba1fa35c8481cbd84294b\",\"hf_repo\":\"MiniMaxAI/MiniMax-M2.7\",\"id\":\"MiniMaxAI/MiniMax-M2.7\",\"max_model_len\":180000,\"max_output_tokens\":16384,\"model_args\":[\"--enable-auto-tool-choice\",\"--max-model-len\",\"180000\",\"--kv-cache-dtype\",\"fp8\",\"--tool-call-parser\",\"minimax_m2\",\"--reasoning-parser\",\"minimax_m2_append_think\"],\"proposed_by\":\"gonka10d07y265gmmuvt4z0w9aw880jnsr700j2h5m33\",\"quantization\":\"\",\"reasoning_parser\":\"minimax_m2_append_think\",\"supports_reasoning\":true,\"supports_tools\":true,\"throughput_per_nonce\":5000,\"tool_call_parser\":\"minimax_m2\",\"units_of_compute_per_token\":10000,\"v_ram_gb\":320,\"validation_threshold\":0.922},{\"context_length\":400000,\"context_window\":0,\"enable_auto_tool_choice\":true,\"hf_commit\":\"7872f01b1d1fe23eabc4c98b48bffcef5a386062\",\"hf_repo\":\"deepseek-ai/DeepSeek-V4-Flash-0731\",\"id\":\"deepseek-ai/DeepSeek-V4-Flash-0731\",\"max_model_len\":400000,\"max_output_tokens\":16384,\"model_args\":[\"--max-model-len\",\"400000\",\"--kv-cache-dtype\",\"fp8\",\"--tokenizer-mode\",\"deepseek_v4\",\"--enable-auto-tool-choice\",\"--tool-call-parser\",\"deepseek_v4\",\"--reasoning-parser\",\"deepseek_v4\",\"--trust-remote-code\"],\"proposed_by\":\"gonka10d07y265gmmuvt4z0w9aw880jnsr700j2h5m33\",\"quantization\":\"\",\"reasoning_parser\":\"deepseek_v4\",\"supports_reasoning\":true,\"supports_tools\":true,\"throughput_per_nonce\":1700,\"tool_call_parser\":\"deepseek_v4\",\"units_of_compute_per_token\":10000,\"v_ram_gb\":280,\"validation_threshold\":0.9}],\"source\":\"chain-lcd\",\"updated_at\":\"2026-09-09T09:13:20Z\"}\n",
+      "body_sha256": "0cd6570d917c39aff5635fca0b87c436ddf2b684d76030c744e50adfc37745d1"
+    }
+  ]
+}

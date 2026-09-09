@@ -578,3 +578,61 @@ schema still produced. The actual OpenAPI comparison changes only DS17 example
 dependency/receipt bindings from the enlarged current Python source basis;
 regenerate those through the existing owner after final source freeze, preserving
 the negative example's authority/status and its receipt rules.
+
+## C1 capacity continuation and suite expansion — 2026-09-09
+
+Entry is attached `codex/corr-capability` at
+`84e633fe53990951b96680295ab66daee60a8af2`, clean. No new lane/worktree.
+A, B and C2 mechanisms are closed and will not be changed. Section 2 adds a
+separate dated constructed suite through their existing owners, with its old
+suite and result preserved.
+
+The new C1 decision is laptop coexistence, throughput and operational readiness.
+Price is subordinate. The original model configuration and quota diagnostic
+remain historical: `032f951f…` identifies the diagnostic declaration, while
+the model configuration has its separate `4669a79a…` digest. Neither is
+rebound to Gonka. A unique matching credential is present in the authorized
+dotenv; its value is never printed or persisted.
+
+The actual unauthenticated metadata observation is
+`corr-evidence/c1-capacity/provider-metadata.json`. It confirms both requested
+servable models and supplies the observed rate for new per-model declarations.
+Every model declaration reuses the exact old six work/hash/tercile records.
+Contract probes precede pilot calls. The six-input pilot and larger throughput
+workload have distinct pre-outcome declarations; neither can authorize a full
+campaign. Only the named Gonka endpoint is permitted for live calls.
+
+Owner-first placement extends DataForge's Academic extraction path, reusing
+`PolicyArticleExtractor`, its strict `ArticleExtractionResult` normalization,
+work serializer and graph owners. A C1 transport adapter uses the existing
+`openai` dependency with explicit `base_url`, disabled hidden retries and
+safe error classification. The old serial subset entry remains historical and
+cannot be used as a parallel scalable default. The campaign owner supplies
+bounded workers and disk-backed document checkpoints, rather than increasing
+the old loop's concurrency over shared per-call fields or corpus-sized lists.
+The typed extraction contract is unchanged. Checkpoint interruption, source
+binding, no duplicated/partial records and expansion past an initial frame
+receive red-first executable tests.
+
+Process telemetry must observe the actual worker and children, with peak RSS,
+CPU seconds/wall seconds and disk bytes. On macOS an unavailable I/O counter
+is ambiguous, never zero; native libproc is the candidate observer. Resource
+measurement is exclusive of suite tests/heavy validators. Concurrency and
+failure thresholds are frozen before throughput execution; errors and timeouts
+retain their own denominators and do not disappear from throughput.
+
+Model disagreement is classified carefully: distinct valid wording or extracted
+subsets are structural differences, not necessarily contradictory judgments.
+A predeclared mutually exclusive judgment (such as screening relevance for the
+same input and rule) permits a document-pair union-error lower bound; it cannot
+identify which model is wrong or give either model an individual correctness
+rate. Unmatched/ambiguous assertions stay separate. No gold standard or quality
+score is invented.
+
+Pattern pass: P27 existing owners; P28 observed migration/default behavior;
+P29 real interruption/removal and recomputed reports; P35 complete frozen sets;
+P37/P38 no declared resource/quality stand-in; P40 class-level handling of
+concurrency attribution and secret-safe emission. Runtime/code, declaration and
+measurement changes land in coherent commits with their deciding falsifiers.
+Root alone commits and owns the completion journal. No provider credential,
+error body or captured command may bypass the safe receipt writer.

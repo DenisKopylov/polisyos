@@ -10,14 +10,15 @@ later GY paths must stay fenced from the Slice-0 fixture trajectory.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import tempfile
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import scan_secret_and_pii
@@ -47,6 +48,7 @@ from polisyos.pdc import (
     OperationContract,
     OperationInvocationRecord,
     PortSpec,
+    RefusedWorkspaceContract,
     SearchBlockerRecord,
     SearchExitContract,
     SearchIncompletenessRecord,
@@ -84,6 +86,7 @@ from polisyos.runtime.quality.data_forge_binding import (
     produce_phase2_recorded_panel_measurement_root,
     produce_recorded_panel_method_input,
     recorded_panel_method_input_target,
+    source_requirement_for_catalog_binding,
     verify_recorded_panel_method_input,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -93,6 +96,15 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
     compose_subdesigns as build_composition_certificate,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.graded_outcomes import (
+    S1_GRADED_OUTCOME_SCHEMA_VERSION,
+    GradedOutcomeDecision,
+    GradedOutcomeEvidenceInput,
+    compose_graded_outcome,
+)
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    Layer3GXPinnedRequest,  # noqa: TC001 - Pydantic resolves the actual nested request model.
+)
 from polisyos.runtime.quality.semantic_binding import (
     GySemanticBenchmark,
     SemanticAdequacyGate,
@@ -307,16 +319,96 @@ class WorkspaceSearchLedger(SearchLedger):
     replay_levels: list[Literal["A", "B", "C"]]
 
 
+class RefusedWorkspaceSearchLedger(BaseModel):
+    """Actual refusal events; never an ordinary S2 SearchLedger instance.
+
+    The cited admission owns the unestablished recall population and the empty
+    counterexample denominator. No S2 search result or positive rate is claimed.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.gy.refused_workspace_search_ledger.v1"]
+    ledger_id: str
+    ledger_ref: str
+    case_id: str
+    workspace_id: str
+    events: list[SearchLedgerEvent]
+    admission_decision_refs: list[str]
+    source_admission_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    deterministic_replay_key: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    population_state: Literal["not_established"]
+    counterexample_population_state: Literal["not_applicable"]
+    counterexample_conversion_rate: Literal[None] = Field(...)
+    unavailable_reason: Literal["original_construct_evidence_admission_owner_missing"]
+    iterations: tuple[()]
+    candidate_refs: tuple[()]
+    counterexample_refs: tuple[()]
+    invocations: tuple[()]
+    applicability_results: tuple[()]
+    replay_levels: tuple[()]
+
+
 class WorkspaceSearchExitContract(SearchExitContract):
     """Search exit plus the required Slice-0 SearchLedger sidecar."""
 
-    workspace_contract: WorkspaceContract
+    workspace_contract: WorkspaceContract | RefusedWorkspaceContract
     workspace_contract_ref: str
     obligation_records: list[ObligationRecord] = Field(default_factory=list)
-    search_ledger: WorkspaceSearchLedger
+    search_ledger: WorkspaceSearchLedger | RefusedWorkspaceSearchLedger
     voi_audit: VOISelectionAudit
     artifact_envelopes: list[ArtifactEnvelope] = Field(default_factory=list)
     authority_derivation_traces: list[AuthorityDerivationTrace] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _bind_unavailable_workspace_ratios(self) -> WorkspaceSearchExitContract:
+        workspace = self.workspace_contract
+        if isinstance(self.search_ledger, RefusedWorkspaceSearchLedger) and not isinstance(
+            workspace, RefusedWorkspaceContract
+        ):
+            raise ValueError("refused_ledger_and_workspace_must_share_admission")
+        if isinstance(workspace, RefusedWorkspaceContract):
+            if not isinstance(self.search_ledger, RefusedWorkspaceSearchLedger):
+                raise ValueError("refused_ledger_and_workspace_must_share_admission")
+            admissions = [
+                row
+                for row in self.artifact_envelopes
+                if row.payload_schema_ref == PRODUCTION_CASE_ADMISSION_SCHEMA
+            ]
+            if (
+                self.terminal_state.kind != SearchTerminalKind.A_SPEC_GAP
+                or self.authority_boundary is not None
+                or workspace.allowed_operations != [PRODUCTION_CASE_OPERATION]
+                or workspace.refusal_reason != _MISSING_ORIGINAL_CONSTRUCT_OWNER
+                or len(admissions) != 1
+                or workspace.refusal_source_admission_ref != admissions[0].payload_ref
+                or self.incompleteness_record.search_quality.recall_at_known_seeds is not None
+                or self.search_ledger.counterexample_conversion_rate is not None
+                or self.search_ledger.source_admission_ref != workspace.refusal_source_admission_ref
+                or self.search_ledger.deterministic_replay_key
+                != workspace.refusal_source_admission_ref
+                or self.search_ledger.unavailable_reason != workspace.refusal_reason
+            ):
+                raise ValueError("refused_workspace_cannot_stand_for_available_components")
+        if self.search_ledger.counterexample_conversion_rate is None:
+            quality = self.incompleteness_record.search_quality
+            if (
+                quality.recall_at_known_seeds is not None
+                or self.search_ledger.iterations
+                or self.search_ledger.counterexample_refs
+                or self.authority_boundary is not None
+            ):
+                raise ValueError("unavailable_workspace_ratios_require_unestablished_population")
+        return self
+
+
+def workspace_exit_schema_version(
+    contract: WorkspaceSearchExitContract,
+) -> Literal["1.0", "2.0"]:
+    """Select the actual typed output dialect; ordinary fixture output stays v1."""
+    if isinstance(contract.search_ledger, RefusedWorkspaceSearchLedger):
+        return "2.0"
+    return "1.0"
 
 
 WorkspaceLoopRunProof = ProductionLoopRunProof
@@ -951,6 +1043,447 @@ def build_workspace_operation_registry() -> OperationRegistry:
         },
     )
     return OperationRegistry(operations=operations)
+
+
+# Production intake is diagnostic until the independent original-construct
+# evidence admission owner exists. No declared protocol can enable a positive.
+PRODUCTION_CASE_INTAKE_SCHEMA = "policyos.gy.production_case_intake.v1"
+PRODUCTION_CASE_ADMISSION_SCHEMA = "policyos.gy.production_case_admission.v1"
+PRODUCTION_CASE_ADMISSION_KIND = "pdc.gy.production_case_admission"
+PRODUCTION_CASE_OPERATION = "workspace.production_case_admission"
+_MISSING_ORIGINAL_CONSTRUCT_OWNER = "original_construct_evidence_admission_owner_missing"
+
+
+class ProductionCaseScope(BaseModel):
+    """Original supplied policy scope, independent of fixture success seeds."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    case_id: str = Field(min_length=1)
+    construct_scope_query: str = Field(min_length=1)
+    jurisdiction: str = Field(min_length=1)
+    population: str = Field(min_length=1)
+    time_horizon: str = Field(min_length=1)
+
+    @property
+    def fixture_id(self) -> str:
+        """Supply the existing source owner's contextual identifier, not fixture seeds."""
+        return self.case_id
+
+
+class ProductionCaseIntake(BaseModel):
+    """Complete external request and explicit scope; neither is source evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.gy.production_case_intake.v1"] = PRODUCTION_CASE_INTAKE_SCHEMA
+    pinned_request: Layer3GXPinnedRequest
+    scope: ProductionCaseScope
+    scope_source_fixture_id: str = Field(min_length=1)
+    scope_source_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_posture: Literal["research", "governed", "production"]
+    request_source_path: str = Field(min_length=1)
+    request_source_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_limit: Literal["request_custody_only_not_source_evidence"] = (
+        "request_custody_only_not_source_evidence"
+    )
+
+
+class ProductionCaseAdmission(BaseModel):
+    """Actual catalog attempts and S1 decisions, with no positive claim binding."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.gy.production_case_admission.v1"] = (
+        PRODUCTION_CASE_ADMISSION_SCHEMA
+    )
+    request_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    checked_at: datetime
+    catalog_sources: list[Any]
+    source_read_error: str | None
+    requested_constructs: list[str]
+    source_attempts: list[dict[str, Any]]
+    graded_inputs: list[GradedOutcomeEvidenceInput]
+    graded_decisions: list[GradedOutcomeDecision]
+    positive_admission_state: Literal["original_construct_evidence_admission_owner_missing"] = (
+        _MISSING_ORIGINAL_CONSTRUCT_OWNER
+    )
+    substantive_source_support: Literal["not_established"] = "not_established"
+    transport_occurrence: Literal["not_attempted"] = "not_attempted"
+    metric_population_basis: dict[str, Any]
+
+    custody_scope: Literal["catalog_attempt_and_graded_refusal_recomputation_only"] = (
+        "catalog_attempt_and_graded_refusal_recomputation_only"
+    )
+
+
+def _verify_production_case_intake(
+    intake: ProductionCaseIntake, *, repo_root: Path | None = None
+) -> None:
+    """Resolve canonical demand and scope bytes before calling a population original."""
+    from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+        LAYER3_GX_PINNED_REQUEST_FILENAME,
+        resolve_layer3_gx_data_home_selection,
+    )
+
+    root = _repo_root() if repo_root is None else repo_root.resolve()
+    selection = resolve_layer3_gx_data_home_selection(root, case=intake.pinned_request.case_id)
+    path = root / selection.data_home_artifact_path(LAYER3_GX_PINNED_REQUEST_FILENAME)
+    if not path.resolve().is_relative_to(root.resolve()):
+        raise WorkspaceInvariantError("production_case_request_source_outside_owner")
+    raw = path.read_bytes()
+    value = json.loads(raw)
+    if (
+        not isinstance(value, dict)
+        or intake.request_source_path != path.relative_to(root).as_posix()
+        or intake.request_source_sha256 != "sha256:" + hashlib.sha256(raw).hexdigest()
+        or intake.pinned_request.model_dump(mode="json") != value
+        or intake.scope.case_id != selection.case_id
+    ):
+        raise WorkspaceInvariantError("production_case_original_request_content_drift")
+    scope_path = root / "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json"
+    scope_raw = scope_path.read_bytes()
+    source = json.loads(scope_raw)
+    if not isinstance(source, dict) or not isinstance(source.get("fixtures"), list):
+        raise WorkspaceInvariantError("production_case_scope_source_unreadable")
+    candidates = [
+        row
+        for row in source["fixtures"]
+        if isinstance(row, dict) and row.get("fixture_id") == intake.scope_source_fixture_id
+    ]
+    if len(candidates) != 1:
+        raise WorkspaceInvariantError("production_case_scope_source_identity_not_unique")
+    candidate = WorkspaceFixtureManifest.model_validate(candidates[0])
+    expected = {
+        key: getattr(candidate, key)
+        for key in ("construct_scope_query", "jurisdiction", "population", "time_horizon")
+    }
+    expected["case_id"] = selection.case_id
+    if (
+        intake.scope.model_dump(mode="json") != expected
+        or intake.scope_source_sha256 != "sha256:" + hashlib.sha256(scope_raw).hexdigest()
+    ):
+        raise WorkspaceInvariantError("production_case_original_scope_content_drift")
+
+
+def _production_catalog_sources(catalog: read_api.catalog.DatasetCatalogGraph) -> list[Any]:
+    return [
+        value.model_dump(mode="json") if hasattr(value, "model_dump") else value
+        for value in catalog.source_content_identities()
+    ]
+
+
+def _production_source_attempts(
+    intake: ProductionCaseIntake, catalog: read_api.catalog.DatasetCatalogGraph
+) -> tuple[list[Any], str | None, list[dict[str, Any]]]:
+    """Enumerate complete requested bindings through the actual catalog owner.
+
+    The owner independently reconciles raw row identities and count against its
+    typed projection. Missing tables or malformed rows refuse the population;
+    neither can appear as a measured zero. Metadata admission is deliberately
+    distinct from transport occurrence and scientific original-construct support.
+    """
+    constructs = [row.construct_ref for row in intake.pinned_request.requested_constructs]
+    if not constructs or len(constructs) != len(set(constructs)):
+        raise WorkspaceInvariantError("production_original_requirement_population_invalid")
+    try:
+        before = _production_catalog_sources(catalog)
+    except Exception as exc:
+        error = f"{type(exc).__name__}:{exc}"
+        return (
+            [],
+            error,
+            [{"construct_ref": key, "status": "ambiguous", "reason": error} for key in constructs],
+        )
+    attempts: list[dict[str, Any]] = []
+    for construct in constructs:
+        try:
+            matches = catalog.reconciled_metric_binding_population(construct)
+            candidates = []
+            for match in matches:
+                try:
+                    selected = catalog.get_dataset(match.catalog_dataset_id)
+                    distributions = [
+                        row
+                        for row in catalog.get_distributions(match.catalog_dataset_id)
+                        if row.id == match.distribution_id
+                    ]
+                    if selected is None or len(distributions) != 1:
+                        raise ValueError("declared_catalog_target_not_readable")
+                    bound = catalog.bind_fetch_target(
+                        metric_id=match.metric_id,
+                        connector_id=match.connector_id,
+                        request_dataset_id=match.request_dataset_id,
+                        profile_id=match.profile_id,
+                        filters=match.default_filters,
+                    )
+                    if (
+                        bound.target.catalog_dataset_id != match.catalog_dataset_id
+                        or bound.target.distribution_id != match.distribution_id
+                    ):
+                        raise ValueError("catalog_selected_target_differs_from_declared_member")
+                    requirement, source_contract = source_requirement_for_catalog_binding(
+                        manifest=intake.scope,
+                        selected=selected,
+                        distributions=[row.model_dump(mode="json") for row in distributions],
+                        connector_type=bound.target.connector_id,
+                    )
+                    source = DataRequirementAdmissionGate().evaluate(requirement)
+                    connector = ConnectorAdmissionGate().evaluate(bound.target.connector_id)
+                    candidates.append(
+                        {
+                            "binding": match.model_dump(mode="json"),
+                            "status": "source_contract_checked",
+                            "catalog_binding": bound.model_dump(mode="json"),
+                            "source_requirement": requirement.model_dump(mode="json"),
+                            "source_contract": source_contract,
+                            "source_gate": source.model_dump(mode="json"),
+                            "connector_gate": connector.model_dump(mode="json"),
+                            "scientific_original_construct_support": "not_established",
+                        }
+                    )
+                except Exception as exc:
+                    candidates.append(
+                        {
+                            "binding": match.model_dump(mode="json"),
+                            "status": "ambiguous",
+                            "reason": f"{type(exc).__name__}:{exc}",
+                        }
+                    )
+            attempts.append(
+                {
+                    "construct_ref": construct,
+                    "status": "enumerated",
+                    "candidates": candidates,
+                    "no_declared_binding": len(matches) == 0,
+                }
+            )
+        except Exception as exc:
+            attempts.append(
+                {
+                    "construct_ref": construct,
+                    "status": "ambiguous",
+                    "reason": f"{type(exc).__name__}:{exc}",
+                }
+            )
+    if _production_catalog_sources(catalog) != before:
+        raise WorkspaceInvariantError("production_catalog_changed_during_admission")
+    if [row["construct_ref"] for row in attempts] != constructs:
+        raise WorkspaceInvariantError("production_requirement_attempt_identity_drift")
+    return before, None, attempts
+
+
+def _compose_production_case_admission(
+    *,
+    intake: ProductionCaseIntake,
+    request_ref: str,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    checked_at: datetime,
+    repo_root: Path | None = None,
+) -> ProductionCaseAdmission:
+    if (
+        checked_at.tzinfo is None
+        or checked_at.utcoffset() != timedelta(0)
+        or checked_at > datetime.now(UTC)
+    ):
+        raise WorkspaceInvariantError("production_admission_time_not_actual_utc")
+    _verify_production_case_intake(intake, repo_root=repo_root)
+    sources, source_error, attempts = _production_source_attempts(intake, catalog)
+    inputs = []
+    decisions = []
+    for construct in intake.pinned_request.requested_constructs:
+        # This branch preserves the attempted limitation request. The missing
+        # independent scientific admission owner is a non-overridable blocker,
+        # never a self-declared verifier or an empty evidence list called partial.
+        evidence = GradedOutcomeEvidenceInput(
+            schema_version=S1_GRADED_OUTCOME_SCHEMA_VERSION,
+            case_id=intake.pinned_request.case_id,
+            claim_id=construct.construct_ref,
+            authority_level=intake.requested_posture,
+            requested_outcome="publish_with_limitation",
+            evidence_profile="unsupported",
+            mandatory_gate_state="non_overridable",
+            limitation_reason_codes=(_MISSING_ORIGINAL_CONSTRUCT_OWNER,),
+            owner="team-runtime-quality",
+            decision_owner_ref=None,
+            authority_profile_ref=f"request-posture:{intake.requested_posture}",
+            ttl_expires_at=checked_at,
+            public_limitation_note=None,
+            rule_version_ref=S1_GRADED_OUTCOME_SCHEMA_VERSION,
+        )
+        decision = compose_graded_outcome(evidence)
+        if (
+            decision.outcome != "typed_blocker"
+            or decision.publication_effect != "publication_blocked"
+        ):
+            raise WorkspaceInvariantError("production_s1_missing_owner_must_block")
+        inputs.append(evidence)
+        decisions.append(decision)
+    return ProductionCaseAdmission(
+        request_ref=request_ref,
+        checked_at=checked_at,
+        catalog_sources=sources,
+        source_read_error=source_error,
+        requested_constructs=[
+            row.construct_ref for row in intake.pinned_request.requested_constructs
+        ],
+        source_attempts=attempts,
+        graded_inputs=inputs,
+        graded_decisions=decisions,
+        metric_population_basis={
+            "schema_version": "policyos.gy.production_metric_populations.v1",
+            "ratios": {
+                "recall_at_known_seeds": {
+                    "value": None,
+                    "denominator": None,
+                    "state": "not_established",
+                    "reason": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                },
+                "counterexample_conversion_rate": {
+                    "value": None,
+                    "denominator": 0,
+                    "state": "not_applicable",
+                    "reason": "no_counterexample_conversion_attempts",
+                },
+            },
+            "actual_counts": {
+                "source_requirements_attempted": len(attempts),
+                "s1_decisions": len(decisions),
+                "design_candidates_produced": 0,
+            },
+        },
+    )
+
+
+def _read_production_json(
+    store: FileSystemCAS,
+    ref: str,
+    *,
+    kind: str,
+    schema: str,
+    version: str = "1.0",
+    parents: tuple[str, ...] = (),
+    producer_component: str | None = None,
+) -> dict[str, Any]:
+    """Check actual bytes and immutable manifest before reading diagnostic fields."""
+    from polisyos.core.canon import from_canonical_bytes
+
+    raw = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
+    actual = "sha256:" + hashlib.sha256(raw).hexdigest()
+    if (
+        actual != ref
+        or str(manifest.artifact_id) != ref
+        or manifest.byte_size != len(raw)
+        or manifest.integrity.sha256 != actual.removeprefix("sha256:")
+        or manifest.kind != kind
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema != SchemaInfo(name=schema, version=version)
+        or (
+            producer_component is not None
+            and (
+                manifest.producer is None
+                or manifest.producer.component != producer_component
+                or manifest.producer.version != "1"
+            )
+        )
+        or [(str(item.artifact_id), item.role) for item in manifest.inputs]
+        != [(parent, "production_case_input") for parent in parents]
+    ):
+        raise WorkspaceInvariantError("production_case_raw_manifest_custody_drift")
+    value = from_canonical_bytes(raw)
+    if not isinstance(value, dict):
+        raise WorkspaceInvariantError("production_case_payload_not_object")
+    return value
+
+
+def resolve_production_case_admission(
+    *,
+    store: FileSystemCAS,
+    receipt_ref: str,
+    request_ref: str,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    repo_root: Path | None = None,
+) -> ProductionCaseAdmission:
+    """Recompute complete catalog attempts and actual S1 decisions at the consumer.
+
+    This verifies refusal custody only. No public metadata or caller-supplied
+    verifier can authorize a positive source-to-original-construct relation.
+    """
+    request = _read_production_json(
+        store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
+    )
+    intake = ProductionCaseIntake.model_validate(request)
+    if intake.model_dump(mode="json") != request:
+        raise WorkspaceInvariantError("production_case_intake_raw_shape_drift")
+    payload = _read_production_json(
+        store,
+        receipt_ref,
+        kind=PRODUCTION_CASE_ADMISSION_KIND,
+        schema=PRODUCTION_CASE_ADMISSION_SCHEMA,
+        parents=(request_ref,),
+        producer_component="polisyos.runtime.quality.workspace.loop.production_case",
+    )
+    recorded = ProductionCaseAdmission.model_validate(payload)
+    if recorded.model_dump(mode="json") != payload:
+        raise WorkspaceInvariantError("production_case_admission_raw_shape_drift")
+    expected = _compose_production_case_admission(
+        intake=intake,
+        request_ref=request_ref,
+        catalog=catalog,
+        checked_at=recorded.checked_at,
+        repo_root=repo_root,
+    )
+    if expected != recorded:
+        raise WorkspaceInvariantError("production_case_admission_content_recompute_drift")
+    return expected
+
+
+def _production_diagnostic_put(
+    store: FileSystemCAS,
+    payload: dict[str, Any],
+    *,
+    kind: str,
+    schema: str,
+    parents: tuple[str, ...],
+) -> str:
+    # Parent roles are included in the content as well as the manifest so CAS
+    # reuse cannot retain a different immutable ancestry for equal payloads.
+    body = dict(payload)
+    if body.get("request_ref") != (parents[0] if parents else None):
+        raise WorkspaceInvariantError("production_diagnostic_request_parent_drift")
+    scan = scan_secret_and_pii(
+        body, scope="DAG bundles", artifact_ref_or_route=kind, redact=False, block_on_findings=True
+    )
+    if scan.has_findings:
+        raise WorkspaceInvariantError("production_diagnostic_secret_pii_refused")
+    result = store.put_json(
+        body,
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=schema, version="1.0"),
+            producer=ProducerInfo(
+                component="polisyos.runtime.quality.workspace.loop.production_case", version="1"
+            ),
+            inputs=[
+                core_artifacts.InputRef(artifact_id=parent, role="production_case_input")
+                for parent in parents
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    ref = str(result.artifact_id)
+    if (
+        _read_production_json(
+            store,
+            ref,
+            kind=kind,
+            schema=schema,
+            parents=parents,
+            producer_component="polisyos.runtime.quality.workspace.loop.production_case",
+        )
+        != body
+    ):
+        raise WorkspaceInvariantError("production_diagnostic_emission_readback_drift")
+    return ref
 
 
 class WorkspaceLoop:
@@ -1828,6 +2361,255 @@ class WorkspaceLoop:
             method_output_consumption_ref=method_output_consumption_ref,
             foundry_input_provenance=foundry_input_provenance,
             open_production_findings=open_production_findings,
+        )
+
+    def run_production_case(
+        self, *, request_ref: str, fixture_id: str | None = None
+    ) -> WorkspaceSearchExitContract:
+        """Attempt the original population through source owners and S1 before exit.
+
+        Positive original-construct admission remains unavailable. The emitted
+        diagnostic proves current source attempts and the real S1 refusal, not
+        scientific source support, measurement coverage, or model execution.
+        """
+        store = self._artifact_store
+        if store is None:
+            raise WorkspaceInvariantError("production_case_requires_actual_cas")
+        raw = _read_production_json(
+            store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
+        )
+        intake = ProductionCaseIntake.model_validate(raw)
+        if intake.model_dump(mode="json") != raw:
+            raise WorkspaceInvariantError("production_case_intake_raw_shape_drift")
+        if fixture_id is not None and intake.scope_source_fixture_id != fixture_id:
+            raise WorkspaceInvariantError("production_scope_source_differs_from_actual_request")
+        if not isinstance(self._catalog_graph, read_api.catalog.DatasetCatalogGraph):
+            raise WorkspaceInvariantError("production_case_requires_actual_catalog_owner")
+        admission = _compose_production_case_admission(
+            intake=intake,
+            request_ref=request_ref,
+            catalog=self._catalog_graph,
+            checked_at=datetime.now(UTC),
+        )
+        payload = admission.model_dump(mode="json")
+        receipt_ref = _production_diagnostic_put(
+            store,
+            payload,
+            kind=PRODUCTION_CASE_ADMISSION_KIND,
+            schema=PRODUCTION_CASE_ADMISSION_SCHEMA,
+            parents=(request_ref,),
+        )
+        # Actual current owner recomputation is consumed before a terminal can
+        # be formed. Deleting the producer call cannot leave marker-only credit.
+        checked = resolve_production_case_admission(
+            store=store,
+            receipt_ref=receipt_ref,
+            request_ref=request_ref,
+            catalog=self._catalog_graph,
+        )
+        if checked != admission:
+            raise WorkspaceInvariantError("production_case_emission_recompute_drift")
+        workspace_id = f"ws-production-{_slug(intake.pinned_request.case_id)}"
+        root = ArtifactRef(
+            artifact_id=f"request-{_slug(intake.pinned_request.case_id)}",
+            artifact_type="ProductionCaseIntake",
+            version="v1",
+            content_hash=request_ref,
+            schema_ref=PRODUCTION_CASE_INTAKE_SCHEMA,
+            uri=request_ref,
+        )
+        receipt = ArtifactRef(
+            artifact_id=f"admission-{_slug(intake.pinned_request.case_id)}",
+            artifact_type="ProductionCaseAdmission",
+            version="v1",
+            content_hash=receipt_ref,
+            schema_ref=PRODUCTION_CASE_ADMISSION_SCHEMA,
+            uri=receipt_ref,
+        )
+        obligations = [
+            ObligationRecord(
+                obligation_id=f"obligation-production-{_slug(item.claim_id)}",
+                obligation_type="original_construct_evidence_admission",
+                raised_by={"artifact_ref": receipt_ref},
+                blocks=[{"claim_id": item.claim_id, "action": "publication_or_design_credit"}],
+                description=(
+                    "An independent source-to-original-construct admission owner "
+                    "and admitted scoped evidence are missing."
+                ),
+                severity="blocks_promotion",
+                resolution_options=[
+                    {
+                        "owner": "team-runtime-quality",
+                        "capability": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                    },
+                    {
+                        "owner": "source-custody-or-appointed-adjudicator",
+                        "capability": "original_construct_and_scope_evidence_binding",
+                    },
+                ],
+                status="open",
+            )
+            for item in checked.graded_decisions
+        ]
+        decision = select_search_terminal(SearchExitDecisionInputs(verifier_gap=True))
+        terminal = decision.terminal_state().model_copy(
+            update={"blocking_obligations": [row.obligation_id for row in obligations]}
+        )
+        budget = {
+            "consumed": {
+                "compute": {
+                    "source_requirements_attempted": len(checked.requested_constructs),
+                    "s1_decisions": len(checked.graded_decisions),
+                }
+            },
+            "remaining": {},
+            "exhausted": [],
+        }
+        incomplete = SearchIncompletenessRecord(
+            record_id=f"incomplete-{workspace_id}",
+            workspace_id=workspace_id,
+            coverage={
+                "operations_attempted": [PRODUCTION_CASE_OPERATION],
+                "operations_not_attempted": [
+                    {
+                        "operation_id": "source_fetch_and_estimate",
+                        "reason": "independent_original_construct_admission_missing",
+                    }
+                ],
+                "methods_attempted": [],
+                "source_classes_checked": [],
+                "jurisdictions_checked": [intake.scope.jurisdiction],
+                "time_horizons_checked": [intake.scope.time_horizon],
+            },
+            search_quality={
+                "recall_at_known_seeds": None,
+                "freshness_ok": False,
+                "semantic_benchmark_run": {
+                    "schema_version": "policyos.gy.unestablished_search_population.v1",
+                    "population_state": "not_established",
+                    "request_ref": request_ref,
+                    "reason": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                },
+            },
+            unresolved={
+                "unmet_required_ports": [
+                    {
+                        "construct_ref": key,
+                        "reason": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                        "attempt_receipt_ref": receipt_ref,
+                    }
+                    for key in checked.requested_constructs
+                ]
+            },
+            budget=budget,
+            next_best_actions=[],
+            ceiling_classification="unknown",
+        )
+        workspace = RefusedWorkspaceContract(
+            workspace_id=workspace_id,
+            intent_ref=root,
+            scope=intake.scope.model_dump(mode="json"),
+            component_state="unavailable",
+            artifact_graph_ref=None,
+            constraint_store_ref=None,
+            agenda_ref=None,
+            frontier_ref=None,
+            refusal_reason=_MISSING_ORIGINAL_CONSTRUCT_OWNER,
+            refusal_source_admission_ref=receipt_ref,
+            allowed_operations=[PRODUCTION_CASE_OPERATION],
+            budget=BudgetVector(),
+        )
+        workspace_payload = {
+            "request_ref": request_ref,
+            "workspace_contract": workspace.model_dump(mode="json"),
+        }
+        workspace_ref = _production_diagnostic_put(
+            store,
+            workspace_payload,
+            kind="pdc.gy.production_workspace",
+            schema="policyos.gy.production_workspace.v1",
+            parents=(request_ref, receipt_ref),
+        )
+        event = SearchLedgerEvent(
+            event_id=f"event-{workspace_id}-s1",
+            workspace_id=workspace_id,
+            cycle_index=0,
+            event_type="production_source_admission_and_s1_refused",
+            actor={"kind": "system", "id": PRODUCTION_CASE_OPERATION},
+            input_artifacts=[root],
+            output_artifacts=[receipt],
+            decision_record_ref=receipt_ref,
+            created_obligations=[row.obligation_id for row in obligations],
+            timestamp=checked.checked_at.isoformat(),
+        )
+        ledger = RefusedWorkspaceSearchLedger(
+            schema_version="policyos.gy.refused_workspace_search_ledger.v1",
+            ledger_id=f"ledger-{workspace_id}",
+            ledger_ref=f"gy://production/{workspace_id}/search-ledger",
+            case_id=intake.pinned_request.case_id,
+            workspace_id=workspace_id,
+            events=[event],
+            admission_decision_refs=[item.decision_id for item in checked.graded_decisions],
+            source_admission_ref=receipt_ref,
+            deterministic_replay_key=receipt_ref,
+            population_state="not_established",
+            counterexample_population_state="not_applicable",
+            unavailable_reason=_MISSING_ORIGINAL_CONSTRUCT_OWNER,
+            counterexample_conversion_rate=None,
+            iterations=[],
+            candidate_refs=[],
+            counterexample_refs=[],
+            invocations=[],
+            applicability_results=[],
+            replay_levels=[],
+        )
+        envelope = ArtifactEnvelope(
+            ref=receipt,
+            payload_ref=receipt_ref,
+            payload_schema_ref=PRODUCTION_CASE_ADMISSION_SCHEMA,
+            lifecycle_state="shadow",
+            created_by={"kind": "runtime", "id": PRODUCTION_CASE_OPERATION},
+            producer_operation={
+                "operation_id": PRODUCTION_CASE_OPERATION,
+                "operation_version": "v1",
+            },
+            input_artifacts=[root],
+            producer_roots=[root],
+            obligations=[row.obligation_id for row in obligations],
+        )
+        return WorkspaceSearchExitContract(
+            exit_id=f"exit-{workspace_id}",
+            workspace_id=workspace_id,
+            cycle_index=0,
+            terminal_state=terminal,
+            frontier_snapshot=FrontierSnapshot(
+                snapshot_id=f"frontier-{workspace_id}",
+                workspace_id=workspace_id,
+                cycle_index=0,
+                frontier_metrics={"design_candidate_count": 0},
+            ),
+            incompleteness_record=incomplete,
+            budget_ledger=budget,
+            output_artifacts=[receipt],
+            workspace_contract=workspace,
+            workspace_contract_ref=workspace_ref,
+            obligation_records=obligations,
+            search_ledger=ledger,
+            voi_audit=VOISelectionAudit(
+                audit_id=f"voi-{workspace_id}",
+                workspace_id=workspace_id,
+                selected_terminal=terminal.kind,
+                candidates=[],
+                continuation_allowed=False,
+                decision_rule_ref=WORKSPACE_ANYTIME_EXIT_RULE_VERSION,
+                notes=[
+                    (
+                        "VOI and search recall are not measured on an adjudicated "
+                        "original-construct population."
+                    )
+                ],
+            ),
+            artifact_envelopes=[envelope],
         )
 
     def run_fixture(
@@ -3283,6 +4065,7 @@ __all__ = [
     "MeasurementRootProducer",
     "OperationRegistration",
     "OperationRegistry",
+    "RefusedWorkspaceSearchLedger",
     "SearchExitDecisionInputs",
     "SearchTerminalDecision",
     "SemanticAdequacyGate",
@@ -3298,4 +4081,5 @@ __all__ = [
     "load_gy_semantic_benchmark",
     "load_workspace_fixture_manifest",
     "select_search_terminal",
+    "workspace_exit_schema_version",
 ]

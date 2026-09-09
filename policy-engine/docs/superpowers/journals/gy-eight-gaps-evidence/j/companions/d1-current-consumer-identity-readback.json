@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.j.companions.d1_consumer_readback",
+    "after"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T14:35:11.009280+00:00",
+  "elapsed_seconds": 0.661,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"receipt\": \"_build/gy-gaps/j/companions/d1-current-consumer.json@sha256:6b3d8867bfe5628a2bc979ec29b7bd3bbefe7b9f54a5573ce4fa7a19ab17a4ba\",\n  \"command_returncode\": 0,\n  \"timed_out\": false,\n  \"expected_complete_ast_and_regex_identities\": [\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_actual_constructor_resolves_catalog\",\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_actual_nl_fetch_default_binds_measurement_and_persistence_removal_refuses\",\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_complete_constructor_census\",\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_every_constructor_binds_full_fetch_into_n9_and_catalog_removal_refuses\"\n  ],\n  \"actual_complete_rA_states\": {\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_complete_constructor_census\": \"PASSED\",\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_actual_constructor_resolves_catalog\": \"PASSED\",\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_every_constructor_binds_full_fetch_into_n9_and_catalog_removal_refuses\": \"PASSED\",\n    \"tests/repo_quality/tools/test_gy_d1_catalog_wiring.py::test_actual_nl_fetch_default_binds_measurement_and_persistence_removal_refuses\": \"PASSED\"\n  },\n  \"identity_delta\": {\n    \"missing\": [],\n    \"extra\": []\n  },\n  \"source_denominator\": {\n    \"scope\": \"complete Git-visible src/tools/tests .py; exact Git/ripgrep sets agree\",\n    \"before\": 5601,\n    \"after_git\": 5601,\n    \"after_rg\": 5601\n  },\n  \"source_path_hash_before\": \"b29215f1a9d8262719a6336aa22422818107c4db3c801a346e92f46015130995\",\n  \"source_path_hash_after\": \"b29215f1a9d8262719a6336aa22422818107c4db3c801a346e92f46015130995\",\n  \"source_content_hash_before\": \"4f8575c57ff4b56438691a05cd899720a8cda3b5a1237f6849895b6b641889a5\",\n  \"source_content_hash_after\": \"4f8575c57ff4b56438691a05cd899720a8cda3b5a1237f6849895b6b641889a5\",\n  \"complete_source_delta\": [],\n  \"source_frozen\": true,\n  \"runtime_scope\": \"actual isolated fixture Fabric/N9 constructor and persistence consumer checks; no J production population claim\"\n}\n",
+  "stderr": ""
+}

@@ -489,6 +489,42 @@ class DatasetCatalogStore:
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
+    def reconciled_metric_binding_population(self, metric_name: str) -> list[MetricBindingMatch]:
+        """Read all declared bindings and independently reconcile raw identities.
+
+        This establishes a catalog-query denominator only, never transport
+        occurrence or the scientific correctness of a metric/construct link.
+        """
+        before = self._fetch_source_identities()
+        if not self._table_exists("ds_metric_bindings"):
+            raise ValueError("catalog_metric_binding_population_table_unreadable")
+        raw = self._fetch_dicts(
+            "SELECT metric_id, dataset_id, distribution_id FROM ds_metric_bindings WHERE metric_id = ?",
+            [metric_name],
+        )
+        aggregate = self._fetch_dicts(
+            "SELECT COUNT(*) AS member_count FROM ds_metric_bindings WHERE metric_id IN (?)",
+            [metric_name],
+        )
+        if len(aggregate) != 1 or aggregate[0]["member_count"] != len(raw):
+            raise ValueError("catalog_metric_binding_population_count_drift")
+        keys = ("metric_id", "dataset_id", "distribution_id")
+        if any(
+            any(key not in row or not isinstance(row[key], str) or not row[key] for key in keys)
+            for row in raw
+        ):
+            raise ValueError("catalog_metric_binding_population_member_unreadable")
+        rows = self.resolve_metric_bindings(metric_name, top_k=None)
+        raw_ids = sorted(tuple(row[key] for key in keys) for row in raw)
+        typed_ids = sorted(
+            (row.metric_id, row.catalog_dataset_id, row.distribution_id) for row in rows
+        )
+        if raw_ids != typed_ids or len(raw_ids) != len(set(raw_ids)):
+            raise ValueError("catalog_metric_binding_population_identity_drift")
+        if before != self._fetch_source_identities():
+            raise ValueError("catalog_metric_binding_population_source_changed")
+        return rows
+
     def resolve_metric_bindings(
         self,
         metric_name: str,

@@ -1,0 +1,26 @@
+--- a/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py
++++ b/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py
+@@ -291,19 +291,19 @@
+ 
+     def recursive(value, path=()):
+         if isinstance(value, dict):
+-            return set().union(*(
++            return set().union(
+                 {(*path, key)}
+                 if not isinstance(child, (dict, list)) or not child
+                 else recursive(child, (*path, key))
+                 for key, child in value.items()
+-            ))
++            )
+         if isinstance(value, list):
+-            return set().union(*(
++            return set().union(
+                 {(*path, index)}
+                 if not isinstance(child, (dict, list)) or not child
+                 else recursive(child, (*path, index))
+                 for index, child in enumerate(value)
+-            ))
++            )
+         return {path}
+ 
+     paths = recursive(contract)

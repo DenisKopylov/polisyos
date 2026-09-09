@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_production_p28_refuses_detached_named_witness_dependency"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T14:10:13.947666+00:00",
+  "elapsed_seconds": 954.524,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "FFFF                                                                     [100%]\n=================================== FAILURES ===================================\n__ test_production_p28_refuses_detached_named_witness_dependency[witness_ref] __\ntests/unit/runtime/quality/workspace/test_production_case_proof_custody.py:404: in test_production_p28_refuses_detached_named_witness_dependency\n    with pytest.raises(ValueError, match=\"production_gx_witness_dependency_drift\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_ test_production_p28_refuses_detached_named_witness_dependency[witness_sha256] _\ntests/unit/runtime/quality/workspace/test_production_case_proof_custody.py:404: in test_production_p28_refuses_detached_named_witness_dependency\n    with pytest.raises(ValueError, match=\"production_gx_witness_dependency_drift\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n__ test_production_p28_refuses_detached_named_witness_dependency[request_ref] __\ntests/unit/runtime/quality/workspace/test_production_case_proof_custody.py:404: in test_production_p28_refuses_detached_named_witness_dependency\n    with pytest.raises(ValueError, match=\"production_gx_witness_dependency_drift\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_ test_production_p28_refuses_detached_named_witness_dependency[admission_ref] _\ntests/unit/runtime/quality/workspace/test_production_case_proof_custody.py:404: in test_production_p28_refuses_detached_named_witness_dependency\n    with pytest.raises(ValueError, match=\"production_gx_witness_dependency_drift\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_production_p28_refuses_detached_named_witness_dependency[witness_ref]\nFAILED tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_production_p28_refuses_detached_named_witness_dependency[witness_sha256]\nFAILED tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_production_p28_refuses_detached_named_witness_dependency[request_ref]\nFAILED tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_production_p28_refuses_detached_named_witness_dependency[admission_ref]\n",
+  "stderr": ""
+}

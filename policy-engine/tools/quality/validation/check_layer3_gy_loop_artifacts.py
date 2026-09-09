@@ -21,8 +21,9 @@ import sys
 import tempfile
 import tomllib
 import uuid
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import ExitStack
+from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Literal
@@ -37,6 +38,13 @@ if TYPE_CHECKING:
 
 FAMILY_ID = "policy-design-case-layer3-gy-loop-artifacts"
 HISTORY_FAMILY_ID = "policy-design-case-layer3-gy-loop-history-artifacts"
+L_PREDECESSOR_REVISION = "8a9b92b416aaf5b2bc68fc6901fc5dbe098ced11"
+HISTORICAL_LOOP_OUTPUTS_SHA256 = {
+    "architecture/policy_design_case/layer3_gy_outcome_run.json": "sha256:5275653d5addcf48bc0b99948f49bcf44b7dc374322ecfbb6a98d5609004cf8a",
+    "architecture/policy_design_case/layer3_gy_outcome_run_v2.json": "sha256:34327f37d69a304856724e12d60c83dba33bea9a73ec1ce304c490f5bc4c7d45",
+    "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json": "sha256:1a13e4599377fcebdd2e49f1f2c64fad18f294e3d3eadd73579318340ef9a54e",
+    "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json": "sha256:e48af10e931c13bc342dc66153d3ba7e315afac9b92d445068d7a35cabe8529f",
+}
 HISTORICAL_OUTCOME_RUN_SHA256 = (
     "sha256:5275653d5addcf48bc0b99948f49bcf44b7dc374322ecfbb6a98d5609004cf8a"
 )
@@ -44,13 +52,11 @@ SOURCE_FAMILY_ID = "policy-design-case-layer3-gy-loop-source-artifacts"
 MANIFEST_PATH = "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json"
 PROOFS_PATH = "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json"
 GRADED_OUTCOME_PATH = (
-    "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json"
+    "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report_v2.json"
 )
 HISTORICAL_OUTCOME_RUN_PATH = "architecture/policy_design_case/layer3_gy_outcome_run.json"
-OUTCOME_RUN_PATH = "architecture/policy_design_case/layer3_gy_outcome_run_v2.json"
-OUTCOME_REPLAY_PATH = (
-    "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json"
-)
+OUTCOME_RUN_PATH = "architecture/policy_design_case/layer3_gy_outcome_run_v3.json"
+OUTCOME_REPLAY_PATH = "architecture/policy_design_case/layer3_gy_outcome_replay_proof_v2.json"
 BENCHMARK_PATH = "architecture/policy_design_case/layer3_gy_semantic_benchmark.json"
 
 
@@ -81,7 +87,7 @@ def validate(
         return {
             "status": "fail",
             "issues": issues,
-            "checked_artifacts": [*declared_outputs(), HISTORICAL_OUTCOME_RUN_PATH],
+            "checked_artifacts": [*declared_outputs(), *HISTORICAL_LOOP_OUTPUTS_SHA256],
             "family_id": FAMILY_ID,
             "source_family_id": SOURCE_FAMILY_ID,
             "history_family_id": HISTORY_FAMILY_ID,
@@ -298,15 +304,16 @@ def validate(
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(serialize_loop_artifact(payload))
     else:
-        _compare_current_loop_outputs(
-            {
+        _compare_j_current_outputs(
+            committed={
                 PROOFS_PATH: proofs,
                 GRADED_OUTCOME_PATH: graded_report,
                 OUTCOME_RUN_PATH: outcome_run,
                 OUTCOME_REPLAY_PATH: outcome_replay,
             },
-            final_payloads,
-            issues,
+            fresh=live_payloads,
+            repo_root=repo_root,
+            issues=issues,
         )
 
     from tools.quality.validation import check_layer3_gy_generated_public_lifecycle_audit
@@ -362,7 +369,14 @@ class CanonicalLoopRequest(BaseModel):
         """Return the complete existing request body with its actual CAS input."""
         return {
             "data_source": {"data_snapshot_ref": root_ref},
-            "params": {"slice0_fixture_id": self.fixture_id},
+            "params": {
+                "slice0_fixture_id": self.fixture_id,
+                **(
+                    {"production_case_intake_ref": root_ref}
+                    if self.catalog_mode == "production"
+                    else {}
+                ),
+            },
         }
 
 
@@ -437,6 +451,12 @@ class _VerifiedWorkspaceExitReadback:
             )
         ):
             raise LoopFamilyCustodyError("live_loop_verified_exit_changed")
+
+    def _checked_schema_version(self) -> str:
+        from polisyos.runtime.quality.workspace.loop import workspace_exit_schema_version
+
+        self._require_contract(json.loads(self.__payload))
+        return workspace_exit_schema_version(self.__decoded)
 
 
 class _LiveLoopExitCapture:
@@ -527,6 +547,10 @@ class _VerifiedLoopObservation(dict):
         exit_readback._require_contract(observation["search_exit_contract"])
         super().__init__(json.loads(self.__payload))
 
+    def _checked_custody(self) -> dict[str, Any]:
+        self.__exit_readback._require_contract(json.loads(self.__payload)["search_exit_contract"])
+        return json.loads(self.__custody)
+
     def _checked_snapshot(self) -> tuple[CanonicalLoopRequest, dict[str, Any]]:
         if serialize_loop_artifact(self) != self.__payload:
             raise LoopFamilyCustodyError("live_loop_observation_changed_after_verification")
@@ -551,6 +575,224 @@ def _pre_gx_family_bytes(payloads: dict[str, dict[str, Any]]) -> bytes:
     return serialize_loop_artifact(frozen)
 
 
+_RECORDED_PRODUCTION_ISSUER = object()
+
+
+class _VerifiedRecordedProductionRefusalReadback:
+    """Bind this invocation's complete rederived refusal family, never live authority."""
+
+    def __init__(
+        self,
+        payloads: dict[str, Any],
+        semantics: dict[str, Any],
+        typed: BaseModel,
+        *,
+        issuer: object,
+    ) -> None:
+        if issuer is not _RECORDED_PRODUCTION_ISSUER:
+            raise LoopFamilyCustodyError("production_recorded_recomputation_not_consulted")
+        from polisyos.pdc import RefusedWorkspaceContract
+        from polisyos.runtime.quality.workspace.loop import RefusedWorkspaceSearchLedger
+
+        if (
+            type(typed.workspace_contract) is not RefusedWorkspaceContract
+            or type(typed.search_ledger) is not RefusedWorkspaceSearchLedger
+            or typed.terminal_state.kind != "a_spec_gap"
+            or _nonempty_ring2_models(typed)
+        ):
+            raise LoopFamilyCustodyError("production_recorded_capsule_requires_unprotected_refusal")
+        self.__typed = typed
+        self.__family = _pre_gx_family_bytes(payloads)
+        self.__semantics = _pre_gx_family_bytes(semantics)
+        self.__contract = serialize_loop_artifact(
+            payloads[OUTCOME_RUN_PATH]["search_exit_contract"]
+        )
+        self.__paired_to_current = False
+        self._require_contract(json.loads(self.__contract))
+
+    def _require_contract(self, raw: dict[str, Any]) -> None:
+        if (
+            serialize_loop_artifact(raw) != self.__contract
+            or serialize_loop_artifact(self.__typed.model_dump(mode="json")) != self.__contract
+        ):
+            raise LoopFamilyCustodyError("production_recorded_refusal_changed")
+
+    def _require_family(self, raw: dict[str, Any]) -> None:
+        if not self.__paired_to_current:
+            raise LoopFamilyCustodyError("production_recorded_current_comparison_not_consulted")
+        if _pre_gx_family_bytes(raw) != self.__family:
+            raise LoopFamilyCustodyError("production_recorded_whole_family_changed")
+        self._require_contract(raw[OUTCOME_RUN_PATH]["search_exit_contract"])
+
+    def _compare_to_current(
+        self,
+        current: _VerifiedRecordedProductionRefusalReadback,
+        live: _GXCheckedLoopFamily,
+    ) -> list[dict[str, str]]:
+        if type(current) is not type(self) or type(live) is not _GXCheckedLoopFamily:
+            raise LoopFamilyCustodyError("production_recorded_current_family_unverified")
+        actual = live._frozen_final_output()
+        if current.__family != _pre_gx_family_bytes(actual):
+            raise LoopFamilyCustodyError("production_recorded_current_family_mismatch")
+        live._checked_exit_readback()._require_contract(
+            actual[OUTCOME_RUN_PATH]["search_exit_contract"]
+        )
+        issues: list[dict[str, str]] = []
+        _compare_current_loop_outputs(
+            json.loads(self.__semantics), json.loads(current.__semantics), issues
+        )
+        if not issues:
+            self.__paired_to_current = True
+        return issues
+
+
+class _RecordedProductionRecomputation:
+    """Observe exactly the current source/S1/replay owners needed by recorded admission."""
+
+    def __init__(self, payloads: dict[str, Any], repo_root: Path, catalog: Any) -> None:
+        self.__raw = serialize_loop_artifact(payloads)
+        self.__root = repo_root.resolve()
+        self.__catalog = catalog
+        self.__sources: list[bytes] = []
+        self.__s1: list[tuple[bytes, bytes]] = []
+        self.__admissions: list[tuple[dict[str, Any], bytes]] = []
+        self.__replays: list[tuple[dict[str, Any], bytes]] = []
+        self.__completed = False
+
+    @contextlib.contextmanager
+    def observe(self) -> Iterator[None]:
+        from polisyos.runtime.quality import authority
+        from polisyos.runtime.quality.workspace import loop
+
+        source = loop._verify_production_case_intake
+        compose = loop.compose_graded_outcome
+        admission = loop._compose_production_case_admission
+        replay = authority.build_outcome_replay_proof
+
+        def observe_source(intake: Any, *, repo_root: Path | None = None) -> None:
+            source(intake, repo_root=repo_root)
+            actual_root = loop._repo_root() if repo_root is None else repo_root.resolve()
+            if actual_root != self.__root:
+                raise LoopFamilyCustodyError("production_recorded_source_owner_root_mismatch")
+            self.__sources.append(serialize_loop_artifact(intake.model_dump(mode="json")))
+
+        def observe_s1(value: Any) -> Any:
+            result = compose(value)
+            self.__s1.append(
+                (
+                    serialize_loop_artifact(value.model_dump(mode="json")),
+                    serialize_loop_artifact(result.model_dump(mode="json")),
+                )
+            )
+            return result
+
+        def observe_admission(**kwargs: Any) -> Any:
+            result = admission(**kwargs)
+            if kwargs["catalog"] is not self.__catalog:
+                raise LoopFamilyCustodyError("production_recorded_catalog_owner_mismatch")
+            self.__admissions.append(
+                (
+                    {
+                        "request_ref": kwargs["request_ref"],
+                        "intake": kwargs["intake"].model_dump(mode="json"),
+                    },
+                    serialize_loop_artifact(result.model_dump(mode="json")),
+                )
+            )
+            return result
+
+        def observe_replay(**kwargs: Any) -> Any:
+            result = replay(**kwargs)
+            self.__replays.append(
+                (
+                    json.loads(serialize_loop_artifact(kwargs)),
+                    serialize_loop_artifact(result.model_dump(mode="json")),
+                )
+            )
+            return result
+
+        with ExitStack() as stack:
+            for target, name, wrapper in (
+                (loop, "_verify_production_case_intake", observe_source),
+                (loop, "compose_graded_outcome", observe_s1),
+                (loop, "_compose_production_case_admission", observe_admission),
+                (authority, "build_outcome_replay_proof", observe_replay),
+            ):
+                stack.enter_context(patch.object(target, name, new=wrapper))
+            yield
+        self.__completed = True
+
+    def finish(
+        self,
+        semantics: dict[str, Any],
+        context: dict[str, Any],
+    ) -> _VerifiedRecordedProductionRefusalReadback:
+        if not self.__completed:
+            raise LoopFamilyCustodyError("production_recorded_execution_not_completed")
+        payloads = json.loads(self.__raw)
+        outcome = payloads[OUTCOME_RUN_PATH]
+        proof = outcome["production_loop_run_proof"]
+        raw_admission = context["raw_admission"]
+        expected_pairs = [
+            (serialize_loop_artifact(value), serialize_loop_artifact(decision))
+            for value, decision in zip(
+                raw_admission["graded_inputs"], raw_admission["graded_decisions"], strict=True
+            )
+        ]
+        if (
+            not expected_pairs
+            or self.__s1 != expected_pairs
+            or not self.__admissions
+            or any(raw != serialize_loop_artifact(raw_admission) for _, raw in self.__admissions)
+            or not self.__sources
+            or any(
+                entry["request_ref"] != outcome["recorded_production_evidence"]["request_ref"]
+                or serialize_loop_artifact(entry["intake"]) not in self.__sources
+                for entry, _ in self.__admissions
+            )
+        ):
+            raise LoopFamilyCustodyError(
+                "production_recorded_source_s1_execution_missing_or_drifted"
+            )
+        raw_replay = serialize_loop_artifact(payloads[OUTCOME_REPLAY_PATH]["replay_proof"])
+        expected_outputs = [
+            ref for ref in proof["output_cas_refs"] if ref != proof["output_replay_proof_ref"]
+        ]
+        matches = [
+            (inputs, output)
+            for inputs, output in self.__replays
+            if serialize_loop_artifact(inputs["search_exit_contract"])
+            == serialize_loop_artifact(outcome["search_exit_contract"])
+            and inputs["output_cas_refs"] == expected_outputs
+            and set(inputs["input_payloads"]) == set(proof["input_artifacts"])
+            and output == raw_replay
+        ]
+        if not matches or any(output != raw_replay for _, output in matches):
+            raise LoopFamilyCustodyError("production_recorded_replay_execution_missing_or_drifted")
+        return _VerifiedRecordedProductionRefusalReadback(
+            payloads, semantics, context["typed"], issuer=_RECORDED_PRODUCTION_ISSUER
+        )
+
+
+def _j_family_semantics(
+    *,
+    payloads: dict[str, Any],
+    repo_root: Path,
+    catalog: Any,
+) -> tuple[
+    dict[str, Any], dict[str, str], dict[bytes, Any], _VerifiedRecordedProductionRefusalReadback
+]:
+    # Reconstruct one frozen whole input before delegated actual recomputation;
+    # no caller mutation can replace the family whose capsule is minted.
+    frozen = json.loads(serialize_loop_artifact(payloads))
+    execution = _RecordedProductionRecomputation(frozen, repo_root, catalog)
+    with execution.observe():
+        frame, references, values, context = _recompute_j_family_semantics(
+            payloads=frozen, repo_root=repo_root, catalog=catalog
+        )
+    return frame, references, values, execution.finish(frame, context)
+
+
 class _VerifiedLoopFamily(dict):
     """Complete producer projection bound to admitted invocation observations."""
 
@@ -558,11 +800,13 @@ class _VerifiedLoopFamily(dict):
         self,
         payloads: dict[str, dict[str, Any]],
         *,
-        exit_readback: _VerifiedWorkspaceExitReadback,
+        exit_readback: _VerifiedWorkspaceExitReadback | _VerifiedRecordedProductionRefusalReadback,
         issuer: object,
     ) -> None:
         if issuer is not _LIVE_LOOP_ISSUER:
             raise LoopFamilyCustodyError("live_loop_family_producer_not_consulted")
+        if type(exit_readback) is _VerifiedRecordedProductionRefusalReadback:
+            exit_readback._require_family(payloads)
         self.__payload = _pre_gx_family_bytes(payloads)
         self.__exit_readback = exit_readback
         exit_readback._require_contract(payloads[OUTCOME_RUN_PATH]["search_exit_contract"])
@@ -575,7 +819,9 @@ class _VerifiedLoopFamily(dict):
         self.__exit_readback._require_contract(frozen[OUTCOME_RUN_PATH]["search_exit_contract"])
         return frozen
 
-    def _checked_exit_readback(self) -> _VerifiedWorkspaceExitReadback:
+    def _checked_exit_readback(
+        self,
+    ) -> _VerifiedWorkspaceExitReadback | _VerifiedRecordedProductionRefusalReadback:
         self.__exit_readback._require_contract(
             json.loads(self.__payload)[OUTCOME_RUN_PATH]["search_exit_contract"]
         )
@@ -604,7 +850,13 @@ def _read_actual_cas(store: Any, ref: str) -> tuple[bytes, Any, Any]:
 
 
 def _compare_actual_cas_payload(
-    store: Any, ref: str, payload: object, *, kind: str, schema: str
+    store: Any,
+    ref: str,
+    payload: object,
+    *,
+    kind: str,
+    schema: str,
+    schema_version: str = "1.0",
 ) -> tuple[Any, dict[str, Any]]:
     from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
@@ -614,7 +866,7 @@ def _compare_actual_cas_payload(
         or manifest.media_type != "application/json"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != schema
-        or manifest.artifact_schema.version != "1.0"
+        or manifest.artifact_schema.version != schema_version
         or manifest.canon is None
     ):
         raise LoopFamilyCustodyError("observation_cas_contract_identity_drift")
@@ -630,6 +882,196 @@ def _compare_actual_cas_payload(
     }
 
 
+class _ProductionDefaultWitness:
+    """Observe actual owner calls without replacing source, S1 or terminal semantics."""
+
+    def __init__(self) -> None:
+        self.events: list[str] = []
+        self.frames: list[dict[str, Any]] = []
+        self.active: list[dict[str, Any]] = []
+        self.reading = 0
+
+    def _event(self, kind: str) -> int:
+        position = len(self.events)
+        self.events.append(kind)
+        return position
+
+    def install(self, stack: ExitStack) -> None:
+        from polisyos.runtime.quality.workspace import loop
+
+        compose = loop._compose_production_case_admission
+        resolve = loop.resolve_production_case_admission
+        s1 = loop.compose_graded_outcome
+        terminal = loop.select_search_terminal
+
+        def observe_compose(**kwargs: Any) -> Any:
+            frame: dict[str, Any] = {
+                "phase": "readback" if self.reading else "emission",
+                "begin_event": self._event("begin"),
+                "measured": [],
+                "s1_events": [],
+            }
+            self.active.append(frame)
+            try:
+                result = compose(**kwargs)
+                frame["returned"] = result.model_dump(mode="json")
+                frame["end_event"] = self._event("end")
+                self.frames.append(frame)
+                return result
+            finally:
+                self.active.pop()
+
+        def observe_resolve(**kwargs: Any) -> Any:
+            self.reading += 1
+            try:
+                return resolve(**kwargs)
+            finally:
+                self.reading -= 1
+
+        def observe_s1(evidence: Any) -> Any:
+            result = s1(evidence)
+            if not self.active:
+                raise LoopFamilyCustodyError("production_s1_outside_actual_admission_frame")
+            frame = self.active[-1]
+            frame["measured"].append(
+                (evidence.model_dump(mode="json"), result.model_dump(mode="json"))
+            )
+            frame["s1_events"].append(
+                {
+                    "event": self._event("s1"),
+                    "claim_id": evidence.claim_id,
+                    "outcome": result.outcome,
+                    "publication_effect": result.publication_effect,
+                }
+            )
+            return result
+
+        def observe_terminal(inputs: Any) -> Any:
+            self._event("terminal")
+            return terminal(inputs)
+
+        stack.enter_context(
+            patch.object(loop, "_compose_production_case_admission", observe_compose)
+        )
+        stack.enter_context(
+            patch.object(loop, "resolve_production_case_admission", observe_resolve)
+        )
+        stack.enter_context(patch.object(loop, "compose_graded_outcome", observe_s1))
+        stack.enter_context(patch.object(loop, "select_search_terminal", observe_terminal))
+
+    def checked_snapshot(
+        self, admission: Any, *, request_ref: str, admission_ref: str
+    ) -> dict[str, Any]:
+        if "terminal" not in self.events or self.active:
+            raise LoopFamilyCustodyError("production_before_terminal_witness_incomplete")
+        first = self.events.index("terminal")
+        frames = [frame for frame in self.frames if frame["end_event"] < first]
+        expected = list(
+            zip(
+                [item.model_dump(mode="json") for item in admission.graded_inputs],
+                [item.model_dump(mode="json") for item in admission.graded_decisions],
+                strict=True,
+            )
+        )
+        if not expected or any(
+            frame["measured"] != expected or frame["returned"] != admission.model_dump(mode="json")
+            for frame in frames
+        ):
+            raise LoopFamilyCustodyError("production_actual_s1_execution_does_not_bind_admission")
+        witness = {
+            "schema_version": "policyos.gy.production_default_witness.v1",
+            "request_ref": request_ref,
+            "admission_ref": admission_ref,
+            "claim_ids": list(admission.requested_constructs),
+            "first_terminal_event": first,
+            "frames": [
+                {key: frame[key] for key in ("phase", "begin_event", "end_event", "s1_events")}
+                for frame in frames
+            ],
+        }
+        _validate_production_default_witness(
+            witness, admission, request_ref=request_ref, admission_ref=admission_ref
+        )
+        return witness
+
+
+def _validate_production_default_witness(
+    witness: Any,
+    admission: Any,
+    *,
+    request_ref: str,
+    admission_ref: str,
+) -> None:
+    """Bind the complete persisted witness projection after actual admission replay."""
+    keys = {
+        "schema_version",
+        "request_ref",
+        "admission_ref",
+        "claim_ids",
+        "first_terminal_event",
+        "frames",
+    }
+    if not isinstance(witness, dict) or set(witness) != keys:
+        raise LoopFamilyCustodyError("production_default_witness_shape_invalid")
+    if (
+        witness["schema_version"] != "policyos.gy.production_default_witness.v1"
+        or witness["request_ref"] != request_ref
+        or witness["admission_ref"] != admission_ref
+        or witness["claim_ids"] != list(admission.requested_constructs)
+    ):
+        raise LoopFamilyCustodyError("production_default_witness_input_identity_drift")
+    frames = witness["frames"]
+    if not isinstance(frames, list) or not frames:
+        raise LoopFamilyCustodyError("production_default_witness_frames_missing")
+    expected = [
+        {
+            "claim_id": item.claim_id,
+            "outcome": item.outcome,
+            "publication_effect": item.publication_effect,
+        }
+        for item in admission.graded_decisions
+    ]
+    cursor, phases = 0, []
+    for frame in frames:
+        if not isinstance(frame, dict) or set(frame) != {
+            "phase",
+            "begin_event",
+            "end_event",
+            "s1_events",
+        }:
+            raise LoopFamilyCustodyError("production_default_witness_frame_shape_invalid")
+        phase = frame["phase"]
+        if (
+            phase not in {"emission", "readback"}
+            or type(frame["begin_event"]) is not int
+            or frame["begin_event"] != cursor
+        ):
+            raise LoopFamilyCustodyError("production_default_witness_phase_or_order_invalid")
+        events = frame["s1_events"]
+        if not isinstance(events, list) or len(events) != len(expected):
+            raise LoopFamilyCustodyError("production_default_witness_claim_population_drift")
+        for index, (event, wanted) in enumerate(zip(events, expected, strict=True), 1):
+            if (
+                not isinstance(event, dict)
+                or type(event.get("event")) is not int
+                or event != {"event": cursor + index, **wanted}
+            ):
+                raise LoopFamilyCustodyError("production_default_witness_s1_projection_drift")
+        cursor += len(expected) + 1
+        if type(frame["end_event"]) is not int or frame["end_event"] != cursor:
+            raise LoopFamilyCustodyError("production_default_witness_frame_end_drift")
+        cursor += 1
+        phases.append(phase)
+    if (
+        set(phases) != {"emission", "readback"}
+        or phases[0] != "emission"
+        or phases[-1] != "readback"
+        or type(witness["first_terminal_event"]) is not int
+        or witness["first_terminal_event"] != cursor
+    ):
+        raise LoopFamilyCustodyError("production_default_witness_terminal_precedes_admission")
+
+
 def _verify_live_loop_observation(
     observation: dict[str, Any],
     *,
@@ -640,6 +1082,7 @@ def _verify_live_loop_observation(
     service: Any,
     catalog_graph: Any,
     catalog_before: tuple[Any, ...],
+    production_witness: _ProductionDefaultWitness | None = None,
     exit_capture: _LiveLoopExitCapture,
 ) -> _VerifiedLoopObservation:
     """Reconcile the actual request/job/CAS/replay before the store is closed."""
@@ -659,7 +1102,7 @@ def _verify_live_loop_observation(
     if (
         serialize_loop_artifact(http_request)
         != serialize_loop_artifact(request.http_body(root_ref))
-        or actual_request.params != {"slice0_fixture_id": request.fixture_id}
+        or actual_request.params != request.http_body(root_ref)["params"]
         or frozen["fixture_id"] != request.fixture_id
         or proof.http_request_id != request.http_request_id()
     ):
@@ -733,6 +1176,7 @@ def _verify_live_loop_observation(
         kind="gy.loop.proof.root",
         schema="polisyos.gy.loop.proof.root",
     )
+    output_schema_version = "2.0" if request.catalog_mode == "production" else "1.0"
     checks = []
     contract, check = _compare_actual_cas_payload(
         store,
@@ -740,6 +1184,16 @@ def _verify_live_loop_observation(
         frozen["search_exit_contract"],
         kind="pdc.gy.search_exit_contract",
         schema="polisyos.pdc.gy.SearchExitContract",
+        schema_version=output_schema_version,
+    )
+    checks.append(check)
+    _, check = _compare_actual_cas_payload(
+        store,
+        frozen["artifacts_index"]["search_ledger_ref"],
+        frozen["search_exit_contract"]["search_ledger"],
+        kind="pdc.gy.search_ledger",
+        schema="polisyos.pdc.gy.SearchLedger",
+        schema_version=output_schema_version,
     )
     checks.append(check)
     _, check = _compare_actual_cas_payload(
@@ -784,7 +1238,48 @@ def _verify_live_loop_observation(
     if exit_capture.store is not store:
         raise LoopFamilyCustodyError("live_loop_exit_capture_store_mismatch")
     exit_readback = exit_capture.verify(frozen["search_exit_contract"], proof.job_id)
+    if exit_readback._checked_schema_version() != output_schema_version:
+        raise LoopFamilyCustodyError("live_loop_output_schema_path_drift")
+    production_admission = None
+    if request.catalog_mode == "production":
+        from polisyos.runtime.quality.workspace.loop import (
+            PRODUCTION_CASE_ADMISSION_SCHEMA,
+            resolve_production_case_admission,
+        )
+
+        members = [
+            row
+            for row in contract["artifact_envelopes"]
+            if row["payload_schema_ref"] == PRODUCTION_CASE_ADMISSION_SCHEMA
+        ]
+        if len(members) != 1:
+            raise LoopFamilyCustodyError("production_case_admission_population_missing")
+        verified = resolve_production_case_admission(
+            store=store,
+            receipt_ref=members[0]["payload_ref"],
+            request_ref=root_ref,
+            catalog=catalog_graph,
+        )
+        production_admission = verified.model_dump(mode="json")
+        if type(production_witness) is not _ProductionDefaultWitness:
+            raise LoopFamilyCustodyError("production_default_has_no_actual_before_terminal_witness")
+        frozen["production_default_witness"] = production_witness.checked_snapshot(
+            verified,
+            request_ref=root_ref,
+            admission_ref=members[0]["payload_ref"],
+        )
+        if (
+            contract["terminal_state"]["kind"] != "a_spec_gap"
+            or contract["authority_boundary"] is not None
+        ):
+            raise LoopFamilyCustodyError("unestablished_production_admission_cannot_grant_credit")
     custody = {
+        "production_admission": production_admission,
+        "recorded_production_evidence": (
+            _capture_j_recorded_evidence(observation=frozen, root_payload=root_payload, store=store)
+            if request.catalog_mode == "production"
+            else None
+        ),
         "request": request.model_dump(mode="json"),
         "request_identity": request.identity(),
         "http_request": actual_request.model_dump(mode="json"),
@@ -810,6 +1305,7 @@ def _assemble_live_loop_family(
         raise LoopFamilyCustodyError("live_loop_canonical_request_population_invalid")
     by_identity: dict[str, dict[str, Any]] = {}
     exit_readbacks: dict[str, _VerifiedWorkspaceExitReadback] = {}
+    verified_by_identity: dict[str, _VerifiedLoopObservation] = {}
     jobs: set[str] = set()
     for observation in observations:
         if type(observation) is not _VerifiedLoopObservation:
@@ -819,6 +1315,13 @@ def _assemble_live_loop_family(
         if identity in by_identity or frozen["proof"]["job_id"] in jobs:
             raise LoopFamilyCustodyError("live_loop_population_duplicate_identity")
         by_identity[identity] = frozen
+        verified_by_identity[identity] = _VerifiedLoopObservation(
+            frozen,
+            request,
+            observation._checked_custody(),
+            exit_readback=observation._checked_exit_readback(),
+            issuer=_LIVE_LOOP_ISSUER,
+        )
         exit_readbacks[identity] = observation._checked_exit_readback()
         jobs.add(frozen["proof"]["job_id"])
     if set(by_identity) != set(expected):
@@ -829,7 +1332,7 @@ def _assemble_live_loop_family(
         if request.catalog_mode == "slice0_fixture"
     ]
     production_observations = [
-        by_identity[request.identity()]
+        verified_by_identity[request.identity()]
         for request in requests
         if request.catalog_mode == "production"
     ]
@@ -841,7 +1344,7 @@ def _assemble_live_loop_family(
     proofs = [observation["proof"] for observation in slice0_observations]
     outcome_run = _build_outcome_run(outcome_observation)
     outcome_replay = {
-        "schema_version": "policyos.policy_design_case.layer3_gy.outcome_replay_artifact.v1",
+        "schema_version": "policyos.policy_design_case.layer3_gy.outcome_replay_artifact.v2",
         "owner": "team-runtime-quality",
         "proof_source": "production_http_route_recomputed",
         "case_id": "ua-msme-affordable-loans-2022",
@@ -867,7 +1370,9 @@ def _assemble_live_loop_family(
 
 
 def _validate_pre_gx_family_members(
-    payloads: dict[str, dict[str, Any]], *, exit_readback: _VerifiedWorkspaceExitReadback
+    payloads: dict[str, dict[str, Any]],
+    *,
+    exit_readback: _VerifiedWorkspaceExitReadback | _VerifiedRecordedProductionRefusalReadback,
 ) -> None:
     from polisyos.runtime.quality.authority import OutcomeReplayProof, ProductionLoopRunProof
 
@@ -941,14 +1446,23 @@ def _loop_gx_caller_basis(repo_root: Path) -> dict[str, Any]:
     functions = {
         "_assemble_live_loop_family",
         "_attach_post_gx_result",
+        "_compose_production_case_admission",
         "_gx_child",
         "_run_durable_workspace_loop_observation",
         "_run_full_gx_on_new_artifacts",
+        "_run_workspace_loop_fixture",
+        "_run_workspace_production_case",
+        "_verify_production_case_intake",
         "build_live_loop_artifacts",
+        "compose_graded_outcome",
+        "resolve_production_case_admission",
+        "run_control_plane_fixture",
+        "run_production_case",
+        "select_search_terminal",
         "validate_layer3_gx_hardening",
         "validate_outcome_run",
     }
-    owner_types = set()
+    owner_types = {"WorkspaceLoop"}
     references = []
     snapshots = {}
     ast_terminals, token_terminals = (set(), set())
@@ -1160,6 +1674,150 @@ _LOOP_GX_PREDECESSOR_REVISION = "e2cf7f10f2853b7561034b8e0ba699e6bacd32ba"
 _LOOP_GX_OWNER_PATH = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
 
 
+def _j_production_default_strangle(
+    root: Path,
+    parent_receipt: dict[str, Any],
+    inputs: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Project this invocation's verified original-demand witness and shared source fence."""
+    worker = "src/polisyos/runtime/http/services/control/workspace_loop_transition.py"
+    runtime = "src/polisyos/runtime/quality/workspace/loop.py"
+    rows = parent_receipt["remaining_callers"]
+    expected = (
+        (
+            worker,
+            "ControlPlaneWorkspaceLoopTransitionMixin._execute_workspace_loop_workflow",
+            "_run_workspace_production_case",
+        ),
+        (
+            worker,
+            "ControlPlaneWorkspaceLoopTransitionMixin._run_workspace_production_case",
+            "run_production_case",
+        ),
+        (runtime, "WorkspaceLoop.run_production_case", "_compose_production_case_admission"),
+        (runtime, "WorkspaceLoop.run_production_case", "resolve_production_case_admission"),
+        (runtime, "WorkspaceLoop.run_production_case", "select_search_terminal"),
+        (runtime, "_compose_production_case_admission", "_verify_production_case_intake"),
+        (runtime, "_compose_production_case_admission", "compose_graded_outcome"),
+    )
+    issues = []
+    for path, function, target in expected:
+        if not any(
+            row["role"] == "call"
+            and row["path"] == path
+            and row["function"] == function
+            and row["target"].rsplit(".", 1)[-1] == target
+            for row in rows
+        ):
+            issues.append(
+                {
+                    "code": "production_default_owner_edge_missing",
+                    "path": path,
+                    "function": function,
+                    "target": target,
+                }
+            )
+    for row in rows:
+        if (
+            row["path"].startswith("src/")
+            and row["target"].rsplit(".", 1)[-1] == "run_control_plane_fixture"
+            and (row["path"], row["function"])
+            != (worker, "ControlPlaneWorkspaceLoopTransitionMixin._run_workspace_loop_fixture")
+        ):
+            issues.append({"code": "unclassified_production_fixture_predecessor", **row})
+    local = [
+        row["target"].rsplit(".", 1)[-1]
+        for row in rows
+        if row["role"] == "call"
+        and row["path"] == runtime
+        and row["function"] == "WorkspaceLoop.run_production_case"
+        and row["target"].rsplit(".", 1)[-1]
+        in {
+            "_compose_production_case_admission",
+            "resolve_production_case_admission",
+            "select_search_terminal",
+        }
+    ]
+    if local != [
+        "_compose_production_case_admission",
+        "resolve_production_case_admission",
+        "select_search_terminal",
+    ]:
+        issues.append({"code": "production_default_source_order_changed", "actual": local})
+    if issues:
+        raise LoopFamilyCustodyError(
+            "production_default_not_strangled:" + json.dumps(issues, sort_keys=True)
+        )
+    outcome = inputs[OUTCOME_RUN_PATH]
+    witness = outcome["production_default_witness"]
+    # These bytes already passed the actual observation/private-family owner.
+    # The complete witness remains in the outcome exactly once and is part of
+    # the real pre-GX input; this receipt keeps only its bound reference.
+    old = subprocess.check_output(
+        [
+            "git",
+            "show",
+            L_PREDECESSOR_REVISION + ":policy-engine/" + worker,
+        ],
+        cwd=root,
+    )
+    current = (root / worker).read_bytes()
+
+    def predecessor_lines(raw: bytes) -> list[str]:
+        source = raw.decode("utf-8")
+        members = [
+            node
+            for node in ast.walk(ast.parse(source))
+            if isinstance(node, ast.FunctionDef) and node.name == "_execute_workspace_loop_workflow"
+        ]
+        if len(members) != 1:
+            raise LoopFamilyCustodyError("production_predecessor_function_identity_unresolved")
+        node = members[0]
+        return source.splitlines()[node.lineno - 1 : node.end_lineno]
+
+    left, right = predecessor_lines(old), predecessor_lines(current)
+    removed = sum(
+        line.startswith("-") and not line.startswith("---")
+        for line in difflib.unified_diff(left, right)
+    )
+    independent = sum(
+        i2 - i1
+        for tag, i1, i2, _, _ in difflib.SequenceMatcher(None, left, right).get_opcodes()
+        if tag in {"replace", "delete"}
+    )
+    if removed != independent or removed == 0:
+        raise LoopFamilyCustodyError("production_fixture_default_deletion_not_reconciled")
+    return {
+        "schema_version": "policyos.gy.production_default_strangle.v1",
+        "pattern_id": "P28",
+        "predecessor_ref": worker
+        + "@"
+        + L_PREDECESSOR_REVISION
+        + ":_execute_workspace_loop_workflow",
+        "predecessor_source_sha256": "sha256:" + hashlib.sha256(old).hexdigest(),
+        "replacement_ref": runtime + ":WorkspaceLoop.run_production_case",
+        "disposition": "fenced_default_flipped",
+        "default_before": "production_catalog_with_fixture_demand_and_benchmark_path",
+        "default_after": "original_pinned_demand_to_actual_source_attempts_and_S1_before_terminal",
+        "removed_loc": {"unified_diff": removed, "sequence_opcodes": independent},
+        "caller_basis_ref": parent_receipt["caller_basis"]["source_basis_hash"],
+        "remaining_callers_ref": "parent_gx_strangle.remaining_callers",
+        "remaining_callers_disposition": "Complete shared source census retained once; explicit fixture route remains fenced from the canonical original-demand request.",
+        "guard_ref": _LOOP_GX_OWNER_PATH + ":_j_production_default_strangle",
+        "witness_ref": OUTCOME_RUN_PATH + "#/production_default_witness",
+        "witness_sha256": _gx_digest(serialize_loop_artifact(witness)),
+        "request_ref": witness["request_ref"],
+        "admission_ref": witness["admission_ref"],
+        "predicate_basis": "recomputed",
+        "predicate_scope": "original-demand attempt and actual before-terminal S1 custody; no positive scientific admission or useful-design credit",
+        "verified_by": [
+            "tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_attempts_original_requirements_through_s1_before_terminal",
+            "tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_p28_witness_observes_real_owner_before_terminal",
+            "tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_p28_witness_rejects_retained_decisions_without_actual_s1",
+        ],
+    }
+
+
 def _loop_gx_fence_issues(basis: dict[str, Any]) -> list[dict[str, Any]]:
     """Fence this owner's former pre-output GX default; retain other GX owners."""
     issues = []
@@ -1310,7 +1968,7 @@ class PostOutputGXVerification(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["policyos.layer3.gy.post_output_gx_verification.v1"]
+    schema_version: Literal["policyos.layer3.gy.post_output_gx_verification.v2"]
     proof_source: Literal["complete_gx_owner_on_fresh_output_family"]
     case_id: str = Field(min_length=1)
     verifier_ref: Literal[
@@ -1320,7 +1978,7 @@ class PostOutputGXVerification(BaseModel):
     verifier_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     family_owner_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     input_projection_rule: Literal[
-        "gy_outcome_v2_excludes_only_gx_validator_status_and_gx_validation_envelope"
+        "gy_outcome_v3_excludes_only_gx_validator_status_and_gx_validation_envelope"
     ]
     input_artifact_hashes: dict[str, str]
     complete_input_basis_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -1384,18 +2042,27 @@ class _GXCheckedLoopFamily(_VerifiedLoopFamily):
         self,
         payloads: dict[str, dict[str, Any]],
         *,
-        exit_readback: _VerifiedWorkspaceExitReadback,
+        exit_readback: _VerifiedWorkspaceExitReadback | _VerifiedRecordedProductionRefusalReadback,
         issuer: object,
+        comparison_packet: dict[str, Any] | None = None,
     ) -> None:
         if issuer is not _GX_EXECUTION_ISSUER:
             raise LoopFamilyCustodyError("post_gx_family_verifier_not_consulted")
         super().__init__(payloads, exit_readback=exit_readback, issuer=_LIVE_LOOP_ISSUER)
+        self.__j_packet = serialize_loop_artifact(comparison_packet)
         self[OUTCOME_RUN_PATH] = _GXCheckedOutcome(
             self[OUTCOME_RUN_PATH],
             self[OUTCOME_REPLAY_PATH],
             issuer=issuer,
         )
         self.__final_payload = serialize_loop_artifact(self)
+
+    def _j_checked_gx_packet(self) -> dict[str, Any]:
+        self._frozen_final_output()
+        packet = json.loads(self.__j_packet)
+        if not isinstance(packet, dict):
+            raise LoopFamilyCustodyError("production_gx_comparison_packet_unavailable")
+        return packet
 
     def _frozen_final_output(self) -> dict[str, dict[str, Any]]:
         if serialize_loop_artifact(self) != self.__final_payload:
@@ -1442,9 +2109,19 @@ def _attach_post_gx_result(
     frozen[OUTCOME_RUN_PATH]["gx_validation"] = verification
     # Deciding command output is retained once. It contains every real finding
     # and custody reference, never a duplicate of the generated artifact bodies.
-    print("GY_POST_OUTPUT_GX " + json.dumps(packet, sort_keys=True, allow_nan=False))
+    print(
+        "GY_POST_OUTPUT_GX "
+        + json.dumps(
+            {key: value for key, value in packet.items() if not key.startswith("_comparison_")},
+            sort_keys=True,
+            allow_nan=False,
+        )
+    )
     return _GXCheckedLoopFamily(
-        frozen, exit_readback=family._checked_exit_readback(), issuer=_GX_EXECUTION_ISSUER
+        frozen,
+        exit_readback=family._checked_exit_readback(),
+        issuer=_GX_EXECUTION_ISSUER,
+        comparison_packet=packet,
     )
 
 
@@ -1996,6 +2673,7 @@ def _gx_child(root: Path) -> int:
         result = {
             "report": compact,
             "full_report_sha256": _gx_digest(serialize_loop_artifact(report)),
+            "_comparison_full_report": report,
             "report_projection": "all_members_except_recomputable_artifacts",
             "actual_python_read_refs": read_refs,
             "actual_json_read_states": json_read_states,
@@ -2120,7 +2798,7 @@ def _run_full_gx_on_new_artifacts(
             }
         )
         verification = {
-            "schema_version": "policyos.layer3.gy.post_output_gx_verification.v1",
+            "schema_version": "policyos.layer3.gy.post_output_gx_verification.v2",
             "proof_source": "complete_gx_owner_on_fresh_output_family",
             "case_id": before["case_id"],
             "verifier_ref": (
@@ -2130,7 +2808,7 @@ def _run_full_gx_on_new_artifacts(
             "verifier_sha256": _gx_file_digest(Path(gx.__file__)),
             "family_owner_sha256": _gx_file_digest(Path(__file__)),
             "input_projection_rule": (
-                "gy_outcome_v2_excludes_only_gx_validator_status_and_gx_validation_envelope"
+                "gy_outcome_v3_excludes_only_gx_validator_status_and_gx_validation_envelope"
             ),
             "input_artifact_hashes": {
                 path: _gx_digest(serialize_loop_artifact(payload))
@@ -2161,6 +2839,9 @@ def _run_full_gx_on_new_artifacts(
             "status": verification["status"],
             "claim": "Actual complete GX execution; current outcome admission independently requires pass.",
         }
+        verification["strangle_receipt"]["successor_strangles"] = [
+            _j_production_default_strangle(root, verification["strangle_receipt"], inputs),
+        ]
         # Read refs and the deciding report belong in the command receipt, not
         # duplicated inside the governed outcome verification envelope.
         return _GXExecutionResult(
@@ -2169,6 +2850,13 @@ def _run_full_gx_on_new_artifacts(
             {
                 "verification": verification,
                 "report": report,
+                "_comparison_full_report": result["_comparison_full_report"],
+                "_comparison_input_basis": {
+                    "declared_scan_snapshot": overlay_before,
+                    "actual_python_read_refs": result["actual_python_read_refs"],
+                    "actual_json_read_states": result["actual_json_read_states"],
+                },
+                "_comparison_namespace": namespace_before,
                 "source_refs": overlay_before["hashes"],
                 "native_source": before["native"],
                 "actual_python_read_refs": result["actual_python_read_refs"],
@@ -2184,7 +2872,7 @@ def _run_full_gx_on_new_artifacts(
         )
 
 
-def build_live_loop_artifacts(repo_root: Path) -> dict[str, dict[str, Any]]:
+def build_live_loop_artifacts(repo_root: Path) -> _GXCheckedLoopFamily:
     """Recompute the complete canonical family once through the durable owner."""
     _ensure_src_path(repo_root)
     observations = [
@@ -2200,14 +2888,923 @@ def build_live_loop_artifacts(repo_root: Path) -> dict[str, dict[str, Any]]:
     return _attach_post_gx_result(family, result)
 
 
+class GradedObservationUnmeasurableError(ValueError):
+    """A population slot cannot be classified from its actual evidence."""
+
+
+class _RecordedProductionCAS:
+    """Read-only recorded bytes; actual runtime/source owners still decide content."""
+
+    def __init__(self, bodies: dict[str, bytes], manifests: dict[str, bytes]) -> None:
+        self._bodies, self._manifests = bodies, manifests
+
+    def get_bytes(self, ref: str) -> bytes:
+        raw = self._bodies[str(ref)]
+        if "sha256:" + hashlib.sha256(raw).hexdigest() != str(ref):
+            raise LoopFamilyCustodyError("recorded_cas_raw_hash_drift")
+        return raw
+
+    def get_manifest_bytes(self, ref: str) -> bytes:
+        return self._manifests[str(ref)]
+
+    def get_manifest(self, ref: str) -> Any:
+        from polisyos.core.artifacts import ArtifactManifest
+
+        return ArtifactManifest.model_validate_json(self.get_manifest_bytes(ref))
+
+
+def _capture_j_recorded_evidence(
+    *, observation: dict[str, Any], root_payload: dict[str, Any], store: Any
+) -> dict[str, Any]:
+    """Retain complete actual CAS closure, reusing already published payload bodies."""
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.runtime.quality.workspace.loop import PRODUCTION_CASE_ADMISSION_SCHEMA
+
+    contract, proof = observation["search_exit_contract"], observation["proof"]
+    candidates = _j_payload_candidates(observation, root_payload)
+    members = [
+        row
+        for row in contract["artifact_envelopes"]
+        if row["payload_schema_ref"] == PRODUCTION_CASE_ADMISSION_SCHEMA
+    ]
+    if len(members) != 1:
+        raise LoopFamilyCustodyError("production_admission_record_population_invalid")
+    queue = [
+        *proof["input_artifacts"],
+        *proof["output_cas_refs"],
+        observation["proof_ref"],
+        contract["workspace_contract_ref"],
+    ]
+    declared_seeds = tuple(queue)
+    records: dict[str, Any] = {}
+    additional: dict[str, Any] = {}
+    while queue:
+        ref = str(queue.pop())
+        if ref in records:
+            continue
+        raw, manifest, body = _read_actual_cas(store, ref)
+        if manifest.canon is None or manifest.media_type != "application/json":
+            raise LoopFamilyCustodyError(
+                "production_recorded_closure_requires_actual_json_contract"
+            )
+        spec = CanonSpec(**manifest.canon.model_dump())
+        locators = [
+            name for name, value in candidates.items() if to_canonical_bytes(value, spec) == raw
+        ]
+        locator = locators[0] if locators else "additional"
+        if not locators:
+            additional[ref] = body
+        records[ref] = {
+            "manifest_json": store.get_manifest_bytes(ref).decode("utf-8"),
+            "payload_locator": locator,
+        }
+        queue.extend(str(parent.artifact_id) for parent in manifest.inputs)
+    if set(declared_seeds) - records.keys():
+        raise LoopFamilyCustodyError("production_recorded_closure_seed_missing")
+    return {
+        "schema_version": "policyos.gy.recorded_production_cas.v1",
+        "request_ref": proof["input_artifacts"][0],
+        "admission_ref": members[0]["payload_ref"],
+        "intake_context": {
+            key: value for key, value in root_payload.items() if key != "pinned_request"
+        },
+        "records": records,
+        "additional_payloads": additional,
+    }
+
+
+def _classify_production_observation(
+    observation: object, snapshot: dict[str, Any]
+) -> dict[str, Any]:
+    if type(observation) is not _VerifiedLoopObservation:
+        raise GradedObservationUnmeasurableError("actual_production_observation_not_verified")
+    request, frozen = observation._checked_snapshot()
+    if request.catalog_mode != "production" or frozen != snapshot:
+        raise GradedObservationUnmeasurableError(
+            "fixture_or_changed_observation_not_production_population"
+        )
+    custody = observation._checked_custody()
+    admission = custody["production_admission"]
+    if not isinstance(admission, dict):
+        raise GradedObservationUnmeasurableError("actual_production_admission_not_verified")
+    contract, proof = frozen["search_exit_contract"], frozen["proof"]
+    if (
+        contract["terminal_state"]["kind"] != "a_spec_gap"
+        or contract["authority_boundary"] is not None
+    ):
+        raise GradedObservationUnmeasurableError(
+            "positive_original_construct_admission_owner_missing"
+        )
+    return {
+        "classification": "non_value",
+        "fixture_id": frozen["fixture_id"],
+        "run_id": proof["run_id"],
+        "job_id": proof["job_id"],
+        "terminal_state": contract["terminal_state"]["kind"],
+        "decision_grade": contract["decision_grade"],
+        "evidence_kind": contract["evidence_kind"],
+        "evidence_ladder_rung": contract["evidence_ladder_rung"],
+        "incompleteness_recorded": True,
+        "useful_design_credit": False,
+        "admission_state": admission["positive_admission_state"],
+    }
+
+
+def _compare_j_current_outputs(
+    *,
+    committed: dict[str, Any],
+    fresh: _GXCheckedLoopFamily,
+    repo_root: Path,
+    issues: list[dict[str, str]],
+) -> None:
+    """Re-admit both complete families before comparing bounded execution coordinates."""
+    from polisyos.data_forge import read_api
+    from polisyos.runtime.quality.workspace.loop import WorkspaceInvariantError
+
+    if type(fresh) is not _GXCheckedLoopFamily:
+        raise LoopFamilyCustodyError("production_comparison_requires_actual_fresh_family")
+    declared = declared_outputs()
+    if set(committed) != set(declared) or any(
+        not isinstance(committed[path], dict) or not committed[path] for path in declared
+    ):
+        _compare_current_loop_outputs(committed, dict(fresh), issues)
+        return
+    catalog_dir = repo_root / "production_data/datasets_full_phase3full_20260327_183054"
+    graph = read_api.catalog.DatasetCatalogGraph(
+        catalog_dir / "dataset_catalog.duckdb", catalog_dir
+    )
+    try:
+        # Both passes resolve the actual original demand and current catalog/S1
+        # owners. A recorded label or fabricated CAS graph cannot mint a seal.
+        old_semantics, old_refs, old_values, old_readback = _j_family_semantics(
+            payloads=committed, repo_root=repo_root, catalog=graph
+        )
+        new_semantics, new_refs, new_values, new_readback = _j_family_semantics(
+            payloads=fresh._frozen_final_output(), repo_root=repo_root, catalog=graph
+        )
+        pre_issues = old_readback._compare_to_current(new_readback, fresh)
+        if pre_issues:
+            issues.extend(pre_issues)
+            return
+        # The recorded family is admitted only after the complete independent
+        # source/S1/raw-closure comparison, then GX runs on its original bytes.
+        historical_basis = _VerifiedLoopFamily(
+            committed, exit_readback=old_readback, issuer=_LIVE_LOOP_ISSUER
+        )
+        old_result = _run_full_gx_on_new_artifacts(repo_root, historical_basis)
+        old_packet = old_result._checked_snapshot(historical_basis)
+        print(
+            "GY_RECORDED_OUTPUT_GX "
+            + json.dumps(
+                {
+                    key: value
+                    for key, value in old_packet.items()
+                    if not key.startswith("_comparison_")
+                },
+                sort_keys=True,
+                allow_nan=False,
+            )
+        )
+        expected = old_packet["verification"]
+        if (
+            not isinstance(expected, dict)
+            or committed[OUTCOME_RUN_PATH]["gx_validator_status"] != expected["status"]
+            or committed[OUTCOME_RUN_PATH]["gx_validation"] != expected
+        ):
+            issues.append(
+                {"code": "layer3_gy_recorded_gx_actual_replay_drift", "path": OUTCOME_RUN_PATH}
+            )
+            return
+        fresh_packet = fresh._j_checked_gx_packet()
+        old_semantics[OUTCOME_RUN_PATH]["gx_validation"] = _j_actual_gx_semantics(
+            packet=old_packet,
+            references=old_refs,
+            values=old_values,
+            normalized_family=old_semantics,
+            repo_root=repo_root,
+        )
+        new_semantics[OUTCOME_RUN_PATH]["gx_validation"] = _j_actual_gx_semantics(
+            packet=fresh_packet,
+            references=new_refs,
+            values=new_values,
+            normalized_family=new_semantics,
+            repo_root=repo_root,
+        )
+        _compare_current_loop_outputs(old_semantics, new_semantics, issues)
+    except (ValueError, KeyError, TypeError, OSError, WorkspaceInvariantError) as exc:
+        issues.append(
+            {
+                "code": "layer3_gy_production_recorded_custody_refused",
+                "path": OUTCOME_RUN_PATH,
+                "reason": f"{type(exc).__name__}:{exc}",
+            }
+        )
+    finally:
+        graph.close()
+
+
+def _j_production_witness_projection(
+    *,
+    witness: Any,
+    admission: Any,
+    request_ref: str,
+    admission_ref: str,
+    references: dict[str, str],
+) -> tuple[dict[str, Any], str, str]:
+    """Project the complete replay-bound witness; its digest is explicitly non-CAS."""
+    raw = json.loads(serialize_loop_artifact(witness))
+    _validate_production_default_witness(
+        raw,
+        admission,
+        request_ref=request_ref,
+        admission_ref=admission_ref,
+    )
+    if request_ref not in references or admission_ref not in references:
+        raise LoopFamilyCustodyError("production_witness_reference_closure_missing")
+    semantic = _j_reference_projection(raw, references)
+    raw_hash = _gx_digest(serialize_loop_artifact(raw))
+    semantic_hash = "semantic:" + _gx_digest(serialize_loop_artifact(semantic))
+    if raw_hash in references and references[raw_hash] != semantic_hash:
+        raise LoopFamilyCustodyError("production_witness_semantic_dependency_conflict")
+    return semantic, raw_hash, semantic_hash
+
+
+def _j_require_production_witness_dependency(
+    *,
+    verification: dict[str, Any],
+    normalized_family: dict[str, Any],
+    references: dict[str, str],
+    values: dict[bytes, Any],
+) -> None:
+    """Bind P28's named dependency to the actual full replay-derived witness."""
+    witness = normalized_family[OUTCOME_RUN_PATH]["production_default_witness"]
+    rows = verification["strangle_receipt"].get("successor_strangles")
+    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+        raise LoopFamilyCustodyError("production_gx_witness_successor_population_invalid")
+    selected = [
+        row
+        for row in rows
+        if row.get("schema_version") == "policyos.gy.production_default_strangle.v1"
+    ]
+    if len(selected) != 1:
+        raise LoopFamilyCustodyError("production_gx_witness_successor_identity_unresolved")
+    (successor,) = selected
+    semantic_hash = "semantic:" + _gx_digest(serialize_loop_artifact(witness))
+    raw_members = [raw for raw in values if _gx_digest(raw) == successor.get("witness_sha256")]
+    if len(raw_members) != 1 or values[raw_members[0]] != witness:
+        raise LoopFamilyCustodyError("production_gx_witness_dependency_drift")
+    raw_witness = json.loads(raw_members[0])
+    if (
+        successor.get("witness_ref") != OUTCOME_RUN_PATH + "#/production_default_witness"
+        or references.get(successor.get("witness_sha256")) != semantic_hash
+        or successor.get("request_ref") != raw_witness["request_ref"]
+        or successor.get("admission_ref") != raw_witness["admission_ref"]
+        or _j_reference_projection(raw_witness, references) != witness
+    ):
+        raise LoopFamilyCustodyError("production_gx_witness_dependency_drift")
+
+
+def _j_actual_gx_semantics(
+    *,
+    packet: dict[str, Any],
+    references: dict[str, str],
+    values: dict[bytes, Any],
+    normalized_family: dict[str, Any],
+    repo_root: Path,
+) -> dict[str, Any]:
+    """Consume complete actual GX bodies/bases; never erase opaque hash evidence."""
+    verification = packet["verification"]
+    if not isinstance(verification, dict):
+        raise LoopFamilyCustodyError("production_full_gx_replay_unavailable")
+    report = packet["_comparison_full_report"]
+    basis = packet["_comparison_input_basis"]
+    namespace = packet["_comparison_namespace"]
+    if (
+        _gx_digest(serialize_loop_artifact(report)) != verification["report_sha256"]
+        or _gx_digest(serialize_loop_artifact(basis)) != verification["complete_input_basis_sha256"]
+        or _gx_digest(serialize_loop_artifact(namespace))
+        != verification["materialized_source_namespace_sha256"]
+    ):
+        raise LoopFamilyCustodyError("production_gx_actual_private_basis_hash_drift")
+    _j_require_production_witness_dependency(
+        verification=verification,
+        normalized_family=normalized_family,
+        references=references,
+        values=values,
+    )
+    full = _j_normalize_verified_values(report, references, values)
+    complete_inputs = _j_normalize_verified_values(basis, references, values)
+    normalized_inputs = json.loads(serialize_loop_artifact(normalized_family))
+    normalized_inputs[OUTCOME_RUN_PATH].pop("gx_validator_status", None)
+    normalized_inputs[OUTCOME_RUN_PATH].pop("gx_validation", None)
+    semantic_namespace = _gx_materialized_directory_snapshot(
+        repo_root, normalized_inputs, packet["native_source"]
+    )
+    projected = dict(verification)
+    projected["input_artifact_hashes"] = {
+        path: "semantic:" + _gx_digest(serialize_loop_artifact(body))
+        for path, body in sorted(normalized_inputs.items())
+    }
+    projected["report_sha256"] = "semantic:" + _gx_digest(serialize_loop_artifact(full))
+    projected["complete_input_basis_sha256"] = "semantic:" + _gx_digest(
+        serialize_loop_artifact(complete_inputs)
+    )
+    projected["materialized_source_namespace_sha256"] = "semantic:" + _gx_digest(
+        serialize_loop_artifact(semantic_namespace)
+    )
+    projected["finding_identities"] = sorted(
+        {serialize_loop_artifact(item).decode("utf-8") for item in full["issues"]}
+    )
+    strangle = verification["strangle_receipt"]
+    actual_execution = strangle["actual_execution_ref"]
+    if (
+        actual_execution["report_sha256"] != verification["report_sha256"]
+        or actual_execution["input_basis_sha256"] != verification["complete_input_basis_sha256"]
+        or actual_execution["status"] != verification["status"]
+    ):
+        raise LoopFamilyCustodyError("production_gx_strangle_execution_dependency_drift")
+    dependency_hashes = dict(references)
+    for key in (
+        "report_sha256",
+        "complete_input_basis_sha256",
+        "materialized_source_namespace_sha256",
+    ):
+        original, replacement = verification[key], projected[key]
+        if original in dependency_hashes and dependency_hashes[original] != replacement:
+            raise LoopFamilyCustodyError("production_gx_semantic_dependency_conflict")
+        dependency_hashes[original] = replacement
+    projected = _j_normalize_verified_values(projected, dependency_hashes, values)
+    # These complete bodies are comparison-local. They are not added to the
+    # committed outcome or retained beside their replayable source data.
+    return {
+        "verification": projected,
+        "full_actual_report": full,
+        "complete_actual_input_basis": complete_inputs,
+        "complete_materialized_namespace": semantic_namespace,
+        "semantic_digests_are_cas_addresses": False,
+    }
+
+
+def _recompute_j_family_semantics(
+    *, payloads: dict[str, dict[str, Any]], repo_root: Path, catalog: Any
+) -> tuple[dict[str, Any], dict[str, str], dict[bytes, Any], dict[str, Any]]:
+    """Verify full refusal/clock/CAS custody before deriving non-CAS semantics."""
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.runtime.quality.authority import (
+        OutcomeReplayProof,
+        ProductionLoopRunProof,
+        build_outcome_replay_proof,
+    )
+    from polisyos.runtime.quality.workspace.loop import (
+        WorkspaceSearchExitContract,
+        resolve_production_case_admission,
+        workspace_exit_schema_version,
+    )
+
+    outcome, replay = payloads[OUTCOME_RUN_PATH], payloads[OUTCOME_REPLAY_PATH]
+    packet, store, _candidates = _restore_j_recorded_evidence(
+        outcome=outcome, replay_artifact=replay, repo_root=repo_root
+    )
+    admission = resolve_production_case_admission(
+        store=store,
+        receipt_ref=packet["admission_ref"],
+        request_ref=packet["request_ref"],
+        catalog=catalog,
+        repo_root=repo_root,
+    )
+    _validate_production_default_witness(
+        outcome.get("production_default_witness"),
+        admission,
+        request_ref=packet["request_ref"],
+        admission_ref=packet["admission_ref"],
+    )
+    raw_admission = from_canonical_bytes(store.get_bytes(packet["admission_ref"]))
+    if admission.model_dump(mode="json") != raw_admission:
+        raise LoopFamilyCustodyError("production_recorded_admission_shape_drift")
+    contract = outcome["search_exit_contract"]
+    typed = WorkspaceSearchExitContract.model_validate(contract)
+    if typed.model_dump(mode="json") != contract:
+        raise LoopFamilyCustodyError("production_recorded_search_exit_shape_drift")
+    output_schema_version = workspace_exit_schema_version(typed)
+    for ref, payload, kind, schema in (
+        (
+            outcome["search_exit_contract_ref"],
+            contract,
+            "pdc.gy.search_exit_contract",
+            "polisyos.pdc.gy.SearchExitContract",
+        ),
+        (
+            outcome["artifacts_index"]["search_ledger_ref"],
+            contract["search_ledger"],
+            "pdc.gy.search_ledger",
+            "polisyos.pdc.gy.SearchLedger",
+        ),
+    ):
+        _compare_actual_cas_payload(
+            store,
+            ref,
+            payload,
+            kind=kind,
+            schema=schema,
+            schema_version=output_schema_version,
+        )
+    proof = outcome["production_loop_run_proof"]
+    typed_proof = ProductionLoopRunProof.model_validate(proof)
+    typed_replay = OutcomeReplayProof.model_validate(replay["replay_proof"])
+    if (
+        typed_proof.model_dump(mode="json", by_alias=True) != proof
+        or typed_replay.model_dump(mode="json") != replay["replay_proof"]
+    ):
+        raise LoopFamilyCustodyError("production_recorded_proof_raw_shape_drift")
+    packet_issues: list[dict[str, str]] = []
+    _validate_production_loop_proof(0, proof, packet_issues)
+    if packet_issues:
+        raise LoopFamilyCustodyError(
+            "production_recorded_packet_invalid:" + json.dumps(packet_issues)
+        )
+    if (
+        outcome["output_hash"] != typed_replay.output_hash
+        or outcome["production_case_outcome"]["final_run_hash"] != typed_replay.output_hash
+        or outcome["production_case_outcome"]["input_artifact_ref"] != packet["request_ref"]
+        or outcome["production_case_outcome"]["outcome_kind"] != contract["terminal_state"]["kind"]
+    ):
+        raise LoopFamilyCustodyError("production_recorded_outcome_projection_drift")
+    expected_replay = build_outcome_replay_proof(
+        case_id=replay["case_id"],
+        input_payloads={
+            ref: from_canonical_bytes(store.get_bytes(ref)) for ref in proof["input_artifacts"]
+        },
+        search_exit_contract=contract,
+        output_cas_refs=[
+            ref for ref in proof["output_cas_refs"] if ref != proof["output_replay_proof_ref"]
+        ],
+    )
+    if expected_replay.model_dump(mode="json") != replay["replay_proof"]:
+        raise LoopFamilyCustodyError("production_recorded_replay_owner_drift")
+    if (
+        contract["terminal_state"]["kind"] != "a_spec_gap"
+        or contract["authority_boundary"] is not None
+        or len(contract["search_ledger"]["events"]) != 1
+        or contract["search_ledger"]["events"][0]["timestamp"] != admission.checked_at.isoformat()
+        or any(
+            row.ttl_expires_at != admission.checked_at
+            or row.mandatory_gate_state != "non_overridable"
+            for row in admission.graded_inputs
+        )
+    ):
+        raise LoopFamilyCustodyError("production_recorded_clock_or_refusal_context_drift")
+    # Only these actual owner-assigned, non-authorizing clock coordinates vary.
+    # The mandatory gate is non-overridable, so the S1 TTL never grants a live
+    # limitation; its equality to the captured check time was verified above.
+    admission_sem = json.loads(serialize_loop_artifact(raw_admission))
+    admission_sem["checked_at"] = {"operational_coordinate": "actual_source_and_s1_check"}
+    for row in admission_sem["graded_inputs"]:
+        row["ttl_expires_at"] = {"operational_coordinate": "same_inactive_blocker_check"}
+    raw_bodies = {ref: from_canonical_bytes(store.get_bytes(ref)) for ref in packet["records"]}
+    projected: dict[str, Any] = {}
+    references: dict[str, str] = {}
+
+    def visit(ref: str, pending: set[str]) -> Any:
+        if ref in projected:
+            return projected[ref]
+        if ref in pending:
+            raise LoopFamilyCustodyError("production_recorded_reference_cycle")
+        pending = pending | {ref}
+        body = raw_bodies[ref]
+
+        def dependencies(item: Any) -> set[str]:
+            if isinstance(item, str) and item in raw_bodies:
+                return {item}
+            if isinstance(item, list):
+                return set().union(*(dependencies(x) for x in item)) if item else set()
+            if isinstance(item, dict):
+                return set().union(*(dependencies(x) for x in item.values())) if item else set()
+            return set()
+
+        deps = dependencies(body) | {str(x.artifact_id) for x in store.get_manifest(ref).inputs}
+        if ref == proof["output_replay_proof_ref"]:
+            deps |= {item for item in proof["output_cas_refs"] if item != ref}
+            deps.add(proof["output_search_exit_contract_ref"])
+        for dependency in deps:
+            visit(dependency, pending)
+        if ref == packet["admission_ref"]:
+            body = admission_sem
+        elif body == contract:
+            body = json.loads(serialize_loop_artifact(body))
+            body["search_ledger"]["events"][0]["timestamp"] = {
+                "operational_coordinate": "actual_source_and_s1_check"
+            }
+        elif body == contract["search_ledger"]:
+            body = json.loads(serialize_loop_artifact(body))
+            body["events"][0]["timestamp"] = {
+                "operational_coordinate": "actual_source_and_s1_check"
+            }
+        if ref == proof["output_replay_proof_ref"]:
+            body = build_outcome_replay_proof(
+                case_id=replay["case_id"],
+                input_payloads={
+                    references.get(item, item): visit(item, pending)
+                    for item in proof["input_artifacts"]
+                },
+                search_exit_contract=visit(proof["output_search_exit_contract_ref"], pending),
+                output_cas_refs=[
+                    references[item] for item in proof["output_cas_refs"] if item != ref
+                ],
+            ).model_dump(mode="json")
+        normalized = _j_reference_projection(body, references)
+        digest = "semantic:" + _gx_digest(serialize_loop_artifact(normalized))
+        references[ref] = digest
+        projected[ref] = normalized
+        return normalized
+
+    for ref in raw_bodies:
+        visit(ref, set())
+    frame = json.loads(serialize_loop_artifact(payloads))
+    # Replace whole verified bodies before walking their derivative references;
+    # no field-name heuristic strips unknown/outcome data from those bodies.
+    frame[OUTCOME_RUN_PATH]["search_exit_contract"] = projected[
+        proof["output_search_exit_contract_ref"]
+    ]
+    frame[OUTCOME_RUN_PATH]["production_loop_run_proof"] = projected[
+        outcome["production_loop_run_proof_ref"]
+    ]
+    frame[OUTCOME_REPLAY_PATH]["replay_proof"] = projected[proof["output_replay_proof_ref"]]
+    frame[OUTCOME_RUN_PATH]["output_hash"] = frame[OUTCOME_REPLAY_PATH]["replay_proof"][
+        "output_hash"
+    ]
+    frame[OUTCOME_RUN_PATH]["production_case_outcome"]["final_run_hash"] = frame[
+        OUTCOME_REPLAY_PATH
+    ]["replay_proof"]["output_hash"]
+    evidence = frame[OUTCOME_RUN_PATH]["recorded_production_evidence"]
+    evidence["additional_payloads"] = {
+        ref: projected[ref] for ref in evidence["additional_payloads"]
+    }
+    for ref, record in evidence["records"].items():
+        manifest = json.loads(record["manifest_json"])
+        # Each coordinate is retained as an explicit comparison coordinate.
+        # Raw hash, byte size and complete manifest were checked first.
+        manifest["created_at"] = {"operational_coordinate": "cas_emission_time"}
+        manifest["byte_size"] = len(serialize_loop_artifact(projected[ref]))
+        manifest["artifact_id"] = references[ref]
+        manifest["integrity"]["sha256"] = references[ref]
+        record["manifest_json"] = _j_reference_projection(manifest, references)
+    frame = _j_reference_projection(frame, references)
+    witness_semantics, witness_hash, witness_semantic_hash = _j_production_witness_projection(
+        witness=outcome["production_default_witness"],
+        admission=admission,
+        request_ref=packet["request_ref"],
+        admission_ref=packet["admission_ref"],
+        references=references,
+    )
+    frame[OUTCOME_RUN_PATH]["production_default_witness"] = witness_semantics
+    references[witness_hash] = witness_semantic_hash
+    # Whole-family byte hashes are derivative references used by GX. Retain
+    # their full values in the real evidence, but expose semantic counterparts
+    # only after all component content and clock relationships were verified.
+    for path in declared_outputs():
+        raw = json.loads(serialize_loop_artifact(payloads[path]))
+        normalized = json.loads(serialize_loop_artifact(frame[path]))
+        if path == OUTCOME_RUN_PATH:
+            raw.pop("gx_validator_status", None)
+            raw.pop("gx_validation", None)
+            normalized.pop("gx_validator_status", None)
+            normalized.pop("gx_validation", None)
+        references[_gx_digest(serialize_loop_artifact(raw))] = "semantic:" + _gx_digest(
+            serialize_loop_artifact(normalized)
+        )
+    values = {serialize_loop_artifact(body): projected[ref] for ref, body in raw_bodies.items()}
+    values[serialize_loop_artifact(outcome["production_default_witness"])] = witness_semantics
+    for path in declared_outputs():
+        raw = json.loads(serialize_loop_artifact(payloads[path]))
+        normalized = json.loads(serialize_loop_artifact(frame[path]))
+        if path == OUTCOME_RUN_PATH:
+            raw.pop("gx_validator_status", None)
+            raw.pop("gx_validation", None)
+            normalized.pop("gx_validator_status", None)
+            normalized.pop("gx_validation", None)
+        values[serialize_loop_artifact(raw)] = normalized
+    return frame, references, values, {"raw_admission": raw_admission, "typed": typed}
+
+
+def _j_normalize_verified_values(
+    value: Any, references: dict[str, str], values: dict[bytes, Any]
+) -> Any:
+    """Reuse full verified payload semantics wherever the same bytes recur."""
+    encoded = serialize_loop_artifact(value)
+    if encoded in values:
+        return values[encoded]
+    if isinstance(value, str):
+        return references.get(value, value)
+    if isinstance(value, list):
+        return [_j_normalize_verified_values(item, references, values) for item in value]
+    if isinstance(value, dict):
+        return {
+            references.get(key, key): _j_normalize_verified_values(item, references, values)
+            for key, item in value.items()
+        }
+    return value
+
+
+def _j_payload_candidates(
+    observation: dict[str, Any], root_payload: dict[str, Any]
+) -> dict[str, Any]:
+    contract = observation["search_exit_contract"]
+    return {
+        "intake_source": root_payload,
+        "search_exit_contract": contract,
+        "production_loop_run_proof": observation["proof"],
+        "outcome_replay": observation["outcome_replay_proof"],
+        "search_ledger": contract["search_ledger"],
+        "production_workspace": {
+            "request_ref": observation["proof"]["input_artifacts"][0],
+            "workspace_contract": contract["workspace_contract"],
+        },
+    }
+
+
+def _j_reference_projection(value: Any, references: dict[str, str]) -> Any:
+    """Substitute only complete content addresses already verified in this closure."""
+    if isinstance(value, str):
+        return references.get(value, value)
+    if isinstance(value, list):
+        return [_j_reference_projection(item, references) for item in value]
+    if isinstance(value, dict):
+        return {
+            references.get(key, key): _j_reference_projection(item, references)
+            for key, item in value.items()
+        }
+    return value
+
+
+def _json_snapshot(value: object) -> object:
+    try:
+        return json.loads(json.dumps(value, allow_nan=False, ensure_ascii=False))
+    except (TypeError, ValueError) as exc:
+        raise GradedObservationUnmeasurableError("observation_not_finite_json") from exc
+
+
+def _required_mapping(value: object, path: str) -> Mapping[str, Any]:
+    if not isinstance(value, Mapping):
+        raise GradedObservationUnmeasurableError(f"{path}:expected_object")
+    return value
+
+
+def _required_member(value: Mapping[str, Any], key: str, path: str) -> object:
+    if key not in value:
+        raise GradedObservationUnmeasurableError(f"{path}.{key}:absent")
+    if value[key] is None:
+        raise GradedObservationUnmeasurableError(f"{path}.{key}:null")
+    return value[key]
+
+
+def _required_text(value: Mapping[str, Any], key: str, path: str) -> str:
+    result = _required_member(value, key, path)
+    if not isinstance(result, str) or not result.strip():
+        raise GradedObservationUnmeasurableError(f"{path}.{key}:expected_nonempty_text")
+    return result
+
+
+def _restore_j_recorded_evidence(
+    *, outcome: dict[str, Any], replay_artifact: dict[str, Any], repo_root: Path
+) -> tuple[dict[str, Any], _RecordedProductionCAS, dict[str, Any]]:
+    """Resolve the pinned demand and every raw recorded payload before projection."""
+    from polisyos.core.artifacts import ArtifactManifest
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+        LAYER3_GX_PINNED_REQUEST_FILENAME,
+        resolve_layer3_gx_data_home_selection,
+    )
+    from polisyos.runtime.quality.workspace.loop import (
+        ProductionCaseIntake,
+        _verify_production_case_intake,
+    )
+
+    packet = outcome["recorded_production_evidence"]
+    if (
+        not isinstance(packet, dict)
+        or set(packet)
+        != {
+            "schema_version",
+            "request_ref",
+            "admission_ref",
+            "intake_context",
+            "records",
+            "additional_payloads",
+        }
+        or packet["schema_version"] != "policyos.gy.recorded_production_cas.v1"
+    ):
+        raise LoopFamilyCustodyError("production_recorded_evidence_shape_invalid")
+    context = packet["intake_context"]
+    selection = resolve_layer3_gx_data_home_selection(repo_root, case=outcome["case_id"])
+    source = repo_root / selection.data_home_artifact_path(LAYER3_GX_PINNED_REQUEST_FILENAME)
+    intake = ProductionCaseIntake.model_validate(
+        {**context, "pinned_request": json.loads(source.read_bytes())}
+    )
+    _verify_production_case_intake(intake, repo_root=repo_root)
+    observation = {
+        "search_exit_contract": outcome["search_exit_contract"],
+        "proof": outcome["production_loop_run_proof"],
+        "proof_ref": outcome["production_loop_run_proof_ref"],
+        "outcome_replay_proof": replay_artifact["replay_proof"],
+    }
+    candidates = _j_payload_candidates(observation, intake.model_dump(mode="json"))
+    records, extra = packet["records"], packet["additional_payloads"]
+    if not isinstance(records, dict) or not isinstance(extra, dict):
+        raise LoopFamilyCustodyError("production_recorded_closure_not_mapping")
+    bodies: dict[str, bytes] = {}
+    manifests: dict[str, bytes] = {}
+    used_extra = set()
+    for ref, record in records.items():
+        if not isinstance(record, dict) or set(record) != {"manifest_json", "payload_locator"}:
+            raise LoopFamilyCustodyError("production_recorded_manifest_or_locator_invalid")
+        raw_manifest = record["manifest_json"].encode("utf-8")
+        manifest_payload = json.loads(raw_manifest)
+        manifest = ArtifactManifest.model_validate(manifest_payload)
+        if manifest.model_dump(mode="json", by_alias=True, exclude_none=True) != manifest_payload:
+            raise LoopFamilyCustodyError("production_recorded_manifest_raw_shape_drift")
+        if manifest.canon is None:
+            raise LoopFamilyCustodyError("production_recorded_canonicalizer_missing")
+        locator = record["payload_locator"]
+        if locator == "additional":
+            body = extra[ref]
+            used_extra.add(ref)
+        else:
+            body = candidates[locator]
+        raw = to_canonical_bytes(body, CanonSpec(**manifest.canon.model_dump()))
+        if (
+            str(manifest.artifact_id) != ref
+            or "sha256:" + hashlib.sha256(raw).hexdigest() != ref
+            or manifest.byte_size != len(raw)
+            or manifest.integrity.sha256 != ref.removeprefix("sha256:")
+        ):
+            raise LoopFamilyCustodyError("production_recorded_payload_or_manifest_hash_drift")
+        bodies[ref], manifests[ref] = raw, raw_manifest
+    if used_extra != set(extra):
+        raise LoopFamilyCustodyError("production_recorded_extra_payload_population_drift")
+    store = _RecordedProductionCAS(bodies, manifests)
+    proof = observation["proof"]
+    seeds = [
+        *proof["input_artifacts"],
+        *proof["output_cas_refs"],
+        observation["proof_ref"],
+        outcome["search_exit_contract"]["workspace_contract_ref"],
+    ]
+    visited = set()
+    queue = list(seeds)
+    while queue:
+        ref = str(queue.pop())
+        if ref in visited:
+            continue
+        store.get_bytes(ref)
+        queue.extend(str(item.artifact_id) for item in store.get_manifest(ref).inputs)
+        visited.add(ref)
+    if visited != set(records) or packet["request_ref"] not in proof["input_artifacts"]:
+        raise LoopFamilyCustodyError("production_recorded_complete_closure_identity_drift")
+    return packet, store, candidates
+
+
+def build_accounted_graded_report(
+    observations: Sequence[object],
+    *,
+    classify_verified_observation: Callable[[dict[str, Any]], dict[str, Any]],
+) -> dict[str, Any]:
+    """Account for every declared observation slot after actual owner verification.
+
+    The classifier must resolve the actual worker/CAS/source admission. It
+    returns the existing graded or non-value projection with an explicit
+    ``classification`` key. It cannot return a Boolean approval. Errors become
+    typed population members, never zeros or dropped denominator identities.
+    This function owns accounting only, not the evidence-verification policy.
+    """
+    if not isinstance(observations, (list, tuple)):
+        raise TypeError("producer_population_must_be_an_ordered_sequence")
+    frozen: list[object] = []
+    snapshot_errors: dict[int, str] = {}
+    for position, row in enumerate(observations):
+        try:
+            frozen.append(_json_snapshot(row))
+        except GradedObservationUnmeasurableError as exc:
+            frozen.append(None)
+            snapshot_errors[position] = str(exc)
+    members: list[dict[str, Any]] = []
+    graded: list[dict[str, Any]] = []
+    non_value: list[dict[str, Any]] = []
+    unreadable: list[dict[str, Any]] = []
+    seen: dict[tuple[str, str], int] = {}
+    duplicate_positions: set[int] = set()
+    identities: dict[int, tuple[str, str]] = {}
+    # Complete first pass prevents a repeated run being credited once before
+    # a later duplicate is discovered. Both ambiguous positions remain visible.
+    for position, raw in enumerate(frozen):
+        try:
+            row = _required_mapping(raw, "observation")
+            proof = _required_mapping(_required_member(row, "proof", "observation"), "proof")
+            identity = (
+                _required_text(proof, "run_id", "proof"),
+                _required_text(proof, "job_id", "proof"),
+            )
+        except GradedObservationUnmeasurableError:
+            continue
+        identities[position] = identity
+        if identity in seen:
+            duplicate_positions.update((seen[identity], position))
+        else:
+            seen[identity] = position
+    for position, raw in enumerate(frozen):
+        member: dict[str, Any] = {"population_position": position}
+        if position in identities:
+            member.update(zip(("run_id", "job_id"), identities[position], strict=True))
+        try:
+            if position in snapshot_errors:
+                raise GradedObservationUnmeasurableError(snapshot_errors[position])
+            if position in duplicate_positions:
+                raise GradedObservationUnmeasurableError("duplicate_producer_run_identity")
+            row = _required_mapping(raw, "observation")
+            proof = _required_mapping(_required_member(row, "proof", "observation"), "proof")
+            _required_text(proof, "run_id", "proof")
+            _required_text(proof, "job_id", "proof")
+            contract = _required_mapping(
+                _required_member(row, "search_exit_contract", "observation"), "search_exit_contract"
+            )
+            terminal = _required_mapping(
+                _required_member(contract, "terminal_state", "search_exit_contract"),
+                "terminal_state",
+            )
+            _required_text(terminal, "kind", "terminal_state")
+            result = _required_mapping(
+                _json_snapshot(classify_verified_observation(deepcopy(dict(row)))),
+                "verified_classification",
+            )
+            disposition = _required_text(result, "classification", "verified_classification")
+            if disposition not in {"graded", "non_value"}:
+                raise GradedObservationUnmeasurableError("unknown_verified_classification")
+            # The verifier's projection must refer to this exact observed run.
+            if (result.get("run_id"), result.get("job_id")) != identities[position]:
+                raise GradedObservationUnmeasurableError("verified_run_identity_drift")
+            projected = {key: value for key, value in result.items() if key != "classification"}
+            projected["population_position"] = position
+            (graded if disposition == "graded" else non_value).append(projected)
+            member["classification"] = disposition
+        except (
+            GradedObservationUnmeasurableError,
+            ValueError,
+            TypeError,
+            KeyError,
+            OSError,
+        ) as exc:
+            member["classification"] = "unmeasurable"
+            unreadable.append({**member, "reason": f"{type(exc).__name__}:{exc}"})
+        members.append(member)
+    declared = set(range(len(frozen)))
+    accounted = [
+        row["population_position"] for group in (graded, non_value, unreadable) for row in group
+    ]
+    if len(accounted) != len(declared) or set(accounted) != declared:
+        raise RuntimeError("producer_population_accounting_identity_drift")
+    # A zero-population or unreadable-member rate is undefined, never numeric0.
+    rate = None if unreadable or not frozen else round(len(graded) / len(frozen), 4)
+    return {
+        "schema_version": "policyos.policy_design_case.layer3_gy.graded_outcome_routing_report.v2",
+        "rule_version": "policyos.layer3.gy.graded_outcome_routing.v2",
+        "owner": "team-runtime-quality",
+        "proof_source": "durable_worker_recomputed",
+        "population": {
+            "definition": "canonical_producer_production_observations",
+            "period": "report_generation",
+            "member_count": len(frozen),
+            "members": members,
+        },
+        "graded_outcomes": graded,
+        "honest_non_value_outcomes": non_value,
+        "unmeasurable_outcomes": unreadable,
+        "summary": {
+            "grounded_partial_admissible_count": len(graded),
+            "capped_decision_grade_count": sum(
+                row.get("decision_grade") in {"descriptive_only", "advisory_admissible"}
+                for row in graded
+            ),
+            "floor_relaxation_used_count": sum(
+                row.get("floor_relaxation_used") is True for row in graded
+            ),
+            "unmeasurable_count": len(unreadable),
+            "useful_design_rate": rate,
+        },
+    }
+
+
 def _build_outcome_run(observation: dict[str, Any]) -> dict[str, Any]:
     contract = dict(observation["search_exit_contract"])
     proof = dict(observation["proof"])
     replay = dict(observation["outcome_replay_proof"])
     terminal = dict(contract.get("terminal_state") or {})
     return {
-        "schema_version": "policyos.policy_design_case.layer3_gy.outcome_run.v2",
-        "rule_version": "policyos.layer3.gy.outcome_run.v2",
+        "schema_version": "policyos.policy_design_case.layer3_gy.outcome_run.v3",
+        "recorded_production_evidence": (
+            observation._checked_custody()["recorded_production_evidence"]
+            if type(observation) is _VerifiedLoopObservation
+            else None
+        ),
+        "rule_version": "policyos.layer3.gy.outcome_run.v3",
         "owner": "team-runtime-quality",
         "case_id": "ua-msme-affordable-loans-2022",
         "fixture_id": str(observation["fixture_id"]),
@@ -2215,9 +3812,14 @@ def _build_outcome_run(observation: dict[str, Any]) -> dict[str, Any]:
         "trigger_kind": str(observation["trigger_kind"]),
         "http_receipts": dict(observation["http_receipts"]),
         "gx_validator_status": str(observation["gx_validator_status"]),
-        "gx_case_outcome": dict(observation["gx_case_outcome"]),
+        "production_case_outcome": dict(observation["production_case_outcome"]),
+        "production_default_witness": dict(observation["production_default_witness"]),
         "terminal_outcome": str(terminal.get("kind") or ""),
-        "useful_design_credit": terminal.get("kind") == "grounded_partial_admissible",
+        "useful_design_credit": (
+            _classify_production_observation(observation, dict(observation))["useful_design_credit"]
+            if type(observation) is _VerifiedLoopObservation
+            else None
+        ),
         "evidence_kind": contract.get("evidence_kind"),
         "decision_grade": contract.get("decision_grade"),
         "evidence_ladder_rung": contract.get("evidence_ladder_rung"),
@@ -2247,7 +3849,7 @@ def _validate_loop_epoch_partition(
         families = []
     for family_id, expected, lifecycle in (
         (FAMILY_ID, declared_outputs(), "generated_committed"),
-        (HISTORY_FAMILY_ID, [HISTORICAL_OUTCOME_RUN_PATH], "source_committed"),
+        (HISTORY_FAMILY_ID, list(HISTORICAL_LOOP_OUTPUTS_SHA256), "source_committed"),
     ):
         matches = [row for row in families if row.get("id") == family_id]
         if len(matches) != 1:
@@ -2271,9 +3873,7 @@ def _validate_loop_epoch_partition(
             ):
                 issues.append({"code": "layer3_gy_loop_epoch_custody_invalid", "family": family_id})
             if family_id == HISTORY_FAMILY_ID:
-                if family.get("source_integrity_sha256") != {
-                    HISTORICAL_OUTCOME_RUN_PATH: HISTORICAL_OUTCOME_RUN_SHA256,
-                }:
+                if family.get("source_integrity_sha256") != HISTORICAL_LOOP_OUTPUTS_SHA256:
                     issues.append(
                         {
                             "code": "layer3_gy_loop_epoch_history_hash_declaration_invalid",
@@ -2295,24 +3895,20 @@ def _validate_loop_epoch_partition(
             ]
             if claimants != [family_id]:
                 issues.append({"code": "layer3_gy_loop_epoch_output_owner_conflict", "path": path})
-    try:
-        raw = (repo_root / HISTORICAL_OUTCOME_RUN_PATH).read_bytes()
-    except (OSError, UnicodeError) as error:
-        issues.append(
-            {
-                "code": "layer3_gy_loop_epoch_history_unreadable",
-                "path": HISTORICAL_OUTCOME_RUN_PATH,
-                "reason": str(error),
-            }
-        )
-    else:
-        if "sha256:" + hashlib.sha256(raw).hexdigest() != HISTORICAL_OUTCOME_RUN_SHA256:
+    for path, expected_hash in HISTORICAL_LOOP_OUTPUTS_SHA256.items():
+        try:
+            raw = (repo_root / path).read_bytes()
+        except (OSError, UnicodeError) as error:
             issues.append(
                 {
-                    "code": "layer3_gy_loop_epoch_history_changed",
-                    "path": HISTORICAL_OUTCOME_RUN_PATH,
+                    "code": "layer3_gy_loop_epoch_history_unreadable",
+                    "path": path,
+                    "reason": str(error),
                 }
             )
+        else:
+            if "sha256:" + hashlib.sha256(raw).hexdigest() != expected_hash:
+                issues.append({"code": "layer3_gy_loop_epoch_history_changed", "path": path})
 
 
 def _validate_source_artifact_integrity(
@@ -2345,83 +3941,23 @@ def _validate_source_artifact_integrity(
             )
 
 
-def _build_graded_outcome_report(
-    observations: list[dict[str, Any]],
-) -> dict[str, Any]:
-    outcomes: list[dict[str, Any]] = []
-    non_value_outcomes: list[dict[str, Any]] = []
-    for observation in observations:
-        proof = dict(observation["proof"])
-        contract = dict(observation.get("search_exit_contract") or {})
-        terminal = contract.get("terminal_state")
-        authority = contract.get("authority_boundary")
-        if not isinstance(terminal, dict):
-            continue
-        if terminal.get("kind") != "grounded_partial_admissible":
-            non_value_outcomes.append(
-                {
-                    "fixture_id": str(observation["fixture_id"]),
-                    "run_id": str(proof.get("run_id") or ""),
-                    "job_id": str(proof.get("job_id") or ""),
-                    "terminal_state": str(terminal.get("kind") or ""),
-                    "decision_grade": str(contract.get("decision_grade") or "unsupported"),
-                    "evidence_kind": contract.get("evidence_kind"),
-                    "evidence_ladder_rung": str(
-                        contract.get("evidence_ladder_rung") or "none"
-                    ),
-                    "incompleteness_recorded": bool(
-                        contract.get("incompleteness_record")
-                    ),
-                    "useful_design_credit": False,
-                }
-            )
-            continue
-        if not isinstance(authority, dict):
-            continue
-        outcomes.append(
-            {
-                "fixture_id": str(observation["fixture_id"]),
-                "run_id": str(proof.get("run_id") or ""),
-                "job_id": str(proof.get("job_id") or ""),
-                "output_search_exit_contract_ref": str(
-                    proof.get("output_search_exit_contract_ref") or ""
-                ),
-                "terminal_state": str(terminal.get("kind") or ""),
-                "conversion_outcome": "publish-with-limitation",
-                "authority_boundary_ref": str(authority.get("boundary_id") or ""),
-                "decision_grade": str(authority.get("decision_grade") or ""),
-                "evidence_kind": str(authority.get("evidence_kind") or ""),
-                "limitation_refs": list(authority.get("known_limits") or []),
-                "may_not_use_for": list(authority.get("may_not_use_for") or []),
-                "useful_design_credit_route": "genuine_graded_outcome_only",
-                "floor_relaxation_used": False,
-            }
-        )
-    capped_count = sum(
-        1
-        for outcome in outcomes
-        if outcome.get("decision_grade") in {"descriptive_only", "advisory_admissible"}
-    )
-    return {
-        "schema_version": (
-            "policyos.policy_design_case.layer3_gy.graded_outcome_routing_report.v1"
-        ),
-        "rule_version": "policyos.layer3.gy.graded_outcome_routing.v1",
-        "owner": "team-runtime-quality",
-        "proof_source": "durable_worker_recomputed",
-        "graded_outcomes": outcomes,
-        "honest_non_value_outcomes": non_value_outcomes,
-        "summary": {
-            "grounded_partial_admissible_count": len(outcomes),
-            "capped_decision_grade_count": capped_count,
-            "floor_relaxation_used_count": sum(
-                1 for outcome in outcomes if outcome.get("floor_relaxation_used") is True
-            ),
-            "useful_design_rate": (
-                round(len(outcomes) / len(observations), 4) if observations else 0.0
-            ),
-        },
-    }
+def _build_graded_outcome_report(observations: list[dict[str, Any]]) -> dict[str, Any]:
+    originals = tuple(observations)
+
+    def classify(snapshot: dict[str, Any]) -> dict[str, Any]:
+        candidates = [
+            row
+            for row in originals
+            if isinstance(row, dict)
+            and isinstance(row.get("proof"), dict)
+            and row["proof"].get("run_id") == snapshot["proof"]["run_id"]
+            and row["proof"].get("job_id") == snapshot["proof"]["job_id"]
+        ]
+        if len(candidates) != 1:
+            raise GradedObservationUnmeasurableError("production_run_identity_not_unique")
+        return _classify_production_observation(candidates[0], snapshot)
+
+    return build_accounted_graded_report(observations, classify_verified_observation=classify)
 
 
 def _validate_graded_outcome_report(
@@ -2429,7 +3965,7 @@ def _validate_graded_outcome_report(
     issues: list[dict[str, str]],
 ) -> None:
     if report.get("schema_version") != (
-        "policyos.policy_design_case.layer3_gy.graded_outcome_routing_report.v1"
+        "policyos.policy_design_case.layer3_gy.graded_outcome_routing_report.v2"
     ):
         issues.append({"code": "layer3_gy_graded_outcome_schema_version_invalid"})
     outcomes = report.get("graded_outcomes")
@@ -2530,11 +4066,41 @@ def _validate_graded_outcome_report(
             )
     summary = report.get("summary")
     if isinstance(summary, dict):
-        expected_rate = (
-            round(len(outcomes) / (len(outcomes) + len(non_value)), 4)
-            if outcomes or non_value
-            else 0.0
-        )
+        population = report.get("population")
+        unreadable = report.get("unmeasurable_outcomes")
+        if not isinstance(population, dict) or not isinstance(unreadable, list):
+            issues.append({"code": "layer3_gy_graded_population_unaccounted"})
+            return
+        count = population.get("member_count")
+        members = population.get("members")
+        if type(count) is not int or count < 0 or not isinstance(members, list):
+            issues.append({"code": "layer3_gy_graded_population_invalid"})
+            return
+        groups = (("graded", outcomes), ("non_value", non_value), ("unmeasurable", unreadable))
+        expected_members = []
+        for classification, rows in groups:
+            for row in rows:
+                if not isinstance(row, dict) or type(row.get("population_position")) is not int:
+                    issues.append({"code": "layer3_gy_graded_population_member_invalid"})
+                    return
+                member = {
+                    "population_position": row["population_position"],
+                    "classification": classification,
+                }
+                for key in ("run_id", "job_id"):
+                    if key in row:
+                        member[key] = row[key]
+                expected_members.append(member)
+        positions = [row["population_position"] for row in expected_members]
+        if (
+            len(positions) != count
+            or set(positions) != set(range(count))
+            or sorted(expected_members, key=lambda row: row["population_position"]) != members
+        ):
+            issues.append({"code": "layer3_gy_graded_population_identity_drift"})
+        if any(not isinstance(row.get("reason"), str) or not row["reason"] for row in unreadable):
+            issues.append({"code": "layer3_gy_graded_unmeasurable_reason_missing"})
+        expected_rate = None if unreadable or count == 0 else round(len(outcomes) / count, 4)
         if summary.get("useful_design_rate") != expected_rate:
             issues.append({"code": "layer3_gy_useful_design_rate_drift"})
 
@@ -2625,12 +4191,14 @@ def _validate_outcome_terminal_and_replay(
         issues.append({"code": "layer3_gy_outcome_terminal_invalid"})
     if terminal_kind != outcome.get("terminal_outcome"):
         issues.append({"code": "layer3_gy_outcome_terminal_projection_drift"})
-    if outcome.get("case_id") == "ua-msme-affordable-loans-2022" and (
-        terminal_kind == "grounded_partial_admissible"
-        or outcome.get("useful_design_credit") is not False
+    if terminal_kind in {"grounded_partial_admissible", "grounded_admissible"}:
+        issues.append({"code": "layer3_gy_positive_original_construct_admission_owner_missing"})
+    elif (
+        outcome.get("useful_design_credit") is not False
+        and outcome.get("useful_design_credit") is not None
     ):
-        issues.append({"code": "layer3_gy_outcome_ua_msme_forced_value_rejected"})
-    gx_case_outcome = outcome.get("gx_case_outcome")
+        issues.append({"code": "layer3_gy_outcome_non_value_credit_rejected"})
+    gx_case_outcome = outcome.get("production_case_outcome")
     if not isinstance(gx_case_outcome, dict) or (
         gx_case_outcome.get("case_id") != outcome.get("case_id")
         or gx_case_outcome.get("outcome_kind") != terminal_kind
@@ -2764,13 +4332,39 @@ def _run_durable_workspace_loop_observation(
         from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
 
         catalog_graph = DatasetCatalogGraph(catalog_path, catalog_root)
-        gx_input_path = (
-            repo_root
-            / "architecture/policy_design_case/layer3_gx_reports/"
-            "ua-msme-affordable-loans-2022/"
-            "layer3_gx_final_pinned_route_outcome_report.json"
+        from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+            LAYER3_GX_PINNED_REQUEST_FILENAME,
+            resolve_layer3_gx_data_home_selection,
         )
-        root_payload = json.loads(gx_input_path.read_text(encoding="utf-8"))
+        from polisyos.runtime.quality.workspace.loop import (
+            ProductionCaseIntake,
+            ProductionCaseScope,
+            load_workspace_fixture_manifest,
+        )
+
+        selection = resolve_layer3_gx_data_home_selection(repo_root, case="ua-msme")
+        request_path = repo_root / selection.data_home_artifact_path(
+            LAYER3_GX_PINNED_REQUEST_FILENAME
+        )
+        request_raw = request_path.read_bytes()
+        scope = load_workspace_fixture_manifest(fixture_id)
+        pinned = json.loads(request_raw)
+        root_payload = ProductionCaseIntake(
+            pinned_request=pinned,
+            scope=ProductionCaseScope(
+                case_id=pinned["case_id"],
+                construct_scope_query=scope.construct_scope_query,
+                jurisdiction=scope.jurisdiction,
+                population=scope.population,
+                time_horizon=scope.time_horizon,
+            ),
+            scope_source_fixture_id=fixture_id,
+            scope_source_sha256="sha256:"
+            + hashlib.sha256((repo_root / MANIFEST_PATH).read_bytes()).hexdigest(),
+            requested_posture="governed",
+            request_source_path=request_path.relative_to(repo_root).as_posix(),
+            request_source_sha256="sha256:" + hashlib.sha256(request_raw).hexdigest(),
+        ).model_dump(mode="json")
         gx_validator_status = "not_measured"
     elif catalog_mode == "slice0_fixture":
         catalog_graph = None
@@ -2812,6 +4406,10 @@ def _run_durable_workspace_loop_observation(
             gy_catalog_graph=catalog_graph
         )
         with ExitStack() as stack:
+            production_witness = None
+            if catalog_mode == "production":
+                production_witness = _ProductionDefaultWitness()
+                production_witness.install(stack)
             stack.enter_context(
                 patch(
                     "polisyos.core.run.context.new_run_id",
@@ -2859,24 +4457,29 @@ def _run_durable_workspace_loop_observation(
 
             exit_capture = _LiveLoopExitCapture(store)
             original_verifier = WorkspaceLoop._verifier_certified_envelope
-            original_run = service._run_workspace_loop_fixture
+            selected_run_name = (
+                "_run_workspace_production_case"
+                if catalog_mode == "production"
+                else "_run_workspace_loop_fixture"
+            )
+            original_run = getattr(service, selected_run_name)
 
             def observe_verifier(loop: Any, *args: Any, **kwargs: Any) -> BaseModel:
                 envelope = original_verifier(loop, *args, **kwargs)
                 exit_capture.observe_envelope(loop, envelope)
                 return envelope
 
-            def observe_run(*, job: Any, fixture_id: str) -> BaseModel:
-                contract = original_run(job=job, fixture_id=fixture_id)
+            def observe_run(*, job: Any, **kwargs: Any) -> BaseModel:
+                # Delegate the complete actual production or fixture arguments.
+                # No fixture invocation substitutes for a production request.
+                contract = original_run(job=job, **kwargs)
                 exit_capture.observe_contract(contract, job.job_id)
                 return contract
 
             stack.enter_context(
                 patch.object(WorkspaceLoop, "_verifier_certified_envelope", new=observe_verifier)
             )
-            stack.enter_context(
-                patch.object(service, "_run_workspace_loop_fixture", new=observe_run)
-            )
+            stack.enter_context(patch.object(service, selected_run_name, new=observe_run))
             service._worker = ControlWorker(
                 store=service._control_store,
                 handler=service._process_control_job,
@@ -2955,12 +4558,24 @@ def _run_durable_workspace_loop_observation(
                         "cas_resolution_checks": cas_checks,
                         "trigger_kind": "http_control_route",
                         "gx_validator_status": gx_validator_status,
-                        "gx_case_outcome": {
-                            "case_id": str(root_payload.get("case_id") or ""),
-                            "status": str(root_payload.get("status") or ""),
-                            "outcome_kind": str(root_payload.get("outcome_kind") or ""),
-                            "useful_design_credit": root_payload.get("useful_design_credit"),
-                            "final_run_hash": str(root_payload.get("final_run_hash") or ""),
+                        "production_case_outcome": {
+                            "case_id": str(
+                                root_payload["pinned_request"]["case_id"]
+                                if catalog_mode == "production"
+                                else root_payload.get("case_id") or ""
+                            ),
+                            "status": "refused"
+                            if catalog_mode == "production"
+                            else str(root_payload.get("status") or ""),
+                            "outcome_kind": str(contract_payload["terminal_state"]["kind"])
+                            if catalog_mode == "production"
+                            else str(root_payload.get("outcome_kind") or ""),
+                            "useful_design_credit": False
+                            if catalog_mode == "production"
+                            else root_payload.get("useful_design_credit"),
+                            "final_run_hash": replay.output_hash
+                            if catalog_mode == "production"
+                            else str(root_payload.get("final_run_hash") or ""),
                             "input_artifact_ref": str(root_ref.artifact_id),
                         },
                         "http_receipts": {
@@ -2988,6 +4603,7 @@ def _run_durable_workspace_loop_observation(
                         service=service,
                         catalog_graph=catalog_graph,
                         catalog_before=catalog_before,
+                        production_witness=production_witness,
                         exit_capture=exit_capture,
                     )
             finally:

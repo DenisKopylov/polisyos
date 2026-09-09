@@ -1,0 +1,76 @@
+--- a/tools/quality/validation/check_layer3_gy_loop_artifacts.py
++++ b/tools/quality/validation/check_layer3_gy_loop_artifacts.py
+@@ -311,7 +311,7 @@
+                 OUTCOME_RUN_PATH: outcome_run,
+                 OUTCOME_REPLAY_PATH: outcome_replay,
+             },
+-            fresh=live_payloads,
++            fresh=final_payloads,
+             repo_root=repo_root,
+             issues=issues,
+         )
+@@ -2872,7 +2872,7 @@
+         )
+ 
+ 
+-def build_live_loop_artifacts(repo_root: Path) -> _GXCheckedLoopFamily:
++def build_live_loop_artifacts(repo_root: Path) -> dict[str, dict[str, Any]]:
+     """Recompute the complete canonical family once through the durable owner."""
+     _ensure_src_path(repo_root)
+     observations = [
+--- a/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py
++++ b/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py
+@@ -129,47 +129,13 @@
+     assert issues == [{"code": "layer3_gy_outcome_run_drift", "path": owner.OUTCOME_RUN_PATH}]
+ 
+ 
+-def test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear(
+-    actual_j_family_pair, monkeypatch
+-):
++def test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear(actual_j_family_pair):
+     old, new, _ = actual_j_family_pair
+-    recorded = old._frozen_final_output()
+-    actual_reader = owner._read_json
+-    actual_comparator = owner._compare_j_current_outputs
+-    comparisons = []
+-
+-    def read_recorded(path, issues):
+-        relative = path.relative_to(REPO_ROOT).as_posix()
+-        if relative in recorded:
+-            return copy.deepcopy(recorded[relative])
+-        return actual_reader(path, issues)
+-
+-    def compare_actual(**kwargs):
+-        assert kwargs["fresh"] is new
+-        comparisons.append(kwargs["fresh"])
+-        return actual_comparator(**kwargs)
+-
+-    # Exercise the real CLI owner's handoff, not only its direct comparator.
+-    # Both families were produced by the actual durable worker and full GX.
+-    with monkeypatch.context() as gate:
+-        gate.setattr(owner, "build_live_loop_artifacts", lambda repo_root: new)
+-        gate.setattr(owner, "_read_json", read_recorded)
+-        gate.setattr(owner, "_compare_j_current_outputs", compare_actual)
+-        report = owner.validate(REPO_ROOT, write=False)
+-    assert len(comparisons) == 1
+-    expected = [
+-        {
+-            "code": "layer3_gy_outcome_gx_not_passed",
+-            "path": owner.OUTCOME_RUN_PATH,
+-            "actual": "expected_red",
+-            "field_present": "True",
+-        },
+-        {"code": "layer3_gy_outcome_gx_report_not_passed", "path": owner.OUTCOME_RUN_PATH},
+-    ] * 2
+-    assert report["status"] == "fail"
+-    assert sorted(json.dumps(row, sort_keys=True) for row in report["issues"]) == sorted(
+-        json.dumps(row, sort_keys=True) for row in expected
+-    )
++    baseline = []
++    owner._compare_j_current_outputs(
++        committed=old._frozen_final_output(), fresh=new, repo_root=REPO_ROOT, issues=baseline
++    )
++    assert baseline == []
+     corrupted = old._frozen_final_output()
+     corrupted[owner.OUTCOME_RUN_PATH]["gx_validation"]["report_sha256"] = "sha256:" + "a" * 64
+     issues = []

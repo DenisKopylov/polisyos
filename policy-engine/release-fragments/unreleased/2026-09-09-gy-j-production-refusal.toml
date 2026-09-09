@@ -1,0 +1,52 @@
+id = "2026-09-09-gy-j-production-refusal"
+title = "Preserve unavailable evidence in production workspace refusals"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Production workspace refusals retain their verified original-demand limitations and unavailable search quantities without inventing workspace components or useful-design credit."
+evidence = [
+  "tests/unit/runtime/quality/workspace/test_production_case_admission.py",
+  "tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py",
+  "tests/unit/runtime/quality/workspace/test_production_case_public_contracts.py",
+  "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py",
+  "docs/superpowers/journals/2026-09-09-gy-j-repair.md",
+  "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/openapi-full-delta.json",
+  "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/openapi-current-contract.json",
+]
+compatibility = "SearchQualityRecord requires recall_at_known_seeds and permits null only with its strict not_established population basis. A refused workspace and refused ledger are distinct types, not ordinary workspace/search results with fabricated references. Their durable search-exit and ledger artifacts use manifest schema 2.0; ordinary artifacts retain schema 1.0. Readers limited to the ordinary/schema-1.0 dialect must handle the new refusal dialect explicitly."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: polisyos.pdc; internal: polisyos.runtime.quality.workspace.loop; internal: polisyos.runtime.http.services.control"
+migration = "Runtime-quality owns the consumer update: distinguish a required null recall from numeric zero, retain its typed unavailable reason and request binding, and decode the paired refused workspace/ledger before reading component references or rates. Runtime owns supported schema/client migration if the actual OpenAPI diff requires it. Preserve historical receipts and rederive current outcome v3, graded report v2 and replay v2 through the existing owner; do not relabel historical bytes."
+api = "The complete OpenAPI comparison changes only dependency/replay scalars in the governed confidence-ledger example; HTTP schema shapes are unchanged and all generated clients remain byte-identical to the L checkpoint. The actual full API contract check is red for that example dependency drift. The worker readset contains a random temporary-probe absence; sole-cause attribution is not established because the earlier export did not retain its complete readset. No release readiness is claimed. Internal durable manifest schema 2.0 is separate from the HTTP API version."
+limitations = "A source-admission refusal does not supply missing original-construct/scope evidence, an institutional appointment, causal identification, or partial-admissibility authority. Unavailable evidence must not enter a positive useful-design numerator. A missing or unreadable population is unavailable rather than an assumed zero. The canonical case's remaining evidence-admission limitation is reported separately in the task journal. The current Runtime API contract check remains red for governed N11 example dependency drift; the default architecture check remains unavailable under the forbidden-input rule. Both require their named owners before release promotion."
+generated_client_compatibility = "declared_compatible"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/superpowers/journals/2026-09-09-gy-j-repair.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]
+
+[[compatibility_change]]
+id = "gy-j-refused-workspace-durable-dialect"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: GY durable search-exit and search-ledger artifact consumers"
+owner = "team-runtime-quality"
+version_owner = "team-runtime"
+deprecation_window = "Historical schema-1.0 bytes remain readable in their original epoch; no in-place replacement."
+release_note = "Readers of current durable refusals must accept the distinct schema-2.0 workspace/ledger pair, preserve required null component references and unavailable ratios, and refuse an unsupported dialect instead of fabricating an ordinary workspace."
+migration_docs = [
+  "docs/superpowers/journals/2026-09-09-gy-j-repair.md",
+  "ops/migrations/api_schemas/README.md",
+]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]
+
+[[compatibility_change]]
+id = "gy-j-governed-current-report-epochs"
+change_class = "persisted-artifact-format"
+impact = "requires_regeneration"
+surface = "internal: policy-design-case-layer3-gy-loop-artifacts current readers"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "Outcome v1/v2, graded v1 and replay v1 remain immutable history."
+release_note = "Current readers use outcome v3, graded report v2 and replay v2, rederived from the declared production population and complete verified proof family; historical versions retain their original meaning."
+migration_docs = ["docs/superpowers/journals/2026-09-09-gy-j-repair.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]

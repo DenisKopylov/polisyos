@@ -164,7 +164,16 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 job=job,
             )
         try:
-            contract = self._run_workspace_loop_fixture(job=job, fixture_id=fixture_id)
+            if "production_case_intake_ref" in params:
+                request_ref = params["production_case_intake_ref"]
+                contract = self._run_workspace_production_case(
+                    job=job,
+                    request_ref=request_ref,
+                    input_artifacts=input_artifacts,
+                    fixture_id=fixture_id,
+                )
+            else:
+                contract = self._run_workspace_loop_fixture(job=job, fixture_id=fixture_id)
         except _WorkflowExecutionNonAuthorityError as exc:
             progress = self._attach_failed_workspace_loop_proof(
                 dict(exc.progress),
@@ -176,16 +185,21 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 http_request_id=http_request_id,
             )
             raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
+        from polisyos.runtime.quality.workspace.loop import workspace_exit_schema_version
+
+        output_schema_version = workspace_exit_schema_version(contract)
         contract_payload = contract.model_dump(mode="json")
         search_exit_ref = self._put_json_artifact(
             contract_payload,
             kind="pdc.gy.search_exit_contract",
             schema_name="polisyos.pdc.gy.SearchExitContract",
+            schema_version=output_schema_version,
         )
         ledger_ref = self._put_json_artifact(
             contract.search_ledger.model_dump(mode="json"),
             kind="pdc.gy.search_ledger",
             schema_name="polisyos.pdc.gy.SearchLedger",
+            schema_version=output_schema_version,
         )
         authority_trace_refs = [
             self._put_json_artifact(
@@ -530,6 +544,35 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             scorecard["evidence_refs"] = evidence_refs
             progress["quality_scorecard"] = scorecard
         return progress
+
+    def _run_workspace_production_case(
+        self,
+        *,
+        job: ControlJobRecord,
+        request_ref: object,
+        input_artifacts: list[str],
+        fixture_id: str,
+    ) -> WorkspaceSearchExitContract:
+        from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
+
+        try:
+            if not isinstance(request_ref, str) or request_ref not in input_artifacts:
+                raise ValueError("production_case_intake_not_actual_request_input")
+            return WorkspaceLoop(
+                catalog_graph=self._registry_providers.gy_catalog_graph,
+                artifact_store=self._artifact_store,
+            ).run_production_case(request_ref=request_ref, fixture_id=fixture_id)
+        except Exception as exc:
+            progress = self._workflow_failure_progress(
+                job=job,
+                phase="workspace_loop_failed",
+                reason=(
+                    "Production intake failed before source or graded authority could be emitted."
+                ),
+                failure_code="production_case_admission_non_authority",
+                failure_message=str(exc),
+            )
+            raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
 
     def _run_workspace_loop_fixture(
         self,

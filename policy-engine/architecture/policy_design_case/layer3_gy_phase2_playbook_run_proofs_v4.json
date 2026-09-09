@@ -5150,7 +5150,7 @@
         {
           "column": 11,
           "function": "_phase2_value_method_selection",
-          "line": 744,
+          "line": 836,
           "path": "src/polisyos/runtime/quality/workspace/loop.py",
           "role": "call",
           "star_keyword": false,
@@ -5159,7 +5159,7 @@
         {
           "column": 11,
           "function": "_phase2_value_method_selection",
-          "line": 744,
+          "line": 836,
           "path": "src/polisyos/runtime/quality/workspace/loop.py",
           "role": "reference",
           "star_keyword": false,
@@ -5168,7 +5168,7 @@
         {
           "column": 12,
           "function": "WorkspaceLoop._phase2_state",
-          "line": 1210,
+          "line": 1743,
           "path": "src/polisyos/runtime/quality/workspace/loop.py",
           "role": "call",
           "star_keyword": false,
@@ -5177,7 +5177,7 @@
         {
           "column": 12,
           "function": "WorkspaceLoop._phase2_state",
-          "line": 1210,
+          "line": 1743,
           "path": "src/polisyos/runtime/quality/workspace/loop.py",
           "role": "reference",
           "star_keyword": false,
@@ -16560,12 +16560,12 @@
           "target": "polisyos.foundry.methods.selection.select_value_method_for_problem"
         }
       ],
-      "source_basis_hash": "sha256:78b7b471ef30d6025c927e5e92b5ff3b9edeb1c578813a438781953519187416",
+      "source_basis_hash": "sha256:a3afbb34907b625a2934f707691d1b7b621ac77c119494399aa734890f7185f7",
       "source_changed": [],
       "source_denominator": {
         "file_type": "all current .py",
-        "os_walk": 5598,
-        "rglob": 5598,
+        "os_walk": 5601,
+        "rglob": 5601,
         "roots": [
           "src",
           "tools",
@@ -16674,11 +16674,11 @@
               "sequence_opcodes": 33,
               "unified_diff": 33
             },
-            "replacement_ref": "src/polisyos/runtime/quality/workspace/loop.py@sha256:ec7c8b1fac0124cfdbe174c8fe6a1b6d309d64a65e555d5b07a212d743d6e1b8#_phase2_value_method_selection"
+            "replacement_ref": "src/polisyos/runtime/quality/workspace/loop.py@sha256:08fc31fe4c58134c809f90180cf44534e473c3b09edc94eb22618cc6092c8080#_phase2_value_method_selection"
           }
         ],
         "replacement_ref": [
-          "src/polisyos/runtime/quality/workspace/loop.py@sha256:ec7c8b1fac0124cfdbe174c8fe6a1b6d309d64a65e555d5b07a212d743d6e1b8#_phase2_value_method_selection"
+          "src/polisyos/runtime/quality/workspace/loop.py@sha256:08fc31fe4c58134c809f90180cf44534e473c3b09edc94eb22618cc6092c8080#_phase2_value_method_selection"
         ],
         "task_id": "GY-C1",
         "verified_by": [

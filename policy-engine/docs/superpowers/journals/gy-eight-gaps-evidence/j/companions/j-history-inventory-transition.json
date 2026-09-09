@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "_build.gy_gaps.j_pinned_harness",
+    "--module",
+    "_build.gy_gaps.j_inventory_history",
+    "--",
+    "--write"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T16:14:06.818125+00:00",
+  "elapsed_seconds": 0.168,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"mode\": \"write\",\n  \"inventory_json_artifact_row_denominator\": 276,\n  \"independent_counter_row_denominator\": 276,\n  \"complete_duplicate_path_multiplicities\": {\n    \"docs/reference/public-surface.md#policy-design-case-generated-audit-surfaces\": 3\n  },\n  \"history_output_denominator\": 4,\n  \"independent_filtered_history_denominator\": 4,\n  \"history_bytes_match_complete_owner_hashes\": true,\n  \"field_identity_delta\": [\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json\",\n      \"field\": \"family_id\",\n      \"before_present\": true,\n      \"before\": \"policy-design-case-layer3-gy-loop-artifacts\",\n      \"after\": \"policy-design-case-layer3-gy-loop-history-artifacts\"\n    },\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json\",\n      \"field\": \"lifecycle\",\n      \"before_present\": true,\n      \"before\": \"generated_committed\",\n      \"after\": \"source_committed\"\n    },\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_outcome_replay_proof.json\",\n      \"field\": \"family_id\",\n      \"before_present\": true,\n      \"before\": \"policy-design-case-layer3-gy-loop-artifacts\",\n      \"after\": \"policy-design-case-layer3-gy-loop-history-artifacts\"\n    },\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_outcome_replay_proof.json\",\n      \"field\": \"lifecycle\",\n      \"before_present\": true,\n      \"before\": \"generated_committed\",\n      \"after\": \"source_committed\"\n    },\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_outcome_run_v2.json\",\n      \"field\": \"family_id\",\n      \"before_present\": true,\n      \"before\": \"policy-design-case-layer3-gy-loop-artifacts\",\n      \"after\": \"policy-design-case-layer3-gy-loop-history-artifacts\"\n    },\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_outcome_run_v2.json\",\n      \"field\": \"lifecycle\",\n      \"before_present\": true,\n      \"before\": \"generated_committed\",\n      \"after\": \"source_committed\"\n    }\n  ],\n  \"changed_inventory_entry_paths\": [\n    \"architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json\",\n    \"architecture/policy_design_case/layer3_gy_outcome_replay_proof.json\",\n    \"architecture/policy_design_case/layer3_gy_outcome_run_v2.json\"\n  ],\n  \"inventory_sha256_before\": \"a83ddb5581218aa011051c38b49be76043ef8eee0e9dbcea549c4f504a61d255\",\n  \"inventory_sha256_after\": \"4ef296dfee0acb7a7023b69445a9794d815ffff181cfd7dc1054ba5c86e71c56\"\n}\n",
+  "stderr": "GY_J_HARNESS_EXECUTION {\"arguments\": [\"--write\"], \"complete_harness_source_delta\": {}, \"harness_source_refs\": {\"_build/gy_gaps/j_inventory_history.py\": \"3238cf9fc5e8a661f16b7c649afbd646a20950fca32fbf7bf630fb7063675ab5\", \"_build/gy_gaps/j_pinned_harness.py\": \"6c9c898289a7af64c6a08000f2ddf407b728452172c0aa8540836d6b87181585\", \"_build/gy_gaps/receipt.py\": \"f8fac199a34dcf74848eadd00b3e4a6ed1fbbd6395c7a1cb9fd14f6939b6fa4a\", \"_build/gy_gaps/refresh_m1_snapshot.py\": \"84ce1bfbe9512eb3be32eb566e6a0d56c86b0ceed858da84c520cf4000ba97fe\"}, \"harness_source_unchanged\": true, \"module\": \"_build.gy_gaps.j_inventory_history\", \"target_disposition\": \"returned\", \"target_executed\": true, \"target_returncode\": 0}\n"
+}

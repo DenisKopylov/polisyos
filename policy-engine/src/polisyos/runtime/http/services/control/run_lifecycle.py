@@ -1821,13 +1821,20 @@ class ControlPlaneService(
                 ),
             )
 
-    def _put_json_artifact(self, payload: object, *, kind: str, schema_name: str) -> str:
+    def _put_json_artifact(
+        self,
+        payload: object,
+        *,
+        kind: str,
+        schema_name: str,
+        schema_version: str = "1.0",
+    ) -> str:
         ref = self._artifact_store.put_json(
             payload,
             ArtifactWriteOptions(
                 kind=kind,
                 media_type="application/json",
-                schema=SchemaInfo(name=schema_name, version="1.0"),
+                schema=SchemaInfo(name=schema_name, version=schema_version),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )

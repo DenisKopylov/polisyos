@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.j.static_identity_readback"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T14:19:01.338913+00:00",
+  "elapsed_seconds": 0.97,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"scope\": \"static input identity reconciliation only; no native owner or runtime rerun\",\n  \"executions\": [\n    {\n      \"component\": \"d1\",\n      \"receipt_ref\": \"_build/gy-gaps/j/d1-static-current.json@sha256:7b76e83b888636a1f94f7eb50c5978dd4bd2bcb028f8e870ea0a294ae4a28ec7\",\n      \"actual_native_population_equals_git_rg_rglob_oswalk_sets\": true,\n      \"raw_input_basis_still_exact\": \"sha256:df71fe83cd93fd833a747f46f8c082c27b1edab8a65364d6326477c9272ebbe4\",\n      \"unreadable\": [],\n      \"path_identity_differences\": []\n    },\n    {\n      \"component\": \"k\",\n      \"receipt_ref\": \"_build/gy-gaps/j/k-static-current.json@sha256:560e909e44009145e639146a2fb27e5ff0b50ed7e0d10e5cebea9864f4c433b9\",\n      \"actual_native_population_equals_git_rg_rglob_oswalk_sets\": true,\n      \"raw_input_basis_still_exact\": \"sha256:3222eb07e67468daf7c3c075f8d704b6511edb250a8b74f3b154c736dc6c697d\",\n      \"unreadable\": [],\n      \"path_identity_differences\": []\n    }\n  ]\n}\n",
+  "stderr": ""
+}

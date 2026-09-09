@@ -1,0 +1,1147 @@
+{
+  "files": [
+    {
+      "destination": "_build/gy-gaps/j/merge-planning/recorded_recomputation_removal.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "removal_source_refs",
+              "_build/gy-gaps/j/merge-planning/recorded_recomputation_removal.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "9bb71b65cc160c624ae24fc363fb6a73fcf8e57be208a1cf3f05de6d436aab63",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/recorded_recomputation_removal.py"
+    },
+    {
+      "destination": "_build/gy-gaps/j/merge-planning/witness_dependency_removal.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "removal_source_refs",
+              "_build/gy-gaps/j/merge-planning/witness_dependency_removal.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "b438f313c2693695c2704ca0457e487fc24f4a44e6ed776ab599a4b443138c4a",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/witness_dependency_removal.py"
+    },
+    {
+      "destination": "_build/gy-gaps/j/removal_probes.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "removal_source_refs",
+              "_build/gy-gaps/j/removal_probes.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "9d7fd7200154d67e94c9604a59cbb31109e7367549a8eb79b4fd824071475261",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/removal_probes.py"
+    },
+    {
+      "destination": "_build/gy-gaps/j/static_rederivations.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy-gaps/j/static_rederivations.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "62d940d8375f160667a1bdb1f1d38fbd073c6fb18f74aa4e8316525ebf549809",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy-gaps/j/static_rederivations.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-enumerator-source-strangle.json",
+          "receipt_sha256": "445e0f7e6ad4ea9196b9793c837ac0cd7e06fac41f99a0e75c367dc58426267d",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy-gaps/j/static_rederivations.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-final-source-strangle.json",
+          "receipt_sha256": "7a9c440326b76a2161f389227b033db188002ec8dbfa369191d779ce8d3e6153",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy-gaps/j/static_rederivations.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "cb3036c946a5d27632fb9d2766fc66ea34bc6fcf24055c49725f61a577ce2bbb",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy-gaps/j/static_rederivations.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-final-source-strangle.json",
+          "receipt_sha256": "8e7acef9cc45e93140a167add7e3d736be354507a2641ecf6611977e3778105b",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        }
+      ],
+      "sha256": "a68624cb9a6b64c6c893f32b33fa39ba192c228d0ba6b4559dc75878e65949ec",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/static_rederivations.py"
+    },
+    {
+      "destination": "_build/gy_gaps/d1_strangle.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/d1_strangle.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "62d940d8375f160667a1bdb1f1d38fbd073c6fb18f74aa4e8316525ebf549809",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/d1_strangle.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-enumerator-source-strangle.json",
+          "receipt_sha256": "445e0f7e6ad4ea9196b9793c837ac0cd7e06fac41f99a0e75c367dc58426267d",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/d1_strangle.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-final-source-strangle.json",
+          "receipt_sha256": "7a9c440326b76a2161f389227b033db188002ec8dbfa369191d779ce8d3e6153",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/d1_strangle.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "cb3036c946a5d27632fb9d2766fc66ea34bc6fcf24055c49725f61a577ce2bbb",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/d1_strangle.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-final-source-strangle.json",
+          "receipt_sha256": "8e7acef9cc45e93140a167add7e3d736be354507a2641ecf6611977e3778105b",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        }
+      ],
+      "sha256": "8d3ae801d81f8b5724fd4d914b30ddba60cd48b3f9b5459720f018166f3fb67b",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/d1/probes/d1_strangle.py"
+    },
+    {
+      "destination": "_build/gy_gaps/j_inventory_history.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_inventory_history.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/j-history-inventory-transition.json",
+          "receipt_sha256": "6d574fbf12ed21d24e8b21f2675dce04318e21522ab67bcdf1d1536d13716059",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        }
+      ],
+      "sha256": "3238cf9fc5e8a661f16b7c649afbd646a20950fca32fbf7bf630fb7063675ab5",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/j_inventory_history.py"
+    },
+    {
+      "destination": "_build/gy_gaps/j_l_regression_wave.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "source_before",
+              "harness_sources",
+              "_build/gy_gaps/j_l_regression_wave.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "removal_source_refs",
+              "_build/gy_gaps/j_l_regression_wave.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_l_regression_wave",
+          "hash": {
+            "pointer": [
+              "source_before",
+              "harness_sources",
+              "_build/gy_gaps/j_l_regression_wave.py",
+              "sha256"
+            ],
+            "prefix": "GY_L_NATIVE_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/l-regression-and-importers.json",
+          "receipt_sha256": "9e642b1cfbc6b87701ad4df15b9baf38373be1f357cf2c9f65706d233bfae9dd",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_L_NATIVE_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "b5d23d951d6065d9cccaf0f0888f85211695a9cc52a0447d7da5ee6a84b9b817",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/j_l_regression_wave.py"
+    },
+    {
+      "destination": "_build/gy_gaps/j_native_wave.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_native_wave",
+          "hash": {
+            "pointer": [
+              "executing_harness_sha256",
+              "_build/gy_gaps/j_native_wave.py"
+            ],
+            "prefix": "GY_J_NATIVE_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/native-live-wave.json",
+          "receipt_sha256": "40a742ecbef10bd4af05445d49f4112ac9d0266ca645d8099b8a14fef88b80c7",
+          "unchanged": {
+            "pointer": [
+              "executing_harness_unchanged"
+            ],
+            "prefix": "GY_J_NATIVE_READBACK ",
+            "stream": "stdout"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_native_wave",
+          "hash": {
+            "pointer": [
+              "executing_harness_sha256",
+              "_build/gy_gaps/j_native_wave.py"
+            ],
+            "prefix": "GY_J_NATIVE_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/native-enumerator-correction.json",
+          "receipt_sha256": "b50b8637d2aa6ef2e93400544ed4a114cd5f0de1e56bc6cb38481839b800e58c",
+          "unchanged": {
+            "pointer": [
+              "executing_harness_unchanged"
+            ],
+            "prefix": "GY_J_NATIVE_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "d1ab55a2cd3db6b79efc7de01e398c51a64a6f816eb2192bb0ed366e7f75b079",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/j_native_wave.py"
+    },
+    {
+      "destination": "_build/gy_gaps/j_pinned_harness.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "62d940d8375f160667a1bdb1f1d38fbd073c6fb18f74aa4e8316525ebf549809",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-enumerator-source-strangle.json",
+          "receipt_sha256": "445e0f7e6ad4ea9196b9793c837ac0cd7e06fac41f99a0e75c367dc58426267d",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-final-source-strangle.json",
+          "receipt_sha256": "7a9c440326b76a2161f389227b033db188002ec8dbfa369191d779ce8d3e6153",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/j-history-inventory-transition.json",
+          "receipt_sha256": "6d574fbf12ed21d24e8b21f2675dce04318e21522ab67bcdf1d1536d13716059",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "cb3036c946a5d27632fb9d2766fc66ea34bc6fcf24055c49725f61a577ce2bbb",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-final-source-strangle.json",
+          "receipt_sha256": "8e7acef9cc45e93140a167add7e3d736be354507a2641ecf6611977e3778105b",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/m1-snapshot-refresh.json",
+          "receipt_sha256": "4b52e833dd0644d87df950d87163871f1b769825ec27d4700cf9edc1621a3896",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/m1-source-hashes.json",
+          "receipt_sha256": "bd0dacb558af85fc39fcc8f37e86576412ecf56450cbc3c2eb1803ee512cc113",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-after-cli-custody-corruption.json",
+          "receipt_sha256": "21f0cd3a7ca8b6323748ac1c8b791244ec1d452c9430964abda5f05ae33c96bd",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/j_pinned_harness.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-current-corruption.json",
+          "receipt_sha256": "7d619b786db0f28cec1df67c443319036b70b24beab5313d45ce79679effc46b",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        }
+      ],
+      "sha256": "6c9c898289a7af64c6a08000f2ddf407b728452172c0aa8540836d6b87181585",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/j_pinned_harness.py"
+    },
+    {
+      "destination": "_build/gy_gaps/j_removal_wave.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "removal_source_refs",
+              "_build/gy_gaps/j_removal_wave.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "4749aac05cf7713c18038919d00cf2d26ffe1211fac442eb3f7225a2c4b7e5c9",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/j_removal_wave.py"
+    },
+    {
+      "destination": "_build/gy_gaps/l_receipt_reconcile.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "source_before",
+              "harness_sources",
+              "_build/gy_gaps/l_receipt_reconcile.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_l_regression_wave",
+          "hash": {
+            "pointer": [
+              "source_before",
+              "harness_sources",
+              "_build/gy_gaps/l_receipt_reconcile.py",
+              "sha256"
+            ],
+            "prefix": "GY_L_NATIVE_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/l-regression-and-importers.json",
+          "receipt_sha256": "9e642b1cfbc6b87701ad4df15b9baf38373be1f357cf2c9f65706d233bfae9dd",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_L_NATIVE_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "f56915ec22846aa5aa5d3742ba35ba3dbc553f4696201f4baea9af25fc2b7895",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/l/probes/l_receipt_reconcile.py"
+    },
+    {
+      "destination": "_build/gy_gaps/phase2_current_corruption.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/phase2_current_corruption.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-after-cli-custody-corruption.json",
+          "receipt_sha256": "21f0cd3a7ca8b6323748ac1c8b791244ec1d452c9430964abda5f05ae33c96bd",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/phase2_current_corruption.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-current-corruption.json",
+          "receipt_sha256": "7d619b786db0f28cec1df67c443319036b70b24beab5313d45ce79679effc46b",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        }
+      ],
+      "sha256": "019c22f951ba1c98fcd800fe806d8793214f29a99ad570c818e3d9b35c4c18f4",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/c3/probes/return/phase2_current_corruption.py"
+    },
+    {
+      "destination": "_build/gy_gaps/receipt.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_removal_wave",
+          "hash": {
+            "pointer": [
+              "source_before",
+              "harness_sources",
+              "_build/gy_gaps/receipt.py",
+              "sha256"
+            ],
+            "prefix": "GY_J_REMOVAL_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+          "receipt_sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_J_REMOVAL_READBACK ",
+            "stream": "stdout"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_l_regression_wave",
+          "hash": {
+            "pointer": [
+              "source_before",
+              "harness_sources",
+              "_build/gy_gaps/receipt.py",
+              "sha256"
+            ],
+            "prefix": "GY_L_NATIVE_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/l-regression-and-importers.json",
+          "receipt_sha256": "9e642b1cfbc6b87701ad4df15b9baf38373be1f357cf2c9f65706d233bfae9dd",
+          "unchanged": {
+            "pointer": [
+              "source_frozen"
+            ],
+            "prefix": "GY_L_NATIVE_READBACK ",
+            "stream": "stdout"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_native_wave",
+          "hash": {
+            "pointer": [
+              "executing_harness_sha256",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_NATIVE_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/native-live-wave.json",
+          "receipt_sha256": "40a742ecbef10bd4af05445d49f4112ac9d0266ca645d8099b8a14fef88b80c7",
+          "unchanged": {
+            "pointer": [
+              "executing_harness_unchanged"
+            ],
+            "prefix": "GY_J_NATIVE_READBACK ",
+            "stream": "stdout"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "62d940d8375f160667a1bdb1f1d38fbd073c6fb18f74aa4e8316525ebf549809",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-after-enumerator-source-strangle.json",
+          "receipt_sha256": "445e0f7e6ad4ea9196b9793c837ac0cd7e06fac41f99a0e75c367dc58426267d",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/d1-final-source-strangle.json",
+          "receipt_sha256": "7a9c440326b76a2161f389227b033db188002ec8dbfa369191d779ce8d3e6153",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/j-history-inventory-transition.json",
+          "receipt_sha256": "6d574fbf12ed21d24e8b21f2675dce04318e21522ab67bcdf1d1536d13716059",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-after-cli-custody-source-strangle.json",
+          "receipt_sha256": "cb3036c946a5d27632fb9d2766fc66ea34bc6fcf24055c49725f61a577ce2bbb",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/k-final-source-strangle.json",
+          "receipt_sha256": "8e7acef9cc45e93140a167add7e3d736be354507a2641ecf6611977e3778105b",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/m1-snapshot-refresh.json",
+          "receipt_sha256": "4b52e833dd0644d87df950d87163871f1b769825ec27d4700cf9edc1621a3896",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/m1-source-hashes.json",
+          "receipt_sha256": "bd0dacb558af85fc39fcc8f37e86576412ecf56450cbc3c2eb1803ee512cc113",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-after-cli-custody-corruption.json",
+          "receipt_sha256": "21f0cd3a7ca8b6323748ac1c8b791244ec1d452c9430964abda5f05ae33c96bd",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-current-corruption.json",
+          "receipt_sha256": "7d619b786db0f28cec1df67c443319036b70b24beab5313d45ce79679effc46b",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_native_wave",
+          "hash": {
+            "pointer": [
+              "executing_harness_sha256",
+              "_build/gy_gaps/receipt.py"
+            ],
+            "prefix": "GY_J_NATIVE_POPULATION ",
+            "stream": "stdout"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/native-enumerator-correction.json",
+          "receipt_sha256": "b50b8637d2aa6ef2e93400544ed4a114cd5f0de1e56bc6cb38481839b800e58c",
+          "unchanged": {
+            "pointer": [
+              "executing_harness_unchanged"
+            ],
+            "prefix": "GY_J_NATIVE_READBACK ",
+            "stream": "stdout"
+          }
+        }
+      ],
+      "sha256": "f8fac199a34dcf74848eadd00b3e4a6ed1fbbd6395c7a1cb9fd14f6939b6fa4a",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/d1/probes/receipt.py"
+    },
+    {
+      "destination": "_build/gy_gaps/refresh_m1_hashes.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/refresh_m1_hashes.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/m1-source-hashes.json",
+          "receipt_sha256": "bd0dacb558af85fc39fcc8f37e86576412ecf56450cbc3c2eb1803ee512cc113",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        }
+      ],
+      "sha256": "c7b306b9ac27e470c8e61f7c2392fd0cbabae2d5b6388db9d5956c19fdfbea49",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/refresh_m1_hashes.py"
+    },
+    {
+      "destination": "_build/gy_gaps/refresh_m1_snapshot.py",
+      "execution_bindings": [
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/refresh_m1_snapshot.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/j-history-inventory-transition.json",
+          "receipt_sha256": "6d574fbf12ed21d24e8b21f2675dce04318e21522ab67bcdf1d1536d13716059",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        },
+        {
+          "entry_module": "_build.gy_gaps.j_pinned_harness",
+          "hash": {
+            "pointer": [
+              "harness_source_refs",
+              "_build/gy_gaps/refresh_m1_snapshot.py"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          },
+          "receipt": "docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/m1-snapshot-refresh.json",
+          "receipt_sha256": "4b52e833dd0644d87df950d87163871f1b769825ec27d4700cf9edc1621a3896",
+          "unchanged": {
+            "pointer": [
+              "harness_source_unchanged"
+            ],
+            "prefix": "GY_J_HARNESS_EXECUTION ",
+            "stream": "stderr"
+          }
+        }
+      ],
+      "sha256": "84ce1bfbe9512eb3be32eb566e6a0d56c86b0ceed858da84c520cf4000ba97fe",
+      "source": "docs/superpowers/journals/gy-eight-gaps-evidence/j/probes/refresh_m1_snapshot.py"
+    }
+  ],
+  "schema_version": "gy.j.harness_replay.v1"
+}

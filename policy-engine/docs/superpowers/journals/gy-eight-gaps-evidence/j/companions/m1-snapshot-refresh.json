@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "_build.gy_gaps.j_pinned_harness",
+    "--module",
+    "_build.gy_gaps.refresh_m1_snapshot",
+    "--",
+    "--inventory"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T16:11:23.994887+00:00",
+  "elapsed_seconds": 64.776,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"source_snapshot_changed_values\": 23,\n  \"inventory_added_paths\": [\n    \"architecture/policy_design_case/layer3_gy_graded_outcome_routing_report_v2.json\",\n    \"architecture/policy_design_case/layer3_gy_outcome_run_v3.json\",\n    \"architecture/policy_design_case/layer3_gy_outcome_replay_proof_v2.json\"\n  ],\n  \"pre_refresh_registry_issues\": [\n    {\n      \"code\": \"layer3_gy_source_output_integrity_drift\",\n      \"family_id\": \"policy-design-case-layer3-gy-control-plane-inventory\",\n      \"path\": \"architecture/policy_design_case/inventory.json\",\n      \"expected\": \"sha256:a9d4a01d424e014e86d79fcc0063f710e796da50a80db5874a8400e428938585\",\n      \"actual\": \"sha256:a83ddb5581218aa011051c38b49be76043ef8eee0e9dbcea549c4f504a61d255\"\n    }\n  ]\n}\n",
+  "stderr": "GY_J_HARNESS_EXECUTION {\"arguments\": [\"--inventory\"], \"complete_harness_source_delta\": {}, \"harness_source_refs\": {\"_build/gy_gaps/j_pinned_harness.py\": \"6c9c898289a7af64c6a08000f2ddf407b728452172c0aa8540836d6b87181585\", \"_build/gy_gaps/receipt.py\": \"f8fac199a34dcf74848eadd00b3e4a6ed1fbbd6395c7a1cb9fd14f6939b6fa4a\", \"_build/gy_gaps/refresh_m1_snapshot.py\": \"84ce1bfbe9512eb3be32eb566e6a0d56c86b0ceed858da84c520cf4000ba97fe\"}, \"harness_source_unchanged\": true, \"module\": \"_build.gy_gaps.refresh_m1_snapshot\", \"target_disposition\": \"returned\", \"target_executed\": true, \"target_returncode\": 0}\n"
+}

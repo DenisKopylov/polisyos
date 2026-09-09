@@ -1,0 +1,25 @@
+{
+  "command": [
+    "corepack",
+    "pnpm",
+    "--filter",
+    "@polisyos/runtime-api-client",
+    "run",
+    "generate"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T16:22:08.907924+00:00",
+  "elapsed_seconds": 3.558,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "\n> @polisyos/runtime-api-client@0.1.0 generate /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client\n> bash ./scripts/generate-runtime-api-client.sh\n\n✨ openapi-typescript 7.13.0\n🚀 schemas/runtime_api_v1.openapi.json → /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/types.ts [652.3ms]\n/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/runtimeApiClient.ts\n/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/runtimeApiClient.js\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/types.ts\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/runtimeApiClient.ts\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/runtimeApiClient.js\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts\nGenerated /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js\n",
+  "stderr": ""
+}

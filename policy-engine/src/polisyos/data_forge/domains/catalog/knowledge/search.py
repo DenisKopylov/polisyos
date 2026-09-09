@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogContentIdentity,
         CatalogFetchBinding,
         CatalogFetchRequest,
         CatalogFetchResolution,
@@ -644,6 +645,16 @@ class DatasetCatalogGraph:
         self, variables: list[str], *, top_k: int = 20
     ) -> list[DatasetSearchResult]:
         return self._store.find_by_variables(variables, top_k=top_k)
+
+    def source_content_identities(
+        self,
+    ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+        """Read the actual baseline/overlay byte identities, without source truth authority."""
+        return self._store._fetch_source_identities()
+
+    def reconciled_metric_binding_population(self, metric_name: str) -> list[MetricBindingMatch]:
+        """Read the complete catalog binding population through its reconciling owner."""
+        return self._store.reconciled_metric_binding_population(metric_name)
 
     def resolve_metric_bindings(
         self, metric_name: str, *, top_k: int = 20

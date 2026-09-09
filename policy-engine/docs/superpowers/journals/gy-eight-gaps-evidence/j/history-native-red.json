@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_j_history_guards_every_completed_predecessor_epoch"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T13:42:32.753510+00:00",
+  "elapsed_seconds": 2.254,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": ".FFF                                                                     [100%]\n=================================== FAILURES ===================================\n_ test_gy_j_history_guards_every_completed_predecessor_epoch[architecture/policy_design_case/layer3_gy_outcome_run_v2.json] _\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:3383: in test_gy_j_history_guards_every_completed_predecessor_epoch\n    assert {\"code\": \"layer3_gy_loop_epoch_history_changed\", \"path\": historical_path} in issues\nE   AssertionError: assert {'code': 'layer3_gy_loop_epoch_history_changed', 'path': 'architecture/policy_design_case/layer3_gy_outcome_run_v2.json'} in []\n_ test_gy_j_history_guards_every_completed_predecessor_epoch[architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json] _\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:3383: in test_gy_j_history_guards_every_completed_predecessor_epoch\n    assert {\"code\": \"layer3_gy_loop_epoch_history_changed\", \"path\": historical_path} in issues\nE   AssertionError: assert {'code': 'layer3_gy_loop_epoch_history_changed', 'path': 'architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json'} in []\n_ test_gy_j_history_guards_every_completed_predecessor_epoch[architecture/policy_design_case/layer3_gy_outcome_replay_proof.json] _\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:3383: in test_gy_j_history_guards_every_completed_predecessor_epoch\n    assert {\"code\": \"layer3_gy_loop_epoch_history_changed\", \"path\": historical_path} in issues\nE   AssertionError: assert {'code': 'layer3_gy_loop_epoch_history_changed', 'path': 'architecture/policy_design_case/layer3_gy_outcome_replay_proof.json'} in []\n==================================== PASSES ====================================\n=========================== short test summary info ============================\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_j_history_guards_every_completed_predecessor_epoch[architecture/policy_design_case/layer3_gy_outcome_run.json]\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_j_history_guards_every_completed_predecessor_epoch[architecture/policy_design_case/layer3_gy_outcome_run_v2.json]\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_j_history_guards_every_completed_predecessor_epoch[architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json]\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_j_history_guards_every_completed_predecessor_epoch[architecture/policy_design_case/layer3_gy_outcome_replay_proof.json]\n",
+  "stderr": ""
+}

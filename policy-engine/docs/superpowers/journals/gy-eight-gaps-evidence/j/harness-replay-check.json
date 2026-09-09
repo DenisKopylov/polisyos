@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "docs.superpowers.journals.gy-eight-gaps-evidence.j.probes.j_rehydrate_harness",
+    "docs/superpowers/journals/gy-eight-gaps-evidence/j/harness-replay.json",
+    "--manifest-sha256",
+    "52c98d2888c1cce29fc419e17f46541621fbe8792a979aa6bc22df234a088377",
+    "--check-only"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T20:06:29.224172+00:00",
+  "elapsed_seconds": 0.374,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"destinations\": [\"_build/gy-gaps/j/merge-planning/recorded_recomputation_removal.py\", \"_build/gy-gaps/j/merge-planning/witness_dependency_removal.py\", \"_build/gy-gaps/j/removal_probes.py\", \"_build/gy-gaps/j/static_rederivations.py\", \"_build/gy_gaps/d1_strangle.py\", \"_build/gy_gaps/j_inventory_history.py\", \"_build/gy_gaps/j_l_regression_wave.py\", \"_build/gy_gaps/j_native_wave.py\", \"_build/gy_gaps/j_pinned_harness.py\", \"_build/gy_gaps/j_removal_wave.py\", \"_build/gy_gaps/l_receipt_reconcile.py\", \"_build/gy_gaps/phase2_current_corruption.py\", \"_build/gy_gaps/receipt.py\", \"_build/gy_gaps/refresh_m1_hashes.py\", \"_build/gy_gaps/refresh_m1_snapshot.py\"], \"gates_executed\": false, \"manifest\": \"docs/superpowers/journals/gy-eight-gaps-evidence/j/harness-replay.json\", \"manifest_sha256\": \"52c98d2888c1cce29fc419e17f46541621fbe8792a979aa6bc22df234a088377\", \"mode\": \"checked\", \"product_files_written\": false, \"receipts_rewritten\": false}\n",
+  "stderr": ""
+}

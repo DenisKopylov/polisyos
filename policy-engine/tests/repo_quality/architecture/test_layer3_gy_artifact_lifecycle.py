@@ -1572,9 +1572,9 @@ def test_layer3_gy_loop_family_uses_honest_generated_and_source_classifications(
     assert generated["lifecycle"] == "generated_committed"
     assert generated["outputs"] == [
         "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json",
-        "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json",
+        check_layer3_gy_loop_artifacts.GRADED_OUTCOME_PATH,
         check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH,
-        "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json",
+        check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH,
     ]
     assert "--write" in " ".join(generated["regenerate_commands"])
     assert source["lifecycle"] == "source_committed"
@@ -1627,12 +1627,12 @@ def test_layer3_gy_loop_validator_recomputes_durable_worker_proofs() -> None:
     assert committed == live_payloads["architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json"]
 
 
-def test_layer3_gy_outcome_run_is_http_triggered_and_honestly_blocked() -> None:
-    live_payloads = check_layer3_gy_loop_artifacts.build_live_loop_artifacts(REPO_ROOT)
+def test_layer3_gy_outcome_run_is_http_triggered_and_honestly_blocked(gy_l_complete_live_population) -> None:
+    live_payloads, observations, _ = gy_l_complete_live_population
     outcome = live_payloads[check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH]
-    replay = live_payloads[
-        "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json"
-    ]["replay_proof"]
+    replay = live_payloads[check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH][
+        "replay_proof"
+    ]
     proof = outcome["production_loop_run_proof"]
     contract = outcome["search_exit_contract"]
 
@@ -1647,15 +1647,36 @@ def test_layer3_gy_outcome_run_is_http_triggered_and_honestly_blocked() -> None:
     assert proof["output_cas_refs"]
     assert proof["artifacts_index_refs"]
     assert "runs_readback" in proof["surface_reads_checked"]
-    assert contract["terminal_state"]["kind"] == "search_ceiling_repair_required"
+    assert contract["terminal_state"]["kind"] == "a_spec_gap"
+    assert contract["authority_boundary"] is None
     assert contract["evidence_kind"] is None
     assert contract["decision_grade"] == "unsupported"
     assert contract["evidence_ladder_rung"] == "none"
-    assert contract["incompleteness_record"]["search_quality"]["known_seeds_missed"]
+    production = [
+        observation for observation in observations
+        if observation._checked_snapshot()[0].catalog_mode == "production"
+    ]
+    (observation,) = production
+    custody = observation._checked_custody()
+    admission = custody["production_admission"]
+    admission_ref = custody["recorded_production_evidence"]["admission_ref"]
+    assert observation["proof"]["job_id"] == proof["job_id"]
+    workspace = contract["workspace_contract"]
+    ledger = contract["search_ledger"]
+    assert workspace["refusal_source_admission_ref"] == admission_ref
+    assert workspace["refusal_reason"] == admission["positive_admission_state"]
+    assert ledger["source_admission_ref"] == admission_ref
+    assert ledger["admission_decision_refs"] == [
+        decision["decision_id"] for decision in admission["graded_decisions"]
+    ]
+    quality = contract["incompleteness_record"]["search_quality"]
+    assert quality["recall_at_known_seeds"] is None
+    assert quality["semantic_benchmark_run"]["population_state"] == "not_established"
+    assert ledger["counterexample_conversion_rate"] is None
     assert outcome["useful_design_credit"] is False
-    assert outcome["gx_case_outcome"]["outcome_kind"] == outcome["terminal_outcome"]
-    assert outcome["gx_case_outcome"]["useful_design_credit"] is False
-    assert outcome["gx_case_outcome"]["final_run_hash"].startswith("sha256:")
+    assert outcome["production_case_outcome"]["outcome_kind"] == outcome["terminal_outcome"]
+    assert outcome["production_case_outcome"]["useful_design_credit"] is False
+    assert outcome["production_case_outcome"]["final_run_hash"].startswith("sha256:")
     assert replay["replay_levels"] == ["A", "B", "C"]
     assert replay["input_hashes"]
     assert replay["output_hash"] == outcome["output_hash"]
@@ -1665,8 +1686,7 @@ def test_layer3_gy_outcome_validator_rejects_direct_helper_and_hand_authored_pro
     outcome = json.loads((REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH).read_text())
     replay = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json"
+            REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH
         ).read_text()
     )
 
@@ -1705,8 +1725,7 @@ def test_layer3_gy_outcome_replay_corrupt_field_detects_drift() -> None:
     outcome = json.loads((REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH).read_text())
     replay = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json"
+            REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH
         ).read_text()
     )
     outcome["search_exit_contract"]["terminal_state"]["reason"] = "corrupted"
@@ -1721,11 +1740,10 @@ def test_layer3_gy_outcome_validator_rejects_gx_terminal_drift() -> None:
     outcome = json.loads((REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_RUN_PATH).read_text())
     replay = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json"
+            REPO_ROOT / check_layer3_gy_loop_artifacts.OUTCOME_REPLAY_PATH
         ).read_text()
     )
-    outcome["gx_case_outcome"]["outcome_kind"] = "grounded_partial_admissible"
+    outcome["production_case_outcome"]["outcome_kind"] = "grounded_partial_admissible"
     issues: list[dict[str, str]] = []
 
     check_layer3_gy_loop_artifacts.validate_outcome_run(outcome, replay, issues)
@@ -1733,33 +1751,47 @@ def test_layer3_gy_outcome_validator_rejects_gx_terminal_drift() -> None:
     assert {"code": "layer3_gy_outcome_gx_terminal_drift"} in issues
 
 
-def test_layer3_gy_loop_validator_recomputes_graded_outcome_routing_report() -> None:
-    live_payloads = check_layer3_gy_loop_artifacts.build_live_loop_artifacts(REPO_ROOT)
-    _assert_live_payloads_match_declared_outputs(
-        check_layer3_gy_loop_artifacts,
-        live_payloads,
-    )
-    committed = json.loads(
-        (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json"
-        ).read_text(encoding="utf-8")
-    )
-    live_report = live_payloads[
-        "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json"
+def test_layer3_gy_loop_validator_recomputes_graded_outcome_routing_report(
+    gy_l_complete_live_population,
+) -> None:
+    """Use only the producer's real production observations, never fixture credit."""
+    owner = check_layer3_gy_loop_artifacts
+    live_payloads, observations, _ = gy_l_complete_live_population
+    _assert_live_payloads_match_declared_outputs(owner, live_payloads)
+    expected_population = [
+        observation
+        for observation in observations
+        if observation._checked_snapshot()[0].catalog_mode == "production"
     ]
-
-    assert committed == live_report
-    assert committed["summary"]["grounded_partial_admissible_count"] == 0
-    assert committed["summary"]["capped_decision_grade_count"] == committed["summary"][
-        "grounded_partial_admissible_count"
-    ]
-    assert committed["summary"]["floor_relaxation_used_count"] == 0
-    assert committed["summary"]["useful_design_rate"] == 0.0
-    assert committed["graded_outcomes"] == []
-    assert committed["honest_non_value_outcomes"][0]["terminal_state"] == (
-        "search_ceiling_repair_required"
+    # The exact real observation objects carry the current source/S1 readback.
+    # An unrelated fixture cannot become a numerator by matching its shape.
+    actual_report = owner._build_graded_outcome_report(expected_population)
+    live_report = live_payloads[owner.GRADED_OUTCOME_PATH]
+    committed = json.loads((REPO_ROOT / owner.GRADED_OUTCOME_PATH).read_text())
+    assert committed == live_report == actual_report
+    population = live_report["population"]
+    assert population["member_count"] == len(expected_population)
+    assert [row["population_position"] for row in population["members"]] == list(
+        range(len(expected_population))
     )
+    groups = (
+        live_report["graded_outcomes"],
+        live_report["honest_non_value_outcomes"],
+        live_report["unmeasurable_outcomes"],
+    )
+    assert sum(len(rows) for rows in groups) == len(expected_population)
+    expected_rate = (
+        None
+        if groups[2] or not expected_population
+        else round(len(groups[0]) / len(expected_population), 4)
+    )
+    assert live_report["summary"]["useful_design_rate"] == expected_rate
+    expected_pairs = {
+        (row["proof"]["run_id"], row["proof"]["job_id"]) for row in expected_population
+    }
+    assert {
+        (member["run_id"], member["job_id"]) for member in population["members"]
+    } == expected_pairs
 
 
 def test_layer3_gy_loop_graded_outcome_corrupt_field_self_check_fails_closed() -> None:
@@ -2432,7 +2464,6 @@ def test_layer3_workflow_failure_authority_refuses_unrelated_http_conflict(
         )
 
 
-
 def _rebind_recorded_f1_progress(proof: dict[str, object]) -> None:
     import hashlib
 
@@ -2500,6 +2531,7 @@ def test_layer3_workflow_failure_authority_refuses_unclaimed_progress_output(
     _rebind_recorded_f1_progress(proof)
     with pytest.raises(ValueError, match="workflow_progress_output_population_mismatch"):
         owner.comparison_payload(payload)
+
 
 def test_layer3_gy_lex_bounds_strangle_receipt_is_committed_and_fenced() -> None:
     receipt = json.loads(
@@ -2783,19 +2815,20 @@ def test_gy_l_accepted_input_uses_only_the_frozen_family(gy_l_complete_live_popu
         family[owner.PROOFS_PATH] = original
 
 
-def _gy_l_recorded_terminal_pair():
+def _gy_l_recorded_terminal_pair(gy_l_complete_live_population):
+    """Use matching current-epoch bytes from the actual emitted family."""
     owner = check_layer3_gy_loop_artifacts
-    historical = getattr(owner, "HISTORICAL_OUTCOME_RUN_PATH", owner.OUTCOME_RUN_PATH)
+    family, _, _ = gy_l_complete_live_population
     return (
-        json.loads((REPO_ROOT / historical).read_text()),
-        json.loads((REPO_ROOT / owner.OUTCOME_REPLAY_PATH).read_text()),
+        json.loads(owner.serialize_loop_artifact(family[owner.OUTCOME_RUN_PATH])),
+        json.loads(owner.serialize_loop_artifact(family[owner.OUTCOME_REPLAY_PATH])),
     )
 
 
 @pytest.mark.parametrize("status", ["fail", "expected_red", "not_measured", None, "absent"])
-def test_gy_l_current_admission_requires_actual_gx_pass(status):
+def test_gy_l_current_admission_requires_actual_gx_pass(status, gy_l_complete_live_population):
     owner = check_layer3_gy_loop_artifacts
-    outcome, replay = _gy_l_recorded_terminal_pair()
+    outcome, replay = _gy_l_recorded_terminal_pair(gy_l_complete_live_population)
     if status == "absent":
         outcome.pop("gx_validator_status", None)
     else:
@@ -2805,9 +2838,9 @@ def test_gy_l_current_admission_requires_actual_gx_pass(status):
     assert any(item["code"] == "layer3_gy_outcome_gx_not_passed" for item in issues), issues
 
 
-def test_gy_l_asserted_pass_without_current_execution_is_refused():
+def test_gy_l_asserted_pass_without_current_execution_is_refused(gy_l_complete_live_population):
     owner = check_layer3_gy_loop_artifacts
-    outcome, replay = _gy_l_recorded_terminal_pair()
+    outcome, replay = _gy_l_recorded_terminal_pair(gy_l_complete_live_population)
     outcome["gx_validator_status"] = "pass"
     # A valid-looking pass marker cannot certify its own execution.
     outcome["gx_validation"] = {
@@ -3339,3 +3372,30 @@ def test_gy_l_observed_parent_cannot_launder_unobserved_nested_ring2(
                                  "field": field})
     assert controls, "canonical live population exposed no nested protected-field control"
     print(json.dumps({"unobserved_nested_ring2_refused": controls}, sort_keys=True))
+
+
+@pytest.mark.parametrize(
+    "historical_path",
+    [
+        "architecture/policy_design_case/layer3_gy_outcome_run.json",
+        "architecture/policy_design_case/layer3_gy_outcome_run_v2.json",
+        "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json",
+        "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json",
+    ],
+)
+def test_gy_j_history_guards_every_completed_predecessor_epoch(monkeypatch, historical_path):
+    owner = check_layer3_gy_loop_artifacts
+    generated = tomllib.loads((REPO_ROOT / "architecture/generated_artifacts.toml").read_text())
+    baseline = []
+    owner._validate_loop_epoch_partition(REPO_ROOT, generated, baseline)
+    assert baseline == []
+    raw_read = Path.read_bytes
+
+    def changed_bytes(path):
+        raw = raw_read(path)
+        return raw + b" " if path.resolve() == (REPO_ROOT / historical_path).resolve() else raw
+
+    monkeypatch.setattr(Path, "read_bytes", changed_bytes)
+    issues = []
+    owner._validate_loop_epoch_partition(REPO_ROOT, generated, issues)
+    assert {"code": "layer3_gy_loop_epoch_history_changed", "path": historical_path} in issues

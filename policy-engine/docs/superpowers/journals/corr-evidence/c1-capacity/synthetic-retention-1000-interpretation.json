@@ -1,0 +1,193 @@
+{
+  "ambiguous_sample_count": 4,
+  "ambiguous_sample_ordinals": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "authority_granted": false,
+  "authority_status": "candidate_measurement",
+  "campaign_warm_including_replay": {
+    "cpu_per_wall_second": 0.9930691311914386,
+    "cpu_share_of_logical_capacity": 0.12413364139892982,
+    "first_completion_bin": {
+      "completed_work_count": 3,
+      "first_elapsed_seconds": 2.8409642920596525,
+      "last_elapsed_seconds": 2.8409642920596525,
+      "rss_first_bytes": 325107712,
+      "rss_last_bytes": 325107712,
+      "rss_max_bytes": 325107712,
+      "rss_mean_bytes": 325107712.0,
+      "rss_min_bytes": 325107712,
+      "sample_count": 1
+    },
+    "last_completion_bin": {
+      "completed_work_count": 1000,
+      "first_elapsed_seconds": 89.24381274997722,
+      "last_elapsed_seconds": 90.2837955839932,
+      "rss_first_bytes": 327073792,
+      "rss_last_bytes": 327073792,
+      "rss_max_bytes": 327073792,
+      "rss_mean_bytes": 327073792.0,
+      "rss_min_bytes": 327073792,
+      "sample_count": 5
+    },
+    "observed_cpu_sample_count": 339,
+    "observed_cpu_seconds": 86.83677649999998,
+    "rss_slope_bytes_per_completed": 1999.2842014900916,
+    "rss_slope_bytes_per_second": 23070.492491950583,
+    "sample_count": 339,
+    "terminal_completion_bin": {
+      "completed_work_count": 1000,
+      "first_elapsed_seconds": 89.24381274997722,
+      "last_elapsed_seconds": 90.2837955839932,
+      "rss_first_bytes": 327073792,
+      "rss_last_bytes": 327073792,
+      "rss_max_bytes": 327073792,
+      "rss_mean_bytes": 327073792.0,
+      "rss_min_bytes": 327073792,
+      "sample_count": 5
+    }
+  },
+  "campaign_window_semantics": "after first durable completion through real run_campaign return; includes mandatory complete-artifact replay",
+  "complete_identity_reconciliation": "equal",
+  "declaration_hash": "sha256:c794e4957d37cb73de88696a8c42ae6cca90246086827055c7b1cc1c8b484dfe",
+  "full_analysis_original_path": "docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-1000-analysis.json",
+  "full_analysis_recomputation_path": ".tmp/corr-c1-capacity/synthetic-retention/1000/derived/full-analysis.json",
+  "full_analysis_schema": "corr.synthetic_retention_analysis.v1",
+  "full_analysis_sha256": "sha256:12163f196e22ceedb4ae6e85bc6e3d914b6b805c9ce8730a5155294397fae428",
+  "hardware_observation": {
+    "logical_cpu_count": 8,
+    "logical_cpu_source": "os.cpu_count",
+    "physical_memory_bytes": 17179869184,
+    "physical_memory_source": "sysctl.hw.memsize",
+    "status": "measured"
+  },
+  "input_count": 1000,
+  "limitation": "Constructed bounded response vocabulary and finite input counts; allocator warm-up and retained state are not causally separated by an OLS slope. No provider throughput, correctness, calibration or week-long resource claim.",
+  "long_run_memory_bound_established": false,
+  "profile_path": ".tmp/corr-c1-capacity/synthetic-retention/1000/profile-summary.json",
+  "profile_sha256": "sha256:69bd778b9be3223de59edc6e5616546753de05b228c8cb79a09aa0d33dcb38a0",
+  "projection": "only three complete completion_bins arrays omitted; every other original statistic/limitation unchanged",
+  "sample_count": 354,
+  "schema_version": "corr.synthetic_retention_interpretation.v1",
+  "source_telemetry_archive": "docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-1000-primary/samples.jsonl",
+  "startup_sample_count": 7,
+  "storage": {
+    "allocated_file_bytes": 56836096,
+    "allocated_semantics": "sum st_blocks*512 per unique inode; exclusive APFS physical extents not established",
+    "ambiguous_paths": [],
+    "categories": {
+      "directory": {
+        "count": 11,
+        "logical_bytes": 0
+      },
+      "file": {
+        "count": 11007,
+        "logical_bytes": 25183923
+      },
+      "lock": {
+        "count": 1,
+        "logical_bytes": 0
+      },
+      "shm": {
+        "count": 1,
+        "logical_bytes": 32768
+      },
+      "wal": {
+        "count": 1,
+        "logical_bytes": 0
+      }
+    },
+    "entry_count": 11021,
+    "excluded_paths": [],
+    "file_count": 11010,
+    "identity_value_reconciliation": "equal",
+    "logical_bytes_per_completed_work": 25216.691,
+    "logical_bytes_per_wall_second": 275975.8428304588,
+    "logical_file_bytes": 25216691,
+    "native_write_io_is_storage_growth": false,
+    "observed_logical_file_bytes_lower_bound": 25216691,
+    "root": ".tmp/corr-c1-capacity/synthetic-retention/1000",
+    "status": "measured"
+  },
+  "synthetic": true,
+  "trace_path": ".tmp/corr-c1-capacity/synthetic-retention/1000/profile/samples.jsonl",
+  "trace_sha256": "sha256:93149b8a8ed4d0079c84575373b536287a658771cc403ef88f6d80e7dcd56566",
+  "warm_through_exit": {
+    "cpu_per_wall_second": 0.9904227142365374,
+    "cpu_share_of_logical_capacity": 0.12380283927956717,
+    "first_completion_bin": {
+      "completed_work_count": 3,
+      "first_elapsed_seconds": 2.8409642920596525,
+      "last_elapsed_seconds": 2.8409642920596525,
+      "rss_first_bytes": 325107712,
+      "rss_last_bytes": 325107712,
+      "rss_max_bytes": 325107712,
+      "rss_mean_bytes": 325107712.0,
+      "rss_min_bytes": 325107712,
+      "sample_count": 1
+    },
+    "last_completion_bin": {
+      "completed_work_count": 1000,
+      "first_elapsed_seconds": 89.24381274997722,
+      "last_elapsed_seconds": 91.32153483398724,
+      "rss_first_bytes": 327073792,
+      "rss_last_bytes": 0,
+      "rss_max_bytes": 327319552,
+      "rss_mean_bytes": 288065308.4444444,
+      "rss_min_bytes": 0,
+      "sample_count": 9
+    },
+    "observed_cpu_sample_count": 343,
+    "observed_cpu_seconds": 87.63316683333333,
+    "rss_slope_bytes_per_completed": -3726.311280738889,
+    "rss_slope_bytes_per_second": -46291.19451219244,
+    "sample_count": 343,
+    "terminal_completion_bin": {
+      "completed_work_count": 1000,
+      "first_elapsed_seconds": 89.24381274997722,
+      "last_elapsed_seconds": 91.32153483398724,
+      "rss_first_bytes": 327073792,
+      "rss_last_bytes": 0,
+      "rss_max_bytes": 327319552,
+      "rss_mean_bytes": 288065308.4444444,
+      "rss_min_bytes": 0,
+      "sample_count": 9
+    }
+  },
+  "work_progress_warm": {
+    "cpu_per_wall_second": 0.9929766076697364,
+    "cpu_share_of_logical_capacity": 0.12412207595871705,
+    "first_completion_bin": {
+      "completed_work_count": 3,
+      "first_elapsed_seconds": 2.8409642920596525,
+      "last_elapsed_seconds": 2.8409642920596525,
+      "rss_first_bytes": 325107712,
+      "rss_last_bytes": 325107712,
+      "rss_max_bytes": 325107712,
+      "rss_mean_bytes": 325107712.0,
+      "rss_min_bytes": 325107712,
+      "sample_count": 1
+    },
+    "last_completion_bin": {
+      "completed_work_count": 998,
+      "first_elapsed_seconds": 88.9838037500158,
+      "last_elapsed_seconds": 88.9838037500158,
+      "rss_first_bytes": 327073792,
+      "rss_last_bytes": 327073792,
+      "rss_max_bytes": 327073792,
+      "rss_mean_bytes": 327073792.0,
+      "rss_min_bytes": 327073792,
+      "sample_count": 1
+    },
+    "observed_cpu_sample_count": 334,
+    "observed_cpu_seconds": 85.5378245,
+    "rss_slope_bytes_per_completed": 2034.7066345341716,
+    "rss_slope_bytes_per_second": 23501.56061002309,
+    "sample_count": 334,
+    "terminal_completion_bin": null
+  },
+  "work_window_semantics": "sampled durable completion count >=1 and < declared frame size; final completion/replay excluded, unsampled bins are not zeros"
+}

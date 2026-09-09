@@ -173,3 +173,53 @@ complete collection at 25/25 (identity hash
 Both have no missing, extra, duplicate, ambiguous or nonpassing cases. The
 source and all test/receipt writers are paused for the root agent's coherent
 commit before resource measurements.
+
+## Declared quiet resource measurements
+
+The exact v3-declared 100/1000 synthetic frames were prepared and finalized only
+after mechanism commit `d24655fbfb56317a4c00ca5323fd8201692e0a32`. Every graph
+source projection before/after both runs equals
+`sha256:c65a3f951aa931864699bad3c00a5f921ba8a0659e85950b62fa3cbcdf29fdb4`.
+No provider calls or held corpus graph were involved. The unchanged data-only
+size increase exercises the same default finalizer and resolver.
+
+| Complete synthetic work frame | Worker wall seconds | Observed user + system CPU seconds | Sampled peak RSS bytes | Observed process disk writes bytes | Final owned output bytes |
+| --- | --- | --- | --- | --- | --- |
+| 100 | 4.156260 | 3.106554 + 0.854288 | 315113472 | 145620992 | 5789423 |
+| 1000 | 22.029305 | 13.701389 + 6.445794 | 333103104 | 1460617216 | 12109586 |
+
+For a 10-fold input increase, wall time rose 5.300x, sampled
+RSS 1.057x, observed CPU 5.087x,
+process writes 10.030x and final owned bytes
+2.092x. This is a CPU/disk finalization tail distinct
+from API waiting; final retained bytes substantially understate process write I/O.
+These two sparse raw-candidate frames do not establish dense/high-fan-in or
+signed-adjudication cost, a corpus-wide runtime estimate, or a hard RSS ceiling.
+Serialized capacities and a sampled process watchdog remain different properties.
+The telemetry explicitly records sampled simultaneous RSS, observed process
+lifetime counter lower bounds and the short-lived-child coverage limitation.
+Both runs finished within the declared 300s, 2GiB RSS and 16GiB write caps.
+
+The sole primary raw traces and run/output summaries are archived byte-identically
+under `graph-resource-profiles/100/` and `/1000/`; every actual object and original
+byte stream passed the existing credential-safe writer's scan before copying.
+No generated work, input corpus or graph DB was copied into the evidence archive.
+`graph-profile-primary-archive.json` (RC0,1.656s) records exact hashes and reconciles
+every declared work identity against the checkpoint source/record iterators and
+SQL count, with zero provider attempts. `graph-profile-table-reconciliation.json`
+(RC0,1.649s) replays the actual graph resolver, reconciles complete table identity
+sets via SHOW TABLES versus information_schema, and SQL counts versus full row
+iteration for all 30 tables in each graph. Actual `ac_works` identities match the
+complete declared frames. Both actual outputs contain their full raw occurrences
+and no admitted claims, edges or adjudications. The run helper separately
+reconciles the complete seven owned files with independent walk/rglob identity
+sets. Native verification and profiling are finished; actual original-pilot
+finalization is owned by the root agent and is not credited by these fixtures.
+
+The archive/census helper is an evidence-only bounded reader, outside the timed
+source projection. Its final Ruff gate is `graph-profile-archive-final-ruff-v2.json`
+(RC0). The preceding Ruff record remains RC1 for an import-line wrap/order issue
+introduced with the actual resolver call; only that formatting was corrected.
+No runtime/data behavior or committed graph source changed after the measured
+profiles. Scoped source review by the independent sibling reports no remaining
+mechanism finding; root-owned programme guardrails are not claimed here.

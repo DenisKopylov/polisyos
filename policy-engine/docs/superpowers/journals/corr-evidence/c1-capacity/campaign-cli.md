@@ -352,3 +352,50 @@ the complete unauthorized real-source template refuses in
 `campaign-cli-unauthorized-module.json` (RC 1, 1.112 seconds). No full pass, provider
 call, recovery on a real pilot, or graph finalization of a real pilot was performed
 by this workstream.
+
+## Operator interpretation correction — 2026-09-09
+
+Read-only review against `d24655fbfb56317a4c00ca5323fd8201692e0a32`
+recomputed the complete finite campaign source projection using independently
+enumerated path sets. Both retained templates still match the current campaign
+and CLI source hashes, provider hash and source-frame bindings. Their full-pass
+flags remain false, authorization references empty, concurrency 1, and policy
+two attempts per phase with zero retry delay. This is an input-binding check,
+not a new provider run or permission to execute.
+
+An exit code of zero from `run` means that the command emitted its actual result;
+it does **not** establish successful extraction or campaign completion. The CLI
+returns zero after serializing the report (`reextraction_cli.py:719`), including
+a report whose `execution_status` is `stopped_fatal`. Inspect `execution_status`,
+`works`, `outcomes` and `fatal_stop_ref` in the summary before deciding the next
+action (`reextraction_campaign.py:901`). A fatal stop requires the exact-stop
+recovery procedure above; it leaves pending work available without resetting
+spent attempts or budgets. The throughput experiment's error-fraction stop is
+not a campaign-wide production error-rate circuit breaker.
+
+Completed dispositions include honest refusals. An exhausted nonfatal provider
+failure or an owner contract violation can become a completed `provider_failed`
+or `contract_violation` disposition; unavailable self-verification can retain a
+candidate with `verification_unavailable` (`reextraction_campaign.py:1089` and
+`:1129`). Same-plan resume skips these completed dispositions as well as successful
+ones (`reextraction_campaign.py:1079`). Recovery resumes pending work and does not
+erase or repeat completed refusals. Later reprocessing requires a new declared,
+separately authorized campaign with the prior outcomes retained; it is not a
+budget reset or mutation of the original invocation. The prepared templates also
+set `retry_unknown: false`: an interrupted call with unknown outcome is not
+silently dispatched again (`reextraction_campaign.py:993`).
+
+The retained paired-pilot forecasts are conditional on the pilots' **one attempt
+per phase** and observed phase-routing frequencies, under their stated
+exchangeability assumption. The future templates allow up to two attempts per
+phase, but a second call occurs only when the transport reports a retryable
+failure and remaining phase/global admission permits it
+(`reextraction_campaign.py:1008`). Successful calls and structural owner refusals
+do not automatically receive a second attempt. Consequently neither the unchanged
+pilot estimate nor a blanket factor of two estimates the future retry policy.
+Its additional call, token and latency costs remain unmeasured and require a
+policy-specific measurement or explicitly conditional recalculation. Provider
+service-time forecasts still exclude startup, queueing, owner CPU and graph
+finalization. No model or concurrency is endorsed: both measured sweeps stopped
+at concurrency 1, and the operating knee and full-pass acceptance remain
+`not_established`.

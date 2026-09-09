@@ -1,0 +1,351 @@
+{
+  "artifact_ref": {
+    "path": "graphs/81f26d8d27ab4324aeaaf807659516a8.json",
+    "sha256": "50cac4190f28fb73334a3db019233ccd149ebe9e123af1d29dea5b1892baf485"
+  },
+  "completed_input_count": 100,
+  "graph_file_denominator": 7,
+  "graph_file_identity_digest": "4389997d3829919ba31221546628b2d09f36326f5dd62c36c4a3205cb2c557e7",
+  "graph_metrics": {
+    "article_extractions": 100,
+    "boundary_conditions": 0,
+    "canonical_auto_approved": 0,
+    "canonical_pending_review": 0,
+    "canonical_resolution_rate_pct": 0.0,
+    "canonical_unresolved": 0,
+    "claim_adjudications": 0,
+    "claims": 0,
+    "concepts": 0,
+    "contested_edges": 0,
+    "estimates": 0,
+    "family_edges": 0,
+    "ingest_errors": 0,
+    "json_validation_failures": 0,
+    "raw_claims": 100,
+    "review_queue": 0,
+    "runs": 1,
+    "skg_articles": 100,
+    "skg_context_attributes": 0,
+    "skg_context_profiles": 0,
+    "skg_edge_evidence": 0,
+    "skg_edges": 0,
+    "skg_family_edges": 0,
+    "skg_moderation_edges": 0,
+    "skg_parameters": 0,
+    "skg_simulation_parameters": 0,
+    "skg_transport_scores": 0,
+    "skg_variables": 0,
+    "skg_versions": 1,
+    "topic_selections": 0,
+    "topics": 0,
+    "works": 100
+  },
+  "graph_total_file_bytes": 5789423,
+  "independent_walk_rglob_identity_sets_equal": true,
+  "scope": "candidate_only",
+  "staging_usage": {
+    "edge_synthesize": {
+      "aggregate_contributions": 0,
+      "aggregate_edits": 0,
+      "aggregate_groups": 0,
+      "applied_limits": {
+        "duckdb_memory_bytes": 268435456,
+        "max_auxiliary_rows_per_work": 100000,
+        "max_batch_bytes": 8388608,
+        "max_batch_rows": 1000,
+        "max_disk_bytes": 17179869184,
+        "max_group_bytes": 67108864,
+        "max_group_contributions": 100000,
+        "max_pair_bytes": 134217728,
+        "max_pair_contributions": 200000,
+        "max_record_bytes": 8388608,
+        "max_resolver_vocabulary_bytes": 16777216,
+        "max_resolver_vocabulary_entries": 100000,
+        "sqlite_cache_bytes": 4194304
+      },
+      "authority": "candidate_only",
+      "max_aggregate_bytes": 0,
+      "max_reserved_bytes": 0,
+      "namespace_operations": {
+        "article_meta": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 100
+        },
+        "claim_source_basis": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 100
+        },
+        "contested_rows": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "context_counts": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "directional_groups": {
+          "batches": 0,
+          "kind": "groups",
+          "writes": 0
+        },
+        "exact_provenance": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "family_pairs": {
+          "batches": 0,
+          "kind": "pairs",
+          "writes": 0
+        },
+        "family_rows": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "materialized_resolutions": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "moderator_counts": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "pending_results": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "resolution_cache": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "resolver_unresolved_mentions": {
+          "batches": 0,
+          "kind": "counts",
+          "writes": 0
+        },
+        "review_queue": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "review_seen": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "sample_sizes": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "variable_counts": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        }
+      },
+      "provenance_families_without_carriers": 10,
+      "provenance_source_families": 13,
+      "provenance_source_rows": 200,
+      "resident_row_count": 0,
+      "resolver_vocabulary_bytes": 551877,
+      "resolver_vocabulary_entries": 4775,
+      "row_appends": 0,
+      "sqlite_cache_kib": 4096,
+      "storage_configuration": {
+        "duckdb_max_temp_directory_size": "16.0 GiB",
+        "duckdb_memory_limit": "256.0 MiB",
+        "duckdb_temp_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/corr-c1-capacity/graph-profile-100/graph-builds/81f26d8d27ab4324aeaaf807659516a8/staging/duckdb-temp",
+        "duckdb_threads": 1,
+        "sqlite_cache_kib": 4096,
+        "sqlite_max_page_count": 4194304
+      },
+      "synthetic": true
+    },
+    "graph_load": {
+      "aggregate_contributions": 0,
+      "aggregate_edits": 0,
+      "aggregate_groups": 0,
+      "applied_limits": {
+        "duckdb_memory_bytes": 268435456,
+        "max_auxiliary_rows_per_work": 100000,
+        "max_batch_bytes": 8388608,
+        "max_batch_rows": 1000,
+        "max_disk_bytes": 17179869184,
+        "max_group_bytes": 67108864,
+        "max_group_contributions": 100000,
+        "max_pair_bytes": 134217728,
+        "max_pair_contributions": 200000,
+        "max_record_bytes": 8388608,
+        "max_resolver_vocabulary_bytes": 16777216,
+        "max_resolver_vocabulary_entries": 100000,
+        "sqlite_cache_bytes": 4194304
+      },
+      "authority": "candidate_only",
+      "max_aggregate_bytes": 0,
+      "max_batch_bytes": 148100,
+      "max_batch_rows": 100,
+      "max_reserved_bytes": 0,
+      "max_row_bytes": 1481,
+      "namespace_operations": {
+        "boundary_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "claim_adjudication_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "claim_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "concept_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "context_attr_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "edge_evidence_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "edge_rows": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "estimate_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "exact_edges": {
+          "batches": 0,
+          "kind": "groups",
+          "writes": 0
+        },
+        "extraction_batch": {
+          "batches": 1,
+          "kind": "rows",
+          "writes": 100
+        },
+        "ingest_error_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "moderation_edge_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "moderation_edges": {
+          "batches": 0,
+          "kind": "groups",
+          "writes": 0
+        },
+        "raw_claim_batch": {
+          "batches": 1,
+          "kind": "rows",
+          "writes": 100
+        },
+        "resolver_unresolved_mentions": {
+          "batches": 0,
+          "kind": "counts",
+          "writes": 0
+        },
+        "simulation_numeric_inputs": {
+          "batches": 0,
+          "kind": "groups",
+          "writes": 0
+        },
+        "simulation_parameter_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "skg_articles_batch": {
+          "batches": 1,
+          "kind": "rows",
+          "writes": 100
+        },
+        "skg_parameter_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "topic_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "topic_seen": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "topic_sel_batch": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "variable_display": {
+          "batches": 0,
+          "kind": "values",
+          "writes": 0
+        },
+        "variable_mentions": {
+          "batches": 0,
+          "kind": "counts",
+          "writes": 0
+        },
+        "variable_rows": {
+          "batches": 0,
+          "kind": "rows",
+          "writes": 0
+        },
+        "work_batch": {
+          "batches": 1,
+          "kind": "rows",
+          "writes": 100
+        }
+      },
+      "resident_row_count": 100,
+      "resolver_vocabulary_bytes": 551877,
+      "resolver_vocabulary_entries": 4775,
+      "row_appends": 400,
+      "sqlite_cache_kib": 4096,
+      "storage_configuration": {
+        "duckdb_max_temp_directory_size": "16.0 GiB",
+        "duckdb_memory_limit": "256.0 MiB",
+        "duckdb_temp_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/corr-c1-capacity/graph-profile-100/graph-builds/81f26d8d27ab4324aeaaf807659516a8/staging/duckdb-temp",
+        "duckdb_threads": 1,
+        "sqlite_cache_kib": 4096,
+        "sqlite_max_page_count": 4194304
+      },
+      "synthetic": true
+    }
+  },
+  "synthetic": true,
+  "work_outcomes": {
+    "extracted": 100
+  }
+}

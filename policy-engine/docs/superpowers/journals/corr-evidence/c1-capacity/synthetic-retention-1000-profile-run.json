@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.synthetic_retention",
+    "profile",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-synthetic-retention-declaration-v2.json",
+    "1000",
+    ".tmp/corr-c1-capacity/synthetic-retention/1000"
+  ],
+  "authority_granted": false,
+  "declaration_sha256": "1270ded0e0f3806ce251a9e37d59689fb86bb28284ec36a84b03d45001da1aa9",
+  "elapsed_seconds": 92.34083162492607,
+  "returncode": 0,
+  "scope": "synthetic diagnostic only; no provider calls; capture observer excluded from native worker metrics",
+  "stderr": "",
+  "stdout": "{\"authority_granted\": false, \"declaration_hash\": \"sha256:c794e4957d37cb73de88696a8c42ae6cca90246086827055c7b1cc1c8b484dfe\", \"declared_input_count\": 1000, \"long_run_memory_bound_established\": false, \"profile\": {\"ambiguous_observation_count\": 0, \"authority_status\": \"candidate_measurement\", \"checkpoint_scope\": \"caller_declared_terminal_statuses\", \"completed_work_count\": 1000, \"completed_work_count_status\": \"measured\", \"cpu_system_seconds\": 9.201272458333333, \"cpu_user_seconds\": 81.20856691666667, \"cumulative_counter_scope\": \"observed_process_lifetimes_lower_bound\", \"disk_read_bytes\": 45056, \"disk_write_bytes\": 366669824, \"hardware_observation\": {\"logical_cpu_count\": 8, \"logical_cpu_source\": \"os.cpu_count\", \"physical_memory_bytes\": 17179869184, \"physical_memory_source\": \"sysctl.hw.memsize\", \"status\": \"measured\"}, \"max_descendant_count\": 0, \"max_sample_gap_seconds\": 0.26004383398685604, \"memory_peak_scope\": \"simultaneous_sampled_sum_not_lifetime_peak\", \"monotonic_started_seconds\": 572730.483417791, \"observed_process_identity_count\": 1, \"observer_cpu_scope\": \"observer_process_only_excludes_ps_subprocesses\", \"observer_cpu_seconds\": 1.213428, \"observer_scope\": \"excluded_from_worker_tree\", \"peak_summed_footprint_bytes\": 254509848, \"peak_summed_rss_bytes\": 327319552, \"peak_worker_rss_physical_memory_fraction\": 0.019052505493164062, \"raw_child_output\": \"discarded\", \"requested_sample_interval_seconds\": 0.25, \"returncode\": 0, \"sample_count\": 354, \"schema_version\": \"corr.process_resource_profile.v1\", \"short_lived_child_coverage\": \"ambiguous_if_created_and_exited_between_samples\", \"status\": \"completed\", \"stop_reason\": null, \"synthetic\": true, \"wall_seconds\": 91.3728199590696, \"worker_cpu_capacity_fraction\": 0.1236826216695225}, \"schema_version\": \"corr.synthetic_campaign_retention.v1.profile\", \"synthetic\": true, \"worker_summary_path\": \".tmp/corr-c1-capacity/synthetic-retention/1000/worker/worker-summary.json\"}\n",
+  "synthetic": true
+}

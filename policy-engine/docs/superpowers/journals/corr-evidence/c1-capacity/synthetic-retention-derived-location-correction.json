@@ -1,0 +1,25 @@
+{
+  "authority_granted": false,
+  "reason": "keep derived views outside the measured primary-data roots; statistics, raw evidence and source epochs unchanged",
+  "records": [
+    {
+      "byte_identical": true,
+      "current_recomputation_path": ".tmp/corr-c1-capacity/retention-derived/full-analysis-100.json",
+      "input_count": 100,
+      "previous_local_path": ".tmp/corr-c1-capacity/synthetic-retention/100/derived/full-analysis.json",
+      "sha256": "sha256:5f815a1c659c4b9444e4b00a4eb8bc98fcbb0ea9b97229df2841a2e76fac7df3",
+      "synthetic": true
+    },
+    {
+      "byte_identical": true,
+      "current_recomputation_path": ".tmp/corr-c1-capacity/retention-derived/full-analysis-1000.json",
+      "input_count": 1000,
+      "previous_local_path": ".tmp/corr-c1-capacity/synthetic-retention/1000/derived/full-analysis.json",
+      "sha256": "sha256:12163f196e22ceedb4ae6e85bc6e3d914b6b805c9ce8730a5155294397fae428",
+      "synthetic": true
+    }
+  ],
+  "schema_version": "corr.synthetic_retention_derived_relocation.v1",
+  "supersedes": "recomputation location only in preceding analysis-compaction and compact interpretations",
+  "synthetic": true
+}

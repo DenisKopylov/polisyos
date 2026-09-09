@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_finalizer_profile",
+    "profile",
+    ".tmp/corr-c1-capacity/graph-profile-1000"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 22.993446042062715,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"ambiguous_observation_count\": 0, \"authority_status\": \"candidate_measurement\", \"checkpoint_scope\": \"caller_declared_terminal_statuses\", \"complete_source_projections_equal\": true, \"completed_work_count\": null, \"completed_work_count_status\": \"not_requested\", \"cpu_system_seconds\": 6.445794041666667, \"cpu_user_seconds\": 13.7013895, \"cumulative_counter_scope\": \"observed_process_lifetimes_lower_bound\", \"disk_read_bytes\": 1159168, \"disk_write_bytes\": 1460617216, \"graph_owner_projection_after\": \"sha256:c65a3f951aa931864699bad3c00a5f921ba8a0659e85950b62fa3cbcdf29fdb4\", \"graph_owner_projection_before\": \"sha256:c65a3f951aa931864699bad3c00a5f921ba8a0659e85950b62fa3cbcdf29fdb4\", \"hardware_observation\": {\"logical_cpu_count\": 8, \"logical_cpu_source\": \"os.cpu_count\", \"physical_memory_bytes\": 17179869184, \"physical_memory_source\": \"sysctl.hw.memsize\", \"status\": \"measured\"}, \"max_descendant_count\": 0, \"max_sample_gap_seconds\": 0.2600747080286965, \"memory_peak_scope\": \"simultaneous_sampled_sum_not_lifetime_peak\", \"monotonic_started_seconds\": 572639.871032625, \"observed_process_identity_count\": 1, \"observer_cpu_scope\": \"observer_process_only_excludes_ps_subprocesses\", \"observer_cpu_seconds\": 0.22664000000000006, \"observer_scope\": \"excluded_from_worker_tree\", \"peak_summed_footprint_bytes\": 258933480, \"peak_summed_rss_bytes\": 333103104, \"peak_worker_rss_physical_memory_fraction\": 0.01938915252685547, \"raw_child_output\": \"discarded\", \"requested_sample_interval_seconds\": 0.25, \"returncode\": 0, \"sample_count\": 86, \"schema_version\": \"corr.process_resource_profile.v1\", \"short_lived_child_coverage\": \"ambiguous_if_created_and_exited_between_samples\", \"status\": \"completed\", \"stop_reason\": null, \"synthetic\": true, \"wall_seconds\": 22.029305165982805, \"worker_cpu_capacity_fraction\": 0.11432035299039714}\n",
+  "timed_out": false,
+  "timeout_seconds": 360.0
+}

@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.23619754100218415,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "I001 [*] Import block is un-sorted or un-formatted\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py:91:5\n   |\n90 |   def _tables(root: Path, completed: dict, size: int) -> dict:\n91 | /     import duckdb\n92 | |\n93 | |     from polisyos.data_forge.domains.academic.batch.pipeline import resolve_extraction_campaign_graph\n94 | |     from polisyos.data_forge.domains.academic.batch.reextraction_campaign import CampaignPlan\n95 | |     from polisyos.data_forge.kernel.pipeline.manifests import ArtifactRef\n   | |_________________________________________________________________________^\n96 |\n97 |       plan = CampaignPlan(**json.loads((root / \"plan.json\").read_bytes())[\"plan\"])\n   |\nhelp: Organize imports\n\nE501 Line too long (101 > 100)\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py:93:101\n   |\n91 |     import duckdb\n92 |\n93 |     from polisyos.data_forge.domains.academic.batch.pipeline import resolve_extraction_campaign_graph\n   |                                                                                                     ^\n94 |     from polisyos.data_forge.domains.academic.batch.reextraction_campaign import CampaignPlan\n95 |     from polisyos.data_forge.kernel.pipeline.manifests import ArtifactRef\n   |\n\nFound 2 errors.\n[*] 1 fixable with the `--fix` option.\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

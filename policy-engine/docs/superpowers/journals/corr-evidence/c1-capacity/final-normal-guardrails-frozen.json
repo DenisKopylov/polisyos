@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.devx.architecture.guardrails",
+    "check"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 344.4805657080142,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "Generated artifact freshness clean: runtime-openapi-snapshot (1 generator-observed outputs).\nGenerated artifact freshness clean: runtime-api-client (5 generator-observed outputs).\nGenerated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).\nGenerated artifact freshness clean: trust-claim-posture-register (1 generator-observed outputs).\nStandalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.\nArchitecture guardrail check passed.\n",
+  "timed_out": false,
+  "timeout_seconds": 600.0
+}

@@ -934,3 +934,28 @@ prompt-only estimates. Completion tokens explain most of that gap. Conditional
 serial sums of provider latency are preserved in the analysis but are explicitly
 not full-pass wall-clock forecasts. No number is attributed to the old OpenAI
 declaration or represented as a grounding/correctness bound.
+
+### Frozen verification closure — 2026-09-09
+
+The final normal architecture guardrail replay is **RC0, 344.481 seconds**,
+from the clean attached source/evidence checkpoint
+`0713123a94d7ddd603f4b6841a13ab7c4d32b2a5`. Every one of that checkpoint's six
+changed blobs was reread from the branch before the replay. All writers stayed
+frozen throughout. OpenAPI, runtime API client, dashboard API types and
+trust-claim-posture freshness passed. Complete capture:
+`corr-evidence/c1-capacity/final-normal-guardrails-frozen.json@sha256:dd9508781ec4b200ac2f0d37a104a700851cec95865f1fcd6e1b6df978cd8a15`.
+This credits the normal guardrail only, not its explicitly excluded standalone
+Atlas retirement gate or a forbidden full test suite.
+
+`corr-evidence/c1-capacity/final-scope-and-secret-audit.json` is RC0, 7.030
+seconds. It independently reconciles all 587 changed tracked identities from
+the continuation entry to the frozen checkpoint, inspects every changed blob
+and decoded JSON for credential leakage, and confirms that all production
+changes are in the academic batch owner and that neither protected register
+changed. The final journal/capture additions are separately scanned before
+commit. No production source follows the frozen checks.
+
+The terminal statuses and separate built/finding lists above stand: C1 is
+`blocked` at the external-service operating measurement; section 2 is
+`executed`; original A/B/C2 remain closed. **Cost remains only the conditional
+footnote above, not permission to run the full pass.**

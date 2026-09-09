@@ -11,10 +11,12 @@ import copy
 from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core.artifacts import ArtifactRef  # noqa: TC001 - Pydantic nested contract.
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
     CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -34,18 +36,232 @@ from polisyos.runtime.quality.intervention_substrate import (
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
+    from polisyos.core.artifacts import ArtifactManifest
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 REFUSAL_LIMITATION = (
     "A high refusal rate on constructed mismatches is not evidence that accepted bindings "
     "are correct."
 )
+PROOF_WORLD_INPUT_PATH = "architecture/policy_design_case/corr/grounding_proof_world_input.json"
+PROOF_WORLD_INPUT_SCHEMA_VERSION = "policyos.runtime.grounding_proof_world_input.v1"
 
 
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class GroundingProofWorldInput(_StrictModel):
+    """Bind a structural proof to one original WMR byte identity and source time."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    schema_version: Literal["policyos.runtime.grounding_proof_world_input.v1"] = (
+        PROOF_WORLD_INPUT_SCHEMA_VERSION
+    )
+    synthetic: Literal[True]
+    purpose: Literal["structural_grounding_proof_only"]
+    source_ref: ArtifactRef
+    cas_root: str = Field(min_length=1)
+    source_schema_version: str = Field(min_length=1)
+    world_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_created_at: str
+    declared_at: str
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("synthetic", mode="before")
+    @classmethod
+    def _synthetic_marker_is_boolean(cls, value: object) -> object:
+        if value is not True:
+            raise ValueError("proof_world_input_must_be_explicitly_synthetic")
+        return value
+
+    @model_validator(mode="after")
+    def _verify(self) -> GroundingProofWorldInput:
+        _verify_hash(self)
+        _require_aware(datetime.fromisoformat(self.world_created_at))
+        _require_aware(datetime.fromisoformat(self.declared_at))
+        if Path(self.cas_root).is_absolute() or ".." in Path(self.cas_root).parts:
+            raise ValueError("proof_world_cas_locator_must_be_repo_relative")
+        return self
+
+
+def _world_matches_proof_input(
+    declaration: GroundingProofWorldInput,
+    manifest: ArtifactManifest,
+    world: WorldModelRecord,
+) -> bool:
+    from polisyos.pdc import (
+        WORLD_MODEL_RECORD_ARTIFACT_KIND,
+        WORLD_MODEL_RECORD_SCHEMA_NAME,
+        WORLD_MODEL_RECORD_SCHEMA_VERSION,
+    )
+
+    schema = manifest.artifact_schema
+    return (
+        str(manifest.artifact_id) == str(declaration.source_ref.artifact_id)
+        and manifest.kind == declaration.source_ref.kind == WORLD_MODEL_RECORD_ARTIFACT_KIND
+        and manifest.media_type == declaration.source_ref.media_type == "application/json"
+        and schema is not None
+        and schema.name == WORLD_MODEL_RECORD_SCHEMA_NAME
+        and schema.version == declaration.source_schema_version
+        == world.schema_version == WORLD_MODEL_RECORD_SCHEMA_VERSION
+        and world.content_hash == declaration.world_content_hash
+        and world.created_at == declaration.world_created_at
+    )
+
+
+def resolve_grounding_proof_world_input(
+    repo_root: Path, declaration: GroundingProofWorldInput,
+) -> WorldModelRecord:
+    """Resolve complete declared source bytes and reject metadata substitutions."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.quality.world_model_record import load_world_model_record
+
+    declaration = GroundingProofWorldInput.model_validate_json(declaration.model_dump_json())
+    root = repo_root.resolve()
+    location = (root / declaration.cas_root).resolve()
+    if not location.is_relative_to(root):
+        raise ValueError("proof_world_cas_locator_escapes_repo")
+    if not location.is_dir():
+        raise FileNotFoundError(f"grounding_proof_world_source_unavailable:{location}")
+    store = FileSystemCAS(location)
+    # Core verifies the entire original blob/manifest identity. No fresh builder
+    # can substitute an equal logical hash with a different genuine creation time.
+    manifest = store.get_manifest(declaration.source_ref.artifact_id)
+    world = load_world_model_record(store, declaration.source_ref)
+    if not _world_matches_proof_input(declaration, manifest, world):
+        raise ValueError("grounding_proof_world_binding_mismatch")
+    return world
+
+
+def produce_grounding_proof_world_input(
+    repo_root: Path, *, world_cas: Path, world_ref: str,
+) -> GroundingProofWorldInput:
+    """Emit a synthetic proof-input declaration from an existing verified source."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.quality.world_model_record import load_world_model_record
+
+    root = repo_root.resolve()
+    location = world_cas.resolve()
+    if not location.is_dir():
+        raise FileNotFoundError(f"grounding_proof_world_source_unavailable:{location}")
+    store = FileSystemCAS(location)
+    manifest = store.get_manifest(world_ref)
+    world = load_world_model_record(store, world_ref)
+    schema = manifest.artifact_schema
+    if schema is None:
+        raise ValueError("grounding_proof_world_schema_missing")
+    payload = {
+        "schema_version": PROOF_WORLD_INPUT_SCHEMA_VERSION,
+        "synthetic": True,
+        "purpose": "structural_grounding_proof_only",
+        "source_ref": {
+            "artifact_id": str(manifest.artifact_id),
+            "kind": manifest.kind, "media_type": manifest.media_type,
+        },
+        "cas_root": location.relative_to(root).as_posix(),
+        "source_schema_version": schema.version,
+        "world_content_hash": world.content_hash,
+        "world_created_at": world.created_at,
+        "declared_at": datetime.now(UTC).isoformat(),
+    }
+    declaration = GroundingProofWorldInput.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
+    )
+    resolve_grounding_proof_world_input(root, declaration)
+    return declaration
+
+
+def load_grounding_proof_world_input(
+    repo_root: Path, *, binding_path: Path | None = None,
+) -> tuple[GroundingProofWorldInput, WorldModelRecord]:
+    """Read the sole proof-source declaration and resolve its original WMR."""
+    path = binding_path or repo_root / PROOF_WORLD_INPUT_PATH
+    declaration = GroundingProofWorldInput.model_validate_json(path.read_bytes())
+    return declaration, resolve_grounding_proof_world_input(repo_root, declaration)
+
+
+def grounding_proof_world_input_evidence(
+    repo_root: Path,
+) -> tuple[dict[str, Any], WorldModelRecord]:
+    """Recompute exact-input replay and the decisive source-matching transition."""
+    from datetime import timedelta
+    from unittest.mock import patch
+
+    declaration, world = load_grounding_proof_world_input(repo_root)
+    repeated = resolve_grounding_proof_world_input(repo_root, declaration)
+    changed = declaration.model_dump(mode="json")
+    changed["world_created_at"] = (
+        datetime.fromisoformat(world.created_at) + timedelta(microseconds=1)
+    ).isoformat()
+    changed.pop("content_hash")
+    invalid = GroundingProofWorldInput.model_validate(
+        {**changed, "content_hash": gy_content_hash(changed)}
+    )
+    refused = False
+    try:
+        resolve_grounding_proof_world_input(repo_root, invalid)
+    except ValueError as exc:
+        if str(exc) != "grounding_proof_world_binding_mismatch":
+            raise
+        refused = True
+    with patch(f"{__name__}._world_matches_proof_input", lambda *_args: True):
+        removed = resolve_grounding_proof_world_input(repo_root, invalid)
+    replay_equal = world.model_dump(mode="json") == repeated.model_dump(mode="json")
+    removal_accepts_mismatch = removed.created_at != invalid.world_created_at
+    packet = {
+        "schema_version": PROOF_WORLD_INPUT_SCHEMA_VERSION,
+        "packet_type": "StrangleReceipt",
+        "owner": "polisyos.runtime.quality.grounding_calibration",
+        "replaced_path": "fresh_composed_WMR_for_each_structural_proof",
+        "default_path": "declared_exact_WMR_bytes_schema_logical_hash_and_creation_time",
+        "predicate_provenance": "recomputed",
+        "binding_ref": f"repo:{PROOF_WORLD_INPUT_PATH}",
+        "binding_content_hash": declaration.content_hash,
+        "source_artifact_id": str(declaration.source_ref.artifact_id),
+        "repeat_source_bytes_and_time_equal": replay_equal,
+        "rehashed_wrong_source_time_refused": refused,
+        "matching_predicate_removal_accepts_wrong_time": removal_accepts_mismatch,
+        "default_flipped": replay_equal and refused and removal_accepts_mismatch,
+    }
+    evidence = {
+        "binding_ref": f"repo:{PROOF_WORLD_INPUT_PATH}",
+        "binding_content_hash": declaration.content_hash,
+        "synthetic": declaration.synthetic, "purpose": declaration.purpose,
+        "source_ref": declaration.source_ref.model_dump(mode="json"),
+        "source_schema_version": declaration.source_schema_version,
+        "world_content_hash": world.content_hash, "world_created_at": world.created_at,
+        "strangle_receipt": {**packet, "content_hash": gy_content_hash(packet)},
+    }
+    return evidence, world
+
+
+def grounding_proof_world_input_evidence_issues(evidence: Mapping[str, Any]) -> list[str]:
+    """Validate an emitted source-transition packet; live owners produce its facts."""
+    receipt = evidence.get("strangle_receipt")
+    if not isinstance(receipt, dict):
+        return ["grounding_proof_world_input_strangle_missing"]
+    body = {key: value for key, value in receipt.items() if key != "content_hash"}
+    if (
+        receipt.get("content_hash") != gy_content_hash(body)
+        or receipt.get("schema_version") != PROOF_WORLD_INPUT_SCHEMA_VERSION
+        or receipt.get("binding_content_hash") != evidence.get("binding_content_hash")
+        or receipt.get("binding_ref") != evidence.get("binding_ref")
+        or receipt.get("source_artifact_id")
+        != dict(evidence.get("source_ref") or {}).get("artifact_id")
+        or evidence.get("synthetic") is not True
+        or evidence.get("purpose") != "structural_grounding_proof_only"
+        or receipt.get("default_flipped") is not True
+        or not all(
+            receipt.get(field) is True for field in (
+                "repeat_source_bytes_and_time_equal",
+                "rehashed_wrong_source_time_refused",
+                "matching_predicate_removal_accepts_wrong_time",
+            )
+        )
+    ):
+        return ["grounding_proof_world_input_strangle_invalid"]
+    return []
 
 
 class CalibrationFrameInput(_StrictModel):
@@ -528,16 +744,24 @@ def _require_aware(value: datetime) -> None:
 
 
 __all__ = [
+    "PROOF_WORLD_INPUT_PATH",
+    "PROOF_WORLD_INPUT_SCHEMA_VERSION",
     "CalibrationFrame",
     "CalibrationFrameInput",
     "DeclaredRefusalSuite",
     "GroundingEpochScope",
+    "GroundingProofWorldInput",
     "build_owner_frame_inputs",
     "build_refusal_reference_scaffold",
     "calibration_frame_scope",
     "declare_calibration_frame",
     "declare_refusal_suite",
     "difficulty_tier",
+    "grounding_proof_world_input_evidence",
+    "grounding_proof_world_input_evidence_issues",
+    "load_grounding_proof_world_input",
+    "produce_grounding_proof_world_input",
+    "resolve_grounding_proof_world_input",
     "run_refusal_suite",
     "source_clusters",
 ]

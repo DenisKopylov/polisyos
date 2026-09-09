@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_grounding_refusal_sensitivity --declare-proof-input --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_refusal_sensitivity",
+    "--declare-proof-input",
+    "--world-cas",
+    ".tmp/gy-s-composed-wmr-cas",
+    "--world-ref",
+    "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 73.33057283307426,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "{\n  \"status\": \"declared\",\n  \"path\": \"architecture/policy_design_case/corr/grounding_proof_world_input.json\",\n  \"content_hash\": \"sha256:8b8db9c24b9c2b78ec3e90b31ab9baf3156beba0b8a053f9bf32db993638ce08\",\n  \"source_ref\": {\n    \"artifact_id\": \"sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5\",\n    \"kind\": \"runtime.quality.world_model_record\",\n    \"media_type\": \"application/json\"\n  },\n  \"synthetic\": true\n}\n",
+  "stderr": ""
+}

@@ -496,3 +496,16 @@ original control and mutation identity sets remain required. This snapshot
 mechanism does not stand in for the withheld canonical reference or calibration.
 Exact-byte custody outside this checkout is a named P07/P08 source-availability
 requirement, not permission to retime an artifact or introduce a fixture fallback.
+
+## Continuation resource decision, 2026-09-09
+
+The N9 exact-file wave uses per-scenario `gy-n9-*` temporary CAS/state roots;
+the N6 read-only projection uses separate `gy-n6-verification-*` roots. The
+current station check reported 69% system-wide memory free, no throttled pages,
+and load averages 4.59/3.76/3.43 on the previously measured eight-CPU station.
+Subject to the complete N6 path confirming no shared builder mutation, those
+two bounded owner replays may overlap. This supersedes the earlier temporary
+single-runtime scheduling restriction for these disjoint runs only. The shared
+composed-WMR builder and any actual shared store remain exclusive. A new
+contention or memory-pressure measurement falsifies this scheduling decision;
+it does not change a gate, its denominator, or any authority predicate.

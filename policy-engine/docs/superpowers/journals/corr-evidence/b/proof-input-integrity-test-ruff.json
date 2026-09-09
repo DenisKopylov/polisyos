@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check tests/unit/runtime/quality/test_grounding_calibration.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tests/unit/runtime/quality/test_grounding_calibration.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.05169829202350229,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "RUF043 Pattern passed to `match=` contains metacharacters but is neither escaped nor raw\n   --> tests/unit/runtime/quality/test_grounding_calibration.py:386:50\n    |\n384 |         try:\n385 |             blob.write_text(json.dumps(altered, sort_keys=True, separators=(\",\", \":\")))\n386 |             with pytest.raises(ValueError, match=\"(?i)(integrity|digest|hash)\"):\n    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n387 |                 owner.resolve_grounding_proof_world_input(root, copied)\n388 |         finally:\n    |\nhelp: Use a raw string or `re.escape()` to make the intention explicit\n\nFound 1 error.\n",
+  "stderr": ""
+}

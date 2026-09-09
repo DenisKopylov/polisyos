@@ -10,6 +10,7 @@ from pathlib import Path
 from polisyos.core import artifacts
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.grounding_calibration import (
+    PROOF_WORLD_INPUT_PATH,
     CalibrationFrame,
     DeclaredRefusalSuite,
     GroundingEpochScope,
@@ -18,6 +19,7 @@ from polisyos.runtime.quality.grounding_calibration import (
     declare_calibration_frame,
     declare_refusal_suite,
     difficulty_tier,
+    produce_grounding_proof_world_input,
     run_refusal_suite,
     source_clusters,
 )
@@ -35,17 +37,39 @@ def main() -> int:
     """Keep declaration and execution as separate explicit invocations."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--declare", action="store_true")
+    parser.add_argument("--declare-proof-input", action="store_true")
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--world-cas", type=Path, required=True)
     parser.add_argument("--world-ref", required=True)
-    parser.add_argument("--declarations", type=Path, required=True)
+    parser.add_argument("--declarations", type=Path)
+    parser.add_argument("--proof-input", type=Path, default=Path(PROOF_WORLD_INPUT_PATH))
     parser.add_argument("--report", type=Path, default=Path(OUTPUT_PATH))
     args = parser.parse_args()
-    if sum((args.declare, args.check, args.write)) != 1:
-        parser.error("choose exactly one of --declare, --write or --check")
+    if sum((args.declare, args.declare_proof_input, args.check, args.write)) != 1:
+        parser.error("choose exactly one of --declare, --declare-proof-input, --write or --check")
     root = args.repo_root.resolve()
+    if args.declare_proof_input:
+        path = args.proof_input if args.proof_input.is_absolute() else root / args.proof_input
+        if not path.resolve().is_relative_to(root):
+            raise ValueError("proof_input_output_escapes_repo")
+        if path.exists():
+            raise ValueError("proof_input_already_declared_append_a_new_binding")
+        declaration = produce_grounding_proof_world_input(
+            root, world_cas=args.world_cas, world_ref=args.world_ref,
+        )
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(declaration.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        print(json.dumps({
+            "status": "declared", "path": str(path.relative_to(root)),
+            "content_hash": declaration.content_hash,
+            "source_ref": declaration.source_ref.model_dump(mode="json"),
+            "synthetic": declaration.synthetic,
+        }, indent=2))
+        return 0
+    if args.declarations is None:
+        parser.error("--declarations is required for refusal frame/suite operations")
     if not args.world_cas.exists():
         from polisyos.runtime.quality.intervention_substrate import (
             production_composed_world_model_record,

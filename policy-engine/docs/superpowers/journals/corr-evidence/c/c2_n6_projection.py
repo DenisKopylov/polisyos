@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -48,7 +49,8 @@ def main() -> None:
     def observe(
         repo_root: Path, live: dict[str, object], plan: GyComparisonProjectionPlan
     ) -> dict[str, object]:
-        frozen = json.loads((repo_root / owner.OUTPUT_PATH).read_bytes())
+        historical_bytes = (repo_root / owner.OUTPUT_PATH).read_bytes()
+        frozen = json.loads(historical_bytes)
         old_plan = owner.build_gy_comparison_projection_plan_from_manifest(
             frozen,
             manifest=frozen["comparison_admission_manifest"],
@@ -80,6 +82,16 @@ def main() -> None:
                     == owner._contract_content_hash(frozen),
                     "historical_comparison_hash_valid": frozen["comparison_content_hash"]
                     == owner._comparison_content_hash(frozen, old_plan),
+                    "historical_bytes_hash": (
+                        "sha256:" + hashlib.sha256(historical_bytes).hexdigest()
+                    ),
+                    "historical_contract_hash": frozen["contract_content_hash"],
+                    "historical_comparison_hash": frozen["comparison_content_hash"],
+                    "historical_reissue_projection_hash": owner._reissue_projection_hash(
+                        frozen, old_plan
+                    ),
+                    "current_comparison_hash": live["comparison_content_hash"],
+                    "current_reissue_projection_hash": owner._reissue_projection_hash(live, plan),
                     "old_manifest": old_plan.manifest,
                     "new_manifest": plan.manifest,
                     "differences": differences,

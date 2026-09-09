@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q --tb=short tests/unit/runtime/quality/test_grounding_calibration.py::test_actual_proof_world_pin_replays_original_bytes_time_and_structural_reference",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_grounding_calibration.py::test_actual_proof_world_pin_replays_original_bytes_time_and_structural_reference"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 32.54480766598135,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_ test_actual_proof_world_pin_replays_original_bytes_time_and_structural_reference _\ntests/unit/runtime/quality/test_grounding_calibration.py:276: in test_actual_proof_world_pin_replays_original_bytes_time_and_structural_reference\n    owner, root, declaration = _actual_proof_world_declaration()\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/unit/runtime/quality/test_grounding_calibration.py:257: in _actual_proof_world_declaration\n    declaration = owner.produce_grounding_proof_world_input(\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   AttributeError: module 'polisyos.runtime.quality.grounding_calibration' has no attribute 'produce_grounding_proof_world_input'\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_calibration.py::test_actual_proof_world_pin_replays_original_bytes_time_and_structural_reference\n",
+  "stderr": ""
+}

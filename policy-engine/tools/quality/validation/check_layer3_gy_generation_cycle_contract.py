@@ -324,6 +324,10 @@ async def _build_live_payload_in_verification_namespace(
         "producer": "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
         "source_modules": [
             "src/polisyos/runtime/quality/generation_cycle.py",
+            "src/polisyos/runtime/quality/generation_source.py",
+            "src/polisyos/runtime/quality/grounding_risk.py",
+            "src/polisyos/runtime/quality/confidence_ledger.py",
+            "src/polisyos/runtime/quality/promotion_sequence.py",
             "src/polisyos/scientist/orchestration/workflows/engine_simple.py",
             "src/polisyos/runtime/quality/design_generation.py",
             "src/polisyos/runtime/quality/joint_simulation_horizon.py",
@@ -366,8 +370,8 @@ async def _build_live_payload_in_verification_namespace(
         "compute_economics": {
             "lane": "Lane-0",
             "engine_set_reuse": "one_controller_engine_set_reused_across_cycles",
-            "owner_io": "zero",
-            "non_cached_run_visibility": "rederive_audit_only",
+            "owner_io": "temporary_ledger_cas_and_candidate_custody_directories",
+            "non_cached_run_visibility": "writer_and_check_rederive_from_live_owners",
         },
     }
     payload["fail_closed_probes"] = _fail_closed_reports(payload)
@@ -1144,6 +1148,27 @@ def _comparison_content_hash(
     return gy_comparison_content_hash(
         stable,
         comparison_plan=plan,
+    )
+
+
+def _reissue_projection_hash(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
+    """Bind the complete admitted report projection and comparison rule identity."""
+
+    stable = {
+        key: value
+        for key, value in payload.items()
+        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_content_hash(
+        {
+            "comparison_projection_schema_version": payload["comparison_projection_schema_version"],
+            "comparison_rule_version": payload["comparison_rule_version"],
+            "comparison_admission_manifest": plan.manifest,
+            "projected_report": plan.project(stable),
+        }
     )
 
 

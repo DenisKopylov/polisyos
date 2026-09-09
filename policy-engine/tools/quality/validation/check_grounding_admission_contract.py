@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 OUTPUT_PATH = "architecture/policy_design_case/grounding_admission_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.grounding_admission_contract.v2"
+SCHEMA_VERSION = "policyos.policy_design_case.grounding_admission_contract.v3"
 EXPECTED_MUTATIONS = {
     "denotation_comparison_removed",
     "direct_mechanism_witness_removed",
@@ -62,9 +62,9 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     )
 
     repo_root = (repo_root or _default_repo_root()).resolve()
-    from polisyos.runtime.quality.grounding_calibration import build_refusal_reference_scaffold
-    from polisyos.runtime.quality.intervention_substrate import (
-        production_composed_world_model_record,
+    from polisyos.runtime.quality.grounding_calibration import (
+        build_refusal_reference_scaffold,
+        grounding_proof_world_input_evidence,
     )
 
     try:
@@ -85,7 +85,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     # The original complete control set runs against the same existing owner
     # scaffold as CG2. Its source-relative mechanics cannot replace withheld
     # canonical authority. Added mechanism data below is explicitly synthetic.
-    world = production_composed_world_model_record(repo_root)
+    proof_world_input, world = grounding_proof_world_input_evidence(repo_root)
     reference = build_refusal_reference_scaffold(repo_root, world)
     substrate_registry = build_substrate_registry_from_existing_catalogs(repo_root)
 
@@ -482,6 +482,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     authority = _source_authority_control(admit_reference, cg1_admit, cg2_admit, admit)
     payload["behavioral_mutations"].append(authority["mutation"])
     payload["source_authority_strangle"] = authority["receipt"]
+    payload["proof_world_input"] = proof_world_input
     return _json_stable(payload)
 
 
@@ -577,7 +578,14 @@ def _core_issues(
     *,
     require_mutations: bool,
 ) -> list[dict[str, Any]]:
-    issues: list[dict[str, Any]] = []
+    from polisyos.runtime.quality.grounding_calibration import (
+        grounding_proof_world_input_evidence_issues,
+    )
+
+    issues: list[dict[str, Any]] = [
+        {"code": code}
+        for code in grounding_proof_world_input_evidence_issues(payload.get("proof_world_input", {}))
+    ]
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "grounding_admission_schema_mismatch"})
     if payload.get("no_parallel_reference_or_registry") is not True:

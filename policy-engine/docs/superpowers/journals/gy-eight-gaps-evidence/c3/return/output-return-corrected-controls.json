@@ -1,0 +1,39 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_conformance_refuses_dangling_output_ref_with_all_markers",
+    "tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_output_adapter_turns_malformed_dynamic_ref_into_typed_conformance_failure",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_observational_data_cannot_be_loaded",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_method_job_has_issues",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_method_job_carries_selected_contract_bundle_and_intake_lineage",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_method_output_missing_report",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_assertion_in_observational_data_load_is_not_swallowed",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_method_output_report_is_invalid",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_causal_output_contract_uses_complete_real_method_population",
+    "tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_conditional_output_adapter_preserves_verified_refusal_as_separate_artifact",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py::test_ordinary_cache_keeps_existing_schema_epoch",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_base_context_records_claim_owner_limitation_on_success",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_promotion_state_injection_cannot_bypass_eval_safety"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T09:09:27.810827+00:00",
+  "elapsed_seconds": 62.591,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": ".............                                                            [100%]\n==================================== PASSES ====================================\n______________ test_fail_when_observational_data_cannot_be_loaded ______________\n_______ test_causal_output_contract_uses_complete_real_method_population _______\n=========================== short test summary info ============================\nPASSED tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_conformance_refuses_dangling_output_ref_with_all_markers\nPASSED tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_output_adapter_turns_malformed_dynamic_ref_into_typed_conformance_failure\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_observational_data_cannot_be_loaded\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_method_job_has_issues\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_method_job_carries_selected_contract_bundle_and_intake_lineage\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_method_output_missing_report\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_assertion_in_observational_data_load_is_not_swallowed\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_fail_when_method_output_report_is_invalid\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_causal_output_contract_uses_complete_real_method_population\nPASSED tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_conditional_output_adapter_preserves_verified_refusal_as_separate_artifact\nPASSED tests/unit/scientist/orchestration/engine/test_idempotency.py::test_ordinary_cache_keeps_existing_schema_epoch\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_base_context_records_claim_owner_limitation_on_success\nPASSED tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_promotion_state_injection_cannot_bypass_eval_safety\n",
+  "stderr": ""
+}

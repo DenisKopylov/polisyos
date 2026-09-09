@@ -5,23 +5,21 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
 from _helpers.artifacts import put_json_artifact
 from _helpers.scientist_runtime import build_execution_context
-from polisyos.core.canon import from_canonical_bytes
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import PanelObservationalData, ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
 )
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_REPORT_REF
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 pytestmark = pytest.mark.integration
 
 TESTS_ROOT = Path(__file__).resolve().parents[2]
-METHOD_FQN = "causal.inference.synthetic_control@1.0.0"
+METHOD_FQN = "causal.inference.synthetic_control@2.0.0"
 
 
 @pytest.fixture(autouse=True)
@@ -33,8 +31,12 @@ def _reset_foundry_method_singletons():
     MethodRegistry.reset_instance()
 
 
-def test_foundry_method_registry_entry_executes_through_scientist_node(store) -> None:
-    golden = json.loads((TESTS_ROOT / "_golden" / "foundry" / "signature_baseline.json").read_text())
+def test_foundry_method_bridge_refuses_absent_eval_safety_before_execution(
+    store, monkeypatch
+) -> None:
+    golden = json.loads(
+        (TESTS_ROOT / "_golden" / "foundry" / "signature_baseline.json").read_text()
+    )
     assert golden["schema_version"] == "1.0"
 
     ensure_causal_methods_registered()
@@ -64,11 +66,27 @@ def test_foundry_method_registry_entry_executes_through_scientist_node(store) ->
         params={"random_seed": 42},
     )
 
+    original = state.model_dump(mode="json")
+    execution_attempts = []
+
+    def unexpected_run_job(*args, **kwargs):
+        execution_attempts.append((args, kwargs))
+        pytest.fail("Method execution must not precede actual EvalSafety admission.")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.run_job",
+        unexpected_run_job,
+    )
+    assert ctx.eval_safety_execution_context is None
     outcome = RunCausalEvaluationNode().execute(ctx, state)
 
-    assert outcome.status == "ok"
-    report_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
-    report = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
-    assert report["status"] == "success"
-    assert report["method"] == "synthetic_control"
-    assert report["sample_size"] == data.outcome.size
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "foundry.execute_failed"
+    assert outcome.error.details == {
+        "blocker_codes": ["polisyos.eval_safety.execution_context_missing@1.0.0"]
+    }
+    assert execution_attempts == []
+    assert state.model_dump(mode="json") == original
+    assert outcome.state.model_dump(mode="json") == original
+    assert outcome.state.artifacts_index == {}

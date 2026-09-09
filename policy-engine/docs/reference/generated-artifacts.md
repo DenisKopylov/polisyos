@@ -72,7 +72,8 @@ Every committed generated artifact family must have a source of truth, a regener
 | `policy design case layer3 gy n13a frozen acquisition evidence` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`<br/>`architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json` |
 | `policy design case layer3 gy n13b frozen acquisition evidence` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json` |
 | `policy design case layer3 gy loop artifacts` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json`<br/>`architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json`<br/>`architecture/policy_design_case/layer3_gy_outcome_run.json`<br/>`architecture/policy_design_case/layer3_gy_outcome_replay_proof.json` |
-| `policy design case layer3 gy phase2 artifacts` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_spine_repair_proofs.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_agent_event_audit.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_lex_bounds_strangle_receipt.json` |
+| `policy design case layer3 gy phase2 artifacts` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs_v4.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_spine_repair_proofs.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs_v3.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_agent_event_audit.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_lex_bounds_strangle_receipt.json` |
+| `policy design case layer3 GY Phase-2 historical schema-v2 proofs` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json`<br/>`architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json` |
 | `policy design case layer3 gy openalex artifacts` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_openalex_accuracy_report_v2.json`<br/>`architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records_v2.json` |
 | `policy design case layer3 OpenAlex historical v1 proofs` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json`<br/>`architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json` |
 | `policy design case layer3 artifact surface safety` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_cas_integrity_reports.json`<br/>`architecture/policy_design_case/layer3_gy_secret_pii_scan_reports.json` |
@@ -2116,20 +2117,20 @@ Canonical regeneration commands:
 - Family id: `policy-design-case-layer3-gy-phase2-artifacts`
 - Lifecycle: `generated_committed`
 - Source of truth: tools/quality/validation/check_layer3_gy_phase2_artifacts.py
-- Generator: Existing canonical producer tools.quality.validation.check_layer3_gy_phase2_artifacts
+- Generator: Existing Phase-2 owner measures all five outputs; --write reissues C1 v4 and C3 v3 only, while the three closed proof members are compare-only
 - Verifier: Existing semantic owner and generated artifact lifecycle accounting
 - Promotion target: Custody and audit projection only; registration grants no task completion or evidence authority
 - Commit policy: `committed`
-- Freshness rule: Recompute using the existing producer after its governed inputs or output semantics change.
+- Freshness rule: Recompute the complete five-member family; preserve the three closed proof outputs byte-for-byte and reissue only the governed current C1/C3 epochs.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-runtime-quality`
 - Approval owner: `team-runtime-quality`
 - Related workflow/config: `tools/quality/validation/check_layer3_gy_phase2_artifacts.py`
 - Outputs:
-  - `architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json`
+  - `architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs_v4.json`
   - `architecture/policy_design_case/layer3_gy_phase2_spine_repair_proofs.json`
-  - `architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json`
+  - `architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs_v3.json`
   - `architecture/policy_design_case/layer3_gy_phase2_agent_event_audit.json`
   - `architecture/policy_design_case/layer3_gy_phase2_lex_bounds_strangle_receipt.json`
 
@@ -2137,6 +2138,31 @@ Canonical regeneration commands:
 
 ```bash
 .venv/bin/python -m tools.quality.validation.check_layer3_gy_phase2_artifacts --write
+```
+
+## `policy design case layer3 GY Phase-2 historical schema-v2 proofs`
+
+- Family id: `policy-design-case-layer3-gy-phase2-history-artifacts`
+- Lifecycle: `source_committed`
+- Source of truth: architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json and architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json
+- Generator: Original schema-v2 C1/C3 evidence retained under its recorded rules; the current owner emits only the explicit C1 v4 and C3 v3 paths
+- Verifier: The existing Phase-2 owner checks exact current/history ownership and independently verifies every immutable historical byte hash
+- Promotion target: Historical audit custody only; these old proofs confer no current conformance, measurement or task-completion authority
+- Commit policy: `committed`
+- Freshness rule: Historical bytes are immutable; a new proof must use its explicit current epoch.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_phase2_artifacts.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json`
+  - `architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json`
+
+Canonical regeneration commands:
+
+```bash
+.venv/bin/python -m tools.quality.validation.check_layer3_gy_phase2_artifacts --check
 ```
 
 ## `policy design case layer3 gy openalex artifacts`

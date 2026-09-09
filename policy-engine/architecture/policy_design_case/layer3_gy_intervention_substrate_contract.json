@@ -376,11 +376,11 @@
                 "causal.inference.did.staggered@1.0.0",
                 "causal.inference.did.standard@1.0.0",
                 "causal.inference.structural_time_series@1.0.0",
-                "causal.inference.synthetic_control@1.0.0",
+                "causal.inference.synthetic_control@2.0.0",
                 "econometrics.panel.event_study@1.0.0",
                 "econometrics.panel.synthetic_did@1.0.0"
               ],
-              "content_hash": "sha256:24fdf1e6a4cba945cbd691218413d8ab6d0fdf3937f9e918e7d76dcd79c1ba53",
+              "content_hash": "sha256:2e3c35308bb76fa9424b7f13437b561fa76fd2834f254720129fbda4786f45f7",
               "family": "budget_flows",
               "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
               "reason_code": null,
@@ -494,11 +494,11 @@
               "causal.inference.did.staggered@1.0.0",
               "causal.inference.did.standard@1.0.0",
               "causal.inference.structural_time_series@1.0.0",
-              "causal.inference.synthetic_control@1.0.0",
+              "causal.inference.synthetic_control@2.0.0",
               "econometrics.panel.event_study@1.0.0",
               "econometrics.panel.synthetic_did@1.0.0"
             ],
-            "content_hash": "sha256:27ddd572f406fb207c38e993c3ef1022c18200f1acb9402da53fc6a7b1cabb5e",
+            "content_hash": "sha256:e9f7d96eb275cf747b6d97cdb258d446ec124fa1345a5562aa61af2dd339a748",
             "family": "budget_flows",
             "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
             "reason_code": "method_unavailable_python314",
@@ -513,7 +513,7 @@
               "causal.inference.did.staggered@1.0.0",
               "causal.inference.did.standard@1.0.0",
               "causal.inference.structural_time_series@1.0.0",
-              "causal.inference.synthetic_control@1.0.0",
+              "causal.inference.synthetic_control@2.0.0",
               "econometrics.panel.event_study@1.0.0",
               "econometrics.panel.synthetic_did@1.0.0"
             ]
@@ -634,11 +634,11 @@
               "causal.inference.did.staggered@1.0.0",
               "causal.inference.did.standard@1.0.0",
               "causal.inference.structural_time_series@1.0.0",
-              "causal.inference.synthetic_control@1.0.0",
+              "causal.inference.synthetic_control@2.0.0",
               "econometrics.panel.event_study@1.0.0",
               "econometrics.panel.synthetic_did@1.0.0"
             ],
-            "content_hash": "sha256:7b95c3eb9276b15a5c92195ae76ed4d5349c1e9db6bdbb13072bd5027406e21a",
+            "content_hash": "sha256:e68eb0abbcfa15c0e6aee3cc8e9a2af6cc087adf5d00427ebbb95b3b89228650",
             "family": "future_budget_flows",
             "manifest_route_hash": "sha256:a73b1432edde1ac4935e43a178b15cfce39b8051ba4c1cc746555502afad7fec",
             "reason_code": null,
@@ -767,11 +767,11 @@
               "causal.inference.did.staggered@1.0.0",
               "causal.inference.did.standard@1.0.0",
               "causal.inference.structural_time_series@1.0.0",
-              "causal.inference.synthetic_control@1.0.0",
+              "causal.inference.synthetic_control@2.0.0",
               "econometrics.panel.event_study@1.0.0",
               "econometrics.panel.synthetic_did@1.0.0"
             ],
-            "content_hash": "sha256:24fdf1e6a4cba945cbd691218413d8ab6d0fdf3937f9e918e7d76dcd79c1ba53",
+            "content_hash": "sha256:2e3c35308bb76fa9424b7f13437b561fa76fd2834f254720129fbda4786f45f7",
             "family": "budget_flows",
             "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
             "reason_code": null,
@@ -1514,7 +1514,7 @@
           ],
           "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
           "selection_receipt": {
-            "content_hash": "sha256:9f9267b51e32a6eebf708bdb8940b495aa85ae0d55f90f5a91c25517d0436fd3",
+            "content_hash": "sha256:31e9ef67162ceebd64431bc688da15cc76aff1294998399cdacab119f7500f37",
             "denominator": [
               "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
               "bayesian.flow.affine_normalizing_flow@1.0.0",
@@ -1603,7 +1603,7 @@
             "schema_version": "policyos.foundry.method_selection_receipt.v2",
             "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
             "selection_authority": "foundry_registry_advisor",
-            "selection_context_hash": "sha256:c1e01f9d0c9bbba822ec9d53c42f7e43745b96413aaf795c3c45d98e4641eff1"
+            "selection_context_hash": "sha256:cc90fead47eb01b5ec97cb9cb32b8ba10e5ae4f87477bc52e9acbe520316e74f"
           },
           "selection_source": "foundry_registry_advisor",
           "status": "selected"
@@ -1717,7 +1717,7 @@
         ],
         "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
         "selection_receipt": {
-          "content_hash": "sha256:15db268e6160faadb3d4bfaceb0378712224e78dc98fe72b7d9a205f314adecf",
+          "content_hash": "sha256:544decab88d56cc04ddf49e7adb158a10c502683f2cf8a55f3da71e75e3bc09c",
           "denominator": [
             "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
             "bayesian.flow.affine_normalizing_flow@1.0.0",
@@ -1806,7 +1806,7 @@
           "schema_version": "policyos.foundry.method_selection_receipt.v2",
           "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
           "selection_authority": "foundry_registry_advisor",
-          "selection_context_hash": "sha256:e1fe0e2a00eff3586d5b0df3ca7a58f37f7b8b1e3ae8ae50b47846f7d959c1f4"
+          "selection_context_hash": "sha256:23f814eb7127f484f04de1fd80550a55ccd1bc754c68f74773d75314086a8d47"
         },
         "selection_source": "foundry_registry_advisor",
         "status": "selected"
@@ -1865,7 +1865,7 @@
           "observation_family:firm_fundamentals",
           "observation_family:household_distribution",
           "observation_family:procurement_flows",
-          "observation_route:budget_flows:sha256:24fdf1e6a4cba945cbd691218413d8ab6d0fdf3937f9e918e7d76dcd79c1ba53",
+          "observation_route:budget_flows:sha256:2e3c35308bb76fa9424b7f13437b561fa76fd2834f254720129fbda4786f45f7",
           "observation_route:firm_fundamentals:sha256:1ee46083cf5084d14d0ed9332e9342dc75dfaef34cfa964a0f6a94ba38416cb4",
           "observation_route:household_distribution:sha256:ffc58f92e9d1f613d8345fac1cd625ee4c3434b1ec7353fe3584e86808238539",
           "observation_route:procurement_flows:sha256:df13a2616789e59fa9e1c1fb2da3c22341069be957c3b668530d0399d5c5b3e9"
@@ -1901,7 +1901,7 @@
             "observation_family:firm_fundamentals",
             "observation_family:household_distribution",
             "observation_family:procurement_flows",
-            "observation_route:budget_flows:sha256:24fdf1e6a4cba945cbd691218413d8ab6d0fdf3937f9e918e7d76dcd79c1ba53",
+            "observation_route:budget_flows:sha256:2e3c35308bb76fa9424b7f13437b561fa76fd2834f254720129fbda4786f45f7",
             "observation_route:firm_fundamentals:sha256:1ee46083cf5084d14d0ed9332e9342dc75dfaef34cfa964a0f6a94ba38416cb4",
             "observation_route:household_distribution:sha256:ffc58f92e9d1f613d8345fac1cd625ee4c3434b1ec7353fe3584e86808238539",
             "observation_route:procurement_flows:sha256:df13a2616789e59fa9e1c1fb2da3c22341069be957c3b668530d0399d5c5b3e9"
@@ -2021,7 +2021,7 @@
           ],
           "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
           "selection_receipt": {
-            "content_hash": "sha256:e36ac529c470506f610462dcf822a37cf5862d7f4a69427e0bf41173f53aa1ae",
+            "content_hash": "sha256:7a75f73dc7902746691bfc14d4402d6cf5ca46917d65326380fddac466db0266",
             "denominator": [
               "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
               "bayesian.flow.affine_normalizing_flow@1.0.0",
@@ -2110,7 +2110,7 @@
             "schema_version": "policyos.foundry.method_selection_receipt.v2",
             "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
             "selection_authority": "foundry_registry_advisor",
-            "selection_context_hash": "sha256:2b070650f23ae0d47462c979746e26fa28cf4f3babf016cd680d58027ea1279a"
+            "selection_context_hash": "sha256:c8b8a0450bd86e5c4c19aec1a3776abb05361b5ee7f72da3fba2c2eb82b96aa1"
           },
           "selection_source": "foundry_registry_advisor",
           "status": "selected"
@@ -2202,11 +2202,11 @@
               "causal.inference.did.staggered@1.0.0",
               "causal.inference.did.standard@1.0.0",
               "causal.inference.structural_time_series@1.0.0",
-              "causal.inference.synthetic_control@1.0.0",
+              "causal.inference.synthetic_control@2.0.0",
               "econometrics.panel.event_study@1.0.0",
               "econometrics.panel.synthetic_did@1.0.0"
             ],
-            "content_hash": "sha256:24fdf1e6a4cba945cbd691218413d8ab6d0fdf3937f9e918e7d76dcd79c1ba53",
+            "content_hash": "sha256:2e3c35308bb76fa9424b7f13437b561fa76fd2834f254720129fbda4786f45f7",
             "family": "budget_flows",
             "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
             "reason_code": null,
@@ -2324,7 +2324,7 @@
             ],
             "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
             "selection_receipt": {
-              "content_hash": "sha256:6402027da4235f0ff165fd826cdf262e69ab3d49374e89e1e18d56d836a0e49d",
+              "content_hash": "sha256:f3aed4d90bd5c84bc4357450895f1e6a300508fb6cebd59e7c483547bda76c15",
               "denominator": [
                 "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
                 "bayesian.flow.affine_normalizing_flow@1.0.0",
@@ -2413,7 +2413,7 @@
               "schema_version": "policyos.foundry.method_selection_receipt.v2",
               "selected_method_fqn": "econometrics.panel.event_study@1.0.0",
               "selection_authority": "foundry_registry_advisor",
-              "selection_context_hash": "sha256:37462ac287a3a014de1c8ea46024ebbe078a4b6b30afe3ea1dc2b7108aba9070"
+              "selection_context_hash": "sha256:06eb868f156cbdc9520e36140f6b5746f772b6bcf4ecf6302e32399c185612d9"
             },
             "selection_source": "foundry_registry_advisor",
             "status": "selected"
@@ -3084,8 +3084,8 @@
     "status": "pass",
     "strangle_receipts": [
       {
-        "behavior_content_hash": "sha256:b96103c588b5b5421646b0e55239b7ffe0c8e74227a58fe8539d7c57981e1ff8",
-        "content_hash": "sha256:685327e177f891c7dbf427c2daedcfd9f0ee9e3d76bfb3048e75c53df429cf75",
+        "behavior_content_hash": "sha256:2522d387dcbc5f2bcf03b05c15f9e03d2bb79d17c327219346511b0cade23cc9",
+        "content_hash": "sha256:92394e1bbd83f2986d8e2fbaa5f05c7117fc9ace3469d6a63715abfba90de00f",
         "default_after": "source-derived owner constraint",
         "default_before": "manifest ignored as flat hints",
         "disposition": "default_flipped",
@@ -3916,6 +3916,7 @@
             "src/polisyos/fabric/quality/quality.py",
             "src/polisyos/fabric/quality/safety.py",
             "src/polisyos/fabric/retrieval/__init__.py",
+            "src/polisyos/fabric/retrieval/custody.py",
             "src/polisyos/fabric/retrieval/executor.py",
             "src/polisyos/fabric/retrieval/explore_lane.py",
             "src/polisyos/fabric/retrieval/providers.py",
@@ -5733,14 +5734,14 @@
             "src/polisyos/scientist/validation/verification/ic/conformance.py",
             "src/polisyos/scientist/validation/verification/ic/service.py"
           ],
-          "independent_identity_hash": "sha256:89ca5ee4b1dd3f1ddd9ac96ff81de07b67640d78eb425c377ffd64e173c21e07"
+          "independent_identity_hash": "sha256:b1d3883fb11be502ec28d3dbccf742bf67980a3e798befcdc63dc9fc309e4d35"
         },
         "status": "strangled",
         "verified_by": "intervention_substrate_behavior_report"
       },
       {
-        "behavior_content_hash": "sha256:b96103c588b5b5421646b0e55239b7ffe0c8e74227a58fe8539d7c57981e1ff8",
-        "content_hash": "sha256:e14bf79973b7dac695f60ee2717bf977591464e498b5e80ff9da9c7d9aa9db84",
+        "behavior_content_hash": "sha256:2522d387dcbc5f2bcf03b05c15f9e03d2bb79d17c327219346511b0cade23cc9",
+        "content_hash": "sha256:d792959515f179c25daf9c862b605237cd7f389e5cf3e7ca8c2fe34bb0e24d93",
         "default_after": "complete validated routes earn candidate bonus",
         "default_before": "family names earn route bonus",
         "disposition": "default_flipped",
@@ -6569,6 +6570,7 @@
             "src/polisyos/fabric/quality/quality.py",
             "src/polisyos/fabric/quality/safety.py",
             "src/polisyos/fabric/retrieval/__init__.py",
+            "src/polisyos/fabric/retrieval/custody.py",
             "src/polisyos/fabric/retrieval/executor.py",
             "src/polisyos/fabric/retrieval/explore_lane.py",
             "src/polisyos/fabric/retrieval/providers.py",
@@ -8386,14 +8388,14 @@
             "src/polisyos/scientist/validation/verification/ic/conformance.py",
             "src/polisyos/scientist/validation/verification/ic/service.py"
           ],
-          "independent_identity_hash": "sha256:89ca5ee4b1dd3f1ddd9ac96ff81de07b67640d78eb425c377ffd64e173c21e07"
+          "independent_identity_hash": "sha256:b1d3883fb11be502ec28d3dbccf742bf67980a3e798befcdc63dc9fc309e4d35"
         },
         "status": "strangled",
         "verified_by": "intervention_substrate_behavior_report"
       },
       {
         "behavior_content_hash": "sha256:1f5583764a601ae95bcad4214a52ade43b6535e13906a587dc57c809a1e99408",
-        "content_hash": "sha256:be611612fcba9d939e64e2f8b82d4abf94f878c189762ac781c9962883a5d5b4",
+        "content_hash": "sha256:f3d8fa0be5c037695a08bf55c1a12cca0746d03cbdd1ecc5fbafbacf5339599e",
         "default_after": "unverified correspondence blocks authority",
         "default_before": "numeric threshold admits law/knob mapping",
         "disposition": "default_flipped",
@@ -9230,6 +9232,7 @@
             "src/polisyos/fabric/quality/quality.py",
             "src/polisyos/fabric/quality/safety.py",
             "src/polisyos/fabric/retrieval/__init__.py",
+            "src/polisyos/fabric/retrieval/custody.py",
             "src/polisyos/fabric/retrieval/executor.py",
             "src/polisyos/fabric/retrieval/explore_lane.py",
             "src/polisyos/fabric/retrieval/providers.py",
@@ -11047,7 +11050,7 @@
             "src/polisyos/scientist/validation/verification/ic/conformance.py",
             "src/polisyos/scientist/validation/verification/ic/service.py"
           ],
-          "independent_identity_hash": "sha256:89ca5ee4b1dd3f1ddd9ac96ff81de07b67640d78eb425c377ffd64e173c21e07"
+          "independent_identity_hash": "sha256:b1d3883fb11be502ec28d3dbccf742bf67980a3e798befcdc63dc9fc309e4d35"
         },
         "status": "strangled",
         "verified_by": "intervention_substrate_behavior_report"
@@ -11676,11 +11679,11 @@
             "causal.inference.did.staggered@1.0.0",
             "causal.inference.did.standard@1.0.0",
             "causal.inference.structural_time_series@1.0.0",
-            "causal.inference.synthetic_control@1.0.0",
+            "causal.inference.synthetic_control@2.0.0",
             "econometrics.panel.event_study@1.0.0",
             "econometrics.panel.synthetic_did@1.0.0"
           ],
-          "content_hash": "sha256:24fdf1e6a4cba945cbd691218413d8ab6d0fdf3937f9e918e7d76dcd79c1ba53",
+          "content_hash": "sha256:2e3c35308bb76fa9424b7f13437b561fa76fd2834f254720129fbda4786f45f7",
           "family": "budget_flows",
           "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
           "reason_code": null,

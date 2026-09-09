@@ -37,11 +37,8 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.analytics.hte import HTEResult
 from polisyos.ir.analytics.sensitivity import SensitivityResult
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import RunCausalEvaluationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_METHOD_RESULT_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
@@ -49,6 +46,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def test_causal_evaluation_node_skip_without_data(tmp_path) -> None:
@@ -62,7 +61,9 @@ def test_causal_evaluation_node_skip_without_data(tmp_path) -> None:
     assert outcome.status == "skip"
 
 
-def test_causal_evaluation_node_success(tmp_path) -> None:
+def test_causal_evaluation_node_refuses_absent_eval_safety_before_execution(
+    tmp_path, monkeypatch
+) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_causal_ok")
@@ -91,17 +92,33 @@ def test_causal_evaluation_node_success(tmp_path) -> None:
     state = ExperimentState(
         run_id="R_causal_ok",
         observational_data_ref=data_ref,
-        causal_method_fqn="causal.inference.synthetic_control@1.0.0",
+        causal_method_fqn="causal.inference.synthetic_control@2.0.0",
         params={"random_seed": 42},
     )
-    outcome = RunCausalEvaluationNode().execute(ctx, state)
-    assert outcome.status == "ok"
-    assert ARTIFACT_CAUSAL_REPORT_REF in outcome.state.artifacts_index
-    assert ARTIFACT_CAUSAL_ENVELOPE_REF in outcome.state.artifacts_index
+    original = state.model_dump(mode="json")
+    execution_attempts = []
 
-    report_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
-    report_payload = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
-    assert report_payload["status"] == "success"
+    def unexpected_run_job(*args, **kwargs):
+        execution_attempts.append((args, kwargs))
+        pytest.fail("Method execution must not precede actual EvalSafety admission.")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.run_job",
+        unexpected_run_job,
+    )
+    assert ctx.eval_safety_execution_context is None
+    outcome = RunCausalEvaluationNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "foundry.execute_failed"
+    assert outcome.error.details == {
+        "blocker_codes": ["polisyos.eval_safety.execution_context_missing@1.0.0"]
+    }
+    assert execution_attempts == []
+    assert state.model_dump(mode="json") == original
+    assert outcome.state.model_dump(mode="json") == original
+    assert outcome.state.artifacts_index == {}
 
 
 def test_causal_evaluation_node_persists_hte_result(tmp_path, monkeypatch) -> None:

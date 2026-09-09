@@ -17,7 +17,12 @@ from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.cache import LRUCache
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
-from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeOutcome,
+    NodeSpec,
+    OutputAwareNodeOutcome,
+    decode_node_outcome,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 logger = get_logger(__name__)
@@ -134,13 +139,36 @@ class NodeResultCache:
     def prune(self, max_entries: int) -> int:
         return self._index.prune(max_entries)
 
+    def _verify_output_aware_cache_artifact(self, ref: ArtifactRef, *, entry: bool = False) -> None:
+        """Read back the actual immutable cache epoch, including reused CAS bytes."""
+        if not self._store.verify(ref.artifact_id).ok:
+            raise ValueError("output_aware_cache_custody: artifact_integrity_failed")
+        manifest = self._store.get_manifest(ref.artifact_id)
+        kind = "scientist.node_cache_entry" if entry else "scientist.node_outcome"
+        schema_name = "NodeCacheEntry" if entry else "OutputAwareNodeOutcome"
+        expected_schema = SchemaInfo(
+            name=f"polisyos.scientist.orchestration.engine.{schema_name}", version="1.0"
+        )
+        expected_producer = ProducerInfo(component="scientist.engine.idempotency", version="2.0.0")
+        if (
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or manifest.kind != kind
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema != expected_schema
+            or manifest.producer != expected_producer
+        ):
+            raise ValueError("output_aware_cache_custody: immutable_epoch_mismatch")
+
     def get(self, key: str) -> NodeOutcome | None:
         outcome_ref = self._index.get(key)
         if outcome_ref is None:
             return None
         try:
             payload = from_canonical_bytes(self._store.get_bytes(outcome_ref.artifact_id))
-            outcome = NodeOutcome.model_validate(payload)
+            outcome = decode_node_outcome(payload)
+            if isinstance(outcome, OutputAwareNodeOutcome):
+                self._verify_output_aware_cache_artifact(outcome_ref)
         except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
             logger.debug(
                 "Cache miss for key %s, evicting: %s",
@@ -152,16 +180,25 @@ class NodeResultCache:
         return outcome
 
     def put(self, key: str, node_id: str, outcome: NodeOutcome) -> ArtifactRef:
+        output_aware = isinstance(outcome, OutputAwareNodeOutcome)
+        producer_version = "2.0.0" if output_aware else "1.0.0"
+        outcome_schema = "OutputAwareNodeOutcome" if output_aware else "NodeOutcome"
         outcome_ref = self._store.put_json(
             outcome.model_dump(mode="python", by_alias=True, exclude_none=False),
             PutOptions(
                 kind="scientist.node_outcome",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.orchestration.engine.NodeOutcome", version="1.0"),
-                producer=ProducerInfo(component="scientist.engine.idempotency", version="1.0.0"),
+                schema=SchemaInfo(
+                    name=f"polisyos.scientist.orchestration.engine.{outcome_schema}", version="1.0"
+                ),
+                producer=ProducerInfo(
+                    component="scientist.engine.idempotency", version=producer_version
+                ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
+        if output_aware:
+            self._verify_output_aware_cache_artifact(outcome_ref)
         entry = NodeCacheEntry(
             run_id=self._run_id,
             node_id=node_id,
@@ -173,10 +210,16 @@ class NodeResultCache:
             PutOptions(
                 kind="scientist.node_cache_entry",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.orchestration.engine.NodeCacheEntry", version="1.0"),
-                producer=ProducerInfo(component="scientist.engine.idempotency", version="1.0.0"),
+                schema=SchemaInfo(
+                    name="polisyos.scientist.orchestration.engine.NodeCacheEntry", version="1.0"
+                ),
+                producer=ProducerInfo(
+                    component="scientist.engine.idempotency", version=producer_version
+                ),
             ),
         )
+        if output_aware:
+            self._verify_output_aware_cache_artifact(entry_ref, entry=True)
         self._index.set(key, outcome_ref)
         if self._max_entries is not None:
             self.prune(self._max_entries)
@@ -187,6 +230,20 @@ class NodeResultCache:
         entry = NodeCacheEntry.model_validate(payload)
         if entry.run_id != self._run_id:
             return False
+        # An ordinary legacy entry may be seeded before its outcome is readable;
+        # preserve that existing behavior. A supplied output-aware body, however,
+        # must establish both actual cache manifests before it is indexed.
+        try:
+            offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref.artifact_id))
+        except (FileNotFoundError, OSError, TypeError, ValueError):
+            offered = None
+        extension_fields = (
+            OutputAwareNodeOutcome.model_fields.keys() - NodeOutcome.model_fields.keys()
+        )
+        if isinstance(offered, dict) and extension_fields.intersection(offered):
+            decode_node_outcome(offered)
+            self._verify_output_aware_cache_artifact(entry.outcome_ref)
+            self._verify_output_aware_cache_artifact(entry_ref, entry=True)
         self._index.set(entry.idempotency_key, entry.outcome_ref)
         if self._max_entries is not None:
             self.prune(self._max_entries)

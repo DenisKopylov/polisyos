@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core import scan_secret_and_pii
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -26,6 +27,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.data_forge import read_api
+from polisyos.foundry import InputContractMethodSelection
 from polisyos.pdc import (
     ApplicabilityResult,
     ArtifactEnvelope,
@@ -35,6 +37,8 @@ from polisyos.pdc import (
     BudgetVector,
     CertifiedOperationEnvelope,
     CompositionCertificate,
+    EvalSafetyVerifierPort,
+    EvaluationExecutionContext,
     EvidenceBasis,
     FrontierSnapshot,
     MethodOutputConsumptionRecord,
@@ -79,6 +83,8 @@ from polisyos.runtime.quality.data_forge_binding import (
     measurement_rows_for_catalog_payload,
     produce_phase2_recorded_panel_measurement_root,
     produce_recorded_panel_method_input,
+    recorded_panel_method_input_target,
+    verify_recorded_panel_method_input,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingGraph,
@@ -93,7 +99,16 @@ from polisyos.runtime.quality.semantic_binding import (
     SemanticBenchmarkRun,
     load_gy_semantic_benchmark,
 )
-from polisyos.runtime.quality.workspace.foundry_consumption import FoundryMethodOutputConsumer
+from polisyos.runtime.quality.workspace.foundry_consumption import (
+    ConstraintStoreIngestor,
+    FoundryConsumptionResult,
+    FoundryMethodOutputConsumer,
+    Phase2ConstraintAdmission,
+    Phase2RequirementBasis,
+    StagedFoundryInputBinding,
+    evaluate_constraint_store_for_phase2,
+    install_verified_staged_foundry_inputs,
+)
 from polisyos.runtime.quality.workspace.spine_repair_gates import (
     BlockedInputProducer,
     LexBoundsApplicabilityGate,
@@ -326,6 +341,46 @@ class WorkspaceIntentRunResult(BaseModel):
     foundry_input_provenance: str | None = None
     open_production_findings: list[str] = Field(default_factory=list)
     adapter_admissions: list[PlaybookStepAdmission] = Field(default_factory=list)
+    phase2_method_selection: InputContractMethodSelection | None = None
+    constraint_admission: Phase2ConstraintAdmission | None = None
+
+
+def _phase2_constraint_blockers(
+    owner: ConstraintStoreIngestor,
+    admission: Phase2ConstraintAdmission,
+    *,
+    workspace_id: str,
+) -> list[SearchBlockerRecord]:
+    admitted_ref = str(admission.artifact_ref.artifact_id)
+    decision = evaluate_constraint_store_for_phase2(
+        admission,
+        owner=owner,
+        workspace_id=workspace_id,
+    )
+    if not (decision.blocks_promotion or decision.downgrades_authority):
+        return []
+    identities = [
+        *decision.blocking_constraint_ids,
+        *decision.limiting_constraint_ids,
+        *decision.warning_constraint_ids,
+    ]
+    if not identities:
+        raise WorkspaceInvariantError("constraint_decision_missing_explanatory_population")
+    return [
+        SearchBlockerRecord(
+            blocker_id=f"blocker-constraint-{index}",
+            workspace_id=workspace_id,
+            operation_class=OperationClass.VERIFY,
+            blocked_port="constraint_store",
+            missing_input=identity[:200],
+            reason="Requirement preflight forbids unrestricted A-side admission: " + identity,
+            applicability_result_ref=admitted_ref,
+            producer_missing_label="verification_missing",
+            severity="blocks_authority",
+            repair_options=[{"operation_class": OperationClass.REFINE.value, "reason": identity}],
+        )
+        for index, identity in enumerate(identities)
+    ]
 
 
 def _slug(value: str) -> str:
@@ -658,45 +713,43 @@ def _foundry_registry_estimate_candidates() -> list[str]:
     return sorted(dict.fromkeys(matches))[:10]
 
 
+class Phase2MethodSelectionError(MeasurementRootBindingError):
+    """Keep the complete candidate-selection result on typed binding refusal."""
+
+    def __init__(self, selection: InputContractMethodSelection, reason: str | None = None) -> None:
+        self.selection = selection
+        super().__init__(reason or "; ".join(selection.blockers))
+
+
 def _phase2_value_method_selection(
     intent: dict[str, Any],
     *,
     design_problem: DesignProblem,
+    contract_id: str | None = None,
 ) -> dict[str, Any]:
-    causal_variables = intent.get("causal_variables")
-    target_world_slots = (
-        tuple(str(item) for item in causal_variables)
-        if isinstance(causal_variables, list) and causal_variables
-        else ("credit_access", "firm_survival")
-    )
-    candidate = {
-        "candidate_id": str(intent.get("candidate_id") or "workspace_phase2_candidate"),
-        "atom": {
-            "intervention_id": str(intent.get("intervention_id") or "workspace_phase2"),
-            "target_world_slots": target_world_slots,
-        },
-        "diversity_key": (
-            str(intent.get("operation_class") or "estimate"),
-            *target_world_slots[:2],
-            "workspace_phase2",
-        ),
-    }
-    try:
-        from polisyos.foundry.methods.selection import select_value_method_for_problem
-    except ImportError as exc:
-        return {
-            "status": "blocked",
-            "blockers": ("value_method_selector_unavailable",),
-            "reason": str(exc),
-        }
-    return select_value_method_for_problem(
-        candidate=candidate,
-        problem=design_problem,
+    """Compatibility name for phase-2 causal candidate search, not N8 values."""
+
+    from polisyos.foundry import select_method_for_input_contract
+    from polisyos.foundry.methods.selection import MethodSelectionCriteria
+
+    if "observation_to_contract_manifest" in intent:
+        raise MeasurementRootBindingError("source_manifest_requires_verified_input_binding")
+    if contract_id is None:
+        if "observational_data_ref" in intent:
+            raise MeasurementRootBindingError("supplied_observation_contract_unestablished")
+        contract_id = recorded_panel_method_input_target().contract_id
+    # `report` is the actual causal node's method-output port. It constrains
+    # candidate search only: that node must still parse the emitted value as
+    # CausalEffectReport during real C1 conformance before Operation admission.
+    return select_method_for_input_contract(
+        contract_id=contract_id,
+        required_output_slots=("report",),
         requested_method_fqn=(
-            str(intent["causal_method_fqn"]) if intent.get("causal_method_fqn") else None
+            str(intent["causal_method_fqn"]) if "causal_method_fqn" in intent else None
         ),
-        observation_to_contract_manifest=intent.get("observation_to_contract_manifest"),
-    )
+        criteria=MethodSelectionCriteria(preferred_family="causal.inference"),
+        selection_context={"design_problem": design_problem.model_dump(mode="json")},
+    ).model_dump(mode="json")
 
 
 def _slot_names(slots: object) -> list[str]:
@@ -909,9 +962,24 @@ class WorkspaceLoop:
         registry: OperationRegistry | None = None,
         catalog_graph: CatalogGraphProtocol | None = None,
         artifact_store: FileSystemCAS | None = None,
+        staged_foundry_inputs: StagedFoundryInputBinding | None = None,
+        eval_safety_execution_context: EvaluationExecutionContext | None = None,
+        eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     ) -> None:
+        self._staged_foundry_inputs = staged_foundry_inputs
+        self._eval_safety_execution_context = eval_safety_execution_context
+        self._eval_safety_verifier = eval_safety_verifier
         self._registry = registry or build_workspace_operation_registry()
         self._artifact_store = artifact_store
+        self._phase2_constraint_readbacks: dict[
+            int, tuple[Phase2ConstraintAdmission, ConstraintStoreIngestor]
+        ] = {}
+        self._phase2_method_readbacks: dict[
+            int,
+            tuple[
+                ArtifactRef, FoundryMethodOutputConsumer, FoundryConsumptionResult, FileSystemCAS
+            ],
+        ] = {}
         if catalog_graph is None:
             catalog_graph = build_default_workspace_catalog_graph()
         self._catalog_graph = catalog_graph
@@ -1030,6 +1098,8 @@ class WorkspaceLoop:
                 run=run,
                 logger=logging.getLogger(f"polisyos.gy.phase2.{workspace_id}"),
                 claim_ledger_owner=build_default_claim_ledger_owner(store=store),
+                eval_safety_execution_context=self._eval_safety_execution_context,
+                eval_safety_verifier=self._eval_safety_verifier,
             ),
             bundle.bundle_ref,
         )
@@ -1102,25 +1172,67 @@ class WorkspaceLoop:
         intent: dict[str, Any],
         design_problem: DesignProblem,
     ) -> ExperimentState:
-        method_selection = _phase2_value_method_selection(
-            {**intent, "workspace_id": workspace_id},
-            design_problem=design_problem,
+        supplied_binding = None
+        if "observational_data_ref" in intent:
+            # A supplied null, string marker or detached DTO is not the recorded
+            # owner's default. Resolve the actual current binding before search.
+            if intent["observational_data_ref"] is None:
+                raise MeasurementRootBindingError("supplied_observation_ref_null")
+            raw_binding = design_problem.runtime_hints.get("foundry_input_binding_receipt_ref")
+            if raw_binding is None:
+                raise MeasurementRootBindingError("supplied_observation_contract_unestablished")
+            try:
+                binding_ref = core_artifacts.ArtifactRef.model_validate(
+                    raw_binding.model_dump(mode="python")
+                    if hasattr(raw_binding, "model_dump") else raw_binding
+                )
+                raw_observation = intent["observational_data_ref"]
+                observation_ref = core_artifacts.ArtifactRef.model_validate(
+                    raw_observation.model_dump(mode="python")
+                    if hasattr(raw_observation, "model_dump") else raw_observation
+                )
+                supplied_binding = verify_recorded_panel_method_input(
+                    store=self._phase2_store(), binding_receipt_ref=binding_ref,
+                )
+                if observation_ref != supplied_binding.observational_data_ref:
+                    raise ValueError("supplied_observation_binding_ref_mismatch")
+            except (ValueError, TypeError, KeyError) as exc:
+                raise MeasurementRootBindingError(
+                    f"supplied_observation_contract_unestablished:{exc}"
+                ) from exc
+            contract_id = supplied_binding.contract_target["contract_id"]
+        else:
+            contract_id = recorded_panel_method_input_target().contract_id
+        selection_intent = {**intent, "workspace_id": workspace_id}
+        if supplied_binding is not None and "causal_method_fqn" not in selection_intent:
+            selection_intent["causal_method_fqn"] = supplied_binding.receipt.method_fqn
+        method_selection = InputContractMethodSelection.model_validate(
+            _phase2_value_method_selection(
+                selection_intent, design_problem=design_problem, contract_id=contract_id,
+            )
         )
-        method_fqn = str(method_selection.get("selected_method_fqn") or "")
+        if method_selection.status != "selected":
+            raise Phase2MethodSelectionError(method_selection)
+        method_fqn = method_selection.selected_method_fqn
+        if method_fqn is None:
+            raise Phase2MethodSelectionError(method_selection, "selected_method_fqn_missing")
         causal_variables = self._phase2_causal_variables(intent=intent)
-        binding_receipt_ref = None
-        if intent.get("observational_data_ref") is None:
+        if supplied_binding is None:
             try:
                 binding = produce_recorded_panel_method_input(
                     store=self._phase2_store(), method_fqn=method_fqn,
                 )
             except MeasurementRootBindingError as exc:
-                raise MeasurementRootBindingError(f"{method_fqn}: {exc}") from exc
-            observational_data_ref = binding.observational_data_ref
-            binding_receipt_ref = binding.binding_receipt_ref
+                raise Phase2MethodSelectionError(method_selection, f"{method_fqn}: {exc}") from exc
         else:
-            observational_data_ref = self._phase2_observational_data_ref(intent=intent)
-        return ExperimentState(
+            if supplied_binding.receipt.method_fqn != method_fqn:
+                raise Phase2MethodSelectionError(
+                    method_selection, "supplied_binding_method_mismatch"
+                )
+            binding = supplied_binding
+        observational_data_ref = binding.observational_data_ref
+        binding_receipt_ref = binding.binding_receipt_ref
+        state = ExperimentState(
             run_id=f"run-{_slug(workspace_id)}",
             observational_data_ref=observational_data_ref,
             causal_method_fqn=method_fqn,
@@ -1140,7 +1252,7 @@ class WorkspaceLoop:
                 "random_seed": int(intent.get("random_seed", 42) or 42),
                 "causal_method_fqn": method_fqn,
                 "causal_method_params": {},
-                "causal_method_selection": method_selection,
+                "causal_method_selection": method_selection.model_dump(mode="json"),
                 "enable_causal_refutation": False,
                 "causal_refutation_params": {},
                 "enable_causal_sensitivity": False,
@@ -1148,6 +1260,18 @@ class WorkspaceLoop:
                 "causal_validity": {},
             },
         )
+        if self._staged_foundry_inputs is not None:
+            try:
+                state = install_verified_staged_foundry_inputs(
+                    store=self._phase2_store(), state=state,
+                    binding=self._staged_foundry_inputs,
+                )
+            except (OSError, ValueError, TypeError, KeyError) as exc:
+                raise Phase2MethodSelectionError(
+                    method_selection,
+                    "foundry_staged_intake_verification_missing:" + str(exc),
+                ) from exc
+        return state
 
     def _install_phase2_normative_inputs(
         self,
@@ -1349,15 +1473,50 @@ class WorkspaceLoop:
         next_state.reports_index[report_legal_report_ref] = legal_report_core_ref
         return next_state
 
-    def run_intent(self, intent: DesignProblem) -> WorkspaceIntentRunResult:
+    def readback_constraint_admission(self, admission: Phase2ConstraintAdmission) -> bytes:
+        """Read only an actual admission produced by this live loop and its owner."""
+        stored = self._phase2_constraint_readbacks.get(id(admission))
+        if stored is None or stored[0] is not admission:
+            raise ValueError("constraint_admission_not_from_this_loop")
+        return stored[1].readback(admission, workspace_id=admission.workspace_id)
+
+    def readback_method_consumption(self, ref: ArtifactRef) -> bytes:
+        """Return the exact consumed owner seal; deserialization grants no admission."""
+        stored = self._phase2_method_readbacks.get(id(ref))
+        if stored is None or stored[0] is not ref:
+            raise ValueError("phase2_method_consumption_not_this_loop_admission")
+        return stored[1]._require_verified_consumption(store=stored[3], consumption=stored[2])
+
+    def run_intent(
+        self,
+        intent: DesignProblem,
+        *,
+        constraint_basis: Phase2RequirementBasis | None = None,
+    ) -> WorkspaceIntentRunResult:
         """Run the Phase-2 DesignProblem/playbook path without widening Slice-0 fixtures."""
 
         if not isinstance(intent, DesignProblem):
             raise TypeError("WorkspaceLoop.run_intent requires a DesignProblem.")
         projected_intent = intent.to_workspace_intent()
         selection = select_playbook_for_intent(projected_intent)
-        workspace_id = (
-            f"ws-phase2-{_slug(str(projected_intent.get('policy_question') or 'intent'))}"
+        workspace_slug = _slug(str(projected_intent.get("policy_question") or "intent"))
+        workspace_id = f"ws-phase2-{workspace_slug}"
+        constraint_store = self._phase2_store()
+        constraint_owner = ConstraintStoreIngestor(store=constraint_store)
+        constraint_admission = constraint_owner.produce(
+            workspace_id=workspace_id,
+            design_problem=intent,
+            basis=constraint_basis,
+        )
+        self._phase2_constraint_readbacks[id(constraint_admission)] = (
+            constraint_admission, constraint_owner,
+        )
+        # Authority blockers do not suppress independent candidate smoke. A-side
+        # verification consumes the decision before it can admit an affected use.
+        constraint_blockers = _phase2_constraint_blockers(
+            constraint_owner,
+            constraint_admission,
+            workspace_id=workspace_id,
         )
         blockers: list[SearchBlockerRecord] = []
         executed = [OperationClass.BIND, OperationClass.ESTIMATE]
@@ -1371,6 +1530,7 @@ class WorkspaceLoop:
             if bounds.blocker is not None:
                 blockers.append(bounds.blocker)
             executed.append(OperationClass.REFINE)
+            blockers.extend(constraint_blockers)
             trace = trace_playbook_execution(
                 selection=selection,
                 executed_operation_classes=executed,
@@ -1390,6 +1550,7 @@ class WorkspaceLoop:
                 phase2_playbook_trace=trace,
                 search_blockers=blockers,
                 legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
+                constraint_admission=constraint_admission,
             )
 
         ctx, _bundle_ref = self._phase2_context(workspace_id=workspace_id)
@@ -1409,28 +1570,40 @@ class WorkspaceLoop:
                 reason=str(exc)[:800],
                 producer_missing_label="verification_missing",
                 severity="blocks_execution",
-                repair_options=[{
-                    "operation_class": OperationClass.ACQUIRE.value,
-                    "reason": (
-                        "Supply recorded input satisfying the selected method's actual contract."
-                    ),
-                }],
+                repair_options=[
+                    {
+                        "operation_class": OperationClass.ACQUIRE.value,
+                        "reason": (
+                            "Supply recorded input satisfying the selected method's "
+                            "actual contract."
+                        ),
+                    }
+                ],
             )
             return WorkspaceIntentRunResult(
                 workspace_id=workspace_id,
                 terminal_state=SearchTerminalState(
                     kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED,
                     reason="The recorded input owner refused the selected method binding.",
-                    blocking_obligations=[blocker.blocker_id],
+                    blocking_obligations=[
+                        blocker.blocker_id,
+                        *[item.blocker_id for item in constraint_blockers],
+                    ],
                 ),
                 phase2_playbook_trace=trace_playbook_execution(
-                    selection=selection, executed_operation_classes=[],
-                    deviated_from_default=True, deviation_operation=OperationClass.REFINE,
-                    deviation_reason="foundry_method_input_binding_refused", blockers=[blocker],
-                    executed_legacy_aliases=[], out_of_scope_steps=[],
+                    selection=selection,
+                    executed_operation_classes=[],
+                    deviated_from_default=True,
+                    deviation_operation=OperationClass.REFINE,
+                    deviation_reason="foundry_method_input_binding_refused",
+                    blockers=[blocker],
+                    executed_legacy_aliases=[],
+                    out_of_scope_steps=[],
                 ),
-                search_blockers=[blocker],
+                search_blockers=[blocker, *constraint_blockers],
+                phase2_method_selection=getattr(exc, "selection", None),
                 legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
+                constraint_admission=constraint_admission,
             )
         required_inputs = ["observational_data_ref", "causal_variables", "data_causal_graph"]
         state_facts = {
@@ -1493,6 +1666,15 @@ class WorkspaceLoop:
                         }
                     )
                     continue
+                if step.operation_class == OperationClass.VERIFY:
+                    current_constraints = _phase2_constraint_blockers(
+                        constraint_owner,
+                        constraint_admission,
+                        workspace_id=workspace_id,
+                    )
+                    if current_constraints:
+                        blockers.extend(current_constraints)
+                        break
                 if step.legacy_alias == "run_normative_arbitration":
                     execution_state = self._install_phase2_normative_inputs(
                         state=execution_state,
@@ -1537,27 +1719,73 @@ class WorkspaceLoop:
                     break
                 execution_state = execution.outcome.state
                 if step.legacy_alias == "run_causal_evaluation":
-                    foundry_store = self._phase2_store()
-                    foundry = FoundryMethodOutputConsumer(store=foundry_store)
-                    consumed = foundry.consume_from_state(
-                        workspace_id=workspace_id,
-                        operation_invocation_id=execution.invocation.invocation_id,
-                        operation_class=OperationClass.ESTIMATE,
-                        state=execution.outcome.state,
-                        measurement_root_ref=state.observational_data_ref,
-                        binding_receipt_ref=state.artifacts_index.get(
-                            "foundry_input_binding_receipt_ref"
-                        ),
-                        constraint_store_ref=None,
-                    )
-                    method_output_consumption_record = consumed.record
-                    method_output_consumption_ref = foundry.persist_consumption(
-                        store=foundry_store,
-                        consumption=consumed,
-                    )
-                    authority_boundary = consumed.authority_boundary
-                    foundry_input_provenance = consumed.input_provenance
-                    open_production_findings = list(consumed.open_production_findings)
+                    try:
+                        foundry_store = constraint_store
+                        foundry = FoundryMethodOutputConsumer(
+                            store=foundry_store,
+                            staged_input_source=(self._staged_foundry_inputs.source
+                                if self._staged_foundry_inputs is not None else None),
+                        )
+                        consumed = foundry.consume_from_state(
+                            workspace_id=workspace_id,
+                            operation_invocation_id=execution.invocation.invocation_id,
+                            operation_class=OperationClass.ESTIMATE,
+                            state=execution.outcome.state,
+                            measurement_root_ref=state.observational_data_ref,
+                            binding_receipt_ref=state.artifacts_index.get(
+                                "foundry_input_binding_receipt_ref"
+                            ),
+                        )
+                        # The initial result is verified computation, not yet an emitted
+                        # authority record. Reconcile the actual selected method first.
+                        constraint_admission = constraint_owner.reconcile_method(
+                            constraint_admission,
+                            method_owner=foundry,
+                            consumption=consumed,
+                        )
+                        self._phase2_constraint_readbacks[id(constraint_admission)] = (
+                            constraint_admission, constraint_owner,
+                        )
+                        consumed = foundry.bind_constraints(
+                            consumption=consumed,
+                            owner=constraint_owner,
+                            admission=constraint_admission,
+                        )
+                        constraint_blockers = _phase2_constraint_blockers(
+                            constraint_owner, constraint_admission, workspace_id=workspace_id
+                        )
+                        method_output_consumption_ref = foundry.persist_consumption(
+                            store=foundry_store,
+                            consumption=consumed,
+                        )
+                        self._phase2_method_readbacks[id(method_output_consumption_ref)] = (
+                            method_output_consumption_ref, foundry, consumed, foundry_store,
+                        )
+                        method_output_consumption_record = consumed.record
+                        authority_boundary = consumed.authority_boundary
+                        foundry_input_provenance = consumed.input_provenance
+                        open_production_findings = list(consumed.open_production_findings)
+                    except (ValueError, OSError) as exc:
+                        # An actual computation does not authorize use when its
+                        # current constraint/source readback cannot be substantiated.
+                        blockers.append(
+                            SearchBlockerRecord(
+                                blocker_id="blocker-foundry-constraint-consumption",
+                                workspace_id=workspace_id,
+                                operation_class=OperationClass.REFINE,
+                                blocked_port="method_output_consumption",
+                                missing_input="verified_foundry_constraint_consumption",
+                                reason=str(exc)[:800],
+                                severity="blocks_authority",
+                                producer_missing_label="verification_missing",
+                            )
+                        )
+                        break
+
+        existing_blockers = {item.blocker_id for item in blockers}
+        blockers.extend(
+            item for item in constraint_blockers if item.blocker_id not in existing_blockers
+        )
         trace = trace_playbook_execution(
             selection=selection,
             executed_operation_classes=list(dict.fromkeys(executed_operation_classes).keys()),
@@ -1586,12 +1814,16 @@ class WorkspaceLoop:
             terminal_state=terminal,
             phase2_playbook_trace=trace,
             search_blockers=blockers,
+            constraint_admission=constraint_admission,
             legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
             authority_boundary=authority_boundary,
             operation_invocations=operation_invocations,
             search_ledger_events=search_ledger_events,
             artifact_envelopes=artifact_envelopes,
             adapter_admissions=adapter_admissions,
+            phase2_method_selection=InputContractMethodSelection.model_validate(
+                state.params["causal_method_selection"],
+            ),
             method_output_consumption_record=method_output_consumption_record,
             method_output_consumption_ref=method_output_consumption_ref,
             foundry_input_provenance=foundry_input_provenance,

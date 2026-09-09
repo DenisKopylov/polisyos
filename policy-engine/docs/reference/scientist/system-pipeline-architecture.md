@@ -657,7 +657,7 @@ CheckpointPolicy = "off" | "strict" | "best_effort"
 | **run_simulation**              | `scientist.node_run_simulation@1.0.0`              | Выполнение Foundry exec plan. Производит 8 артефактов (result, metrics, state_delta, snapshot, constraints, environment, attestation, sbom). |
 | **run_distributional_analysis** | `scientist.node_run_distributional_analysis@1.0.0` | DistributionalReport: breakdown по geography/income quintiles.                                                                               |
 | **propagate_uncertainty**       | `scientist.node_propagate_uncertainty@1.0.0`       | Propagation input uncertainty → output metrics.                                                                                              |
-| **run_causal_evaluation**       | `scientist.node_run_causal_evaluation@1.0.0`       | Каузальный анализ (ATE/HTE). Опционально refutation + sensitivity. Производит 7 артефактов.                                                  |
+| **run_causal_evaluation**       | `scientist.node_run_causal_evaluation@2.0.0`       | Каузальный анализ (ATE/HTE). Опционально refutation + sensitivity. Сохраняет полный объявленный контракт выходов; условные выходы несут проверяемый типизированный отказ.                                                  |
 
 ### Causal Nodes (causal_full only)
 

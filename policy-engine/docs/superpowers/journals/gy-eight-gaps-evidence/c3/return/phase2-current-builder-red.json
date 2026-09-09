@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_collection_keeps_actual_c1_when_foundry_consumption_is_missing"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T09:12:05.564562+00:00",
+  "elapsed_seconds": 95.038,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__ test_phase2_collection_keeps_actual_c1_when_foundry_consumption_is_missing __\ntests/repo_quality/tools/test_layer3_gy_phase2_collection.py:42: in test_phase2_collection_keeps_actual_c1_when_foundry_consumption_is_missing\n    payloads = checker.build_live_proof_payloads(root)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntools/quality/validation/check_layer3_gy_phase2_artifacts.py:469: in build_live_proof_payloads\n    raise AssertionError(\"Phase-2 stable run did not execute a legacy adapter\")\nE   AssertionError: Phase-2 stable run did not execute a legacy adapter\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_collection_keeps_actual_c1_when_foundry_consumption_is_missing\n",
+  "stderr": ""
+}

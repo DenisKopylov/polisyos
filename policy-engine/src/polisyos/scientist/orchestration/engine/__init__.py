@@ -70,6 +70,12 @@ __all__ = [
     "NodeExecutionError",
     "NodeInvocation",
     "NodeOutcome",
+    "NodeOutputRule",
+    "OutputAwareNodeSpec",
+    "NodeOutputDisposition",
+    "NodeOutputRefusal",
+    "OutputAwareNodeOutcome",
+    "decode_node_outcome",
     "NodeRegistry",
     "NodeResultCache",
     "NodeSpec",
@@ -113,6 +119,12 @@ __all__ = [
 ]
 
 _EXPORTS = {
+    "NodeOutputRule": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutputRule"),
+    "OutputAwareNodeSpec": ("polisyos.scientist.orchestration.engine.protocol", "OutputAwareNodeSpec"),
+    "NodeOutputDisposition": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutputDisposition"),
+    "NodeOutputRefusal": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutputRefusal"),
+    "OutputAwareNodeOutcome": ("polisyos.scientist.orchestration.engine.protocol", "OutputAwareNodeOutcome"),
+    "decode_node_outcome": ("polisyos.scientist.orchestration.engine.protocol", "decode_node_outcome"),
     "Node": ("polisyos.scientist.orchestration.engine.protocol", "Node"),
     "NodeSpec": ("polisyos.scientist.orchestration.engine.protocol", "NodeSpec"),
     "NodeOutcome": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutcome"),

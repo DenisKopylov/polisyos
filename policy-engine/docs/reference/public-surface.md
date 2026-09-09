@@ -94,7 +94,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 13 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
@@ -2281,7 +2281,7 @@ world
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 13 |
+| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 15 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
@@ -2292,13 +2292,15 @@ world
 - Facade: `lazy_facade`
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
-<details><summary>Entrypoint exports (13)</summary>
+<details><summary>Entrypoint exports (15)</summary>
 
 ```text
 DependencyProfileResolutionFailure
 EmbedderProtocol
 MethodCatalogDependencyAuthorityRequest
 MethodRouteConstraint
+InputContractMethodSelection
+select_method_for_input_contract
 SentenceTransformerEmbedder
 TFIDFEmbedder
 build_method_catalog_provenance_manifest
@@ -2358,13 +2360,15 @@ resolve_execution_posture
 
 </details>
 
-<details><summary>Supported exports (13)</summary>
+<details><summary>Supported exports (15)</summary>
 
 ```text
 DependencyProfileResolutionFailure
 EmbedderProtocol
 MethodCatalogDependencyAuthorityRequest
 MethodRouteConstraint
+InputContractMethodSelection
+select_method_for_input_contract
 SentenceTransformerEmbedder
 TFIDFEmbedder
 build_method_catalog_provenance_manifest

@@ -1,0 +1,38 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_explicit_causal_method_uses_contract_route_not_value_population",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_default_method_accepts_actual_recorded_input_and_report_port",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_selection_refusal_stops_before_binding_and_retains_result",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_supplied_observation_without_contract_is_not_recorded_default",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_contract_selector_receives_the_owner_design_problem",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_state_carries_the_real_recorded_binding_without_faking_stage_intake",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_recorded_binding_refusal_is_a_typed_terminal",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_walks_whole_registry_and_excludes_diagnostics",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_refuses_requested_incompatible_or_novel",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_keeps_unreadable_member_and_refuses",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_new_registered_entry_grows_full_population",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T08:35:21.652895+00:00",
+  "elapsed_seconds": 64.489,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "..................                                                       [100%]\n==================================== PASSES ====================================\n_ test_phase2_explicit_causal_method_uses_contract_route_not_value_population __\n__ test_input_contract_selector_walks_whole_registry_and_excludes_diagnostics __\n_ test_input_contract_selector_refuses_requested_incompatible_or_novel[test.c1.diagnostic@1.0.0] _\n_ test_input_contract_selector_refuses_requested_incompatible_or_novel[test.c1.incompatible@1.0.0] _\n_ test_input_contract_selector_refuses_requested_incompatible_or_novel[test.c1.novel@1.0.0] _\n_______ test_input_contract_selector_keeps_unreadable_member_and_refuses _______\n___ test_input_contract_selector_new_registered_entry_grows_full_population ____\n_ test_input_contract_selector_retains_failed_intake_and_complete_registered_population[component_bridge] _\n_ test_input_contract_selector_retains_failed_intake_and_complete_registered_population[discovery] _\n_ test_input_contract_selector_retains_failed_intake_and_complete_registered_population[both] _\n_ test_input_contract_selector_retains_failed_intake_and_complete_registered_population[exception] _\n=========================== short test summary info ============================\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_explicit_causal_method_uses_contract_route_not_value_population\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_default_method_accepts_actual_recorded_input_and_report_port\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_selection_refusal_stops_before_binding_and_retains_result\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_supplied_observation_without_contract_is_not_recorded_default[None]\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_supplied_observation_without_contract_is_not_recorded_default[unbound-observation-marker]\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_contract_selector_receives_the_owner_design_problem\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_state_carries_the_real_recorded_binding_without_faking_stage_intake\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_recorded_binding_refusal_is_a_typed_terminal\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_walks_whole_registry_and_excludes_diagnostics\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_refuses_requested_incompatible_or_novel[test.c1.diagnostic@1.0.0]\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_refuses_requested_incompatible_or_novel[test.c1.incompatible@1.0.0]\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_refuses_requested_incompatible_or_novel[test.c1.novel@1.0.0]\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_keeps_unreadable_member_and_refuses\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_new_registered_entry_grows_full_population\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[component_bridge]\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[discovery]\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[both]\nPASSED tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[exception]\n",
+  "stderr": ""
+}

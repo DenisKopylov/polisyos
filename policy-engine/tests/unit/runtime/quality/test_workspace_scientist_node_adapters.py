@@ -40,7 +40,11 @@ class _ProducingNode(_FakeNode):
             {"status": "candidate", "finding": "measured test output"},
             PutOptions(kind="ir.causal_report", media_type="application/json"),
         )
-        return NodeOutcome(status="ok", state=next_state)
+        return NodeOutcome(
+            status="ok",
+            state=next_state,
+            artifacts=[next_state.artifacts_index["causal_report_ref"]],
+        )
 
 
 def _station(tmp_path, *, store_type=FileSystemCAS):
@@ -305,7 +309,9 @@ def test_conformance_refuses_dangling_output_ref_with_all_markers(tmp_path) -> N
                 kind="ir.causal_report",
                 media_type="application/json",
             )
-            return NodeOutcome(status="ok", state=state)
+            return NodeOutcome(
+                status="ok", state=state, artifacts=[state.artifacts_index["causal_report_ref"]]
+            )
 
     ctx, state = _station(tmp_path)
     result = _conformance(_adapter(DanglingNode(_node().spec)), ctx, state)
@@ -475,3 +481,182 @@ def test_legacy_node_adapter_shape_only_counterexample_fails_semantic_preservati
 
     assert result.passed is False
     assert "output_not_preserved:causal_report_ref" in result.failures
+
+
+# Conditional node fixture: actual source-content readback, candidate authority only.
+def _conditional_output_station(tmp_path, *, source_value=False):
+    from hashlib import sha256
+
+    from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+    from polisyos.scientist.orchestration.engine import (
+        NodeOutputDisposition,
+        NodeOutputRefusal,
+        NodeOutputRule,
+        OutputAwareNodeOutcome,
+        OutputAwareNodeSpec,
+    )
+
+    ctx, state = _station(tmp_path)
+    source_ref = ctx.store.put_json(
+        {"produce": source_value},
+        PutOptions(kind="test.output_source", media_type="application/json"),
+    )
+    state.inputs["conditional_source_ref"] = source_ref
+    base = _node().spec.model_dump(mode="python")
+    base["state_reads"] = [*base["state_reads"], "inputs.conditional_source_ref"]
+    spec = OutputAwareNodeSpec(
+        **base,
+        output_rules=(
+            NodeOutputRule(
+                output_key="causal_report_ref",
+                availability="owner_verified_refusal",
+                verifier_rule_ref="test.actual_source_projection.v1",
+            ),
+        ),
+    )
+
+    def digest(value):
+        return (
+            "sha256:"
+            + sha256(
+                to_canonical_bytes(value.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+            ).hexdigest()
+        )
+
+    def offered_refusal(input_state):
+        return NodeOutputRefusal(
+            node_id=str(spec.metadata.component_id),
+            output_key="causal_report_ref",
+            verifier_rule_ref="test.actual_source_projection.v1",
+            reason_code="source_does_not_request_output",
+            premise_presence="value",
+            input_state_hash=digest(input_state),
+            node_spec_hash=digest(spec),
+            source_refs=(source_ref,),
+            premise={"produce": False},
+        )
+
+    class ConditionalNode(_FakeNode):
+        def execute(self, ctx, state):
+            # Intentionally offers the same marker-rich refusal for both source
+            # values. Only the independently consulted readback distinguishes it.
+            ctx.calls.append("execute")
+            refusal = offered_refusal(state)
+            ref = ctx.store.put_json(
+                refusal.model_dump(mode="json"),
+                PutOptions(kind="scientist.node_output_refusal", media_type="application/json"),
+            )
+            next_state = state.model_copy(deep=True)
+            next_state.artifacts_index.pop("causal_report_ref", None)
+            if getattr(ctx, "poison_positive_slot", False):
+                next_state.artifacts_index["causal_report_ref"] = ref
+            rows = (
+                ()
+                if getattr(ctx, "drop_disposition", False)
+                else (
+                    NodeOutputDisposition(
+                        output_key="causal_report_ref", disposition="refused", artifact_ref=ref
+                    ),
+                )
+            )
+            return OutputAwareNodeOutcome(
+                status="ok",
+                state=next_state,
+                artifacts=[ref],
+                output_dispositions=rows,
+            )
+
+        def verify_output_dispositions(self, *, ctx, input_state, outcome):
+            source = from_canonical_bytes(
+                ctx.store.get_bytes(
+                    ArtifactRef.model_validate(
+                        input_state.inputs["conditional_source_ref"]
+                    ).artifact_id
+                )
+            )
+            if not isinstance(source, dict) or source.get("produce") is not False:
+                raise ValueError("source_requires_output_or_is_unreadable")
+            for row in outcome.output_dispositions:
+                actual = NodeOutputRefusal.model_validate(
+                    from_canonical_bytes(ctx.store.get_bytes(row.artifact_ref.artifact_id))
+                )
+                if actual != offered_refusal(input_state):
+                    raise ValueError("refusal_content_not_recomputed")
+
+    return ctx, state, ConditionalNode(spec)
+
+
+def test_conditional_output_adapter_preserves_verified_refusal_as_separate_artifact(tmp_path):
+    ctx, state, node = _conditional_output_station(tmp_path)
+    result = _conformance(_adapter(node), ctx, state)
+    assert result.passed, result.failures
+    assert ctx.calls == ["execute"]
+    assert "causal_report_ref" not in result.execution.outcome.state.artifacts_index
+    assert result.execution.outcome.output_dispositions[0].disposition == "refused"
+    assert result.source_output_bindings
+    assert result.output_bindings
+    assert all(item.authority_boundary is None for item in result.execution.artifact_envelopes)
+
+
+@pytest.mark.parametrize("source_value", [True, None, "false", {}, []])
+def test_conditional_output_adapter_consults_actual_source_premise(tmp_path, source_value):
+    ctx, state, node = _conditional_output_station(tmp_path, source_value=source_value)
+    result = _conformance(_adapter(node), ctx, state)
+    assert result.passed is False
+    assert any("source_requires_output_or_is_unreadable" in failure for failure in result.failures)
+
+
+@pytest.mark.parametrize("mutation", ["poison_positive_slot", "drop_disposition"])
+def test_conditional_output_adapter_requires_complete_separate_dispositions(tmp_path, mutation):
+    ctx, state, node = _conditional_output_station(tmp_path)
+    setattr(ctx, mutation, True)
+    result = _conformance(_adapter(node), ctx, state)
+    assert result.passed is False
+    expected = {
+        "poison_positive_slot": "refused_output_positive_slot_present:causal_report_ref",
+        "drop_disposition": "output_disposition_population_mismatch",
+    }
+    assert expected[mutation] in result.failures
+
+
+def test_output_contract_extension_preserves_ordinary_nodes_and_requires_new_slots():
+    from polisyos.scientist.orchestration.engine import NodeOutputRule, OutputAwareNodeSpec
+
+    ordinary = _node().spec
+    assert set(ordinary.model_dump()) == {"metadata", "state_reads", "state_writes", "produces"}
+    assert NodeOutputRule(output_key="new_artifact_ref").availability == "required"
+    payload = ordinary.model_dump(mode="python")
+    payload["produces"] = [*payload["produces"], "new_artifact_ref"]
+    with pytest.raises(ValueError, match="output_contract_population_mismatch"):
+        OutputAwareNodeSpec(
+            **payload, output_rules=(NodeOutputRule(output_key="causal_report_ref"),)
+        )
+
+
+def test_output_adapter_turns_malformed_dynamic_ref_into_typed_conformance_failure(tmp_path):
+    class MalformedOutput(_FakeNode):
+        def execute(self, ctx, state):
+            changed = state.model_copy(deep=True)
+            changed.artifacts_index["causal_report_ref"] = {"artifact_id": "not-a-valid-address"}
+            return NodeOutcome(status="ok", state=changed)
+
+    ctx, state = _station(tmp_path)
+    result = _conformance(_adapter(MalformedOutput(_node().spec)), ctx, state)
+    assert result.passed is False
+    # Typed state validation is earlier than the generic output-ref walker.
+    assert "output_state_invalid:ValidationError" in result.failures
+
+
+def test_output_adapter_revalidates_mutated_complete_rule_schema(tmp_path):
+    ctx, state, node = _conditional_output_station(tmp_path)
+    original = type(node).execute
+
+    def change_rule(self, ctx, state):
+        outcome = original(self, ctx, state)
+        object.__setattr__(self.spec.output_rules[0], "availability", "unverified_default")
+        return outcome
+
+    type(node).execute = change_rule
+    result = _conformance(_adapter(node), ctx, state)
+    assert result.passed is False
+    assert any(failure.startswith("output_contract_invalid:") for failure in result.failures)

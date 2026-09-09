@@ -44,6 +44,7 @@ _EXPORTS = {
     "UkraineShadowBundle": _UKRAINE_DOMAIN,
     "UkraineShadowDiff": _UKRAINE_DOMAIN,
     "UkraineSourceSummary": _UKRAINE_DOMAIN,
+    "CalibrationBundleManifest": "polisyos.data_forge.domains.ukraine.manifests",
     "ReleaseManifest": "polisyos.data_forge.domains.ukraine.manifests",
     "RealBacktestBundleContract": "polisyos.data_forge.domains.ukraine.contracts",
     "compare_lex_pre_shard_summaries": _UKRAINE_DOMAIN,

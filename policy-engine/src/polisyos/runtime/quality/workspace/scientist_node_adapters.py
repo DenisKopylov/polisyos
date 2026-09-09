@@ -9,18 +9,8 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts import (
-    ArtifactManifest,
-    ArtifactStore,
-    InputRef,
-    ProducerInfo,
-    PutOptions,
-    SchemaInfo,
-)
-from polisyos.core.artifacts import (
-    ArtifactRef as CoreArtifactRef,
-)
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
 from polisyos.pdc import (
     ApplicabilityResult,
     ArtifactEnvelope,
@@ -34,9 +24,9 @@ from polisyos.pdc import (
 )
 from polisyos.runtime.quality import adapter_contracts
 
-SCIENTIST_NODE_ADAPTER_RULE_VERSION = "policyos.gy.phase2.adapters.v2"
-_CANDIDATE_SCHEMA = "policyos.gy.phase2.legacy_node_candidate.v2"
-_CANON = CanonSpec(forbid_floats=False, exclude_none=False)
+SCIENTIST_NODE_ADAPTER_RULE_VERSION = "policyos.gy.phase2.adapters.v3"
+_CANDIDATE_SCHEMA = "policyos.gy.phase2.legacy_node_candidate.v3"
+_CANON = core_canon.CanonSpec(forbid_floats=False, exclude_none=False)
 
 
 class NodeLike(Protocol):
@@ -54,7 +44,7 @@ class AdapterArtifactByteBinding(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     path: str
-    artifact_ref: CoreArtifactRef
+    artifact_ref: core_artifacts.ArtifactRef
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     manifest_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
@@ -83,7 +73,7 @@ class AdapterConformanceResult(BaseModel):
     applicability_binding: AdapterArtifactByteBinding | None = None
     preservation_failures: list[dict[str, Any]] = Field(default_factory=list)
     execution: ScientistNodeAdapterExecutionResult | None = Field(default=None, exclude=True)
-    conformance_ref: CoreArtifactRef | None = Field(default=None, exclude=True)
+    conformance_ref: core_artifacts.ArtifactRef | None = Field(default=None, exclude=True)
 
 
 class AdapterApplicabilityEvaluation(BaseModel):
@@ -144,10 +134,10 @@ class ScientistNodeAdapter(BaseModel):
         if not produced:
             produced = [str(item) for item in getattr(spec, "state_writes", [])]
         consumes = [_input_port(path) for path in state_reads]
-        produces = [_output_port(path) for path in produced]
+        produces = [_output_port(path, spec=spec) for path in produced]
         contract = OperationContract(
             operation_id=operation_id,
-            operation_version="phase2.v2",
+            operation_version="phase2.v3",
             operation_class=operation_class,
             consumes=consumes,
             produces=produces,
@@ -548,7 +538,7 @@ def validate_adapter_semantic_preservation(
                 canon_spec=_CANON,
             )
             _, actual, _ = _read_binding(store, ref, "conformance")
-            if actual != to_canonical_bytes(payload, _CANON):
+            if actual != core_canon.to_canonical_bytes(payload, _CANON):
                 raise ValueError("conformance_readback_changed")
             return report.model_copy(update={"conformance_ref": ref})
         except Exception as exc:
@@ -572,9 +562,11 @@ def validate_adapter_semantic_preservation(
         failures.append(f"input_state_invalid:{type(exc).__name__}")
         return finish()
     try:
-        node_spec_hash = _byte_hash(to_canonical_bytes(_jsonish(adapter.node.spec), _CANON))
+        node_spec_hash = _byte_hash(
+            core_canon.to_canonical_bytes(_jsonish(adapter.node.spec), _CANON)
+        )
         contract_hash = _byte_hash(
-            to_canonical_bytes(adapter.contract.model_dump(mode="json"), _CANON)
+            core_canon.to_canonical_bytes(adapter.contract.model_dump(mode="json"), _CANON)
         )
         current = ScientistNodeAdapter.from_node(
             adapter.node,
@@ -591,7 +583,7 @@ def validate_adapter_semantic_preservation(
         ):
             failures.append("adapter_node_contract_mismatch")
         facts = {path: _input_fact(smoke_state, path) for path in adapter.required_inputs}
-        input_state_hash = _byte_hash(to_canonical_bytes(facts, _CANON))
+        input_state_hash = _byte_hash(core_canon.to_canonical_bytes(facts, _CANON))
         for path, fact in facts.items():
             try:
                 inputs.extend(_reference_closure(store, fact["value"], path))
@@ -615,13 +607,14 @@ def validate_adapter_semantic_preservation(
             canon_spec=_CANON,
         )
         applicability_binding, actual, _ = _read_binding(store, applicability_ref, "applicability")
-        if actual != to_canonical_bytes(applicability_payload, _CANON):
+        if actual != core_canon.to_canonical_bytes(applicability_payload, _CANON):
             failures.append("formal_applicability_readback_changed")
     except Exception as exc:
         failures.append(f"semantic_input_binding_failed:{type(exc).__name__}")
     if failures:
         return finish()
 
+    frozen_input_state = deepcopy(smoke_state)
     execution = adapter.execute_candidate(
         ctx=ctx,
         state=smoke_state,
@@ -630,7 +623,10 @@ def validate_adapter_semantic_preservation(
         cycle_index=cycle_index,
     )
     try:
-        if _byte_hash(to_canonical_bytes(_jsonish(adapter.node.spec), _CANON)) != node_spec_hash:
+        if (
+            _byte_hash(core_canon.to_canonical_bytes(_jsonish(adapter.node.spec), _CANON))
+            != node_spec_hash
+        ):
             failures.append("node_spec_changed_during_smoke")
     except Exception as exc:
         failures.append(f"node_spec_changed_during_smoke:{type(exc).__name__}")
@@ -648,14 +644,14 @@ def validate_adapter_semantic_preservation(
             return finish()
     verified_envelopes: list[ArtifactEnvelope] = []
     # Freeze the complete source projection before any candidate write can mutate it.
-    payloads = {
-        key: deepcopy(_output_payload(execution.outcome, key)) for key in adapter.produced_outputs
-    }
+    payloads, output_failures = _current_output_payloads(
+        adapter, ctx=ctx, input_state=frozen_input_state, outcome=execution.outcome
+    )
+    failures.extend(output_failures)
+    if output_failures:
+        return finish()
     for output_key in adapter.produced_outputs:
         payload = payloads[output_key]
-        if payload["state_value"] is None and payload["artifacts_index_value"] is None:
-            failures.append(f"output_not_preserved:{output_key}")
-            continue
         try:
             bound_output = _reference_closure(store, payload, output_key)
             source_outputs.extend(bound_output)
@@ -682,7 +678,7 @@ def validate_adapter_semantic_preservation(
             outputs.append(binding)
             after = _preservation_surface(
                 "runtime.cas",
-                from_canonical_bytes(raw),
+                core_canon.from_canonical_bytes(raw),
                 producer=manifest.producer.model_dump(mode="json") if manifest.producer else None,
                 schema=manifest.artifact_schema.model_dump(mode="json")
                 if manifest.artifact_schema
@@ -743,7 +739,7 @@ def _byte_hash(raw: bytes) -> str:
 
 
 def _validated_node_state(state: object) -> object:
-    from polisyos.scientist.orchestration.engine import ExperimentState
+    from polisyos.scientist import ExperimentState
 
     if not isinstance(state, ExperimentState):
         raise TypeError("scientist_state_type_required")
@@ -781,12 +777,12 @@ def _input_fact(state: object, path: str) -> dict[str, Any]:
 
 
 def _read_binding(
-    store: ArtifactStore, ref: object, path: str
-) -> tuple[AdapterArtifactByteBinding, bytes, ArtifactManifest]:
-    typed = CoreArtifactRef.model_validate(ref)
+    store: core_artifacts.ArtifactStore, ref: object, path: str
+) -> tuple[AdapterArtifactByteBinding, bytes, core_artifacts.ArtifactManifest]:
+    typed = core_artifacts.ArtifactRef.model_validate(ref)
     raw = store.get_bytes(typed.artifact_id)
     digest = _byte_hash(raw)
-    manifest = ArtifactManifest.model_validate(store.get_manifest(typed.artifact_id))
+    manifest = core_artifacts.ArtifactManifest.model_validate(store.get_manifest(typed.artifact_id))
     if (
         digest != str(typed.artifact_id)
         or manifest.artifact_id != typed.artifact_id
@@ -801,7 +797,9 @@ def _read_binding(
             artifact_ref=typed,
             content_hash=digest,
             manifest_hash=_byte_hash(
-                to_canonical_bytes(manifest.model_dump(mode="json", by_alias=True), _CANON)
+                core_canon.to_canonical_bytes(
+                    manifest.model_dump(mode="json", by_alias=True), _CANON
+                )
             ),
         ),
         raw,
@@ -810,7 +808,7 @@ def _read_binding(
 
 
 def _reference_closure(
-    store: ArtifactStore, value: object, path: str
+    store: core_artifacts.ArtifactStore, value: object, path: str
 ) -> list[AdapterArtifactByteBinding]:
     bindings: list[AdapterArtifactByteBinding] = []
     visited: set[str] = set()
@@ -826,11 +824,11 @@ def _reference_closure(
                 return
             visited.add(identity)
             for index, parent in enumerate(manifest.inputs):
-                parent_manifest = ArtifactManifest.model_validate(
+                parent_manifest = core_artifacts.ArtifactManifest.model_validate(
                     store.get_manifest(parent.artifact_id)
                 )
                 visit(
-                    CoreArtifactRef(
+                    core_artifacts.ArtifactRef(
                         artifact_id=parent.artifact_id,
                         kind=parent_manifest.kind,
                         media_type=parent_manifest.media_type,
@@ -853,16 +851,17 @@ def _write_options(
     kind: str,
     schema: str,
     bindings: list[AdapterArtifactByteBinding],
-) -> PutOptions:
-    return PutOptions(
+) -> core_artifacts.PutOptions:
+    return core_artifacts.PutOptions(
         kind=kind,
         media_type="application/json",
-        schema=SchemaInfo(name=schema, version="2.0"),
-        producer=ProducerInfo(
+        schema=core_artifacts.SchemaInfo(name=schema, version="3.0"),
+        producer=core_artifacts.ProducerInfo(
             component=adapter.node_id, version=SCIENTIST_NODE_ADAPTER_RULE_VERSION
         ),
         inputs=[
-            InputRef(artifact_id=item.artifact_ref.artifact_id, role=item.path) for item in bindings
+            core_artifacts.InputRef(artifact_id=item.artifact_ref.artifact_id, role=item.path)
+            for item in bindings
         ],
     )
 
@@ -915,14 +914,25 @@ def _input_port(path: str) -> PortSpec:
     )
 
 
-def _output_port(path: str) -> PortSpec:
+def _output_port(path: str, *, spec: object) -> PortSpec:
     return PortSpec(
         port_id=f"port-{_slug(path)}",
         direction="produces",
         port_type="StatePath",
         claim_shape={"kind": "legacy_node_output", "state_path": path},
         multiplicity={"min": 1, "max": 1},
-        constraints={"legacy_state_path": path, "admission_state": "shadow"},
+        constraints={
+            "legacy_state_path": path,
+            "admission_state": "shadow",
+            "output_contract": next(
+                (
+                    row.model_dump(mode="json")
+                    for row in getattr(spec, "output_rules", ())
+                    if row.output_key == path
+                ),
+                {"output_key": path, "availability": "required", "verifier_rule_ref": None},
+            ),
+        },
     )
 
 
@@ -975,11 +985,138 @@ def _candidate_envelope(
     )
 
 
+def _direct_artifact_refs(value: object) -> dict[str, core_artifacts.ArtifactRef]:
+    """Collect offered values, excluding ancestry that the CAS verifier resolves later."""
+    refs: dict[str, core_artifacts.ArtifactRef] = {}
+
+    def visit(item: object) -> None:
+        if hasattr(item, "model_dump"):
+            item = item.model_dump(mode="json")
+        if isinstance(item, dict) and "artifact_id" in item:
+            ref = core_artifacts.ArtifactRef.model_validate(item)
+            refs[str(ref.artifact_id)] = ref
+        elif isinstance(item, dict):
+            for child in item.values():
+                visit(child)
+        elif isinstance(item, (list, tuple)):
+            for child in item:
+                visit(child)
+
+    visit(value)
+    return refs
+
+
+def _validated_current_output_payloads(
+    adapter: ScientistNodeAdapter,
+    *,
+    ctx: object,
+    input_state: object,
+    outcome: object,
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    """Bind the full declared output set to the actual attempt and owner readback."""
+    from polisyos.scientist.orchestration.engine import (
+        OutputAwareNodeOutcome,
+        OutputAwareNodeSpec,
+    )
+
+    keys = adapter.produced_outputs
+    if len(keys) != len(set(keys)):
+        return {}, ["output_contract_duplicate_key"]
+    current = {str(ref.artifact_id): ref for ref in getattr(outcome, "artifacts", ())}
+    payloads = {key: deepcopy(_output_payload(outcome, key)) for key in keys}
+    failures: list[str] = []
+    aware = isinstance(adapter.node.spec, OutputAwareNodeSpec)
+    verified_spec = None
+    dispositions = {}
+    if aware:
+        verified_spec = OutputAwareNodeSpec.model_validate(
+            adapter.node.spec.model_dump(mode="python", round_trip=True)
+        )
+        if verified_spec.produces != keys:
+            return payloads, ["output_contract_population_mismatch"]
+        if not isinstance(outcome, OutputAwareNodeOutcome):
+            return payloads, ["output_disposition_ledger_missing"]
+        dispositions = {row.output_key: row for row in outcome.output_dispositions}
+        if len(dispositions) != len(outcome.output_dispositions) or set(dispositions) != set(keys):
+            return payloads, ["output_disposition_population_mismatch"]
+        # Never accept a caller's passed/recomputed flag. Execute the actual node
+        # owner's substantive readback on the frozen pre-smoke state.
+        verifier = getattr(adapter.node, "verify_output_dispositions", None)
+        if not callable(verifier):
+            return payloads, ["output_disposition_verifier_missing"]
+        spec_before = deepcopy(verified_spec.model_dump(mode="json"))
+        outcome_before = deepcopy(outcome.model_dump(mode="json"))
+        input_before = deepcopy(input_state.model_dump(mode="json"))
+        try:
+            verifier(ctx=ctx, input_state=input_state, outcome=outcome)
+        except Exception as exc:
+            return payloads, [f"output_disposition_verification_failed:{exc}"]
+        checked_spec = OutputAwareNodeSpec.model_validate(
+            adapter.node.spec.model_dump(mode="python", round_trip=True)
+        )
+        if checked_spec.model_dump(mode="json") != spec_before:
+            return payloads, ["output_contract_changed_during_readback"]
+        if (
+            outcome.model_dump(mode="json") != outcome_before
+            or input_state.model_dump(mode="json") != input_before
+        ):
+            return payloads, ["output_evidence_changed_during_readback"]
+    elif isinstance(outcome, OutputAwareNodeOutcome):
+        return payloads, ["output_disposition_contract_missing"]
+
+    for key, payload in payloads.items():
+        disposition = dispositions.get(key)
+        if disposition is not None and disposition.disposition == "refused":
+            rule = next(row for row in verified_spec.output_rules if row.output_key == key)
+            if rule.availability != "owner_verified_refusal":
+                failures.append(f"required_output_refused:{key}")
+                continue
+            if payload["state_present"] or payload["artifacts_index_present"]:
+                failures.append(f"refused_output_positive_slot_present:{key}")
+                continue
+            if current.get(str(disposition.artifact_ref.artifact_id)) != disposition.artifact_ref:
+                failures.append(f"output_not_emitted_current_attempt:{key}")
+                continue
+            payload["output_disposition"] = disposition.model_dump(mode="json")
+            continue
+        if payload["state_value"] is None and payload["artifacts_index_value"] is None:
+            failures.append(f"output_not_preserved:{key}")
+            continue
+        offered = _direct_artifact_refs(payload)
+        if not offered or any(current.get(identity) != ref for identity, ref in offered.items()):
+            failures.append(f"output_not_emitted_current_attempt:{key}")
+            continue
+        if disposition is not None:
+            if offered.get(str(disposition.artifact_ref.artifact_id)) != disposition.artifact_ref:
+                failures.append(f"output_disposition_ref_mismatch:{key}")
+                continue
+            payload["output_disposition"] = disposition.model_dump(mode="json")
+    return payloads, failures
+
+
+def _current_output_payloads(
+    adapter: ScientistNodeAdapter,
+    *,
+    ctx: object,
+    input_state: object,
+    outcome: object,
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    """Turn malformed offered contracts/refs into typed conformance failures."""
+    try:
+        return _validated_current_output_payloads(
+            adapter, ctx=ctx, input_state=input_state, outcome=outcome
+        )
+    except Exception as exc:
+        return {}, [f"output_contract_invalid:{type(exc).__name__}:{exc}"]
+
+
 def _output_payload(outcome: object, output_key: str) -> dict[str, Any]:
     state = getattr(outcome, "state", None)
     return {
         "output_key": output_key,
         "outcome_status": str(getattr(outcome, "status", "unknown")),
+        "state_present": _input_fact(state, output_key)["present"],
+        "artifacts_index_present": _input_fact(state, f"artifacts_index.{output_key}")["present"],
         "state_value": _jsonish(_resolve_state_path(state, output_key)),
         "artifacts_index_value": _jsonish(
             _resolve_state_path(state, f"artifacts_index.{output_key}")

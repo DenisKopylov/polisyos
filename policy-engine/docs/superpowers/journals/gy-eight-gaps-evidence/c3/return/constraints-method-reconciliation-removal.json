@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c3_constraint_removal",
+    "method-reconciliation"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T09:13:54.454628+00:00",
+  "elapsed_seconds": 106.496,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"property_removed\": \"method-reconciliation\", \"owner_path\": \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py\", \"source_sha256\": \"b576672d219150f9f04e0f2d7381acb977d2a80491e5102250a577159a125818\", \"function\": \"_verified_method_outputs\", \"selected_node_ids\": [\"tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_missing_constraint_basis_is_persisted_and_recomputed\", \"tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_real_method_report_is_reconciled_before_constraint_consumption_without_reexecution\"], \"markers_retained\": true}\n.F                                                                       [100%]\n=================================== FAILURES ===================================\n_ test_real_method_report_is_reconciled_before_constraint_consumption_without_reexecution _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:602: in test_real_method_report_is_reconciled_before_constraint_consumption_without_reexecution\n    result = consumer.bind_constraints(consumption=consumption, owner=owner, admission=admission)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/runtime/quality/workspace/foundry_consumption.py:556: in bind_constraints\n    raise ValueError(\"constraint_method_consumption_binding_mismatch\")\nE   ValueError: constraint_method_consumption_binding_mismatch\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n==================================== PASSES ====================================\n=========================== short test summary info ============================\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_missing_constraint_basis_is_persisted_and_recomputed\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_real_method_report_is_reconciled_before_constraint_consumption_without_reexecution\n{\"source_unchanged\": true, \"pytest_returncode\": 1}\n",
+  "stderr": ""
+}

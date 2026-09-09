@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c1_selector_test_reconciliation"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T08:45:20.385324+00:00",
+  "elapsed_seconds": 0.047,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"actual_unique_outcome_count\": 18, \"ast_expanded_case_count\": 18, \"comparisons\": {\"bootstrap-pre-review-red-actual\": {\"baseline_missing_identities\": [], \"crashed_or_skipped_identities\": [], \"identities_changing_pass_to_fail\": [\"tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[both]\", \"tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[component_bridge]\", \"tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[discovery]\", \"tests/unit/foundry/methods/test_selection_advisor.py::test_input_contract_selector_retains_failed_intake_and_complete_registered_population[exception]\"], \"receipt\": \"bootstrap-pre-review-red-actual.json\"}, \"native-red\": {\"baseline_missing_identities\": [], \"crashed_or_skipped_identities\": [], \"identities_changing_pass_to_fail\": [\"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_default_method_accepts_actual_recorded_input_and_report_port\", \"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_explicit_causal_method_uses_contract_route_not_value_population\", \"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_selection_refusal_stops_before_binding_and_retains_result\", \"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_supplied_observation_without_contract_is_not_recorded_default[None]\", \"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_supplied_observation_without_contract_is_not_recorded_default[unbound-observation-marker]\"], \"receipt\": \"native-red.json\"}, \"route-removal\": {\"baseline_missing_identities\": [], \"crashed_or_skipped_identities\": [], \"identities_changing_pass_to_fail\": [\"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_default_method_accepts_actual_recorded_input_and_report_port\", \"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_explicit_causal_method_uses_contract_route_not_value_population\"], \"receipt\": \"route-removal.json\"}}, \"declared_command_receipt\": \"owner-first-green.json\", \"file_type_denominator\": \"complete Python ASTs of every file selected by that command\", \"independent_product_count\": 18, \"missing_outcomes\": [], \"nonpassing\": {}, \"selected_function_count\": 12, \"source_files\": [\"tests/unit/foundry/methods/test_selection_advisor.py\", \"tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py\"], \"unexpected_outcomes\": []}\n",
+  "stderr": ""
+}

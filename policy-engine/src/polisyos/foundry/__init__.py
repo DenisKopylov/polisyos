@@ -30,8 +30,10 @@ if TYPE_CHECKING:
         TFIDFEmbedder,
     )
     from polisyos.foundry.methods.selection import (
+        InputContractMethodSelection,
         MethodRouteConstraint,
         method_accepts_input_contract,
+        select_method_for_input_contract,
     )
 
 __all__ = [
@@ -39,6 +41,8 @@ __all__ = [
     "EmbedderProtocol",
     "MethodCatalogDependencyAuthorityRequest",
     "MethodRouteConstraint",
+    "InputContractMethodSelection",
+    "select_method_for_input_contract",
     "SentenceTransformerEmbedder",
     "TFIDFEmbedder",
     "build_method_catalog_provenance_manifest",
@@ -51,6 +55,8 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "InputContractMethodSelection": ("polisyos.foundry.methods.selection", "InputContractMethodSelection"),
+    "select_method_for_input_contract": ("polisyos.foundry.methods.selection", "select_method_for_input_contract"),
     "DependencyProfileResolutionFailure": (
         "polisyos.foundry.methods.catalog.dependency_authority",
         "DependencyProfileResolutionFailure",

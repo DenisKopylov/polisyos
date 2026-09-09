@@ -162,3 +162,52 @@ including reuse of existing supported facades where available. They are not
 reported as inherited or as an institutional blocker. The selected academic
 publication importer red remains separately retained with P41
 `not_established` attribution and explicit nowhere among the eight tasks.
+
+K landed at `e2cf7f10f2853b7561034b8e0ba699e6bacd32ba`. Its complete 67-path
+commit was read back from the attached branch, independently reconciled with
+numstat, and every branch blob matched the clean working tree. The receipt is
+retained under `gy-eight-gaps-evidence/k/branch-readback.json` at the next
+checkpoint. The C3/C1 return now starts with actual current-owner falsifiers;
+prepared patches have not been applied ahead of those reds.
+
+The C3 return found a further representation defect through the actual intake
+and consumer: the recorded measurement root and the staged selected method
+contract require identical complete PanelObservationalData bytes but different
+immutable CAS manifests. Writing either first makes the other's kind/schema or
+lineage inconsistent. Reference normalization did not fix it; that prediction
+was incomplete. This is the same content-custody class at the representation
+boundary, not an external appointment or a fixture-only failure. The return is
+implementing a governed distinct recorded measurement-root envelope and actual
+reader fan-out. It preserves the full contract payload, staged owner lineage,
+recorded-source re-extraction and all existing authority limits. No C3 or C1
+status is promoted by this intermediate work.
+
+The C1/C3 return is now verified at its source freeze. C1 is `executed`: the
+actual attempted default trajectory, counterexample REFINE deviation, generic
+pre-Operation conformance gate and current canonical proof pass. Changing one
+actual conformance fact through the real current-file reader adds exactly its
+drift identity and loses no complete baseline finding identity. Current C1 v4
+and C3 v3 are separately governed; original proof bytes remain historical.
+
+C3 remains `blocked` at the actual failed D0 staged-input receipt and independent
+EvalSafety/institutional admission prerequisites. The return additionally
+repaired the real input-envelope and reader boundaries, complete conditional
+outputs, full-vocabulary selection, source-rederived constraints, exact recorded
+aggregation and the actual SCM numerical owner. The full recorded-source
+extra-period run now passes producer→MethodBackend→consumer→persistence as
+descriptive computation custody; it does not supply the missing canonical
+scientific admission. Full current Phase-2 write/check preserve every C3 failed
+conjunct and both closed-owner drifts. No red is hidden by a reduced denominator.
+
+The unchanged S3 owner reissues its catalog dependency projection; actual N13
+consumed projections remain equal, so N13 is not reissued. N8's current refusal
+and frozen bytes remain intact, with the measured new ambient catalog finding
+routed to its dependency owner. The separate generic IR eligibility Boolean
+limitation is routed under P38, explicit nowhere among the eight. Agent-event
+audit and Lex proof drifts remain with their closed owners, P41 attribution
+`not_established`. Per-task journals contain the exact identities and receipts.
+
+The final architecture boundary check and actual M1 lifecycle check pass.
+Attachment, commit and complete branch readback follow this verification;
+L and J remain the next required tasks in this same lane. No push, forbidden
+register/ledger edit or other-lane mutation has occurred.

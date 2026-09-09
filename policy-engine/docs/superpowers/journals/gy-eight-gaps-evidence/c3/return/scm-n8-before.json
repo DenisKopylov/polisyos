@@ -1,0 +1,30 @@
+{
+  "command": [
+    "env",
+    "POLISYOS_CACHE_HOME=/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/c3/recorded-growth/n8-before/cache",
+    "TMPDIR=/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/c3/recorded-growth/n8-before/tmp",
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_layer3_gy_value_gate_contract",
+    "--check",
+    "--expected-source-freeze",
+    "70da48c2346b701dec7b6d2cea53197a17546200",
+    "--output-format",
+    "json"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T10:29:23.404913+00:00",
+  "elapsed_seconds": 138.641,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"ambient_findings\": [{\"code\": \"catalog_ambient_discovery_manifest_mismatch\"}, {\"code\": \"catalog_entry_point_distribution_manifest_mismatch\"}, {\"code\": \"catalog_ambient_unbound_input_manifest_mismatch\"}, {\"code\": \"catalog_predicate_provenance_mismatch\", \"predicate\": \"ambient.discovered_component_membership\"}], \"issues\": [{\"code\": \"catalog_builtin_discovery_manifest_mismatch\"}, {\"code\": \"catalog_runtime_backend_identity_mismatch\"}, {\"code\": \"catalog_runtime_package_identity_mismatch\"}, {\"code\": \"catalog_backend_fingerprint_mismatch\"}, {\"code\": \"native_projector_owner_rederive_drift\", \"family\": \"forecasting\"}, {\"code\": \"artifact_drift\", \"path\": \"architecture/policy_design_case/layer3_gy_value_gate_contract.json\"}], \"mode\": \"check\", \"path\": \"architecture/policy_design_case/layer3_gy_value_gate_contract.json\", \"receipt_sha256\": \"sha256:0a760c50cf67f2406f313b05d813f76f11904aacf833a755b5f379ef224f66e5\", \"status\": \"fail\", \"validator\": \"policyos.layer3.gy.n8.value-gate-contract\"}\n",
+  "stderr": ""
+}

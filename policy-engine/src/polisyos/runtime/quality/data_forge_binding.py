@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import hashlib
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
+from fractions import Fraction
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
@@ -20,6 +22,11 @@ from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope,
 from polisyos.fabric.retrieval.providers import (
     RetrievalProviders,
     resolve_retrieval_providers,
+)
+from polisyos.ir.observation import (
+    OBSERVATION_METHOD_INPUT_KIND,
+    ContractCompatibilityTarget,
+    ObservationMethodInputEnvelope,
 )
 from polisyos.pdc import ArtifactEnvelope, ArtifactRef, gy_content_hash
 from polisyos.runtime.quality.adapter_contracts import (
@@ -45,9 +52,9 @@ DEFAULT_DATA_FORGE_SNAPSHOT_TTL_SECONDS = 60 * 60 * 24 * 90
 WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
 FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.gy.fabric_measurement_root.v2"
 WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION = (
-    "policyos.gy.phase2.recorded_panel_measurement_root.v2"
+    "policyos.gy.phase2.recorded_panel_measurement_root.v3"
 )
-RECORDED_PANEL_BINDING_SCHEMA_VERSION = "policyos.gy.phase2.recorded_panel_method_binding.v1"
+RECORDED_PANEL_BINDING_SCHEMA_VERSION = "policyos.gy.phase2.recorded_panel_method_binding.v2"
 _RECORDED_PANEL_TARGET = {
     "contract_id": "foundry.causal.panel_observational_data.v1",
     "contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
@@ -233,8 +240,8 @@ class RecordedPanelRecipe(BaseModel):
     metric_id: str = "amount"
     treatment: tuple[Literal[0, 1], ...] = (1, 0, 0)
     time_treatment: int = Field(default=5, ge=0)
-    aggregation: Literal["sum_observed_value_by_entity_and_period_round_6"] = (
-        "sum_observed_value_by_entity_and_period_round_6"
+    aggregation: Literal["exact_binary64_sum_observed_value_by_entity_and_period_round_6"] = (
+        "exact_binary64_sum_observed_value_by_entity_and_period_round_6"
     )
 
     @model_validator(mode="after")
@@ -255,7 +262,7 @@ class RecordedPanelBindingReceipt(BaseModel):
     """Recomputable custody of measured values, without causal identification."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
-    schema_version: Literal["policyos.gy.phase2.recorded_panel_method_binding.v1"] = (
+    schema_version: Literal["policyos.gy.phase2.recorded_panel_method_binding.v2"] = (
         RECORDED_PANEL_BINDING_SCHEMA_VERSION
     )
     source: RecordedPanelSource
@@ -971,7 +978,7 @@ def produce_phase2_recorded_panel_measurement_root(
 ) -> artifacts.ArtifactRef:
     """Persist the canonical measured panel with its assumption boundary."""
     return produce_recorded_panel_method_input(
-        store=store, method_fqn="causal.inference.synthetic_control@1.0.0",
+        store=store, method_fqn="causal.inference.synthetic_control@2.0.0",
     ).observational_data_ref
 
 
@@ -1000,8 +1007,6 @@ def _recorded_json_sha256(payload: object) -> str:
 def _validated_recorded_source(
     source: RecordedPanelSource | None,
 ) -> tuple[RecordedPanelSource, str, int, str]:
-    from polisyos.data_forge.domains.ukraine.manifests import CalibrationBundleManifest
-
     bundle_dir = _recorded_panel_bundle_dir().resolve()
     source = RecordedPanelSource.model_validate((source or RecordedPanelSource(
         parquet_path=bundle_dir / "observation_panel_monthly.parquet",
@@ -1017,7 +1022,7 @@ def _validated_recorded_source(
         raise MeasurementRootBindingError("unrecognized_recorded_source_owner")
     try:
         manifest_bytes = manifest_path.read_bytes()
-        manifest = CalibrationBundleManifest.model_validate_json(manifest_bytes)
+        manifest = read_api.ukraine.CalibrationBundleManifest.model_validate_json(manifest_bytes)
         record = manifest.outputs.get(parquet_path.name)
         if (
             manifest.artifact_name != manifest_path.name
@@ -1041,6 +1046,22 @@ def _validated_recorded_source(
     )
 
 
+def _sum_recorded_values(values: Sequence[float]) -> float:
+    """Sum unchanged finite binary64 values exactly, then round once to six digits."""
+    if not values or any(not math.isfinite(value) for value in values):
+        raise MeasurementRootBindingError("recorded_values_nonfinite_or_empty")
+    ratios = [value.as_integer_ratio() for value in values]
+    denominator = max(divisor for _, divisor in ratios)
+    numerator = sum(value * (denominator // divisor) for value, divisor in ratios)
+    try:
+        rounded = float(round(Fraction(numerator, denominator), 6))
+    except OverflowError as exc:
+        raise MeasurementRootBindingError("recorded_aggregate_not_finite") from exc
+    if not math.isfinite(rounded):
+        raise MeasurementRootBindingError("recorded_aggregate_not_finite")
+    return rounded
+
+
 @lru_cache(maxsize=16)
 def _extract_recorded_panel_rows(
     parquet_path: str, source_sha256: str, manifest_sha256: str, recipe_json: str,
@@ -1053,7 +1074,7 @@ def _extract_recorded_panel_rows(
             SELECT
                 CAST(entity_id AS VARCHAR) AS entity_id,
                 CAST(period_start AS DATE) AS period_start,
-                SUM(CAST(observed_value AS DOUBLE)) AS observed_value
+                LIST(CAST(observed_value AS DOUBLE)) AS observed_value
             FROM read_parquet(?)
             WHERE family = ?
               AND metric_id = ?
@@ -1090,7 +1111,8 @@ def _extract_recorded_panel_rows(
             f"{len(recipe.entity_ids) * recipe.period_count} rows, got {len(rows)}"
         )
     return tuple(
-        (str(entity), str(period), round(float(value), 6)) for entity, period, value in rows
+        (str(entity), str(period), _sum_recorded_values(values))
+        for entity, period, values in rows
     )
 
 
@@ -1133,9 +1155,9 @@ def _recorded_panel_payload(
 def _materialize_recorded_method_input(
     method_fqn: str, payload: dict[str, Any],
 ) -> tuple[dict[str, Any], str]:
+    from polisyos.foundry import method_accepts_input_contract
     from polisyos.foundry.data_plane import materialize_method_contract
     from polisyos.foundry.methods import MethodRegistry, ensure_all_methods_registered
-    from polisyos.foundry.methods.selection import method_accepts_input_contract
 
     try:
         registry = MethodRegistry.get_instance()
@@ -1165,9 +1187,14 @@ def _put_recorded_artifact(
         schema=artifacts.SchemaInfo(name=schema, version=schema.rsplit(".v", 1)[-1] + ".0"),
         producer=artifacts.ProducerInfo(
             component="polisyos.runtime.quality.data_forge_binding.produce_recorded_panel_method_input",
-            version="phase2.v2",
+            version="phase2.v3",
         ),
     ), canon_spec=canon.CanonSpec(forbid_floats=False))
+
+
+def recorded_panel_method_input_target() -> ContractCompatibilityTarget:
+    """Return the exact contract target owned by the recorded-panel producer."""
+    return ContractCompatibilityTarget.model_validate(dict(_RECORDED_PANEL_TARGET))
 
 
 def produce_recorded_panel_method_input(
@@ -1183,8 +1210,11 @@ def produce_recorded_panel_method_input(
     recipe = RecordedPanelRecipe.model_validate((recipe or RecordedPanelRecipe()).model_dump())
     payload, provenance = _recorded_panel_payload(source, recipe)
     payload, signature_digest = _materialize_recorded_method_input(method_fqn, payload)
+    envelope = ObservationMethodInputEnvelope(
+        contract_target=_RECORDED_PANEL_TARGET, contract_payload=payload,
+    )
     data_ref = _put_recorded_artifact(
-        store, payload, kind="ir.observational_data",
+        store, envelope.model_dump(mode="json"), kind=OBSERVATION_METHOD_INPUT_KIND,
         schema=WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION,
     )
     receipt = RecordedPanelBindingReceipt(
@@ -1217,7 +1247,7 @@ def verify_recorded_panel_method_input(
             or binding_manifest.kind != binding_receipt_ref.kind
             or binding_manifest.media_type != binding_receipt_ref.media_type
             or binding_manifest.artifact_schema != artifacts.SchemaInfo(
-                name=RECORDED_PANEL_BINDING_SCHEMA_VERSION, version="1.0",
+                name=RECORDED_PANEL_BINDING_SCHEMA_VERSION, version="2.0",
             )
         ):
             raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
@@ -1236,19 +1266,22 @@ def verify_recorded_panel_method_input(
         payload, signature_digest = _materialize_recorded_method_input(receipt.method_fqn, payload)
         data_manifest = store.get_manifest(receipt.observational_data_ref.artifact_id)
         if (
-            receipt.observational_data_ref.kind != "ir.observational_data"
+            receipt.observational_data_ref.kind != OBSERVATION_METHOD_INPUT_KIND
             or receipt.observational_data_ref.media_type != "application/json"
             or data_manifest.kind != receipt.observational_data_ref.kind
             or data_manifest.media_type != receipt.observational_data_ref.media_type
             or data_manifest.artifact_schema != artifacts.SchemaInfo(
-                name=WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION, version="2.0",
+                name=WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION, version="3.0",
             )
         ):
             raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
         actual_payload = canon.from_canonical_bytes(
             store.get_bytes(receipt.observational_data_ref.artifact_id)
         )
-        if actual_payload != payload:
+        expected_payload = ObservationMethodInputEnvelope(
+            contract_target=_RECORDED_PANEL_TARGET, contract_payload=payload,
+        ).model_dump(mode="json")
+        if actual_payload != expected_payload:
             raise MeasurementRootBindingError("recorded_extraction_mismatch")
         expected = RecordedPanelBindingReceipt(
             **provenance, method_fqn=receipt.method_fqn, method_signature_digest=signature_digest,

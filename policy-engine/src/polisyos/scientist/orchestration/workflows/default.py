@@ -108,7 +108,7 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="run_causal_evaluation",
-                node_id="scientist.node_run_causal_evaluation@1.2.0",
+                node_id="scientist.node_run_causal_evaluation@2.0.0",
                 depends_on=["build_data_snapshot"],
             ),
             NodeInvocation(

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
+from fractions import Fraction
 from typing import Any, ClassVar
 
 import numpy as np
@@ -48,51 +50,128 @@ def _fit_scm_weights(
     x_treated: np.ndarray | None = None,
     x_donors: np.ndarray | None = None,
 ) -> tuple[np.ndarray, bool, str]:
+    """Verify a simplex solution to the original weighted convex quadratic.
+
+    The optimizer sees one common normalization of the full objective. Admission
+    independently checks nonnegative returned weights, unit sum to tolerance,
+    and an exact-binary64 convex gap at the weights' exact simplex projection.
+    The gap bounds suboptimality of the original objective divided by
+    ``max(abs(active data))**2 * max(1, covariates_weight)``. This is a numerical
+    computation contract, not evidence of donor overlap or causal validity.
+    """
     try:
         from scipy.optimize import minimize
-    except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency runtime
+    except ModuleNotFoundError as exc:
         return np.array([]), False, f"scipy missing: {exc}"
 
-    n_donors = y_donors_pre.shape[0]
-    if n_donors == 0:
-        return np.array([]), False, "no donor units available"
+    def refuse(message: str) -> tuple[np.ndarray, bool, str]:
+        return np.array([]), False, message
 
-    x0 = np.full(n_donors, 1.0 / n_donors, dtype=float)
-    bounds = [(0.0, 1.0)] * n_donors
-    constraints = [{"type": "eq", "fun": lambda w: float(np.sum(w) - 1.0)}]
+    if method != "SLSQP":
+        return refuse("verified SCM solver requires SLSQP")
+    if not math.isfinite(tolerance) or not 0.0 < tolerance < 1.0 or max_iter < 1:
+        return refuse("invalid verified SCM solver tolerance or iteration limit")
+    if not math.isfinite(covariates_weight) or covariates_weight < 0.0:
+        return refuse("invalid covariate weight")
+    y = np.asarray(y_treated_pre, dtype=float)
+    donors = np.asarray(y_donors_pre, dtype=float)
+    if y.ndim != 1 or not y.size or donors.ndim != 2 or donors.shape[1] != y.size:
+        return refuse("invalid outcome matrix shape")
+    n_donors = donors.shape[0]
+    if not n_donors:
+        return refuse("no donor units available")
+    active_covariates = covariates_weight > 0.0
+    if active_covariates and (x_treated is None or x_donors is None):
+        return refuse("requested covariate objective block is incomplete")
+    covariates = None
+    covariate_donors = None
+    arrays = [y, donors]
+    if active_covariates:
+        covariates = np.asarray(x_treated, dtype=float)
+        covariate_donors = np.asarray(x_donors, dtype=float)
+        if (
+            covariates.ndim != 1
+            or not covariates.size
+            or covariate_donors.shape != (n_donors, covariates.size)
+        ):
+            return refuse("invalid covariate matrix shape")
+        arrays.extend([covariates, covariate_donors])
+    if not all(np.isfinite(array).all() for array in arrays):
+        return refuse("non-finite SCM objective input")
+    scale = max(float(np.max(np.abs(array))) for array in arrays)
+    scale = scale if scale else 1.0
+    weight_scale = max(1.0, covariates_weight) if active_covariates else 1.0
+    outcome_factor = 1.0 / math.sqrt(weight_scale)
+    targets = [y / scale * (outcome_factor / math.sqrt(y.size))]
+    columns = [donors / scale * (outcome_factor / math.sqrt(y.size))]
+    if active_covariates:
+        factor = math.sqrt(covariates_weight) / math.sqrt(weight_scale)
+        targets.append(covariates / scale * (factor / math.sqrt(covariates.size)))
+        columns.append(covariate_donors / scale * (factor / math.sqrt(covariates.size)))
+    target = np.concatenate(targets)
+    matrix = np.concatenate(columns, axis=1)
 
     def objective(weights: np.ndarray) -> float:
-        synthetic_pre = weights @ y_donors_pre
-        loss = np.mean((y_treated_pre - synthetic_pre) ** 2)
-        if (
-            covariates_weight > 0
-            and x_treated is not None
-            and x_donors is not None
-            and x_donors.size > 0
-        ):
-            synthetic_x = weights @ x_donors
-            loss += covariates_weight * np.mean((x_treated - synthetic_x) ** 2)
-        return float(loss)
+        residual = weights @ matrix - target
+        return float(residual @ residual)
+
+    def gradient(weights: np.ndarray) -> np.ndarray:
+        return 2.0 * (matrix @ (weights @ matrix - target))
 
     result = minimize(
         objective,
-        x0=x0,
+        np.full(n_donors, 1.0 / n_donors),
+        jac=gradient,
         method=method,
-        bounds=bounds,
-        constraints=constraints,
-        options={"maxiter": max_iter, "ftol": tolerance},
+        bounds=[(0.0, 1.0)] * n_donors,
+        constraints=[
+            {
+                "type": "eq",
+                "fun": lambda w: float(np.sum(w) - 1.0),
+                "jac": lambda w: np.ones(n_donors),
+            }
+        ],
+        options={"maxiter": max_iter, "ftol": tolerance * tolerance},
     )
-
-    if not result.success:
-        return np.array([]), False, str(result.message)
-    weights = np.asarray(result.x, dtype=float)
-    if not np.isfinite(weights).all():
-        return np.array([]), False, "optimizer returned non-finite donor weights"
+    try:
+        weights = np.asarray(result.x, dtype=float)
+    except (AttributeError, TypeError, ValueError):
+        return refuse("optimizer returned invalid donor weight vector")
+    if weights.shape != (n_donors,) or not np.isfinite(weights).all():
+        return refuse("optimizer returned invalid donor weight vector")
+    if (
+        float(np.min(weights)) < -tolerance
+        or float(np.max(weights)) > 1.0 + tolerance
+        or abs(math.fsum(map(float, weights)) - 1.0) > tolerance
+    ):
+        return refuse("optimizer simplex feasibility check failed")
     weights = np.clip(weights, 0.0, 1.0)
-    w_sum = float(np.sum(weights))
-    if w_sum <= 0:
-        return np.array([]), False, "optimizer returned zero-sum donor weights"
-    weights = weights / w_sum
+    weights /= math.fsum(map(float, weights))
+    rational_weights = [Fraction.from_float(float(value)) for value in weights]
+    weight_sum = sum(rational_weights, Fraction(0))
+    if abs(weight_sum - 1) > Fraction.from_float(tolerance):
+        return refuse("emitted simplex feasibility check failed")
+    rational_weights = [value / weight_sum for value in rational_weights]
+    exact_gradient = [Fraction(0) for _ in range(n_donors)]
+    blocks = [(y, donors, Fraction(1))]
+    if active_covariates:
+        blocks.append((covariates, covariate_donors, Fraction.from_float(covariates_weight)))
+    for values, predictors, multiplier in blocks:
+        for index, value in enumerate(values):
+            column = [Fraction.from_float(float(item)) for item in predictors[:, index]]
+            residual = sum(
+                (weight * item for weight, item in zip(rational_weights, column, strict=True)),
+                Fraction(0),
+            ) - Fraction.from_float(float(value))
+            for donor, item in enumerate(column):
+                exact_gradient[donor] += 2 * multiplier * item * residual / len(values)
+    gap = sum(
+        (weight * value for weight, value in zip(rational_weights, exact_gradient, strict=True)),
+        Fraction(0),
+    ) - min(exact_gradient)
+    normalizer = Fraction.from_float(scale) ** 2 * Fraction.from_float(weight_scale)
+    if gap > Fraction.from_float(tolerance) * normalizer:
+        return refuse(f"optimizer convex optimality gap check failed: {float(gap / normalizer)}")
     return weights, True, ""
 
 
@@ -230,11 +309,17 @@ def _synthetic_control_output(
 
 @foundry_method(
     namespace="causal.inference",
-    version="1.0.0",
+    version="2.0.0",
     tags={"causal", "quasi-experimental", "synthetic-control"},
 )
 class SyntheticControlMethod:
-    """Construct a donor-weight counterfactual under good pre-treatment fit; avoid weak donor support or many treated units."""
+    """Compute donor weights with verified normalized convex optimality.
+
+    Version 2 checks simplex feasibility and a convex suboptimality bound for
+    the original weighted outcome/covariate objective. Successful numerical
+    computation does not establish donor overlap, identification, or accuracy;
+    pre-treatment fit and the existing causal requirements still apply.
+    """
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
@@ -298,7 +383,14 @@ class SyntheticControlMethod:
             ParameterSpec(name="n_placebo_runs", default="all"),
             ParameterSpec(name="optimization_method", default="SLSQP"),
             ParameterSpec(name="max_iter", default=1000),
-            ParameterSpec(name="tolerance", default=1e-8),
+            ParameterSpec(
+                name="tolerance",
+                default=1e-8,
+                description=(
+                    "Strictly between zero and one; bounds simplex feasibility and "
+                    "original weighted-objective convex gap after common normalization."
+                ),
+            ),
             ParameterSpec(name="covariates_weight", default=0.0),
             ParameterSpec(name="confidence_level", default=0.95),
             ParameterSpec(name="estimation_mode", default="standard"),
@@ -607,6 +699,8 @@ class SyntheticControlMethod:
                 "effect": [float(value) for value in effects],
             },
             method_params={
+                "numerical_solution_rule": "scm_normalized_simplex_convex_gap_v1",
+                "numerical_solution_tolerance": float(params.get("tolerance", 1e-8)),
                 "donor_weights": donor_weights.tolist(),
                 "donor_ids": donor_idx.astype(int).tolist(),
                 "treated_id": int(treated),

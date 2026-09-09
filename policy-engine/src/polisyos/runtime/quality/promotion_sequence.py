@@ -22,8 +22,8 @@ from weakref import WeakKeyDictionary
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
 from polisyos.core import contracts as core_contracts
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.fabric.retrieval.providers import RetrievalProviders  # noqa: TC001
 
@@ -607,7 +607,7 @@ class N9PromotionEvidenceBridgeRepository:
         if envelope != resolved_envelope:
             raise ValueError("measurement_root_envelope_binding_invalid")
         root = resolved_envelope.producer_roots[0]
-        payload = from_canonical_bytes(
+        payload = core_canon.from_canonical_bytes(
             self._store.get_bytes(core_artifacts.ArtifactID(envelope.payload_ref))
         )
         problem = DesignProblem.model_validate(payload["design_problem"])
@@ -1006,7 +1006,7 @@ class N9PromotionEvidenceBridgeRepository:
         envelope = self._resolve_measurement_envelope(source_artifact_id)
         if envelope.producer_roots != [source_root_ref]:
             raise ValueError("measurement_root_source_projection_mismatch")
-        payload = from_canonical_bytes(
+        payload = core_canon.from_canonical_bytes(
             self._store.get_bytes(core_artifacts.ArtifactID(source_artifact_id))
         )
         return payload, envelope.producer_roots[0]

@@ -157,7 +157,16 @@ def _record_execution(
         )
 
 
-def _estimate_cost_usd(*, backend: ComputeBackend, timing: MethodTiming) -> float:
+def estimate_method_execution_cost_usd(*, backend: ComputeBackend, timing: MethodTiming) -> float:
+    """Return the dispatcher cost estimate for a method execution.
+
+    Args:
+        backend: Backend that produced the method result.
+        timing: Execution timing recorded by the method runner.
+
+    Returns:
+        The existing dispatcher estimate in USD.
+    """
     unit_cost = _USD_PER_MS.get(backend, 5.0e-7)
     compile_ms = max(float(timing.compile_time_ms or 0.0), 0.0)
     wall_ms = max(float(timing.wall_time_ms), 0.0)
@@ -174,7 +183,7 @@ def _build_dispatch_artifacts(
     declared_route_budget: Mapping[str, Any] | None = None,
     observed_route_budget: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    cost_usd = _estimate_cost_usd(
+    cost_usd = estimate_method_execution_cost_usd(
         backend=result.reproducibility.backend,
         timing=result.timing,
     )

@@ -13,15 +13,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon, scan_secret_and_pii
-from polisyos.core.artifacts import (
-    ArtifactRef,
-    FileSystemCAS,
-    InputRef,
-    ProducerInfo,
-    PutOptions,
-    SchemaInfo,
-)
 from polisyos.core.contracts.control import FetchPlan
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.ir.connectors import FetchRequest, FetchResult
@@ -29,7 +22,7 @@ from polisyos.ir.connectors import FetchRequest, FetchResult
 from .providers import RetrievalProviders
 
 _CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
-_PRODUCER = ProducerInfo(
+_PRODUCER = core_artifacts.ProducerInfo(
     component="polisyos.fabric.retrieval.executor.FetchExecutor", version="1.0.0"
 )
 _SCHEMA_VERSION = "1.0.0"
@@ -56,9 +49,9 @@ class FabricFetchReceipt(BaseModel):
     schema_version: Literal["polisyos.fabric.fetch_receipt.v1"] = "polisyos.fabric.fetch_receipt.v1"
     used_plan: FetchPlan
     request: FetchRequest
-    result: FetchResult[ArtifactRef]
+    result: FetchResult[core_artifacts.ArtifactRef]
     payload_encoding: Literal["canonical_json", "pandas_arrow_ipc", "arrow_ipc"]
-    catalog_binding_ref: ArtifactRef
+    catalog_binding_ref: core_artifacts.ArtifactRef
     authority_scope: Literal["catalog_selection_and_returned_result_custody"] = (
         "catalog_selection_and_returned_result_custody"
     )
@@ -71,9 +64,9 @@ class ResolvedFabricFetch:
     result: FetchResult[Any]
     used_plan: FetchPlan
     catalog_binding: catalog_api.CatalogFetchBinding
-    payload_ref: ArtifactRef
-    fetch_receipt_ref: ArtifactRef
-    catalog_binding_ref: ArtifactRef
+    payload_ref: core_artifacts.ArtifactRef
+    fetch_receipt_ref: core_artifacts.ArtifactRef
+    catalog_binding_ref: core_artifacts.ArtifactRef
     checked_at: datetime
     replayed_result: FetchResult[Any]
     source_agreement: Literal["recomputed"] = "recomputed"
@@ -195,14 +188,14 @@ def _require_source_agreement(
 
 
 def _put_json(
-    store: FileSystemCAS, payload: BaseModel, *, kind: str, schema: str, inputs: list[InputRef]
-) -> ArtifactRef:
+    store: core_artifacts.FileSystemCAS, payload: BaseModel, *, kind: str, schema: str, inputs: list[core_artifacts.InputRef]
+) -> core_artifacts.ArtifactRef:
     return store.put_bytes(
         canon.to_canonical_bytes(payload.model_dump(mode="json"), spec=_CANON),
-        PutOptions(
+        core_artifacts.PutOptions(
             kind=kind,
             media_type=_JSON,
-            schema=SchemaInfo(name=schema, version=_SCHEMA_VERSION),
+            schema=core_artifacts.SchemaInfo(name=schema, version=_SCHEMA_VERSION),
             producer=_PRODUCER,
             inputs=inputs,
         ),
@@ -211,13 +204,13 @@ def _put_json(
 
 def _persist_fetched_result(
     *,
-    store: FileSystemCAS,
+    store: core_artifacts.FileSystemCAS,
     plan: FetchPlan,
     request: FetchRequest,
     result: FetchResult[Any],
     catalog: object,
     binding: catalog_api.CatalogFetchBinding,
-) -> tuple[ArtifactRef, ArtifactRef]:
+) -> tuple[core_artifacts.ArtifactRef, core_artifacts.ArtifactRef]:
     """Persist only from the executor's actual full-fetch continuation."""
     graph = _require_catalog(catalog)
     try:
@@ -230,10 +223,10 @@ def _persist_fetched_result(
         metadata = result.model_dump(mode="json", exclude={"data"})
         payload_ref = store.put_bytes(
             payload,
-            PutOptions(
+            core_artifacts.PutOptions(
                 kind=_PAYLOAD_KIND,
                 media_type=media_type,
-                schema=SchemaInfo(name="polisyos.fabric.fetch_payload.v1", version=_SCHEMA_VERSION),
+                schema=core_artifacts.SchemaInfo(name="polisyos.fabric.fetch_payload.v1", version=_SCHEMA_VERSION),
                 producer=_PRODUCER,
                 inputs=[],
             ),
@@ -248,7 +241,7 @@ def _persist_fetched_result(
         receipt = FabricFetchReceipt(
             used_plan=plan,
             request=request,
-            result=FetchResult[ArtifactRef].model_validate({**metadata, "data": payload_ref}),
+            result=FetchResult[core_artifacts.ArtifactRef].model_validate({**metadata, "data": payload_ref}),
             payload_encoding=encoding,
             catalog_binding_ref=binding_ref,
         )
@@ -258,8 +251,8 @@ def _persist_fetched_result(
             kind=_FETCH_KIND,
             schema="polisyos.fabric.fetch_receipt.v1",
             inputs=[
-                InputRef(artifact_id=payload_ref.artifact_id, role="fetched_payload"),
-                InputRef(artifact_id=binding_ref.artifact_id, role="catalog_binding"),
+                core_artifacts.InputRef(artifact_id=payload_ref.artifact_id, role="fetched_payload"),
+                core_artifacts.InputRef(artifact_id=binding_ref.artifact_id, role="catalog_binding"),
             ],
         )
         return payload_ref, receipt_ref
@@ -270,15 +263,15 @@ def _persist_fetched_result(
 
 
 def _read(
-    store: FileSystemCAS,
-    ref: ArtifactRef,
+    store: core_artifacts.FileSystemCAS,
+    ref: core_artifacts.ArtifactRef,
     *,
     kind: str,
     media_type: str,
     schema: str,
-    inputs: list[InputRef] | None = None,
+    inputs: list[core_artifacts.InputRef] | None = None,
 ) -> bytes:
-    checked = ArtifactRef.model_validate(ref.model_dump(mode="python"))
+    checked = core_artifacts.ArtifactRef.model_validate(ref.model_dump(mode="python"))
     manifest = store.get_manifest(checked.artifact_id)
     data = store.get_bytes(checked.artifact_id)
     if (
@@ -286,7 +279,7 @@ def _read(
         or checked.media_type != media_type
         or manifest.kind != kind
         or manifest.media_type != media_type
-        or manifest.artifact_schema != SchemaInfo(name=schema, version=_SCHEMA_VERSION)
+        or manifest.artifact_schema != core_artifacts.SchemaInfo(name=schema, version=_SCHEMA_VERSION)
         or manifest.producer != _PRODUCER
         or manifest.byte_size != len(data)
         or (inputs is not None and manifest.inputs != inputs)
@@ -297,8 +290,8 @@ def _read(
 
 def resolve_persisted_fetch(
     *,
-    store: FileSystemCAS,
-    fetch_receipt_ref: ArtifactRef,
+    store: core_artifacts.FileSystemCAS,
+    fetch_receipt_ref: core_artifacts.ArtifactRef,
     catalog: catalog_api.DatasetCatalogGraph,
     providers: RetrievalProviders | None = None,
 ) -> ResolvedFabricFetch:
@@ -352,8 +345,8 @@ def resolve_persisted_fetch(
         if receipt.request != _fetch_request(receipt.used_plan, page_size=None):
             raise FabricFetchCustodyError("fabric_fetch_request_mismatch")
         expected_inputs = [
-            InputRef(artifact_id=receipt.result.data.artifact_id, role="fetched_payload"),
-            InputRef(artifact_id=receipt.catalog_binding_ref.artifact_id, role="catalog_binding"),
+            core_artifacts.InputRef(artifact_id=receipt.result.data.artifact_id, role="fetched_payload"),
+            core_artifacts.InputRef(artifact_id=receipt.catalog_binding_ref.artifact_id, role="catalog_binding"),
         ]
         _read(
             store,

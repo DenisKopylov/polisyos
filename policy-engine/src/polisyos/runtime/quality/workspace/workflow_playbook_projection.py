@@ -7,10 +7,8 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import (
-    ArtifactRef as CoreArtifactRef,  # noqa: TC001 - Pydantic field
-)
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
 from polisyos.pdc import OperationClass, SearchBlockerRecord
 from polisyos.runtime.quality.workspace.scientist_node_adapters import (
     AdapterConformanceResult,
@@ -73,7 +71,7 @@ class PlaybookStep(CandidatePlaybookStep):
 
     admission_state: Literal["admitted"] = "admitted"
     conformance: AdapterConformanceResult
-    conformance_ref: CoreArtifactRef
+    conformance_ref: core_artifacts.ArtifactRef
 
     @model_validator(mode="after")
     def _requires_passing_conformance(self) -> PlaybookStep:
@@ -95,7 +93,7 @@ class PlaybookStepAdmission(BaseModel):
     candidate: CandidatePlaybookStep
     step: PlaybookStep | None = None
     conformance: AdapterConformanceResult
-    conformance_ref: CoreArtifactRef | None = None
+    conformance_ref: core_artifacts.ArtifactRef | None = None
     smoke_attempted: bool
     blocker: SearchBlockerRecord | None = None
 
@@ -373,9 +371,9 @@ def _candidate_description(
 def _model_digest(value: object) -> str:
     if not isinstance(value, BaseModel):
         raise TypeError("playbook_node_signature_not_typed")
-    data = to_canonical_bytes(
+    data = core_canon.to_canonical_bytes(
         value.model_dump(mode="json"),
-        CanonSpec(forbid_floats=False, exclude_none=False),
+        core_canon.CanonSpec(forbid_floats=False, exclude_none=False),
     )
     return "sha256:" + hashlib.sha256(data).hexdigest()
 

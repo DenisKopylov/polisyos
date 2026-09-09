@@ -46,7 +46,7 @@ The workflow specs currently depend on these node ids for the key L6 surfaces:
 | Capability                 | `node_id`                                                 |
 | -------------------------- | --------------------------------------------------------- |
 | Baseline simulation        | `scientist.node_run_simulation@1.0.1`                     |
-| Causal evaluation          | `scientist.node_run_causal_evaluation@1.2.0`              |
+| Causal evaluation          | `scientist.node_run_causal_evaluation@2.0.0`              |
 | Causal readiness           | `scientist.node_run_causal_readiness@1.0.0`               |
 | Counterfactual gate        | `scientist.node_counterfactual_identification_gate@1.0.0` |
 | Hierarchical policy search | `scientist.node_run_hierarchical_policy_search@1.0.0`     |

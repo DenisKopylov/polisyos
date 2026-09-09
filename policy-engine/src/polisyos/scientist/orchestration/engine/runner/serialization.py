@@ -128,13 +128,13 @@ def serialize_outcome(outcome: Any) -> bytes:
 
 def deserialize_outcome(data: bytes) -> Any:
     """Deserialize ``NodeOutcome`` from bytes."""
-    from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+    from polisyos.scientist.orchestration.engine.protocol import decode_node_outcome
 
     try:
         data = _coerce_wire_bytes(data)
         if data and data[:1] == _VERSION_1:
             data = _unwrap_safe(data)
-        return NodeOutcome.model_validate(_loads(data))
+        return decode_node_outcome(_loads(data))
     except DeserializationError:
         raise
     except _SERIALIZATION_ERRORS as exc:

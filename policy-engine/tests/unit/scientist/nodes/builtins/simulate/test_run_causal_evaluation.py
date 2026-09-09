@@ -59,7 +59,7 @@ def test_base_context_records_claim_owner_limitation_on_success(
     state = minimal_state.model_copy(
         update={
             "observational_data_ref": data_ref,
-            "causal_method_fqn": "causal.inference.synthetic_control@1.0.0",
+            "causal_method_fqn": "causal.inference.synthetic_control@2.0.0",
             "params": {"random_seed": 42, CLAIM_SPINE_FLAG: True},
         }
     )
@@ -244,7 +244,7 @@ def test_promotion_state_injection_cannot_bypass_eval_safety(
                 minimal_state.model_copy(
                     update={
                         "observational_data_ref": data_ref,
-                        "causal_method_fqn": "causal.inference.synthetic_control@1.0.0",
+                        "causal_method_fqn": "causal.inference.synthetic_control@2.0.0",
                         "params": {"random_seed": 42, **promotion_variant},
                     }
                 ),
@@ -385,7 +385,7 @@ def test_actual_input_or_untrusted_provenance_blocks_before_causal_work(
             "observational_data_ref": changed_ref
             if mutation == "actual_input_changed"
             else data_ref,
-            "causal_method_fqn": "causal.inference.synthetic_control@1.0.0",
+            "causal_method_fqn": "causal.inference.synthetic_control@2.0.0",
             "params": {"random_seed": 42},
         }
     )
@@ -422,8 +422,21 @@ def test_actual_input_or_untrusted_provenance_blocks_before_causal_work(
     assert job_spy.call_count == 0
 
 
+@pytest.fixture
+def isolated_causal_failure_path(monkeypatch):
+    """Isolate downstream failure handling; this is not an admission witness.
+
+    These tests return a failure or raise before any report is emitted. The
+    actual admission boundary is exercised separately above, with its real
+    context, custody challenges, verifier, and refusal controls intact.
+    """
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+
+    monkeypatch.setattr(owner, "_causal_evaluation_safety_blockers", lambda *args, **kwargs: ())
+
+
 def test_fail_when_observational_data_cannot_be_loaded(
-    execution_context, minimal_state, artifact_ref_factory
+    execution_context, minimal_state, artifact_ref_factory, isolated_causal_failure_path
 ):
     """observational_data_ref points to invalid artifact -> fail with ERROR_MISSING_INPUT."""
     ref = artifact_ref_factory(kind="ir.observational_data", data={"garbage": True})
@@ -453,7 +466,9 @@ def test_skip_with_no_method_fqn_defaults(execution_context, minimal_state):
     assert outcome.status == "skip"
 
 
-def test_fail_when_method_job_has_issues(execution_context, minimal_state, artifact_ref_factory):
+def test_fail_when_method_job_has_issues(
+    execution_context, minimal_state, artifact_ref_factory, isolated_causal_failure_path
+):
     """When run_job returns issues, node returns fail with ERROR_FOUNDRY_EXECUTE_FAILED."""
     from unittest.mock import MagicMock, patch
 
@@ -496,6 +511,7 @@ def test_method_job_carries_selected_contract_bundle_and_intake_lineage(
     execution_context,
     minimal_state,
     artifact_ref_factory,
+    isolated_causal_failure_path,
 ):
     selected_ref = artifact_ref_factory(
         kind="foundry.ukraine_method_input",
@@ -554,7 +570,7 @@ def test_method_job_carries_selected_contract_bundle_and_intake_lineage(
 
 
 def test_fail_when_method_output_missing_report(
-    execution_context, minimal_state, artifact_ref_factory
+    execution_context, minimal_state, artifact_ref_factory, isolated_causal_failure_path
 ):
     """When run_job returns no issues but output has no report, node returns fail."""
     from unittest.mock import MagicMock, patch
@@ -596,7 +612,7 @@ def test_fail_when_method_output_missing_report(
 
 
 def test_assertion_in_observational_data_load_is_not_swallowed(
-    execution_context, minimal_state, artifact_ref_factory
+    execution_context, minimal_state, artifact_ref_factory, isolated_causal_failure_path
 ):
     ref = artifact_ref_factory(kind="ir.observational_data", data={"dummy": 1})
     state = minimal_state.model_copy(
@@ -622,7 +638,7 @@ def test_assertion_in_observational_data_load_is_not_swallowed(
 
 
 def test_fail_when_method_output_report_is_invalid(
-    execution_context, minimal_state, artifact_ref_factory
+    execution_context, minimal_state, artifact_ref_factory, isolated_causal_failure_path
 ):
     ref = artifact_ref_factory(kind="ir.observational_data", data={"dummy": 1})
     state = minimal_state.model_copy(
@@ -664,3 +680,184 @@ def test_fail_when_method_output_report_is_invalid(
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_FOUNDRY_EXECUTE_FAILED
     assert "report is invalid" in outcome.error.message
+
+
+@pytest.fixture
+def causal_recorded_output_case(tmp_path, monkeypatch):
+    """Actual recorded source and MethodBackend, no guarded-node admission shortcut."""
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.ir.analytics.causal import CausalEffectReport, persist_causal_effect_report
+    from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+    from tests.unit.runtime.quality.test_data_forge_binding import recorded_panel_owner
+    from tests.unit.runtime.quality.test_workspace_foundry_consumption import _method_owner_case
+
+    fixture = recorded_panel_owner.__wrapped__(tmp_path, monkeypatch)
+    store, _, state = _method_owner_case(fixture)
+    source = from_canonical_bytes(
+        store.get_bytes(state.artifacts_index["causal_method_result_ref"].artifact_id)
+    )
+    report = CausalEffectReport.model_validate(source["report"])
+    params = {**state.params, CLAIM_SPINE_FLAG: False, "causal_validity": {"enabled": False}}
+    input_state = state.model_copy(deep=True)
+    input_state.params = params
+    for key in owner.RunCausalEvaluationNode().spec.produces:
+        input_state.artifacts_index.pop(key, None)
+    output_state = state.model_copy(deep=True)
+    output_state.params = dict(params)
+    report_ref = owner._to_core_artifact_ref(persist_causal_effect_report(store, report))
+    output_state.artifacts_index["causal_report_ref"] = report_ref
+    envelope = report.to_uncertainty_envelope()
+    if envelope is not None:
+        output_state.artifacts_index["causal_envelope_ref"] = owner._to_core_artifact_ref(
+            persist_uncertainty_envelope(store, envelope)
+        )
+    ctx = SimpleNamespace(store=store)
+    return ctx, input_state, output_state, list(output_state.artifacts_index.values())
+
+
+def _materialized_causal_output(case):
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+
+    ctx, input_state, output_state, produced = case
+    return owner.materialize_causal_output_contract(
+        ctx=ctx,
+        input_state=input_state,
+        output_state=output_state,
+        produced=produced,
+        supporting_artifacts={},
+    )
+
+
+def test_causal_output_contract_uses_complete_real_method_population(causal_recorded_output_case):
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+    from polisyos.scientist.orchestration.engine import NodeOutputRefusal
+
+    ctx, input_state, _, _ = causal_recorded_output_case
+    outcome = _materialized_causal_output(causal_recorded_output_case)
+    node = owner.RunCausalEvaluationNode()
+    rows = {row.output_key: row for row in outcome.output_dispositions}
+    # Two independent sets: declared logical ports and the actual typed outcome.
+    assert set(rows) == set(node.spec.produces)
+    assert len(rows) == len(outcome.output_dispositions) == len(node.spec.produces)
+    node.verify_output_dispositions(ctx=ctx, input_state=input_state, outcome=outcome)
+    for key, row in rows.items():
+        assert row.artifact_ref in outcome.artifacts
+        assert ctx.store.verify(row.artifact_ref.artifact_id).ok
+        if row.disposition == "refused":
+            assert key not in outcome.state.artifacts_index
+            payload = NodeOutputRefusal.model_validate(
+                from_canonical_bytes(ctx.store.get_bytes(row.artifact_ref.artifact_id))
+            )
+            assert payload.output_key == key
+            assert payload.reason_code
+        else:
+            assert outcome.state.artifacts_index[key] == row.artifact_ref
+    required = {
+        rule.output_key for rule in node.spec.output_rules if rule.availability == "required"
+    }
+    assert all(rows[key].disposition == "produced" for key in required)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["raw_member_now_present", "validity_now_enabled", "different_input", "refusal_reason"],
+)
+def test_causal_output_refusal_readback_checks_substance(causal_recorded_output_case, mutation):
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+    from tests.unit.runtime.quality.test_workspace_foundry_consumption import _rewrite_artifact
+
+    ctx, input_state, _, _ = causal_recorded_output_case
+    outcome = _materialized_causal_output(causal_recorded_output_case)
+    if mutation == "raw_member_now_present":
+        ref = outcome.state.artifacts_index["causal_method_result_ref"]
+        outcome.state.artifacts_index["causal_method_result_ref"] = _rewrite_artifact(
+            ctx.store,
+            ref,
+            lambda payload: payload.update({"hte_result": {"real_payload_required": True}}),
+        )
+    elif mutation == "validity_now_enabled":
+        input_state.params["causal_validity"] = {"enabled": True}
+    elif mutation == "different_input":
+        input_state.run_id = "different-attempt"
+    else:
+        rows = list(outcome.output_dispositions)
+        index = next(index for index, row in enumerate(rows) if row.disposition == "refused")
+        changed = _rewrite_artifact(
+            ctx.store,
+            rows[index].artifact_ref,
+            lambda payload: payload.update({"reason_code": "invented_reason"}),
+        )
+        rows[index] = rows[index].model_copy(update={"artifact_ref": changed})
+        outcome = outcome.model_copy(update={"output_dispositions": tuple(rows)})
+    with pytest.raises(ValueError):
+        owner.RunCausalEvaluationNode().verify_output_dispositions(
+            ctx=ctx, input_state=input_state, outcome=outcome
+        )
+
+
+def test_causal_output_contract_rejects_each_missing_required_output(causal_recorded_output_case):
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+
+    ctx, input_state, output_state, produced = causal_recorded_output_case
+    required = {
+        rule.output_key
+        for rule in owner.RunCausalEvaluationNode().spec.output_rules
+        if rule.availability == "required"
+    }
+    for key in required:
+        changed = output_state.model_copy(deep=True)
+        changed.artifacts_index.pop(key)
+        with pytest.raises((ValueError, KeyError)):
+            owner.materialize_causal_output_contract(
+                ctx=ctx,
+                input_state=input_state,
+                output_state=changed,
+                produced=produced,
+                supporting_artifacts={},
+            )
+
+
+@pytest.mark.parametrize("mutation", ["drop_parent", "forge_role", "schema", "kind", "producer"])
+def test_causal_output_refusal_readback_binds_actual_manifest(
+    causal_recorded_output_case, mutation
+):
+    from polisyos.core.artifacts import InputRef, ProducerInfo, SchemaInfo
+    from polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as owner
+
+    ctx, input_state, _, _ = causal_recorded_output_case
+    outcome = _materialized_causal_output(causal_recorded_output_case)
+    ref = next(
+        row.artifact_ref for row in outcome.output_dispositions if row.disposition == "refused"
+    )
+    manifest = ctx.store.get_manifest(ref.artifact_id)
+    if mutation == "drop_parent":
+        changed = manifest.model_copy(update={"inputs": manifest.inputs[1:]})
+    elif mutation == "forge_role":
+        changed = manifest.model_copy(
+            update={
+                "inputs": [
+                    InputRef(artifact_id=row.artifact_id, role="forged:" + str(row.role))
+                    for row in manifest.inputs
+                ]
+            }
+        )
+    elif mutation == "schema":
+        changed = manifest.model_copy(
+            update={"artifact_schema": SchemaInfo(name="forged.refusal", version="1.0")}
+        )
+    elif mutation == "kind":
+        changed = manifest.model_copy(update={"kind": "forged.refusal"})
+    else:
+        changed = manifest.model_copy(
+            update={"producer": ProducerInfo(component="other.owner", version="1.0")}
+        )
+    # This is an actual temporary CAS sidecar mutation, preserving payload bytes,
+    # content address, node/spec/source markers, and every offered disposition.
+    _, manifest_path = ctx.store.get_paths(ref.artifact_id)
+    manifest_path.write_text(changed.model_dump_json(by_alias=True))
+    with pytest.raises(ValueError):
+        owner.RunCausalEvaluationNode().verify_output_dispositions(
+            ctx=ctx, input_state=input_state, outcome=outcome
+        )

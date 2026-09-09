@@ -2272,12 +2272,14 @@
         "polisyos.foundry.execute"
       ],
       "major_subsystem": true,
-      "export_count": 13,
+      "export_count": 15,
       "exports": [
         "DependencyProfileResolutionFailure",
         "EmbedderProtocol",
         "MethodCatalogDependencyAuthorityRequest",
         "MethodRouteConstraint",
+        "InputContractMethodSelection",
+        "select_method_for_input_contract",
         "SentenceTransformerEmbedder",
         "TFIDFEmbedder",
         "build_method_catalog_provenance_manifest",
@@ -2297,12 +2299,14 @@
         {
           "module": "polisyos.foundry",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 13,
+          "export_count": 15,
           "exports": [
             "DependencyProfileResolutionFailure",
             "EmbedderProtocol",
             "MethodCatalogDependencyAuthorityRequest",
             "MethodRouteConstraint",
+            "InputContractMethodSelection",
+            "select_method_for_input_contract",
             "SentenceTransformerEmbedder",
             "TFIDFEmbedder",
             "build_method_catalog_provenance_manifest",

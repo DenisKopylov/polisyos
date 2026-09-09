@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.contracts.control import (
     DataContextMetric,
     FetchPlan,
@@ -41,8 +41,8 @@ class ExecutePlanResult:
     metric: DataContextMetric | None
     used_plan: FetchPlan
     fallback_used: bool
-    payload_ref: ArtifactRef | None = None
-    fetch_receipt_ref: ArtifactRef | None = None
+    payload_ref: core_artifacts.ArtifactRef | None = None
+    fetch_receipt_ref: core_artifacts.ArtifactRef | None = None
 
 
 class FetchExecutor:
@@ -165,7 +165,7 @@ class FetchExecutor:
             from .custody import _persist_fetched_result
 
             payload_ref, fetch_receipt_ref = _persist_fetched_result(
-                store=FileSystemCAS(self._cas_root),
+                store=core_artifacts.FileSystemCAS(self._cas_root),
                 plan=plan,
                 request=_fetch_request(plan, page_size=None),
                 result=full_result,

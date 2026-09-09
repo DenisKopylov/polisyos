@@ -809,7 +809,11 @@ def test_subject_membership_and_actual_law_route_grow_as_data(tmp_path) -> None:
 def test_synthetic_recognition_does_not_authorize_credal_or_atom_consumers() -> None:
     from polisyos.runtime.quality import intervention_substrate as owner
 
-    bundle = _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), _lex_store())
+    # This integration positive must share the actual credal consumer's logical
+    # evidence identity. An absolute DB URI correctly fails content binding.
+    lex = LegalKnowledgeStore(
+        L3_DB, L3_DB.parent, canonical_db_ref_path=owner.DEFAULT_L3_LEX_DB_PATH)
+    bundle = _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), lex)
     report = owner._law_credal_consumer_behavior_report(
         REPO_ROOT, bundle, owner.production_composed_world_model_record(REPO_ROOT))
     assert report["source_relative_recognition_passed"] is True

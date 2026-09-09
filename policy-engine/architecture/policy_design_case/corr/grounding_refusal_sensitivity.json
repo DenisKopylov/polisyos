@@ -1,0 +1,65 @@
+{
+  "binder_refused": 3,
+  "correctness_bound": null,
+  "executed_at": "2026-09-08T17:49:04.537185+00:00",
+  "issues": [],
+  "limitation": "A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.",
+  "matched_controls_outside_denominator": [
+    {
+      "case_id": "budget_allocation_multiplier:cg0_atom_8d6c5db80d353640:opposite_sign",
+      "production_promotable": false,
+      "reason": "synthetic_input_candidate_only",
+      "relation": "exact",
+      "synthetic": true
+    },
+    {
+      "case_id": "procurement_shock_intensity:cg0_atom_7f82b70839a77253:opposite_sign",
+      "production_promotable": false,
+      "reason": "open_obligation",
+      "relation": "exact",
+      "synthetic": true
+    },
+    {
+      "case_id": "tax_relief_rate:cg0_atom_4164e221ec82011c:opposite_sign",
+      "production_promotable": false,
+      "reason": "synthetic_input_candidate_only",
+      "relation": "exact",
+      "synthetic": true
+    }
+  ],
+  "name": "refusal_sensitivity",
+  "outcomes": [
+    {
+      "case_id": "budget_allocation_multiplier:cg0_atom_8d6c5db80d353640:opposite_sign",
+      "certificate_hash": "sha256:27690f458028f866e965731b45f41f09ca611c6e3ded630b70cf22161d0d4a2c",
+      "decision_reason": "false_analog_hard_abstain",
+      "governed_authority": false,
+      "mismatch_detected": true,
+      "refused": true,
+      "synthetic": true
+    },
+    {
+      "case_id": "procurement_shock_intensity:cg0_atom_7f82b70839a77253:opposite_sign",
+      "certificate_hash": "sha256:14a8b620a4fc3f90e115c0615431a2ac8e4c61645cc72b6da655b873df39957b",
+      "decision_reason": "false_analog_hard_abstain",
+      "governed_authority": false,
+      "mismatch_detected": true,
+      "refused": true,
+      "synthetic": true
+    },
+    {
+      "case_id": "tax_relief_rate:cg0_atom_4164e221ec82011c:opposite_sign",
+      "certificate_hash": "sha256:f206a9b5433eb97380242f2d14647d429cbdf3c0e79b99f7cb13d02a6d8f9953",
+      "decision_reason": "false_analog_hard_abstain",
+      "governed_authority": false,
+      "mismatch_detected": true,
+      "refused": true,
+      "synthetic": true
+    }
+  ],
+  "predeclared_mismatches": 3,
+  "schema_version": "policyos.runtime.grounding_refusal_sensitivity.v1",
+  "statement": "On a pre-declared adversarial suite of 3 deliberate mismatches, the binder refused 3. A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.",
+  "suite_hash": "sha256:f2e8931e256664e2946c06c8203bd979b2b733222a3e999447e63e6c227da72f",
+  "synthetic": true
+}

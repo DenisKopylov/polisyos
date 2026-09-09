@@ -2925,8 +2925,8 @@
       "path": "architecture/policy_design_case/layer3_gy_outcome_run.json",
       "kind": "layer3_gy_lifecycle_artifact",
       "owner": "team-runtime-quality",
-      "family_id": "policy-design-case-layer3-gy-loop-artifacts",
-      "lifecycle": "generated_committed",
+      "family_id": "policy-design-case-layer3-gy-loop-history-artifacts",
+      "lifecycle": "source_committed",
       "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
       "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
       "status": "active"
@@ -4180,6 +4180,17 @@
       "kind": "layer3_gy_lifecycle_artifact",
       "owner": "team-runtime-quality",
       "family_id": "policy-design-case-layer3-gy-phase2-artifacts",
+      "lifecycle": "generated_committed",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "gy_lifecycle_architecture_policy_design_case_layer3_gy_outcome_run_v2_json",
+      "path": "architecture/policy_design_case/layer3_gy_outcome_run_v2.json",
+      "kind": "layer3_gy_lifecycle_artifact",
+      "owner": "team-runtime-quality",
+      "family_id": "policy-design-case-layer3-gy-loop-artifacts",
       "lifecycle": "generated_committed",
       "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
       "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",

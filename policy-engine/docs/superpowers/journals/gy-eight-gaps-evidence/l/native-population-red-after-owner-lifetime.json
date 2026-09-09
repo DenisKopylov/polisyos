@@ -1,0 +1,29 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_pre_gx_refuses_duplicate_real_proof",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_pre_gx_refuses_removed_real_report_member",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_current_reader_does_not_erase_an_existing_drift"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T11:33:12.415491+00:00",
+  "elapsed_seconds": 175.113,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "FFF                                                                      [100%]\n=================================== FAILURES ===================================\n________________ test_gy_l_pre_gx_refuses_duplicate_real_proof _________________\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:2671: in test_gy_l_pre_gx_refuses_duplicate_real_proof\n    assert any(\nE   assert False\nE    +  where False = any(<generator object test_gy_l_pre_gx_refuses_duplicate_real_proof.<locals>.<genexpr> at 0x132360520>)\n_____________ test_gy_l_pre_gx_refuses_removed_real_report_member ______________\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:2716: in test_gy_l_pre_gx_refuses_removed_real_report_member\n    assert any(\nE   AssertionError: ('honest_non_value_outcomes', 0)\nE   assert False\nE    +  where False = any(<generator object test_gy_l_pre_gx_refuses_removed_real_report_member.<locals>.<genexpr> at 0x132362c20>)\n_______ test_gy_l_actual_current_reader_does_not_erase_an_existing_drift _______\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:3020: in test_gy_l_actual_current_reader_does_not_erase_an_existing_drift\n    assert before <= after, {\"lost\": sorted(before - after), \"added\": sorted(after - before)}\nE   AssertionError: {'added': ['{\"code\": \"layer3_gy_production_proof_drift\", \"path\": \"architecture/policy_design_case/layer3_gy_production...e\": \"layer3_gy_outcome_replay_drift\", \"path\": \"architecture/policy_design_case/layer3_gy_outcome_replay_proof.json\"}']}\nE   assert {'{\"code\": \"l...proof.json\"}'} <= {'{\"code\": \"l...roofs.json\"}'}\nE     \nE     Extra items in the left set:\nE     '{\"code\": \"layer3_gy_outcome_replay_drift\", \"path\": \"architecture/policy_design_case/layer3_gy_outcome_replay_proof.json\"}'\n=========================== short test summary info ============================\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_pre_gx_refuses_duplicate_real_proof\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_pre_gx_refuses_removed_real_report_member\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_current_reader_does_not_erase_an_existing_drift\n",
+  "stderr": ""
+}

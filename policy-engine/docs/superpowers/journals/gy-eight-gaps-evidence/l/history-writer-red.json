@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_writer_checks_immutable_history_before_live_production"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T11:36:48.156632+00:00",
+  "elapsed_seconds": 2.298,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___ test_gy_l_current_writer_checks_immutable_history_before_live_production ___\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:3119: in test_gy_l_current_writer_checks_immutable_history_before_live_production\n    report = owner.validate(REPO_ROOT, write=True)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntools/quality/validation/check_layer3_gy_loop_artifacts.py:232: in validate\n    live_payloads = build_live_loop_artifacts(repo_root)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:3115: in unexpected_producer\n    raise AssertionError(\"current writer reached producer with changed immutable history\")\nE   AssertionError: current writer reached producer with changed immutable history\n=========================== short test summary info ============================\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_writer_checks_immutable_history_before_live_production\n",
+  "stderr": ""
+}

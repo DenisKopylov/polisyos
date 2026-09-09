@@ -2389,7 +2389,7 @@ source_of_truth = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
 outputs = [
   "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json",
   "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json",
-  "architecture/policy_design_case/layer3_gy_outcome_run.json",
+  "architecture/policy_design_case/layer3_gy_outcome_run_v2.json",
   "architecture/policy_design_case/layer3_gy_outcome_replay_proof.json",
 ]
 regenerate_commands = [
@@ -2406,6 +2406,30 @@ check_command = [
   "tools.quality.validation.check_layer3_gy_loop_artifacts",
   "--check",
 ]
+
+
+[[family]]
+id = "policy-design-case-layer3-gy-loop-history-artifacts"
+label = "policy design case layer3 GY historical outcome v1"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Original pre-output-GX outcome retained under its recorded v1 rule; current owner emits only explicit v2"
+gy_lifecycle_family = true
+verifier = "Existing loop owner reconciles exact current/history ownership and immutable historical bytes"
+promotion_target = "Historical custody only; v1 grants no current GX or task completion authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/layer3_gy_outcome_run.json"
+source_committed_rationale = "Preserve the exact measured predecessor without rewriting its rule or GX evidence under v2."
+outputs = ["architecture/policy_design_case/layer3_gy_outcome_run.json"]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_outcome_run.json" = "sha256:5275653d5addcf48bc0b99948f49bcf44b7dc374322ecfbb6a98d5609004cf8a"
+regenerate_commands = [".venv/bin/python -m tools.quality.validation.check_layer3_gy_loop_artifacts --check"]
+commit_policy = "committed"
+freshness_rule = "Immutable original v1 bytes; current proof uses its explicit new epoch."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
+check_cwd = "."
+check_command = [".venv/bin/python", "-m", "tools.quality.validation.check_layer3_gy_loop_artifacts", "--check"]
 
 [[family]]
 id = "policy-design-case-layer3-gy-phase2-artifacts"
@@ -3138,7 +3162,7 @@ source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/l
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census_findings.md" = "sha256:5854948a136a59e40fc662cb358f1ed9575366de1c33ecfc52daab67191f7d50"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_audit.json" = "sha256:bb8778202eaa76e2e6aa8e14df614a3f8dadf5b832d3a95a4ed7ae7c59141e3b"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_findings.md" = "sha256:f9bae6d4c9bfe5eed418d472be7ba357ec75dc569c2e2e391d0b56257c841ec7"
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json" = "sha256:c63efcfa8ce74d1503672251c190ade971ae413dc992913a8f9fd40afea6e695"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json" = "sha256:dc3e3f1f9c9b35459272a4e8f2dfb1e8096e96718f5b7d8f958eeff7ebb4880d"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_findings.md" = "sha256:4b9c73cf13d64b7d44df549307f230f43df728a236cb1f5bb1c0177a8b9a4cce"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_audit.json" = "sha256:ce3ac8f8902e768e814d31994c74ab4017be5620c365fc7e6cfcb67a86620377"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_findings.md" = "sha256:dde5a6e4a3691eb9fb8048289ed17036b54e42afd43bf9c02b0c07fc531491c0"
@@ -3188,7 +3212,7 @@ verifier = "Existing semantic owner and generated artifact lifecycle accounting"
 promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
 stale_output_behavior = "fail"
 source_of_truth = "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
-source_committed_rationale = "Declared cases and benchmark inputs consumed by the loop producer; fixture cases cannot be promoted into its production metric population."
+source_committed_rationale = "Declared human-authored cases and benchmark inputs consumed by the loop producer; fixture cases cannot be promoted into its production metric population."
 outputs = [
   "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json",
   "architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
@@ -3937,7 +3961,7 @@ stale_output_behavior = "fail"
 source_of_truth = "architecture/policy_design_case/inventory.json and architecture/generated_artifacts.toml"
 source_committed_rationale = "The authored control-plane inventory has its own hash-checked custody; it does not assert completion of the capabilities it lists."
 outputs = ["architecture/policy_design_case/inventory.json"]
-source_integrity_sha256."architecture/policy_design_case/inventory.json" = "sha256:e211c2256d1311577d3b6cea006c955249e162506339201aea77e694838e8d32"
+source_integrity_sha256."architecture/policy_design_case/inventory.json" = "sha256:a9d4a01d424e014e86d79fcc0063f710e796da50a80db5874a8400e428938585"
 regenerate_commands = ["Review inventory membership against real owners, then rebind its source integrity; python -m tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit --check --json"]
 commit_policy = "committed"
 freshness_rule = "A byte change must be reviewed and independently bound by the registered source digest."

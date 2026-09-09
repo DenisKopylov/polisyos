@@ -211,3 +211,46 @@ The final architecture boundary check and actual M1 lifecycle check pass.
 Attachment, commit and complete branch readback follow this verification;
 L and J remain the next required tasks in this same lane. No push, forbidden
 register/ledger edit or other-lane mutation has occurred.
+
+The return landed at `6d8eb44c3f5eec86341dd630b0d29f2d20e881d0` and was read
+back from attached `codex/gy-eight-gaps`: all 187 changed paths agree with the
+independent numstat population, every branch blob matches the working tree,
+and the tree was clean before L. The readback is retained with the next L
+checkpoint at `gy-eight-gaps-evidence/c3/return/branch-readback.json`.
+
+L has started red-first. Actual failed-GX admission and present-unusable JSON
+controls reproduce their missing predicates. The live proof producer additionally
+exposes runtime composition/custody defects before the population controls:
+different store objects at container admission, an unowned input root for the
+declared development client, and readback positioned after context shutdown.
+The repair uses one existing runtime context, that client's actual owner scope,
+and the complete live lifetime. Closed container/ownership guards stay intact;
+those failures are not counted as proof of the still-unreached population checks.
+
+L's buildable admission repair is now measured. The complete real producer runs
+GX after freezing its actual new output family, and the consumer requires that
+same actual execution. The final write and fresh check have identical full GX
+packets and two distinct unsuccessful-GX refusal identities. Removing actual
+execution while retaining a declared pass adds the intended execution-custody
+refusal; isolated corruption adds only its corruption identity and loses no
+baseline finding. Current outcome v2 is governed and original v1 remains
+byte-identical history.
+
+L remains `not_executed`: actual GX is `expected_red` with the complete 38-finding
+identity set. The G1/G4/G5/promotion-contract and source-literal/digest findings
+remain assigned to their exact owners/rules. Neither marker checks nor a smaller
+GX denominator clear this conjunct. The L journal records the native correction
+epochs, actual full identity deltas and complete deciding outputs. Initial final
+scans were contaminated by this lane's concurrent architecture temporary tree
+and journal write; their receipts are retained and the affected gates are
+repeated with the whole contended tree frozen. J is still next; no final
+eight-task completion is claimed here.
+
+The isolated final M1 check passes. The planned default architecture rerun is
+stopped after source tracing showed that its trust-posture compiler derives
+appointments from the prohibited debt register. The first invocation reached
+that dependency inadvertently and is retained as an incomplete verification;
+no register-derived finding is used to settle a GY task. The full default gate
+is not claimed passed or replaced by a narrower gate. This limit is routed to
+the named `trust-claim-posture-register` family and the user's forbidden-input
+rule. L remains `not_executed` on its independently measured GX conjunct.

@@ -783,3 +783,49 @@ The delivered J engineering and its permitted successor verification now have
 completed outputs. The task remains **`not_executed`** for the original-demand positive
 admission and production-rate conjuncts established above. Final attached-branch
 commit/readback follows; no external publication or push is authorized.
+
+### Attached delivery and complete branch readback
+
+J landed at **`00aadf493720eece548c9be2827057745c3c1e8d`** on
+`codex/gy-eight-gaps`; the [ordinary Git commit receipt](gy-eight-gaps-evidence/j/commit-main.json)
+records RC0 in 1.539 seconds. Branch attachment was checked immediately before
+the commit. Lefthook found no matching frontend staged files and skipped its
+frontend commands; no frontend pass is inferred from those skips.
+
+The entire staged path set agreed with independent status/diff/numstat
+derivations: 118 product paths, eight mechanism files and 110 required
+companions (tests, governed outputs/registry/schema, generated reference,
+journals, release fragment and retained evidence). Every staged blob matched
+its working bytes. The [actual post-commit readback](gy-eight-gaps-evidence/j/branch-readback.json)
+then passed, RC0 in 2.001 seconds, raw SHA256
+`79d65a6b7eae52d3194250df2fbe0d8cc73bcebb7c4b0fa2e41c11bf0b7b0f7c`.
+All 118 complete commit identities independently agree under `diff-tree` and
+numstat and equal the reviewed staging manifest. Every committed blob and mode
+matches the working file. The raw-hash-map digest before staging, after staging
+and after committing is the same
+`e5f232405b7238d8be9ce6624dbd6fda3bca2a06f62795d0174747b0b89180fe`.
+Branch, HEAD and branch ref all resolve to the actual commit throughout.
+
+The full [staged whitespace check](gy-eight-gaps-evidence/j/precommit-diff-check.json)
+returned RC2 in 0.147 seconds. Its complete six findings independently equal
+every single-space blank-context line in the two retained unified patches:
+CLI patch lines 14/15/25/26 and enumerator patch lines 4/25. These spaces encode
+patch context. The [CLI patch applicability check](gy-eight-gaps-evidence/j/reverse-cli-patch-check.json)
+and [enumerator patch applicability check](gy-eight-gaps-evidence/j/reverse-enumerator-patch-check.json)
+both passed, RC0 in 0.012 and 0.011 seconds, without applying either patch or
+changing source. The pinned bytes are preserved. The original full whitespace
+gate remains recorded red; no excluded-file or disabled-whitespace invocation
+is substituted as its pass. This is a Git patch-format/P38 observation,
+**explicit nowhere** among the eight task owners.
+
+At the actual branch readback, tracked status was empty. The sole untracked
+path was the attributed root `handback/openapi-release-finish.md`, unchanged at
+`20816c471b6aaea69a2d88b778fcfa788ae7614efa09e406f57a3a2fd665d826`.
+It remains outside the commit. The readback observes status before its own
+outer receipt is retained, and does not claim a globally clean worktree.
+
+This following evidence-only append retains the completed commit/readback and
+patch-check outputs. It changes no production source, test, governed artifact
+or task verdict. J remains **`not_executed`**: the actual production case refuses
+admission and earns no useful-design credit. The final evidence commit is read
+back again before handoff; no push, plan edit or protected-register edit occurs.

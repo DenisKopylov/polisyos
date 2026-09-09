@@ -308,3 +308,39 @@ The actual [API contract](gy-eight-gaps-evidence/j/companions/openapi-current-co
 The **DS11 `trust-claim-posture-register`** companion and full default architecture gate are **not completed** because their compiler consumes explicitly prohibited DEBT input. The inadvertent earlier invocation is disclosed and unusable final verification. The passing `--skip-generated-checks` boundary command is its named subset, not a replacement or narrowed default pass.
 
 Other-owner routes remain explicit: GX's G1/G4/G5/N9-calibration and source-literal/digest findings stay with those owners and rules; protected I/agent-event and Lex drift stay with their closed P29 owners; N8 ambient catalog/epoch custody stays with N8 without restamping frozen history. The IR eligibility-Boolean divergence belongs to the IR uncertainty owner under **P38, explicit nowhere among these eight**. F1's observed `FrozenInstanceError` masking belongs to the control lifecycle/context-manager owner, **explicit nowhere**; K's academic-publication fixture/exception mismatch belongs to the publication capability/integration-test owners under **P32/P37, explicit nowhere**. GY-PR1 retains the real Fabric-root orchestration gap; D2/GY-PR1 owns the curated GDP versus WDI unit/period mismatch; the selected NL canary stays with runtime authority readback. N6's older-epoch test remains an **unmeasured candidate**, and Atlas DS3 retains its historical producer-availability-row observation. These retain the bounded evidence in their task journals; **P41 inherited provenance is not established**. No positive accuracy, correspondence, calibration or institutional authority is manufactured. No release, deployment or push is performed.
+
+## Local delivery readback
+
+J landed at **`00aadf493720eece548c9be2827057745c3c1e8d`** on attached
+`codex/gy-eight-gaps`. The [commit receipt](gy-eight-gaps-evidence/j/commit-main.json)
+and [complete post-commit readback](gy-eight-gaps-evidence/j/branch-readback.json)
+record actual delivery: every one of the 118 changed paths agrees between the
+reviewed staging manifest, `diff-tree` and numstat; every committed blob matches
+its working bytes. This is eight mechanism files plus 110 required companions,
+not 118 new mechanisms. The complete Python source fence still equals the
+passed L47 wave. No full backend, default architecture or API-green claim is
+made. The task statuses remain the eight dispositions above: **3 executed,
+3 blocked, 2 not_executed**.
+
+The ordinary full whitespace check retains six findings on required blank
+context lines inside the two pinned source-replay patches. Both real
+`git apply --check` invocations pass without applying them. Complete outputs and
+the exact six-line reconciliation are in [J's delivery entry](2026-09-09-gy-j-repair.md);
+the full red is not replaced by a smaller or relaxed check.
+
+The only untracked path at readback is the already attributed root
+`handback/openapi-release-finish.md`, pinned unchanged and excluded. Tracked
+status is empty, but the whole worktree is not claimed clean. This evidence-only
+append preserves the actual delivery receipts; its own final commit is read
+back before handoff. No push or protected-register/plan edit is performed.
+
+Remaining owner findings are unchanged: Data Forge/EvalSafety must supply C3's
+admitted substrate and context; Data Forge must reissue D1's four contradictory
+bindings; K's adjudicator must be appointed under the standing rule. GX's named
+G1/G4/G5/N9-calibration owners retain L's failed pass conjunct. J's missing
+positive admission capability stays with GY-J/P01/P29/P32/P37/P38, with no named
+defect row or appointed positive owner established. DS17/N11 owns the measured
+API dependency drift; DS11 owns the forbidden-input verification dependency.
+The further IR, lifecycle, publication, GY-PR1/D2, N6 and Atlas routes above
+retain their stated limits. Git's treatment of unified-patch blank context is
+an additional tooling/P38 observation, **explicit nowhere** among these tasks.

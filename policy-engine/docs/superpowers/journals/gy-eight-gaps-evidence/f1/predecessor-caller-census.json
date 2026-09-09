@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.f1.predecessor_caller_census"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T05:23:42.916027+00:00",
+  "elapsed_seconds": 74.365,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"current_owner_sha256\": \"deb8c64ad08f5d6c0ced4cc1844872023c98ce1391e016b2db97933eea89a05a\", \"file_denominator\": 5897, \"independent_file_denominator\": 5897, \"old_private_canonical_symbols\": [\"_deterministic_uuid_sequence\", \"_production_loop_fields\"], \"old_request_scope\": \"tools/quality/validation/check_layer3_workflow_failure_authority.py::launch_nl_run\", \"remaining_callers\": [{\"call\": \"_deterministic_uuid_sequence\", \"line\": 803, \"path\": \"tools/quality/validation/check_layer3_gy_loop_artifacts.py\"}, {\"call\": \"_deterministic_uuid_sequence\", \"line\": 320, \"path\": \"tools/quality/validation/check_layer3_time_source_authority.py\"}], \"scope\": \"all tracked .py files in policy-engine, complete AST calls; import aliases retained\", \"source_base\": \"4f54c80cc4f668da81943b773536c3b92e71eae8\", \"unreadable\": []}\n",
+  "stderr": ""
+}

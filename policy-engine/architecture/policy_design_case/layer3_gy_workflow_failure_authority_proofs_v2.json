@@ -1,0 +1,2260 @@
+{
+  "canonical_proof_strangle_receipt": {
+    "default_after": "real durable discovery workflow, emitted coordinates and complete persisted report reconciliation",
+    "default_before": "model-less NL request and deterministic clock/IDs without workflow report readback",
+    "disposition": "fenced_default_flipped",
+    "guard_ref": "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_workflow_failure_authority_refuses_removed_execution",
+    "predecessor_ref": "check_layer3_workflow_failure_authority.v1.nl_request_and_authored_clock",
+    "remaining_callers": [],
+    "remaining_callers_disposition": "v1 bytes are immutable historical evidence; no current execution path",
+    "removed_loc": "check_layer3_workflow_failure_authority::_deterministic_uuid_sequence,_production_loop_fields",
+    "replacement_ref": "check_layer3_workflow_failure_authority.v2.durable_workflow_report_readback",
+    "verified_by": [
+      ".venv/bin/python -m tools.quality.validation.check_layer3_workflow_failure_authority --check --output-format json"
+    ]
+  },
+  "historical_proof": {
+    "disposition": "recorded_v1_not_current_execution_evidence",
+    "path": "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json",
+    "sha256": "9eb9463e2ec2701f1f45d001d307796db7e650567b388545863c1f9f578efcb5"
+  },
+  "owner": "team-runtime-quality",
+  "proof_source": "durable_worker_surface_readback_recompute",
+  "proofs": [
+    {
+      "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+      "authority_path": "workflow_failure",
+      "authority_result": "repair_required",
+      "control_event_denominator": 4,
+      "control_store_state_transitions": [
+        "pending",
+        "running",
+        "failed"
+      ],
+      "endpoint": "/api/v1/control/runs",
+      "enqueued_at": "2026-09-09T06:09:41Z",
+      "finished_at": "2026-09-09T06:09:43Z",
+      "input_artifacts": [
+        "sha256:484bbaffaf04af94909c68cfa6a8aa22ffca535e76ff184d8c7c73bd10d208d4"
+      ],
+      "job_id": "ada14494c1eb46d5ae606626a720cf6b",
+      "job_kind": "workflow_run",
+      "legacy_path_disposition": "blocked_workflow_failure_ring2_withheld",
+      "progress_artifact_ref": "sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf",
+      "progress_payload": {
+        "approval_projection": {
+          "eligible": false,
+          "reasons": [
+            "workspace_loop_failed_non_authority"
+          ],
+          "state": "candidate_only"
+        },
+        "artifact_projection": {
+          "authority_result": "blocked",
+          "boundary_source": "AuthorityBoundary",
+          "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+          "decision_grade": "unsupported",
+          "evidence_kind": "elicitation",
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "reason": "WorkspaceLoop failed before it could produce authority.",
+          "status": "blocked",
+          "surface": "artifact"
+        },
+        "artifacts_index": {
+          "authority_boundary": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+          "authority_surface_packet": "progress.authority_surface_packet",
+          "production_loop_run_proof_ref": "sha256:e638425489a4aad82a4323b1e001fe616ad0a0c861e71e70679901226b66f221",
+          "workflow_failure_ref": "sha256:cb3c994cdd2fe90a4ee3fec7ca06515dd68d581de46f2184d2911e6ea9014c4a"
+        },
+        "authority_boundary": {
+          "authoritative_for": [
+            "runtime_surface_downgrade"
+          ],
+          "boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+          "decision_grade": "unsupported",
+          "evidence_basis": {
+            "calibration_refs": [],
+            "counterexamples_closed": [],
+            "method_refs": [
+              "runtime.control.workflow_transition",
+              "workspace_loop_failed"
+            ],
+            "producer_roots": []
+          },
+          "evidence_kind": "elicitation",
+          "known_limits": [
+            "WorkspaceLoop failed before it could produce authority."
+          ],
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.runtime.surface_authority_boundary.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "authority_path": "workflow_failure",
+        "authority_result": "repair_required",
+        "authority_surface_packet": {
+          "authority_result": "repair_required",
+          "boundary": {
+            "authoritative_for": [
+              "runtime_surface_downgrade"
+            ],
+            "boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "runtime.control.workflow_transition",
+                "workspace_loop_failed"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "elicitation",
+            "known_limits": [
+              "WorkspaceLoop failed before it could produce authority."
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "posture": "shadow",
+            "rule_version_refs": [
+              "policyos.runtime.surface_authority_boundary.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "gate_code": "workspace_loop_failed_non_authority",
+          "phase": "workspace_loop_failed",
+          "schema_version": "policyos.runtime.authority_surface_packet.v1",
+          "surfaces": {
+            "artifact": {
+              "authority_result": "blocked",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "WorkspaceLoop failed before it could produce authority.",
+              "status": "blocked",
+              "surface": "artifact"
+            },
+            "dashboard": {
+              "authority_result": "blocked",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "WorkspaceLoop failed before it could produce authority.",
+              "status": "blocked",
+              "surface": "dashboard"
+            },
+            "export": {
+              "authority_result": "blocked",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "WorkspaceLoop failed before it could produce authority.",
+              "status": "blocked",
+              "surface": "export"
+            },
+            "lineage": {
+              "authority_result": "blocked",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "WorkspaceLoop failed before it could produce authority.",
+              "status": "blocked",
+              "surface": "lineage"
+            },
+            "public_packet": {
+              "authority_result": "blocked",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "WorkspaceLoop failed before it could produce authority.",
+              "status": "blocked",
+              "surface": "public_packet"
+            },
+            "run": {
+              "authority_result": "blocked",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "WorkspaceLoop failed before it could produce authority.",
+              "status": "blocked",
+              "surface": "run"
+            }
+          }
+        },
+        "export_projection": {
+          "authority_result": "blocked",
+          "boundary_source": "AuthorityBoundary",
+          "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+          "decision_grade": "unsupported",
+          "evidence_kind": "elicitation",
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "reason": "WorkspaceLoop failed before it could produce authority.",
+          "status": "blocked",
+          "surface": "export"
+        },
+        "failure": {
+          "artifact_refs": {},
+          "authority_refs": {
+            "authority_boundary": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b"
+          },
+          "code": "workspace_loop_failed_non_authority",
+          "layer": "scientist_workflow",
+          "message": "'workflow_failure_missing_fixture'",
+          "next_action": "Repair the workflow failure before any authority surface can consume it.",
+          "phase": "workspace_loop_failed",
+          "retryable": false
+        },
+        "legacy_path_disposition": "blocked_workflow_failure_ring2_withheld",
+        "lineage_projection": {
+          "authority_result": "blocked",
+          "boundary_source": "AuthorityBoundary",
+          "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+          "decision_grade": "unsupported",
+          "evidence_kind": "elicitation",
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "reason": "WorkspaceLoop failed before it could produce authority.",
+          "status": "blocked",
+          "surface": "lineage"
+        },
+        "phase": "workspace_loop_failed",
+        "production_loop_run_proof": {
+          "_execute_workflow_invocation_id": "execute-workflow-4e1ed9017a9042ff",
+          "artifacts_index_refs": [
+            "workflow_failure_ref",
+            "authority_boundary",
+            "authority_surface_packet"
+          ],
+          "control_store_state_transitions": [
+            "pending",
+            "running"
+          ],
+          "endpoint": "/api/v1/control/runs",
+          "enqueued_at": "2026-09-09T06:09:41+00:00",
+          "http_request_id": "control-job:ada14494c1eb46d5ae606626a720cf6b",
+          "input_artifacts": [
+            "sha256:484bbaffaf04af94909c68cfa6a8aa22ffca535e76ff184d8c7c73bd10d208d4"
+          ],
+          "job_id": "ada14494c1eb46d5ae606626a720cf6b",
+          "job_kind": "workflow_run",
+          "legacy_path_disposition": "blocked_workflow_failure_ring2_withheld",
+          "output_cas_refs": [
+            "sha256:cb3c994cdd2fe90a4ee3fec7ca06515dd68d581de46f2184d2911e6ea9014c4a",
+            "sha256:d6a424f7b97f6f8b810d0f64979af49ed1ec7f8b48315d3221ea1d4246f9d7c3",
+            "sha256:75e5e7ebafb205350e5ab9ce05aac10307052a7aed33d8d7ab3f9add6b42bb8e"
+          ],
+          "output_replay_proof_ref": null,
+          "output_search_exit_contract_ref": "sha256:cb3c994cdd2fe90a4ee3fec7ca06515dd68d581de46f2184d2911e6ea9014c4a",
+          "run_id": "R_2fde98ca6de231be",
+          "schema_version": "policyos.policy_design_case.layer3_gy_loop.v1",
+          "surface_readbacks": [],
+          "surface_reads_checked": [
+            "control_worker_precompletion"
+          ],
+          "worker_id": "control-worker-1fdbab2f14404c9d",
+          "worker_lease_id": "control-worker-1fdbab2f14404c9d",
+          "workspace_loop_invocation_id": "workspace-loop-fe1867087b2c409c"
+        },
+        "production_loop_run_proof_ref": "sha256:e638425489a4aad82a4323b1e001fe616ad0a0c861e71e70679901226b66f221",
+        "public_packet": {
+          "authority_boundary": {
+            "authoritative_for": [
+              "runtime_surface_downgrade"
+            ],
+            "boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "runtime.control.workflow_transition",
+                "workspace_loop_failed"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "elicitation",
+            "known_limits": [
+              "WorkspaceLoop failed before it could produce authority."
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "posture": "shadow",
+            "rule_version_refs": [
+              "policyos.runtime.surface_authority_boundary.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "projection": {
+            "authority_result": "blocked",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "WorkspaceLoop failed before it could produce authority.",
+            "status": "blocked",
+            "surface": "public_packet"
+          }
+        },
+        "quality_scorecard": {
+          "approval_ready": false,
+          "approval_state": "candidate_only",
+          "authority_boundary": {
+            "authoritative_for": [
+              "runtime_surface_downgrade"
+            ],
+            "boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "runtime.control.workflow_transition",
+                "workspace_loop_failed"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "elicitation",
+            "known_limits": [
+              "WorkspaceLoop failed before it could produce authority."
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "posture": "shadow",
+            "rule_version_refs": [
+              "policyos.runtime.surface_authority_boundary.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "authority_surface_packet": {
+            "authority_result": "repair_required",
+            "boundary": {
+              "authoritative_for": [
+                "runtime_surface_downgrade"
+              ],
+              "boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+              "decision_grade": "unsupported",
+              "evidence_basis": {
+                "calibration_refs": [],
+                "counterexamples_closed": [],
+                "method_refs": [
+                  "runtime.control.workflow_transition",
+                  "workspace_loop_failed"
+                ],
+                "producer_roots": []
+              },
+              "evidence_kind": "elicitation",
+              "known_limits": [
+                "WorkspaceLoop failed before it could produce authority."
+              ],
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "posture": "shadow",
+              "rule_version_refs": [
+                "policyos.runtime.surface_authority_boundary.v1"
+              ],
+              "source_authority": "deterministic_producer"
+            },
+            "gate_code": "workspace_loop_failed_non_authority",
+            "phase": "workspace_loop_failed",
+            "schema_version": "policyos.runtime.authority_surface_packet.v1",
+            "surfaces": {
+              "artifact": {
+                "authority_result": "blocked",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "WorkspaceLoop failed before it could produce authority.",
+                "status": "blocked",
+                "surface": "artifact"
+              },
+              "dashboard": {
+                "authority_result": "blocked",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "WorkspaceLoop failed before it could produce authority.",
+                "status": "blocked",
+                "surface": "dashboard"
+              },
+              "export": {
+                "authority_result": "blocked",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "WorkspaceLoop failed before it could produce authority.",
+                "status": "blocked",
+                "surface": "export"
+              },
+              "lineage": {
+                "authority_result": "blocked",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "WorkspaceLoop failed before it could produce authority.",
+                "status": "blocked",
+                "surface": "lineage"
+              },
+              "public_packet": {
+                "authority_result": "blocked",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "WorkspaceLoop failed before it could produce authority.",
+                "status": "blocked",
+                "surface": "public_packet"
+              },
+              "run": {
+                "authority_result": "blocked",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "WorkspaceLoop failed before it could produce authority.",
+                "status": "blocked",
+                "surface": "run"
+              }
+            }
+          },
+          "blocking_quality_failures": [
+            {
+              "authority_refs": {
+                "authority_boundary": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b"
+              },
+              "code": "workspace_loop_failed_non_authority",
+              "gate": "workspace_loop_failed_non_authority",
+              "layer": "pdc.gy",
+              "message": "WorkspaceLoop failed before it could produce authority.",
+              "next_action": "Repair the workflow failure before any authority surface can consume it.",
+              "phase": "workspace_loop_failed"
+            }
+          ],
+          "evidence_refs": {
+            "production_loop_run_proof_ref": "sha256:e638425489a4aad82a4323b1e001fe616ad0a0c861e71e70679901226b66f221",
+            "workflow_failure_ref": "sha256:cb3c994cdd2fe90a4ee3fec7ca06515dd68d581de46f2184d2911e6ea9014c4a"
+          },
+          "quality_gates": [
+            {
+              "authority_refs": {
+                "authority_boundary": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b"
+              },
+              "blocking": true,
+              "code": "workspace_loop_failed_non_authority",
+              "evidence_ref": null,
+              "layer": "pdc.gy",
+              "message": "WorkspaceLoop failed before it could produce authority.",
+              "name": "workspace_loop_failed_non_authority",
+              "next_action": "Repair the workflow failure before any authority surface can consume it.",
+              "next_diagnostic_command": "uv run pytest tests/unit/runtime/http/test_workspace_loop_transition.py -q",
+              "phase": "workspace_loop_failed",
+              "status": "fail"
+            }
+          ],
+          "quality_status": "fail",
+          "run_id": "R_2fde98ca6de231be"
+        },
+        "run_id": "R_2fde98ca6de231be",
+        "runtime_state": "blocked",
+        "state": "failed",
+        "surface_authority": {
+          "artifact": {
+            "authority_result": "blocked",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "WorkspaceLoop failed before it could produce authority.",
+            "status": "blocked",
+            "surface": "artifact"
+          },
+          "dashboard": {
+            "authority_result": "blocked",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "WorkspaceLoop failed before it could produce authority.",
+            "status": "blocked",
+            "surface": "dashboard"
+          },
+          "export": {
+            "authority_result": "blocked",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "WorkspaceLoop failed before it could produce authority.",
+            "status": "blocked",
+            "surface": "export"
+          },
+          "lineage": {
+            "authority_result": "blocked",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "WorkspaceLoop failed before it could produce authority.",
+            "status": "blocked",
+            "surface": "lineage"
+          },
+          "public_packet": {
+            "authority_result": "blocked",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "WorkspaceLoop failed before it could produce authority.",
+            "status": "blocked",
+            "surface": "public_packet"
+          },
+          "run": {
+            "authority_result": "blocked",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "WorkspaceLoop failed before it could produce authority.",
+            "status": "blocked",
+            "surface": "run"
+          }
+        }
+      },
+      "request_artifact_ref": "sha256:59fdf2e4937ba773ced4a6832ee96d6c602acf86d9461eb2be22f20ec0ed0017",
+      "request_payload": {
+        "_telemetry": {
+          "runtime_trace": {
+            "parent_span_id": null,
+            "span_id": "span_3f16db551b8845d9",
+            "trace_id": "trace_a9e9b7c90a304cfa82a32b3bc9a91767"
+          }
+        },
+        "checkpoint_policy": "strict",
+        "run_id": "R_2fde98ca6de231be",
+        "state_payload": {
+          "inputs": {
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:484bbaffaf04af94909c68cfa6a8aa22ffca535e76ff184d8c7c73bd10d208d4",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            }
+          },
+          "params": {
+            "slice0_fixture_id": "workflow_failure_missing_fixture"
+          },
+          "run_id": "R_2fde98ca6de231be"
+        }
+      },
+      "run_id": "R_2fde98ca6de231be",
+      "scenario": "workflow_failure",
+      "started_at": "2026-09-09T06:09:41Z",
+      "surface_readbacks": [
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "run",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "observed_authority_result": "repair_required",
+          "observed_job_state": "failed",
+          "read_method": "ControlPlaneService.get_job_status",
+          "surface": "run"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "artifact",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/content",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/content",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "artifact"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "lineage",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/lineage",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/lineage",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "lineage"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "publication",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "export",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/export",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/export",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "export"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "dashboard_display",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "dashboard",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "POST /api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/render",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:42036c71fa41a3cc31f44dc649b77e720a2c07e656317dd3e5116c855f7a18cf/render",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "dashboard"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decisions": [
+            {
+              "artifact_key": "progress",
+              "decision": {
+                "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "authority_result": "blocked",
+                "blocking": true,
+                "candidate_firewall_issue_codes": [],
+                "composed_gate_inputs": [
+                  "authority_boundary",
+                  "secret_pii_scan",
+                  "time_source_envelope",
+                  "s12_dereference",
+                  "candidate_firewall"
+                ],
+                "consumed_authority_boundary": true,
+                "integrity_error": null,
+                "integrity_status": "not_applicable",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "purpose": "publication",
+                "reason": "workflow_failure_or_blocked_disposition",
+                "s12_issue_codes": [],
+                "secret_pii_finding_kinds": [],
+                "status": "blocked",
+                "surface": "export",
+                "time_source_dispositions": [],
+                "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+                "visible_downgrade": true
+              }
+            },
+            {
+              "artifact_key": "progress",
+              "decision": {
+                "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.ada14494c1eb46d5ae606626a720cf6b",
+                "authority_result": "blocked",
+                "blocking": true,
+                "candidate_firewall_issue_codes": [],
+                "composed_gate_inputs": [
+                  "authority_boundary",
+                  "secret_pii_scan",
+                  "time_source_envelope",
+                  "s12_dereference",
+                  "candidate_firewall"
+                ],
+                "consumed_authority_boundary": true,
+                "integrity_error": null,
+                "integrity_status": "not_applicable",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "purpose": "publication",
+                "reason": "workflow_failure_or_blocked_disposition",
+                "s12_issue_codes": [],
+                "secret_pii_finding_kinds": [],
+                "status": "blocked",
+                "surface": "public_packet",
+                "time_source_dispositions": [],
+                "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+                "visible_downgrade": true
+              }
+            }
+          ],
+          "error_code": "authority_surface_blocked",
+          "read_method": "build_public_export_bundle",
+          "surface": "public_packet"
+        },
+        {
+          "attempted_state_after": "completed",
+          "blocked_clean_completion": true,
+          "error_message": "clean completion probe failed",
+          "observed_job_state": "failed",
+          "surface": "clean_completion_probe"
+        }
+      ],
+      "surface_reads_checked": [
+        "control_worker_precompletion",
+        "run",
+        "artifact",
+        "lineage",
+        "export",
+        "dashboard",
+        "public_packet"
+      ],
+      "terminal_job_state": "failed",
+      "worker_claim": {
+        "created_at": "2026-09-09T06:09:41Z",
+        "event_id": "outbox_bc59cd8a04a2489d",
+        "payload": {
+          "effective_execution_profile": "dev",
+          "job_id": "ada14494c1eb46d5ae606626a720cf6b",
+          "job_kind": "workflow_run",
+          "lease_expires_at": "2026-09-09T06:10:41+00:00",
+          "lease_owner": "control-worker-1fdbab2f14404c9d",
+          "pipeline_id": null,
+          "run_id": "R_2fde98ca6de231be",
+          "state": "running"
+        }
+      },
+      "worker_id": "control-worker-1fdbab2f14404c9d",
+      "workflow_execution": null
+    },
+    {
+      "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+      "authority_path": "legacy_shadow",
+      "authority_result": "candidate_only",
+      "control_event_denominator": 4,
+      "control_store_state_transitions": [
+        "pending",
+        "running",
+        "completed"
+      ],
+      "endpoint": "/api/v1/control/runs",
+      "enqueued_at": "2026-09-09T06:09:47Z",
+      "finished_at": "2026-09-09T06:09:48Z",
+      "input_artifacts": [
+        "sha256:89b9f2f13db0444692e045c232849f46d775f2336f7c7ed2afe8f461bf35d63f"
+      ],
+      "job_id": "5d4c803dcb724ffb8c3acd4003f08c1b",
+      "job_kind": "workflow_run",
+      "legacy_path_disposition": "candidate_only_ring2_withheld",
+      "progress_artifact_ref": "sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd",
+      "progress_payload": {
+        "approval_projection": {
+          "eligible": false,
+          "reasons": [
+            "legacy_shadow_candidate_only"
+          ],
+          "state": "candidate_only"
+        },
+        "artifact_projection": {
+          "authority_result": "candidate_only",
+          "boundary_source": "AuthorityBoundary",
+          "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+          "decision_grade": "unsupported",
+          "evidence_kind": "elicitation",
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+          "status": "candidate_only",
+          "surface": "artifact"
+        },
+        "artifacts_index": {
+          "authority_boundary": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+          "authority_surface_packet": "progress.authority_surface_packet"
+        },
+        "authority_boundary": {
+          "authoritative_for": [
+            "runtime_surface_downgrade"
+          ],
+          "boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+          "decision_grade": "unsupported",
+          "evidence_basis": {
+            "calibration_refs": [],
+            "counterexamples_closed": [],
+            "method_refs": [
+              "runtime.control.workflow_transition",
+              "legacy_workflow_shadow"
+            ],
+            "producer_roots": []
+          },
+          "evidence_kind": "elicitation",
+          "known_limits": [
+            "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop."
+          ],
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.runtime.surface_authority_boundary.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "authority_path": "legacy_shadow",
+        "authority_result": "candidate_only",
+        "authority_surface_packet": {
+          "authority_result": "candidate_only",
+          "boundary": {
+            "authoritative_for": [
+              "runtime_surface_downgrade"
+            ],
+            "boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "runtime.control.workflow_transition",
+                "legacy_workflow_shadow"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "elicitation",
+            "known_limits": [
+              "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop."
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "posture": "shadow",
+            "rule_version_refs": [
+              "policyos.runtime.surface_authority_boundary.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "gate_code": "legacy_shadow_candidate_only",
+          "phase": "legacy_workflow_shadow",
+          "schema_version": "policyos.runtime.authority_surface_packet.v1",
+          "surfaces": {
+            "artifact": {
+              "authority_result": "candidate_only",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "status": "candidate_only",
+              "surface": "artifact"
+            },
+            "dashboard": {
+              "authority_result": "candidate_only",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "status": "candidate_only",
+              "surface": "dashboard"
+            },
+            "export": {
+              "authority_result": "candidate_only",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "status": "candidate_only",
+              "surface": "export"
+            },
+            "lineage": {
+              "authority_result": "candidate_only",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "status": "candidate_only",
+              "surface": "lineage"
+            },
+            "public_packet": {
+              "authority_result": "candidate_only",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "status": "candidate_only",
+              "surface": "public_packet"
+            },
+            "run": {
+              "authority_result": "candidate_only",
+              "boundary_source": "AuthorityBoundary",
+              "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+              "decision_grade": "unsupported",
+              "evidence_kind": "elicitation",
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "status": "candidate_only",
+              "surface": "run"
+            }
+          }
+        },
+        "export_projection": {
+          "authority_result": "candidate_only",
+          "boundary_source": "AuthorityBoundary",
+          "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+          "decision_grade": "unsupported",
+          "evidence_kind": "elicitation",
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+          "status": "candidate_only",
+          "surface": "export"
+        },
+        "legacy_path_disposition": "candidate_only_ring2_withheld",
+        "lineage_projection": {
+          "authority_result": "candidate_only",
+          "boundary_source": "AuthorityBoundary",
+          "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+          "decision_grade": "unsupported",
+          "evidence_kind": "elicitation",
+          "may_not_use_for": [
+            "approval_authority",
+            "decision_authority",
+            "design_recommendation_authority",
+            "publication_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "workflow_success_authority"
+          ],
+          "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+          "status": "candidate_only",
+          "surface": "lineage"
+        },
+        "phase": "legacy_workflow_shadow",
+        "public_packet": {
+          "authority_boundary": {
+            "authoritative_for": [
+              "runtime_surface_downgrade"
+            ],
+            "boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "runtime.control.workflow_transition",
+                "legacy_workflow_shadow"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "elicitation",
+            "known_limits": [
+              "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop."
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "posture": "shadow",
+            "rule_version_refs": [
+              "policyos.runtime.surface_authority_boundary.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "projection": {
+            "authority_result": "candidate_only",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+            "status": "candidate_only",
+            "surface": "public_packet"
+          }
+        },
+        "quality_scorecard": {
+          "approval_ready": false,
+          "approval_state": "candidate_only",
+          "authority_boundary": {
+            "authoritative_for": [
+              "runtime_surface_downgrade"
+            ],
+            "boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "runtime.control.workflow_transition",
+                "legacy_workflow_shadow"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "elicitation",
+            "known_limits": [
+              "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop."
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "posture": "shadow",
+            "rule_version_refs": [
+              "policyos.runtime.surface_authority_boundary.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "authority_surface_packet": {
+            "authority_result": "candidate_only",
+            "boundary": {
+              "authoritative_for": [
+                "runtime_surface_downgrade"
+              ],
+              "boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+              "decision_grade": "unsupported",
+              "evidence_basis": {
+                "calibration_refs": [],
+                "counterexamples_closed": [],
+                "method_refs": [
+                  "runtime.control.workflow_transition",
+                  "legacy_workflow_shadow"
+                ],
+                "producer_roots": []
+              },
+              "evidence_kind": "elicitation",
+              "known_limits": [
+                "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop."
+              ],
+              "may_not_use_for": [
+                "approval_authority",
+                "decision_authority",
+                "design_recommendation_authority",
+                "publication_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "workflow_success_authority"
+              ],
+              "posture": "shadow",
+              "rule_version_refs": [
+                "policyos.runtime.surface_authority_boundary.v1"
+              ],
+              "source_authority": "deterministic_producer"
+            },
+            "gate_code": "legacy_shadow_candidate_only",
+            "phase": "legacy_workflow_shadow",
+            "schema_version": "policyos.runtime.authority_surface_packet.v1",
+            "surfaces": {
+              "artifact": {
+                "authority_result": "candidate_only",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+                "status": "candidate_only",
+                "surface": "artifact"
+              },
+              "dashboard": {
+                "authority_result": "candidate_only",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+                "status": "candidate_only",
+                "surface": "dashboard"
+              },
+              "export": {
+                "authority_result": "candidate_only",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+                "status": "candidate_only",
+                "surface": "export"
+              },
+              "lineage": {
+                "authority_result": "candidate_only",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+                "status": "candidate_only",
+                "surface": "lineage"
+              },
+              "public_packet": {
+                "authority_result": "candidate_only",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+                "status": "candidate_only",
+                "surface": "public_packet"
+              },
+              "run": {
+                "authority_result": "candidate_only",
+                "boundary_source": "AuthorityBoundary",
+                "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "decision_grade": "unsupported",
+                "evidence_kind": "elicitation",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+                "status": "candidate_only",
+                "surface": "run"
+              }
+            }
+          },
+          "blocking_quality_failures": [
+            {
+              "authority_refs": {
+                "authority_boundary": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b"
+              },
+              "code": "legacy_shadow_candidate_only",
+              "gate": "legacy_shadow_candidate_only",
+              "layer": "pdc.gy",
+              "message": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "next_action": "Route this entrypoint through WorkspaceLoop before authority use.",
+              "phase": "legacy_workflow_shadow"
+            }
+          ],
+          "evidence_refs": {},
+          "quality_gates": [
+            {
+              "authority_refs": {
+                "authority_boundary": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b"
+              },
+              "blocking": true,
+              "code": "legacy_shadow_candidate_only",
+              "evidence_ref": null,
+              "layer": "pdc.gy",
+              "message": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+              "name": "legacy_shadow_candidate_only",
+              "next_action": "Route this entrypoint through WorkspaceLoop before authority use.",
+              "next_diagnostic_command": "uv run pytest tests/unit/runtime/http/test_workspace_loop_transition.py -q",
+              "phase": "legacy_workflow_shadow",
+              "status": "fail"
+            }
+          ],
+          "quality_status": "fail",
+          "run_id": "R_b0754889660527b7"
+        },
+        "run_id": "R_b0754889660527b7",
+        "runtime_state": "candidate_only",
+        "state": "completed",
+        "surface_authority": {
+          "artifact": {
+            "authority_result": "candidate_only",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+            "status": "candidate_only",
+            "surface": "artifact"
+          },
+          "dashboard": {
+            "authority_result": "candidate_only",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+            "status": "candidate_only",
+            "surface": "dashboard"
+          },
+          "export": {
+            "authority_result": "candidate_only",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+            "status": "candidate_only",
+            "surface": "export"
+          },
+          "lineage": {
+            "authority_result": "candidate_only",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+            "status": "candidate_only",
+            "surface": "lineage"
+          },
+          "public_packet": {
+            "authority_result": "candidate_only",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+            "status": "candidate_only",
+            "surface": "public_packet"
+          },
+          "run": {
+            "authority_result": "candidate_only",
+            "boundary_source": "AuthorityBoundary",
+            "consumed_boundary_id": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "decision_grade": "unsupported",
+            "evidence_kind": "elicitation",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "reason": "Legacy workflow path is candidate-only until migrated behind WorkspaceLoop.",
+            "status": "candidate_only",
+            "surface": "run"
+          }
+        }
+      },
+      "request_artifact_ref": "sha256:f8fae55ff6f98faea98b1e8546e2a36170860234f89bfa7972b9171bce058648",
+      "request_payload": {
+        "_telemetry": {
+          "runtime_trace": {
+            "parent_span_id": null,
+            "span_id": "span_264f3ebe69fb4427",
+            "trace_id": "trace_15778bd583c34bb5856da51016f94a01"
+          }
+        },
+        "checkpoint_policy": "strict",
+        "run_id": "R_b0754889660527b7",
+        "state_payload": {
+          "inputs": {
+            "data_snapshot_ref": {
+              "artifact_id": "sha256:89b9f2f13db0444692e045c232849f46d775f2336f7c7ed2afe8f461bf35d63f",
+              "kind": "fabric.data_snapshot",
+              "media_type": "application/json"
+            }
+          },
+          "params": {
+            "control_plane_transition": "legacy_shadow",
+            "workflow_id": "scientist_discovery"
+          },
+          "run_id": "R_b0754889660527b7"
+        }
+      },
+      "run_id": "R_b0754889660527b7",
+      "scenario": "legacy_shadow_candidate",
+      "started_at": "2026-09-09T06:09:47Z",
+      "surface_readbacks": [
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "run",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "observed_authority_result": "candidate_only",
+          "observed_job_state": "completed",
+          "read_method": "ControlPlaneService.get_job_status",
+          "surface": "run"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "artifact",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/content",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/content",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "artifact"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "lineage",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/lineage",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/lineage",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "lineage"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "publication",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "export",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/export",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/export",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "export"
+        },
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "secret_pii_scan",
+              "cas_integrity",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "verified",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "dashboard_display",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "dashboard",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "POST /api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/render",
+          "response_artifact_ref_or_route": "/api/v1/artifacts/sha256:c15ccdebcaf45b4faaadabdc44f917f57e6fa45b01399c3be51e862587a6a2cd/render",
+          "response_code": "authority_surface_admission_blocked",
+          "status_code": 409,
+          "surface": "dashboard"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decisions": [
+            {
+              "artifact_key": "progress",
+              "decision": {
+                "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "authority_result": "candidate_only",
+                "blocking": false,
+                "candidate_firewall_issue_codes": [],
+                "composed_gate_inputs": [
+                  "authority_boundary",
+                  "secret_pii_scan",
+                  "time_source_envelope",
+                  "s12_dereference",
+                  "candidate_firewall"
+                ],
+                "consumed_authority_boundary": true,
+                "integrity_error": null,
+                "integrity_status": "not_applicable",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "purpose": "publication",
+                "reason": "candidate_or_legacy_shadow_disposition",
+                "s12_issue_codes": [],
+                "secret_pii_finding_kinds": [],
+                "status": "candidate_only",
+                "surface": "export",
+                "time_source_dispositions": [],
+                "transition_disposition": "candidate_only_ring2_withheld",
+                "visible_downgrade": true
+              }
+            },
+            {
+              "artifact_key": "progress",
+              "decision": {
+                "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.5d4c803dcb724ffb8c3acd4003f08c1b",
+                "authority_result": "candidate_only",
+                "blocking": false,
+                "candidate_firewall_issue_codes": [],
+                "composed_gate_inputs": [
+                  "authority_boundary",
+                  "secret_pii_scan",
+                  "time_source_envelope",
+                  "s12_dereference",
+                  "candidate_firewall"
+                ],
+                "consumed_authority_boundary": true,
+                "integrity_error": null,
+                "integrity_status": "not_applicable",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "purpose": "publication",
+                "reason": "candidate_or_legacy_shadow_disposition",
+                "s12_issue_codes": [],
+                "secret_pii_finding_kinds": [],
+                "status": "candidate_only",
+                "surface": "public_packet",
+                "time_source_dispositions": [],
+                "transition_disposition": "candidate_only_ring2_withheld",
+                "visible_downgrade": true
+              }
+            }
+          ],
+          "read_method": "build_public_export_bundle",
+          "surface": "public_packet"
+        },
+        {
+          "attempted_state_after": "completed",
+          "blocked_clean_completion": true,
+          "error_message": "clean completion probe failed",
+          "observed_job_state": "failed",
+          "surface": "clean_completion_probe"
+        }
+      ],
+      "surface_reads_checked": [
+        "control_worker_precompletion",
+        "run",
+        "artifact",
+        "lineage",
+        "export",
+        "dashboard",
+        "public_packet"
+      ],
+      "terminal_job_state": "completed",
+      "worker_claim": {
+        "created_at": "2026-09-09T06:09:47Z",
+        "event_id": "outbox_e8a4677c772a4300",
+        "payload": {
+          "effective_execution_profile": "dev",
+          "job_id": "5d4c803dcb724ffb8c3acd4003f08c1b",
+          "job_kind": "workflow_run",
+          "lease_expires_at": "2026-09-09T06:10:47+00:00",
+          "lease_owner": "control-worker-fe20ae0ff9884133",
+          "pipeline_id": null,
+          "run_id": "R_b0754889660527b7",
+          "state": "running"
+        }
+      },
+      "worker_id": "control-worker-fe20ae0ff9884133",
+      "workflow_execution": {
+        "cas_manifest_denominator": 20,
+        "workflow_report": {
+          "error_policy": "continue",
+          "nodes": [
+            {
+              "alias": "start",
+              "artifacts": [],
+              "duration_ms": 0,
+              "error": null,
+              "node_id": "scientist.node_noop@1.0.0",
+              "skip_blocker": null,
+              "skip_reason": null,
+              "status": "ok"
+            },
+            {
+              "alias": "run_discovery_blueprint_runtime",
+              "artifacts": [],
+              "duration_ms": 0,
+              "error": null,
+              "node_id": "scientist.node_run_discovery_blueprint_runtime@1.0.0",
+              "skip_blocker": {
+                "alias": "run_discovery_blueprint_runtime",
+                "allowed_profile": "dev",
+                "approval_blocking_policy": "blocks_approval_ready",
+                "blocker_code": "skipped_analytic_node_blocks_scorecard",
+                "closeout_blocking_policy": "blocks_serious_closeout",
+                "downstream_impact": "Skipped node run_discovery_blueprint_runtime did not produce its declared workflow evidence.",
+                "generated_at": "2026-09-09T06:09:48Z",
+                "missing_input": "node_inputs",
+                "next_action": "Provide the missing input or explicitly downgrade the execution profile.",
+                "node_id": "scientist.node_run_discovery_blueprint_runtime@1.0.0",
+                "node_kind": "other_optional_analytic",
+                "owner": "team-scientist",
+                "phase": "workflow_execution",
+                "public_export_blocking_policy": "blocks_public_export",
+                "reason": "Discovery runtime skipped: no discovery_variable_names present.",
+                "scorecard_blocking_policy": "blocks_scorecard_pass",
+                "severity": "high",
+                "status": "skipped"
+              },
+              "skip_reason": "Discovery runtime skipped: no discovery_variable_names present.",
+              "status": "skip"
+            }
+          ],
+          "run_id": "R_b0754889660527b7",
+          "schema_version": "1.0",
+          "status": "ok",
+          "workflow_id": "scientist_discovery"
+        },
+        "workflow_report_ref": "sha256:e68231998dcf12ec35bc685fb4951936a3262ab6e88c13e28befc964ebff7e59",
+        "workflow_spec": {
+          "error_policy": "continue",
+          "nodes": [
+            {
+              "alias": "start",
+              "condition": null,
+              "depends_on": [],
+              "node_id": "scientist.node_noop@1.0.0",
+              "params": {},
+              "retry": null,
+              "timeout_s": null
+            },
+            {
+              "alias": "run_discovery_blueprint_runtime",
+              "condition": null,
+              "depends_on": [
+                "start"
+              ],
+              "node_id": "scientist.node_run_discovery_blueprint_runtime@1.0.0",
+              "params": {},
+              "retry": null,
+              "timeout_s": null
+            }
+          ],
+          "notes": [
+            "Discovery workflow productizes the blueprint-native portfolio/stability/utility/prior bundle path."
+          ],
+          "required_binds": [
+            "run_id",
+            "inputs.registry_bundle_ref"
+          ],
+          "schema_version": "1.0",
+          "workflow_id": "scientist_discovery"
+        },
+        "workflow_spec_ref": "sha256:14a8fc93bc76d996c4c114f32a37cd3f2f56eab666ea1228a63253851e90995b"
+      }
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.workflow_failure_authority.v2",
+  "strangle_receipt": {
+    "default_after": "workflow failure progress is converted to failed before completion events",
+    "default_before": "workflow failure progress could be completed by a direct complete_job caller",
+    "disposition": "fenced_default_flipped",
+    "guard_ref": "tests/unit/runtime/http/test_control_plane_store.py::test_control_plane_store_rejects_clean_completion_for_failed_workflow_progress",
+    "predecessor_ref": "runtime.http.services.control.run_lifecycle.workflow_run.complete_job_unconditional_completed",
+    "remaining_callers": [
+      "runtime.http.services.control.run_lifecycle._process_control_job",
+      "tests and diagnostics that intentionally call complete_job"
+    ],
+    "remaining_callers_disposition": "all callers pass through store-level fail-closed guard",
+    "removed_loc": "src/polisyos/runtime/http/services/control_plane_store.py::complete_job",
+    "replacement_ref": "runtime.http.services.control_plane_store.complete_job.fail_closed_workflow_failure_progress",
+    "verified_by": [
+      "tools/quality/validation/check_layer3_workflow_failure_authority.py --check --repo-root ."
+    ]
+  }
+}

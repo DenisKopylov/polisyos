@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.f1.gate_identity_reconciliation"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:19:54.114565+00:00",
+  "elapsed_seconds": 0.042,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"baseline_complete_identities\": [], \"corruption_added_identities\": [{\"code\": \"layer3_workflow_failure_authority_drift\", \"path\": \"architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs_v2.json\"}], \"corruption_lost_identities\": [], \"execution_removal\": {\"finding_report_available\": false, \"finding_set_comparison\": \"not_available; abort is not an empty finding set\", \"property_result\": \"real gate cannot emit proof when actual execution is removed\", \"terminal_exception\": \"ValueError: workflow_report_execution_not_established\"}, \"finding_identity_fields\": \"complete issue objects, absence preserved\", \"receipt_sources\": {\"baseline\": {\"path\": \"_build/gy-gaps/f1/canonical-check-final.json\", \"sha256\": \"43825a9aaf71177020aae79d746021352f1d6ed5d3ba8bd4814062f0a72bfa49\"}, \"corruption\": {\"path\": \"_build/gy-gaps/f1/gate-committed-corruption.json\", \"sha256\": \"14d7866c5a4346ced4575201a9e951c5c472cc06428f588868d643cbadf7e66d\"}, \"execution_removal\": {\"path\": \"_build/gy-gaps/f1/gate-execution-removal.json\", \"sha256\": \"e9a37c01b7de91455f16aead89affe3efee4921ad4ed3a74aaf761ffbb322b9d\"}}}\n",
+  "stderr": ""
+}

@@ -105,3 +105,28 @@ constructor, persistence, full source replay, contract-consumption and immutable
 verification-event seams. Current N9 receipts receive a controlled epoch reissue;
 no positive accuracy/calibration or whole production NL-to-promotion claim is
 made. F1 scratch preparation has begun, with source work held until D1's commit.
+
+D1 landed at `4f54c80cc4f668da81943b773536c3b92e71eae8`. Its complete attached
+branch readback reconciles all committed paths independently, matches working
+bytes and confirms a clean tree before F1 source work. The readback is retained
+under `gy-eight-gaps-evidence/d1/branch-readback.json` at the next checkpoint.
+
+F1's current v2 proof now rederives both scenarios through the durable worker.
+Its final live write/check pass. Removing actual execution refuses with
+`workflow_report_execution_not_established`; changing the candidate authority
+in the committed proof adds exactly the current artifact's drift finding and
+loses no baseline identity. The per-task journal retains complete outputs and
+the governed current/history partition. Lifecycle companions and attached-branch
+delivery readback are the remaining checkpoint steps.
+
+Correction to the earlier C1 dependency wording, from the post-C3 owner review:
+an EvalSafety appointment and successful Foundry measurement are C3 conjuncts,
+not prerequisites for C1's accepted typed-refusal trajectory. C1 still lacks
+the current canonical admission witness: the observed default stops at the
+earlier BIND input/method mismatch. The shared Phase-2 producer additionally
+aborts on C3's success checks before returning C1's proof. Those are executable
+evidence and producer-failure-handling gaps. A bounded continuation is preparing
+an owner-resolved compatible method/input route and complete-family failure
+collection; it must preserve every C3 predicate and the closed C2/I/Lex outputs.
+The earlier wording did not establish an institutional blocker for C1, and C1
+remains `not_executed` pending that continuation.

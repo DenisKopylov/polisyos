@@ -76,7 +76,8 @@ Every committed generated artifact family must have a source of truth, a regener
 | `policy design case layer3 gy openalex artifacts` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json`<br/>`architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json` |
 | `policy design case layer3 artifact surface safety` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_cas_integrity_reports.json`<br/>`architecture/policy_design_case/layer3_gy_secret_pii_scan_reports.json` |
 | `policy design case layer3 time source authority` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json`<br/>`architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json` |
-| `policy design case layer3 workflow failure authority` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json` |
+| `policy design case layer3 workflow failure authority` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs_v2.json` |
+| `policy design case layer3 workflow failure authority historical proof` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json` |
 | `policy design case layer3 gy design problem contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_design_problem_contract.json` |
 | `policy design case layer3 gy intervention atom binding contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_intervention_atom_binding_contract.json` |
 | `policy design case layer3 gy world model record contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_world_model_record_contract.json` |
@@ -2228,12 +2229,36 @@ Canonical regeneration commands:
 - Approval owner: `team-runtime-quality`
 - Related workflow/config: `tools/quality/validation/check_layer3_workflow_failure_authority.py`
 - Outputs:
-  - `architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json`
+  - `architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs_v2.json`
 
 Canonical regeneration commands:
 
 ```bash
 .venv/bin/python -m tools.quality.validation.check_layer3_workflow_failure_authority --write
+```
+
+## `policy design case layer3 workflow failure authority historical proof`
+
+- Family id: `policy-design-case-layer3-workflow-failure-authority-history`
+- Lifecycle: `source_committed`
+- Source of truth: architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json
+- Generator: Historical v1 proof retained under its original epoch; current owner emits only v2
+- Verifier: tools.quality.validation.check_layer3_workflow_failure_authority validates exact family partition and historical content identity
+- Promotion target: Historical audit custody only; this unrecomputable v1 proof grants no current completion or evidence authority
+- Commit policy: `committed`
+- Freshness rule: Historical bytes are immutable; a new capture belongs to its explicit current epoch.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_workflow_failure_authority.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json`
+
+Canonical regeneration commands:
+
+```bash
+.venv/bin/python -m tools.quality.validation.check_layer3_workflow_failure_authority --check
 ```
 
 ## `policy design case layer3 gy design problem contract`

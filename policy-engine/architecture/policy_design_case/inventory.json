@@ -2212,10 +2212,12 @@
     {
       "id": "layer3_gy_workflow_failure_authority_proofs",
       "path": "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json",
-      "kind": "layer3_gy_generated_artifact",
+      "kind": "layer3_gy_source_artifact",
       "owner": "team-runtime-quality",
+      "family_id": "policy-design-case-layer3-workflow-failure-authority-history",
+      "lifecycle": "source_committed",
       "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
-      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "authority_boundary": "historical_v1_audit_custody_only_no_current_completion_or_publication_authority",
       "status": "active"
     },
     {
@@ -4124,6 +4126,17 @@
       "owner": "team-architecture",
       "family_id": "policy-design-case-layer3-gy-control-plane-inventory",
       "lifecycle": "source_committed",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "gy_lifecycle_architecture_policy_design_case_layer3_gy_workflow_failure_authority_proofs_v2_json",
+      "path": "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs_v2.json",
+      "kind": "layer3_gy_lifecycle_artifact",
+      "owner": "team-runtime-quality",
+      "family_id": "policy-design-case-layer3-workflow-failure-authority",
+      "lifecycle": "generated_committed",
       "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
       "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
       "status": "active"

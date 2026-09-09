@@ -2258,22 +2258,43 @@ def test_layer3_time_source_authority_validator_rejects_legacy_model_and_token()
     }
 
 
-def test_layer3_workflow_failure_authority_validator_recomputes_proofs() -> None:
-    live_payloads = check_layer3_workflow_failure_authority.build_live_proof_payloads(
+@pytest.fixture(scope="module")
+def workflow_failure_authority_live_payloads() -> dict[str, dict[str, object]]:
+    return check_layer3_workflow_failure_authority.build_live_proof_payloads(
         REPO_ROOT
     )
+
+
+def test_layer3_workflow_failure_authority_has_real_execution(
+    workflow_failure_authority_live_payloads: dict[str, dict[str, object]],
+) -> None:
+    from collections import Counter
+
+    from polisyos.scientist.orchestration.workflows.discovery import discovery_workflow_spec
+
+    owner = check_layer3_workflow_failure_authority
+    live_payloads = workflow_failure_authority_live_payloads
     _assert_live_payloads_match_declared_outputs(
-        check_layer3_workflow_failure_authority,
-        live_payloads,
+        owner, live_payloads,
     )
-    proof = live_payloads[
-        "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json"
-    ]
+    proof = live_payloads[owner.PROOF_PATH]
+    issues: list[dict[str, str]] = []
+    owner._validate_proof_payload(proof, issues)
+    assert issues == []
     scenarios = {item["scenario"]: item for item in proof["proofs"]}
     assert scenarios["workflow_failure"]["terminal_job_state"] == "failed"
-    assert scenarios["legacy_shadow_candidate"]["authority_result"] == "candidate_only"
+    candidate = scenarios["legacy_shadow_candidate"]
+    assert candidate["authority_result"] == "candidate_only"
+    execution = candidate["workflow_execution"]
+    spec = discovery_workflow_spec()
+    assert execution["workflow_spec"] == spec.model_dump(mode="json")
+    assert execution["workflow_report"]["run_id"] == candidate["run_id"]
+    assert Counter(
+        (row["alias"], row["node_id"]) for row in execution["workflow_report"]["nodes"]
+    ) == Counter((row.alias, str(row.node_id)) for row in spec.nodes)
     for scenario in scenarios.values():
         assert set(scenario["surface_reads_checked"]) >= {
+            "control_worker_precompletion",
             "run",
             "artifact",
             "lineage",
@@ -2281,10 +2302,210 @@ def test_layer3_workflow_failure_authority_validator_recomputes_proofs() -> None
             "dashboard",
             "public_packet",
         }
-    for relative_path, live_payload in live_payloads.items():
-        committed = json.loads((REPO_ROOT / relative_path).read_text(encoding="utf-8"))
-        assert committed == live_payload
+        assert scenario["worker_claim"]["payload"]["run_id"] == scenario["run_id"]
 
+
+def test_layer3_workflow_failure_authority_validator_recomputes_proofs(
+    workflow_failure_authority_live_payloads: dict[str, dict[str, object]],
+) -> None:
+    owner = check_layer3_workflow_failure_authority
+    for relative_path, live_payload in workflow_failure_authority_live_payloads.items():
+        committed = json.loads((REPO_ROOT / relative_path).read_text(encoding="utf-8"))
+        assert owner.comparison_payload(committed) == owner.comparison_payload(live_payload)
+
+
+def test_layer3_workflow_failure_authority_refuses_removed_execution(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+
+    monkeypatch.setattr(
+        ControlPlaneService, "_run_legacy_scientist_workflow", lambda *args: None
+    )
+    with pytest.raises(ValueError, match="workflow_report_execution_not_established"):
+        check_layer3_workflow_failure_authority._run_durable_authority_surface_proof(
+            "legacy_shadow_candidate"
+        )
+
+
+def test_layer3_workflow_failure_authority_comparison_preserves_decisive_fields(
+    workflow_failure_authority_live_payloads: dict[str, dict[str, object]],
+) -> None:
+    import hashlib
+
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.scientist.orchestration.engine.executor import WorkflowReport
+
+    owner = check_layer3_workflow_failure_authority
+    original = workflow_failure_authority_live_payloads[owner.PROOF_PATH]
+    expected = owner.comparison_payload(original)
+    # Walk every real emitted node, retaining valid CAS content addresses after mutation.
+    candidate = next(row for row in original["proofs"] if row["workflow_execution"] is not None)
+    for index in range(len(candidate["workflow_execution"]["workflow_report"]["nodes"])):
+        changed = deepcopy(original)
+        proof = next(row for row in changed["proofs"] if row["workflow_execution"] is not None)
+        execution = proof["workflow_execution"]
+        execution["workflow_report"]["nodes"].pop(index)
+        report = WorkflowReport.model_validate(execution["workflow_report"])
+        execution["workflow_report_ref"] = "sha256:" + hashlib.sha256(
+            to_canonical_bytes(report.model_dump(), spec=CanonSpec())
+        ).hexdigest()
+        with pytest.raises(ValueError, match="workflow_report_execution_mismatch"):
+            owner.comparison_payload(changed)
+    for proof_index, proof in enumerate(original["proofs"]):
+        for readback_index, readback in enumerate(proof["surface_readbacks"]):
+            paths = [("decision",)] if "decision" in readback else []
+            paths.extend(("decisions", index, "decision") for index in range(len(readback.get("decisions", []))))
+            for path in paths:
+                changed = deepcopy(original)
+                decision = changed["proofs"][proof_index]["surface_readbacks"][readback_index]
+                for key in path:
+                    decision = decision[key]
+                decision["blocking"] = False
+                decision["visible_downgrade"] = False
+                assert owner.comparison_payload(changed) != expected
+
+
+def test_layer3_workflow_failure_authority_history_partition_is_exact(
+    tmp_path: Path,
+) -> None:
+    owner = check_layer3_workflow_failure_authority
+    registry = tomllib.loads((REPO_ROOT / "architecture/generated_artifacts.toml").read_text())
+    current = next(row for row in registry["family"] if row["id"] == owner.FAMILY_ID)
+    history = next(row for row in registry["family"] if row["id"] == owner.HISTORY_FAMILY_ID)
+    assert current["outputs"] == [owner.PROOF_PATH]
+    assert history["outputs"] == [owner.HISTORICAL_PROOF_PATH]
+    assert history["source_integrity_sha256"] == {
+        owner.HISTORICAL_PROOF_PATH: "sha256:" + owner.HISTORICAL_PROOF_SHA256
+    }
+    target = tmp_path / "architecture/generated_artifacts.toml"
+    target.parent.mkdir(parents=True)
+    text = (REPO_ROOT / "architecture/generated_artifacts.toml").read_text()
+    target.write_text(text.replace(owner.HISTORICAL_PROOF_SHA256, "0" * 64))
+    issues: list[dict[str, str]] = []
+    owner._validate_generated_artifacts_registration(tmp_path, issues)
+    assert {row["code"] for row in issues} == {
+        "workflow_failure_authority_history_partition_invalid"
+    }
+
+
+@pytest.mark.parametrize("ref_field", ["request_artifact_ref", "progress_artifact_ref"])
+def test_layer3_workflow_failure_authority_refuses_unbound_recorded_ref(
+    workflow_failure_authority_live_payloads: dict[str, dict[str, object]],
+    ref_field: str,
+) -> None:
+    owner = check_layer3_workflow_failure_authority
+    changed = deepcopy(workflow_failure_authority_live_payloads[owner.PROOF_PATH])
+    for proof in changed["proofs"]:
+        original_ref = proof[ref_field]
+        proof[ref_field] = "sha256:" + "0" * 64
+        if ref_field == "progress_artifact_ref":
+            for readback in proof["surface_readbacks"]:
+                for key in ("read_method", "response_artifact_ref_or_route"):
+                    if key in readback:
+                        readback[key] = readback[key].replace(original_ref, proof[ref_field])
+    with pytest.raises(ValueError, match=r"workflow_.*content_mismatch"):
+        owner.comparison_payload(changed)
+
+
+def test_layer3_workflow_failure_authority_refuses_absent_recorded_fields(
+    workflow_failure_authority_live_payloads: dict[str, dict[str, object]],
+) -> None:
+    owner = check_layer3_workflow_failure_authority
+    payload = workflow_failure_authority_live_payloads[owner.PROOF_PATH]
+    candidate = next(row for row in payload["proofs"] if row["workflow_execution"] is not None)
+    execution = deepcopy(candidate["workflow_execution"])
+    assert execution["workflow_report"]["nodes"][0]["error"] is None
+    del execution["workflow_report"]["nodes"][0]["error"]
+    with pytest.raises(ValueError, match=r"workflow_.*shape"):
+        owner._validated_execution(execution, run_id=candidate["run_id"])
+
+
+def test_layer3_workflow_failure_authority_refuses_unrelated_http_conflict(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import httpx
+    from fastapi.testclient import TestClient
+
+    monkeypatch.setattr(
+        TestClient,
+        "request",
+        lambda *args, **kwargs: httpx.Response(409, json={"code": "unrelated_conflict"}),
+    )
+    with pytest.raises(ValueError, match="workflow_http_authority_response_invalid"):
+        check_layer3_workflow_failure_authority._run_durable_authority_surface_proof(
+            "legacy_shadow_candidate"
+        )
+
+
+
+def _rebind_recorded_f1_progress(proof: dict[str, object]) -> None:
+    import hashlib
+
+    from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+
+    old_ref = proof["progress_artifact_ref"]
+    raw = to_canonical_bytes(
+        from_canonical_bytes(json.dumps(proof["progress_payload"]).encode()),
+        spec=CanonSpec(forbid_floats=False),
+    )
+    proof["progress_artifact_ref"] = "sha256:" + hashlib.sha256(raw).hexdigest()
+    for readback in proof["surface_readbacks"]:
+        for key in ("read_method", "response_artifact_ref_or_route"):
+            if key in readback:
+                readback[key] = readback[key].replace(old_ref, proof["progress_artifact_ref"])
+
+
+@pytest.mark.parametrize(
+    ("record_field", "decisive_field", "replacement"),
+    [
+        ("failure", "message", "forged failure content"),
+        ("authority_boundary", "known_limits", ["forged limit"]),
+        ("authority_surface_packet", "authority_result", "grounded_admissible"),
+        ("production_loop_run_proof", "artifacts_index_refs", []),
+    ],
+)
+def test_layer3_workflow_failure_authority_refuses_detached_progress_record(
+    workflow_failure_authority_live_payloads: dict[str, dict[str, object]],
+    record_field: str,
+    decisive_field: str,
+    replacement: object,
+) -> None:
+    owner = check_layer3_workflow_failure_authority
+    payload = deepcopy(workflow_failure_authority_live_payloads[owner.PROOF_PATH])
+    proof = next(row for row in payload["proofs"] if row["scenario"] == "workflow_failure")
+    # Preserve every inner reference and marker; only the enclosing actual bytes
+    # and routes are readdressed, so the existing outer custody check still passes.
+    proof["progress_payload"][record_field][decisive_field] = replacement
+    _rebind_recorded_f1_progress(proof)
+    with pytest.raises(ValueError, match=r"workflow_.*content_mismatch"):
+        owner.comparison_payload(payload)
+
+
+def test_layer3_workflow_failure_authority_refuses_unclaimed_progress_output(
+    workflow_failure_authority_live_payloads: dict[str, dict[str, object]],
+) -> None:
+    import hashlib
+
+    from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+
+    owner = check_layer3_workflow_failure_authority
+    payload = deepcopy(workflow_failure_authority_live_payloads[owner.PROOF_PATH])
+    proof = next(row for row in payload["proofs"] if row["scenario"] == "workflow_failure")
+    progress = proof["progress_payload"]
+    loop = progress["production_loop_run_proof"]
+    loop["output_cas_refs"].append("sha256:" + "0" * 64)
+    old_ref = progress["production_loop_run_proof_ref"]
+    raw = to_canonical_bytes(
+        from_canonical_bytes(json.dumps(loop).encode()), spec=CanonSpec(forbid_floats=False)
+    )
+    new_ref = "sha256:" + hashlib.sha256(raw).hexdigest()
+    for target in (progress, progress["artifacts_index"], progress["quality_scorecard"]["evidence_refs"]):
+        assert target["production_loop_run_proof_ref"] == old_ref
+        target["production_loop_run_proof_ref"] = new_ref
+    _rebind_recorded_f1_progress(proof)
+    with pytest.raises(ValueError, match="workflow_progress_output_population_mismatch"):
+        owner.comparison_payload(payload)
 
 def test_layer3_gy_lex_bounds_strangle_receipt_is_committed_and_fenced() -> None:
     receipt = json.loads(

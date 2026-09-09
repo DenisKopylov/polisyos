@@ -66,7 +66,16 @@
     {
       "id": "policy-design-case-layer3-workflow-failure-authority",
       "owner": "team-runtime-quality",
-      "regenerate": "uv run python tools/quality/validation/check_layer3_workflow_failure_authority.py --repo-root . --write --output-format json",
+      "regenerate": ".venv/bin/python -m tools.quality.validation.check_layer3_workflow_failure_authority --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs_v2.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-workflow-failure-authority-history",
+      "owner": "team-runtime-quality",
+      "regenerate": ".venv/bin/python -m tools.quality.validation.check_layer3_workflow_failure_authority --repo-root . --check --output-format json",
       "stale_output_behavior": "fail",
       "outputs": [
         "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json"

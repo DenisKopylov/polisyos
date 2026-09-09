@@ -509,3 +509,36 @@ single-runtime scheduling restriction for these disjoint runs only. The shared
 composed-WMR builder and any actual shared store remain exclusive. A new
 contention or memory-pressure measurement falsifies this scheduling decision;
 it does not change a gate, its denominator, or any authority predicate.
+
+## Final own-envelope provenance correction, 2026-09-09
+
+The final emission review found a present instance of the already identified
+synthetic-ancestry class: S3's report constructor emits constructed legal-subject
+controls but omits its own synthetic marker. The suspected analogous CG2/CG3
+omission is refuted by their actual constructors, which already emit that marker.
+B must reconcile the complete changed governed-output population before editing;
+no affected-set count is credited from this initial source inspection.
+
+The existing `check_layer3_gy_intervention_substrate_contract` remains the sole
+report owner. Its report unconditionally executes constructed controls, so
+`synthetic: true` is a producer invariant. This requires neither a new production
+artifact parser nor a case-name whitelist. The validator must enforce that
+invariant independently of comparing a saved body with a freshly emitted body;
+otherwise removal from both would remain green. All real behavior, cases,
+coverage and mutation identities stay intact. Correct subject-relative admission
+and rejection of transposition still have to pass; the marker grants no authority.
+
+Preserve the actual v3 report and completed deciding runs in an append-only
+checkpoint before the correction. Advance **only the S3 report envelope and
+lifecycle marker to v4**. Law-resolution v3, bundle/knob/route v2 and strangle v2
+remain at their existing epochs; historical bodies remain under their original
+epochs and are never restamped. CG2/CG3 do not receive an unrelated version bump.
+
+Order and falsifiers: complete output census and an actual emitted-report own-marker
+red; checkpoint v3; extend the sole report producer and independent validation;
+run the real writer/check and a removal that deletes the emitted marker while
+keeping its declarations; retain the complete earlier control identities and
+run the actual saved-artifact corruption through the unchanged checker. These
+are companions to the already executed subject comparison and forwarding
+removals, not replacements for them. Only after this correction and writer freeze
+does the final snapshot-sensitive architecture wave run.

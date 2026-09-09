@@ -11,6 +11,6 @@ surface_classification = "public_stable: Fabric lock re-export and Foundry legal
 migration = "Use the existing owners through their facades. Recompute new decisions under their own epochs. A synthetic or unverified source remains candidate-grade; a depleted run continues under INT-K06. Full-corpus extraction requires a separate budget decision."
 limitations = "Refusal sensitivity does not calibrate accepted bindings. The lane does not supply adjudicated calibration observations or authoritative legal-subject identities, and does not run full-corpus re-extraction."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/foundry/README.md", "src/polisyos/fabric/README.md"]
 runbook_docs = ["docs/superpowers/journals/2026-09-08-corr-c.md"]

@@ -69,6 +69,10 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY-N11 anytime-valid confidence ledger` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 | `Trust claim posture register` | `generated_committed` | `committed` | `automated` | `team-architecture` | `apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json` |
+| `CG2 admission mechanism with explicit canonical-input position` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/grounding_bind_contract.json` |
+| `CG3 admission with preserved synthetic input limitations` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/grounding_admission_contract.json` |
+| `N6 generation cycle and immutable source preservation` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_contract.json` |
+| `Pre-declared constructed-mismatch refusal sensitivity` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/corr/grounding_refusal_sensitivity.json` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
 
@@ -1609,12 +1613,12 @@ uv run python tools/quality/validation/check_layer3_gy_knowledge_substrate_contr
 
 - Family id: `policy-design-case-layer3-gy-intervention-substrate-contract`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, src/polisyos/lex/knowledge/store.py, src/polisyos/foundry/methods/selection/registry.py, and tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py
+- Source of truth: src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/foundry/validation/legal_correspondence.py, architecture/policy_design_case/legal_subject_lever_annotations.synthetic.json, architecture/policy_design_case/legal_subject_norm_annotations.synthetic.json, src/polisyos/runtime/quality/substrate_registry.py, src/polisyos/lex/knowledge/store.py, src/polisyos/foundry/methods/selection/registry.py, and tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py
 - Generator: Layer 3 GY intervention-substrate contract validator generated from live L6 agent-sim control artifacts
 - Verifier: Layer 3 GY intervention-substrate contract validator and GY-M1 lifecycle gate
 - Promotion target: registered canonical L6 lever, law-route, and method-route substrate lift contract for GY-S3
 - Commit policy: `committed`
-- Freshness rule: Regenerate and commit whenever L6 knob-domain resolution, law-to-lever L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change.
+- Freshness rule: Regenerate and commit whenever L6 knob-domain resolution, law-to-lever subject recognition, independent subject-source ancestry, L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-runtime-quality`
@@ -1626,7 +1630,7 @@ uv run python tools/quality/validation/check_layer3_gy_knowledge_substrate_contr
 Canonical regeneration commands:
 
 ```bash
-uv run python tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --repo-root . --write --output-format json
+uv run python -m tools.quality.validation.check_layer3_gy_intervention_substrate_contract --repo-root . --write --output-format json
 ```
 
 ## `Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt`
@@ -1657,12 +1661,12 @@ uv run python tools/quality/validation/check_layer3_gy_value_outer_set_strangle_
 
 - Family id: `policy-design-case-layer3-gy-n9-promotion-contract`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/confidence_ledger.py, architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py
+- Source of truth: src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/generation_source.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/confidence_ledger.py, architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/runtime/quality/credal_reference.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py
 - Generator: Layer 3 GY-N9 canonical promotion validator generated from the live N6/N9 sequence and isolated deterministic N11 confidence-ledger replay scopes
 - Verifier: Layer 3 GY-N9 recomputing promotion contract validator, exact canonical-byte check, nested N11 projection/conditionality drift, rederive audit, and source-flip mutations
 - Promotion target: registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, G4, and the current-head N11 promotion-certificate projection; fixed-time confidence remains a typed zero-spend refusal
 - Commit policy: `committed`
-- Freshness rule: Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, N11 instrument registry/projection/spend semantics, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes.
+- Freshness rule: Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, N11 instrument registry/projection/spend semantics, CG2 promotability enforcement, source preservation and synthetic bridge provenance, S6/S7/S8 gate wrappers, or champion-path strangle scan changes.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-runtime-quality`
@@ -1674,7 +1678,7 @@ uv run python tools/quality/validation/check_layer3_gy_value_outer_set_strangle_
 Canonical regeneration commands:
 
 ```bash
-JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json
+JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python -m tools.quality.validation.check_layer3_gy_promotion_contract --write --output-format json
 ```
 
 ## `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack`
@@ -1943,4 +1947,100 @@ Canonical regeneration commands:
 
 ```bash
 uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write --write-generated-reference
+```
+
+## `CG2 admission mechanism with explicit canonical-input position`
+
+- Family id: `policy-design-case-cg2-admission-mechanism`
+- Lifecycle: `generated_committed`
+- Source of truth: architecture/policy_design_case/corr/grounding_proof_world_input.json, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/runtime/quality/grounding_risk.py, src/polisyos/runtime/quality/grounding_calibration.py, src/polisyos/runtime/quality/grounding_relation.py, src/polisyos/runtime/quality/credal_reference.py, src/polisyos/runtime/quality/world_model_record.py, src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, and tools/quality/validation/check_grounding_bind_contract.py
+- Generator: Existing CG2 contract owner: complete original relation and mutation controls plus durable admission replay
+- Verifier: CG2 contract recomputation, corrupt-field drift, and decisive admission/refusal removal probes
+- Promotion target: mechanism proof only; canonical reference withholding remains separately visible and grants no authority
+- Commit policy: `committed`
+- Freshness rule: Regenerate when CG2 relation admission, durable run accounting, synthetic ancestry, governing resolution, epoch, original mutation controls, or the complete declared proof-world input changes. Report v3 binds exact source bytes and creation time; an equal logical WMR hash cannot substitute for an unavailable source artifact. Retain canonical attempt and synthetic control scope separately.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_grounding_bind_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/grounding_bind_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python -m tools.quality.validation.check_grounding_bind_contract --repo-root . --write --output-format json
+```
+
+## `CG3 admission with preserved synthetic input limitations`
+
+- Family id: `policy-design-case-cg3-synthetic-input-admission`
+- Lifecycle: `generated_committed`
+- Source of truth: architecture/policy_design_case/corr/grounding_proof_world_input.json, src/polisyos/runtime/quality/grounding_admission.py, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/runtime/quality/grounding_calibration.py, src/polisyos/runtime/quality/grounding_relation.py, src/polisyos/runtime/quality/credal_reference.py, src/polisyos/runtime/quality/world_model_record.py, src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, and tools/quality/validation/check_grounding_admission_contract.py
+- Generator: Existing CG3 contract owner, preserving the complete original control and mutation denominator
+- Verifier: Recomputed CG3 decisions and registry patch controls plus synthetic authority refusal and decisive removal
+- Promotion target: mechanism verification; marked control inputs grant no production authority
+- Commit policy: `committed`
+- Freshness rule: Recompute current CG3 input migration controls when provenance propagation, current certificate emission, receiving consumers, or the complete declared proof-world input changes. Report v3 binds exact source bytes and creation time; unavailable source custody refuses. Preserve historical certificate epochs and every original semantic control.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_grounding_admission_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/grounding_admission_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python -m tools.quality.validation.check_grounding_admission_contract --repo-root . --write --output-format json
+```
+
+## `N6 generation cycle and immutable source preservation`
+
+- Family id: `policy-design-case-n6-source-preservation`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/generation_source.py, src/polisyos/runtime/quality/design_generation.py, src/polisyos/runtime/quality/grounding_risk.py, src/polisyos/runtime/quality/confidence_ledger.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/scientist/orchestration/workflows/engine_simple.py, src/polisyos/runtime/quality/joint_simulation_horizon.py, src/polisyos/scientist/methods/search/voi_scheduler.py, src/polisyos/pdc/_impl/layer2_design_search.py, and tools/quality/validation/check_layer3_gy_generation_cycle_contract.py
+- Generator: Existing N6 generation-cycle contract owner with source custody and reentry controls
+- Verifier: Recomputed generation-cycle receipts, comparison admission, explicit source-custody limitations, and corrupt-field drift; actual N4 source-preservation witnesses are separate bridge tests
+- Promotion target: source custody and controller verification; an unavailable source does not become a writer input
+- Commit policy: `committed`
+- Freshness rule: Recompute after N4 owner handoff, source-capsule persistence, N6 run or reentry serialization, N9 context consumption, or comparison-owner changes. Prior receipts retain their own epochs.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_generation_cycle_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python -m tools.quality.validation.check_layer3_gy_generation_cycle_contract --repo-root . --write --output-format json
+```
+
+## `Pre-declared constructed-mismatch refusal sensitivity`
+
+- Family id: `policy-design-case-grounding-refusal-sensitivity`
+- Lifecycle: `generated_committed`
+- Source of truth: architecture/policy_design_case/corr/grounding-2026-09-08/frame.json, architecture/policy_design_case/corr/grounding-2026-09-08/suite.json, existing L6/WMR owners, src/polisyos/runtime/quality/grounding_calibration.py, and tools/quality/validation/check_grounding_refusal_sensitivity.py
+- Generator: Run the frozen dated full L6 assignment suite through the real CG1 and CG2 owners
+- Verifier: Recompute the complete frame, paired contradiction witnesses and refusal result; corrupt-result and substantive-comparison removal must fail
+- Promotion target: refusal sensitivity only; a high refusal rate on constructed mismatches is not evidence that accepted bindings are correct
+- Commit policy: `committed`
+- Freshness rule: Recompute against the unchanged dated declarations when the consuming owners change. New source inputs require a new pre-outcome declaration, never restamping the old campaign. The exact pinned WMR bytes and time must remain available in source custody; a fresh equal-logical-hash WMR cannot substitute for the declared artifact.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_grounding_refusal_sensitivity.py`
+- Outputs:
+  - `architecture/policy_design_case/corr/grounding_refusal_sensitivity.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --write --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08
 ```

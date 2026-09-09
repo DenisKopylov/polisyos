@@ -1,5 +1,5 @@
 {
-  "state": "scoped_B_verified_CG2_CG3_v3_fresh_and_persisted_corruption_verified_remaining_source_removal_identity_S3_CG5_pending",
+  "state": "B_and_shared_source_verification_complete_CG2_CG3_v3_fresh_CG5_current_refusal_S3_v3_checked_own_envelope_red_before_v4",
   "resource": "Root-coordinated runtime/import slots; serialize .tmp/gy-s-composed-wmr-* writes and same-report mutations. CG2/CG3 v3 read the exact declared original CAS input. Actual runtime source-flip probes require an exclusive all-runtime-stop window.",
   "environment": "PATH lane .venv/bin first; PYTHONPATH=.:src; JAX_PLATFORMS=cpu",
   "targeted_timeout_seconds": 900,
@@ -34,7 +34,7 @@
     "tests/unit/runtime/quality/test_credal_reference.py::test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it",
     "tests/unit/runtime/quality/test_cycle_substrate.py::test_law_resolver_rechecks_bundle_hash_before_lex_authority_use"
   ],
-  "root_integration_state": "Root reports both required importers passed in its complete N9 wave; exact final identity reconciliation remains root-owned and is not yet credited here",
+  "root_integration_state": "Both required importers passed in shared/n9-current-reissue-wave-observed.json (wholewaveRC1, only3reportcompanions failed); full26identities reconciled in shared/n9-current-reissue-wave-identities.json. Exact3companion corrections passed and reconciled separately in shared/n9-companion-delta-green.json and n9-companion-delta-identities.json. All at87908174; no invented26cleanrerun.",
   "root_integration_pytest_nodes": [
     "tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_owner_replay_projection_round_trips_through_json",
     "tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2"
@@ -51,7 +51,12 @@
   "drift_argv": [
     ".venv/bin/python",
     "-m",
-    "docs.superpowers.journals.gy-phase5-evidence.shared.s3_report_corruption"
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json",
+    "tools.quality.validation.check_layer3_gy_intervention_substrate_contract",
+    "/task_acceptance/mechanism_validation_is_task_completion", "true",
+    "--checker-arg=--check", "--checker-arg=--output-format", "--checker-arg=json",
+    "--timeout-seconds", "600", "--expect-issue-code", "intervention_substrate_contract_drift"
   ],
   "comparison_removal_argv": [
     ".venv/bin/python",
@@ -130,7 +135,8 @@
     "source_checkpoint": "664f22a3807ecfc7e9d54aad7a7a0bd68aafdd40",
     "binding": "architecture/policy_design_case/corr/grounding_proof_world_input.json",
     "producer": "proof-input-declaration.json RC0",
-    "whole_mirrored_file": "proof-input-green.json RC0; JUnit identity reconciliation pending",
+    "whole_mirrored_file": "proof-input-green.json RC0; proof-input-identity-final.json RC0, full19/19 identity sets equal, no nonpassing/ambiguous/missing/duplicate",
+    "matching_removal": "proof-input-matching-removal.json RC1;64.042s; actual positive stays valid while false time/logical/schema metadata loses required refusal",
     "removal_argv": [
       ".venv/bin/python", "-m",
       "docs.superpowers.journals.corr-evidence.b.removal", "proof_source_binding"
@@ -165,12 +171,13 @@
     "writer": "cg2-v3-write.json RC0;51.151s",
     "independent_check": "cg2-v3-check.json RC0;51.364s",
     "persisted_corruption": "cg2-v3-persisted-corruption.json wrapper0/actualchecker1 exactdrift;51.108s; actual0.04 to0.0; exactbytes restored",
-    "complete_identity_census": "pending existing A owner",
+    "complete_identity_census": "cg2-v3-identity-final.json RC0 via existing A owner; all original probe/mutation/boundary/resolver/relation identities retained; actual frozen frame and suite fully reconciled",
     "canonical_authority": "actual HC-F11–HC-F14 confidence-layer withholding retained separately"
   },
   "cg5_position_argv": [
     ".venv/bin/python", "-m",
     "tools.quality.validation.check_grounding_active_controller_contract",
     "--check", "--output-format", "json"
-  ]
+  ],
+  "cg5_position": "cg5-current-position.json RC1;40.862s; actual canonical confidence_layer_vintage refusal at Academic owner HC-F11–HC-F14, before CG5 live payload; current freshness not_established, no inherited attribution, no closed-owner repair"
 }

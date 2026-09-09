@@ -116,6 +116,42 @@
         "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_findings.md",
         "architecture/policy_design_case/layer3_gy_task0_global_review.md"
       ]
+    },
+    {
+      "id": "policy-design-case-cg2-admission-mechanism",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python -m tools.quality.validation.check_grounding_bind_contract --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/grounding_bind_contract.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-grounding-refusal-sensitivity",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --write --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/corr/grounding_refusal_sensitivity.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-cg3-synthetic-input-admission",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python -m tools.quality.validation.check_grounding_admission_contract --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/grounding_admission_contract.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-n6-source-preservation",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python -m tools.quality.validation.check_layer3_gy_generation_cycle_contract --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+      ]
     }
   ],
   "packages": [
@@ -2086,7 +2122,7 @@
         "polisyos.fabric.world"
       ],
       "major_subsystem": true,
-      "export_count": 39,
+      "export_count": 40,
       "exports": [
         "AccessRef",
         "AuthoredText",
@@ -2119,6 +2155,7 @@
         "fabric_event_to_authored_text",
         "fabric_fact_to_quantity_value",
         "fabric_get_data",
+        "file_lock",
         "query_claims",
         "query_events",
         "query_world_table",
@@ -2137,7 +2174,7 @@
         {
           "module": "polisyos.fabric",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 39,
+          "export_count": 40,
           "exports": [
             "AccessRef",
             "AuthoredText",
@@ -2170,6 +2207,7 @@
             "fabric_event_to_authored_text",
             "fabric_fact_to_quantity_value",
             "fabric_get_data",
+            "file_lock",
             "query_claims",
             "query_events",
             "query_world_table",
@@ -2263,20 +2301,32 @@
         "polisyos.foundry.execute"
       ],
       "major_subsystem": true,
-      "export_count": 13,
+      "export_count": 25,
       "exports": [
         "DependencyProfileResolutionFailure",
         "EmbedderProtocol",
+        "LegalCorrespondenceRequest",
+        "LegalCorrespondenceResult",
+        "LegalSubjectAnnotationSource",
+        "LegalSubjectIdentity",
+        "LegalSubjectMembership",
+        "LegalSubjectMembershipSource",
         "MethodCatalogDependencyAuthorityRequest",
         "MethodRouteConstraint",
         "SentenceTransformerEmbedder",
         "TFIDFEmbedder",
+        "bind_legal_subject_annotations",
         "build_method_catalog_provenance_manifest",
         "build_method_catalog_runtime_identity",
         "compile",
         "compile_program",
         "execute",
         "method_accepts_input_contract",
+        "persist_legal_correspondence_result",
+        "persist_legal_subject_annotations",
+        "persist_legal_subject_membership_source",
+        "produce_legal_subject_spine",
+        "recognize_legal_correspondence",
         "select_method_candidates_for_requirements"
       ],
       "has___getattr__": true,
@@ -2288,20 +2338,32 @@
         {
           "module": "polisyos.foundry",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 13,
+          "export_count": 25,
           "exports": [
             "DependencyProfileResolutionFailure",
             "EmbedderProtocol",
+            "LegalCorrespondenceRequest",
+            "LegalCorrespondenceResult",
+            "LegalSubjectAnnotationSource",
+            "LegalSubjectIdentity",
+            "LegalSubjectMembership",
+            "LegalSubjectMembershipSource",
             "MethodCatalogDependencyAuthorityRequest",
             "MethodRouteConstraint",
             "SentenceTransformerEmbedder",
             "TFIDFEmbedder",
+            "bind_legal_subject_annotations",
             "build_method_catalog_provenance_manifest",
             "build_method_catalog_runtime_identity",
             "compile",
             "compile_program",
             "execute",
             "method_accepts_input_contract",
+            "persist_legal_correspondence_result",
+            "persist_legal_subject_annotations",
+            "persist_legal_subject_membership_source",
+            "produce_legal_subject_spine",
+            "recognize_legal_correspondence",
             "select_method_candidates_for_requirements"
           ],
           "has___getattr__": true,

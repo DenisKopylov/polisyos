@@ -93,8 +93,8 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 13 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 40 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
@@ -2104,7 +2104,7 @@ write_participation_requirement_bundle
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 39 |
+| `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 40 |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `module_doc_only` | 0 |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `eager_exports` | 41 |
 
@@ -2114,7 +2114,7 @@ write_participation_requirement_bundle
 - Facade: `lazy_facade`
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Entrypoint exports (39)</summary>
+<details><summary>Entrypoint exports (40)</summary>
 
 ```text
 AccessRef
@@ -2148,6 +2148,7 @@ fabric_claim_to_authored_text
 fabric_event_to_authored_text
 fabric_fact_to_quantity_value
 fabric_get_data
+file_lock
 query_claims
 query_events
 query_world_table
@@ -2220,7 +2221,7 @@ write_world_snapshot
 
 </details>
 
-<details><summary>Supported exports (39)</summary>
+<details><summary>Supported exports (40)</summary>
 
 ```text
 AccessRef
@@ -2254,6 +2255,7 @@ fabric_claim_to_authored_text
 fabric_event_to_authored_text
 fabric_fact_to_quantity_value
 fabric_get_data
+file_lock
 query_claims
 query_events
 query_world_table
@@ -2281,7 +2283,7 @@ world
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 13 |
+| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
@@ -2292,21 +2294,33 @@ world
 - Facade: `lazy_facade`
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
-<details><summary>Entrypoint exports (13)</summary>
+<details><summary>Entrypoint exports (25)</summary>
 
 ```text
 DependencyProfileResolutionFailure
 EmbedderProtocol
+LegalCorrespondenceRequest
+LegalCorrespondenceResult
+LegalSubjectAnnotationSource
+LegalSubjectIdentity
+LegalSubjectMembership
+LegalSubjectMembershipSource
 MethodCatalogDependencyAuthorityRequest
 MethodRouteConstraint
 SentenceTransformerEmbedder
 TFIDFEmbedder
+bind_legal_subject_annotations
 build_method_catalog_provenance_manifest
 build_method_catalog_runtime_identity
 compile
 compile_program
 execute
 method_accepts_input_contract
+persist_legal_correspondence_result
+persist_legal_subject_annotations
+persist_legal_subject_membership_source
+produce_legal_subject_spine
+recognize_legal_correspondence
 select_method_candidates_for_requirements
 ```
 
@@ -2358,21 +2372,33 @@ resolve_execution_posture
 
 </details>
 
-<details><summary>Supported exports (13)</summary>
+<details><summary>Supported exports (25)</summary>
 
 ```text
 DependencyProfileResolutionFailure
 EmbedderProtocol
+LegalCorrespondenceRequest
+LegalCorrespondenceResult
+LegalSubjectAnnotationSource
+LegalSubjectIdentity
+LegalSubjectMembership
+LegalSubjectMembershipSource
 MethodCatalogDependencyAuthorityRequest
 MethodRouteConstraint
 SentenceTransformerEmbedder
 TFIDFEmbedder
+bind_legal_subject_annotations
 build_method_catalog_provenance_manifest
 build_method_catalog_runtime_identity
 compile
 compile_program
 execute
 method_accepts_input_contract
+persist_legal_correspondence_result
+persist_legal_subject_annotations
+persist_legal_subject_membership_source
+produce_legal_subject_spine
+recognize_legal_correspondence
 select_method_candidates_for_requirements
 ```
 

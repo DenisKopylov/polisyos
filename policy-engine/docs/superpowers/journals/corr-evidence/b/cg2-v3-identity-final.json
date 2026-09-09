@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.identity_census",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.identity_census"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.39908912498503923,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "{\n  \"after_sha\": \"sha256:12c7257cda08ff457acf7c60d04e497c7db346ed9d750b32928189b87c504f89\",\n  \"ambiguous_inputs\": [],\n  \"before_sha\": \"sha256:1f829451cb584ba654eef9790482b2c587ccf50e948065a07eeb9a777271fbd9\",\n  \"cluster_crosscheck\": \"BFS vs union-find same membership\",\n  \"complete_identity_set_deltas\": {\n    \"behavioral_mutations\": {\n      \"added\": [],\n      \"after\": 9,\n      \"before\": 9,\n      \"removed\": []\n    },\n    \"probes\": {\n      \"added\": [],\n      \"after\": 12,\n      \"before\": 12,\n      \"removed\": []\n    },\n    \"production_api_boundary_probes\": {\n      \"added\": [],\n      \"after\": 13,\n      \"before\": 13,\n      \"removed\": []\n    },\n    \"promotability_resolution_probes\": {\n      \"added\": [],\n      \"after\": 3,\n      \"before\": 3,\n      \"removed\": []\n    },\n    \"relation_outcome_map\": {\n      \"added\": [],\n      \"after\": 9,\n      \"before\": 9,\n      \"removed\": []\n    }\n  },\n  \"frame_declaration\": \"architecture/policy_design_case/corr/grounding-2026-09-08/frame.json@a9453f273a3462d572517a40c238cf9283f667c7\",\n  \"frame_owner_identity_delta\": {\n    \"added\": [],\n    \"after\": 3,\n    \"before\": 3,\n    \"removed\": []\n  },\n  \"independent_crosschecks\": \"relation declaration vs map; mutation object-hook vs list walk; strict duplicate-aware JSON\",\n  \"refusal_sensitivity\": \"On a pre-declared adversarial suite of 3 deliberate mismatches, the binder refused 3. A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.\",\n  \"source_clusters\": 1,\n  \"source_report\": \"architecture/policy_design_case/grounding_bind_contract.json@9619f6d2d892d7994ae3f29d3230362c41862f2d\",\n  \"status\": \"pass\",\n  \"suite_and_all_outcome_identity_sets_equal\": true,\n  \"suite_declaration\": \"architecture/policy_design_case/corr/grounding-2026-09-08/suite.json@a9453f273a3462d572517a40c238cf9283f667c7\"\n}\n",
+  "stderr": ""
+}

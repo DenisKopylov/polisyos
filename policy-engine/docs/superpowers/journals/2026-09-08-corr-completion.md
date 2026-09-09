@@ -199,3 +199,118 @@ value while the genuine current control stays valid. Its separate persisted
 restored exactly. The report derives its own synthetic marker from the actual
 run and leaves scripted source preservation `not_established`. No scripted
 report is credited as the authentic N4 input that C1 did not yield.
+
+Checkpoint `87908174d19b4ce08cb1763ca037d9230927feae` preserves those verified
+report transitions and their complete deciding outputs. Before committing,
+porcelain identities independently matched changed/untracked path identities
+and the attached branch was verified; afterward all 82 changed blobs were read
+from that branch and matched the worktree byte-for-byte, with a clean tree.
+
+`corr-evidence/shared/final-inventory-sync.json` is RC 0 in 11.282 seconds for
+the existing inventory owner with `--skip-deep-import-baseline`. No deep-import
+baseline is changed. The normal final architecture check is held until B's
+remaining report writes finish: its generated-probe phase snapshots git-visible
+files, so that phase and B's report/evidence writes share a real mutable resource.
+The expensive verification wave will run once after that writer freeze.
+
+The independent inventory review reconciled the complete touched facade exports
+and entrypoints against the generated inventory, checked actual lazy targets,
+and matched generated-family ownership, commands and epoch descriptions. Root
+read the generated diff back and marked the release fragment's inventory review
+complete. This is review of the inventory; it does not substitute for the final
+architecture check or for any runtime authority claim.
+
+## Built mechanisms and their falsifiers
+
+- **A — refusal sensitivity, input-only frame, admission budget.** Existing
+  CG1/CG2/calibration owners emit and recompute the dated declarations and result;
+  the frame derives tiers from input and reconciles independent source clusters.
+  The durable CG2 ledger charges admitted bindings, preserves replay identity,
+  and degrades to candidate custody when exhausted. Wrong refusal-reason,
+  paired-sign, frame-content, candidate-charge, cap, event-binding and synthetic
+  authority removals go red with the valid controls retained. A's journal links
+  the complete targeted sets and saved-result drift checks. The bound source
+  loader also rejects false time/schema/hash declarations through the real owner.
+- **B — subject-aware correspondence on independently addressed marked inputs.**
+  Foundry's recognition owner and the existing S3 bridge preserve the semantic
+  subject dimension before numeric comparison, persist/revalidate the result,
+  and carry it to the real credal and atom consumers. Correct source-relative
+  pairs pass; real budget/tax transpositions fail; missing subjects remain
+  ambiguous before numeric evaluation; synthetic input never authorizes the
+  governed surface. Removing comparison or forwarding fails the unchanged
+  positive/negative controls. Real authority remains outside this demonstrated
+  source-relative result, with both missing requirements explicitly routed below.
+- **C — bounded current-rule extraction and N4→N6→N9 custody.** DataForge's
+  existing raw, normalization, graph and exact/family/contested owners consume
+  declared marked subset data while preserving evidence axes and ancestry.
+  N6 retains actual atom/proposal/Trinity objects, shared WMR/substrate and run
+  budget through persistence and reentry, then supplies the existing N9 intake.
+  Resealed source, wrong profile, changed writer projection, source-epoch and
+  ancestry removals fail. The real provider attempt is a refusal, so these
+  controls do not claim a newly extracted authentic reference or a protected
+  positive. N6/N9 current report checks and actual saved corruption are retained
+  separately from their synthetic mechanical controls.
+
+## Findings owned elsewhere, kept separate
+
+- **Accepted-binding calibration:** `delta-ground-composition-and-stratum-budget`
+  and `cg2-calibration-observations-per-stratum` retain the missing accepted
+  labels/independent calibration evidence (`artifact_missing`). A's frame is a
+  campaign input. `adversarial-refusal-sensitivity-is-publishable-today` governs
+  the separate publishable sensitivity result; it supplies no correctness bound.
+- **Real legal membership:** `CORR-B1` /
+  `lever-legal-subject-key-in-the-norm-namespace` needs independently sourced
+  real memberships. **Authority verification is a different requirement:**
+  Foundry/GY-S3 correspondence admission under S0-K06/P32/P37 still needs an
+  accepted-provenance verifier. A narrower owner is explicitly unallocated;
+  the architect allocates it. Neither requirement is supplied by self-declaration
+  or by relabelling a synthetic source.
+- **Authentic Academic reference:** HC-F11–HC-F14 and
+  `claim-level-evidence-axis`, with GY-PR1/C2 as consumer, retain current-rule
+  confidence withholding and the absent newly yielded source-bearing N4 input.
+  **CORR-C1's external quota dependency** prevents measuring the live full-pass
+  cost; it requires usable quota on the declared account/model. **CORR-C2's
+  protected-admission boundary** independently lacks an authentic protected
+  batch. The built preservation chain is not labelled absent because these
+  authentic inputs are missing.
+- **Original proof-source custody:** GY-S3 / CG2–CG3 proof-input lifecycle,
+  P07/P29, owns distribution of the original CAS and referenced registry to
+  another station. Equal logical content with a fresh timestamp is insufficient.
+- **Existing measurement-removal harness:** GY-PR1's N9 source-flip owner, P38,
+  must replace its unqualified `del receipt` proxy with an owner-scoped semantic
+  witness. That retained entry has no behavioral credit in this handback.
+- **Resolved/historical companions:** the closed
+  `evidence-class-normalizer-zeroes-two-canonical-classes` row needs only the
+  appended requirement correction already made here; its algorithm is untouched.
+  The CG2 tuple/list warning belongs to deliberate invalid attack-control
+  construction in `check_grounding_bind_contract`, not a production escape.
+  Legacy Academic zero-default USD compatibility bookkeeping has **explicit
+  nowhere** in the new actual-cost accounting; it is never used as measured cost.
+  Setup failures, timeout ceilings, fixture store locators and helper lint remain
+  recorded with their CORR verification owners, not exported as product debt.
+
+These are proposals/routings for architect transcription. Neither forbidden
+register file is edited and its debt-ledger checker is not invoked.
+
+The read-only adjacent CG5 report position is now measured in
+`corr-evidence/b/cg5-current-position.json` (RC 1, 40.862 seconds). Its actual
+canonical reference producer reaches `Academic.require_forwardable_confidence`
+and refuses under HC-F11–HC-F14 because the current claim evidence axis is absent.
+It does not reach a fresh CG5 payload, so **current CG5 report freshness is
+`not_established`**. This is not called an inherited gate failure: no base replay
+and disjoint-input proof was performed. The exact CG5 importer tests passed as
+recorded in A's journal; the closed CG5 algorithm is not repaired or replaced.
+The unmet canonical reference is routed to the existing evidence-axis/C1
+requirement above, without crediting the synthetic mechanism frame as its source.
+
+The final own-envelope audit found another present instance of the known
+synthetic-emission class: S3's report constructor includes constructed controls
+but omits its own synthetic marker. This is CORR's report-owner correction,
+not outside debt. A suspected analogous omission in CG2/CG3 is refuted by their
+actual constructors and does not authorize an unrelated bump. The appended
+execution decision requires a complete changed-output census and an actual red,
+preservation of S3's successfully emitted/checked v3 body in Git, then a v4
+report-only correction and independent marker validation. Prior passing
+behavior/corruption runs remain evidence for their actual properties; they do
+not establish the newly tested own-envelope invariant. Final closure remains
+pending until that correction and the final architecture wave finish.

@@ -130,3 +130,35 @@ an owner-resolved compatible method/input route and complete-family failure
 collection; it must preserve every C3 predicate and the closed C2/I/Lex outputs.
 The earlier wording did not establish an institutional blocker for C1, and C1
 remains `not_executed` pending that continuation.
+
+F1 landed at `89fcb5851ca57a0581579d21950337c2413928a5`. The branch readback
+independently reconciles its complete 55-path commit, matches every branch blob
+to the working tree, and confirms cleanliness before K starts. It is retained
+under `gy-eight-gaps-evidence/f1/branch-readback.json` at the K checkpoint.
+
+The post-checkpoint C3 audit found independent buildable gaps that its earlier
+EvalSafety blocker does not discharge. The current consumer unconditionally
+refuses the staged bundle/intake that the actual node declares, despite an
+existing intake owner; the loop also passes no actual ConstraintStore and does
+not consult its decision. K's checkpoint is followed by a C3/C1 return before
+L/J. This is an append-only correction of dependency scope, not a green status
+or permission to invent an institutional admission. The actual source inputs
+and execution-context prerequisites are being separated from missing bridge
+code before assigning final verdicts.
+
+K's candidate-ingestion and extractor-instrument engineering is verified in
+`2026-09-09-gy-k-repair.md`. The final canonical check passes, both real corruption
+paths return RC1, and the complete native four-file inventory reconciles all
+38 test identities as passing. The current v2 files preserve the original v1
+bytes as governed history; precision and recall remain present-and-null under
+the standing-rule appointment refusal. The full K verdict is `blocked` at that
+accuracy-claim appointment, with no positive accuracy or publication authority
+inferred from candidate insertion.
+
+K's architecture check also exposed this lane's unrecorded import edges.
+The reviewed defining-module OpenAlex DTO edge is explicitly accepted; the
+remaining C1/C3/D1 edges stay visible and belong to the imminent return work,
+including reuse of existing supported facades where available. They are not
+reported as inherited or as an institutional blocker. The selected academic
+publication importer red remains separately retained with P41
+`not_established` attribution and explicit nowhere among the eight tasks.

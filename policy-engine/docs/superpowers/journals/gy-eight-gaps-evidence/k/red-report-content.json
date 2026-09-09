@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.k.preparation",
+    "report-content"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:25:05.628540+00:00",
+  "elapsed_seconds": 0.149,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"baseline_issues\": [],\n  \"complete_mutated_case_identity_set\": [\n    \"openalex-gold-covid-sme-failures-support-001\",\n    \"openalex-gold-credit-debt-access-002\",\n    \"openalex-gold-credit-paraphrase-financing-constraint-003\",\n    \"openalex-gold-credit-sme-survival-001\",\n    \"openalex-gold-minwage-employment-001\",\n    \"openalex-gold-minwage-hedged-scope-negative-005\",\n    \"openalex-gold-minwage-method-only-negative-004\",\n    \"openalex-gold-minwage-opposite-direction-negative-006\",\n    \"openalex-gold-minwage-paraphrase-stable-jobs-003\",\n    \"openalex-gold-minwage-tradeable-employment-002\",\n    \"openalex-heldout-collateral-credit-positive\",\n    \"openalex-heldout-collateral-opposite-negative\",\n    \"openalex-heldout-credit-rct-negative\",\n    \"openalex-heldout-credit-sme-contribution-positive\"\n  ],\n  \"mutant_issues\": [],\n  \"numerical_accuracy\": \"not recomputed or claimed; prior recorded fields unchanged\",\n  \"property\": \"actual current checker refuses fabricated substantive claim/span/judgment\",\n  \"source_ref\": \"architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json\"\n}\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/k/preparation.py\", line 197, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/k/preparation.py\", line 193, in main\n    {\"population\": population, \"report-content\": report_content, \"extractor-removal\": extractor_removal, \"ingestion\": ingestion}[mode]()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/k/preparation.py\", line 117, in report_content\n    assert issues, \"fabricated substantive content accepted while all accuracy/provenance markers remain\"\n           ^^^^^^\nAssertionError: fabricated substantive content accepted while all accuracy/provenance markers remain\n"
+}

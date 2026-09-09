@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.k.removal",
+    "source-verifier"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:54:43.085499+00:00",
+  "elapsed_seconds": 41.141,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"mode\": \"source-verifier\", \"selected\": \"tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py::test_source_candidate_ingress_consults_real_source_verifier_before_writes\", \"mutation_scope\": \"in-memory actual owner only; production source unchanged\"}\nF\n=================================== FAILURES ===================================\n__ test_source_candidate_ingress_consults_real_source_verifier_before_writes ___\n\n    def test_source_candidate_ingress_consults_real_source_verifier_before_writes() -> None:\n        from polisyos.data_forge.domains.academic.knowledge import skg_store\n    \n        work = _work()\n        query = \"loan guarantees SMEs firm survival impact evaluation\"\n        claim = extract_span_grounded_claims_from_openalex_work(\n            work, query=query, span_support_client=_DeterministicSpanSupportClient()\n        )[0]\n        trace = SearchQueryTrace(\n            query_node_id=\"candidate-poison\",\n            query=query,\n            perspective=\"root\",\n            provider=\"openalex\",\n            hit_count=1,\n        )\n        poisoned = claim.model_copy(\n            update={\"claim_text\": \"This invented claim is not the extracted candidate.\"}\n        )\n        con = duckdb.connect(\":memory:\")\n        try:\n>           with pytest.raises(ValueError, match=\"openalex_candidate_source_not_admitted\"):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py:491: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py::test_source_candidate_ingress_consults_real_source_verifier_before_writes\n",
+  "stderr": ""
+}

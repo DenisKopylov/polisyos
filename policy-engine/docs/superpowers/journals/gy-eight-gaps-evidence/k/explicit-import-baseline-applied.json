@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.k_import_baseline"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T07:22:51.027777+00:00",
+  "elapsed_seconds": 0.067,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"path\": \"architecture/baselines/imports/deep_import.json\",\n  \"sha256_before\": \"529832749ba27862164eea64a0ed188660faa4e7e86eb8643129753b4a55ee99\",\n  \"sha256_after\": \"9aeb03adba4ab6b7e6d7752b8f5fe4e5a9f6d53f4b9aec75bb066a62978c46a1\",\n  \"complete_added_edge_set\": [\n    {\n      \"source_module\": \"polisyos.scholar.search.providers\",\n      \"source_root\": \"scholar\",\n      \"source_file\": \"src/polisyos/scholar/search/providers.py\",\n      \"target_module\": \"polisyos.ir.analytics.literature\",\n      \"target_root\": \"ir\"\n    }\n  ],\n  \"lost_edges\": [],\n  \"basis\": \"Existing OpenAlexWorkText defining owner; supported analytics facade directs module-specific APIs to their defining modules; no facade export exists\",\n  \"remaining_lane_edges\": \"Not accepted; exact complete earlier C1/C3/D1 identities remain visible in import-edge-reconciliation.json\"\n}\n",
+  "stderr": ""
+}

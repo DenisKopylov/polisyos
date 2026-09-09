@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.k_final_checks"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T07:21:44.087960+00:00",
+  "elapsed_seconds": 0.077,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"baseline_receipt\": \"canonical-check.json\",\n  \"baseline_receipt_sha256\": \"c2cfeb8733c1628c89d554e233f2face18cba6a7c48862f75a4fe8aae32023fb\",\n  \"finding_identity_deltas\": [\n    {\n      \"receipt\": \"canonical-corrupt.json\",\n      \"receipt_sha256\": \"bfc7f78ef9c70aa19acb385f2ba746fd68cfb4676c35fdd0d0fb0b440380de50\",\n      \"added_identities\": [\n        {\n          \"code\": \"layer3_gy_openalex_corrupt_field_drift_detected\"\n        }\n      ],\n      \"lost_baseline_identities\": []\n    },\n    {\n      \"receipt\": \"canonical-corrupt-substance.json\",\n      \"receipt_sha256\": \"3f17b0ad4232df0fd8ae9469ac2515c69b5fb28394a782ca45042eafbbb81108\",\n      \"added_identities\": [\n        {\n          \"code\": \"layer3_gy_openalex_accuracy_substantive_recompute_drift\"\n        },\n        {\n          \"code\": \"layer3_gy_openalex_artifact_drift\",\n          \"path\": \"architecture/policy_design_case/layer3_gy_openalex_accuracy_report_v2.json\"\n        }\n      ],\n      \"lost_baseline_identities\": []\n    }\n  ],\n  \"complete_current_prediction_denominator\": 23,\n  \"independent_nested_walk_count\": 23,\n  \"all_prediction_identities_mutated\": true,\n  \"historical_output_denominator\": 2,\n  \"complete_history\": [\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json\",\n      \"sha256\": \"f0a638647aebc33e327c989b816529cc6b0f750f081dab533dc3611ad47f8c68\",\n      \"unchanged_from_parent_commit\": true\n    },\n    {\n      \"path\": \"architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json\",\n      \"sha256\": \"c45e37e16c539787acaca9b44f0afed6fb3ed77b941f2ded78e40c3fa51239de\",\n      \"unchanged_from_parent_commit\": true\n    }\n  ],\n  \"current_precision_and_recall\": \"present_and_null_with_explicit_appointment_refusal\"\n}\n",
+  "stderr": ""
+}

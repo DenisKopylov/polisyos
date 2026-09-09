@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import urllib.parse
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from html.parser import HTMLParser
 from typing import TYPE_CHECKING, Protocol
@@ -17,6 +19,8 @@ from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from polisyos.ir.analytics.literature import OpenAlexWorkText
 
 
 class WebSearchProvider(Protocol):
@@ -156,6 +160,18 @@ class BraveSearchProvider:
         return _filter_hits(hits, constraints=constraints, max_results=max_results)
 
 
+@dataclass(frozen=True)
+class OpenAlexWorksResult:
+    """One actual full provider response with filtered hits and source work custody."""
+
+    query: str
+    hits: tuple[WebSearchHit, ...]
+    works: tuple[OpenAlexWorkText, ...]
+    raw_response: dict[str, object]
+    response_sha256: str
+    excluded_results: tuple[tuple[int, str], ...]
+
+
 class OpenAlexWorksProvider:
     """Query the public OpenAlex works API and normalize works as academic search hits."""
 
@@ -190,11 +206,33 @@ class OpenAlexWorksProvider:
         max_results: int,
         timeout_s: float,
     ) -> list[WebSearchHit]:
+        """Project ordinary search hits from the same complete provider response."""
+
+        result = await self.search_with_works(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        return list(result.hits)
+
+    async def search_with_works(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> OpenAlexWorksResult:
+        """Fetch once and preserve complete work content for candidate consumers."""
+
+        from polisyos.ir.analytics.literature import OpenAlexWorkText
+
         if constraints.source_types and "academic" not in constraints.source_types:
-            return []
+            return OpenAlexWorksResult(query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), ())
         search_query = query.strip()
         if not search_query:
-            return []
+            return OpenAlexWorksResult(query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), ())
         params = {
             "search": search_query,
             "filter": ",".join(_openalex_filters(constraints)),
@@ -216,18 +254,26 @@ class OpenAlexWorksProvider:
             retry_policy=self._retry_policy,
         )
         decoded = json.loads(payload or "{}")
-        results = decoded.get("results", []) if isinstance(decoded, dict) else []
+        if not isinstance(decoded, dict) or not isinstance(decoded.get("results"), list):
+            raise ValueError("openalex_provider_result_population_invalid")
+        results = decoded["results"]
+        works = []
+        excluded = []
         hits: list[WebSearchHit] = []
         for rank, item in enumerate(results, start=1):
             if not isinstance(item, dict):
+                excluded.append((rank - 1, "result_not_object"))
                 continue
             work_url = _coerce_http_url(item.get("id"))
             if work_url is None:
+                excluded.append((rank - 1, "work_id_invalid"))
                 continue
             title = str(item.get("display_name") or item.get("title") or "").strip()
             abstract = reconstruct_openalex_abstract(item.get("abstract_inverted_index"))
             if not title and not abstract:
+                excluded.append((rank - 1, "source_text_missing"))
                 continue
+            works.append(OpenAlexWorkText.from_openalex_work(item))
             hits.append(
                 WebSearchHit(
                     url=work_url,
@@ -241,7 +287,15 @@ class OpenAlexWorksProvider:
                     score=_openalex_score(item),
                 )
             )
-        return _filter_hits(hits, constraints=constraints, max_results=max_results)
+        filtered = _filter_hits(hits, constraints=constraints, max_results=max_results)
+        return OpenAlexWorksResult(
+            query=query,
+            hits=tuple(filtered),
+            works=tuple(works),
+            raw_response=decoded,
+            response_sha256=hashlib.sha256(payload.encode()).hexdigest(),
+            excluded_results=tuple(excluded),
+        )
 
 
 class DuckDuckGoHtmlSearchProvider:

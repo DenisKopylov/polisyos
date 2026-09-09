@@ -84,9 +84,12 @@ def test_span_writer_admits_every_claim_before_first_database_write() -> None:
             ),
         )
 
-    assert con.execute(
-        "SELECT table_name FROM information_schema.tables ORDER BY table_name"
-    ).fetchall() == []
+    assert (
+        con.execute(
+            "SELECT table_name FROM information_schema.tables ORDER BY table_name"
+        ).fetchall()
+        == []
+    )
     con.close()
 
 
@@ -364,9 +367,12 @@ def test_span_writer_mixed_batch_publishes_only_allowed_claim() -> None:
     )
 
     assert denied_report.ingested_claim_count == 0
-    assert con.execute(
-        "SELECT edge_id, article_refs, candidate_layer, quality_signals_json FROM ac_skg_edges"
-    ).fetchall() == edge_before
+    assert (
+        con.execute(
+            "SELECT edge_id, article_refs, candidate_layer, quality_signals_json FROM ac_skg_edges"
+        ).fetchall()
+        == edge_before
+    )
     assert con.execute("SELECT claim_id FROM ac_skg_edge_evidence").fetchall() == [
         (allowed.claim_id,)
     ]
@@ -392,9 +398,7 @@ def test_no_hit_query_trace_persists_queryable_skg_frontier(tmp_path: Path) -> N
     rows = con.execute(
         "SELECT trace_id, query, provider, reason FROM ac_skg_no_hit_frontier"
     ).fetchall()
-    trace_rows = con.execute(
-        "SELECT trace_id, hit_count FROM ac_skg_query_traces"
-    ).fetchall()
+    trace_rows = con.execute("SELECT trace_id, hit_count FROM ac_skg_query_traces").fetchall()
     con.close()
 
     assert report.authority_tier == "candidate_unverified"
@@ -408,3 +412,116 @@ def test_no_hit_query_trace_persists_queryable_skg_frontier(tmp_path: Path) -> N
         )
     ]
     assert trace_rows == [(report.query_trace_id, 0)]
+
+
+def test_source_candidate_ingress_preserves_publication_boundary_and_candidate_authority() -> None:
+    from polisyos.data_forge.domains.academic.knowledge import skg_store
+
+    work = _work()
+    query = "loan guarantees SMEs firm survival impact evaluation"
+    claims = extract_span_grounded_claims_from_openalex_work(
+        work, query=query, span_support_client=_DeterministicSpanSupportClient()
+    )
+    assert claims and all(claim.publish_to_graph is False for claim in claims)
+    trace = SearchQueryTrace(
+        query_node_id="candidate-custody",
+        query=query,
+        perspective="root",
+        provider="openalex",
+        hit_count=1,
+    )
+    con = duckdb.connect(":memory:")
+    try:
+        denied = ingest_openalex_span_grounded_claims(
+            con, work=work, claims=claims, query_trace=trace
+        )
+        assert denied.ingested_claim_count == 0
+        admitted = skg_store.ingest_openalex_source_bound_candidates(
+            con, work=work, claims=claims, query_trace=trace
+        )
+        expected = {claim.claim_id for claim in claims}
+        assert {
+            row[0]
+            for row in con.execute("SELECT claim_id FROM ac_skg_span_grounded_claims").fetchall()
+        } == expected
+        assert {
+            row[0] for row in con.execute("SELECT claim_id FROM ac_skg_edge_evidence").fetchall()
+        } == expected
+        assert admitted.authority_tier == "candidate_unverified"
+        actual_content = con.execute(
+            "SELECT claim_id, claim_text, span_text, source_content_sha256 FROM ac_skg_span_grounded_claims"
+        ).fetchall()
+        expected_content = [
+            (claim.claim_id, claim.claim_text, claim.supporting_spans[0].text, work.content_sha256)
+            for claim in claims
+        ]
+        assert set(actual_content) == set(expected_content)
+        assert set(
+            con.execute(
+                "SELECT authority_tier, support_status, design_family FROM ac_skg_span_grounded_claims"
+            ).fetchall()
+        ) == {("candidate_unverified", "source_bound_candidate", None)}
+        assert set(con.execute("SELECT candidate_layer FROM ac_skg_edges").fetchall()) == {
+            ("candidate",)
+        }
+    finally:
+        con.close()
+
+
+def test_source_candidate_ingress_consults_real_source_verifier_before_writes() -> None:
+    from polisyos.data_forge.domains.academic.knowledge import skg_store
+
+    work = _work()
+    query = "loan guarantees SMEs firm survival impact evaluation"
+    claim = extract_span_grounded_claims_from_openalex_work(
+        work, query=query, span_support_client=_DeterministicSpanSupportClient()
+    )[0]
+    trace = SearchQueryTrace(
+        query_node_id="candidate-poison",
+        query=query,
+        perspective="root",
+        provider="openalex",
+        hit_count=1,
+    )
+    poisoned = claim.model_copy(
+        update={"claim_text": "This invented claim is not the extracted candidate."}
+    )
+    con = duckdb.connect(":memory:")
+    try:
+        with pytest.raises(ValueError, match="openalex_candidate_source_not_admitted"):
+            skg_store.ingest_openalex_source_bound_candidates(
+                con, work=work, claims=[claim, poisoned], query_trace=trace
+            )
+        assert con.execute(
+            "SELECT count(*) FROM information_schema.tables WHERE table_name='ac_skg_articles'"
+        ).fetchone() == (0,)
+    finally:
+        con.close()
+
+
+def test_source_candidate_ingress_refuses_detached_source_while_markers_remain() -> None:
+    from polisyos.data_forge.domains.academic.knowledge import skg_store
+
+    work = _work()
+    query = "loan guarantees SMEs firm survival impact evaluation"
+    claim = extract_span_grounded_claims_from_openalex_work(
+        work, query=query, span_support_client=_DeterministicSpanSupportClient()
+    )[0]
+    trace = SearchQueryTrace(
+        query_node_id="candidate-detached",
+        query=query,
+        perspective="root",
+        provider="openalex",
+        hit_count=1,
+    )
+    detached = work.model_copy(
+        update={"source_text": work.source_text + " fabricated continuation"}
+    )
+    con = duckdb.connect(":memory:")
+    try:
+        with pytest.raises(ValueError, match="openalex_candidate_source_not_admitted"):
+            skg_store.ingest_openalex_source_bound_candidates(
+                con, work=detached, claims=[claim], query_trace=trace
+            )
+    finally:
+        con.close()

@@ -1,0 +1,562 @@
+{
+  "gate_receipt": {
+    "path": "_build/gy-gaps/k/architecture-boundaries.json",
+    "hash": "sha256:e83e133f145fe5600d8794d032775ce6a65cfd89f8994cf2b7fdd94388e08a65"
+  },
+  "baseline": {
+    "path": "architecture/baselines/imports/deep_import.json",
+    "hash": "sha256:529832749ba27862164eea64a0ed188660faa4e7e86eb8643129753b4a55ee99",
+    "edge_count": 3281,
+    "independent_serialized_edge_count": 3281
+  },
+  "source_population": {
+    "scope": "entire src/**/*.py excluding only __pycache__, matching guardrail owner",
+    "rglob_count": 2631,
+    "os_walk_count": 2631,
+    "identity_set_equal": true,
+    "unreadable": [],
+    "identity_hash": "sha256:b331e0a46cfecb210c5721cccd86674de426aaa3374af98bb0f5132beaf6ab35"
+  },
+  "complete_edge_reconciliation": {
+    "expected_count": 3310,
+    "independent_live_ast_count": 3310,
+    "identities_equal": true,
+    "added_count": 29,
+    "independent_creep_message_count": 29,
+    "lost_identities": [],
+    "all_added_identities_equal": true
+  },
+  "introduced_counts": {
+    "4f54c80cc4f668da81943b773536c3b92e71eae8": 9,
+    "504f995cd203f2efebee8566363b8987092e1e34": 13,
+    "34852d5b2b3b511b7f0583a6316b2156e4e2dcb9": 6,
+    "working_tree_K": 1
+  },
+  "supported_target_entrypoints": {
+    "core": [
+      "polisyos.core",
+      "polisyos.core.contracts",
+      "polisyos.core.observability",
+      "polisyos.core.security",
+      "polisyos.core.trace"
+    ],
+    "ir": [
+      "polisyos.ir",
+      "polisyos.ir.analytics",
+      "polisyos.ir.api"
+    ],
+    "fabric": [
+      "polisyos.fabric",
+      "polisyos.fabric.api",
+      "polisyos.fabric.world"
+    ],
+    "foundry": [
+      "polisyos.foundry",
+      "polisyos.foundry.agent_sim.world",
+      "polisyos.foundry.api",
+      "polisyos.foundry.compile",
+      "polisyos.foundry.execute"
+    ],
+    "scientist": [
+      "polisyos.scientist",
+      "polisyos.scientist.governance.continuous",
+      "polisyos.scientist.methods.research_dag",
+      "polisyos.scientist.replay"
+    ],
+    "data_forge": [
+      "polisyos.data_forge",
+      "polisyos.data_forge.read_api"
+    ]
+  },
+  "new_edges": [
+    {
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "target_module": "polisyos.core.artifacts",
+      "source_file": "src/polisyos/fabric/retrieval/custody.py",
+      "imports": [
+        {
+          "line": 17,
+          "names": [
+            "ArtifactRef",
+            "FileSystemCAS",
+            "InputRef",
+            "ProducerInfo",
+            "PutOptions",
+            "SchemaInfo"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:3cdf3de81b21ec9588cb298f68123789c3837d7ce68d07d2ef3b32b506ff9e6f"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "target_module": "polisyos.core.contracts.control",
+      "source_file": "src/polisyos/fabric/retrieval/custody.py",
+      "imports": [
+        {
+          "line": 25,
+          "names": [
+            "FetchPlan"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:3cdf3de81b21ec9588cb298f68123789c3837d7ce68d07d2ef3b32b506ff9e6f"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "target_module": "polisyos.ir.connectors",
+      "source_file": "src/polisyos/fabric/retrieval/custody.py",
+      "imports": [
+        {
+          "line": 27,
+          "names": [
+            "FetchRequest",
+            "FetchResult"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:3cdf3de81b21ec9588cb298f68123789c3837d7ce68d07d2ef3b32b506ff9e6f"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.executor",
+      "target_module": "polisyos.core.artifacts",
+      "source_file": "src/polisyos/fabric/retrieval/executor.py",
+      "imports": [
+        {
+          "line": 12,
+          "names": [
+            "ArtifactRef",
+            "FileSystemCAS"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:209a3879794923c28c0ebb61a07f4f6503cac6f5a20630da780485eb59c50b39"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.data_forge.domains.ukraine.manifests",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "imports": [
+        {
+          "line": 1003,
+          "names": [
+            "CalibrationBundleManifest"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:33bea75cd74529f0354562771fd7e76678410743d60442fda2805e8497ed6ea8"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.fabric.connectors.registry",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "imports": [
+        {
+          "line": 769,
+          "names": [
+            "ConnectorRegistry"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:33bea75cd74529f0354562771fd7e76678410743d60442fda2805e8497ed6ea8"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.fabric.retrieval.custody",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "imports": [
+        {
+          "line": 33,
+          "names": [
+            "ResolvedFabricFetch"
+          ]
+        },
+        {
+          "line": 861,
+          "names": [
+            "resolve_persisted_fetch"
+          ]
+        },
+        {
+          "line": 495,
+          "names": [
+            "resolve_persisted_fetch"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:33bea75cd74529f0354562771fd7e76678410743d60442fda2805e8497ed6ea8"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.fabric.retrieval.providers",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "imports": [
+        {
+          "line": 20,
+          "names": [
+            "RetrievalProviders",
+            "resolve_retrieval_providers"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:33bea75cd74529f0354562771fd7e76678410743d60442fda2805e8497ed6ea8"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.foundry.data_plane",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "imports": [
+        {
+          "line": 1136,
+          "names": [
+            "materialize_method_contract"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:33bea75cd74529f0354562771fd7e76678410743d60442fda2805e8497ed6ea8"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.foundry.methods",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "imports": [
+        {
+          "line": 1137,
+          "names": [
+            "MethodRegistry",
+            "ensure_all_methods_registered"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:33bea75cd74529f0354562771fd7e76678410743d60442fda2805e8497ed6ea8"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.foundry.methods.selection",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "imports": [
+        {
+          "line": 1138,
+          "names": [
+            "method_accepts_input_contract"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:33bea75cd74529f0354562771fd7e76678410743d60442fda2805e8497ed6ea8"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.promotion_sequence",
+      "target_module": "polisyos.core.canon",
+      "source_file": "src/polisyos/runtime/quality/promotion_sequence.py",
+      "imports": [
+        {
+          "line": 26,
+          "names": [
+            "from_canonical_bytes"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:e0c4991400ed26805f36207c30b1801a1626fa1f08f1a4b978a677a447411a02"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.promotion_sequence",
+      "target_module": "polisyos.fabric.retrieval.providers",
+      "source_file": "src/polisyos/runtime/quality/promotion_sequence.py",
+      "imports": [
+        {
+          "line": 28,
+          "names": [
+            "RetrievalProviders"
+          ]
+        }
+      ],
+      "introduced_at": "4f54c80cc4f668da81943b773536c3b92e71eae8",
+      "current_source_hash": "sha256:e0c4991400ed26805f36207c30b1801a1626fa1f08f1a4b978a677a447411a02"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.core.artifacts",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 15,
+          "names": [
+            "ArtifactRef"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.foundry.data_plane",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 402,
+          "names": [
+            "materialize_method_contract"
+          ]
+        },
+        {
+          "line": 88,
+          "names": [
+            "materialize_method_contract"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.foundry.methods",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 89,
+          "names": [
+            "MethodRegistry"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.foundry.methods.backends.dispatch",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 521,
+          "names": [
+            "_estimate_cost_usd"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.foundry.methods.backends.protocol",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 522,
+          "names": [
+            "MethodTiming"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.foundry.methods.base",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 523,
+          "names": [
+            "ComputeBackend"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.ir.analytics.causal",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 90,
+          "names": [
+            "CausalEffectReport",
+            "EstimationStatus"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.scientist.compute",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 456,
+          "names": [
+            "MethodBackend"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "target_module": "polisyos.scientist.orchestration.engine",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "imports": [
+        {
+          "line": 33,
+          "names": [
+            "ExperimentState"
+          ]
+        }
+      ],
+      "introduced_at": "504f995cd203f2efebee8566363b8987092e1e34",
+      "current_source_hash": "sha256:506859d716ef3e572e81ec6baa3416b0b8e86e246a1bf7125d65bd959685f9ba"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.scientist_node_adapters",
+      "target_module": "polisyos.core.artifacts",
+      "source_file": "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py",
+      "imports": [
+        {
+          "line": 12,
+          "names": [
+            "ArtifactManifest",
+            "ArtifactStore",
+            "InputRef",
+            "ProducerInfo",
+            "PutOptions",
+            "SchemaInfo"
+          ]
+        },
+        {
+          "line": 20,
+          "names": [
+            "ArtifactRef"
+          ]
+        }
+      ],
+      "introduced_at": "34852d5b2b3b511b7f0583a6316b2156e4e2dcb9",
+      "current_source_hash": "sha256:68e3d360729c1e9d6f0187e284b0c118a58778af034e0cd8798df392dc531a9a"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.scientist_node_adapters",
+      "target_module": "polisyos.core.canon",
+      "source_file": "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py",
+      "imports": [
+        {
+          "line": 23,
+          "names": [
+            "CanonSpec",
+            "from_canonical_bytes",
+            "to_canonical_bytes"
+          ]
+        }
+      ],
+      "introduced_at": "34852d5b2b3b511b7f0583a6316b2156e4e2dcb9",
+      "current_source_hash": "sha256:68e3d360729c1e9d6f0187e284b0c118a58778af034e0cd8798df392dc531a9a"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.scientist_node_adapters",
+      "target_module": "polisyos.scientist.orchestration.engine",
+      "source_file": "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py",
+      "imports": [
+        {
+          "line": 746,
+          "names": [
+            "ExperimentState"
+          ]
+        },
+        {
+          "line": 758,
+          "names": [
+            "NodeOutcome"
+          ]
+        }
+      ],
+      "introduced_at": "34852d5b2b3b511b7f0583a6316b2156e4e2dcb9",
+      "current_source_hash": "sha256:68e3d360729c1e9d6f0187e284b0c118a58778af034e0cd8798df392dc531a9a"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.workflow_playbook_projection",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_file": "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py",
+      "imports": [
+        {
+          "line": 10,
+          "names": [
+            "ArtifactRef"
+          ]
+        }
+      ],
+      "introduced_at": "34852d5b2b3b511b7f0583a6316b2156e4e2dcb9",
+      "current_source_hash": "sha256:317987203f5c12caa0611c2a7f63202e0bc6937248136ee32187aa0a14d2ac68"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.workflow_playbook_projection",
+      "target_module": "polisyos.core.canon",
+      "source_file": "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py",
+      "imports": [
+        {
+          "line": 13,
+          "names": [
+            "CanonSpec",
+            "to_canonical_bytes"
+          ]
+        }
+      ],
+      "introduced_at": "34852d5b2b3b511b7f0583a6316b2156e4e2dcb9",
+      "current_source_hash": "sha256:317987203f5c12caa0611c2a7f63202e0bc6937248136ee32187aa0a14d2ac68"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.workflow_playbook_projection",
+      "target_module": "polisyos.scientist.orchestration.engine",
+      "source_file": "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py",
+      "imports": [
+        {
+          "line": 21,
+          "names": [
+            "UnknownNodeError"
+          ]
+        }
+      ],
+      "introduced_at": "34852d5b2b3b511b7f0583a6316b2156e4e2dcb9",
+      "current_source_hash": "sha256:317987203f5c12caa0611c2a7f63202e0bc6937248136ee32187aa0a14d2ac68"
+    },
+    {
+      "source_module": "polisyos.scholar.search.providers",
+      "target_module": "polisyos.ir.analytics.literature",
+      "source_file": "src/polisyos/scholar/search/providers.py",
+      "imports": [
+        {
+          "line": 23,
+          "names": [
+            "OpenAlexWorkText"
+          ]
+        },
+        {
+          "line": 229,
+          "names": [
+            "OpenAlexWorkText"
+          ]
+        }
+      ],
+      "introduced_at": "working_tree_K",
+      "current_source_hash": "sha256:13dfddf5d1fc01db50a3135fbdfa2386a3cab0d97ab7cf172bbc257e49297176"
+    }
+  ]
+}

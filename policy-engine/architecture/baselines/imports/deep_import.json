@@ -13219,6 +13219,13 @@
       "target_root": "fabric"
     },
     {
+      "source_module": "polisyos.scholar.search.providers",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/search/providers.py",
+      "target_module": "polisyos.ir.analytics.literature",
+      "target_root": "ir"
+    },
+    {
       "source_module": "polisyos.scholar.search.service",
       "source_root": "scholar",
       "source_file": "src/polisyos/scholar/search/service.py",

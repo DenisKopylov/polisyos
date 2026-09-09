@@ -2947,10 +2947,10 @@
       "path": "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json",
       "kind": "layer3_gy_lifecycle_artifact",
       "owner": "team-runtime-quality",
-      "family_id": "policy-design-case-layer3-gy-openalex-artifacts",
-      "lifecycle": "generated_committed",
+      "family_id": "policy-design-case-layer3-gy-openalex-history-artifacts",
+      "lifecycle": "source_committed",
       "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
-      "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
+      "authority_boundary": "historical_v1_custody_only_no_current_accuracy_or_completion_authority",
       "status": "active"
     },
     {
@@ -2958,10 +2958,10 @@
       "path": "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json",
       "kind": "layer3_gy_lifecycle_artifact",
       "owner": "team-runtime-quality",
-      "family_id": "policy-design-case-layer3-gy-openalex-artifacts",
-      "lifecycle": "generated_committed",
+      "family_id": "policy-design-case-layer3-gy-openalex-history-artifacts",
+      "lifecycle": "source_committed",
       "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
-      "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
+      "authority_boundary": "historical_v1_custody_only_no_current_accuracy_or_completion_authority",
       "status": "active"
     },
     {
@@ -4136,6 +4136,28 @@
       "kind": "layer3_gy_lifecycle_artifact",
       "owner": "team-runtime-quality",
       "family_id": "policy-design-case-layer3-workflow-failure-authority",
+      "lifecycle": "generated_committed",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "gy_lifecycle_architecture_policy_design_case_layer3_gy_openalex_accuracy_report_v2_json",
+      "path": "architecture/policy_design_case/layer3_gy_openalex_accuracy_report_v2.json",
+      "kind": "layer3_gy_lifecycle_artifact",
+      "owner": "team-runtime-quality",
+      "family_id": "policy-design-case-layer3-gy-openalex-artifacts",
+      "lifecycle": "generated_committed",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "gy_lifecycle_architecture_policy_design_case_layer3_gy_openalex_skg_ingest_records_v2_json",
+      "path": "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records_v2.json",
+      "kind": "layer3_gy_lifecycle_artifact",
+      "owner": "team-runtime-quality",
+      "family_id": "policy-design-case-layer3-gy-openalex-artifacts",
       "lifecycle": "generated_committed",
       "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
       "authority_boundary": "lifecycle_custody_only_no_new_runtime_or_publication_authority",

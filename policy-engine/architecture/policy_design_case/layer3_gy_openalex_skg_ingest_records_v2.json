@@ -1,0 +1,873 @@
+{
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v2",
+  "ingest": {
+    "data_only_growth_control": {
+      "authority_tier": "candidate_unverified",
+      "constructed_selection_query": "However, at a similar level of effectiveness, non-targeted subsidies can be substantially more expensive (1.82% of GDP).",
+      "external_query_occurrence": "not_established",
+      "new_claim_id": "openalex.claim.3a29d25893f9b92785d4d0ad",
+      "new_span_not_in_baseline": true,
+      "population_disposition": "isolated_engineering_selection_not_accuracy_population",
+      "source_capture_query": "loan guarantees SMEs firm survival impact evaluation",
+      "source_content_sha256": "sha256:9c93f1f765acafaef0310f403bcc9f7646032a0eb3cfec378b2ac57302ad2f27",
+      "source_ref": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json@sha256:765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+    },
+    "identity_sets_reconciled": true,
+    "no_hit_frontier": [
+      [
+        "zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789",
+        "openalex",
+        "provider_returned_no_hits"
+      ]
+    ],
+    "owner_validation_control": {
+      "baseline_fake_admitted": false,
+      "removed_verifier_fake_admitted": true
+    },
+    "persisted_claims": [
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "evaluation firm",
+        "claim_id": "openalex.claim.2f46b8a01f985130b8ee0999",
+        "claim_text": "evaluation firm -> smes survival: Using a unique data set from a large bank containing timely assessments of collateral values, we find that the bank responded to a legal reform that exogenously reduced collateral values by increasing interest rates, tightening credit limits, and reducing the intensity of its monitoring of borrowers and collateral, spurring borrower delinquency on outstanding claims.",
+        "confidence": 0.39,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "smes survival",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:cfcf6930e860c1de02585601bab2782fe3106b8c0cac54b28150545c1adeb7fa/openalex.claim.2f46b8a01f985130b8ee0999",
+        "openalex_id": "https://openalex.org/W3123109680",
+        "query_trace_id": "openalex-trace.68a56549ee8642822ef6f1e4",
+        "skg_version": 3,
+        "source_content_sha256": "sha256:cfcf6930e860c1de02585601bab2782fe3106b8c0cac54b28150545c1adeb7fa",
+        "span_end": 587,
+        "span_start": 218,
+        "span_text": "Using a unique data set from a large bank containing timely assessments of collateral values, we find that the bank responded to a legal reform that exogenously reduced collateral values by increasing interest rates, tightening credit limits, and reducing the intensity of its monitoring of borrowers and collateral, spurring borrower delinquency on outstanding claims.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "despite large",
+        "claim_id": "openalex.claim.379274819aee9e3f77436dda",
+        "claim_text": "despite large -> business failures employment: Despite the large impact on business failures and employment, we estimate only moderate effects on the financial sector: the share of Non Performing Loans on bank balance sheets would increase by up to 11 percentage points, representing 0.3 percent of banks' assets and resulting in a 0.75 percentage point decline in the common equity Tier-1 capital ratio.",
+        "confidence": 0.7929,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "business failures employment",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:9c93f1f765acafaef0310f403bcc9f7646032a0eb3cfec378b2ac57302ad2f27/openalex.claim.379274819aee9e3f77436dda",
+        "openalex_id": "https://openalex.org/W4206444459",
+        "query_trace_id": "openalex-trace.73bd6e0c7c1847547a470102",
+        "skg_version": 2,
+        "source_content_sha256": "sha256:9c93f1f765acafaef0310f403bcc9f7646032a0eb3cfec378b2ac57302ad2f27",
+        "span_end": 1176,
+        "span_start": 819,
+        "span_text": "Despite the large impact on business failures and employment, we estimate only moderate effects on the financial sector: the share of Non Performing Loans on bank balance sheets would increase by up to 11 percentage points, representing 0.3 percent of banks' assets and resulting in a 0.75 percentage point decline in the common equity Tier-1 capital ratio.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "evaluation firm",
+        "claim_id": "openalex.claim.3c3db4eab4165c3867edbfd6",
+        "claim_text": "evaluation firm -> smes survival: ABSTRACT We show that collateral plays an important role in the design of debt contracts, the provision of credit, and the incentives of lenders to monitor borrowers.",
+        "confidence": 0.13,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "mixed",
+        "effect": "smes survival",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:cfcf6930e860c1de02585601bab2782fe3106b8c0cac54b28150545c1adeb7fa/openalex.claim.3c3db4eab4165c3867edbfd6",
+        "openalex_id": "https://openalex.org/W3123109680",
+        "query_trace_id": "openalex-trace.68a56549ee8642822ef6f1e4",
+        "skg_version": 3,
+        "source_content_sha256": "sha256:cfcf6930e860c1de02585601bab2782fe3106b8c0cac54b28150545c1adeb7fa",
+        "span_end": 217,
+        "span_start": 51,
+        "span_text": "ABSTRACT We show that collateral plays an important role in the design of debt contracts, the provision of credit, and the incentives of lenders to monitor borrowers.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "evaluation firm",
+        "claim_id": "openalex.claim.6602226ee93e249a4b192122",
+        "claim_text": "evaluation firm -> smes survival: Using detailed firm-level data from the state-owned Swedish bank Almi, which specifically lends to credit-constrained SMEs, and coarsened exact matching and difference-in-difference regressions, we study the causal effects of small business loans on firm growth.",
+        "confidence": 0.5457,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "smes survival",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:863e2645281e52e4384a1baf01a2550da048e5ca62ba26221ec7570d08e2b11b/openalex.claim.6602226ee93e249a4b192122",
+        "openalex_id": "https://openalex.org/W4210299055",
+        "query_trace_id": "openalex-trace.59251d53fed3791ded470d7f",
+        "skg_version": 5,
+        "source_content_sha256": "sha256:863e2645281e52e4384a1baf01a2550da048e5ca62ba26221ec7570d08e2b11b",
+        "span_end": 561,
+        "span_start": 299,
+        "span_text": "Using detailed firm-level data from the state-owned Swedish bank Almi, which specifically lends to credit-constrained SMEs, and coarsened exact matching and difference-in-difference regressions, we study the causal effects of small business loans on firm growth.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "effect employment",
+        "claim_id": "openalex.claim.69d4c11b6c3f199e8e2c5e80",
+        "claim_text": "effect employment -> minimum wage: However, we do find some evidence of reduced employment in tradeable sectors.",
+        "confidence": 0.64,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "minimum wage",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:011463a6893fa64ea69ba8a8d560480b687bb630f64221251ebf812db42ad746/openalex.claim.69d4c11b6c3f199e8e2c5e80",
+        "openalex_id": "https://openalex.org/W2942870997",
+        "query_trace_id": "openalex-trace.a133a1faef81bda63daa795f",
+        "skg_version": 7,
+        "source_content_sha256": "sha256:011463a6893fa64ea69ba8a8d560480b687bb630f64221251ebf812db42ad746",
+        "span_end": 1208,
+        "span_start": 1131,
+        "span_text": "However, we do find some evidence of reduced employment in tradeable sectors.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "estimate",
+        "claim_id": "openalex.claim.7b74f75da24f383201a45205",
+        "claim_text": "estimate -> seventeen countries large representative firmlevel database: We estimate the impact of the COVID-19 crisis on business failures among small and medium size enterprises (SMEs) in seventeen countries using a large representative firmlevel database.",
+        "confidence": 0.6757,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "seventeen countries large representative firmlevel database",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:9c93f1f765acafaef0310f403bcc9f7646032a0eb3cfec378b2ac57302ad2f27/openalex.claim.7b74f75da24f383201a45205",
+        "openalex_id": "https://openalex.org/W4206444459",
+        "query_trace_id": "openalex-trace.73bd6e0c7c1847547a470102",
+        "skg_version": 2,
+        "source_content_sha256": "sha256:9c93f1f765acafaef0310f403bcc9f7646032a0eb3cfec378b2ac57302ad2f27",
+        "span_end": 211,
+        "span_start": 26,
+        "span_text": "We estimate the impact of the COVID-19 crisis on business failures among small and medium size enterprises (SMEs) in seventeen countries using a large representative firmlevel database.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "simple model bilateral search heterogeneous workers",
+        "claim_id": "openalex.claim.85eb703ab0e88d59e38e48e2",
+        "claim_text": "simple model bilateral search heterogeneous workers -> employment: We show that in a simple model of bilateral search with heterogeneous workers, a minimum-wage law increases employment.",
+        "confidence": 0.64,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "employment",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:9b101aebe4802b2bbe2c436c0a85a92eb5bf3e992337315c4af61cab02f550ee/openalex.claim.85eb703ab0e88d59e38e48e2",
+        "openalex_id": "https://openalex.org/W1981739276",
+        "query_trace_id": "openalex-trace.adee4442836922a3cd653003",
+        "skg_version": 9,
+        "source_content_sha256": "sha256:9b101aebe4802b2bbe2c436c0a85a92eb5bf3e992337315c4af61cab02f550ee",
+        "span_end": 288,
+        "span_start": 169,
+        "span_text": "We show that in a simple model of bilateral search with heterogeneous workers, a minimum-wage law increases employment.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "estimate large",
+        "claim_id": "openalex.claim.9d0d994f7cb3e2c6d2230a5e",
+        "claim_text": "estimate large -> smes under covid- nearly percentage points: We estimate a large increase in the failure rate of SMEs under COVID-19 of nearly 9 percentage points, absent government support.",
+        "confidence": 0.5329,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "smes under covid- nearly percentage points",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:9c93f1f765acafaef0310f403bcc9f7646032a0eb3cfec378b2ac57302ad2f27/openalex.claim.9d0d994f7cb3e2c6d2230a5e",
+        "openalex_id": "https://openalex.org/W4206444459",
+        "query_trace_id": "openalex-trace.73bd6e0c7c1847547a470102",
+        "skg_version": 2,
+        "source_content_sha256": "sha256:9c93f1f765acafaef0310f403bcc9f7646032a0eb3cfec378b2ac57302ad2f27",
+        "span_end": 571,
+        "span_start": 442,
+        "span_text": "We estimate a large increase in the failure rate of SMEs under COVID-19 of nearly 9 percentage points, absent government support.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "effect employment",
+        "claim_id": "openalex.claim.9ec74d205a256e147c5a1036",
+        "claim_text": "effect employment -> minimum wage: The employment effect of the minimum wage is one of the most studied topics in all of economics.",
+        "confidence": 0.61,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "mixed",
+        "effect": "minimum wage",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:2df6931863abb98a8b8acc87fc8a00475c563971af9edb69920cb6128c951415/openalex.claim.9ec74d205a256e147c5a1036",
+        "openalex_id": "https://openalex.org/W118021563",
+        "query_trace_id": "openalex-trace.0a4784243663d3578ef60deb",
+        "skg_version": 8,
+        "source_content_sha256": "sha256:2df6931863abb98a8b8acc87fc8a00475c563971af9edb69920cb6128c951415",
+        "span_end": 163,
+        "span_start": 67,
+        "span_text": "The employment effect of the minimum wage is one of the most studied topics in all of economics.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "investigate whether bank loans specifically designed",
+        "claim_id": "openalex.claim.a95db222a07c2ef0a0f7eb04",
+        "claim_text": "investigate whether bank loans specifically designed -> different impacts depending where firm located: We investigate whether bank loans specifically designed to reduce credit constraints for small and medium-sized enterprises (SMEs) have different impacts depending on where the firm is located.",
+        "confidence": 0.5457,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "different impacts depending where firm located",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:863e2645281e52e4384a1baf01a2550da048e5ca62ba26221ec7570d08e2b11b/openalex.claim.a95db222a07c2ef0a0f7eb04",
+        "openalex_id": "https://openalex.org/W4210299055",
+        "query_trace_id": "openalex-trace.59251d53fed3791ded470d7f",
+        "skg_version": 5,
+        "source_content_sha256": "sha256:863e2645281e52e4384a1baf01a2550da048e5ca62ba26221ec7570d08e2b11b",
+        "span_end": 298,
+        "span_start": 105,
+        "span_text": "We investigate whether bank loans specifically designed to reduce credit constraints for small and medium-sized enterprises (SMEs) have different impacts depending on where the firm is located.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "exploits this fact evaluate effect april",
+        "claim_id": "openalex.claim.b02842ad8eed3562e5986115",
+        "claim_text": "exploits this fact evaluate effect april -> federal minimum wage teenagers' wages: The author exploits this fact to evaluate the effect of the April 1990 increase in the federal minimum wage on teenagers' wages, employment, and school enrollment.",
+        "confidence": 0.74,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "federal minimum wage teenagers' wages",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:f8ef0e77bf43724200eab051eaf901a461caf605643cf4636fd22717f7f1d4fa/openalex.claim.b02842ad8eed3562e5986115",
+        "openalex_id": "https://openalex.org/W3023870743",
+        "query_trace_id": "openalex-trace.4595f461a3af4f1d2da30742",
+        "skg_version": 10,
+        "source_content_sha256": "sha256:f8ef0e77bf43724200eab051eaf901a461caf605643cf4636fd22717f7f1d4fa",
+        "span_end": 464,
+        "span_start": 301,
+        "span_text": "The author exploits this fact to evaluate the effect of the April 1990 increase in the federal minimum wage on teenagers' wages, employment, and school enrollment.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "points little no employment response modest",
+        "claim_id": "openalex.claim.ba569c6967f56fe8527b3f16",
+        "claim_text": "points little no employment response modest -> minimum wage: The weight of that evidence points to little or no employment response to modest increases in the minimum wage.The report reviews evidence on eleven possible adjustments to minimum-wage increases that may help to explain why the measured employment effects are so consistently small.",
+        "confidence": 0.74,
+        "design_family": null,
+        "design_quality_tier": 3,
+        "direction": "null",
+        "effect": "minimum wage",
+        "evidence_strength": "meta_analysis",
+        "grounding_ref": "openalex-source-bound://sha256:2df6931863abb98a8b8acc87fc8a00475c563971af9edb69920cb6128c951415/openalex.claim.ba569c6967f56fe8527b3f16",
+        "openalex_id": "https://openalex.org/W118021563",
+        "query_trace_id": "openalex-trace.0a4784243663d3578ef60deb",
+        "skg_version": 8,
+        "source_content_sha256": "sha256:2df6931863abb98a8b8acc87fc8a00475c563971af9edb69920cb6128c951415",
+        "span_end": 667,
+        "span_start": 384,
+        "span_text": "The weight of that evidence points to little or no employment response to modest increases in the minimum wage.The report reviews evidence on eleven possible adjustments to minimum-wage increases that may help to explain why the measured employment effects are so consistently small.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "consequences minimum wages even when they",
+        "claim_id": "openalex.claim.c51cff3359e650ba3ab0fbd6",
+        "claim_text": "consequences minimum wages even when they -> employment: This raises concerns about the distributional consequences of minimum wages even when they increase employment.",
+        "confidence": 0.61,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "employment",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:9b101aebe4802b2bbe2c436c0a85a92eb5bf3e992337315c4af61cab02f550ee/openalex.claim.c51cff3359e650ba3ab0fbd6",
+        "openalex_id": "https://openalex.org/W1981739276",
+        "query_trace_id": "openalex-trace.adee4442836922a3cd653003",
+        "skg_version": 9,
+        "source_content_sha256": "sha256:9b101aebe4802b2bbe2c436c0a85a92eb5bf3e992337315c4af61cab02f550ee",
+        "span_end": 665,
+        "span_start": 554,
+        "span_text": "This raises concerns about the distributional consequences of minimum wages even when they increase employment.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "first estimate effect minimum wage",
+        "claim_id": "openalex.claim.c539a90b0d81f8273e7bbd6b",
+        "claim_text": "first estimate effect minimum wage -> wage bins throughout hourly wage distribution: We first estimate the effect of the minimum wage increase on employment changes by wage bins throughout the hourly wage distribution.",
+        "confidence": 0.87,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "wage bins throughout hourly wage distribution",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:011463a6893fa64ea69ba8a8d560480b687bb630f64221251ebf812db42ad746/openalex.claim.c539a90b0d81f8273e7bbd6b",
+        "openalex_id": "https://openalex.org/W2942870997",
+        "query_trace_id": "openalex-trace.a133a1faef81bda63daa795f",
+        "skg_version": 7,
+        "source_content_sha256": "sha256:011463a6893fa64ea69ba8a8d560480b687bb630f64221251ebf812db42ad746",
+        "span_end": 385,
+        "span_start": 252,
+        "span_text": "We first estimate the effect of the minimum wage increase on employment changes by wage bins throughout the hourly wage distribution.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "effect employment",
+        "claim_id": "openalex.claim.c98d8ea188f2f63dd94bd818",
+        "claim_text": "effect employment -> minimum wage: We also show how decomposing the overall employment effect by wage bins allows a transparent way of assessing the plausibility of estimates.",
+        "confidence": 0.87,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "mixed",
+        "effect": "minimum wage",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:011463a6893fa64ea69ba8a8d560480b687bb630f64221251ebf812db42ad746/openalex.claim.c98d8ea188f2f63dd94bd818",
+        "openalex_id": "https://openalex.org/W2942870997",
+        "query_trace_id": "openalex-trace.a133a1faef81bda63daa795f",
+        "skg_version": 7,
+        "source_content_sha256": "sha256:011463a6893fa64ea69ba8a8d560480b687bb630f64221251ebf812db42ad746",
+        "span_end": 1349,
+        "span_start": 1209,
+        "span_text": "We also show how decomposing the overall employment effect by wage bins allows a transparent way of assessing the plausibility of estimates.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "effect employment",
+        "claim_id": "openalex.claim.cab43c996628c5ea48b5d47e",
+        "claim_text": "effect employment -> minimum wage: The imposition of a national minimum wage standard provides a natural experiment in which the \u201ctreatment effect\u201d varies across states depending on the fraction of workers initially earning less than the new minimum.",
+        "confidence": 0.48,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "mixed",
+        "effect": "minimum wage",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:f8ef0e77bf43724200eab051eaf901a461caf605643cf4636fd22717f7f1d4fa/openalex.claim.cab43c996628c5ea48b5d47e",
+        "openalex_id": "https://openalex.org/W3023870743",
+        "query_trace_id": "openalex-trace.4595f461a3af4f1d2da30742",
+        "skg_version": 10,
+        "source_content_sha256": "sha256:f8ef0e77bf43724200eab051eaf901a461caf605643cf4636fd22717f7f1d4fa",
+        "span_end": 300,
+        "span_start": 85,
+        "span_text": "The imposition of a national minimum wage standard provides a natural experiment in which the \u201ctreatment effect\u201d varies across states depending on the fraction of workers initially earning less than the new minimum.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "casts doubt view that minimum-wage laws",
+        "claim_id": "openalex.claim.d940b48d92c3e3090c8f5143",
+        "claim_text": "casts doubt view that minimum-wage laws -> employment: Recent research casts doubt on the view that minimum-wage laws reduce employment.",
+        "confidence": 0.51,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "employment",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:9b101aebe4802b2bbe2c436c0a85a92eb5bf3e992337315c4af61cab02f550ee/openalex.claim.d940b48d92c3e3090c8f5143",
+        "openalex_id": "https://openalex.org/W1981739276",
+        "query_trace_id": "openalex-trace.adee4442836922a3cd653003",
+        "skg_version": 9,
+        "source_content_sha256": "sha256:9b101aebe4802b2bbe2c436c0a85a92eb5bf3e992337315c4af61cab02f550ee",
+        "span_end": 168,
+        "span_start": 87,
+        "span_text": "Recent research casts doubt on the view that minimum-wage laws reduce employment.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "roughly since determine best current estimates",
+        "claim_id": "openalex.claim.e3c0bb47806107f2443796f3",
+        "claim_text": "roughly since determine best current estimates -> minimum wage employment prospects low-wage workers: This report examines the most recent wave of this research -- roughly since 2000 -- to determine the best current estimates of the impact of increases in the minimum wage on the employment prospects of low-wage workers.",
+        "confidence": 0.87,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "minimum wage employment prospects low-wage workers",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:2df6931863abb98a8b8acc87fc8a00475c563971af9edb69920cb6128c951415/openalex.claim.e3c0bb47806107f2443796f3",
+        "openalex_id": "https://openalex.org/W118021563",
+        "query_trace_id": "openalex-trace.0a4784243663d3578ef60deb",
+        "skg_version": 8,
+        "source_content_sha256": "sha256:2df6931863abb98a8b8acc87fc8a00475c563971af9edb69920cb6128c951415",
+        "span_end": 383,
+        "span_start": 164,
+        "span_text": "This report examines the most recent wave of this research -- roughly since 2000 -- to determine the best current estimates of the impact of increases in the minimum wage on the employment prospects of low-wage workers.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "effect employment",
+        "claim_id": "openalex.claim.eb34b0950d8196d22dc7a7f9",
+        "claim_text": "effect employment -> minimum wage: Comparisons of grouped and individual state data confirm that the rise in the minimum wage increased teenagers' wages.",
+        "confidence": 0.48,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "minimum wage",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:f8ef0e77bf43724200eab051eaf901a461caf605643cf4636fd22717f7f1d4fa/openalex.claim.eb34b0950d8196d22dc7a7f9",
+        "openalex_id": "https://openalex.org/W3023870743",
+        "query_trace_id": "openalex-trace.4595f461a3af4f1d2da30742",
+        "skg_version": 10,
+        "source_content_sha256": "sha256:f8ef0e77bf43724200eab051eaf901a461caf605643cf4636fd22717f7f1d4fa",
+        "span_end": 583,
+        "span_start": 465,
+        "span_text": "Comparisons of grouped and individual state data confirm that the rise in the minimum wage increased teenagers' wages.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "evaluation firm",
+        "claim_id": "openalex.claim.ebfa212aa3d4eb60fa3a2e87",
+        "claim_text": "evaluation firm -> smes survival: One of the factors limiting the survival and growth ofSMEs in South Africa is non-availability of debt financing.",
+        "confidence": 0.6629,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "negative",
+        "effect": "smes survival",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:651af232a32011b913692fbfcd80ba896d7c890612489971185c239e3aa876a4/openalex.claim.ebfa212aa3d4eb60fa3a2e87",
+        "openalex_id": "https://openalex.org/W2169693233",
+        "query_trace_id": "openalex-trace.ea3a0e92f9a6a0e59ad33b67",
+        "skg_version": 1,
+        "source_content_sha256": "sha256:651af232a32011b913692fbfcd80ba896d7c890612489971185c239e3aa876a4",
+        "span_end": 401,
+        "span_start": 288,
+        "span_text": "One of the factors limiting the survival and growth ofSMEs in South Africa is non-availability of debt financing.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "indicate that firm entrepreneurial characteristics",
+        "claim_id": "openalex.claim.f470c98e5e38286bbbb16dea",
+        "claim_text": "indicate that firm entrepreneurial characteristics -> onaccess debt finance smes: The results indicate that firm and entrepreneurial characteristics impact onaccess to debt finance by SMEs.",
+        "confidence": 0.48,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "mixed",
+        "effect": "onaccess debt finance smes",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:651af232a32011b913692fbfcd80ba896d7c890612489971185c239e3aa876a4/openalex.claim.f470c98e5e38286bbbb16dea",
+        "openalex_id": "https://openalex.org/W2169693233",
+        "query_trace_id": "openalex-trace.ea3a0e92f9a6a0e59ad33b67",
+        "skg_version": 1,
+        "source_content_sha256": "sha256:651af232a32011b913692fbfcd80ba896d7c890612489971185c239e3aa876a4",
+        "span_end": 811,
+        "span_start": 704,
+        "span_text": "The results indicate that firm and entrepreneurial characteristics impact onaccess to debt finance by SMEs.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "investigates",
+        "claim_id": "openalex.claim.f4d879447ed1812d1680a5c6",
+        "claim_text": "investigates -> access debt finance smes south africa: This study investigates the impact of firm andentrepreneurial characteristics on access to debt finance by SMEs in South Africa.",
+        "confidence": 0.48,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "mixed",
+        "effect": "access debt finance smes south africa",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:651af232a32011b913692fbfcd80ba896d7c890612489971185c239e3aa876a4/openalex.claim.f4d879447ed1812d1680a5c6",
+        "openalex_id": "https://openalex.org/W2169693233",
+        "query_trace_id": "openalex-trace.ea3a0e92f9a6a0e59ad33b67",
+        "skg_version": 1,
+        "source_content_sha256": "sha256:651af232a32011b913692fbfcd80ba896d7c890612489971185c239e3aa876a4",
+        "span_end": 530,
+        "span_start": 402,
+        "span_text": "This study investigates the impact of firm andentrepreneurial characteristics on access to debt finance by SMEs in South Africa.",
+        "support_status": "source_bound_candidate"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "cause": "show that receiving loan has greater",
+        "claim_id": "openalex.claim.f8a5eb195bde6313d488e15b",
+        "claim_text": "show that receiving loan has greater -> than firms located remote rural regions: The results show that receiving a loan has a greater impact on firm growth for those SMEs located in major cities than for firms located in remote rural regions.",
+        "confidence": 0.74,
+        "design_family": null,
+        "design_quality_tier": 4,
+        "direction": "positive",
+        "effect": "than firms located remote rural regions",
+        "evidence_strength": "unknown",
+        "grounding_ref": "openalex-source-bound://sha256:863e2645281e52e4384a1baf01a2550da048e5ca62ba26221ec7570d08e2b11b/openalex.claim.f8a5eb195bde6313d488e15b",
+        "openalex_id": "https://openalex.org/W4210299055",
+        "query_trace_id": "openalex-trace.59251d53fed3791ded470d7f",
+        "skg_version": 5,
+        "source_content_sha256": "sha256:863e2645281e52e4384a1baf01a2550da048e5ca62ba26221ec7570d08e2b11b",
+        "span_end": 723,
+        "span_start": 562,
+        "span_text": "The results show that receiving a loan has a greater impact on firm growth for those SMEs located in major cities than for firms located in remote rural regions.",
+        "support_status": "source_bound_candidate"
+      }
+    ],
+    "population_sources": [
+      {
+        "excluded_results": [],
+        "population_scope": "complete_recorded_response_not_global_OpenAlex",
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "recorded_at": "2026-06-23T17:23:52.659992+00:00",
+        "response_meta": {
+          "cost_usd": 0.001,
+          "count": 6007,
+          "db_response_time_ms": 439,
+          "groups_count": null,
+          "page": 1,
+          "per_page": 5,
+          "x_query": {
+            "oql": "works where full text has (loan guarantees SMEs firm survival impact evaluation)\n  and it has an abstract\n  and it's not retracted\n  and language is en",
+            "oqo": {
+              "filter_rows": [
+                {
+                  "column_id": "fulltext.search",
+                  "operator": "has",
+                  "value": "loan guarantees SMEs firm survival impact evaluation"
+                },
+                {
+                  "column_id": "has_abstract",
+                  "value": true
+                },
+                {
+                  "column_id": "is_retracted",
+                  "value": false
+                },
+                {
+                  "column_id": "language",
+                  "value": "en"
+                }
+              ],
+              "get_rows": "works",
+              "per_page": 5,
+              "select": [
+                "id",
+                "doi",
+                "display_name",
+                "title",
+                "abstract_inverted_index",
+                "publication_year",
+                "publication_date",
+                "cited_by_count",
+                "type",
+                "is_retracted",
+                "language",
+                "open_access",
+                "primary_location",
+                "authorships"
+              ]
+            },
+            "url": "/works?filter=fulltext.search:loan guarantees SMEs firm survival impact evaluation,has_abstract:true,is_retracted:false,language:en&select=id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships&per_page=5"
+          }
+        },
+        "response_sha256": "c71f016cd765e846f775ff8d7739ddbfda96c43588e9be3554629f6c2c84bd1e",
+        "returned_work_ids": [
+          "https://openalex.org/W2169693233",
+          "https://openalex.org/W4206444459",
+          "https://openalex.org/W3123109680",
+          "https://openalex.org/W3126113144",
+          "https://openalex.org/W4210299055"
+        ],
+        "selected_hit_ids": [
+          "https://openalex.org/W2169693233",
+          "https://openalex.org/W4206444459",
+          "https://openalex.org/W3123109680",
+          "https://openalex.org/W3126113144",
+          "https://openalex.org/W4210299055"
+        ],
+        "source_ref": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json@sha256:765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+      },
+      {
+        "excluded_results": [],
+        "population_scope": "complete_recorded_response_not_global_OpenAlex",
+        "query": "minimum wage employment effect",
+        "recorded_at": "2026-06-23T17:23:53.738355+00:00",
+        "response_meta": {
+          "cost_usd": 0.001,
+          "count": 131793,
+          "db_response_time_ms": 358,
+          "groups_count": null,
+          "page": 1,
+          "per_page": 5,
+          "x_query": {
+            "oql": "works where full text has (minimum wage employment effect)\n  and it has an abstract\n  and it's not retracted\n  and language is en",
+            "oqo": {
+              "filter_rows": [
+                {
+                  "column_id": "fulltext.search",
+                  "operator": "has",
+                  "value": "minimum wage employment effect"
+                },
+                {
+                  "column_id": "has_abstract",
+                  "value": true
+                },
+                {
+                  "column_id": "is_retracted",
+                  "value": false
+                },
+                {
+                  "column_id": "language",
+                  "value": "en"
+                }
+              ],
+              "get_rows": "works",
+              "per_page": 5,
+              "select": [
+                "id",
+                "doi",
+                "display_name",
+                "title",
+                "abstract_inverted_index",
+                "publication_year",
+                "publication_date",
+                "cited_by_count",
+                "type",
+                "is_retracted",
+                "language",
+                "open_access",
+                "primary_location",
+                "authorships"
+              ]
+            },
+            "url": "/works?filter=fulltext.search:minimum wage employment effect,has_abstract:true,is_retracted:false,language:en&select=id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships&per_page=5"
+          }
+        },
+        "response_sha256": "9ee918cea3a52fb109bd6634b458a7497281404ea4406932a83a52023c3b11b3",
+        "returned_work_ids": [
+          "https://openalex.org/W1571659936",
+          "https://openalex.org/W2942870997",
+          "https://openalex.org/W118021563",
+          "https://openalex.org/W1981739276",
+          "https://openalex.org/W3023870743"
+        ],
+        "selected_hit_ids": [
+          "https://openalex.org/W1571659936",
+          "https://openalex.org/W2942870997",
+          "https://openalex.org/W118021563",
+          "https://openalex.org/W1981739276",
+          "https://openalex.org/W3023870743"
+        ],
+        "source_ref": "tests/fixtures/scholar/openalex/minimum_wage_employment.json@sha256:c99c3446c42177cd32cfc50a2399c02326bbc50fb130e5211ef042f44dd4b780"
+      },
+      {
+        "excluded_results": [],
+        "population_scope": "complete_recorded_response_not_global_OpenAlex",
+        "query": "zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789",
+        "recorded_at": "2026-06-23T17:23:54.055578+00:00",
+        "response_meta": {
+          "cost_usd": 0.001,
+          "count": 0,
+          "db_response_time_ms": 44,
+          "groups_count": null,
+          "page": 1,
+          "per_page": 5,
+          "x_query": {
+            "oql": "works where full text has (zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789)\n  and it has an abstract\n  and it's not retracted\n  and language is en",
+            "oqo": {
+              "filter_rows": [
+                {
+                  "column_id": "fulltext.search",
+                  "operator": "has",
+                  "value": "zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789"
+                },
+                {
+                  "column_id": "has_abstract",
+                  "value": true
+                },
+                {
+                  "column_id": "is_retracted",
+                  "value": false
+                },
+                {
+                  "column_id": "language",
+                  "value": "en"
+                }
+              ],
+              "get_rows": "works",
+              "per_page": 5,
+              "select": [
+                "id",
+                "doi",
+                "display_name",
+                "title",
+                "abstract_inverted_index",
+                "publication_year",
+                "publication_date",
+                "cited_by_count",
+                "type",
+                "is_retracted",
+                "language",
+                "open_access",
+                "primary_location",
+                "authorships"
+              ]
+            },
+            "url": "/works?filter=fulltext.search:zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789,has_abstract:true,is_retracted:false,language:en&select=id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships&per_page=5"
+          }
+        },
+        "response_sha256": "95bbd358372425c5650c59fac1b63dc1d70e49ee1080fe45df8e22492a7f6d6d",
+        "returned_work_ids": [],
+        "selected_hit_ids": [],
+        "source_ref": "tests/fixtures/scholar/openalex/no_hits.json@sha256:bbd5bd8cce49b95696afff708cb1631d2a61ec35374f60245462cad3b0401038"
+      }
+    ],
+    "query_trace_ids": [
+      "openalex-trace.0a4784243663d3578ef60deb",
+      "openalex-trace.24f5ab562164d1f3c51aee96",
+      "openalex-trace.4595f461a3af4f1d2da30742",
+      "openalex-trace.59251d53fed3791ded470d7f",
+      "openalex-trace.68a56549ee8642822ef6f1e4",
+      "openalex-trace.73bd6e0c7c1847547a470102",
+      "openalex-trace.a133a1faef81bda63daa795f",
+      "openalex-trace.a19d487e2f65d2ae8df013fc",
+      "openalex-trace.adee4442836922a3cd653003",
+      "openalex-trace.d5c906051c8f6e5e78567f35",
+      "openalex-trace.ea3a0e92f9a6a0e59ad33b67"
+    ],
+    "strangle_receipt": {
+      "baseline_report_hash": "88d2f3134623d215b2194dcc349b24824bbd953bf0414607211d573d2a1c12bf",
+      "caller_guard_ref": "recompute_openalex_accuracy_strangle",
+      "default_after": "actual_extractor_with_constructed_negative_source_checks",
+      "default_before": "gold_claim_semantic_judgments_without_extractor",
+      "default_removal_changed_report": true,
+      "disposition": "fenced_default_flipped",
+      "guard_ref": "test_extractor_instrument_observes_actual_default_extractor",
+      "predecessor_ref": "literature._evaluate_gold_span_support_accuracy",
+      "remaining_callers": [],
+      "remaining_callers_disposition": "no_current_production_callers_of_fenced_predecessor",
+      "removed_report_hash": "2502fca523f3c73c9ef633b5e34dfee62c3fac060c7c4507f57b9b5ee121bca8",
+      "replacement_ref": "literature.evaluate_openalex_claim_extractor_accuracy",
+      "source_denominator": {
+        "os_walk_py": 3065,
+        "rglob_py": 3065,
+        "roots": [
+          "src",
+          "tools"
+        ]
+      },
+      "verified_by": "live_default_extractor_removal_and_real_candidate_owner_control"
+    },
+    "witness_records": [
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "e2a0dcf1deaa513f9c7fb1c69c1fa4c16c7df30fa18095190282bc2dbad90ff2",
+        "claim_ids": [
+          "openalex.claim.ebfa212aa3d4eb60fa3a2e87",
+          "openalex.claim.f470c98e5e38286bbbb16dea",
+          "openalex.claim.f4d879447ed1812d1680a5c6"
+        ],
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "query_trace_id": "openalex-trace.ea3a0e92f9a6a0e59ad33b67",
+        "source_ref": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json@sha256:765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "26b6c4ab7634a628e64995a7ecce71f1abdce709c8657b70ab5a07d1471118cb",
+        "claim_ids": [
+          "openalex.claim.379274819aee9e3f77436dda",
+          "openalex.claim.7b74f75da24f383201a45205",
+          "openalex.claim.9d0d994f7cb3e2c6d2230a5e"
+        ],
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "query_trace_id": "openalex-trace.73bd6e0c7c1847547a470102",
+        "source_ref": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json@sha256:765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "267073abe02bf9a2d62eb0018869c04f2dbd6a2857d50ac92943bbb33f413a88",
+        "claim_ids": [
+          "openalex.claim.2f46b8a01f985130b8ee0999",
+          "openalex.claim.3c3db4eab4165c3867edbfd6"
+        ],
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "query_trace_id": "openalex-trace.68a56549ee8642822ef6f1e4",
+        "source_ref": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json@sha256:765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "da9997b00a6bd103f5d2d9785f1a786d85c4997333a75be0f7bd36ee1b6709c8",
+        "claim_ids": [],
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "query_trace_id": "openalex-trace.a19d487e2f65d2ae8df013fc",
+        "source_ref": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json@sha256:765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "f893dd6c3bb84972a5441568d639bf605aa07c8d08f0c5fe2f45db27f648c502",
+        "claim_ids": [
+          "openalex.claim.6602226ee93e249a4b192122",
+          "openalex.claim.a95db222a07c2ef0a0f7eb04",
+          "openalex.claim.f8a5eb195bde6313d488e15b"
+        ],
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "query_trace_id": "openalex-trace.59251d53fed3791ded470d7f",
+        "source_ref": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json@sha256:765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "067a69602df78a97c23cbf519310fd99b1f654376e3d3f0c37a11d4823029631",
+        "claim_ids": [],
+        "query": "minimum wage employment effect",
+        "query_trace_id": "openalex-trace.24f5ab562164d1f3c51aee96",
+        "source_ref": "tests/fixtures/scholar/openalex/minimum_wage_employment.json@sha256:c99c3446c42177cd32cfc50a2399c02326bbc50fb130e5211ef042f44dd4b780"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "3e407c2519cba6278a4e05be73acbb9e288d91f305a99ac8841c9f4db9185859",
+        "claim_ids": [
+          "openalex.claim.69d4c11b6c3f199e8e2c5e80",
+          "openalex.claim.c539a90b0d81f8273e7bbd6b",
+          "openalex.claim.c98d8ea188f2f63dd94bd818"
+        ],
+        "query": "minimum wage employment effect",
+        "query_trace_id": "openalex-trace.a133a1faef81bda63daa795f",
+        "source_ref": "tests/fixtures/scholar/openalex/minimum_wage_employment.json@sha256:c99c3446c42177cd32cfc50a2399c02326bbc50fb130e5211ef042f44dd4b780"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "865076d8f403b939ba745ba247b8c0b9b862120986e26fe70392d4cd82a81018",
+        "claim_ids": [
+          "openalex.claim.9ec74d205a256e147c5a1036",
+          "openalex.claim.ba569c6967f56fe8527b3f16",
+          "openalex.claim.e3c0bb47806107f2443796f3"
+        ],
+        "query": "minimum wage employment effect",
+        "query_trace_id": "openalex-trace.0a4784243663d3578ef60deb",
+        "source_ref": "tests/fixtures/scholar/openalex/minimum_wage_employment.json@sha256:c99c3446c42177cd32cfc50a2399c02326bbc50fb130e5211ef042f44dd4b780"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "4ba8cd06d90eca8d0ad27b13011fe787d62b788af6d0f3f593b107c74a3e0de1",
+        "claim_ids": [
+          "openalex.claim.85eb703ab0e88d59e38e48e2",
+          "openalex.claim.c51cff3359e650ba3ab0fbd6",
+          "openalex.claim.d940b48d92c3e3090c8f5143"
+        ],
+        "query": "minimum wage employment effect",
+        "query_trace_id": "openalex-trace.adee4442836922a3cd653003",
+        "source_ref": "tests/fixtures/scholar/openalex/minimum_wage_employment.json@sha256:c99c3446c42177cd32cfc50a2399c02326bbc50fb130e5211ef042f44dd4b780"
+      },
+      {
+        "authority_tier": "candidate_unverified",
+        "case_id": "798d7070c4bb5b4e52ade3c6c9638c87625b28aa6ac0b94981a324302576fad2",
+        "claim_ids": [
+          "openalex.claim.b02842ad8eed3562e5986115",
+          "openalex.claim.cab43c996628c5ea48b5d47e",
+          "openalex.claim.eb34b0950d8196d22dc7a7f9"
+        ],
+        "query": "minimum wage employment effect",
+        "query_trace_id": "openalex-trace.4595f461a3af4f1d2da30742",
+        "source_ref": "tests/fixtures/scholar/openalex/minimum_wage_employment.json@sha256:c99c3446c42177cd32cfc50a2399c02326bbc50fb130e5211ef042f44dd4b780"
+      }
+    ]
+  },
+  "produced_by": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+  "schema_version": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v2"
+}

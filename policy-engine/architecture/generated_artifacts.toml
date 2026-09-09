@@ -2454,14 +2454,48 @@ promotion_target = "Custody and audit projection only; registration grants no ta
 stale_output_behavior = "fail"
 source_of_truth = "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
 outputs = [
-  "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json",
-  "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json",
+  "architecture/policy_design_case/layer3_gy_openalex_accuracy_report_v2.json",
+  "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records_v2.json",
 ]
 regenerate_commands = [
   ".venv/bin/python -m tools.quality.validation.check_layer3_gy_openalex_artifacts --write",
 ]
 commit_policy = "committed"
 freshness_rule = "Recompute using the existing producer after its governed inputs or output semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_openalex_artifacts",
+  "--check",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-openalex-history-artifacts"
+label = "policy design case layer3 OpenAlex historical v1 proofs"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Original v1 evidence retained under its original rules; current owner emits only v2"
+gy_lifecycle_family = true
+verifier = "tools.quality.validation.check_layer3_gy_openalex_artifacts validates the exact current/history partition and immutable history bytes"
+promotion_target = "Historical audit custody only; old numeric fields grant no current accuracy, correspondence or completion authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json and architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json"
+source_committed_rationale = "Preserve the measured extractor-bypass and zero-ingestion evidence without rewriting it under v2 candidate/instrument semantics."
+outputs = [
+  "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json",
+  "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json" = "sha256:f0a638647aebc33e327c989b816529cc6b0f750f081dab533dc3611ad47f8c68"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json" = "sha256:c45e37e16c539787acaca9b44f0afed6fb3ed77b941f2ded78e40c3fa51239de"
+regenerate_commands = [
+  ".venv/bin/python -m tools.quality.validation.check_layer3_gy_openalex_artifacts --check",
+]
+commit_policy = "committed"
+freshness_rule = "Historical bytes are immutable; a new proof must use its explicit current epoch."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
 check_cwd = "."
@@ -3076,7 +3110,7 @@ source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/l
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census_findings.md" = "sha256:5854948a136a59e40fc662cb358f1ed9575366de1c33ecfc52daab67191f7d50"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_audit.json" = "sha256:bb8778202eaa76e2e6aa8e14df614a3f8dadf5b832d3a95a4ed7ae7c59141e3b"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_findings.md" = "sha256:f9bae6d4c9bfe5eed418d472be7ba357ec75dc569c2e2e391d0b56257c841ec7"
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json" = "sha256:063b5e314909af22807e1a997ee850eaaa05f14939667101c49b5093f87dcf29"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json" = "sha256:0e29516c7c15145526ceea3afbb7fc8032b6c2a973b8fa1f44f0c2f2f24d445b"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_findings.md" = "sha256:4b9c73cf13d64b7d44df549307f230f43df728a236cb1f5bb1c0177a8b9a4cce"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_audit.json" = "sha256:ce3ac8f8902e768e814d31994c74ab4017be5620c365fc7e6cfcb67a86620377"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_findings.md" = "sha256:dde5a6e4a3691eb9fb8048289ed17036b54e42afd43bf9c02b0c07fc531491c0"
@@ -3875,7 +3909,7 @@ stale_output_behavior = "fail"
 source_of_truth = "architecture/policy_design_case/inventory.json and architecture/generated_artifacts.toml"
 source_committed_rationale = "The authored control-plane inventory has its own hash-checked custody; it does not assert completion of the capabilities it lists."
 outputs = ["architecture/policy_design_case/inventory.json"]
-source_integrity_sha256."architecture/policy_design_case/inventory.json" = "sha256:2ddac5f848dbc1e6081cc3acb662f9017a6bbfd3b8a8db8b289ded9bcfe6ff36"
+source_integrity_sha256."architecture/policy_design_case/inventory.json" = "sha256:618796e37daafaf932eae9ac8f8e72318fb865e0a186857380ce90853369703a"
 regenerate_commands = ["Review inventory membership against real owners, then rebind its source integrity; python -m tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit --check --json"]
 commit_policy = "committed"
 freshness_rule = "A byte change must be reviewed and independently bound by the registered source digest."

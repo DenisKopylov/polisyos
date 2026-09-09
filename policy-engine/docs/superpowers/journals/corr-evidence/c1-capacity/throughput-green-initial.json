@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "authority_status": "candidate_measurement",
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "unittest",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput",
+    "-v"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 4.0582825830206275,
+  "stdout": "",
+  "stderr": "test_complete_input_only_frame_disjoint_interleaved_and_fake_identity (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_complete_input_only_frame_disjoint_interleaved_and_fake_identity) ... ok\ntest_marked_sdk_real_owner_bounded_queue_errors_and_candidate_only (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_marked_sdk_real_owner_bounded_queue_errors_and_candidate_only) ... 2026-09-09 13:05:02.763 | WARNING  | polisyos.common.logger:_call:120 - LLM extraction response missing ALL required keys ['causal_claims', 'empirical_parameters']; got keys: []\nok\ntest_memory_trend_real_analysis_and_full_failed_denominator (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_memory_trend_real_analysis_and_full_failed_denominator) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 3.581s\n\nOK\n",
+  "source_sha256": {
+    "test_throughput.py": "1ce3851020381af8990a095ae81004b38a4f290889941219eee2d4c2138bbd81",
+    "throughput_analysis.py": "5a52b6b4757f510e5ce0ac5251c967a4ac9c25c35ef979c5f84f1d047f956da0",
+    "throughput_declaration.py": "fa7d4f85d6342957d29539fba1884baaa321a26972bd95ca0d0d7282910a7da9",
+    "throughput_runner.py": "cdd7d6460a46c0e298ffb55c6df0b0898cdf4286fba41b9681b79899c42f2516",
+    "throughput_verification.py": "8759684e70f5924937ebed9c4ea17f754642fe60c80a57d5ae6bfc54ca582730"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.throughput_declaration",
+    "--deepseek-contract",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-contract-declaration.json",
+    "--deepseek-verdict",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-contract-verdict.json",
+    "--minimax-contract",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-contract-v2-declaration.json",
+    "--minimax-verdict",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/minimax-codec-v2-contract-verdict.json",
+    "--deepseek-configuration",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-pilot-v3-declaration.json",
+    "--minimax-configuration",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-pilot-v3-declaration.json"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 10.939632541965693,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-throughput-declaration.json\", \"content_hash\": \"sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984\"}\n{\"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-throughput-declaration.json\", \"content_hash\": \"sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02\"}\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

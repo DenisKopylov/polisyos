@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "authority_status": "candidate_measurement",
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.throughput_verification",
+    "--child",
+    "--mode",
+    "baseline",
+    "--test",
+    ".ThroughputTests.test_checkpoint_artifact_has_own_synthetic_provenance"
+  ],
+  "removal_mode": "baseline",
+  "returncode": 1,
+  "elapsed_seconds": 0.13063091598451138,
+  "stdout": "",
+  "stderr": "test_checkpoint_artifact_has_own_synthetic_provenance (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_checkpoint_artifact_has_own_synthetic_provenance) ... ERROR\n\n======================================================================\nERROR: test_checkpoint_artifact_has_own_synthetic_provenance (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_checkpoint_artifact_has_own_synthetic_provenance)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py\", line 48, in test_checkpoint_artifact_has_own_synthetic_provenance\n    con = runner.initialize_checkpoint(output, [{\"work_id\": \"synthetic:one\"}], synthetic=True)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'docs.superpowers.journals.corr-evidence.c1-capacity.throughput_runner' has no attribute 'initialize_checkpoint'\n\n----------------------------------------------------------------------\nRan 1 test in 0.008s\n\nFAILED (errors=1)\n",
+  "source_sha256": {
+    "test_throughput.py": "0f75195f97ea3050727ae40f4538b39a78e6a1e5d4ed313c62b6473094a310ca",
+    "throughput_analysis.py": "7d96e886872b798e934b884c558ab7585af90168181aabf62fbf5e0e22c42127",
+    "throughput_declaration.py": "373a0a19f12f32d34a662bc793623aa10c21920578b79e3bb3aff70de7bb4666",
+    "throughput_memory_fixture.py": "98a6105410db8ff66147228d6c54dacb36a6bb246467c0501a3e6442513cc110",
+    "throughput_runner.py": "45f72bf6cbb305cef90e69c7872b724f91fa2dd1afc3063d42a848aba80da188",
+    "throughput_verification.py": "20d93ca73c536444b0dca94db366fc4546a26c10ab8a5a4dad47f1128d0081c0"
+  }
+}

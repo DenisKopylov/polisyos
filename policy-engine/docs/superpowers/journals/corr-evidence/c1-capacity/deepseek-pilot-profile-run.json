@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.profile_pilot",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-pilot-execution-binding.json",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-pilot-profile"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 122.579717750079,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"ambiguous_observation_count\": 0,\n  \"authority_status\": \"candidate_measurement\",\n  \"binding_hash\": \"sha256:454e645112fd6890168002e09e9635e1a0d69ed99f3d33e94bfe52799958e971\",\n  \"binding_path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-pilot-execution-binding.json\",\n  \"checkpoint_scope\": \"caller_declared_terminal_statuses\",\n  \"completed_work_count\": 6,\n  \"completed_work_count_status\": \"measured\",\n  \"cpu_system_seconds\": 1.10608975,\n  \"cpu_to_wall_ratio\": 0.05291554513566536,\n  \"cpu_user_seconds\": 5.103334083333333,\n  \"cumulative_counter_scope\": \"observed_process_lifetimes_lower_bound\",\n  \"disk_read_bytes\": 1236299776,\n  \"disk_write_bytes\": 1220608,\n  \"hardware_observation\": {\n    \"logical_cpu_count\": 8,\n    \"logical_cpu_source\": \"os.cpu_count\",\n    \"physical_memory_bytes\": 17179869184,\n    \"physical_memory_source\": \"sysctl.hw.memsize\",\n    \"status\": \"measured\"\n  },\n  \"max_descendant_count\": 0,\n  \"max_sample_gap_seconds\": 0.37778854195494205,\n  \"memory_peak_scope\": \"simultaneous_sampled_sum_not_lifetime_peak\",\n  \"memory_trend\": \"requires complete warm-window analysis; six-input bound only\",\n  \"monotonic_started_seconds\": 567201.829962875,\n  \"native_disk_write_bytes_per_wall_second\": 10401.792412723997,\n  \"observed_process_identity_count\": 1,\n  \"observer_cpu_scope\": \"observer_process_only_excludes_ps_subprocesses\",\n  \"observer_cpu_seconds\": 2.4968009999999996,\n  \"observer_scope\": \"excluded_from_worker_tree\",\n  \"peak_summed_footprint_bytes\": 513770528,\n  \"peak_summed_rss_bytes\": 589021184,\n  \"peak_worker_rss_physical_memory_fraction\": 0.034285545349121094,\n  \"raw_child_output\": \"discarded\",\n  \"requested_sample_interval_seconds\": 0.25,\n  \"returncode\": 0,\n  \"sample_count\": 460,\n  \"sample_trace\": \"docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-pilot-profile/samples.jsonl\",\n  \"schema_version\": \"corr.process_resource_profile.v1\",\n  \"short_lived_child_coverage\": \"ambiguous_if_created_and_exited_between_samples\",\n  \"status\": \"completed\",\n  \"stop_reason\": null,\n  \"synthetic\": false,\n  \"wall_seconds\": 117.34592958295252,\n  \"worker_cpu_capacity_fraction\": 0.00661444314195817\n}\n",
+  "timed_out": false,
+  "timeout_seconds": 3660.0
+}

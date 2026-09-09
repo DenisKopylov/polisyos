@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "authority_status": "candidate_measurement",
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.throughput_verification",
+    "--child",
+    "--mode",
+    "baseline",
+    "--test",
+    ""
+  ],
+  "removal_mode": "baseline",
+  "returncode": 0,
+  "elapsed_seconds": 13.588248957996257,
+  "stdout": "{\"synthetic\": true, \"actual_memory_witness\": {\"scope\": \"observed_warm_active_interval_only; OLS descriptive not causal\", \"sample_count\": 17, \"ambiguous_sample_count\": 0, \"warm_time_sample_count\": 14, \"warm_completed_sample_count\": 14, \"rss_slope_bytes_per_second\": 13734389.225801153, \"rss_slope_bytes_per_completed\": 4227651.498392283, \"warm_first_rss_bytes\": 25837568, \"warm_last_rss_bytes\": 72351744}, \"hardware_observation\": {\"logical_cpu_count\": 8, \"physical_memory_bytes\": 17179869184, \"logical_cpu_source\": \"os.cpu_count\", \"physical_memory_source\": \"sysctl.hw.memsize\", \"status\": \"measured\"}, \"warm_observed_cpu_per_wall\": 0.005906254807891843}\n",
+  "stderr": "test_actual_marked_process_memory_growth_and_origin (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_actual_marked_process_memory_growth_and_origin) ... ok\ntest_checkpoint_artifact_has_own_synthetic_provenance (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_checkpoint_artifact_has_own_synthetic_provenance) ... ok\ntest_complete_input_only_frame_disjoint_interleaved_and_fake_identity (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_complete_input_only_frame_disjoint_interleaved_and_fake_identity) ... ok\ntest_marked_sdk_real_owner_bounded_queue_errors_and_candidate_only (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_marked_sdk_real_owner_bounded_queue_errors_and_candidate_only) ... 2026-09-09 13:40:44.909 | WARNING  | polisyos.common.logger:_call:120 - LLM extraction response missing ALL required keys ['causal_claims', 'empirical_parameters']; got keys: []\nok\ntest_memory_trend_real_analysis_and_full_failed_denominator (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_memory_trend_real_analysis_and_full_failed_denominator) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 12.442s\n\nOK\n",
+  "source_sha256": {
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/capacity_common.py": "ab39f5dd94dc4f0c255f0c2364c6530456a3f01b60f0c3f3428d4d8dc3481e05",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/contract_probe.py": "907a82ac77acd236f81fa9e5697ab3637b94759a4b864d5ef142613c52ab475b",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/process_telemetry.py": "d2bf3d5dad8d95c718ccd994c1f68009976c526c981e4b37e17326ce5ab5d130",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py": "5bb1e45625aa92c40b05f2046b5d88fd249da14e21bb39f59c20ee752f13de68",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_analysis.py": "b261ab31bdccb2e3948d45ec4859e6d7dcb2db541dfc73ae865afe796a344f7c",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py": "373a0a19f12f32d34a662bc793623aa10c21920578b79e3bb3aff70de7bb4666",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_memory_fixture.py": "98a6105410db8ff66147228d6c54dacb36a6bb246467c0501a3e6442513cc110",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py": "fe8ff568f7247e8374d7abee95ddb6f219f644c408688585fc80d996aa0c5603",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py": "c3e141cf86178f6438a33572c74b412b219d5106a783e6eb9245ba0e19d424c9",
+    "src/polisyos/data_forge/domains/academic/batch/article_extractor.py": "55f5305cabc313ac668e2e06772f0c272b6e65626e83d2d60dedaf3464edb76f",
+    "src/polisyos/data_forge/domains/academic/batch/reextraction_transport.py": "25e69643566d4a0589ac8d55085821b02e1cc9beb3c4cc9c982448e2a2ff6784"
+  },
+  "source_unchanged_during_gate": true,
+  "capture_returncode": 0
+}

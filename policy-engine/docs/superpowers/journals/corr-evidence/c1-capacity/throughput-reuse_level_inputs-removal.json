@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "authority_status": "candidate_measurement",
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.throughput_verification",
+    "--child",
+    "--mode",
+    "reuse_level_inputs",
+    "--test",
+    ""
+  ],
+  "removal_mode": "reuse_level_inputs",
+  "returncode": 1,
+  "elapsed_seconds": 1.565556125016883,
+  "stdout": "",
+  "stderr": "test_complete_input_only_frame_disjoint_interleaved_and_fake_identity (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_complete_input_only_frame_disjoint_interleaved_and_fake_identity) ... FAIL\n\n======================================================================\nFAIL: test_complete_input_only_frame_disjoint_interleaved_and_fake_identity (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput.ThroughputTests.test_complete_input_only_frame_disjoint_interleaved_and_fake_identity)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py\", line 138, in test_complete_input_only_frame_disjoint_interleaved_and_fake_identity\n    _check(block == selected[offset : offset + count], \"runtime block offset changed\")\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py\", line 18, in _check\n    raise AssertionError(message)\nAssertionError: runtime block offset changed\n\n----------------------------------------------------------------------\nRan 1 test in 1.067s\n\nFAILED (failures=1)\n",
+  "source_sha256": {
+    "test_throughput.py": "008514a642d26d91919411f80afa88a600db84da19be7cc5ec61413a4f0c08ea",
+    "throughput_analysis.py": "7d96e886872b798e934b884c558ab7585af90168181aabf62fbf5e0e22c42127",
+    "throughput_declaration.py": "373a0a19f12f32d34a662bc793623aa10c21920578b79e3bb3aff70de7bb4666",
+    "throughput_memory_fixture.py": "98a6105410db8ff66147228d6c54dacb36a6bb246467c0501a3e6442513cc110",
+    "throughput_runner.py": "45f72bf6cbb305cef90e69c7872b724f91fa2dd1afc3063d42a848aba80da188",
+    "throughput_verification.py": "20d93ca73c536444b0dca94db366fc4546a26c10ab8a5a4dad47f1128d0081c0"
+  }
+}

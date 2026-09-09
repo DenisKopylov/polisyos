@@ -1,0 +1,9 @@
+{
+  "synthetic": true,
+  "command": "PATH=\"$PWD/.venv/bin:$PATH\" .venv/bin/python -m ruff check docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py docs/superpowers/journals/corr-evidence/c1-capacity/throughput_analysis.py docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py docs/superpowers/journals/corr-evidence/c1-capacity/throughput_memory_fixture.py docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py",
+  "chunk_id": "19acff",
+  "wall_time_seconds": 0.404252333,
+  "exit_code": 0,
+  "original_token_count": 5,
+  "output": "All checks passed!\n"
+}

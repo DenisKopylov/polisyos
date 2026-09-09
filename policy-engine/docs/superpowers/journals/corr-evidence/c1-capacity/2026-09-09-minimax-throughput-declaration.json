@@ -1,0 +1,124 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "caching_limitation": "Repeated-response caching is plausible, not_established. Disjoint blocks prevent within-model input repetition; cross-model/provider caching remains unknown.",
+  "comparison_limitation": "Disjoint block sizes confound concurrency with input mix; descriptive knee only, no causal optimum or correctness claim.",
+  "configuration_hash": "sha256:a421940da609f52caddf489bc93b48e73d8bde1924a2e8d7a2161ada0464d919",
+  "configuration_path": "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-pilot-v3-declaration.json",
+  "content_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "contract_declaration_hash": "sha256:aae9236c35963dbe7aaee87c21d4d7fbf5e2537396f828f64ecac57f4edee9ab",
+  "contract_declaration_path": "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-contract-v2-declaration.json",
+  "contract_verdict_path": "docs/superpowers/journals/corr-evidence/c1-capacity/minimax-codec-v2-contract-verdict.json",
+  "contract_verdict_sha256": "sha256:a98d2be5dacd9d8c686a7d1e74a4eacad00f5b80d26b268734a7a90e1f6351a6",
+  "declared_at": "2026-09-09T10:50:42.939587+00:00",
+  "execution_source_projection": {
+    "content_hash": "sha256:ec1e09641715968e84a77b3e03f02eb52452b172b07a9a427f19132f3143c6f1",
+    "excluded_owner": "src/polisyos/data_forge/domains/academic/batch/reextraction_campaign.py",
+    "exclusion_reason": "direct _extract does not execute campaign orchestration",
+    "schema_version": "corr.direct_extraction_execution_sources.v1",
+    "scope": "finite extraction family plus direct entrypoints, observation and token estimation",
+    "sources": {
+      "docs/superpowers/journals/corr-evidence/c1-capacity/capacity_common.py": "sha256:ab39f5dd94dc4f0c255f0c2364c6530456a3f01b60f0c3f3428d4d8dc3481e05",
+      "docs/superpowers/journals/corr-evidence/c1-capacity/contract_probe.py": "sha256:907a82ac77acd236f81fa9e5697ab3637b94759a4b864d5ef142613c52ab475b",
+      "docs/superpowers/journals/corr-evidence/c1-capacity/process_telemetry.py": "sha256:d2bf3d5dad8d95c718ccd994c1f68009976c526c981e4b37e17326ce5ab5d130",
+      "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_admission.py": "sha256:724ab28cc91aa625abc13ae3fd3e14ec20fc5c149289af25f01114bdf75457c2",
+      "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_analysis.py": "sha256:b261ab31bdccb2e3948d45ec4859e6d7dcb2db541dfc73ae865afe796a344f7c",
+      "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py": "sha256:99dbbcaa6f71d94833b4fc1bd695d660c5141d770ca418bfa19c1879f4f22d98",
+      "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py": "sha256:992b7b90b9ab5a658e57c856d2f4cf5ba57237d4685f665563609e4b30fab568",
+      "src/polisyos/core/canon/hashing.py": "sha256:73a2e7ea7780a5759f8ac3ff5b1abff5bdbc0268186e00e2f46fd1ad22095472",
+      "src/polisyos/data_forge/domains/academic/batch/article_extractor.py": "sha256:55f5305cabc313ac668e2e06772f0c272b6e65626e83d2d60dedaf3464edb76f",
+      "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py": "sha256:b382abfc199a552df8f1eee5405aa30a5531228fcd8cea85fc0b16db8e05502b",
+      "src/polisyos/data_forge/domains/academic/batch/claim_ids.py": "sha256:2ef925655292dd3ab34fd728656d33638f92e4669cb5695015191e014cb16288",
+      "src/polisyos/data_forge/domains/academic/batch/context_classifier.py": "sha256:632fcdee1cd6bfcdb4b4ab71fbcc7150bb94f9602467a19af559fa2217bed4bc",
+      "src/polisyos/data_forge/domains/academic/batch/fulltext_resolver.py": "sha256:14fa3776bccef2e8f5ae5d41df0357b98c97514b45b731fd9b18bdbee20673f1",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/__init__.py": "sha256:3a2bef131b5e025e466199f610dc200a003bc1666a08805f30e9c9f01187538a",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py": "sha256:3db7e9f0ef95d5b16ccfc123bc436571a399c69db417b1ea5f732f3392a995cf",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py": "sha256:d956dbf3f4718c09ffb6adf0f6f62c03f5e8c5825513ec80c189b288e58f682a",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py": "sha256:312753d34bc4ea2ce3fa97c267f73a804ff1130ae88a2d3f9fcae0eea74ec90d",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py": "sha256:35d2e678b98a06d5bb6810d486cbfc12723b09fff466478b4f0929646551039d",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py": "sha256:415bf826abcf0a33b7d9f0eecd1c41adcdfde606db1de25999ad63bbea881c97",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/moderator_extraction.py": "sha256:c67416e4aa13e3185a091f02fdeacdfae594adae2d77581eaa3cd68c577778b7",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/paper_classification.py": "sha256:4436d9a05f3ec2f4a745986441d6651b0e3b165089ea9594f9ac578206474d0c",
+      "src/polisyos/data_forge/domains/academic/batch/prompts/screening.py": "sha256:5fbfb86cb8ca73094038b30701d7b17753cfa0f4ee78ec42434bb84330fe61f2",
+      "src/polisyos/data_forge/domains/academic/batch/reextraction_transport.py": "sha256:25e69643566d4a0589ac8d55085821b02e1cc9beb3c4cc9c982448e2a2ff6784",
+      "src/polisyos/data_forge/domains/academic/knowledge/canonical_resolver.py": "sha256:41676c878ff6c84911b67b3350bd51f3dd3112672143e8305cfab0a08091fad9",
+      "src/polisyos/data_forge/domains/academic/knowledge/canonical_seed.py": "sha256:0753836180766cf212c3e9f5ff50668ea9dae036664b10d379c30b2300afaa97",
+      "src/polisyos/data_forge/domains/academic/knowledge/runtime_canonical_registry.py": "sha256:b7243a4fdd4f12cae09489c5274de6985d6016b2b4ba4bee0f66a9d028d23e9d",
+      "src/polisyos/data_forge/domains/academic/knowledge/skg_store.py": "sha256:f448fc323db7ae5bc75f0cb3d4d909390cf8f853768a9557b65d73049ac67cb5",
+      "src/polisyos/data_forge/domains/academic/knowledge/types.py": "sha256:db761a0d4b6aa6e1c6599ded3a518905d31e6031a5a47062cfe29ac88fd6a253",
+      "src/polisyos/data_forge/domains/academic/knowledge/variable_canonizer.py": "sha256:aaa43708914147524de0873ba4bc3fd2569ea9d5a130f69525b55897c93684c2",
+      "src/polisyos/data_forge/domains/academic/trust.py": "sha256:5d73af0279d4eb891b63f61c860bb56063bb1989fbba30c8947758ce93723f38",
+      "src/polisyos/ir/analytics/literature.py": "sha256:245ec53ae34fa447adfcd71093f693858095554a5317d08fa139008c6cd67cb2",
+      "src/polisyos/scientist/orchestration/llm/token_estimator.py": "sha256:41d6f4a67190b896581035e83b7fd33124336b2ae1067042148c18c6520fcd75",
+      "uv.lock": "sha256:b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039"
+    }
+  },
+  "frame_hash": "sha256:8d1ae9819c38c72dff44920b763cee6a3bf8dbd6dd6a84c8cc50cc660560ec27",
+  "frame_path": "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-throughput-frame.json",
+  "full_pass_authorized": false,
+  "latency_quantiles": "linear interpolation median/p95/p99; all terminal and typed successes separate",
+  "level_assignment": "disjoint successive blocks 12/24/48/96; same 180 inputs across models",
+  "levels": [
+    {
+      "concurrency": 1,
+      "max_wall_seconds": 2400,
+      "request_count": 12
+    },
+    {
+      "concurrency": 4,
+      "max_wall_seconds": 1500,
+      "request_count": 24
+    },
+    {
+      "concurrency": 16,
+      "max_wall_seconds": 900,
+      "request_count": 48
+    },
+    {
+      "concurrency": 32,
+      "max_wall_seconds": 900,
+      "request_count": 96
+    }
+  ],
+  "live_pricing_usd_per_token": {
+    "input": 1.202913e-09,
+    "output": 1.202913e-09
+  },
+  "max_completion_tokens": 8192,
+  "max_total_http_attempts": 180,
+  "memory_analysis": "OLS summed RSS versus elapsed and completed, warm active interval only",
+  "metadata_observation": "docs/superpowers/journals/corr-evidence/c1-capacity/provider-metadata-codec-v2.json",
+  "metadata_observation_hash": "sha256:67fa655d27c1243116f96b7969ff382de704af5db45166fd43120daf6e1a56b2",
+  "model_id": "MiniMaxAI/MiniMax-M2.7",
+  "phase": "direct_extraction_only",
+  "price_observed_at": "2026-09-09T10:02:01.899148+00:00",
+  "pricing_claim": "frozen metadata rate times observed usage; not provider billing proof",
+  "purpose": "bounded_direct_extraction_throughput",
+  "resource_cap_scope": "owned worker tree; sampled stops with bounded shutdown; not kernel hard limits",
+  "resource_caps": {
+    "max_disk_write_bytes": 2147483648,
+    "max_rss_bytes": 3221225472,
+    "sample_interval_seconds": 0.25
+  },
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_format": {
+    "type": "json_object"
+  },
+  "retry_limit": 0,
+  "schema_version": "corr.direct_extraction_throughput_declaration.v1",
+  "scope_limitation": "No screening, self-verification, fulltext acquisition, or end-to-end corpus extrapolation.",
+  "sdk_automatic_retries": 0,
+  "stop_rule": {
+    "denominator": "all requests in complete current level",
+    "error_rate_above": 0.1,
+    "partial_level": "not_established; stop higher levels without knee credit",
+    "plateau_relative_gain_below": 0.2
+  },
+  "synthetic": false,
+  "temperature": 0.0,
+  "timeout_seconds": 180,
+  "transport": "ordinary_openai_sdk",
+  "transport_attempts_per_request": 1,
+  "transport_observation_epoch": "policyos.academic.extraction_attempt.v3",
+  "typed_owner": "PolicyArticleExtractor._extract -> ArticleExtractionResult"
+}

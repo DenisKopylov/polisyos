@@ -1,0 +1,23 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/data_forge/domains/academic/batch/reextraction_transport.py",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_transport.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/declare_contract_retry.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/pilot_campaign.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.0752363339997828,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "E501 Line too long (104 > 100)\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/declare_contract_retry.py:40:101\n   |\n38 |                 \"supersedes_pilot_declaration_hash\": previous[\"content_hash\"],\n39 |                 \"transport_observation_epoch\": OBSERVATION_EPOCH,\n40 |                 \"response_codec\": _parse_json_object.__module__ + \".\" + _parse_json_object.__qualname__,\n   |                                                                                                     ^^^^\n41 |                 \"observation_change\": \"retain provider usage details and derive actual codec identity\",\n42 |                 \"repeated_request_cache_status\": \"plausible_not_established; pilot inputs remain frozen\",\n   |\n\nE501 Line too long (103 > 100)\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/declare_contract_retry.py:41:101\n   |\n39 |                 \"transport_observation_epoch\": OBSERVATION_EPOCH,\n40 |                 \"response_codec\": _parse_json_object.__module__ + \".\" + _parse_json_object.__qualname__,\n41 |                 \"observation_change\": \"retain provider usage details and derive actual codec identity\",\n   |                                                                                                     ^^^\n42 |                 \"repeated_request_cache_status\": \"plausible_not_established; pilot inputs remain frozen\",\n43 |             })\n   |\n\nE501 Line too long (105 > 100)\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/declare_contract_retry.py:42:101\n   |\n40 |                 \"response_codec\": _parse_json_object.__module__ + \".\" + _parse_json_object.__qualname__,\n41 |                 \"observation_change\": \"retain provider usage details and derive actual codec identity\",\n42 |                 \"repeated_request_cache_status\": \"plausible_not_established; pilot inputs remain frozen\",\n   |                                                                                                     ^^^^^\n43 |             })\n44 |             path = common.EVIDENCE / f\"2026-09-09-{slug}-pilot-v3-declaration.json\"\n   |\n\nFound 3 errors.\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

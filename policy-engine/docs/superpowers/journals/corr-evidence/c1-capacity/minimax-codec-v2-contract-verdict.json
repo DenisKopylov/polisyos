@@ -1,0 +1,51 @@
+{
+  "actual_attempts": 1,
+  "attempt_observation": {
+    "authority_status": "candidate_only",
+    "base_url": "https://api.proxy.gonka.gg/v1",
+    "context": {
+      "attempt_id": "contract-1",
+      "campaign_id": "sha256:aae9236c35963dbe7aaee87c21d4d7fbf5e2537396f828f64ecac57f4edee9ab",
+      "input_hash": "sha256:f65faaa6c442a4b42244f8e14e9f08c4d7461faa4dd8067231b6fd6edefafe43",
+      "phase": "extraction",
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3121515037"
+    },
+    "error_kind": null,
+    "estimator_elapsed_seconds": 0.39610779203940183,
+    "finish_reason": "stop",
+    "local_estimator": "injected_repository_estimator",
+    "local_prompt_token_estimate": 3401,
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "parsed_response_hash": "sha256:7613f85eff3282bee869f0eb296a483d03827b06395a154a64de9dcea030e30e",
+    "prompt_hash": "sha256:f830bcdd63c6279f8e1a1fa440517ee6928e31a627344dc2b90d5f6099d91e74",
+    "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+    "response_characters": 11701,
+    "response_codec": "PolicyArticleExtractor._parse_json_object",
+    "response_content_hash": "sha256:1fb7b1add3a37b308842c94fdafbd47343a658d4be5e1157562be359ee4d154a",
+    "response_leading_code_fence": false,
+    "retryable": false,
+    "schema_version": "policyos.academic.extraction_attempt.v2",
+    "status": "returned",
+    "status_code": 200,
+    "synthetic": false,
+    "transport_elapsed_seconds": 0.8586272079264745,
+    "usage": {
+      "completion_tokens": 2319,
+      "prompt_tokens": 3404,
+      "total_tokens": 5723
+    }
+  },
+  "authority_status": "candidate_only",
+  "contract_satisfied": true,
+  "declaration_hash": "sha256:aae9236c35963dbe7aaee87c21d4d7fbf5e2537396f828f64ecac57f4edee9ab",
+  "declared_attempts": 1,
+  "error_kind": null,
+  "model_id": "MiniMaxAI/MiniMax-M2.7",
+  "response_artifact": "docs/superpowers/journals/corr-evidence/c1-capacity/minimax-codec-v2-contract-response.json",
+  "response_hash": "sha256:7613f85eff3282bee869f0eb296a483d03827b06395a154a64de9dcea030e30e",
+  "synthetic": false,
+  "typed_result_hash": "sha256:8e308fb9c64a906297d56e945d302411179b13b0f1fe93c7e017781043efa5b4",
+  "typed_schema_hash": "sha256:efcbbace8786a54ef8b1c0b49f8e317eb40d6f90e202d74191d2486f9a32fe7d",
+  "work_id": "https://openalex.org/W3121515037"
+}

@@ -51,3 +51,25 @@ There is no outcome-based input replacement. The newly observed live rate differ
 from the first metadata read; both observations are retained and every pilot
 binds the rate its own declaration names. This is calculated cost at an observed
 rate, not an account billing assertion.
+
+## Cache observation and final pre-pilot epoch
+
+MiniMax's retry returned the exact same raw-content hash and token counts as its
+initial attempt, with observed transport latency 0.859 seconds versus 16.432
+seconds. Repeated-request caching is plausible, not established. This cannot
+decide model speed. The first and second attempts are separate observations,
+and both remain in their own declarations and epochs.
+
+The earlier adapter discarded provider usage detail fields. Its v3 observation
+retains the complete already-sanitized usage object, including any reported
+cache information, and derives the codec identity from the actual callable.
+The v2 diagnostic codec label incorrectly suggested a class method; the callable
+is module-level. Old observations remain unchanged. `sdk-usage-detail-red.json`
+and `sdk-observation-v3-green.json` decide the observed-usage preservation repair.
+
+Both six-input pilots are re-declared under v3 before either pilot runs. Their
+inputs, models, prompts and typed contract do not change. The separate throughput
+declaration uses disjoint input blocks between concurrency levels, avoiding
+within-model repeated requests as a source of apparent throughput improvement.
+The complete per-model throughput construction is input-only and remains separate
+from the frozen six-input pilots.

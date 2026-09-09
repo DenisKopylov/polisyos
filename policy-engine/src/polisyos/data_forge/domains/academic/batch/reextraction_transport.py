@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 
 PROVIDER_BASE_URL = "https://api.proxy.gonka.gg/v1"
 MODELS = frozenset({"deepseek-ai/DeepSeek-V4-Flash-0731", "MiniMaxAI/MiniMax-M2.7"})
+OBSERVATION_EPOCH = "policyos.academic.extraction_attempt.v3"
 
 
 class ExtractionRequestError(RuntimeError):
@@ -153,7 +154,7 @@ class SDKExtractionTransport:
         estimator_started = time.monotonic()
         estimated = self.prompt_estimator(model, messages) if self.prompt_estimator else None
         observation: dict[str, Any] = {
-            "schema_version": "policyos.academic.extraction_attempt.v2",
+            "schema_version": OBSERVATION_EPOCH,
             "synthetic": self.synthetic or context.get("synthetic") is True,
             "authority_status": "candidate_only", "context": context,
             "model_id": model, "base_url": PROVIDER_BASE_URL,
@@ -163,7 +164,8 @@ class SDKExtractionTransport:
             "estimator_elapsed_seconds": time.monotonic() - estimator_started,
             "status": "failed", "error_kind": None, "retryable": False,
             "reported_model_id": None,
-            "status_code": None, "usage": None, "response_content_hash": None,
+            "status_code": None, "usage": None, "provider_usage": None,
+            "response_content_hash": None,
         }
         parsed: dict[str, Any] | None = None
         failure: ExtractionRequestError | None = None
@@ -177,6 +179,7 @@ class SDKExtractionTransport:
             self.check_payload(response.model_dump(mode="json"))
             observation["status_code"] = 200
             usage = response.usage.model_dump(mode="json") if response.usage else {}
+            observation["provider_usage"] = usage if response.usage else None
             observation["usage"] = {
                 key: usage[key] for key in ("prompt_tokens", "completion_tokens", "total_tokens")
                 if type(usage.get(key)) is int and usage[key] >= 0
@@ -204,7 +207,9 @@ class SDKExtractionTransport:
             from .article_extractor import _parse_json_object
 
             parsed = _parse_json_object(content or "")
-            observation["response_codec"] = "PolicyArticleExtractor._parse_json_object"
+            observation["response_codec"] = (
+                _parse_json_object.__module__ + "." + _parse_json_object.__qualname__
+            )
             if parsed is None:
                 raise ExtractionRequestError("malformed_output", True, 200)
             # JSON decoding can materialize a credential from Unicode escapes.

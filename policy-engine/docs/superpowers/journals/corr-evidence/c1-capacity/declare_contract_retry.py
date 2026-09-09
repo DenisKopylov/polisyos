@@ -9,7 +9,10 @@ from datetime import UTC, datetime
 
 import httpx
 
-from polisyos.data_forge.domains.academic.batch.reextraction_transport import MODELS
+from polisyos.data_forge.domains.academic.batch.reextraction_transport import (
+    MODELS,
+    OBSERVATION_EPOCH,
+)
 
 common = importlib.import_module(
     "docs.superpowers.journals.corr-evidence.c1-capacity.capacity_common"
@@ -20,6 +23,35 @@ def main() -> int:
     """Read live unauthenticated metadata and append the unchanged-input retry."""
     writer = common.SafeJsonWriter(common.load_credential())
     observation_path = common.EVIDENCE / "provider-metadata-codec-v2.json"
+    if sys.argv[1:] == ["--pilots-v3"]:
+        from polisyos.data_forge.domains.academic.batch.article_extractor import _parse_json_object
+
+        paths = []
+        for slug in ("deepseek", "minimax"):
+            previous = common.read_sealed(
+                common.EVIDENCE / f"2026-09-09-{slug}-pilot-v2-declaration.json"
+            )
+            current = common.seal({
+                **{key: value for key, value in previous.items() if key != "content_hash"},
+                "schema_version": "corr.model_measurement_declaration.v3",
+                "declared_at": datetime.now(UTC).isoformat(),
+                "supersedes_pilot_declaration_hash": previous["content_hash"],
+                "transport_observation_epoch": OBSERVATION_EPOCH,
+                "response_codec": (
+                    _parse_json_object.__module__ + "." + _parse_json_object.__qualname__
+                ),
+                "observation_change": (
+                    "retain provider usage details and derive actual codec identity"
+                ),
+                "repeated_request_cache_status": (
+                    "plausible_not_established; pilot inputs remain frozen"
+                ),
+            })
+            path = common.EVIDENCE / f"2026-09-09-{slug}-pilot-v3-declaration.json"
+            writer(path, current)
+            paths.append(path)
+        sys.stdout.write(writer.encode({"declaration_paths": [str(path) for path in paths]}))
+        return 0
     if sys.argv[1:] == ["--declare"]:
         metadata = json.loads(observation_path.read_text())
         models = metadata["endpoints"]["/v1/models"]["body"]["data"]

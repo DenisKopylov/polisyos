@@ -27,7 +27,8 @@ async def test_sdk_response_is_attributed_and_saved_without_credentials(tmp_path
             "model": "MiniMaxAI/MiniMax-M2.7",
             "choices": [{"index": 0, "message": {"role": "assistant", "content":
                 '{"relevant": false}'}, "finish_reason": "stop"}],
-            "usage": {"prompt_tokens": 21, "completion_tokens": 7, "total_tokens": 28},
+            "usage": {"prompt_tokens": 21, "completion_tokens": 7, "total_tokens": 28,
+                      "prompt_tokens_details": {"cached_tokens": 5}},
         })
 
     async with owner.SDKExtractionTransport(
@@ -49,6 +50,7 @@ async def test_sdk_response_is_attributed_and_saved_without_credentials(tmp_path
     assert record["synthetic"] is True and record["authority_status"] == "candidate_only"
     assert record["status"] == "returned"
     assert record["local_prompt_token_estimate"] > 0
+    assert record["provider_usage"]["prompt_tokens_details"]["cached_tokens"] == 5
     assert "private-test-token" not in json.dumps(record)
 
 

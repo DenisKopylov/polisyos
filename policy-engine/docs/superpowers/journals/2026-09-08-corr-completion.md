@@ -470,3 +470,53 @@ property witness; this saved mutation proves freshness refusal, not authority.
 No source changed after the final changed-Python Ruff. Normal architecture
 guardrails will now run with every writer frozen and no baseline or exception
 acceptance.
+
+## Terminal handback — 2026-09-09
+
+This section supersedes the earlier chronological pending/readiness statements.
+The status applies to the requested CORR mechanisms; it does not close the
+whole parent GY-S3 or GY-PR1 authority task.
+
+| Workstream | Final status | Deciding evidence and falsifier |
+| --- | --- | --- |
+| A — refusal sensitivity, pre-outcome frame, admission-only risk ledger | `executed` | The complete declared suite/frame and current CG2/CG3 reports recompute; source-identity, refusal-reason, admission-charge, exhaustion and synthetic-authority removals go red while valid controls remain. Actual N4/controller/reentry forwarding retains the same run budget handle. See A's final mechanism evidence and the saved-report corruption captures. Accepted-binding calibration remains `artifact_missing`; no correctness number is published. |
+| B — subject-aware legal correspondence on marked synthetic sources | `executed` | The existing Foundry/S3 owners admit correct source-relative pairs, reject real budget/tax transpositions, and decide missing subject as ambiguous before unit comparison. Comparison/forwarding/ancestry removals and the saved S3 v4 corruption fail. Synthetic or unverified sources cannot grant authority. Real membership and accepted-provenance verification remain separately routed; parent GY-S3 authority acceptance is `not_established`. |
+| C — current-rule subset re-extraction and N4→N6→N9 preservation | `blocked` | C1's subset pipeline and synthetic refusal are verified, but the declared live screening provider returns HTTP 429 `insufficient_quota`, before successful token/wall/cost measurement. C2's preservation mechanism is `executed`, including persistence/reentry, historical epochs, actual-owner handoff and removal probes. No authentic new reference or protected-admission batch was manufactured. |
+
+**Full-pass cost estimate from C1: `not_established` for both declared campaigns.**
+The quota refusal yielded no successful screening usage; failed-request timing
+and synthetic execution are not a full-pass cost estimate. The external change
+needed is usable quota on the declared account/model, followed by the already
+bounded pilot and its cost calculation. No full pass, fallback provider or
+further provider attempt ran. C2's authentic reference/source-bearing N4 input
+and authentic protected-admission batch remain distinct missing inputs.
+
+The final normal architecture check is recorded below with its actual status.
+No directory-wide test suite, optional full generated-check suite, forbidden
+register edit, debt-ledger checker, push, rebase, stash or auxiliary worktree was
+used. The earlier setup failures and corrected red gates remain in the record;
+they are not aggregated into an invented clean test run.
+
+The separate **Built mechanisms and their falsifiers** and **Findings owned
+elsewhere** lists above remain the handback inventory. The final guardrail
+corrections add existing-facade wiring and exporter scratch confinement, whose
+real removal restores escaped CAS writes with an identical valid schema.
+Trust-posture and OpenAPI companions are recomputed by their existing owners;
+saved corruption rejects and restores exact bytes. Those resolved CORR findings
+do not become another owner's debt. Independent terminal review found no new
+status, cost, canonical-authority or unallocated-finding contradiction.
+
+The final normal architecture check in
+`corr-evidence/shared/final-architecture-guardrails-replay.json` is **RC 0,
+242.686 seconds**, from committed checkpoint
+`a18eb663e6476a776a330de9de4b64e40790174a`. All six changed blobs at that
+checkpoint were read back from the attached branch, byte-exact and clean.
+The check confirms freshness for OpenAPI, the runtime API client, dashboard API
+types and trust-claim-posture. Its complete output is retained. No import
+baseline, exemption or gate scope was changed. The standalone Atlas retirement
+gate is explicitly not part of this normal check and receives no credit here.
+
+The final code Ruff and targeted importer/semantic gates are recorded in the
+preceding sections; source did not change after those checks. Only this terminal
+journal record and the deciding guardrail capture follow the frozen check.
+`git diff --check` and exact branch readback accompany the final local commit.

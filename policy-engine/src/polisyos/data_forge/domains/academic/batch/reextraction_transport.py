@@ -171,6 +171,7 @@ class SDKExtractionTransport:
             "local_estimator": "injected_repository_estimator" if self.prompt_estimator else None,
             "estimator_elapsed_seconds": time.monotonic() - estimator_started,
             "status": "failed", "error_kind": None, "retryable": False,
+            "reported_model_id": None,
             "status_code": None, "usage": None, "response_content_hash": None,
         }
         parsed: dict[str, Any] | None = None
@@ -189,6 +190,9 @@ class SDKExtractionTransport:
                 key: usage[key] for key in ("prompt_tokens", "completion_tokens", "total_tokens")
                 if type(usage.get(key)) is int and usage[key] >= 0
             }
+            observation["reported_model_id"] = response.model
+            if response.model != model:
+                raise ExtractionRequestError("reported_model_mismatch", False, 200)
             if not response.choices:
                 raise ExtractionRequestError("malformed_output", True, 200)
             choice = response.choices[0]
@@ -207,6 +211,9 @@ class SDKExtractionTransport:
                 parsed = value
             except (ValueError, TypeError):
                 raise ExtractionRequestError("malformed_output", True, 200) from None
+            # JSON decoding can materialize a credential from Unicode escapes.
+            # Scan the exact object crossing into the owner, before owner logging.
+            self.check_payload(parsed)
             observation["status"] = "returned"
             observation["parsed_response_hash"] = "sha256:" + hashlib.sha256(
                 json.dumps(

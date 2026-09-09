@@ -18,6 +18,7 @@ import duckdb
 from polisyos.data_forge.domains.academic.batch.article_extractor import (
     ExtractorStats,
     PolicyArticleExtractor,
+    _validate_extraction_response,
 )
 from polisyos.data_forge.domains.academic.batch.reextraction_transport import (
     ExtractionRequestError,
@@ -90,6 +91,8 @@ class _ObservedClient:
         self.response, self.usage = await self.client.chat(
             model=model, temperature=temperature, prompt=prompt,
         )
+        if _validate_extraction_response(self.response, context="extraction") is None:
+            raise ExtractionRequestError("contract_violation", False, 200)
         return self.response, self.usage
 
 

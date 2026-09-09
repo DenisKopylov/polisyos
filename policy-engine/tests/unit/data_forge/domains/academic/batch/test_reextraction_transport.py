@@ -131,3 +131,64 @@ def test_model_and_endpoint_cannot_silently_change(tmp_path: Path) -> None:
             model_id="MiniMaxAI/MiniMax-M2.7", output_root=tmp_path,
             timeout_seconds=5, max_completion_tokens=8192,
         )
+
+
+@pytest.mark.asyncio
+async def test_decoded_provider_secret_never_reaches_the_owner(tmp_path: Path, capsys) -> None:
+    owner = _owner()
+    secret = "private-test-token"  # noqa: S105 - synthetic adversarial echo.
+    escaped = "".join("\\u" + format(ord(character), "04x") for character in secret)
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={
+            "id": "synthetic-escaped-echo", "object": "chat.completion", "created": 1,
+            "model": "MiniMaxAI/MiniMax-M2.7",
+            "choices": [{"index": 0, "message": {"role": "assistant", "content":
+                '{"sample_size":"' + escaped + '","causal_claims":[]}'},
+                "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 21, "completion_tokens": 7, "total_tokens": 28},
+        })
+
+    async with owner.SDKExtractionTransport(
+        api_key=secret, base_url="https://api.proxy.gonka.gg/v1",
+        model_id="MiniMaxAI/MiniMax-M2.7", output_root=tmp_path,
+        timeout_seconds=5, max_completion_tokens=8192,
+        http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
+    ) as transport:
+        with pytest.raises(owner.ExtractionRequestError, match="unsafe_response_refused"):
+            await transport.bind({"attempt_id": "encoded-echo"}).chat(
+                model="MiniMaxAI/MiniMax-M2.7", temperature=0.0, prompt="Return JSON",
+            )
+    output = capsys.readouterr()
+    assert secret not in output.out + output.err
+    assert all(secret not in p.read_text() for p in tmp_path.rglob("*.json"))
+
+
+@pytest.mark.asyncio
+async def test_reported_model_mismatch_cannot_enter_model_comparison(tmp_path: Path) -> None:
+    owner = _owner()
+    reported_model = "deepseek-ai/DeepSeek-V4-Flash-0731"
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={
+            "id": "synthetic-model-mismatch", "object": "chat.completion", "created": 1,
+            "model": reported_model,
+            "choices": [{"index": 0, "message": {"role": "assistant", "content":
+                '{"relevant":false}'}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 21, "completion_tokens": 7, "total_tokens": 28},
+        })
+
+    async with owner.SDKExtractionTransport(
+        api_key="private-test-token", base_url="https://api.proxy.gonka.gg/v1",
+        model_id="MiniMaxAI/MiniMax-M2.7", output_root=tmp_path,
+        timeout_seconds=5, max_completion_tokens=8192,
+        http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
+    ) as transport:
+        with pytest.raises(owner.ExtractionRequestError, match="reported_model_mismatch"):
+            await transport.bind({"attempt_id": "model-mismatch"}).chat(
+                model="MiniMaxAI/MiniMax-M2.7", temperature=0.0, prompt="Return JSON",
+            )
+    record = json.loads((tmp_path / "provider_attempts/model-mismatch.json").read_text())
+    assert record["reported_model_id"] == reported_model
+    assert record["model_id"] == "MiniMaxAI/MiniMax-M2.7"
+    assert record["usage"]["total_tokens"] == 28

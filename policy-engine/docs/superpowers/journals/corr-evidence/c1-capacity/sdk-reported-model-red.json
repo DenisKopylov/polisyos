@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_transport.py::test_reported_model_mismatch_cannot_enter_model_comparison"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 42.98322874994483,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________ test_reported_model_mismatch_cannot_enter_model_comparison __________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1425/test_reported_model_mismatch_c0')\n\n    @pytest.mark.asyncio\n    async def test_reported_model_mismatch_cannot_enter_model_comparison(tmp_path: Path) -> None:\n        owner = _owner()\n        reported_model = \"deepseek-ai/DeepSeek-V4-Flash-0731\"\n    \n        def respond(request: httpx.Request) -> httpx.Response:\n            return httpx.Response(200, json={\n                \"id\": \"synthetic-model-mismatch\", \"object\": \"chat.completion\", \"created\": 1,\n                \"model\": reported_model,\n                \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\":\n                    '{\"relevant\":false}'}, \"finish_reason\": \"stop\"}],\n                \"usage\": {\"prompt_tokens\": 21, \"completion_tokens\": 7, \"total_tokens\": 28},\n            })\n    \n        async with owner.SDKExtractionTransport(\n            api_key=\"private-test-token\", base_url=\"https://api.proxy.gonka.gg/v1\",\n            model_id=\"MiniMaxAI/MiniMax-M2.7\", output_root=tmp_path,\n            timeout_seconds=5, max_completion_tokens=8192,\n            http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),\n        ) as transport:\n>           with pytest.raises(owner.ExtractionRequestError, match=\"reported_model_mismatch\"):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'polisyos.data_forge.domains.academic.batch.reextraction_transport.ExtractionRequestError'>\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_transport.py:190: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_transport.py::test_reported_model_mismatch_cannot_enter_model_comparison\n",
+  "timed_out": false,
+  "timeout_seconds": 180.0
+}

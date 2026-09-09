@@ -392,29 +392,57 @@ validation of the vocabulary and consumer outcome, rather than field-name presen
 requirement remains `absent` (`artifact_missing`) until the pass supplies and validates the
 claim-level axis; registering it does not supply those artifacts.
 
-**Acquisition state, updated 2026-09-09 — the constraint moved and it is no longer money.**
-The re-extraction pipeline exists and is verified on a declared marked subset (CORR workstream C1,
-branch `codex/corr-capability`, not yet on `main`). Its first live attempt failed on the configured
-provider returning HTTP 429 `insufficient_quota` — an account billing state, not a technical limit —
-so both campaign cost estimates stood at `not_established`. A second provider is now available at
-roughly a thousandth of the price with a large quota, which **removes cost as the deciding
-question** and leaves three that actually decide it, none of them a dollar figure:
+**Acquisition state, measured 2026-09-09 — two of the three deciding questions are answered and
+the third got worse.** The re-extraction pipeline is verified, resumable and prepared for a corpus
+larger than the present one (CORR workstream C1, branch `codex/corr-capability` at `350823a3f`, not
+yet on `main`). Cost was confirmed trivial and is now a footnote: **$0.615 (DeepSeek) / $0.837
+(MiniMax)** for the primary pass, conditional on the journal's one-attempt tercile assumption and
+not on the prepared retry policy.
 
-- **Local resource share.** The pass may take about a week, on the machine development happens on.
-  Whether it is I/O-bound and harmless in the background, or competes for CPU and memory, decides
-  whether it runs here or on rented infrastructure. Being measured as a CPU-to-wall ratio, a peak
-  RSS and a memory trend over documents processed, rather than reasoned about.
-- **Throughput.** The achievable request concurrency and the point where added concurrency stops
-  adding throughput. That knee times the corpus is the wall clock, and the provider's documented
-  absence of proxy-side rate limits says nothing about upstream node capacity.
-- **Extraction quality.** Two models are servable and neither is the one originally declared, so the
-  model must be chosen on evidence and named in the artifact's provenance. No gold standard exists
-  for extraction here either; inter-model disagreement is a **lower bound on error** and nothing
-  more.
+**Local resource share — answered, and it splits in two.** The live API loop is I/O-bound and
+harmless: **0.053 and 0.071 observed CPU-seconds per wall-second**, which on the measured
+eight-logical-CPU, 16-GiB station is **0.66% and 0.89% of CPU** at **~3.4% of RAM** (peak sampled
+RSS 589/595 MB). It can run for days beside development. **Graph finalization is a different
+animal** — approximately **0.91–0.95 of one core** with writes at **66 MB/s**, 1.46 GB for 1,000
+works — and must be scheduled as its own stage rather than assumed to be part of the same job.
 
-Two requirements this makes explicit for any future acquisition, including a later expansion of the
-extraction base to more articles. **Resumability must be proven by interruption** — a week-long job
-will be interrupted, and a resumability claim that was never interrupted is not a claim. And
-**nothing may assume the present document count**: no accumulation proportional to the corpus, and
-a stated design limit with what would breach it. The full pass is deliberately not authorised until
-those measurements exist.
+**Memory trend — finite, falling, not proven flat.** Across constructed 100- and 1,000-document
+campaigns, peak RSS differs by only **1.93 MB** while the active-window slope falls from
+**+14,706 to +2,035 bytes per completion**; on the small live frames the warm slopes were
++517/+605 kB per completion. A falling slope is what warm-up looks like rather than a leak, but no
+asymptote is established. *Architect arithmetic, not measurement:* at the tail slope of ~2 kB per
+completion, 310,710 documents would add roughly **0.6 GB** over a ~330 MB base — survivable on a
+16 GiB machine, and the slope was still falling.
+
+**Throughput — unanswered, and this is now the deciding constraint.** Only concurrency 1 ran.
+DeepSeek returned **3 of 12 typed successes with 9 of 12 HTTP 429 (75%)**; MiniMax returned **10 of
+12 with 2 malformed (16.7%)**. Both crossed the predeclared 10% error threshold at the first level,
+so concurrency 4/16/32, the operating knee, the model choice and the wall clock are all
+`not_established`. Isolated one-request diagnostics reproduced both failures — a 429 with no
+provider code and no `Retry-After`, and an HTTP 200 carrying `finish_reason: abort`, zero
+completion tokens and a seven-character non-JSON body. **Neither origin is known**, and the
+evidence does not establish a billing or proxy-rate-limit cause.
+
+**Why that matters more than it sounds.** *Architect arithmetic from the measured success-only
+medians of 50.8 s and 69.7 s:* at concurrency 1 the primary corpus of 310,710 abstracts would take
+roughly **183 days (DeepSeek) or 250 days (MiniMax)**. The week-long figure this work was scoped
+against needs concurrency around **30** — and concurrency above 1 was never reached, while a 75%
+failure rate at a single stream makes it doubtful rather than merely unmeasured. **The blocker is
+not the corpus, the money or the laptop. It is whether this provider can sustain parallel
+extraction at all**, and that is the one thing a new dated operating declaration must settle before
+any full pass is authorised.
+
+**What is prepared and needs no repetition.** Resumability is proven by **actual SIGKILL at two
+points** — mid-extraction, and in the window between publishing a completed work record and
+committing its checkpoint, a window the lane found and repaired. Checkpoint granularity is every
+intent, attempt and completed work; `retry_unknown: false` means an uncertain interrupted request is
+never silently repeated; an authentication failure, rejected configuration or reported-model
+mismatch causes a durable systemic stop that an operator must acknowledge through `recover`. The
+complete eligible frame is enumerated — **310,710 non-blank abstracts of 310,829 held works**, with
+119 blank and no unreadable case counted as blank — plus a secondary frame of **65,327** historical
+source works, and expanding the corpus needs a new frame rather than a code change.
+
+Both models satisfy the typed extraction contract; MiniMax needed the existing owner's JSON parser
+and a separately declared retry to do so, and that retry is recorded rather than folded into the
+comparison. Agreement between the two models is **not** treated as correctness anywhere.
+

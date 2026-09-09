@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "context": {
+    "attempt_id": "36b44330ddbdd57856fa93b3fe3eac6d702a2bc5dc43a06af6a3a6aa1b68beb5",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:51eec332424842a2c306582e8c5aa07c180a96a6571c69145f868be09adb138c",
+    "prompt_hash": "sha256:0cbebcec5d13783cde1bdbe19e15c8189fbb5df9cab0a3b060c3ea1da4fd0ffe",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2134044742",
+    "work_key": "sha256:01e7d7a65eaf498190810c2fc99bc68503c3edb70c7d4ff07425467aa0507a3b"
+  },
+  "parsed": {
+    "reason": "Genomic association study in livestock, not policy-causal or policy-relevant empirical effects",
+    "relevance_score": 0.1,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 38,
+    "prompt_tokens": 741,
+    "total_tokens": 779
+  }
+}

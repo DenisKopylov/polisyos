@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "43afbd24bd45ae1112e94f1ace8d0299297824a60628c226725a2fc7e4ab4d37",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "screening",
+    "phase_key": "sha256:54c50a59b706fa5e899b6f0fc488c3f3487fa42ac403ea9c9058ec508e9ea1c0",
+    "prompt_hash": "sha256:8005467373a5c077944721550f32a0f4894917e177a9c7cafd11afba829d08bf",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2107389862",
+    "work_key": "sha256:727e70cc26f0300e8a484164210771280f2a8d77332d182f8fd451f0740739ee"
+  },
+  "parsed": {
+    "reason": "Descriptive methodological paper about a fall risk assessment tool, no empirical policy effects, causal claims, or quantitative estimates",
+    "relevance_score": 0.1,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 298,
+    "prompt_tokens": 588,
+    "total_tokens": 886
+  }
+}

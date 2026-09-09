@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.campaign_recovery_removal",
+    "fatal_stop"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.8673793750349432,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______ test_systemic_failure_stops_and_recovery_preserves_completed_work _______\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1455/test_systemic_failure_stops_an0')\n\n    def test_systemic_failure_stops_and_recovery_preserves_completed_work(tmp_path: Path):\n        works = _works()\n        plan = _plan(works)\n        calls = []\n        root = tmp_path / \"run\"\n        first = _run(plan, works, root, _Transport(calls, fail_at=2))\n>       assert len(calls) == 2, \"fatal_provider_failure_consumed_the_remaining_frame\"\nE       AssertionError: fatal_provider_failure_consumed_the_remaining_frame\nE       assert 8 == 2\nE        +  where 8 = len([CampaignCallContext(campaign_id='synthetic:recovery', work_id='synthetic:0', work_key='sha256:35954ec93a7e93566a6ee36...sha256:5547635b8a95c41e72bc028733ae282ff59bc870435c40bd0bca74d69a5a637a', synthetic=True, scope='candidate_only'), ...])\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign_recovery.py:100: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign_recovery.py::test_systemic_failure_stops_and_recovery_preserves_completed_work\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

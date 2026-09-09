@@ -1,0 +1,20 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-008",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": "malformed_output",
+  "input_hash": "sha256:33cf48d849378390cca71407fee47d990b4fd134663d60b0fb968723f4267fa8",
+  "parsed_response": null,
+  "provider_observation_hash": "sha256:2f99a36ab61475d487bce3e3702cc5bc1a521692ab75a6ced0906b192bd31f26",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-008.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": true,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "failed",
+  "synthetic": false,
+  "typed_result_hash": null,
+  "work_id": "https://openalex.org/W1530984793"
+}

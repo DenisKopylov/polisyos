@@ -1,0 +1,236 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-006",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+  "error_kind": null,
+  "input_hash": "sha256:64e5eed6e067f477ec2d300658ae79d115393232d17cf4752f2dfb9cc4b2659d",
+  "parsed_response": {
+    "boundary_conditions": [
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "The observed effects may not generalize to other medicinal plant species.",
+        "required_value": "rosemary, peppermint, lemon balm, sage",
+        "scope_text": "This paper aimed to compare the content of compounds with antioxidant properties in four species of medicinal plants, rosemary, peppermint, lemon balm and sage grown under organic and conventional conditions in 2 consecutive years.",
+        "variable": "plant_species"
+      },
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "Results may differ in other climates or soil conditions.",
+        "required_value": "Poland",
+        "scope_text": "The dry matter and vitamin C content was determined according to Polish Standards; carotenoids and polyphenols were analysed by high-performance liquid chromatography.",
+        "variable": "geographic_location"
+      }
+    ],
+    "causal_claims": [
+      {
+        "cause_variable": "organic_farming",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.4,
+        "claim_id": "c_01",
+        "claim_text": "Organic medicinal plants contained significantly more dry matter, vitamin C, phenolic acids and total flavonoids than the plants from conventional production.",
+        "counterevidence_notes": "Conventional plants had significantly more carotenoids than organic ones, indicating a mixed effect depending on the compound.",
+        "design_family_hint": "unclear",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "bioactive_compound_content",
+        "evidence_strength": "observational",
+        "extraction_warnings": [
+          "No effect sizes or statistical details provided; only qualitative significance statements."
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "Four medicinal plant species (rosemary, peppermint, lemon balm, sage)",
+          "Poland",
+          "2 consecutive years"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 2,
+            "text": "Organic medicinal plants contained significantly more dry matter, vitamin C, phenolic acids and total flavonoids than the plants from conventional production."
+          }
+        ]
+      },
+      {
+        "cause_variable": "conventional_farming",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.4,
+        "claim_id": "c_02",
+        "claim_text": "Conventional plants contained significantly more carotenoids than the organic ones.",
+        "counterevidence_notes": "Organic farming increased other bioactive compounds, so the effect is compound-specific.",
+        "design_family_hint": "unclear",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "carotenoid_content",
+        "evidence_strength": "observational",
+        "extraction_warnings": [
+          "No effect sizes or statistical details provided; only qualitative significance statements."
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "Four medicinal plant species (rosemary, peppermint, lemon balm, sage)",
+          "Poland",
+          "2 consecutive years"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 3,
+            "text": "On the other hand, conventional plants contained significantly more carotenoids than the organic ones."
+          }
+        ]
+      }
+    ],
+    "citation_summary": "The paper reports that organic farming significantly increased dry matter, vitamin C, phenolic acids, and total flavonoids in four medicinal plants, while conventional farming significantly increased carotenoids. No quantitative effect sizes are provided.",
+    "empirical_parameters": [
+      {
+        "aggregation_level": "individual",
+        "confidence_interval": null,
+        "display_name": "Dry matter content difference (organic vs conventional)",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": "Results may vary by plant species and year.",
+        "name": "dry_matter_content_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": {},
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Similar soil and climate conditions",
+          "Same plant species"
+        ],
+        "transferability": "Limited; specific to four medicinal plant species and local conditions.",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Organic medicinal plants contained significantly more dry matter than conventional plants.",
+        "value_range": null
+      },
+      {
+        "aggregation_level": "individual",
+        "confidence_interval": null,
+        "display_name": "Vitamin C content difference (organic vs conventional)",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": "Results may vary by plant species and year.",
+        "name": "vitamin_c_content_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": {},
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Similar soil and climate conditions",
+          "Same plant species"
+        ],
+        "transferability": "Limited; specific to four medicinal plant species and local conditions.",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Organic medicinal plants contained significantly more vitamin C than conventional plants.",
+        "value_range": null
+      },
+      {
+        "aggregation_level": "individual",
+        "confidence_interval": null,
+        "display_name": "Phenolic acids content difference (organic vs conventional)",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": "Results may vary by plant species and year.",
+        "name": "phenolic_acids_content_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": {},
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Similar soil and climate conditions",
+          "Same plant species"
+        ],
+        "transferability": "Limited; specific to four medicinal plant species and local conditions.",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Organic medicinal plants contained significantly more phenolic acids than conventional plants.",
+        "value_range": null
+      },
+      {
+        "aggregation_level": "individual",
+        "confidence_interval": null,
+        "display_name": "Total flavonoids content difference (organic vs conventional)",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": "Results may vary by plant species and year.",
+        "name": "total_flavonoids_content_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": {},
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Similar soil and climate conditions",
+          "Same plant species"
+        ],
+        "transferability": "Limited; specific to four medicinal plant species and local conditions.",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Organic medicinal plants contained significantly more total flavonoids than conventional plants.",
+        "value_range": null
+      },
+      {
+        "aggregation_level": "individual",
+        "confidence_interval": null,
+        "display_name": "Carotenoids content difference (conventional vs organic)",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": "Results may vary by plant species and year.",
+        "name": "carotenoids_content_conventional_vs_organic",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": {},
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Similar soil and climate conditions",
+          "Same plant species"
+        ],
+        "transferability": "Limited; specific to four medicinal plant species and local conditions.",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Conventional plants contained significantly more carotenoids than organic ones.",
+        "value_range": null
+      }
+    ],
+    "extraction_confidence": 0.3,
+    "extraction_warnings": [
+      "Abstract-only source; no full-text methods or results available.",
+      "No numeric effect sizes or confidence intervals reported.",
+      "Causal language is used but design is unclear; likely observational comparison.",
+      "The term 'significantly' is used without reporting p-values or test statistics, so the strength of evidence is uncertain."
+    ],
+    "mechanisms": [
+      {
+        "description": "Organic farming practices may alter plant secondary metabolism, leading to higher concentrations of certain bioactive compounds (e.g., phenolic acids, flavonoids) as a stress response, while conventional farming may increase carotenoid content due to different nutrient availability or growth conditions.",
+        "evidence_type": "survey",
+        "mediating_variables": [
+          "plant_secondary_metabolism",
+          "nutrient_availability",
+          "stress_response"
+        ],
+        "theoretical_framework": "Plant defense theory (stress-induced synthesis of secondary metabolites)"
+      }
+    ],
+    "methodology": "The study compared organic and conventional production systems across four medicinal plant species over two consecutive years. Analytical methods included Polish Standards for dry matter and vitamin C, and HPLC for carotenoids and polyphenols. Statistical significance was reported but no effect sizes or detailed methods were provided in the abstract.",
+    "methodology_enum": "observational",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:281b3aad4fa42bcd3a14814b72a391d843e6f0154cad87863fd65692ff9a2e66",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-006.json",
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "requested_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:704ac7beb9f382da599a01731b829b9a7849de808c7b38c65e28e35a84dc1b2c",
+  "work_id": "https://openalex.org/W2066113762"
+}

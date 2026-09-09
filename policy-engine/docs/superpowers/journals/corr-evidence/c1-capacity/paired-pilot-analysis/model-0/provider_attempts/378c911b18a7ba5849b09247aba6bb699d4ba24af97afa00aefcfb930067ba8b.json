@@ -1,0 +1,48 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "378c911b18a7ba5849b09247aba6bb699d4ba24af97afa00aefcfb930067ba8b",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:8ba6a83d23b8acc59ce72580ef69ade6d18b4313a714ca33994346a045360aea",
+    "prompt_hash": "sha256:f81b6843840d05111151fc2b1183d79871816d179cf268155d1748f147ca2a41",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4392374705",
+    "work_key": "sha256:785053708ac2bdaa1808918a89890e84054f7fa6fe745936470f7437e11fc4c8"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.001913290936499834,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 1006,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:9995305b48fbf03c08d282d991aefcd612033b0e18c1bfd844e6a731768455db",
+  "prompt_hash": "sha256:f81b6843840d05111151fc2b1183d79871816d179cf268155d1748f147ca2a41",
+  "provider_usage": {
+    "completion_tokens": 38,
+    "completion_tokens_details": null,
+    "prompt_tokens": 985,
+    "prompt_tokens_details": null,
+    "total_tokens": 1023
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 147,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:3660f1bbb81142b7b3b92f4b0932c248a955a8d62d4483e3b8e645cf1b50f15e",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 20.29218045808375,
+  "usage": {
+    "completion_tokens": 38,
+    "prompt_tokens": 985,
+    "total_tokens": 1023
+  }
+}

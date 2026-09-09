@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "authority_granted": false,
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_verification",
+    "--child",
+    "--test",
+    "test_synthetic_retention"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 2.3842751659685746,
+  "stdout": "",
+  "stderr": "test_complete_ordinal_frame_and_source_intake (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_complete_ordinal_frame_and_source_intake) ... ok\ntest_duplicate_observation_body_cannot_hide_missing_identity (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_duplicate_observation_body_cannot_hide_missing_identity) ... ok\ntest_real_campaign_sdk_estimator_and_bounded_mock (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_real_campaign_sdk_estimator_and_bounded_mock) ... ok\ntest_source_drift_at_worker_finish_is_not_attributed (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_source_drift_at_worker_finish_is_not_attributed) ... ok\ntest_warm_progress_bins_exclude_startup_and_replay_cleanup (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_warm_progress_bins_exclude_startup_and_replay_cleanup) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 2.009s\n\nOK\n",
+  "helper_source_sha256": {
+    "retention_analysis.py": "207afb045b5e0fce464d345da50c97d88a7502cb7e1808d1acc5cd865f520e68",
+    "retention_verification.py": "0589f452e6eccbbfb7ef7bb654470e737edb3f564256a505097c444bc3f6c8bb",
+    "synthetic_retention.py": "6f3e43aa281aec44b6154b96b63ae8699349797fdcce58a90160045ccc503424",
+    "test_synthetic_retention.py": "b358e151a5f79cac064b5e99a1be6656af925c52c1316b71930fdd48bf396191"
+  }
+}

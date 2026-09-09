@@ -1,0 +1,48 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "758592603b1ea2571fca9c7e6832f8a7e6c05e6cadb8d1cb7ed5ca94572e29a0",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:885c6f430fda64d77328a009dd2b6520e3ad4f3046b3cf0dfb4ab4fff836bee7",
+    "prompt_hash": "sha256:8005467373a5c077944721550f32a0f4894917e177a9c7cafd11afba829d08bf",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2107389862",
+    "work_key": "sha256:727e70cc26f0300e8a484164210771280f2a8d77332d182f8fd451f0740739ee"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.0006426249165087938,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 574,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:e955a34e996a5219920d813d01063a176218683d272e9c5d0b348417de61095c",
+  "prompt_hash": "sha256:8005467373a5c077944721550f32a0f4894917e177a9c7cafd11afba829d08bf",
+  "provider_usage": {
+    "completion_tokens": 38,
+    "completion_tokens_details": null,
+    "prompt_tokens": 557,
+    "prompt_tokens_details": null,
+    "total_tokens": 595
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 153,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:3aefd3bc3fce6d5bb12d2b59e1ef6cbc658b382c4390ee3b9d09506a0f0b8922",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 14.790260332985781,
+  "usage": {
+    "completion_tokens": 38,
+    "prompt_tokens": 557,
+    "total_tokens": 595
+  }
+}

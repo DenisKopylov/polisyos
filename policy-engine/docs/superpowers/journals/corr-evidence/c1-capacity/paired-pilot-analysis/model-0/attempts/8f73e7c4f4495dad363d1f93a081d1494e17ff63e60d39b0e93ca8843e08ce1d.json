@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "context": {
+    "attempt_id": "8f73e7c4f4495dad363d1f93a081d1494e17ff63e60d39b0e93ca8843e08ce1d",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:17de941d2302031c49f2ded98eb9ce1ca38ab89dc1e98aa3ea02ecaeac8dcb7a",
+    "prompt_hash": "sha256:9e8f6b9940f2e409f2f18b9e45e0f89600894b33f5ed48816627dfe38ed3b245",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4394884575",
+    "work_key": "sha256:204df1b0951d573937868b34c069e47a2219848467f879773587f81359eb6d96"
+  },
+  "parsed": {
+    "reason": "Legal case analysis of retaliation doctrine, descriptive and doctrinal, no empirical estimates or causal policy effects",
+    "relevance_score": 0.2,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 40,
+    "prompt_tokens": 710,
+    "total_tokens": 750
+  }
+}

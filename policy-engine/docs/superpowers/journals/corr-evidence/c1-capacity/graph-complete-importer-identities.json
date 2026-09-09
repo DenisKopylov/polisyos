@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph-complete-importer-junit-wave.json",
+    "--compact"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 19.302524458966218,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"denominator\": \"complete actual pytest collection versus complete executed JUnit testcase set\",\n  \"collection_returncode\": 0,\n  \"execution_returncode\": 0,\n  \"missing_executions\": [],\n  \"unexpected_executions\": [],\n  \"ambiguous_or_unresolved\": [],\n  \"duplicate_collection\": false,\n  \"duplicate_execution\": false,\n  \"nonpassing_executions\": [],\n  \"collected_count\": 25,\n  \"executed_count\": 25,\n  \"collected_identity_hash\": \"9f808749384c7efadfe8349c2ba7db5f631be187c332a0264e8f1eeaf3f35942\",\n  \"executed_identity_hash\": \"9f808749384c7efadfe8349c2ba7db5f631be187c332a0264e8f1eeaf3f35942\",\n  \"duplicate_collection_identities\": {},\n  \"duplicate_execution_identities\": {}\n}\n",
+  "timed_out": false,
+  "timeout_seconds": 120.0
+}

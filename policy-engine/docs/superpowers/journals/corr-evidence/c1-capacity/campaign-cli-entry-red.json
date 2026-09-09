@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py::test_cli_refuses_unauthorized_before_credentials_source_or_outputs",
+    "-q"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.41390262497589,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______ test_cli_refuses_unauthorized_before_credentials_source_or_outputs ______\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1441/test_cli_refuses_unauthorized_0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109d46ea0>\n\n    def test_cli_refuses_unauthorized_before_credentials_source_or_outputs(tmp_path, monkeypatch):\n>       owner = _owner()\n                ^^^^^^^^\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py:59: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def _owner():\n>       assert importlib.util.find_spec(MODULE) is not None, \"campaign_run_cli_missing\"\nE       AssertionError: campaign_run_cli_missing\nE       assert None is not None\nE        +  where None = <function find_spec at 0x105c38670>('polisyos.data_forge.domains.academic.batch.reextraction_cli')\nE        +    where <function find_spec at 0x105c38670> = <module 'importlib.util' (frozen)>.find_spec\nE        +      where <module 'importlib.util' (frozen)> = importlib.util\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py:19: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py::test_cli_refuses_unauthorized_before_credentials_source_or_outputs\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.error_diagnostic",
+    "run",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-error-diagnostic-v2-declaration.json"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.488870708970353,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"actual_http_attempts\": 1,\n  \"error_kind\": \"upstream_rate_limit\",\n  \"response_facts\": [\n    {\n      \"code_interpretation\": \"provider assertion, not independent cause or origin proof\",\n      \"http_status\": 429,\n      \"origin\": \"not_established\",\n      \"provider_body_retained\": false,\n      \"provider_code\": null,\n      \"provider_code_state\": \"absent\",\n      \"retry_after_seconds\": null,\n      \"success_shape\": null\n    }\n  ]\n}\n\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

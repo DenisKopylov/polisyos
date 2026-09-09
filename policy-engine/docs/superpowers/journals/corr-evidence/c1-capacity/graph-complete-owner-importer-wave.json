@@ -1,0 +1,25 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_builder.py",
+    "tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py",
+    "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_load_graph_prefers_dedicated_simulation_ready_artifact_over_metadata_fallback",
+    "tests/unit/data_forge/domains/academic/batch/test_parameter_value_provenance.py::test_origin_survives_work_record_and_actual_raw_skg_storage"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 22.286523708025925,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": ".........................                                                [100%]\n",
+  "timed_out": false,
+  "timeout_seconds": 120.0
+}

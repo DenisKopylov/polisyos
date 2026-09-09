@@ -1,0 +1,20 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-007",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+  "error_kind": "upstream_rate_limit",
+  "input_hash": "sha256:902b15f236eaf0160f538642e8a8268fe29a133df9576d9ba2c380ea2af3233d",
+  "parsed_response": null,
+  "provider_observation_hash": "sha256:6c6d4a959ba0e72e39a350003d1a324438e064b8b4e4d29df48986d75860a632",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-007.json",
+  "reported_model_id": null,
+  "requested_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "retryable": true,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "failed",
+  "synthetic": false,
+  "typed_result_hash": null,
+  "work_id": "https://openalex.org/W4407585255"
+}

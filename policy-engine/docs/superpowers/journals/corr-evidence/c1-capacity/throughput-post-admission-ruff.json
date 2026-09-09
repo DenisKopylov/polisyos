@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_admission.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_admission.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_analysis.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_memory_fixture.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 0.04303258296567947,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

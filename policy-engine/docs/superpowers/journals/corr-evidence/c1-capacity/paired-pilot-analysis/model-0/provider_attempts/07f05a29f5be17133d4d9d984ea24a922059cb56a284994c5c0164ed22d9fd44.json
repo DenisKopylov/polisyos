@@ -1,0 +1,48 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "07f05a29f5be17133d4d9d984ea24a922059cb56a284994c5c0164ed22d9fd44",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:3b1d77b0025cbb41bc53c3a6a8789df2c837f8acf51eb9ff4b79f8a34d9996c4",
+    "prompt_hash": "sha256:c7abfbdcf3a8147cefced66817273b649886d4473a44e8e8789d15a4c903191d",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4399636837",
+    "work_key": "sha256:7941cde9c442f7b039dbc4b25074ca1c7c003fae1af304a8c5f33b7483511956"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.009805208072066307,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 833,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:9004079e0dccd217fd8e0a2032cd0d4fd6e5a9d155af37d33e9efdec3ee415ca",
+  "prompt_hash": "sha256:c7abfbdcf3a8147cefced66817273b649886d4473a44e8e8789d15a4c903191d",
+  "provider_usage": {
+    "completion_tokens": 41,
+    "completion_tokens_details": null,
+    "prompt_tokens": 804,
+    "prompt_tokens_details": null,
+    "total_tokens": 845
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 181,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:bec7bcc92590e3d2595f2ed02f56b434bee4e987a1c31779ea837ef8cd2ec914",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 2.228994083008729,
+  "usage": {
+    "completion_tokens": 41,
+    "prompt_tokens": 804,
+    "total_tokens": 845
+  }
+}

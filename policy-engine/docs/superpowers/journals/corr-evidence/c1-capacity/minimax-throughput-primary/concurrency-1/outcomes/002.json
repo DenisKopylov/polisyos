@@ -1,0 +1,77 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-002",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:87a3ed55b8aa91f2ff2341bec855f8ca5a2d6c706adc29c712bc316540934e9a",
+  "parsed_response": {
+    "boundary_conditions": [
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "Relationship patterns may differ in other geographic or cultural contexts",
+        "required_value": "Kirikkale, Turkey",
+        "scope_text": "A field research in Kirikkale",
+        "variable": "geographic_context"
+      },
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "Findings may not apply to specialized populations or other regions",
+        "required_value": "General consumers in Kirikkale",
+        "scope_text": "Data is gathered by face to face survey method from 430 valid questionnaires",
+        "variable": "consumer_population"
+      }
+    ],
+    "causal_claims": [],
+    "citation_summary": "Turkish marketing study (abstract only) examining correlational relationships between Schwartz's value dimensions and hedonic consumption behaviors using survey data from 430 respondents in Kirikkale. No causal claims are made; only associations are reported. Study is not policy-relevant as it focuses on consumer behavior constructs without causal identification or policy variables.",
+    "empirical_parameters": [
+      {
+        "aggregation_level": "individual",
+        "confidence_interval": null,
+        "display_name": "Correlations between value dimensions and hedonic consumption",
+        "evidence_strength": "observational",
+        "geographic_scope": "Kirikkale, Turkey",
+        "heterogeneity_note": "No heterogeneity analysis reported",
+        "name": "hedonic_consumption_correlates",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": null,
+        "transfer_conditions": [
+          "Similar consumer populations in Turkey",
+          "Similar measurement scales"
+        ],
+        "transferability": "Limited - single city sample, marketing context",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Benevolence, self-direction, tradition, power, spirituality, stimulation, and hedonism values are related to hedonic consumption dimensions (excitement and escape, innovativeness, pleasure and fun)",
+        "value_range": null
+      }
+    ],
+    "extraction_confidence": 0.25,
+    "extraction_warnings": [
+      "Only abstract available - no full text access",
+      "No quantitative effect sizes reported; only qualitative descriptions of 'related' variables",
+      "No causal claims made - study explicitly uses correlation analysis",
+      "No confidence intervals, standard errors, or p-values provided",
+      "Marketing/consumer behavior study with no policy-relevant variables",
+      "Single-city sample limits generalizability",
+      "No experimental or quasi-experimental identification strategy"
+    ],
+    "mechanisms": [],
+    "methodology": "Cross-sectional survey study using face-to-face questionnaire administration. Factor analysis conducted for scale validation. Correlation analysis used to examine relationships between individual value dimensions (benevolence, universalism, self-direction, conformity, tradition, power, self-security, spirituality, stimulation, hedonism) and hedonic consumption dimensions (excitement and escape, innovativeness, pleasure and fun). No causal inference methods employed.",
+    "methodology_enum": "observational",
+    "sample_size": 430
+  },
+  "provider_observation_hash": "sha256:a1188288f0a446e585f0a6d219a1dc7e94d9f702976950a5c064bad8c4a7ec75",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-002.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:9b58f683233c31af0352a6d5a9b13b015d5673e61aac7e35cd53f125e4fc3ff1",
+  "work_id": "https://openalex.org/W1525284470"
+}

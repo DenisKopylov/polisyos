@@ -1,0 +1,28 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "throughput-1-011",
+    "campaign_id": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+    "input_hash": "sha256:640366fe9a45a3867294da1bb408528899543b821b25d375f307fe11aa957f62",
+    "phase": "extraction",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3036404624"
+  },
+  "error_kind": "upstream_rate_limit",
+  "estimator_elapsed_seconds": 0.001480833045206964,
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 3570,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "prompt_hash": "sha256:6e2a8396d440836bc7c4acdc94e21e0a4a02165b578f9cdf4c2c5bd7471fcc3f",
+  "provider_usage": null,
+  "reported_model_id": null,
+  "response_content_hash": null,
+  "retryable": true,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "failed",
+  "status_code": 429,
+  "synthetic": false,
+  "transport_elapsed_seconds": 0.09427666699048132,
+  "usage": null
+}

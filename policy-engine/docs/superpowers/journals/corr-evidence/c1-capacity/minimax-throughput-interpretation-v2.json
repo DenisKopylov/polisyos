@@ -1,0 +1,82 @@
+{
+  "analysis_declared_at": "2026-09-09T11:32:13.144044+00:00",
+  "authority_granted": false,
+  "authority_status": "candidate_measurement",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "full_pass_executed": false,
+  "levels": [
+    {
+      "concurrency": 1,
+      "decision": {
+        "actual_concurrency_comparison_established": false,
+        "error_origin": "not_established; HTTP status and adapter labels do not locate the limiting service",
+        "knee_established": false,
+        "knee_status": "not_established",
+        "observed_relative_throughput_gain": null,
+        "reason": "error_rate_above_10_percent",
+        "schema_version": "corr.direct_extraction_stop_interpretation.v2",
+        "stop_higher_levels": true,
+        "typed_success_throughput_relative_gain": null
+      },
+      "original_decision": {
+        "knee_established": true,
+        "reason": "error_rate_above_10_percent",
+        "stop_higher_levels": true,
+        "typed_success_throughput_relative_gain": null
+      },
+      "source_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1-report.json",
+      "source_sha256": "sha256:7abcdac13b89998c11f069b59ea9688054896f23550b9fe36628a83933db2382",
+      "storage": {
+        "allocated_file_bytes": 299008,
+        "allocated_semantics": "sum st_blocks*512 per unique inode; exclusive APFS physical extents not established",
+        "ambiguous_paths": [],
+        "categories": {
+          "directory": {
+            "count": 2,
+            "logical_bytes": 0
+          },
+          "file": {
+            "count": 25,
+            "logical_bytes": 73788
+          },
+          "shm": {
+            "count": 1,
+            "logical_bytes": 32768
+          },
+          "wal": {
+            "count": 1,
+            "logical_bytes": 127752
+          }
+        },
+        "entry_count": 29,
+        "excluded_paths": [],
+        "file_count": 27,
+        "identity_value_reconciliation": "equal",
+        "logical_bytes_per_completed_work": 19525.666666666668,
+        "logical_bytes_per_wall_second": 320.6494792781533,
+        "logical_file_bytes": 234308,
+        "native_write_io_is_storage_growth": false,
+        "observed_logical_file_bytes_lower_bound": 234308,
+        "root": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1",
+        "status": "measured"
+      }
+    }
+  ],
+  "original_receipt_changed": false,
+  "purpose": "post-run interpretation correction; not a pre-outcome selection declaration",
+  "schema_version": "corr.direct_extraction_throughput_interpretation.v2",
+  "source_path": ".tmp/corr-c1-capacity/throughput/minimax/throughput-report.json",
+  "source_projection": {
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_analysis.py": "sha256:f02a41cd7e4a3f04f2905cf26c95b792dc10c2aa4831071ea70e86a0db325b47",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_analysis.py": "sha256:b261ab31bdccb2e3948d45ec4859e6d7dcb2db541dfc73ae865afe796a344f7c",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_reanalysis.py": "sha256:ee77f41a1d0855402706c382fa747c50b855d98345358d4e14179579ce0085a8"
+  },
+  "source_sha256": "sha256:053cd295119ffb72af51cf0ce38cd2f80a5fd87a80f2c0df11fa278dcbf98539",
+  "stop_rule_changed": false,
+  "synthetic": false,
+  "unrun_concurrencies": [
+    4,
+    16,
+    32
+  ]
+}

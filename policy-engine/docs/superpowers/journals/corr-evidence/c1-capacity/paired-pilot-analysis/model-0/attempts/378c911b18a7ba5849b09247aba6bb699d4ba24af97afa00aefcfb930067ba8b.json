@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "context": {
+    "attempt_id": "378c911b18a7ba5849b09247aba6bb699d4ba24af97afa00aefcfb930067ba8b",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:8ba6a83d23b8acc59ce72580ef69ade6d18b4313a714ca33994346a045360aea",
+    "prompt_hash": "sha256:f81b6843840d05111151fc2b1183d79871816d179cf268155d1748f147ca2a41",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4392374705",
+    "work_key": "sha256:785053708ac2bdaa1808918a89890e84054f7fa6fe745936470f7437e11fc4c8"
+  },
+  "parsed": {
+    "reason": "Marine biology/chemistry study on toxin production, no policy effects or causal estimates.",
+    "relevance_score": 0.1,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 38,
+    "prompt_tokens": 985,
+    "total_tokens": 1023
+  }
+}

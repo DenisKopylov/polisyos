@@ -1,0 +1,27 @@
+{
+  "synthetic": true,
+  "authority_status": "candidate_measurement",
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.throughput_archive_verification",
+    "--child",
+    "--mode",
+    "baseline"
+  ],
+  "mode": "baseline",
+  "returncode": 0,
+  "elapsed_seconds": 1.0895007499493659,
+  "stdout": "",
+  "stderr": "test_actual_committed_declaration_frame_reaches_archive_preflight (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput_archive.ThroughputArchiveTests.test_actual_committed_declaration_frame_reaches_archive_preflight) ... ok\ntest_complete_primary_byte_archive_and_trace_secret_refusal (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput_archive.ThroughputArchiveTests.test_complete_primary_byte_archive_and_trace_secret_refusal) ... ok\ntest_missing_provider_or_novel_outcome_is_not_complete (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput_archive.ThroughputArchiveTests.test_missing_provider_or_novel_outcome_is_not_complete) ... ok\ntest_complete_active_window_bins_and_cleanup_are_distinct (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput_trace.ThroughputTraceTests.test_complete_active_window_bins_and_cleanup_are_distinct) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.879s\n\nOK\n",
+  "source_sha256": {
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py": "a96b52f7f422096d42f7036cb2ae7f7dd7f830906d48c4ae7bd93747b41a212f",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py": "6a0ed739a7cce9be3f89ee4378675353d5887557271e1d3afcb2ec1071ae8e3b",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_trace_analysis.py": "67beba90e3cf1d187461b6e1f09c741dda173c029e34e1c1f84d2fdeae002ad0",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py": "ba9aafb2356d08143d31acf48c42ef61d23d44d4a431dba91bf24737cea11927",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py": "826e16958d78590a8b3baeea019f883399048dc3b6a2915e9843b0a5c9879f79",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_analysis.py": "f02a41cd7e4a3f04f2905cf26c95b792dc10c2aa4831071ea70e86a0db325b47",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py": "992b7b90b9ab5a658e57c856d2f4cf5ba57237d4685f665563609e4b30fab568",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py": "99dbbcaa6f71d94833b4fc1bd695d660c5141d770ca418bfa19c1879f4f22d98"
+  }
+}

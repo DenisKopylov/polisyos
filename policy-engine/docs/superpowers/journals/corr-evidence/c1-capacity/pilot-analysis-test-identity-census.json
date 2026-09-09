@@ -1,0 +1,21 @@
+{
+  "synthetic": true,
+  "status": "complete_identity_sets_equal",
+  "denominator": "every test method in both named modules",
+  "modules": [
+    {
+      "path": "docs/superpowers/journals/corr-evidence/c1-capacity/test_pilot_analysis.py",
+      "sha256": "517986fe11b97cfbc3a82a4b215570cb9a832b2ebef0a1a2fa260f54aa2a1f29",
+      "ast_count": 5,
+      "loader_count": 5,
+      "identity_difference": []
+    },
+    {
+      "path": "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_reanalysis.py",
+      "sha256": "b8b67ddbd6df0d18ee4dfa455bd59d7ff396efcf47bb343011caf2a1e2a61683",
+      "ast_count": 1,
+      "loader_count": 1,
+      "identity_difference": []
+    }
+  ]
+}

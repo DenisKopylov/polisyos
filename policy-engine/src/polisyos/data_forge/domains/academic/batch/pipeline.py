@@ -7,12 +7,18 @@ import gc
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field, replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from polisyos.data_forge.kernel.runtime import cooldown
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+    from polisyos.data_forge.kernel.pipeline.manifests import ArtifactRef
+
+    from ._graph_staging import GraphCapacityLimits
+    from .reextraction_campaign import CampaignCheckpoint, CampaignPlan, SafeJSONWriter
 
 
 ClaimAdjudicationRunner = Callable[
@@ -256,3 +262,370 @@ def run_academic_pipeline_sync(
             claim_adjudication_runner=claim_adjudication_runner,
         )
     )
+
+
+def campaign_graph_owner_projection() -> dict[str, object]:
+    """Bind the finite graph execution owners separately from provider execution.
+
+    This is a file-byte projection, not a transitive or loaded-process attestation.
+    """
+    from pathlib import Path
+
+    from polisyos.data_forge.kernel.io import sha256_file
+
+    from .reextraction_campaign import _digest
+
+    root = Path(__file__).resolve().parents[6]
+    batch = "src/polisyos/data_forge/domains/academic/batch/"
+    knowledge = "src/polisyos/data_forge/domains/academic/knowledge/"
+    paths = (
+        *(batch + name for name in (
+            "pipeline.py", "graph_builder.py", "edge_synthesize.py", "_graph_staging.py",
+            "config.py", "claim_ids.py", "admitted_claim_adjudications.py",
+        )),
+        *(knowledge + name for name in (
+            "types.py", "skg_store.py", "canonical_resolver.py", "canonical_seed.py",
+        )),
+        "src/polisyos/data_forge/kernel/pipeline/manifests.py",
+        "src/polisyos/data_forge/kernel/io/hashing.py",
+        "src/polisyos/data_forge/kernel/io/atomic.py",
+        "uv.lock",
+    )
+    sources = {path: "sha256:" + sha256_file(root / path) for path in paths}
+    return {"sources": sources, "content_hash": _digest(sources)}
+
+
+def _complete_campaign_graph_inputs(
+    checkpoint: CampaignCheckpoint,
+) -> tuple[int, str, dict[str, int], bool]:
+    from .reextraction_campaign import _completed_projection, _contains_synthetic
+
+    # Reuse the complete-frame owner without changing historical inputs.
+    checkpoint.validate_complete_frame()
+    summary = checkpoint.summary()
+    if summary["works"] != {"complete": checkpoint.plan.input_count}:
+        raise ValueError("campaign_graph_inputs_incomplete")
+    count, output_digest = _completed_projection(checkpoint)
+    outcomes = summary["outcomes"]
+    if count != checkpoint.plan.input_count or sum(outcomes.values()) != count:
+        raise ValueError("campaign_graph_input_outcomes_mismatch")
+    synthetic = checkpoint.plan.synthetic
+    for record in checkpoint.iter_records():
+        if _contains_synthetic(record):
+            synthetic = True
+    return count, output_digest, outcomes, synthetic
+
+
+def _validate_campaign_graph_packet(packet: object) -> dict[str, Any]:
+    """Validate this owner's finite artifact grammar without coercing provenance."""
+    import re
+
+    expected = {
+        "schema_version", "artifact_kind", "scope", "synthetic", "campaign_binding",
+        "input_frame_digest", "completed_input_count", "completed_output_digest",
+        "work_outcomes", "capacity_limits", "graph_owner_projection", "graph_metrics",
+        "artifacts", "staging_usage", "input_mode", "input_execution_epoch",
+        "input_owner_source_hash", "strangle_receipt",
+    }
+    if not isinstance(packet, dict) or set(packet) != expected:
+        raise ValueError("campaign_graph_manifest_shape_mismatch")
+    if (
+        packet["schema_version"] != "policyos.academic.campaign_graph.v1"
+        or packet["artifact_kind"] != "completed_candidate_graph"
+        or packet["scope"] != "candidate_only"
+        or packet["input_mode"] != "historical_source_epoch"
+        or packet["input_execution_epoch"] not in {"v1", "v2"}
+        or type(packet["synthetic"]) is not bool
+        or type(packet["completed_input_count"]) is not int
+        or packet["completed_input_count"] <= 0
+    ):
+        raise ValueError("campaign_graph_manifest_scope_mismatch")
+    for name in (
+        "campaign_binding", "input_frame_digest", "completed_output_digest",
+        "input_owner_source_hash",
+    ):
+        if not isinstance(packet[name], str) or not re.fullmatch(
+            r"sha256:[a-f0-9]{64}", packet[name],
+        ):
+            raise ValueError("campaign_graph_manifest_hash_malformed")
+    for name in (
+        "work_outcomes", "capacity_limits", "graph_metrics", "graph_owner_projection",
+        "staging_usage", "strangle_receipt",
+    ):
+        if not isinstance(packet[name], dict):
+            raise ValueError("campaign_graph_manifest_projection_malformed")
+    if not isinstance(packet["artifacts"], list) or not packet["artifacts"]:
+        raise ValueError("campaign_graph_manifest_artifacts_missing")
+    from polisyos.data_forge.kernel.pipeline.manifests import ManifestArtifact
+
+    paths: set[str] = set()
+    for item in packet["artifacts"]:
+        entry = ManifestArtifact.model_validate(item)
+        if not entry.sha256 or entry.path in paths:
+            raise ValueError("campaign_graph_manifest_artifact_identity_mismatch")
+        paths.add(entry.path)
+    return packet
+
+
+
+@dataclass(frozen=True)
+class GraphStagingStrangleReceipt:
+    """Recomputed run use of disk staging; migration equivalence is a release proof."""
+
+    synthetic: bool
+    default_flipped: bool
+    campaign_binding: str
+    completed_output_digest: str
+    graph_owner_projection_hash: str
+    stages: dict[str, dict[str, Any]]
+    schema_version: str = field(default="policyos.academic.graph_staging_strangle.v1", init=False)
+    scope: str = field(default="candidate_only", init=False)
+    predicate_posture: str = field(default="recomputed", init=False)
+    predicate: str = field(
+        default="both_default_staging_owners_consumed_with_bound_limits", init=False,
+    )
+    legacy_path: str = field(default="resident_corpus_collections", init=False)
+    replacement_path: str = field(default="bounded_disk_staging", init=False)
+    migration_equivalence: str = field(default="not_established_by_this_run", init=False)
+
+
+def _recompute_graph_staging_strangle(
+    checkpoint: CampaignCheckpoint, build_root: Path, *, limits: GraphCapacityLimits,
+    synthetic: bool, output_digest: str, source_projection: dict[str, Any],
+) -> GraphStagingStrangleReceipt:
+    from dataclasses import asdict
+
+    from polisyos.data_forge.kernel.io import sha256_file
+
+    from ._graph_staging import read_staging_usage
+
+    stages = {}
+    default_flipped = True
+    for name, filename in (("graph_load", "graph-load.sqlite"),
+                           ("edge_synthesize", "edge-synthesize.sqlite")):
+        path = build_root / "staging" / filename
+        usage = read_staging_usage(path)
+        if usage.get("applied_limits") != asdict(limits):
+            raise ValueError("campaign_graph_staging_limits_mismatch")
+        operations = usage.get("namespace_operations")
+        if not isinstance(operations, dict):
+            raise ValueError("campaign_graph_staging_operations_missing")
+        exercised = False
+        for namespace, entry in operations.items():
+            if (not isinstance(namespace, str) or not namespace or not isinstance(entry, dict)
+                    or set(entry) != {"kind", "writes", "batches"}
+                    or entry["kind"] not in {"rows", "values", "counts", "groups", "pairs"}
+                    or any(type(entry[key]) is not int or entry[key] < 0
+                           for key in ("writes", "batches"))):
+                raise ValueError("campaign_graph_staging_operations_malformed")
+            exercised |= entry["writes"] > 0 or entry["batches"] > 0
+        default_flipped &= exercised
+        stages[name] = {
+            "path": path.relative_to(checkpoint.root).as_posix(),
+            "sha256": sha256_file(path), "usage": usage,
+            "actual_staging_operations_exercised": exercised,
+        }
+    return GraphStagingStrangleReceipt(
+        synthetic=synthetic, default_flipped=default_flipped,
+        campaign_binding=checkpoint._binding, completed_output_digest=output_digest,
+        graph_owner_projection_hash=source_projection["content_hash"], stages=stages,
+    )
+
+
+def _campaign_graph_artifact_paths(config: AcademicBatchConfig) -> tuple[Path, ...]:
+    """Project the complete outputs of the two graph owners used by this bridge."""
+    return (
+        config.db_path, config.canonical_review_queue_path,
+        config.edge_synthesis_report_path, config.manifests_dir / "edge_synthesize.json",
+    )
+
+
+def _require_campaign_graph_artifact_set(
+    packet: dict[str, Any], config: AcademicBatchConfig, checkpoint_root: Path,
+) -> None:
+    expected = {
+        path.relative_to(checkpoint_root).as_posix()
+        for path in _campaign_graph_artifact_paths(config)
+    }
+    observed = {item["path"] for item in packet["artifacts"]}
+    if observed != expected:
+        raise ValueError("campaign_graph_artifact_membership_mismatch")
+
+
+def finalize_extraction_campaign_graph(
+    plan: CampaignPlan,
+    checkpoint_root: Path,
+    *,
+    capacity_limits: GraphCapacityLimits | None = None,
+    safe_write_json: SafeJSONWriter,
+) -> ArtifactRef:
+    """Publish an intact candidate graph built from complete durable work outputs.
+
+    The graph is rebuilt in unique private state. A killed or refused build has
+    no completed manifest and never requires another provider request. Completed
+    work includes refusal/error dispositions, which remain explicit in the output.
+    """
+    import json
+    import uuid
+    from dataclasses import asdict
+
+    from polisyos.data_forge.kernel.pipeline.manifests import ArtifactRef
+
+    from .reextraction_campaign import CampaignCheckpoint, validate_campaign_output_root
+
+    validate_campaign_output_root(checkpoint_root, synthetic=plan.synthetic)
+    with CampaignCheckpoint.read_only_history(checkpoint_root, plan) as checkpoint:
+        count, output_digest, outcomes, synthetic = _complete_campaign_graph_inputs(checkpoint)
+        # Heavy owners are reached only after complete input replay succeeds.
+        from polisyos.data_forge.domains.academic.knowledge.types import WorkRecord
+        from polisyos.data_forge.kernel.io import sha256_file
+
+        from ._graph_staging import (
+            GraphCapacityLimits,
+            publish_owned_output,
+            read_staging_usage,
+        )
+        from .config import AcademicBatchConfig
+        from .edge_synthesize import run_edge_synthesize
+        from .graph_builder import load_graph
+
+        limits = capacity_limits if capacity_limits is not None else GraphCapacityLimits()
+        source_projection = campaign_graph_owner_projection()
+        build_id = uuid.uuid4().hex
+        build_root = checkpoint.root / "graph-builds" / build_id
+        config = AcademicBatchConfig(
+            snapshot_root=build_root, run_id=plan.campaign_id,
+            pass_name="abstract_campaign_graph",  # noqa: S106 - existing processing-stage label
+        )
+        config.db_path.parent.mkdir(parents=True, exist_ok=True)
+        staging = build_root / "staging"
+        provenance = {
+            "synthetic": synthetic, "scope": "candidate_only",
+            "campaign_binding": checkpoint._binding,
+            "completed_output_digest": output_digest,
+            "graph_owner_projection": source_projection["content_hash"],
+        }
+        stats = load_graph(
+            records=(WorkRecord.model_validate(record) for record in checkpoint.iter_records()),
+            db_path=config.db_path, run_id=plan.campaign_id, pass_name=config.pass_name,
+            config_json=json.dumps(provenance, sort_keys=True),
+            capacity_limits=limits, staging_dir=staging, source_provenance=provenance,
+        )
+        synthesis = run_edge_synthesize(
+            config, source_provenance=provenance, capacity_limits=limits, staging_dir=staging,
+        )
+        if campaign_graph_owner_projection() != source_projection:
+            raise ValueError("campaign_graph_owner_changed_during_build")
+        paths = _campaign_graph_artifact_paths(config)
+        # Stable private paths preserve the existing stage manifest's references.
+        artifacts = [
+            {"path": path.relative_to(checkpoint.root).as_posix(), "sha256": sha256_file(path)}
+            for path in paths
+        ]
+        strangle = _recompute_graph_staging_strangle(
+            checkpoint, build_root, limits=limits, synthetic=synthetic,
+            output_digest=output_digest, source_projection=source_projection,
+        )
+        packet = _validate_campaign_graph_packet({
+            "schema_version": "policyos.academic.campaign_graph.v1",
+            "artifact_kind": "completed_candidate_graph", "scope": "candidate_only",
+            "synthetic": synthetic, "campaign_binding": checkpoint._binding,
+            "input_mode": "historical_source_epoch",
+            "input_execution_epoch": plan.execution_epoch,
+            "input_owner_source_hash": plan.owner_source_hash,
+            "input_frame_digest": plan.input_digest, "completed_input_count": count,
+            "completed_output_digest": output_digest, "work_outcomes": outcomes,
+            "capacity_limits": asdict(limits), "graph_owner_projection": source_projection,
+            "graph_metrics": {**asdict(stats), **synthesis}, "artifacts": artifacts,
+            "strangle_receipt": asdict(strangle),
+            "staging_usage": {
+                "graph_load": read_staging_usage(staging / "graph-load.sqlite"),
+                "edge_synthesize": read_staging_usage(staging / "edge-synthesize.sqlite"),
+            },
+        })
+        _require_campaign_graph_artifact_set(packet, config, checkpoint.root)
+        # The shared owner measures actual safe-writer bytes privately before
+        # exposing a completed reference. Refused builds remain rebuildable.
+        manifest = checkpoint.root / "graphs" / f"{build_id}.json"
+        publish_owned_output(
+            manifest, lambda private: safe_write_json(private, packet),
+            paths=(build_root,), limits=limits, temporary_root=build_root,
+        )
+        return ArtifactRef(
+            path=manifest.relative_to(checkpoint.root).as_posix(), sha256=sha256_file(manifest),
+        )
+
+
+def resolve_extraction_campaign_graph(
+    plan: CampaignPlan,
+    checkpoint_root: Path,
+    ref: ArtifactRef,
+    *,
+    safe_write_json: SafeJSONWriter | None = None,
+) -> dict[str, Any]:
+    """Reconcile the candidate manifest with its current inputs and actual artifacts."""
+    import json
+    from pathlib import Path
+
+    from polisyos.data_forge.kernel.io import sha256_file
+
+    from ._graph_staging import (
+        GraphCapacityLimits,
+        enforce_owned_output_budget,
+        read_staging_usage,
+    )
+    from .config import AcademicBatchConfig
+    from .reextraction_campaign import CampaignCheckpoint, _bytes_digest
+
+    del safe_write_json  # Historical resolution never needs credentials or writes.
+    with CampaignCheckpoint.read_only_history(checkpoint_root, plan) as checkpoint:
+        path = (checkpoint.root / ref.path).resolve()
+        if path.parent != checkpoint.root / "graphs" or Path(ref.path).is_absolute():
+            raise ValueError("campaign_graph_manifest_path_refused")
+        raw = checkpoint._bounded_bytes(path)
+        if _bytes_digest(raw)[7:] != ref.sha256:
+            raise ValueError("campaign_graph_manifest_hash_mismatch")
+        packet = _validate_campaign_graph_packet(json.loads(raw))
+        count, output_digest, outcomes, synthetic = _complete_campaign_graph_inputs(checkpoint)
+        if (
+            packet["campaign_binding"] != checkpoint._binding
+            or packet["input_frame_digest"] != plan.input_digest
+            or packet["synthetic"] is not synthetic
+            or packet["input_execution_epoch"] != plan.execution_epoch
+            or packet["input_owner_source_hash"] != plan.owner_source_hash
+            or packet["completed_input_count"] != count
+            or packet["completed_output_digest"] != output_digest
+            or packet["work_outcomes"] != outcomes
+            or packet["graph_owner_projection"] != campaign_graph_owner_projection()
+        ):
+            raise ValueError("campaign_graph_current_binding_mismatch")
+        limits = GraphCapacityLimits(**packet["capacity_limits"])
+        build_root = checkpoint.root / "graph-builds" / path.stem
+        enforce_owned_output_budget((build_root, path), limits)
+        config = AcademicBatchConfig(
+            snapshot_root=build_root, run_id=plan.campaign_id,
+            pass_name="abstract_campaign_graph",  # noqa: S106 - processing-stage label
+        )
+        _require_campaign_graph_artifact_set(packet, config, checkpoint.root)
+        for item in packet["artifacts"]:
+            artifact = (checkpoint.root / item["path"]).resolve()
+            if not artifact.is_relative_to(build_root) or Path(item["path"]).is_absolute():
+                raise ValueError("campaign_graph_artifact_path_refused")
+            if sha256_file(artifact) != item["sha256"]:
+                raise ValueError("campaign_graph_artifact_hash_mismatch")
+        if packet["staging_usage"] != {
+            "graph_load": read_staging_usage(build_root / "staging" / "graph-load.sqlite"),
+            "edge_synthesize": read_staging_usage(
+                build_root / "staging" / "edge-synthesize.sqlite",
+            ),
+        }:
+            raise ValueError("campaign_graph_staging_usage_mismatch")
+        from dataclasses import asdict
+
+        strangle = _recompute_graph_staging_strangle(
+            checkpoint, build_root, limits=limits, synthetic=synthetic,
+            output_digest=output_digest, source_projection=packet["graph_owner_projection"],
+        )
+        if packet["strangle_receipt"] != asdict(strangle):
+            raise ValueError("campaign_graph_strangle_recomputation_mismatch")
+        return packet

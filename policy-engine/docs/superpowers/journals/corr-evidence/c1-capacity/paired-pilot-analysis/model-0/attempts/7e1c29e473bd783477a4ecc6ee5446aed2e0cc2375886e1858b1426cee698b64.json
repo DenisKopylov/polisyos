@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "context": {
+    "attempt_id": "7e1c29e473bd783477a4ecc6ee5446aed2e0cc2375886e1858b1426cee698b64",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:8a262f4efc558a4e53fe752542e8cc98a7d0178d5ee0defd1dc0f25c03326ba8",
+    "prompt_hash": "sha256:c04606db1b78a920d171de9df1ae5ce9577e00f54a9ea5b78b09f8601a48cb75",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "parsed": {
+    "reason": "Empirical cross-country study with quantitative findings on electoral institutions and public spending, but no explicit causal identification or numeric effect sizes reported.",
+    "relevance_score": 0.6,
+    "relevant": true
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 47,
+    "prompt_tokens": 668,
+    "total_tokens": 715
+  }
+}

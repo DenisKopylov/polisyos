@@ -1,0 +1,29 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--output-format",
+    "concise",
+    "src/polisyos/data_forge/domains/academic/batch/_graph_staging.py",
+    "src/polisyos/data_forge/domains/academic/batch/graph_builder.py",
+    "src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_staging.py",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph_capacity_removal.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph_state_census.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph_baseline.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.04446899995673448,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "docs/superpowers/journals/corr-evidence/c1-capacity/graph_baseline.py:36:9: T201 `print` found\ndocs/superpowers/journals/corr-evidence/c1-capacity/graph_baseline.py:40:42: RUF100 [*] Unused `noqa` directive (unused: `T201`)\ndocs/superpowers/journals/corr-evidence/c1-capacity/graph_state_census.py:63:5: T201 `print` found\ndocs/superpowers/journals/corr-evidence/c1-capacity/graph_state_census.py:67:66: RUF100 [*] Unused `noqa` directive (unused: `T201`)\ndocs/superpowers/journals/corr-evidence/c1-capacity/graph_state_census.py:70:101: E501 Line too long (146 > 100)\ntests/unit/data_forge/domains/academic/batch/test_graph_capacity.py:358:9: SIM117 [*] Use a single `with` statement with multiple contexts instead of nested `with` statements\ntests/unit/data_forge/domains/academic/batch/test_graph_staging.py:45:13: SIM117 [*] Use a single `with` statement with multiple contexts instead of nested `with` statements\ntests/unit/data_forge/domains/academic/batch/test_graph_staging.py:78:13: SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\ntests/unit/data_forge/domains/academic/batch/test_graph_staging.py:91:13: SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\ntests/unit/data_forge/domains/academic/batch/test_graph_staging.py:106:13: SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\ntests/unit/data_forge/domains/academic/batch/test_graph_staging.py:158:13: SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\nFound 11 errors.\n[*] 4 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).\n",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

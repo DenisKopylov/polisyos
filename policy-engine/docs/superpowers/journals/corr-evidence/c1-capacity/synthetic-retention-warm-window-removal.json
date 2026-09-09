@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "authority_granted": false,
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_verification",
+    "--child",
+    "--test",
+    "test_synthetic_retention.SyntheticRetentionTests.test_warm_progress_bins_exclude_startup_and_replay_cleanup",
+    "--remove-work-window"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 0.08190962497610599,
+  "stdout": "",
+  "stderr": "test_warm_progress_bins_exclude_startup_and_replay_cleanup (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_warm_progress_bins_exclude_startup_and_replay_cleanup) ... FAIL\n\n======================================================================\nFAIL: test_warm_progress_bins_exclude_startup_and_replay_cleanup (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_warm_progress_bins_exclude_startup_and_replay_cleanup)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py\", line 111, in test_warm_progress_bins_exclude_startup_and_replay_cleanup\n    checks._equal(result[\"work_progress_warm\"][\"sample_count\"], 4)\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_pilot_analysis.py\", line 24, in _equal\n    raise AssertionError(f\"{actual!r} != {expected!r}\")\nAssertionError: 6 != 4\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (failures=1)\n",
+  "helper_source_sha256": {
+    "retention_analysis.py": "207afb045b5e0fce464d345da50c97d88a7502cb7e1808d1acc5cd865f520e68",
+    "retention_verification.py": "0589f452e6eccbbfb7ef7bb654470e737edb3f564256a505097c444bc3f6c8bb",
+    "synthetic_retention.py": "6f3e43aa281aec44b6154b96b63ae8699349797fdcce58a90160045ccc503424",
+    "test_synthetic_retention.py": "b358e151a5f79cac064b5e99a1be6656af925c52c1316b71930fdd48bf396191"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "actual_owner_replay": "recomputed",
+  "artifact_kind": "strangle",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "completed_identity_projection": "sha256:c7f425b7d64f3bfc3abb49b93efd9ebb4716f7707aa0c40bbc1efe73adb9bfd9",
+  "completed_work_count": 6,
+  "default_flipped": true,
+  "default_path": "CampaignCheckpoint.complete_artifact_replay",
+  "legacy_path": "PolicyArticleExtractor.processed_key_cache",
+  "provider_replay_attempts": 0,
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "strangle_schema_version": "policyos.academic.campaign_checkpoint_strangle.v1",
+  "synthetic": false
+}

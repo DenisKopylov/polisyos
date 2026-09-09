@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_store_owns_synthetic_candidate_provenance_before_derived_rows",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_missing_provenance_stays_unknown_and_actual_ancestry_is_monotone"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.9722604589769617,
+  "returncode": 1,
+  "stderr": "EE\n======================================================================\nERROR: test_store_owns_synthetic_candidate_provenance_before_derived_rows (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_store_owns_synthetic_candidate_provenance_before_derived_rows)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\", line 157, in test_store_owns_synthetic_candidate_provenance_before_derived_rows\n    with self.module.StagingStore(self.path, self.limits,\n         ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n                                  source_provenance={\"synthetic\": True}) as store:\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: StagingStore.__init__() got an unexpected keyword argument 'source_provenance'\n\n======================================================================\nERROR: test_missing_provenance_stays_unknown_and_actual_ancestry_is_monotone (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_missing_provenance_stays_unknown_and_actual_ancestry_is_monotone)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\", line 166, in test_missing_provenance_stays_unknown_and_actual_ancestry_is_monotone\n    self.assertIsNone(store.con.execute(\"SELECT synthetic FROM spool_metadata\").fetchone()[0])\n                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsqlite3.OperationalError: no such table: spool_metadata\n\n----------------------------------------------------------------------\nRan 2 tests in 0.753s\n\nFAILED (errors=2)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

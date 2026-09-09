@@ -1,0 +1,48 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "5c05c389553316720b23a2b1cc941c501def8e951e833e897d52a8d985ca7e23",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "extraction",
+    "phase_key": "sha256:f6f73881d0b5345d33add9de076d44b4b68601cfe2eb614ea73d9080f3759ff5",
+    "prompt_hash": "sha256:f830bcdd63c6279f8e1a1fa440517ee6928e31a627344dc2b90d5f6099d91e74",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.002447041915729642,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 3401,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:5926db74eeda2e415c16bbe8b2dace46505da79812f38982da76974d17bad6b1",
+  "prompt_hash": "sha256:f830bcdd63c6279f8e1a1fa440517ee6928e31a627344dc2b90d5f6099d91e74",
+  "provider_usage": {
+    "completion_tokens": 1175,
+    "completion_tokens_details": null,
+    "prompt_tokens": 3537,
+    "prompt_tokens_details": null,
+    "total_tokens": 4712
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 5310,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:27b0ca6458116b943d62ae4442f8dcd42d3902f9d97b9494559310b6ac60ea24",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 0.4536576250102371,
+  "usage": {
+    "completion_tokens": 1175,
+    "prompt_tokens": 3537,
+    "total_tokens": 4712
+  }
+}

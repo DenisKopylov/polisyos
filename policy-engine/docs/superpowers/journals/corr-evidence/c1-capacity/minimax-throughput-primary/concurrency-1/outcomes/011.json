@@ -1,0 +1,114 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-011",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:640366fe9a45a3867294da1bb408528899543b821b25d375f307fe11aa957f62",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [
+      {
+        "cause_variable": "toilet_access_safety",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.3,
+        "claim_id": "cc_01",
+        "claim_text": "Access to safe and comfortable toilets plays a fundamental role in making trans lives possible.",
+        "counterevidence_notes": "No empirical effect size provided; claim is theoretical/argumentative rather than empirically estimated",
+        "design_family_hint": "theoretical",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "trans_lives_possibility",
+        "evidence_strength": "theoretical",
+        "extraction_warnings": [
+          "Abstract-only source limits causal validity assessment",
+          "No quantitative effect size available",
+          "Claim is normative/theoretical rather than empirically derived"
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "trans individuals",
+          "public toilet spaces"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 4,
+            "text": "We use Around the Toilet data to argue that access to safe and comfortable toilets plays a fundamental role in making trans lives possible."
+          }
+        ]
+      },
+      {
+        "cause_variable": "trans_exclusionary_positions",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.3,
+        "claim_id": "cc_02",
+        "claim_text": "Trans-exclusionary positions put trans people, and others with visible markers of gender difference, at a greater risk of violence.",
+        "counterevidence_notes": "No empirical effect size or statistical estimate provided; claim is theoretical argument",
+        "design_family_hint": "theoretical",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "violence_risk_trans_people",
+        "evidence_strength": "theoretical",
+        "extraction_warnings": [
+          "Abstract-only source limits causal validity assessment",
+          "No quantitative effect size available",
+          "Claim is normative/theoretical rather than empirically derived"
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "trans individuals",
+          "public toilet spaces"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 5,
+            "text": "Furthermore, we contend that – whether naive, ignorant or explicitly transphobic – trans-exclusionary positions do little to improve toilet access for the majority, instead putting trans people, and others with visible markers of gender difference, at a greater risk of violence."
+          }
+        ]
+      }
+    ],
+    "citation_summary": "Scheele, A. (n.d.). 'The toilet debate: Stalling trans possibilities and defending women's protected spaces.' AHRC-funded Around the Toilet project. Abstract-only source with no quantitative empirical estimates.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.15,
+    "extraction_warnings": [
+      "Source is abstract-only with no full-text access",
+      "No quantitative empirical parameters available in the evidence bundle",
+      "No methodology sentences, result sentences, or claim sentences provided",
+      "No numeric result snippets or blocks present",
+      "Paper is qualitative/theoretical rather than empirical quantitative research",
+      "Causal claims are theoretical arguments without empirical effect sizes",
+      "Low extraction confidence reflects the limited evidence available for policy-relevant parameter extraction"
+    ],
+    "mechanisms": [
+      {
+        "description": "Trans-exclusionary narratives (ciscentric, heteronormative, gender essentialist positions) restrict access to safe toilet spaces, which increases vulnerability and violence risk for trans individuals.",
+        "evidence_type": "survey",
+        "mediating_variables": [
+          "toilet_access_restriction",
+          "safety_compromised"
+        ],
+        "theoretical_framework": "Trans studies; feminist gender-critical discourse analysis"
+      }
+    ],
+    "methodology": "Qualitative research based on the AHRC-funded 'Around the Toilet' project. The study employs critical discourse analysis to examine trans-exclusionary and trans-hostile narratives in toilet spaces. No specific quantitative methodology, sample size, or statistical approach is described in the available abstract.",
+    "methodology_enum": "qualitative",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:db3e4c4ee3ce26ab9768fe2fb1b70558732bd1814a1a2e85d3ccef69c458f23e",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-011.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:b2641b68ccb54f23762436742bd0d7a7966bbcf47e06ec4a516991f4cbb82730",
+  "work_id": "https://openalex.org/W3036404624"
+}

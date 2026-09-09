@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "authority_granted": false,
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_verification",
+    "--child",
+    "--test",
+    "test_synthetic_retention.SyntheticRetentionTests.test_duplicate_observation_body_cannot_hide_missing_identity"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 2.3192578750895336,
+  "stdout": "",
+  "stderr": "test_duplicate_observation_body_cannot_hide_missing_identity (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_duplicate_observation_body_cannot_hide_missing_identity) ... FAIL\n\n======================================================================\nFAIL: test_duplicate_observation_body_cannot_hide_missing_identity (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_duplicate_observation_body_cannot_hide_missing_identity)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py\", line 154, in test_duplicate_observation_body_cannot_hide_missing_identity\n    checks._refuses(\"retention_mock_observation_identity_mismatch\"),\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 148, in __exit__\n    next(self.gen)\n    ~~~~^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_pilot_analysis.py\", line 35, in _refuses\n    raise AssertionError(\"missing required refusal: \" + reason)\nAssertionError: missing required refusal: retention_mock_observation_identity_mismatch\n\n----------------------------------------------------------------------\nRan 1 test in 1.926s\n\nFAILED (failures=1)\n"
+}

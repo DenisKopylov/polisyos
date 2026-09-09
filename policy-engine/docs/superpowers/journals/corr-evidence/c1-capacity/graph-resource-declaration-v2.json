@@ -1,0 +1,37 @@
+{
+  "correction": "pre-run source helper additions bind complete declared input frame and before/after source projection; original resource declaration had no executions",
+  "declared_at": "2026-09-09T11:38:02.256635+00:00",
+  "frames": [
+    {
+      "input_count": 100,
+      "input_digest": "sha256:7e41c7f3cf9394997e4673dccf7a1af2488efee84d4b49d759c083637ac8f981"
+    },
+    {
+      "input_count": 1000,
+      "input_digest": "sha256:b3e93bb37019fd80b1194443a303f8c35c9b673245f261201fe73a0b8ee6abdc"
+    }
+  ],
+  "limits": {
+    "max_disk_write_bytes": 17179869184,
+    "max_rss_bytes": 2147483648,
+    "max_wall_seconds_per_size": 300
+  },
+  "no_held_corpus_graph": true,
+  "no_provider_calls": true,
+  "prior_resource_executions": 0,
+  "record_shape": "one marked raw causal occurrence per work; no adjudication",
+  "schema_version": "corr.graph_resource_declaration.v2",
+  "scope": "bounded_synthetic_candidate_graph_finalizer",
+  "selection": "complete ordinal range 0..input_count-1; no outcome selection",
+  "source_path": "docs/superpowers/journals/corr-evidence/c1-capacity/graph_finalizer_profile.py",
+  "source_projection_binding": "current graph owner projection bound by finalizer at each run; compared equal across declared sizes before interpreting resource growth",
+  "source_sha256": "c9c7f93146f61204c712661e8262c20b6d87a3301e2390b688a2856a59b486a0",
+  "supersedes": {
+    "initial_whole_file_byte_identity": "not_established",
+    "original_helper_pin_observed_by_parent": "7787e1e10c3d509db9ac83eb40b730c8e100b9ac3bf202ccab22ef91cd530bd7",
+    "path": "docs/superpowers/journals/corr-evidence/c1-capacity/graph-resource-declaration.json",
+    "reconstructed_declaration_sha256": "cbb5fb76681bba61bcc8e60170db913a2196b54dbcab24468d37c6f764f5e7d2"
+  },
+  "synthetic": true,
+  "timed_scope": "finalize and resolve through actual pipeline owner; preparation excluded"
+}

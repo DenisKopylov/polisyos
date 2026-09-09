@@ -1,0 +1,26 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/data_forge/domains/academic/batch/reextraction_cli.py",
+    "src/polisyos/data_forge/domains/academic/batch/reextraction_campaign.py",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign_recovery.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/campaign_cli_removal.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/campaign_recovery_removal.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/campaign_history_probe.py"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.05642470810562372,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "All checks passed!\n",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

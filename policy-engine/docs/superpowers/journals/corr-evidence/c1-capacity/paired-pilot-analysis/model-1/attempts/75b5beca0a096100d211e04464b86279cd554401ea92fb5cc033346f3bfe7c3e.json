@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "75b5beca0a096100d211e04464b86279cd554401ea92fb5cc033346f3bfe7c3e",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "screening",
+    "phase_key": "sha256:226e7d6e49d19e5a35ad243079d1ce3fe82ec0a72054209c52e88d573b541030",
+    "prompt_hash": "sha256:c7abfbdcf3a8147cefced66817273b649886d4473a44e8e8789d15a4c903191d",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4399636837",
+    "work_key": "sha256:7941cde9c442f7b039dbc4b25074ca1c7c003fae1af304a8c5f33b7483511956"
+  },
+  "parsed": {
+    "reason": "Theoretical/conceptual analysis of institutional roles in bioplastic definitions using narrative literature review; no empirical policy effects, quantitative estimates, or causal identification",
+    "relevance_score": 0.15,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 320,
+    "prompt_tokens": 834,
+    "total_tokens": 1154
+  }
+}

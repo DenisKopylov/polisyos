@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_capacity_removal",
+    "pair_capacity"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.135189500055276,
+  "returncode": 1,
+  "stderr": "test_whole_pair_capacity_refuses_even_when_each_direction_fits (tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_whole_pair_capacity_refuses_even_when_each_direction_fits) ... FAIL\n\n======================================================================\nFAIL: test_whole_pair_capacity_refuses_even_when_each_direction_fits (tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_whole_pair_capacity_refuses_even_when_each_direction_fits)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py\", line 211, in test_whole_pair_capacity_refuses_even_when_each_direction_fits\n    with self.assertRaisesRegex(GraphCapacityError, \"max_pair_contributions\"):\n         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: GraphCapacityError not raised\n\n----------------------------------------------------------------------\nRan 1 test in 1.221s\n\nFAILED (failures=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

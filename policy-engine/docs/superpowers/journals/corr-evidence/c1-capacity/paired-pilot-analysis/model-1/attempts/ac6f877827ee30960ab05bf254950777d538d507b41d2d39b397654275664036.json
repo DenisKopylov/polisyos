@@ -1,0 +1,48 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "ac6f877827ee30960ab05bf254950777d538d507b41d2d39b397654275664036",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "self_verification",
+    "phase_key": "sha256:409eadb8c08d97b7da9faa809d296b42626a5908cd199ba0375b67eb2458e535",
+    "prompt_hash": "sha256:3005780ad9c6c41bb4d88df31b7dbef67b73e99b92cc1761dc9da047aa2b5f67",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "parsed": {
+    "verifications": [
+      {
+        "claim_index": 1,
+        "confidence_adjustment": 0,
+        "issue": null,
+        "supported": true
+      },
+      {
+        "claim_index": 2,
+        "confidence_adjustment": 0,
+        "issue": null,
+        "supported": true
+      },
+      {
+        "claim_index": 3,
+        "confidence_adjustment": -0.1,
+        "issue": "Direction mismatch: claim states 'mixed' but source text explicitly states 'more proportional systems have higher total primary spending' indicating positive relationship only",
+        "supported": true
+      }
+    ]
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 617,
+    "prompt_tokens": 332,
+    "total_tokens": 949
+  }
+}

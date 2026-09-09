@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_complete_reader_families_and_each_writer_owned_source_carrier",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_source_intake_preserves_unknown_and_refuses_present_malformed_ancestry"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 3.5596115411026403,
+  "returncode": 1,
+  "stderr": "F.\n======================================================================\nFAIL: test_complete_reader_families_and_each_writer_owned_source_carrier (tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_complete_reader_families_and_each_writer_owned_source_carrier)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py\", line 452, in test_complete_reader_families_and_each_writer_owned_source_carrier\n    self.assertEqual(source_families, set(contract))\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Items in the first set but not the second:\n'ac_skg_contested_edges'\n'ac_skg_family_edges'\n\n----------------------------------------------------------------------\nRan 2 tests in 3.333s\n\nFAILED (failures=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "denominator": "all test methods in both named files",
+  "modules": [
+    {
+      "path": "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py",
+      "sha256": "083cf793f9d6914f7e542d8a9743f2dad0db6826d598f84b3c0c217a9eb26570",
+      "ast_count": 2,
+      "loader_count": 2,
+      "identity_difference": []
+    },
+    {
+      "path": "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py",
+      "sha256": "ba9aafb2356d08143d31acf48c42ef61d23d44d4a431dba91bf24737cea11927",
+      "ast_count": 1,
+      "loader_count": 1,
+      "identity_difference": []
+    }
+  ]
+}

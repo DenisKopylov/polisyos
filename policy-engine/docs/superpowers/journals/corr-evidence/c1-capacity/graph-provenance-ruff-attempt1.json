@@ -1,0 +1,25 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--output-format",
+    "concise",
+    "src/polisyos/data_forge/domains/academic/batch/_graph_staging.py",
+    "src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph_capacity_removal.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.04910729196853936,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py:10:1: I001 [*] Import block is un-sorted or un-formatted\ntests/unit/data_forge/domains/academic/batch/test_graph_capacity.py:408:9: I001 [*] Import block is un-sorted or un-formatted\ntests/unit/data_forge/domains/academic/batch/test_graph_capacity.py:520:21: S608 Possible SQL injection vector through string-based query construction\ntests/unit/data_forge/domains/academic/batch/test_graph_capacity.py:529:25: S608 Possible SQL injection vector through string-based query construction\ntests/unit/data_forge/domains/academic/batch/test_graph_capacity.py:561:29: S608 Possible SQL injection vector through string-based query construction\nFound 5 errors.\n[*] 2 fixable with the `--fix` option.\n",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

@@ -1,0 +1,37 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-003",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:203f0a3a8705fcb33a31433d47b43e81f88f4e509af316556183d5bd23b44f30",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [],
+    "citation_summary": "This is a historical-sociological paper about the Cologne School of sociology, focusing on Stephan Moebius and René König. The abstract provides only a fragment about a triad structuring the disciplinary field. No empirical evidence, quantitative parameters, or causal claims are present in the available abstract. The paper appears to be a theoretical/historical contribution to sociology rather than an empirical study.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.05,
+    "extraction_warnings": [
+      "Only abstract fragment available (source_kind: abstract_fallback)",
+      "No empirical methodology present - this is a historical-sociological theoretical paper",
+      "No quantitative parameters, effect sizes, or statistical results in the evidence bundle",
+      "No causal claims or mechanisms described in the available text",
+      "Cannot extract policy-relevant evidence from this source as it does not contain empirical research findings"
+    ],
+    "mechanisms": [],
+    "methodology": "Historical-sociological analysis; no empirical methodology",
+    "methodology_enum": "unknown",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:a7c8f56a5f45efd7f13e60b1dea31774d5f6dde8b08043e5008b4b9b974afea4",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-003.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:256cf4094441c9c667b9fb4d20d01b68fedf00a0a28135cf2dcf6392f77a21be",
+  "work_id": "https://openalex.org/W2580286392"
+}

@@ -13,12 +13,15 @@ import json
 import math
 import os
 import re
+import shutil
 import sqlite3
+import tempfile
 import uuid
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol
+from urllib.parse import quote
 
 if TYPE_CHECKING:
     from polisyos.ir import ArticleExtractionResult
@@ -29,7 +32,12 @@ Phase = Literal["screening", "extraction", "self_verification"]
 SafeJSONWriter = Callable[[Path, object], None]
 _PHASES = frozenset({"screening", "extraction", "self_verification"})
 _SCHEMA = "policyos.academic.extraction_campaign.v1"
+_SCHEMA_V2 = "policyos.academic.extraction_campaign.v2"
 _STAGE = "abstract_campaign"
+_FATAL_KINDS = frozenset({
+    "authentication_error", "request_rejected",
+    "reported_model_mismatch", "unsafe_response_refused",
+})
 _WORK_OUTCOMES = frozenset({
     "extracted", "screening_rejected", "no_claim_artifact",
     "verification_unavailable", "provider_failed", "contract_violation",
@@ -103,8 +111,14 @@ class CampaignPlan:
     retry_delay_seconds: float = 0.0
     max_artifact_bytes: int = 8_388_608
     owner_source_hash: str | None = None
+    execution_epoch: Literal["v1", "v2"] = "v1"
+    fatal_policy: Literal["observe_per_work", "stop_systemic"] = "observe_per_work"
 
     def __post_init__(self) -> None:
+        if (self.execution_epoch, self.fatal_policy) not in {
+            ("v1", "observe_per_work"), ("v2", "stop_systemic"),
+        }:
+            raise ValueError("campaign_epoch_policy_mismatch")
         for name in (
             "input_count", "concurrency", "queue_capacity", "max_attempts",
             "max_attempts_per_phase", "max_artifact_bytes",
@@ -127,6 +141,15 @@ class CampaignPlan:
             self.campaign_id, self.screening_model, self.extraction_model,
         )):
             raise ValueError("campaign_missing_identity")
+
+
+def campaign_plan_projection(plan: CampaignPlan) -> dict[str, Any]:
+    """Preserve legacy v1 plan bytes while binding the v2 execution policy."""
+    payload = asdict(plan)
+    if plan.execution_epoch == "v1":
+        payload.pop("execution_epoch")
+        payload.pop("fatal_policy")
+    return payload
 
 
 @dataclass(frozen=True)
@@ -161,6 +184,18 @@ class PhaseChatClient(Protocol):
 ClientFactory = Callable[[CampaignCallContext], PhaseChatClient]
 
 
+def validate_campaign_output_root(root: Path, *, synthetic: bool) -> Path:
+    """Apply the single held-source/lane boundary before any candidate derivative write."""
+    target = root.resolve()
+    product_root = Path(__file__).resolve().parents[6]
+    held = (product_root / "production_data").resolve()
+    if target == held or held in target.parents or target in held.parents:
+        raise ValueError("campaign_output_crosses_held_source")
+    if not synthetic and (product_root / ".tmp").resolve() not in target.parents:
+        raise ValueError("campaign_live_output_outside_lane_scratch")
+    return target
+
+
 class CampaignCheckpoint:
     """Keep a single-writer disk journal and immutable candidate artifacts.
 
@@ -174,15 +209,12 @@ class CampaignCheckpoint:
         self.root = root.resolve()
         self.plan = plan
         self._safe_write = safe_write_json
-        self._binding = _digest(asdict(plan))
+        self._read_only = False
+        self._history_temp = None
+        self._binding = _digest(campaign_plan_projection(plan))
         if plan.owner_source_hash != campaign_owner_projection()["content_hash"]:
             raise ValueError("campaign_owner_source_mismatch")
-        product_root = Path(__file__).resolve().parents[6]
-        held = (product_root / "production_data").resolve()
-        if self.root == held or held in self.root.parents or self.root in held.parents:
-            raise ValueError("campaign_output_crosses_held_source")
-        if not plan.synthetic and (product_root / ".tmp").resolve() not in self.root.parents:
-            raise ValueError("campaign_live_output_outside_lane_scratch")
+        validate_campaign_output_root(self.root, synthetic=plan.synthetic)
         self.root.mkdir(parents=True, exist_ok=True)
         self._lock = (self.root / "writer.lock").open("a+b")
         try:
@@ -192,7 +224,7 @@ class CampaignCheckpoint:
             raise ValueError("campaign_already_running") from exc
         self._db: sqlite3.Connection | None = None
         try:
-            packet = self._packet("plan", plan=asdict(plan))
+            packet = self._packet("plan", plan=campaign_plan_projection(plan))
             path = self.root / "plan.json"
             if path.exists() and json.loads(self._bounded_bytes(path)) != packet:
                 raise ValueError("campaign_binding_mismatch")
@@ -220,12 +252,162 @@ class CampaignCheckpoint:
                     identity_hash TEXT PRIMARY KEY, work_key TEXT UNIQUE NOT NULL
                 );
                 CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS fatal_stops (
+                    attempt_id TEXT PRIMARY KEY, attempt_sequence INTEGER NOT NULL,
+                    ref TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS fatal_recoveries (
+                    recovery_hash TEXT PRIMARY KEY, through_sequence INTEGER NOT NULL,
+                    ref TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS attempts_state ON attempts(state);
+
             """)
             self._recover_attempts()
             self._recover_work_outputs()
+            self._recover_fatal_controls()
         except BaseException:
             self.close()
             raise
+
+    @classmethod
+    def read_only_history(cls, root: Path, plan: CampaignPlan) -> CampaignCheckpoint:
+        """Open a quiescent historical checkpoint without mutation or dispatch authority.
+
+        Source epochs remain historical: this verifies the supplied original plan
+        and its complete persisted inputs/attempts/outputs, not current-owner identity.
+        """
+        self = cls.__new__(cls)
+        self.root = root.resolve()
+        self.plan = plan
+        self._read_only = True
+        self._history_temp = None
+        self._history_source_projection = None
+        self._binding = _digest(campaign_plan_projection(plan))
+        self._safe_write = self._history_write_refused
+        self._db = None
+        self._lock = (self.root / "writer.lock").open("rb")
+        try:
+            fcntl.flock(self._lock.fileno(), fcntl.LOCK_SH | fcntl.LOCK_NB)
+            path = self.root / "plan.json"
+            data = self._bounded_bytes(path)
+            packet = self._read_packet(path, _bytes_digest(data))
+            if packet != self._packet("plan", plan=campaign_plan_projection(plan)):
+                raise ValueError("campaign_binding_mismatch")
+            snapshot = self._snapshot_history_metadata()
+            uri = "file:" + quote(str(snapshot / "checkpoint.sqlite3")) + "?mode=ro"
+            self._db = sqlite3.connect(uri, uri=True)
+            self._db.row_factory = sqlite3.Row
+            self.validate_complete_frame()
+            self._validate_attempt_history()
+            _completed_projection(self)
+            return self
+        except BaseException:
+            self.close()
+            raise
+
+    def _history_metadata_projection(self) -> dict[str, dict[str, Any]]:
+        projection = {}
+        for name in ("checkpoint.sqlite3", "checkpoint.sqlite3-wal", "checkpoint.sqlite3-shm"):
+            path = self.root / name
+            if path.exists():
+                digest = hashlib.sha256()
+                size = 0
+                with path.open("rb") as stream:
+                    while chunk := stream.read(1_048_576):
+                        size += len(chunk)
+                        digest.update(chunk)
+                projection[name] = {"bytes": size, "sha256": "sha256:" + digest.hexdigest()}
+        if "checkpoint.sqlite3" not in projection:
+            raise ValueError("campaign_history_database_missing")
+        return projection
+
+    def _snapshot_history_metadata(self) -> Path:
+        from .reextraction_transport import SafeJsonWriter
+
+        before = self._history_metadata_projection()
+        parent = Path(__file__).resolve().parents[6] / ".tmp" / "history-views"
+        parent.mkdir(parents=True, exist_ok=True)
+        selected = [name for name in before if not name.endswith("-shm")]
+        source_bytes = sum(before[name]["bytes"] for name in selected)
+        required = 2 * source_bytes + self.plan.max_artifact_bytes
+        if shutil.disk_usage(parent).free < required:
+            raise ValueError("campaign_history_snapshot_disk_insufficient")
+        self._history_temp = tempfile.TemporaryDirectory(prefix="campaign-", dir=parent)
+        target = Path(self._history_temp.name)
+        for name in selected:
+            with (self.root / name).open("rb") as source, (target / name).open("xb") as output:
+                shutil.copyfileobj(source, output, length=1_048_576)
+        if self._history_metadata_projection() != before:
+            raise ValueError("campaign_history_source_changed_during_snapshot")
+        self._history_source_projection = before
+        SafeJsonWriter("NO_CREDENTIAL_USED_BY_HISTORY_VIEW")(
+            target / "snapshot_provenance.json", {
+                "schema_version": "policyos.academic.campaign_history_view.v1",
+                "synthetic": True, "authority_status": "candidate_only",
+                "purpose": "disposable_metadata_read_view_not_new_evidence",
+                "input_mode": "historical_source_epoch", "source_synthetic": self.plan.synthetic,
+                "campaign_binding": self._binding, "source_metadata": before,
+                "source_snapshot_bytes": source_bytes, "required_free_disk_bytes": required,
+            },
+        )
+        return target
+
+    @staticmethod
+    def _history_write_refused(path: Path, packet: object) -> None:
+        del path, packet
+        raise ValueError("campaign_history_is_read_only")
+
+    def _require_writable(self) -> None:
+        if self._read_only:
+            raise ValueError("campaign_history_is_read_only")
+
+    def validate_complete_frame(self) -> None:
+        """Reconcile every stored source identity/hash in its original order, read-only."""
+        digest = hashlib.sha256()
+        count = 0
+        for row in self.db.execute("SELECT work_key,ordinal FROM works ORDER BY ordinal"):
+            key, ordinal = row
+            work = self.source_work(key)
+            identity = self.db.execute(
+                "SELECT work_key FROM work_identities WHERE identity_hash=?",
+                (_digest(work["id"]),),
+            ).fetchone()
+            if ordinal != count or identity is None or identity[0] != key:
+                raise ValueError("campaign_complete_frame_identity_mismatch")
+            digest.update((key + "\n").encode())
+            count += 1
+        identities = self.db.execute("SELECT COUNT(*) FROM work_identities").fetchone()[0]
+        admitted = self.db.execute(
+            "SELECT value FROM metadata WHERE key='frame_admitted'",
+        ).fetchone()
+        if (count != self.plan.input_count or count != identities
+                or "sha256:" + digest.hexdigest() != self.plan.input_digest
+                or admitted is None or admitted[0] != self.plan.input_digest):
+            raise ValueError("campaign_input_frame_mismatch")
+
+    def _validate_attempt_history(self) -> None:
+        for row in self.db.execute("SELECT * FROM attempts"):
+            intent = self._read_packet(
+                self.root / "intents" / f"{row['attempt_id']}.json", row["intent_hash"],
+            )
+            context = intent.get("context")
+            if not isinstance(context, dict) or any(context.get(key) != row[key] for key in (
+                "attempt_id", "work_key", "phase", "phase_key",
+            )) or context.get("attempt_ordinal") != row["ordinal"]:
+                raise ValueError("campaign_attempt_binding_mismatch")
+            expected = _digest((self._binding, row["work_key"], row["phase"],
+                                context["model_id"], context["prompt_hash"]))
+            if (expected != row["phase_key"]
+                    or row["attempt_id"] != _digest((expected, row["ordinal"]))[7:]):
+                raise ValueError("campaign_attempt_binding_mismatch")
+            self.source_work(row["work_key"])
+            if row["state"] in {"returned", "failed"}:
+                output = self._read_packet(
+                    self.root / "attempts" / f"{row['attempt_id']}.json", row["output_hash"],
+                )
+                if output.get("context") != context or output.get("status") != row["state"]:
+                    raise ValueError("campaign_attempt_binding_mismatch")
 
     def __enter__(self) -> CampaignCheckpoint:
         return self
@@ -234,13 +416,22 @@ class CampaignCheckpoint:
         self.close()
 
     def close(self) -> None:
-        """Release the local database and process lock."""
-        if self._db is not None:
-            self._db.close()
-            self._db = None
-        if not self._lock.closed:
-            fcntl.flock(self._lock.fileno(), fcntl.LOCK_UN)
-            self._lock.close()
+        """Release locks and disposable views without changing historical source bytes."""
+        try:
+            if self._db is not None:
+                self._db.close()
+                self._db = None
+            expected = getattr(self, "_history_source_projection", None)
+            if expected is not None and self._history_metadata_projection() != expected:
+                raise ValueError("campaign_history_source_changed_during_read")
+        finally:
+            if not self._lock.closed:
+                fcntl.flock(self._lock.fileno(), fcntl.LOCK_UN)
+                self._lock.close()
+            view = getattr(self, "_history_temp", None)
+            if view is not None:
+                view.cleanup()
+                self._history_temp = None
 
     @property
     def db(self) -> sqlite3.Connection:
@@ -251,7 +442,8 @@ class CampaignCheckpoint:
 
     def _packet(self, kind: str, **payload: object) -> dict[str, Any]:
         return {
-            "schema_version": _SCHEMA, "artifact_kind": kind,
+            "schema_version": _SCHEMA if self.plan.execution_epoch == "v1" else _SCHEMA_V2,
+            "artifact_kind": kind,
             "campaign_binding": self._binding, "synthetic": self.plan.synthetic,
             "scope": "candidate_only", **payload,
         }
@@ -264,6 +456,7 @@ class CampaignCheckpoint:
         return data
 
     def _write_packet(self, path: Path, packet: dict[str, Any]) -> str:
+        self._require_writable()
         # The supplied writer checks secrets before any bytes reach the filesystem.
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.parent / f".pending-{uuid.uuid4().hex}.json"
@@ -294,7 +487,9 @@ class CampaignCheckpoint:
             raise ValueError("campaign_artifact_hash_mismatch")
         packet = json.loads(data)
         if (
-            not isinstance(packet, dict) or packet.get("schema_version") != _SCHEMA
+            not isinstance(packet, dict) or packet.get("schema_version") != (
+                _SCHEMA if self.plan.execution_epoch == "v1" else _SCHEMA_V2
+            )
             or packet.get("campaign_binding") != self._binding
             or packet.get("synthetic") is not self.plan.synthetic
             or packet.get("scope") != "candidate_only"
@@ -358,6 +553,9 @@ class CampaignCheckpoint:
         self, work_key: str, *, phase: Phase, model: str, prompt: str,
     ) -> CampaignCallContext:
         """Durably spend an attempt before allowing the external dispatch."""
+        self._require_writable()
+        if self.active_fatal_stop() is not None:
+            raise ValueError("campaign_stopped_fatal")
         admitted = self.db.execute(
             "SELECT value FROM metadata WHERE key='frame_admitted'",
         ).fetchone()
@@ -429,6 +627,103 @@ class CampaignCheckpoint:
                          usage=None),
         )
         self._finish_row(context, output_hash, "failed", False)
+        self._record_fatal_failure(context.attempt_id, output_hash)
+
+    def _record_fatal_failure(self, attempt_id: str, output_hash: str) -> None:
+        if self.plan.fatal_policy != "stop_systemic":
+            return
+        self._require_writable()
+        failure = self._read_packet(self.root / "attempts" / f"{attempt_id}.json", output_hash)
+        if failure.get("status") != "failed" or failure.get("error_kind") not in _FATAL_KINDS:
+            return
+        row = self.db.execute(
+            "SELECT rowid,state,output_hash FROM attempts WHERE attempt_id=?", (attempt_id,),
+        ).fetchone()
+        if row is None or row[1] != "failed" or row[2] != output_hash:
+            raise ValueError("campaign_fatal_attempt_binding_mismatch")
+        packet = self._packet(
+            "fatal_stop", attempt_id=attempt_id, attempt_sequence=row[0],
+            failed_attempt_ref={"path": f"attempts/{attempt_id}.json", "sha256": output_hash},
+            error_kind=failure["error_kind"], authority_status="candidate_only",
+        )
+        path = Path("fatal_stops") / f"{attempt_id}.json"
+        ref = {"path": path.as_posix(), "sha256": self._write_packet(self.root / path, packet)}
+        with self.db:
+            self.db.execute("INSERT OR IGNORE INTO fatal_stops VALUES(?,?,?)", (
+                attempt_id, row[0], json.dumps(ref, sort_keys=True),
+            ))
+
+    def _recover_fatal_controls(self) -> None:
+        if self.plan.fatal_policy != "stop_systemic":
+            return
+        for row in self.db.execute(
+            "SELECT attempt_id,output_hash FROM attempts WHERE state='failed'",
+        ):
+            self._record_fatal_failure(row[0], row[1])
+        # Reconcile all recovery packets before any future attempt can use their index.
+        for row in self.db.execute(
+            "SELECT recovery_hash,through_sequence,ref FROM fatal_recoveries",
+        ):
+            ref = json.loads(row[2])
+            packet = self._read_packet(self.root / ref["path"], ref["sha256"])
+            if _digest(packet) != row[0] or packet.get("through_sequence") != row[1]:
+                raise ValueError("campaign_recovery_binding_mismatch")
+            stop = packet["stop_ref"]
+            source = self._read_packet(self.root / stop["path"], stop["sha256"])
+            if source.get("attempt_sequence") != row[1]:
+                raise ValueError("campaign_recovery_binding_mismatch")
+
+    def active_fatal_stop(self) -> dict[str, str] | None:
+        """Resolve the current durable stop; recovered predecessors remain in history."""
+        if self.plan.fatal_policy != "stop_systemic":
+            return None
+        recovered = self.db.execute(
+            "SELECT COALESCE(MAX(through_sequence),0) FROM fatal_recoveries",
+        ).fetchone()[0]
+        row = self.db.execute(
+            "SELECT attempt_id,attempt_sequence,ref FROM fatal_stops "
+            "WHERE attempt_sequence>? ORDER BY attempt_sequence DESC LIMIT 1", (recovered,),
+        ).fetchone()
+        if row is None:
+            return None
+        ref = json.loads(row[2])
+        packet = self._read_packet(self.root / ref["path"], ref["sha256"])
+        if packet.get("attempt_id") != row[0] or packet.get("attempt_sequence") != row[1]:
+            raise ValueError("campaign_fatal_stop_binding_mismatch")
+        failure = packet["failed_attempt_ref"]
+        source = self._read_packet(self.root / failure["path"], failure["sha256"])
+        if source.get("status") != "failed" or source.get("error_kind") != packet.get("error_kind"):
+            raise ValueError("campaign_fatal_stop_binding_mismatch")
+        return ref
+
+    def recover_fatal_stop(
+        self, stop_ref: dict[str, str], *, acknowledgment_ref: str, reason: str,
+    ) -> dict[str, str]:
+        """Append an explicit operator recovery without resetting any attempt budget."""
+        self._require_writable()
+        if self.db.execute("SELECT 1 FROM attempts WHERE state='dispatched' LIMIT 1").fetchone():
+            raise ValueError("campaign_recovery_requires_quiescence")
+        active = self.active_fatal_stop()
+        if active is None or stop_ref != active:
+            raise ValueError("campaign_recovery_stop_mismatch")
+        if not all(isinstance(value, str) and value.strip()
+                   for value in (acknowledgment_ref, reason)):
+            raise ValueError("campaign_recovery_acknowledgment_required")
+        source = self._read_packet(self.root / active["path"], active["sha256"])
+        packet = self._packet(
+            "fatal_recovery", stop_ref=active, through_sequence=source["attempt_sequence"],
+            acknowledgment_ref=acknowledgment_ref, reason=reason,
+            operator_authorization="externally_supplied", budgets_reset=False,
+            authority_status="candidate_only",
+        )
+        identity = _digest(packet)
+        path = Path("fatal_recoveries") / f"{identity[7:]}.json"
+        ref = {"path": path.as_posix(), "sha256": self._write_packet(self.root / path, packet)}
+        with self.db:
+            self.db.execute("INSERT INTO fatal_recoveries VALUES(?,?,?)", (
+                identity, source["attempt_sequence"], json.dumps(ref, sort_keys=True),
+            ))
+        return ref
 
     def _finish_row(
         self, context: CampaignCallContext, output_hash: str, state: str, usage_known: bool,
@@ -578,6 +873,7 @@ class CampaignCheckpoint:
 
     def prepare_inputs(self, works: Iterable[dict[str, Any]]) -> None:
         """Reconcile the complete declared frame before permitting any calls."""
+        self._require_writable()
         digest = hashlib.sha256()
         count = 0
         for work in works:
@@ -603,8 +899,17 @@ class CampaignCheckpoint:
 
     def summary(self) -> dict[str, Any]:
         """Return bounded aggregates while retaining unknown usage distinctly."""
+        stop = self.active_fatal_stop()
+        status = {} if self.plan.execution_epoch == "v1" else {
+            "execution_status": "stopped_fatal" if stop is not None else (
+                "complete" if self.db.execute(
+                    "SELECT COUNT(*) FROM works WHERE state!='complete'",
+                ).fetchone()[0] == 0 else "ready"
+            ),
+            "fatal_stop_ref": stop,
+        }
         return self._packet(
-            "summary", works=dict(self.db.execute(
+            "summary", **status, works=dict(self.db.execute(
                 "SELECT state,COUNT(*) FROM works GROUP BY state",
             )), attempts=dict(self.db.execute(
                 "SELECT state,COUNT(*) FROM attempts GROUP BY state",
@@ -688,7 +993,7 @@ class _CheckpointChat:
             except ValueError as exc:
                 if str(exc) not in {
                     "campaign_attempt_budget_exhausted", "campaign_phase_attempt_budget_exhausted",
-                    "campaign_unknown_outcome_requires_declared_retry",
+                    "campaign_unknown_outcome_requires_declared_retry", "campaign_stopped_fatal",
                 }:
                     raise
                 self.failure_kind = str(exc)
@@ -771,7 +1076,8 @@ async def _process_work(
 ) -> None:
     from .article_extractor import ExtractorStats, _to_work_record
 
-    if checkpoint.completed_work(work_key) is not None:
+    if (checkpoint.completed_work(work_key) is not None
+            or checkpoint.active_fatal_stop() is not None):
         return
     work = checkpoint.source_work(work_key)
     if not isinstance(work.get("abstract"), str) or not work["abstract"].strip():
@@ -782,6 +1088,8 @@ async def _process_work(
     try:
         result = await extractor._process_one(work, stats)
     except _PhaseFailedError:
+        if checkpoint.active_fatal_stop() is not None:
+            return
         checkpoint.commit_work(
             work_key, status="contract_violation" if chat.contract_failed else "provider_failed",
             record=None,
@@ -897,6 +1205,8 @@ async def run_campaign(
         async def producer() -> None:
             nonlocal queue_peak
             for key in checkpoint.iter_work_keys():
+                if checkpoint.active_fatal_stop() is not None:
+                    break
                 await queue.put(key)
                 queue_peak = max(queue_peak, queue.qsize())
             for _ in range(plan.concurrency):
@@ -930,5 +1240,6 @@ async def run_campaign(
 
 __all__ = [
     "CampaignCallContext", "CampaignCheckpoint", "CampaignPlan", "PhaseChatClient",
-    "campaign_owner_projection", "recompute_campaign_strangle", "run_campaign",
+    "campaign_owner_projection", "campaign_plan_projection", "recompute_campaign_strangle",
+    "run_campaign", "validate_campaign_output_root",
 ]

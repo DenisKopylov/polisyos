@@ -1,0 +1,52 @@
+{
+  "actual_http_attempts": 1,
+  "authority_status": "candidate_measurement",
+  "declaration_hash": "sha256:12fc9d7a5cf4d1599c4ad36134c6746fa62bed6cb9ff412c470715d940d368e2",
+  "error_kind": "upstream_rate_limit",
+  "parsed_response": null,
+  "provider_observation": {
+    "authority_status": "candidate_only",
+    "base_url": "https://api.proxy.gonka.gg/v1",
+    "context": {
+      "attempt_id": "diagnostic",
+      "campaign_id": "sha256:12fc9d7a5cf4d1599c4ad36134c6746fa62bed6cb9ff412c470715d940d368e2",
+      "input_hash": "sha256:2fe4f43bbdb2439092d00b3d6e95d10ad2a9dc754458a505d41fc580f952274c",
+      "phase": "extraction",
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2109460161"
+    },
+    "error_kind": "upstream_rate_limit",
+    "estimator_elapsed_seconds": 0.10310691699851304,
+    "local_estimator": "injected_repository_estimator",
+    "local_prompt_token_estimate": 3484,
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "prompt_hash": "sha256:4f8c6a3325ea8486abe7d3c7664106c3c43fc07f2486f3e0b1bbecd6ca13f4e2",
+    "provider_usage": null,
+    "reported_model_id": null,
+    "response_content_hash": null,
+    "retryable": true,
+    "schema_version": "policyos.academic.extraction_attempt.v3",
+    "status": "failed",
+    "status_code": 429,
+    "synthetic": false,
+    "transport_elapsed_seconds": 0.42154483404010534,
+    "usage": null
+  },
+  "raw_provider_error_body_retained": false,
+  "response_facts": [
+    {
+      "code_interpretation": "provider assertion, not independent cause or origin proof",
+      "http_status": 429,
+      "origin": "not_established",
+      "provider_body_retained": false,
+      "provider_code": null,
+      "provider_code_state": "absent",
+      "retry_after_seconds": null,
+      "success_shape": null
+    }
+  ],
+  "schema_version": "corr.provider_error_diagnostic.v2",
+  "scope": "not a pilot, throughput, quality, calibration or representativeness estimate",
+  "synthetic": false,
+  "typed_contract_satisfied": false
+}

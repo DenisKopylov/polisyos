@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_test_identities",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph-complete-owner-verbose-wave.json"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.08311524998862296,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"synthetic\": true,\n  \"scope\": \"candidate_only_test_identity_reconciliation\",\n  \"denominator\": \"complete TestLoader identities versus actual verbose execution identities\",\n  \"path_denominator\": [\n    \"tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\",\n    \"tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py\"\n  ],\n  \"file_type_denominator\": \".py\",\n  \"execution_returncode\": 0,\n  \"collection_errors\": [],\n  \"collected_count\": 30,\n  \"executed_count\": 30,\n  \"collected_identity_hash\": \"76635714135ddd2307451479a9b717114396d358b42605d2ddafdf1d2c5b0523\",\n  \"executed_identity_hash\": \"76635714135ddd2307451479a9b717114396d358b42605d2ddafdf1d2c5b0523\",\n  \"missing_executions\": [],\n  \"unexpected_executions\": [],\n  \"nonpassing_executions\": [],\n  \"duplicate_collection_identities\": {},\n  \"duplicate_execution_identities\": {}\n}\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

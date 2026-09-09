@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_capacity_removal",
+    "namespace_usage"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.9087717500515282,
+  "returncode": 1,
+  "stderr": "test_usage_reconciles_all_registered_namespaces_and_applied_configuration (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_usage_reconciles_all_registered_namespaces_and_applied_configuration) ... FAIL\n\n======================================================================\nFAIL: test_usage_reconciles_all_registered_namespaces_and_applied_configuration (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_usage_reconciles_all_registered_namespaces_and_applied_configuration)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\", line 141, in test_usage_reconciles_all_registered_namespaces_and_applied_configuration\n    self.assertEqual(usage[\"namespace_operations\"], {\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        \"synthetic_rows\": {\"kind\": \"rows\", \"writes\": 1, \"batches\": 1},\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n        \"synthetic_pairs\": {\"kind\": \"pairs\", \"writes\": 0, \"batches\": 0},\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    })\n    ^^\nAssertionError: {'synthetic_counts': {'kind': 'counts', 'writes': 0, [271 chars]: 0}} != {'synthetic_rows': {'kind': 'rows', 'writes': 1, 'bat[271 chars]: 0}}\nDiff is 1164 characters long. Set self.maxDiff to None to see it.\n\n----------------------------------------------------------------------\nRan 1 test in 0.021s\n\nFAILED (failures=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

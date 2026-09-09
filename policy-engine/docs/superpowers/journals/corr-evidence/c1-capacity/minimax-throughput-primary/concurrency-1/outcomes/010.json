@@ -1,0 +1,39 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-010",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:4d2807b4a0fe7710978699835f511a730a6f19cc2b66b09f511b0e713beea27e",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [],
+    "citation_summary": "This is an FDA regulatory order (final order) issued by the Food and Drug Administration. The document does not cite empirical research studies or present statistical evidence. It references 'new information' as the basis for reclassification but does not provide quantitative data, effect estimates, or study citations within the available abstract text.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.15,
+    "extraction_warnings": [
+      "Document is a regulatory/policy order, not an empirical research study",
+      "No quantitative effect estimates, confidence intervals, or standard errors are provided",
+      "No sample size or statistical methodology is described",
+      "Only abstract text available; full regulatory justification not accessible",
+      "The 'evidence' referenced is regulatory/legal in nature, not empirical",
+      "No causal claims about health outcomes or device effectiveness are presented",
+      "Cannot extract empirical parameters from this document type"
+    ],
+    "mechanisms": [],
+    "methodology": "This document is a regulatory/policy order, not an empirical research study. It describes FDA administrative reclassification of medical devices from Class III to Class II based on regulatory assessment rather than quantitative empirical analysis. No experimental design, statistical estimation, or causal inference methodology is employed.",
+    "methodology_enum": "unclear",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:ecb545955b0c39dd7158c655e9a96ea808843963b0eaadb6b97df4c634cb76bb",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-010.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:e79a64fc0878f290ca410f5a95b68d847e26990fb7d0c6b9050be04d4de0e12e",
+  "work_id": "https://openalex.org/W4293275412"
+}

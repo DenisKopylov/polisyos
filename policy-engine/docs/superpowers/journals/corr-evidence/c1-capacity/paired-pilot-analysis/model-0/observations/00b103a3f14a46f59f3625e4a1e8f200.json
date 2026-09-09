@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "summary",
+  "attempts": {
+    "returned": 8
+  },
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "graph_finalization": "not_started_separate_owner_stage",
+  "outcomes": {
+    "extracted": 1,
+    "screening_rejected": 5
+  },
+  "queue_peak": 2,
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "strangle_ref": {
+    "path": "strangles/3e0ca95ee40967bff715ef8e66b8524489cd040ad2a8c0bd64c6cc6d24b2e5b4.json",
+    "sha256": "sha256:9a726baff1c9b2fe4a5a26b26c1378c7b085b0d4b14dfc08e4781e42fcf46ac6"
+  },
+  "synthetic": false,
+  "unknown_usage_attempts": 0,
+  "works": {
+    "complete": 6
+  }
+}

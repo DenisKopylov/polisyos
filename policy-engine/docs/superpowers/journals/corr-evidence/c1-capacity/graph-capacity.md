@@ -128,6 +128,28 @@ projection functions remain the semantic owners.
 
 ## Finalization and compatibility
 
+The agreed orchestration placement is the existing `batch/pipeline.py` owner:
+`finalize_extraction_campaign_graph` reuses the locked CampaignCheckpoint, and
+`resolve_extraction_campaign_graph` verifies its completed candidate artifact
+before a caller consumes the graph. The extractor/checkpoint source pin remains
+unchanged; graph execution binds its separate finite owner projection. A new
+`policyos.academic.campaign_graph.v1` candidate manifest records the complete
+input completion digest, all extraction outcome counts, operational limits,
+source binding and hashes of actual graph artifacts. All-input processing
+completion never substitutes for successful extraction: a persisted
+`provider_failed` or `contract_violation` outcome remains visible in that manifest.
+
+Private build directories remain at their original paths because the existing
+stage manifests bind those paths. The sole atomic publication is the completed
+candidate manifest, after both existing owners finish and their outputs flush.
+Killed builds have no completed manifest; a new attempt replays the immutable
+work outputs and rebuilds without a provider client. Every new artifact retains
+its own synthetic provenance. Existing stage manifests use the already-supported
+metrics provenance field; the kernel manifest writer and its schemas are not
+changed. Private files are never exported as governed claims merely because they
+exist. Capacity refusal leaves checkpoint evidence intact and publishes no
+completed graph artifact.
+
 Global reconciliation occurs only after complete ingestion. Preserve distinct
 work/claim references, cross-direction conflict, replication count, strength
 floors, noisy-OR order, strongest-dissent selection, moderation first-seen ties,
@@ -186,3 +208,58 @@ The signed adjudication batch's materialization belongs to its existing
 adjudication owner and is outside this candidate-only C1 readiness claim. The
 resolver vocabulary and a logical output row receive explicit capacity limits.
 No unlimited-data or full-pass completion claim is established by this decision.
+
+## Historical completed input intake and aggregate ancestry
+
+The finalizer reads the original campaign through the existing checkpoint owner
+`read_only_history` and `validate_complete_frame`. It never opens that input as
+a current execution or restamps the historical source hash. The new candidate
+graph manifest binds `input_mode=historical_source_epoch`, the original execution
+epoch and source pin, separately from the current finite graph-owner projection.
+Only the graph derivative is newly published, using the supplied credential-safe
+writer; the historical checkpoint API stays read-only.
+
+Before producing any graph output, the finalizer walks the complete persisted
+record stream for actual synthetic ancestry. A synthetic plan or any synthetic
+descendant makes every new graph output synthetic. This one aggregate intake
+prevents the plan declaration from concealing a marked descendant; the graph
+owners also preserve their own monotone source observations. The pass retains
+one bounded record at a time and does not change graph evidence semantics.
+
+## Graph default subordination receipt
+
+The new candidate manifest carries a graph-specific run-emitted strangle receipt.
+Its recomputed predicate is actual use of both default disk staging owners under
+the exact configured capacities: persisted per-namespace operation counts, actual
+SQLite/DuckDB configuration, staging-file byte bindings, complete input/output
+bindings and the finite current graph source projection. It does not reuse the
+ABM strangle type or claim this run compared the former resident implementation.
+An empty run with no staged operations says that default consumption was not
+exercised; it does not fabricate a positive count.
+
+The separate migration proof remains the source-bound complete-table/value
+parity and decisive default/capacity/cross-batch removal gates. Neither the
+receipt nor the resource sample alone establishes that semantic equivalence.
+The sole resolver recomputes the receipt from actual staging files and current
+input bindings. Changing a declared receipt field while resealing the outer
+manifest must refuse, and removing actual capacity/default consumption while
+retaining declarations must turn the real behavioral control red.
+
+## Complete owned-output disk boundary (review correction)
+
+The disk-cap review is the same operational output-accounting class, distinct
+from provenance intake. Staging and database checks omitted detached queue,
+report and stage-manifest bytes. The corrected quantity is the complete owned
+build output, excluding read-only held source and unrelated prior builds. A
+single staging owner measures deduplicated output roots/files and bounds streamed
+encoded queue/report writes; direct synthesis registers its complete emissions.
+
+The campaign finalizer uses that same owner over its complete unique private
+build root. It first writes its own marked candidate envelope privately using
+the existing safe writer, then checks actual full output bytes before atomic
+publication in `graphs/`. The resolver checks the same build plus the published
+envelope. Private encoding is bounded but is not a filesystem allocation quota;
+no over-budget build may receive a completed manifest. The deciding controls are
+a real queue crossing the shared budget, a completed envelope crossing it, and
+the unchanged valid small build. Removing the common disk predicate must make
+the original refusal gate fail with configuration and receipt markers retained.

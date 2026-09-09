@@ -37,6 +37,13 @@ class ThroughputAdmissionTests(unittest.TestCase):
                 source = root / "synthetic-owner.py"
                 original = source.read_bytes()
                 source.write_bytes(original + b"# actual mechanism changed\n")
+                try:
+                    owner.require_admitted_execution(plan, root)
+                except ValueError as exc:
+                    if str(exc) != "throughput_execution_source_changed":
+                        raise AssertionError("source refused for wrong reason") from exc
+                else:
+                    raise AssertionError("changed actual execution source was admitted")
                 runner = importlib.import_module(PREFIX + "throughput_runner")
                 with (
                     patch.object(runner, "_committed", return_value=plan),
@@ -55,13 +62,6 @@ class ThroughputAdmissionTests(unittest.TestCase):
                             ) from exc
                     else:
                         raise AssertionError("real worker entered with changed execution source")
-                try:
-                    owner.require_admitted_execution(plan, root)
-                except ValueError as exc:
-                    if str(exc) != "throughput_execution_source_changed":
-                        raise AssertionError("source refused for wrong reason") from exc
-                else:
-                    raise AssertionError("changed actual execution source was admitted")
                 source.write_bytes(original)
                 # Even a byte-only verdict correction needs a new content-bound declaration.
                 verdict.write_bytes(verdict.read_bytes() + b"\n")

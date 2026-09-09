@@ -1,0 +1,48 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "context": {
+    "attempt_id": "73c0b354b8c6ce54923abf909dbcbaed6628e764c719de41e4faa5ed1e3ba547",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "self_verification",
+    "phase_key": "sha256:7b58bb46e7bf3e5a58371326d8e2330f998f7541be948600961bdd64be2a3038",
+    "prompt_hash": "sha256:64fe6efa5fe42beecee9484fc6ff3b77227cd539519c966ce58886d7a76b0826",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "parsed": {
+    "verifications": [
+      {
+        "claim_index": 1,
+        "confidence_adjustment": 0,
+        "issue": null,
+        "supported": true
+      },
+      {
+        "claim_index": 2,
+        "confidence_adjustment": 0,
+        "issue": null,
+        "supported": true
+      },
+      {
+        "claim_index": 3,
+        "confidence_adjustment": -0.2,
+        "issue": "Claim combines composition and size into one positive relationship, but source indicates mixed effects on composition and size separately; direction and design unclear.",
+        "supported": false
+      }
+    ]
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 140,
+    "prompt_tokens": 314,
+    "total_tokens": 454
+  }
+}

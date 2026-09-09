@@ -1,0 +1,21 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.campaign_history_probe",
+    ".tmp/corr-c1-capacity/pilots/deepseek",
+    ".tmp/corr-c1-capacity/pilots/minimax",
+    "--require-wal"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 1.032864083070308,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"synthetic\": true,\n  \"authority_status\": \"candidate_only\",\n  \"purpose\": \"diagnostic_replay_not_fresh_execution\",\n  \"sources\": [\n    {\n      \"root\": \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/corr-c1-capacity/pilots/deepseek\",\n      \"input_epoch\": \"v1\",\n      \"source_synthetic\": false,\n      \"source_plan_hash\": \"sha256:54b68fedb3be686b549e65a3c924a4c07be5de7c429326c6b226b177dfa6e0b0\",\n      \"historical_owner_source_hash\": \"sha256:323e6f42d4d9f487b6b71c8ab27fe1d7ec6c8039fed43468b5ea18a417d17580\",\n      \"schema_version\": \"policyos.academic.extraction_campaign.v1\",\n      \"works\": {\n        \"complete\": 6\n      },\n      \"outcomes\": {\n        \"extracted\": 1,\n        \"screening_rejected\": 5\n      },\n      \"attempts\": {\n        \"returned\": 8\n      },\n      \"source_files\": 43,\n      \"complete_identity_hash\": \"sha256:04f901bb1ec50076c1e2605863e5183a49a4fe380c16e6168a360f59186cea5b\",\n      \"before_complete_byte_projection_hash\": \"sha256:c2d02f14266e6b315d71dae013258413199c6c4e6ab0db0d8fff89282ee5e88f\",\n      \"after_complete_byte_projection_hash\": \"sha256:c2d02f14266e6b315d71dae013258413199c6c4e6ab0db0d8fff89282ee5e88f\",\n      \"missing\": [],\n      \"novel\": [],\n      \"changed\": [],\n      \"original_wal_bytes\": 440872,\n      \"identity_enumerations\": \"equal_complete_rglob_and_os_walk\"\n    },\n    {\n      \"root\": \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/corr-c1-capacity/pilots/minimax\",\n      \"input_epoch\": \"v1\",\n      \"source_synthetic\": false,\n      \"source_plan_hash\": \"sha256:3c8a5271087a8857bf9f0324e5ffff5dd06da664a7f1a2c99d0f93b8847fa173\",\n      \"historical_owner_source_hash\": \"sha256:323e6f42d4d9f487b6b71c8ab27fe1d7ec6c8039fed43468b5ea18a417d17580\",\n      \"schema_version\": \"policyos.academic.extraction_campaign.v1\",\n      \"works\": {\n        \"complete\": 6\n      },\n      \"outcomes\": {\n        \"extracted\": 1,\n        \"provider_failed\": 1,\n        \"screening_rejected\": 4\n      },\n      \"attempts\": {\n        \"failed\": 1,\n        \"returned\": 7\n      },\n      \"source_files\": 43,\n      \"complete_identity_hash\": \"sha256:9b1b1fc6c38369a0e1a39404fe7923ccf7056fba8658351529dcc4f1af1196c1\",\n      \"before_complete_byte_projection_hash\": \"sha256:644bdb4f19eff640000d89193d5a9997e425ef73475af5dfeac70469939b2ad9\",\n      \"after_complete_byte_projection_hash\": \"sha256:644bdb4f19eff640000d89193d5a9997e425ef73475af5dfeac70469939b2ad9\",\n      \"missing\": [],\n      \"novel\": [],\n      \"changed\": [],\n      \"original_wal_bytes\": 0,\n      \"identity_enumerations\": \"equal_complete_rglob_and_os_walk\"\n    }\n  ]\n}\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

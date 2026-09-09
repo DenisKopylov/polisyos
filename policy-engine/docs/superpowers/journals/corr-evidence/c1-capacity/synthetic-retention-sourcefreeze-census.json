@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "denominator": "every test method in test_synthetic_retention.py",
+  "ast_count": 5,
+  "unittest_count": 5,
+  "identity_sets_equal": true,
+  "identity_set_sha256": "3abb9cd1cfaf3a9baad46bf06ad8e11b68c607dff3304ca03eb729695852341c"
+}

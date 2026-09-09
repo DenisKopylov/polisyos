@@ -1,0 +1,59 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-001",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:2fe4f43bbdb2439092d00b3d6e95d10ad2a9dc754458a505d41fc580f952274c",
+  "parsed_response": {
+    "boundary_conditions": [
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "Partnerships in developed countries have different characteristics and may not face the same governance gaps",
+        "required_value": "developing countries",
+        "scope_text": "There is some insight into partnerships for climate change, but largely limited to developed countries, and those in developing countries most often do not involve companies.",
+        "variable": "geographic_setting"
+      }
+    ],
+    "causal_claims": [],
+    "citation_summary": "This is a conceptual paper exploring the role of multistakeholder partnerships in addressing climate change and sustainable development in developing countries. It discusses seven illustrative partnerships and draws conclusions for research and practice. No empirical estimates, causal effect sizes, or quantitative parameters are provided. The paper is based on case discussion rather than statistical analysis.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.15,
+    "extraction_warnings": [
+      "Source is abstract_only with no full-text access - extraction confidence is severely limited",
+      "No quantitative estimates, effect sizes, or empirical parameters provided in the source material",
+      "No causal claims with identifiable effect sizes can be extracted",
+      "No methodology section present - paper appears to be purely conceptual/theoretical",
+      "No sample size information available",
+      "No confidence intervals, standard errors, or uncertainty measures provided",
+      "The paper discusses partnerships conceptually without empirical causal analysis"
+    ],
+    "mechanisms": [
+      {
+        "description": "Multistakeholder partnerships address climate change and sustainable development by harnessing complementary strengths of private, public, and nonprofit actors to fill regulatory, participation, resource, and learning gaps",
+        "evidence_type": "mixed",
+        "mediating_variables": [
+          "governance_capacity",
+          "actor_involvement",
+          "resource_mobilization",
+          "knowledge_sharing"
+        ],
+        "theoretical_framework": "Multi-stakeholder governance theory"
+      }
+    ],
+    "methodology": "This paper is a conceptual/theoretical analysis that discusses seven illustrative multistakeholder partnerships. It elaborates on governance functions, actor involvement, and synergies/trade-offs without employing quantitative empirical methods or causal identification strategies.",
+    "methodology_enum": "theoretical",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:7511f5a98c3c134e05705c69dcde6ec9d6aa1c44f32284995bb5ba520e019b94",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-001.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:28ce28040d8a04be4e24652d815655162a22b2de4cb273ab222e8abf006ecb4a",
+  "work_id": "https://openalex.org/W2109460161"
+}

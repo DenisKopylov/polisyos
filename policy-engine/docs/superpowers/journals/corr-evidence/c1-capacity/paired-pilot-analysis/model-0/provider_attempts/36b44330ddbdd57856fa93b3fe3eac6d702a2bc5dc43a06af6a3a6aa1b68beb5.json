@@ -1,0 +1,48 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "36b44330ddbdd57856fa93b3fe3eac6d702a2bc5dc43a06af6a3a6aa1b68beb5",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:51eec332424842a2c306582e8c5aa07c180a96a6571c69145f868be09adb138c",
+    "prompt_hash": "sha256:0cbebcec5d13783cde1bdbe19e15c8189fbb5df9cab0a3b060c3ea1da4fd0ffe",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2134044742",
+    "work_key": "sha256:01e7d7a65eaf498190810c2fc99bc68503c3edb70c7d4ff07425467aa0507a3b"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.0015866669127717614,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 773,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:843f6f24d24b51984b1c94ed77534ec837ab98ee308381b9492f352f63a1a739",
+  "prompt_hash": "sha256:0cbebcec5d13783cde1bdbe19e15c8189fbb5df9cab0a3b060c3ea1da4fd0ffe",
+  "provider_usage": {
+    "completion_tokens": 38,
+    "completion_tokens_details": null,
+    "prompt_tokens": 741,
+    "prompt_tokens_details": null,
+    "total_tokens": 779
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 151,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:b85663f9990144106291aa5bb23c6ac3c1839fc743bdf941663744096a034a42",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 9.945589374983683,
+  "usage": {
+    "completion_tokens": 38,
+    "prompt_tokens": 741,
+    "total_tokens": 779
+  }
+}

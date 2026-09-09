@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_synthetic_synthesis_reconciles_opposing_directions_globally",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_whole_pair_capacity_refuses_even_when_each_direction_fits"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 3.323339542024769,
+  "returncode": 1,
+  "stderr": "E.\n======================================================================\nERROR: test_synthetic_synthesis_reconciles_opposing_directions_globally (tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_synthetic_synthesis_reconciles_opposing_directions_globally)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py\", line 181, in test_synthetic_synthesis_reconciles_opposing_directions_globally\n    self.assertTrue(json.loads(row[-1])[\"synthetic\"])\n                    ~~~~~~~~~~^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py\", line 339, in loads\n    raise TypeError(f'the JSON object must be str, bytes or bytearray, '\n                    f'not {s.__class__.__name__}')\nTypeError: the JSON object must be str, bytes or bytearray, not dict\n\n----------------------------------------------------------------------\nRan 2 tests in 3.056s\n\nFAILED (errors=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

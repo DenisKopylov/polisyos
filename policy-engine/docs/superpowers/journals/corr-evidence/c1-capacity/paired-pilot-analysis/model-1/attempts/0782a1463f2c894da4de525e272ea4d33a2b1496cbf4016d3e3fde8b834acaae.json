@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "0782a1463f2c894da4de525e272ea4d33a2b1496cbf4016d3e3fde8b834acaae",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "screening",
+    "phase_key": "sha256:e371052f9f3d8763a495439467c50e4c74531107b6d2d0e7ade49776eb48f73e",
+    "prompt_hash": "sha256:9e8f6b9940f2e409f2f18b9e45e0f89600894b33f5ed48816627dfe38ed3b245",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4394884575",
+    "work_key": "sha256:204df1b0951d573937868b34c069e47a2219848467f879773587f81359eb6d96"
+  },
+  "parsed": {
+    "reason": "Legal doctrinal analysis of case law, no empirical policy effects or quantitative estimates",
+    "relevance_score": 0.15,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 306,
+    "prompt_tokens": 780,
+    "total_tokens": 1086
+  }
+}

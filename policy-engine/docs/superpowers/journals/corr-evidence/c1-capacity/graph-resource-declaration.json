@@ -1,0 +1,29 @@
+{
+  "declared_at": "2026-09-09T11:10:22.716675+00:00",
+  "frames": [
+    {
+      "input_count": 100,
+      "input_digest": "sha256:7e41c7f3cf9394997e4673dccf7a1af2488efee84d4b49d759c083637ac8f981"
+    },
+    {
+      "input_count": 1000,
+      "input_digest": "sha256:b3e93bb37019fd80b1194443a303f8c35c9b673245f261201fe73a0b8ee6abdc"
+    }
+  ],
+  "limits": {
+    "max_disk_write_bytes": 17179869184,
+    "max_rss_bytes": 2147483648,
+    "max_wall_seconds_per_size": 300
+  },
+  "no_held_corpus_graph": true,
+  "no_provider_calls": true,
+  "record_shape": "one marked raw causal occurrence per work; no adjudication",
+  "schema_version": "corr.graph_resource_declaration.v1",
+  "scope": "bounded_synthetic_candidate_graph_finalizer",
+  "selection": "complete ordinal range 0..input_count-1; no outcome selection",
+  "source_path": "docs/superpowers/journals/corr-evidence/c1-capacity/graph_finalizer_profile.py",
+  "source_projection_binding": "current graph owner projection bound by finalizer at each run; compared equal across declared sizes before interpreting resource growth",
+  "source_sha256": "7787e1e10c3d509db9ac83eb40b730c8e100b9ac3bf202ccab22ef91cd530bd7",
+  "synthetic": true,
+  "timed_scope": "finalize and resolve through actual pipeline owner; preparation excluded"
+}

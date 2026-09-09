@@ -145,3 +145,19 @@ retain a partial result; no command in this handoff authorizes a full re-extract
   direct-extraction throughput cannot substitute for those acceptance signals.
 - No new A, B, C2, governed-register, authority-verifier, or public-surface repair is
   proposed by this measurement helper.
+
+## Final admission correction and source freeze
+
+The finite execution projection and exact successful-verdict bytes are recomputed
+at actual worker entry. `throughput-admission-final-green.json` is RC0; removing
+the shared actual comparison gives RC1 with `changed actual execution source was
+admitted` in `throughput-admission-final-removal.json`. The earlier entry-removal
+`KeyError: frame_path` is uncredited and superseded by this decisive assertion.
+No production source changed for this test-order correction.
+
+`throughput-post-admission-green.json` is the final five-test wave: RC0, 7.439s,
+source unchanged during the gate. It includes the actual marked 48MiB growing
+process, complete 180 disjoint input selection, real SDK/typed owner, bounded
+queue, failed denominator and own synthetic checkpoint. Nine exact paths pass
+Ruff in `throughput-post-admission-ruff.json`. Earlier captures retain their own
+source epochs. Root froze/committed declaration sources before provider calls.

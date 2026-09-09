@@ -1,0 +1,126 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-006",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:64e5eed6e067f477ec2d300658ae79d115393232d17cf4752f2dfb9cc4b2659d",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [],
+    "citation_summary": "Polish observational study comparing organic and conventional production systems for four medicinal plant species (rosemary, peppermint, lemon balm, sage). Finds organic plants have higher dry matter, vitamin C, phenolic acids, and flavonoids, while conventional plants have higher carotenoids. No quantitative effect sizes reported. Study conducted over two years but specific years not stated.",
+    "empirical_parameters": [
+      {
+        "aggregation_level": "plant_species",
+        "confidence_interval": null,
+        "display_name": "Dry matter content: organic vs conventional",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": "Results vary by compound type measured",
+        "name": "dry_matter_content_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Four plant species: rosemary, peppermint, lemon balm, sage"
+        ],
+        "transferability": "Limited - specific to medicinal plants studied",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Organic medicinal plants contained significantly more dry matter than conventional plants",
+        "value_range": null
+      },
+      {
+        "aggregation_level": "plant_species",
+        "confidence_interval": null,
+        "display_name": "Vitamin C content: organic vs conventional",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": null,
+        "name": "vitamin_c_content_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Four plant species: rosemary, peppermint, lemon balm, sage"
+        ],
+        "transferability": "Limited - specific to medicinal plants studied",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Organic medicinal plants contained significantly more vitamin C than conventional plants",
+        "value_range": null
+      },
+      {
+        "aggregation_level": "plant_species",
+        "confidence_interval": null,
+        "display_name": "Polyphenols (phenolic acids and total flavonoids): organic vs conventional",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": null,
+        "name": "polyphenols_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Four plant species: rosemary, peppermint, lemon balm, sage"
+        ],
+        "transferability": "Limited - specific to medicinal plants studied",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Organic medicinal plants contained significantly more phenolic acids and total flavonoids than conventional plants",
+        "value_range": null
+      },
+      {
+        "aggregation_level": "plant_species",
+        "confidence_interval": null,
+        "display_name": "Carotenoids: organic vs conventional",
+        "evidence_strength": "observational",
+        "geographic_scope": "Poland",
+        "heterogeneity_note": "Opposite direction compared to other bioactive compounds",
+        "name": "carotenoids_organic_vs_conventional",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": "2 consecutive years (unspecified)",
+        "transfer_conditions": [
+          "Four plant species: rosemary, peppermint, lemon balm, sage"
+        ],
+        "transferability": "Limited - specific to medicinal plants studied",
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Conventional plants contained significantly more carotenoids than organic ones",
+        "value_range": null
+      }
+    ],
+    "extraction_confidence": 0.15,
+    "extraction_warnings": [
+      "Source is abstract_only - no full text available for detailed extraction",
+      "No quantitative effect sizes provided - only qualitative 'significantly more/less' statements",
+      "No sample size reported in abstract",
+      "No causal identification strategy - this is a descriptive comparative study, not a causal impact evaluation",
+      "No mechanisms or pathways discussed",
+      "No boundary conditions or scope limitations provided",
+      "No confidence intervals, standard errors, or p-values reported",
+      "Time period is vague ('2 consecutive years' without specific years)",
+      "Not suitable for policy-relevant causal inference extraction - this is a basic agricultural/comparative study"
+    ],
+    "mechanisms": [],
+    "methodology": "Comparative observational study comparing bioactive compound content (dry matter, vitamin C, carotenoids, polyphenols) in four medicinal plant species grown under organic vs conventional production systems over two consecutive years. Analytical methods included Polish Standards for dry matter and vitamin C, and high-performance liquid chromatography for carotenoids and polyphenols.",
+    "methodology_enum": "observational",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:26dc8e650b50625953f5122003673ba2d0f82af5fddf9e701ce3b542c6e26904",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-006.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:746f1e13508c23ba1a9a6afa93525bb011e1f2a507f4eccd251003625cea7fff",
+  "work_id": "https://openalex.org/W2066113762"
+}

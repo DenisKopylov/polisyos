@@ -1,0 +1,60 @@
+{
+  "endpoints": {
+    "/api/pricing": {
+      "body": {
+        "cost_multiplier": 1,
+        "currency": "USD",
+        "default_model": "MiniMaxAI/MiniMax-M2.7",
+        "fx_updated_at": "2026-09-09T10:01:21.981981283Z",
+        "gonka_usd": 0.1202913,
+        "margin_pct": 0,
+        "models": [
+          {
+            "model_id": "MiniMaxAI/MiniMax-M2.7",
+            "ngonka_per_token": 10,
+            "upstream_ngonka_per_token": 1,
+            "usd_per_million_tokens": 0.0012029130000000001,
+            "usd_per_token": 1.202913e-09
+          },
+          {
+            "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+            "ngonka_per_token": 10,
+            "upstream_ngonka_per_token": 1,
+            "usd_per_million_tokens": 0.0012029130000000001,
+            "usd_per_token": 1.202913e-09
+          }
+        ],
+        "pricing_updated_at": "2026-09-09T10:01:20.181026681Z"
+      },
+      "status_code": 200,
+      "url": "https://api.proxy.gonka.gg/api/pricing"
+    },
+    "/v1/models": {
+      "body": {
+        "data": [
+          {
+            "context_length": 400000,
+            "created": 1677610602,
+            "id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+            "max_tokens": 16384,
+            "object": "model",
+            "owned_by": "gonka"
+          },
+          {
+            "context_length": 180000,
+            "created": 1677610602,
+            "id": "MiniMaxAI/MiniMax-M2.7",
+            "max_tokens": 16384,
+            "object": "model",
+            "owned_by": "gonka"
+          }
+        ],
+        "object": "list"
+      },
+      "status_code": 200,
+      "url": "https://api.proxy.gonka.gg/v1/models"
+    }
+  },
+  "observed_at": "2026-09-09T10:02:01.899148+00:00",
+  "synthetic": false
+}

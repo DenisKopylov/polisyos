@@ -80,15 +80,6 @@ class SafeJsonWriter:
             os.close(directory_fd)
 
 
-def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
-    result: dict[str, Any] = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError("duplicate_provider_json_key")
-        result[key] = value
-    return result
-
-
 class _BoundClient:
     def __init__(self, transport: SDKExtractionTransport, context: dict[str, Any]) -> None:
         self.transport = transport
@@ -162,7 +153,7 @@ class SDKExtractionTransport:
         estimator_started = time.monotonic()
         estimated = self.prompt_estimator(model, messages) if self.prompt_estimator else None
         observation: dict[str, Any] = {
-            "schema_version": "policyos.academic.extraction_attempt.v1",
+            "schema_version": "policyos.academic.extraction_attempt.v2",
             "synthetic": self.synthetic or context.get("synthetic") is True,
             "authority_status": "candidate_only", "context": context,
             "model_id": model, "base_url": PROVIDER_BASE_URL,
@@ -198,19 +189,24 @@ class SDKExtractionTransport:
             choice = response.choices[0]
             observation["finish_reason"] = choice.finish_reason
             content = choice.message.content
+            observation["response_characters"] = len(content) if isinstance(content, str) else None
+            observation["response_leading_code_fence"] = (
+                content.lstrip().startswith("```") if isinstance(content, str) else None
+            )
             observation["response_content_hash"] = (
                 "sha256:" + hashlib.sha256(content.encode()).hexdigest()
                 if isinstance(content, str) else None
             )
             if choice.finish_reason == "length":
                 raise ExtractionRequestError("output_truncated", False, 200)
-            try:
-                value = json.loads(content or "", object_pairs_hook=_unique_object)
-                if not isinstance(value, dict):
-                    raise ValueError("provider_json_object_required")
-                parsed = value
-            except (ValueError, TypeError):
-                raise ExtractionRequestError("malformed_output", True, 200) from None
+            # Reuse the extraction owner's established text codec. The SDK
+            # supplies transport; it must not introduce a second extraction parser.
+            from .article_extractor import _parse_json_object
+
+            parsed = _parse_json_object(content or "")
+            observation["response_codec"] = "PolicyArticleExtractor._parse_json_object"
+            if parsed is None:
+                raise ExtractionRequestError("malformed_output", True, 200)
             # JSON decoding can materialize a credential from Unicode escapes.
             # Scan the exact object crossing into the owner, before owner logging.
             self.check_payload(parsed)

@@ -192,3 +192,28 @@ async def test_reported_model_mismatch_cannot_enter_model_comparison(tmp_path: P
     assert record["reported_model_id"] == reported_model
     assert record["model_id"] == "MiniMaxAI/MiniMax-M2.7"
     assert record["usage"]["total_tokens"] == 28
+
+
+@pytest.mark.asyncio
+async def test_existing_owner_codec_accepts_wrapped_json(tmp_path: Path) -> None:
+    owner = _owner()
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={
+            "id": "synthetic-wrapper", "object": "chat.completion", "created": 1,
+            "model": "MiniMaxAI/MiniMax-M2.7",
+            "choices": [{"index": 0, "message": {"role": "assistant", "content":
+                '```json\n{"causal_claims": []}\n```'}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 21, "completion_tokens": 7, "total_tokens": 28},
+        })
+
+    async with owner.SDKExtractionTransport(
+        api_key="private-test-token", base_url="https://api.proxy.gonka.gg/v1",
+        model_id="MiniMaxAI/MiniMax-M2.7", output_root=tmp_path,
+        timeout_seconds=5, max_completion_tokens=8192,
+        http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
+    ) as transport:
+        parsed, _ = await transport.bind({"attempt_id": "wrapped"}).chat(
+            model="MiniMaxAI/MiniMax-M2.7", temperature=0.0, prompt="Return JSON",
+        )
+    assert parsed == {"causal_claims": []}

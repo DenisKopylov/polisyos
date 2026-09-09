@@ -28,3 +28,26 @@ the legacy extractor's zero USD field is not a provider cost measurement.
 
 `root-reviewed-ruff.json` is a diagnostic-test annotation/style nonreceipt;
 `root-reviewed-ruff-final.json` is the corrected scoped lint gate.
+
+## First live contracts and append-only codec correction
+
+The first DeepSeek response passes the unchanged typed DTO. The first MiniMax
+response fails the adapter's raw JSON decode. Their complete deciding captures
+and verdicts retain separate original declaration hashes. The precise cause of
+MiniMax's malformed text is `not_established`: that failed raw response was not
+retained, and its byte hash does not identify its syntax.
+
+Inspection then found a P27 mismatch introduced by this adapter: the existing
+extraction owner already has a text codec accepting a JSON object surrounded by
+text. `sdk-owner-codec-red.json` proves the adapter rejected an input that the
+existing codec supports. The v2 adapter now delegates to that owner, preserving
+the structural check and unchanged extraction DTO; its complete transport tests
+pass in `sdk-owner-codec-green.json`. Attempt observations advance from v1 to v2;
+the original v1 observations remain readable, with their original hashes.
+
+`declare_contract_retry --declare` appends one dated MiniMax contract retry and
+two revised six-input pilot declarations. The previous declarations remain.
+There is no outcome-based input replacement. The newly observed live rate differs
+from the first metadata read; both observations are retained and every pilot
+binds the rate its own declaration names. This is calculated cost at an observed
+rate, not an account billing assertion.

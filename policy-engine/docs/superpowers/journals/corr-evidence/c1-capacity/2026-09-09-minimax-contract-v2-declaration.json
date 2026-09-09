@@ -1,0 +1,123 @@
+{
+  "api": "chat_completions",
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "client_connection_limit": 64,
+  "concurrency": 1,
+  "content_hash": "sha256:aae9236c35963dbe7aaee87c21d4d7fbf5e2537396f828f64ecac57f4edee9ab",
+  "contract_change": "none; reuse existing owner text codec and typed DTO",
+  "declared_at": "2026-09-09T10:03:25.546193+00:00",
+  "execution_members": [
+    {
+      "abstract_content_hash": "sha256:f65faaa6c442a4b42244f8e14e9f08c4d7461faa4dd8067231b6fd6edefafe43",
+      "abstract_length": 848,
+      "scope": "subset",
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3121515037"
+    }
+  ],
+  "full_pass_authorized": false,
+  "live_pricing_usd_per_token": {
+    "input": 1.202913e-09,
+    "output": 1.202913e-09
+  },
+  "max_completion_tokens": 8192,
+  "max_http_attempts": 1,
+  "measurement_id": "minimax-codec-v2",
+  "metadata_observation": "docs/superpowers/journals/corr-evidence/c1-capacity/provider-metadata-codec-v2.json",
+  "metadata_observation_hash": "sha256:67fa655d27c1243116f96b7969ff382de704af5db45166fd43120daf6e1a56b2",
+  "model_id": "MiniMaxAI/MiniMax-M2.7",
+  "original_six_declaration_digest": "sha256:8d63505a398ca11b0623c5e01fe308b3d372cb6a511b6b9807976fb904789bb0",
+  "original_six_declaration_path": "docs/superpowers/journals/corr-evidence/c/abstract-subset-manifest.json",
+  "phase": "extraction",
+  "price_observed_at": "2026-09-09T10:02:01.899148+00:00",
+  "purpose": "one_typed_extraction_contract_probe",
+  "response_codec": "article_extractor._parse_json_object",
+  "response_format": {
+    "type": "json_object"
+  },
+  "retry_reason": "adapter codec compatibility; first malformed cause not established",
+  "run_status": "not_started",
+  "schema_version": "corr.model_measurement_declaration.v2",
+  "sdk_automatic_retries": 0,
+  "selected_identity_hash": "sha256:57f24296221cf6669d7c15d9953aae7fd28ea253d680d45ff9886b69ac2f2ad8",
+  "selected_members": [
+    {
+      "abstract_content_hash": "sha256:f65faaa6c442a4b42244f8e14e9f08c4d7461faa4dd8067231b6fd6edefafe43",
+      "abstract_length": 848,
+      "scope": "subset",
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3121515037"
+    },
+    {
+      "abstract_content_hash": "sha256:8d636e1a43ffd733adac506025f975aeebfb0a58f942dbf0f4fc92bb9cbbf4f7",
+      "abstract_length": 146,
+      "scope": "subset",
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2107389862"
+    },
+    {
+      "abstract_content_hash": "sha256:9c167949ca828ad13ba1724187cf18302394bfb8c45c147ab20c25c81c7a363f",
+      "abstract_length": 1111,
+      "scope": "subset",
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4394884575"
+    },
+    {
+      "abstract_content_hash": "sha256:1842e9f6d9cdae1c3dfde154ab4c6a7856cbc1776475ae6ecf6905a0e90c0516",
+      "abstract_length": 1100,
+      "scope": "subset",
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2134044742"
+    },
+    {
+      "abstract_content_hash": "sha256:5d758b006b227c6c1898fb1c09e00998c2bf90a787e1f93b6fee5a6a7952fc02",
+      "abstract_length": 1654,
+      "scope": "subset",
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4399636837"
+    },
+    {
+      "abstract_content_hash": "sha256:427abe8fefd2d187314117dddce9cfe113caa9707f7da6909353b6a1ec820911",
+      "abstract_length": 1532,
+      "scope": "subset",
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4392374705"
+    }
+  ],
+  "selection_change": "none; exact frozen work/hash/tercile identities",
+  "source_open_mode": "read_only",
+  "source_path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "strata": [
+    {
+      "member_count": 103570,
+      "member_identity_digest": "sha256:bf672000fd5974f15d4cd5dc21b2ae85b92f7b2e4d54db72af404698e183e0ad",
+      "stratum": 0
+    },
+    {
+      "member_count": 103570,
+      "member_identity_digest": "sha256:39c73374c4695f3e432f90ede4128f1212e04df719cc623c9ad88e0a7e556fe7",
+      "stratum": 1
+    },
+    {
+      "member_count": 103570,
+      "member_identity_digest": "sha256:1ec4dc7bb7cf5e9c439542d5585ac664b0147f0c0e9e88b46e68c7d8c3ab5675",
+      "stratum": 2
+    }
+  ],
+  "supersedes_contract_declaration_hash": "sha256:cd49225d5de3b6dbc9c973c4f01ff12ea8d1c91fa8614a7a2c821d72e1d00546",
+  "supersedes_model_configuration_digest": "sha256:4669a79afdb881e82ec06f25db97c670ecc0de54dc5672142a847f17ab7d24d2",
+  "synthetic": false,
+  "temperature": 0.0,
+  "timeout_seconds": 180,
+  "transport": "ordinary_openai_sdk",
+  "transport_observation_epoch": "policyos.academic.extraction_attempt.v2",
+  "typed_owner": "PolicyArticleExtractor._extract -> ArticleExtractionResult"
+}

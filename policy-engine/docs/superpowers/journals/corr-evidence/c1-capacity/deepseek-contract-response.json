@@ -1,0 +1,134 @@
+{
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:4c31c02ea8424fb20b291cfcf7b35d1d7834cb6e8c1196d05048701942cc44ca",
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response": {
+    "boundary_conditions": [
+      {
+        "condition_type": "threshold",
+        "consequence_if_violated": "If the share of transfer spending is low, proportional systems no longer lead to higher total primary spending; majoritarian systems do.",
+        "required_value": "high",
+        "scope_text": "The model also predicts higher total primary spending in proportional (majoritarian) systems when the share of transfer spending is high (low).",
+        "variable": "share_of_transfer_spending"
+      }
+    ],
+    "causal_claims": [
+      {
+        "cause_variable": "electoral_system_proportionality",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.5,
+        "claim_id": "c1",
+        "claim_text": "Proportional electoral systems lead to higher transfer spending, while majoritarian systems lead to higher public good spending.",
+        "counterevidence_notes": null,
+        "design_family_hint": "theoretical",
+        "direction": "mixed",
+        "effect_size": null,
+        "effect_variable": "public_expenditure_composition",
+        "evidence_strength": "theoretical",
+        "extraction_warnings": [
+          "Theoretical prediction, not empirical estimate; no effect size provided."
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "OECD and Latin American countries"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 2,
+            "text": "We present a theoretical model in which voters anticipating government policy-making under different electoral systems have an incentive to elect representatives more prone to transfer (public good) spending in proportional (majoritarian) systems."
+          }
+        ]
+      },
+      {
+        "cause_variable": "electoral_system_proportionality",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.5,
+        "claim_id": "c2",
+        "claim_text": "Total primary spending is higher in proportional systems when the share of transfer spending is high, and higher in majoritarian systems when the share of transfer spending is low.",
+        "counterevidence_notes": null,
+        "design_family_hint": "theoretical",
+        "direction": "mixed",
+        "effect_size": null,
+        "effect_variable": "total_primary_spending",
+        "evidence_strength": "theoretical",
+        "extraction_warnings": [
+          "Theoretical prediction, not empirical estimate; no effect size provided."
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "OECD and Latin American countries"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 3,
+            "text": "The model also predicts higher total primary spending in proportional (majoritarian) systems when the share of transfer spending is high (low)."
+          }
+        ]
+      },
+      {
+        "cause_variable": "electoral_system_proportionality",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.4,
+        "claim_id": "c3",
+        "claim_text": "Empirical investigation finds considerable support for the theoretical predictions linking electoral systems to public expenditure composition and size.",
+        "counterevidence_notes": null,
+        "design_family_hint": "unclear",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "public_expenditure_composition_and_size",
+        "evidence_strength": "observational",
+        "extraction_warnings": [
+          "No specific effect sizes or statistical details provided; 'considerable support' is vague."
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "OECD and Latin American countries"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.55,
+            "section": "results",
+            "sentence_index": 4,
+            "text": "After defining rigorous measures of proportionality to be used in the empirical investigation, we find considerable support for our predictions."
+          }
+        ]
+      }
+    ],
+    "citation_summary": "The paper studies the effects of electoral institutions on public expenditure in OECD and Latin American countries, presenting a theoretical model and empirical support.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.4,
+    "extraction_warnings": [
+      "Abstract-only source; no numeric effect sizes or detailed methodology available.",
+      "Causal claims are largely theoretical; empirical support is stated vaguely without specific estimates.",
+      "No sample size or statistical details provided."
+    ],
+    "mechanisms": [
+      {
+        "description": "Voters anticipate policy-making under different electoral systems and elect representatives who favor transfer spending in proportional systems and public good spending in majoritarian systems, shaping expenditure composition and total spending.",
+        "evidence_type": "survey",
+        "mediating_variables": [
+          "voter_preferences",
+          "representative_selection"
+        ],
+        "theoretical_framework": "Electoral systems theory"
+      }
+    ],
+    "methodology": "Theoretical model with empirical investigation using rigorous measures of proportionality; no specific econometric method described in the abstract.",
+    "methodology_enum": "theoretical",
+    "sample_size": null
+  },
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 1175,
+    "prompt_tokens": 3537,
+    "total_tokens": 4712
+  },
+  "work_id": "https://openalex.org/W3121515037"
+}

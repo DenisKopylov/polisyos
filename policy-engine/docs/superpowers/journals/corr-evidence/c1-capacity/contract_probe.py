@@ -7,6 +7,7 @@ import asyncio
 import hashlib
 import importlib
 import json
+import re
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -103,6 +104,9 @@ async def run(path: Path) -> dict[str, Any]:
         raise ValueError("contract_probe_scope_invalid")
     model = declaration["model_id"]
     slug = "deepseek" if model.startswith("deepseek") else "minimax"
+    slug = declaration.get("measurement_id", slug)
+    if not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9-]+", slug):
+        raise ValueError("contract_probe_measurement_id_invalid")
     output = common.EVIDENCE / (slug + "-contract-response.json")
     summary_path = common.EVIDENCE / (slug + "-contract-verdict.json")
     scratch = Path(".tmp/corr-c1-capacity/contracts") / slug

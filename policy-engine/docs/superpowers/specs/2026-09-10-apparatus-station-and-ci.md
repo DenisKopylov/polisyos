@@ -464,3 +464,67 @@ every `jobs` member, not only failed jobs.
 No broad directory tests, backend verification, CI-parity or production canary was
 run by this lane. Current runtime/Fabric nodes remain **not yet replayed** here.
 No source, test, config, dependency or lockfile changes were made by this lane.
+
+## Stage 2 decision addendum: native mutation station limitation
+
+CI-R14's obsolete CLI and unmeasured-result admission defects are repaired on the
+existing canonical owner. Execution research exposed a **NEW native station class**:
+mutmut 3.5.0 unconditionally calls `setproctitle` in the child immediately after
+`os.fork()`. On the measured CPython 3.14.3 / Darwin 25.6.0 / arm64 station with
+setproctitle 1.3.7, that call intermittently segfaults inside CoreFoundation /
+LaunchServices before pytest executes the mutant. A parent initialization attempt
+passed once and then failed again: **same class one level deeper**, so P40 stops
+that repair ladder. The ineffective initialization is removed. Neither engine
+monkeypatching nor accepting native crashes as killed mutants is admissible.
+
+The supported-option investigation inspected the pinned engine's entire
+`__main__.py` and `__init__.py`, and its `run --help`: there is no process-title
+suppression option. The upstream [Darwin process-title implementation](https://github.com/dvarrazzo/py-setproctitle/blob/master/src/darwin_set_process_name.c)
+reinitializes LaunchServices for every call; initializing it in the parent does
+not remove that child operation. Docker CLI is present but its daemon is
+unavailable. The smallest absent closure capability is a supported Linux execution
+station (or an upstream fork-safe process-title implementation, which is absent
+from the pinned engine environment).
+
+**Decision:** before staging or launching mutmut, the canonical runner rejects
+`sys.implementation.name == 'cpython'`, Python major/minor `3.14`,
+`sys.platform == 'darwin'`, and `platform.machine() == 'arm64'` with a persisted
+`unrun` receipt and exit 2. This is a conservative support boundary around the
+measured patch-level station, not a claim that every patch has reproduced the
+fault. The diagnostic names the unsupported station and requires a supported
+Linux station. Other platforms retain complete outcome reconciliation, so an
+unanticipated failed native run still cannot become green. The guard has no
+bypass option. Native support may be reconsidered only after replaying the tiny
+real-mutant fixture on the changed station.
+
+This support decision affects all three canonical mutation target families on
+that station, without changing their source selections, test selections or score
+floors. Hosted Linux Foundry, Scientist and core-runtime lanes remain eligible for
+actual measurement. It changes no dependency, lock, canary, freshness, schema,
+dashboard or product semantics. CI-R14 remains `verification_missing` for real
+repeatable mutation execution locally; CLI and admission repairs can be delivered
+without claiming that the mutation row or parent CI aggregate is closed.
+
+The native falsifier used the identical absolute tiny-positive pytest invocation
+from repository and product CWDs. Before this decision, the first underlying
+producer returned UNRUN (-11), while the second returned PASS (2/2 killed).
+Both outer tests exited zero because they explicitly checked the declared native
+residual; **that outer exit is not evidence of mutation completeness**. Final
+verification replaces this probabilistic allowance with a strict preflight
+UNRUN assertion and runs the same runner invocation from both CWDs, expecting
+exit 2 and the same station verdict before any fork. Non-Darwin real-positive
+verification continues to require actual killed mutants. Protocol-admission
+unit fixtures are explicitly controlled outcomes, never reported as real mutation
+execution; each corrupt-result probe first admits its uncorrupted controlled
+fixture. The real baseline-failure and zero-mutant producer traces remain retained.
+
+All following receipts are under `docs/superpowers/journals/apparatus/station/raw/`:
+
+| Receipt | SHA256 | Meaning |
+| --- | --- | --- |
+| mutation-native-platform.log | f4c1aa6faa15576a197685f334feab487c022dd75e2dc1d13b8ccdd3fcbe023b | Exact measured platform and package versions |
+| mutation-faulthandler.log | eab724f0c83cad80f0b006bf5e59537f5e80e759782cd3fae2b8101066164d1d | Native post-fork crash before pytest |
+| mutation-run-help.log | 5c9c8de9deeac8a4162c594addd9cb379a09ce6c641c7cfac9a5c66d3661d383 | Supported CLI options |
+| mutation-title-options.log | bceb4914e52c25eabfbb8edd177522fdd87317cd63d5b286d943245bb83a1623 | Pinned engine callsite and option search |
+| mutation-root-cwd.log | 0c2f7aa9eab5d55680c5f16f1a199e8b19027561ffec5669b6db30f4e0a6717c | Underlying UNRUN, outer test exit 0, 1.66 s |
+| mutation-product-cwd.log | e7abd94a3d0571445e323e409fd96f4852dbeea604f6382f1ac0fb3f1c8e4a60 | Underlying measured PASS, outer test exit 0, 1.53 s |

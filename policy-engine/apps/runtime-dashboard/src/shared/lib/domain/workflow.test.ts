@@ -1,6 +1,11 @@
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
+import {
+  parsePersistenceProcessResult,
+  repositoryPythonExecutable,
+} from "@/test/evidence/persistenceProcessResult";
+
 import { normalizeWorkflow } from "@/shared/lib/domain/workflow";
 
 describe("workflow domain", () => {
@@ -101,18 +106,21 @@ if missing_lookalike_errors:
         + ", ".join(sorted(missing_lookalike_errors))
     )
 
+print(json.dumps({"ok": not failures, "failures": failures}))
 if failures:
-    print("\n".join(failures))
     raise SystemExit(1)
 `;
-    const result = spawnSync("python3", ["-c", script], {
+    const result = spawnSync(repositoryPythonExecutable(), ["-c", script], {
       cwd: repositoryRoot,
       encoding: "utf8",
       timeout: 60_000,
     });
 
-    expect(`${result.stdout}${result.stderr}`).toBe("");
-    expect(result.status).toBe(0);
+    expect(parsePersistenceProcessResult(result)).toEqual({
+      status: 0,
+      stderr: "",
+      value: { ok: true, failures: [] },
+    });
   }, 65_000);
 
   it("normalizes workflow payloads and derives summary defaults", () => {

@@ -17,7 +17,6 @@ import {
   assertValidatedReadinessOwnerBytes,
   AtlasSurfaceReadinessContractError,
   type AtlasSurfaceReadinessClaim,
-  buildAtlasStableReadinessNegativeControl,
   buildConsistentWithCitedReportClaim,
   inspectAtlasRuntimeRedirect,
   parseAtlasSurfaceReadinessClaim,
@@ -85,6 +84,58 @@ function invokePersistence(
   );
   const decoded = parsePersistenceProcessResult(result);
   return { ...decoded, value: decoded.value as Record<string, unknown> };
+}
+
+/** Produce the fixture under the same canonical executable that admission measures. */
+function canonicalStableNegativeControl(): AtlasSurfaceReadinessClaim {
+  const dashboardRoot = process.cwd();
+  const python = path.resolve(dashboardRoot, "../../.venv/bin/python");
+  const selected = parsePersistenceProcessResult(
+    spawnSync(
+      python,
+      [
+        "-I",
+        "-c",
+        `
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("atlas_evidence_persistence", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+print(json.dumps(str(module._trusted_node()[1])))
+`,
+        path.join(dashboardRoot, "scripts/persist_atlas_evidence.py"),
+      ],
+      {
+        cwd: dashboardRoot,
+        encoding: "utf8",
+        timeout: 30_000,
+      },
+    ),
+  );
+  if (selected.status !== 0 || typeof selected.value !== "string") {
+    throw new Error("UNRUN: canonical Node selection did not complete");
+  }
+  const produced = parsePersistenceProcessResult(
+    spawnSync(
+      selected.value,
+      [
+        "--input-type=module",
+        "-e",
+        `
+import { createServer } from 'vite';
+const server = await createServer({appType:'custom',logLevel:'silent',server:{hmr:false,middlewareMode:true}});
+try {
+  const owner = await server.ssrLoadModule('/src/test/evidence/atlasSurfaceReadinessReconciliation.ts');
+  process.stdout.write(JSON.stringify(owner.buildAtlasStableReadinessNegativeControl()));
+} finally { await server.close(); }
+`,
+      ],
+      { cwd: dashboardRoot, encoding: "utf8", timeout: 30_000 },
+    ),
+  );
+  if (produced.status !== 0)
+    throw new Error("UNRUN: canonical stable fixture production failed");
+  return parseAtlasSurfaceReadinessClaim(produced.value);
 }
 
 function asProjectionResult(result: PersistenceResult): ProjectionResult {
@@ -522,7 +573,7 @@ describe("Atlas surface-readiness per-claim reconciliation", () => {
   });
 
   it("gates the zero-instance stable arm identically to implemented", () => {
-    const stableUnavailable = buildAtlasStableReadinessNegativeControl();
+    const stableUnavailable = canonicalStableNegativeControl();
     if (stableUnavailable.basis.kind !== "observed_by_reconciler") {
       throw new Error("stable control must have an observed basis");
     }
@@ -617,6 +668,24 @@ print(json.dumps({"stable_basis": "admitted_as_unavailable"}))
     expect(JSON.parse(admission.stdout)).toEqual({
       stable_basis: "admitted_as_unavailable",
     });
+
+    for (const [field, value] of Object.entries({
+      path: "/not-the-canonical-node",
+      sha256: "0".repeat(64),
+      version: "v22.0.0-forged",
+    })) {
+      const tampered = structuredClone(stableUnavailable);
+      if (tampered.basis.kind !== "observed_by_reconciler")
+        throw new Error("missing observed basis");
+      Object.assign(tampered.basis.canonical_check.executable, {
+        [field]: value,
+      });
+      const rejected = invokeAdmission(tampered);
+      expect(rejected.status).not.toBe(0);
+      expect(rejected.stderr).toContain(
+        "canonical check executable provenance mismatch",
+      );
+    }
 
     const wrongScope = {
       ...stableUnavailable,

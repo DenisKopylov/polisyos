@@ -20,6 +20,11 @@ import {
   type AtlasNormalizedRunnerReport,
 } from "./atlasAutomatedEvidenceCapture";
 
+import {
+  parsePersistenceProcessResult,
+  repositoryPythonExecutable,
+} from "./persistenceProcessResult";
+
 /* Keep this import static: Storybook/Vitest exposes an http: import.meta.url. */
 
 const currentFile = fileURLToPath(import.meta.url);
@@ -533,7 +538,7 @@ function invokePersistenceBridge(
   capture: AtlasAutomatedCapturePair,
   rawReportBytes: Uint8Array,
 ): unknown {
-  const result = spawnSync("python3", [defaultBridgePath], {
+  const result = spawnSync(repositoryPythonExecutable(), [defaultBridgePath], {
     cwd: policyEngineRoot,
     encoding: "utf8",
     input: JSON.stringify({
@@ -549,14 +554,7 @@ function invokePersistenceBridge(
     },
     maxBuffer: 8 * 1024 * 1024,
   });
-  let response: unknown;
-  try {
-    response = JSON.parse(result.stdout);
-  } catch (error) {
-    throw new TypeError(
-      `Atlas persistence bridge emitted invalid JSON: ${String(error)}; stderr=${result.stderr.trim()}`,
-    );
-  }
+  const { value: response } = parsePersistenceProcessResult(result);
   if (result.status !== 0) {
     throw new TypeError(
       `Atlas persistence bridge failed (${String(result.status)}): ${JSON.stringify(response)}`,

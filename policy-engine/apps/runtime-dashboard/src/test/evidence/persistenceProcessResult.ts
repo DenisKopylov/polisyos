@@ -1,4 +1,14 @@
 import type { SpawnSyncReturns } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+/** Select this checkout’s provisioned interpreter without ambient PATH fallback. */
+export function repositoryPythonExecutable(): string {
+  return path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../../../../.venv/bin/python",
+  );
+}
 
 // These fixtures execute independent producer/admission replays and Core CAS
 // verification. The measured 127-second complete run plus 25% headroom rounds

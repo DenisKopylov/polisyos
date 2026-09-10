@@ -136,3 +136,13 @@ packages/*/dist/
 packages/*/coverage/
 packages/*/.eslintcache
 .pnpm-store/
+
+# Oversized raw evidence dumps stay local. A receipt records what a reader cannot
+# recompute; a complete copy of a tracked artifact, both sides of a comparison, or a
+# derived view stored beside its own source is recomputable and does not belong in git.
+# See the receipt-proportionality rule in AGENTS.md. Put such dumps under a `raw/`
+# directory beside the receipt that cites them, keep them locally, and cite them by
+# `path@sha` from the committed evidence. Committing one anyway needs a stated reason
+# in the commit message, not a silent `git add -f`.
+docs/superpowers/journals/**/raw/
+docs/research/**/raw/

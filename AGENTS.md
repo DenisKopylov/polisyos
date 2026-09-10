@@ -117,7 +117,10 @@ Full statements: GY plan §3.5.7 (E11–E14) and §3.5.13; Atlas plan Execution 
   identities, sorted key sets) beside the data it was derived from. One lane wrote **2.05M lines,
   of which 30.5k were the work**; a single file held five representations of the same 2.4MB
   artifact whose both versions were already in git, with their shas 66 bytes away. Nothing was
-  wrong except the volume, and the diff became unreadable.
+  wrong except the volume, and the diff became unreadable. **Oversized raw dumps go under a
+  `raw/` directory beside the receipt that cites them and are gitignored** — they stay on the
+  machine and are cited by `path@sha`. Committing one anyway takes a stated reason in the commit
+  message, never a silent `git add -f`.
 - **Measure each suite's wall time once, then set explicit timeouts** (an unmeasured default that
   kills a healthy run is a harness finding). **Delta-only re-review** after the first full package.
   **Poll silently** — state changes only; heartbeat evidence, never heartbeat prose.

@@ -216,6 +216,8 @@ ukraine-data = "polisyos.data_forge.domains.ukraine.cli:main"
 [dependency-groups]
 dev = [
   "libcst>=1.5.0",
+  # Plain `uv run pytest` must use the same prerequisites as contributor/CI tests.
+  "policy-engine[test]",
 ]
 # Give uv modern wheel-bearing Pillow/regex resolutions while retaining Marker's
 # older branch. Keep this group non-default so `--all-extras --dev` stays compatible.

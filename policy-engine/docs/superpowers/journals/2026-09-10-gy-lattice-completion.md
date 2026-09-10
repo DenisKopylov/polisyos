@@ -87,6 +87,43 @@ separately created environment can build.
 
 ## Closeout obligations
 
+**GL-AS1-ORACLE-01 — independent expectation seal, before subject execution.**
+Root authored the complete 63-row TSV from research and reviewed stimulus inputs,
+without reading the new subject source or observing its answers. Two independent
+input-ID walks (JSON structure and lexical case keys) reconcile with the separately
+expanded expected family set. The expectation SHA-256 is
+`ed74752c6e965bc5aabc4c0f8cd6d111ccf4f227646d46433223307bc001a3e0`;
+the input corpus SHA-256 is
+`84de2b1384f0a6262398620491113bf4d55449667b847b4dbbd9e84120d00f99`.
+The checker must appoint these literal identities rather than compute a trusted
+identity from whichever file it happens to read. These seals freeze the synthetic
+assurance manifest, not a governed institutional epoch or authority artifact.
+
+The isolated oracle shares no decoder, fixture loader or comparator with the
+subject. An actual readable subject-source probe and forbidden JSON import prove
+the process boundary. Removing that boundary yields
+`oracle_isolation_not_enforced:subject_read`; decoder, loader and comparator
+dependency attempts each refuse before grading. All ten targeted oracle tests
+passed, exit 0, and ruff passed. Complete deciding outputs are
+`gy-lattice/root/raw/as1-oracle-tests.txt`, `as1-oracle-ruff.txt`, the four
+`oracle-{decoder,loader,comparator,unconfined}.txt` probes, and
+`as1-oracle-seal.txt`. These checks do not yet establish that the subject passes.
+
+Two stimulus-review findings were the same P32/P37 witness-binding class. The
+first required substantive finite terminal witnesses; the second widened binding
+to the complete demand, actual assessed objects and actual finite alternative set.
+The bounded residual is explicit: finite synthetic proof is not completeness of
+the real world's causal models, institutions or providers. Further examples of
+that residual do not trigger an open-ended institutional subsystem build.
+
+**GL-CR2-01 — expansion is a state property, not an event label.**
+Root independently adjudicated the restart review against OPS-R5 `AUD-F06`,
+`amendment-state-invariants.md`: `protected_restart_or_expansion_has_fresh_restart_evidence`
+applies to actual exposure expansion even when an event is named `observe`.
+The oracle revision is authorized by that explicit conjunct, not by agreement
+with the implementation. Same-class deeper P37/P38 correction widens the gate;
+no competent external restart authority is inferred.
+
 Each task still needs its exact Done conjunction, binding falsifier and actual
 non-test caller verified. Retain complete deciding gate and removal output, cite
 tracked source as `path@sha`, and keep oversized raw evidence ignored. The final

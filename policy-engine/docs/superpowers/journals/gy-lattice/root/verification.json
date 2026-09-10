@@ -1,0 +1,157 @@
+{
+  "schema_version": "gy-lattice.root.verification.v1",
+  "lane_merge_base": "992aa493f",
+  "branch": "codex/gy-lattice-and-custody",
+  "frozen_product_commit": "c817314b4",
+  "task_statuses": {
+    "GY-VC1": "executed",
+    "GY-AS1": "blocked",
+    "GY-CR2": "executed",
+    "GY-CR3": "executed",
+    "GY-CR5": "executed"
+  },
+  "blocking_condition": "User explicitly requires stopping on new deep-import creep; AS1 semantic tests pass but its new core.artifacts import needs architect adjudication.",
+  "gate_records": [
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/architecture-base.txt",
+        "sha256": "d2db55771109f4331e5c1a620aa917a45fea3d782c23d2504ed2e4b9dc5004f1"
+      },
+      "exit_code": 1,
+      "result": "required freshness unrun: environment SIGABRT / missing libpython3.14.dylib",
+      "command": "PATH=\"$PWD/.venv/bin:$PATH\" PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check > docs/superpowers/journals/gy-lattice/root/raw/architecture-base.txt 2>&1"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/architecture-final.txt",
+        "sha256": "a93907993164e63ded8bbab5afc8d463f67df858f20f1bddb2baae757921b88a"
+      },
+      "exit_code": 1,
+      "result": "new AS1 deep import requires architect decision; required freshness unrun; explicit user stop applied",
+      "command": "PATH=\"$PWD/.venv/bin:$PATH\" PYTHONPATH=.:src .venv/bin/python -m tools.cli architecture guardrails check > docs/superpowers/journals/gy-lattice/root/raw/architecture-final.txt 2>&1",
+      "source_commit": "c817314b4",
+      "new_edge": [
+        "polisyos.fabric.evidence.acquisition_assurance",
+        "polisyos.core.artifacts"
+      ],
+      "freshness": "unrun",
+      "followed_by": "bookkeeping and delivery only; no product gate, source repair or baseline sync"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/as1-oracle-tests.txt",
+        "sha256": "9ff4f2dacad8d49c8e9d44493e365fbe2cf0c383f690a742572e31e6cc1a41ef"
+      },
+      "exit_code": 0,
+      "result": "10 targeted cases pass; isolated independently owned oracle"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/as1-oracle-ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "exit_code": 0,
+      "result": "oracle and isolation test lint pass"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/oracle-decoder.txt",
+        "sha256": "7687b4dcb2e96899c36246f602c86b6499f019abc5360df3bc261c2f9fd6434c"
+      },
+      "exit_code": 2,
+      "result": "oracle_shared_dependency_refused:decoder"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/oracle-loader.txt",
+        "sha256": "65677464d66fb780965a504f48c106d978511ba4189b6690d1c2333891c7b5ba"
+      },
+      "exit_code": 2,
+      "result": "oracle_shared_dependency_refused:loader"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/oracle-comparator.txt",
+        "sha256": "a2122dec9184f772d8165a536feb233c26e2e8e71428f329c17541263deca64b"
+      },
+      "exit_code": 2,
+      "result": "oracle_shared_dependency_refused:comparator"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/oracle-unconfined.txt",
+        "sha256": "84b27d068cad64438c10f9a58ffc54e5791fd5fbced2ebff6588eb9b72d5411c"
+      },
+      "exit_code": 2,
+      "result": "oracle_isolation_not_enforced:subject_read"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/delivery-table-final.txt",
+        "sha256": "e3c4b0c186f85acf0c93b94f01b00cd2baa7fa87323fc1394251ed6831cab913"
+      },
+      "exit_code": 0,
+      "result": "complete section independently reconciled; exactly five rows changed"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/delivery-corrupt-uncommissioned-row.txt",
+        "sha256": "395dd8b4a8458b1efb971893fadb21254dfec312db4ee2ea2e9b024d07e16689"
+      },
+      "exit_code": 1,
+      "result": "uncommissioned_or_missing_row_movement:GY-AQ1"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/runner-delivery-final-ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "exit_code": 0,
+      "result": "metadata runner and delivery checker lint pass"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/runner-final-list.json",
+        "sha256": "4671aee1bd054e5cc1e95c84dc9de1e588036eed76002297447e8d6b4cc8b370"
+      },
+      "exit_code": 0,
+      "result": "read-only explicit command/node listing; no product rerun"
+    },
+    {
+      "output": {
+        "path": "docs/superpowers/journals/gy-lattice/root/raw/receipt-integrity.txt",
+        "sha256": "6a2ae92e9e48d50bc9da77c122386d2d514e754322acc28c296a582a7c448129"
+      },
+      "exit_code": 0,
+      "result": "metadata readback: existing receipt digests agree with retained bytes"
+    }
+  ],
+  "exact_workstream_commands": "Workstream verification.json files record sole invocations; run_targeted_verification.py lists literal test selectors and canonical replay commands. Original standalone oracle shell flag spelling is not reconstructed as an observed command.",
+  "source_refs": [
+    "tools/quality/validation/gy_acquisition_assurance_oracle.py@30dd80249",
+    "tests/repo_quality/tools/test_acquisition_oracle_isolation.py@30dd80249",
+    "docs/reference/gy-acquisition-assurance-oracle.tsv@8012dc035",
+    "docs/superpowers/journals/gy-lattice/vc1/verification.json@d71f407df",
+    "docs/superpowers/journals/gy-lattice/as1/verification.json@d71f407df",
+    "docs/superpowers/journals/gy-lattice/cr3/verification.json@c817314b4",
+    "docs/superpowers/journals/gy-lattice/cr5/verification.json@c817314b4"
+  ],
+  "metadata_source_sha256": {
+    "docs/superpowers/journals/gy-lattice/check_delivery.py": "9a561aad655c150b47eb855732a8845b2592270ce3b48c54292f260988ec9f4c",
+    "docs/superpowers/journals/gy-lattice/run_targeted_verification.py": "746c81dc77516ed61c760f39d99a015242bf32439fa90ae495c8f6c59aea2c6d"
+  },
+  "table_denominator": "one Markdown file, entire authoritative section 8.5, independently parsed twice",
+  "table_before": {
+    "executed": 50,
+    "not_started": 17,
+    "blocked": 5,
+    "not_executed": 2
+  },
+  "table_after": {
+    "executed": 54,
+    "not_started": 12,
+    "blocked": 6,
+    "not_executed": 2
+  },
+  "scope": "complete workstream semantic evidence plus honest failed architecture gate; not a green full-lane architecture claim"
+}

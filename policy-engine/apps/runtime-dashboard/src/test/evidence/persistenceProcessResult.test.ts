@@ -18,7 +18,7 @@ describe("Atlas persistence child diagnostics", () => {
       );
 
       expect(() => parsePersistenceProcessResult(result)).toThrow(
-        /exit=1.*\n.*ModuleNotFoundError: No module named 'jsonschema'/u,
+        /^UNRUN:.*exit=1.*\n.*ModuleNotFoundError: No module named 'jsonschema'/u,
       );
     },
   );
@@ -28,7 +28,24 @@ describe("Atlas persistence child diagnostics", () => {
       encoding: "utf8",
     });
 
-    expect(() => parsePersistenceProcessResult(result)).toThrow(/ENOENT/u);
+    expect(() => parsePersistenceProcessResult(result)).toThrow(
+      /^UNRUN:.*ENOENT/u,
+    );
+  });
+
+  it("identifies a timed-out real child as an unrun measurement", () => {
+    const result = spawnSync(
+      process.execPath,
+      ["-e", "setTimeout(() => {}, 10000)"],
+      {
+        encoding: "utf8",
+        timeout: 50,
+      },
+    );
+
+    expect(() => parsePersistenceProcessResult(result)).toThrow(
+      /^UNRUN:.*ETIMEDOUT/u,
+    );
   });
 
   it("preserves a deliberately refused JSON envelope and its nonzero status", () => {

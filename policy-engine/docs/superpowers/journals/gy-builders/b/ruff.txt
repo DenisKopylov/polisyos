@@ -1,0 +1,11 @@
+PT017 Found assertion on exception `error` in `except` block, use `pytest.raises()` instead
+   --> tests/unit/runtime/quality/test_adaptation_transition.py:114:13
+    |
+112 |             return runtimes[index].submit(requests[index])
+113 |         except ValueError as error:
+114 |             assert str(error) == "request_identity_conflict"
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+115 |             return None
+    |
+
+Found 1 error.

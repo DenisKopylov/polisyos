@@ -107,3 +107,7 @@ legal corpus or graph artifacts.
 - Notable delta: Lex owns the semantic legal benchmark; Data Forge publishes
   query fixtures through its read API and no longer imports Lex benchmark
   consumers.
+
+`knowledge/multilingual_assurance.py` owns the candidate MAEP instrument. Its persisted finite
+comparison remains distinct from `normpack/legal_authority.py` competence and from legal benchmark
+readiness: W5-K06 scope, vacant holder and unsigned trust checks prevent equivalence issuance.

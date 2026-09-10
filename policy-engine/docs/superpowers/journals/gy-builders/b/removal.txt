@@ -1,0 +1,30 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_conflicting_duplicate_cannot_replace_original_request __________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1488/test_conflicting_duplicate_can0')
+
+    def test_conflicting_duplicate_cannot_replace_original_request(tmp_path: Path) -> None:
+        api = _api()
+        runtime = _runtime(api, tmp_path)
+        request = _request(api)
+        ticket = runtime.submit(request)
+        assert runtime.submit(request) == ticket
+>       with pytest.raises(ValueError, match="request_identity_conflict"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/runtime/quality/test_adaptation_transition.py:79: Failed
+=============================== warnings summary ===============================
+../../../policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../../policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_adaptation_transition.py::test_conflicting_duplicate_cannot_replace_original_request
+1 failed, 2 warnings in 0.26s

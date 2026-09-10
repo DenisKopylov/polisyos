@@ -192,6 +192,22 @@ Boundary notes:
   state. These contracts certify an attempt only. They execute no pilot or
   deployment, appoint no verifier or institution, and confer no execution,
   pilot, deployment, promotion, or governance authority.
+- `non_data_acquisition.py` composes the unchanged acquisition planner and its
+  persisted report with Fabric's non-data intake owner. It accepts an existing
+  typed gap and binds its claim identity; CG5 routing does not establish a missing
+  object or lift its candidate ceiling.
+- `adaptation_transition.py` composes the existing control outbox, Core CAS and
+  PDC authority boundary for durable candidate response custody. Requests survive
+  worker interruption and duplicate delivery; the sole decision remains
+  `failed_safe`, names the missing signer role, and carries a conservative posture
+  and escalation clock. Snapshot readback checks temporal availability and restart
+  expiry. No institutional appointment, protected execution or restart approval
+  is issued.
+- `operator_comprehension.py` extends the existing diagnostic event log with sealed
+  synthetic trials and recomputed audit results. Training and sealed examples are
+  disjoint; absent eligible opportunities and failed safety cells have fixed
+  non-result outcomes. Internal candidate estimators expose no WP-09 bound through
+  the public projection, and `human_comprehension_established` is always false.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

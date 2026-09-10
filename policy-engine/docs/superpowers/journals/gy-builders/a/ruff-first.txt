@@ -1,0 +1,108 @@
+F401 [*] `polisyos.core.artifacts.ids.ArtifactID` imported but unused
+  --> src/polisyos/fabric/evidence/non_data_acquisition.py:22:41
+   |
+20 | from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+21 |
+22 | from polisyos.core.artifacts.ids import ArtifactID
+   |                                         ^^^^^^^^^^
+23 | from polisyos.core.artifacts.manifest import SchemaInfo
+24 | from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+   |
+help: Remove unused import: `polisyos.core.artifacts.ids.ArtifactID`
+
+TC003 Move standard library import `datetime.datetime` into a type-checking block
+  --> src/polisyos/runtime/quality/non_data_acquisition.py:12:22
+   |
+11 | from dataclasses import dataclass
+12 | from datetime import datetime
+   |                      ^^^^^^^^
+13 |
+14 | from polisyos.core.artifacts.manifest import ArtifactRef
+   |
+help: Move into type-checking block
+
+TC001 Move application import `polisyos.core.artifacts.manifest.ArtifactRef` into a type-checking block
+  --> src/polisyos/runtime/quality/non_data_acquisition.py:14:46
+   |
+12 | from datetime import datetime
+13 |
+14 | from polisyos.core.artifacts.manifest import ArtifactRef
+   |                                              ^^^^^^^^^^^
+15 | from polisyos.fabric.evidence.non_data_acquisition import (
+16 |     NonDataAcquisitionRuntime,
+   |
+help: Move into type-checking block
+
+PT006 Wrong type passed to first argument of `pytest.mark.parametrize`; expected `tuple`
+  --> tests/unit/fabric/test_ceiling_relations.py:90:26
+   |
+90 | @pytest.mark.parametrize("dimension,field,value", [
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^
+91 |     ("population", "population_ref", "population:unknown"),
+92 |     ("jurisdiction", "jurisdiction_ref", "jurisdiction:sibling"),
+   |
+help: Use a `tuple` for the first argument
+
+PT006 Wrong type passed to first argument of `pytest.mark.parametrize`; expected `tuple`
+   --> tests/unit/fabric/test_ceiling_relations.py:130:26
+    |
+130 | @pytest.mark.parametrize("field,value", [
+    |                          ^^^^^^^^^^^^^
+131 |     ("object_ref", "object:1@2"), ("rule_version_ref", "rule:2"),
+132 |     ("reference_epoch_ref", "epoch:2"), ("operation", "mutate"),
+    |
+help: Use a `tuple` for the first argument
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/fabric/test_non_data_acquisition.py:3:1
+   |
+ 1 |   """Candidate non-data runtime falsifiers, starting with ratified W5-K01."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import importlib
+ 6 | | import importlib.util
+ 7 | | import copy
+ 8 | | import hashlib
+ 9 | | import json
+10 | | from datetime import UTC, datetime
+11 | |
+12 | | import pytest
+13 | |
+14 | | from polisyos.core.artifacts.store import FileSystemCAS
+15 | | from unit.fabric.test_ceiling_relations import ceiling_payload, scope_payload, vocabulary_payload
+   | |_________________________________________________________________________________________________^
+16 |
+17 |   TARGET = {"regime": "treatment:a", "population": "population:a", "outcome": "outcome:y",
+   |
+help: Organize imports
+
+F401 [*] `hashlib` imported but unused
+  --> tests/unit/fabric/test_non_data_acquisition.py:8:8
+   |
+ 6 | import importlib.util
+ 7 | import copy
+ 8 | import hashlib
+   |        ^^^^^^^
+ 9 | import json
+10 | from datetime import UTC, datetime
+   |
+help: Remove unused import: `hashlib`
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/unit/fabric/test_non_data_acquisition.py:202:5
+    |
+200 |       module, store, runtime = make_runtime(tmp_path)
+201 |       bridge = importlib.import_module("polisyos.runtime.quality.non_data_acquisition")
+202 | /     from polisyos.runtime.quality.acquisition_planner import (
+203 | |         AcquisitionGap, AcquisitionGapType, AuthorityLevel, MandatoryGateState,
+204 | |         load_acquisition_planner_report,
+205 | |     )
+    | |_____^
+206 |       request = candidate_request(module, runtime)
+207 |       gap = AcquisitionGap(gap_id=request.gap_id, claim_ref=request.claim_ref,
+    |
+help: Organize imports
+
+Found 8 errors.
+[*] 4 fixable with the `--fix` option (4 hidden fixes can be enabled with the `--unsafe-fixes` option).

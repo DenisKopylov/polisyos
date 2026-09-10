@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/docs/superpowers/journals/gy-builders/b/research.py", line 11, in <module>
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py", line 33, in <module>
+    from polisyos.runtime.http.services.control.response_shapes import (
+    ...<3 lines>...
+    )
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/http/services/control.py", line 9, in <module>
+    from polisyos.runtime.http.services.control.api import *  # noqa: E402,F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/http/services/control/api.py", line 11, in <module>
+    import polisyos.runtime.http.services.control.run_lifecycle as _run_lifecycle
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 199, in <module>
+    from ..control_plane_store import (
+    ...<7 lines>...
+    )
+ImportError: cannot import name 'AcquisitionActionHeadRecord' from partially initialized module 'polisyos.runtime.http.services.control_plane_store' (most likely due to a circular import) (/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py)

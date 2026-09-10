@@ -1,0 +1,21 @@
+
+==================================== ERRORS ====================================
+____ ERROR collecting tests/unit/runtime/quality/test_runtime_event_log.py _____
+ImportError while importing test module '/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/tests/unit/runtime/quality/test_runtime_event_log.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/runtime/quality/test_runtime_event_log.py:8: in <module>
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+src/polisyos/runtime/http/services/control_plane_store.py:33: in <module>
+    from polisyos.runtime.http.services.control.response_shapes import (
+src/polisyos/runtime/http/services/control.py:9: in <module>
+    from polisyos.runtime.http.services.control.api import *  # noqa: E402,F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/services/control/api.py:11: in <module>
+    import polisyos.runtime.http.services.control.run_lifecycle as _run_lifecycle
+src/polisyos/runtime/http/services/control/run_lifecycle.py:199: in <module>
+    from ..control_plane_store import (
+E   ImportError: cannot import name 'AcquisitionActionHeadRecord' from partially initialized module 'polisyos.runtime.http.services.control_plane_store' (most likely due to a circular import) (/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py)
+=========================== short test summary info ============================
+ERROR tests/unit/runtime/quality/test_runtime_event_log.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!

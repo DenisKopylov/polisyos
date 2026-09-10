@@ -1,5 +1,47 @@
 # Atlas public verification bridge: measure and retain the existing owner path
 
+## A6 — measured generated-example companion, before its refresh
+
+Execution follow-through, 2026-09-10, source/test freeze
+`0c5ad474a8e77760686981d46350aa3bfaeb743d`: architecture guardrails returned 1
+with exactly one OpenAPI-snapshot freshness finding. The exact command also fails
+at the lane base, but that does **not** make the current drift wholly inherited.
+The live confidence-ledger example's worker binds 6,416 dependencies: 5,675 files
+(5,669 Python, 3 JSON, 2 TOML, 1 lock), 739 directories and 2 missing paths.
+Its complete retained binding set intersects this lane at all four changed test
+files. The five journal Python scripts are not in that binding set. A separate
+generator trace reproduces byte-identical output; the unmodified worker receipt
+is the binding denominator, not the trace's output-directory observations.
+
+The canonical generator emits exactly ten scalar changes, all in the existing
+confidence-ledger response example: dependency aggregate/count and their derived
+receipt, projection and replay identities. No route, request/response schema or
+other example changes. Evidence remains in the gitignored journal
+`verification/raw/openapi-diagnostic/` (normal generator output, exact structural
+delta, worker receipt and complete intersection report); final hashes belong to
+the completion journal. The snapshot before refresh is
+`schemas/runtime_api_v1.openapi.json@56229017e932a241a79b3b249959f6bab2e60bd9`.
+
+Decision: refresh this mandatory generated companion from the canonical generator
+after the test freeze. Preserve its exact formatting and limit the diff to those
+computed example values. This is a compatible example-provenance refresh with no
+API-shape or client-type change, no rule-version change and no governed epoch bump
+from lane merge base `a534024ee28dfd9ac4fd21be1ff769b253722d8e`.
+No producer or authority capability is added by this refresh.
+
+Authority for this companion is the `runtime-openapi-snapshot` family in
+`architecture/generated_artifacts.toml@69a8560ff4b0d29169c6d134ab60f38ec3597ea2`:
+its freshness rule explicitly includes changes to an owner-validator consulted
+dependency basis. Owner is team-polisyos; version owner is team-runtime.
+Generator:
+`tools/ops_runners/runtime/export_runtime_openapi.py@02b5dd691c4190f2a9cfff86e7479744a684cc17`.
+The source/test wave's completed guardrail is the observed red. After refresh,
+run the declared focused Runtime API contract checker, its unchanged check
+against a deliberately corrupted single example field, then guardrails again.
+No guardrails sync, stale-pin bypass or directory-wide test is authorized by this
+decision. P39 makes the generated example a companion, not a new mechanism;
+P41's nonzero intersection makes carrying this drift as wholly inherited invalid.
+
 ## Decision and scope
 
 Base: `a534024ee28dfd9ac4fd21be1ff769b253722d8e`, attached branch

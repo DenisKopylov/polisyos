@@ -87,6 +87,17 @@ TESTS = {
     ],
 }
 COMMANDS = {name: ["uv", "run", "pytest", *nodes, "-q", "-rA"] for name, nodes in TESTS.items()}
+OPENAPI_CHECK = [
+    "uv",
+    "run",
+    "--extra",
+    "runtime",
+    "--extra",
+    "ml",
+    "python",
+    "tools/ops_runners/runtime/check_runtime_api_contract.py",
+    "--skip-client-drift",
+]
 COMMANDS.update(
     {
         "atlas-browser": [
@@ -124,6 +135,8 @@ COMMANDS.update(
             "-q",
         ],
         "guardrails": ["uv", "run", "polisyos-tools", "architecture", "guardrails", "check"],
+        "openapi": OPENAPI_CHECK,
+        "openapi-corruption": [*OPENAPI_CHECK, "--openapi", "{corrupted_snapshot}"],
         "lint": [
             ".venv/bin/python",
             "-m",
@@ -169,7 +182,21 @@ def main() -> int:
     if log_path.exists() or result_path.exists():
         parser.error("receipt already exists; choose a fresh tag")
     cwd = PRODUCT_ROOT / "apps/runtime-dashboard" if args.gate == "atlas-browser" else PRODUCT_ROOT
-    command = COMMANDS[args.gate]
+    command = list(COMMANDS[args.gate])
+    if args.gate == "openapi-corruption":
+        # Preserve all hashes/markers while falsifying one real computed example value.
+        corrupted = raw / f"{tag}-corrupted-openapi.json"
+        if corrupted.exists():
+            parser.error("corrupted input already exists; choose a fresh tag")
+        payload = json.loads((PRODUCT_ROOT / "schemas/runtime_api_v1.openapi.json").read_text())
+        example = payload["paths"][
+            "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
+        ]["get"]["responses"]["200"]["content"]["application/json"]["examples"]["default"]["value"]
+        example["source"]["validation"]["bound_dependency_count"] += 1
+        corrupted.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        )
+        command[-1] = str(corrupted)
     started = time.monotonic()
     timed_out = False
     with log_path.open("xb") as output:
@@ -195,7 +222,7 @@ def main() -> int:
         "timed_out": timed_out,
         "output": str(log_path.relative_to(PRODUCT_ROOT)),
         "output_sha256": hashlib.sha256(log_path.read_bytes()).hexdigest(),
-        "expected_exit_code": 1 if args.gate.endswith("-removal") else 0,
+        "expected_exit_code": 1 if args.gate.endswith(("-removal", "-corruption")) else 0,
     }
     result_path.write_text(json.dumps(receipt, indent=2) + "\n")
     sys.stdout.write(json.dumps(receipt, indent=2) + "\n")

@@ -2,6 +2,48 @@
 
 Lane: `codex/gy-builders`, merge base `07c89304d`. Local ordinary git; no push.
 
+## Final standing — 2026-09-10
+
+The mechanism commit is `ee284fa3811ab237b87b282e7f4a33476e1a25eb`. Every changed
+file was read back **from that attached branch commit** and compared with the working
+bytes before this handback was written. Stage-1 decisions preceded source work at
+`c628361c5`. All four commissioned mechanisms are executed; their authority claims
+remain refused. The historical stage-1 table below is not the current standing.
+
+| Task | Status | Deciding evidence on the frozen implementation | Binding falsifier |
+| --- | --- | --- | --- |
+| GY-AQ1 | executed | All 70 cases in the two named Fabric files, live canonical planner/report bridge and two existing planner nodes pass in the integrated gate. Eight acquisition types and eight separate ceiling relations have complete-denominator positives/negatives; real-owner fake input, data-only growth and decisive-removal witnesses are recorded in [A journal](2026-09-10-gy-builders-a.md). | W5-K01 volume growth cannot move missing-object resolution; unknown fields/identities refuse. |
+| GY-CR1 | executed | The complete CR1 file and existing outbox node pass. Actual SIGKILL at request-read and post-publication/pre-checkpoint boundaries, actual duplicate delivery, complete SQL/CAS reconciliation, clock/restart and conflicting-byte cases pass; [B journal](2026-09-10-gy-builders-b.md) also records the real package CLI. | WP-08 absent signer terminates `failed_safe` naming the role; fabricated signer/boundary is rejected. |
+| GY-CB1 | executed | Synthetic trial → diagnostic event/CAS → recomputed audit readback; schema-2 source/family partition, eligible-cell and predeclared stop cases pass. All 256 training×sealed fixture pairs were independently checked; shared-family-member removal turns the unchanged negative red. [C journal](2026-09-10-gy-builders-c.md). | W5-K02 conformance cannot establish human comprehension; zero opportunities yield `not_established`, and WP-09 public bounds stay empty. |
+| GY-ML1 | executed | All three EN–UA candidate propositions, corrected siblings, scoped/revoked/expired CAS readers, actual IL-Hebr source-content custody and both independently allocated locale parsers pass. The final census reconciles every member/path/string; corruption in either parser or the retained numerator receipt fails. [C journal](2026-09-10-gy-builders-c.md). | W5-K06 reading outside proposition/purpose/qualified-holder/context denominator is refused; no equivalence certificate is signed. |
+
+**GY-AQ1's claim that additional same-stream rows establish a missing non-data object
+remains refused by volume-independent resolution, resolved object custody, complete
+ceiling comparison and context-bound independent semantic re-entry.**
+
+**GY-CR1's protected-response authorization claim remains refused by null-only signer
+and substitute slots, consumer-revalidated candidate authority and a `failed_safe`
+terminal naming the missing role; conservative posture and escalation never approve.**
+
+**GY-CB1's human-comprehension claim remains refused by its non-settable false result,
+candidate-only persisted trials and recomputing consumer; conformance evidence cannot
+change it and WP-09 numerical public bounds remain withheld.**
+
+**GY-ML1's legal-equivalence claim remains refused by the exact declared-denominator
+reader and empty signer/holder/trust-root plane; candidate frame comparisons cannot
+acquire legal, linguistic, jurisdictional or human-behavioral authority.**
+
+No task is blocked. The default architecture gate is **not_completed**, because its
+compiler chain includes the expressly prohibited debt-ledger checker. The canonical
+GY task rows are updated; debt/ledger indexing is intentionally not regenerated.
+
+The complete authoritative table remains 74 rows, matching its stated denominator.
+Independent regex and split-column parsers reconcile every identity/status and show
+only AQ1, CR1, CB1 and ML1 moving from `not_started` to `executed`; every other task
+status is unchanged. This is a local delivered-artifact standing update, not a merge
+or debt-index compilation. Receipt:
+`gy-builders/root/raw/standing-update-audit.json@e842dba47c03d5ddb2377bb6f8639ec838285ba6c55ac40b65bd614d400ea382`.
+
 ## Execution contract
 
 Stage 1 produces and commits the A, B and C decision documents before any production
@@ -197,3 +239,92 @@ uses could produce identical verifier/re-entry arguments. A is widening the sing
 port context to bind the actual requested use and aware evaluation time at verifier,
 demanding-owner verification, re-entry and replay; this is one context invariant,
 not a per-case change. Its negative precedes the repair.
+
+AQ1-R01 was closed by B's independent replay and nine targeted context cases: the
+formerly identical re-entry inputs now carry distinct actual use; substituting the
+use in the live port makes the unchanged negative red. The final integration wave
+includes the full context-aware bridge, not only its fast subset.
+
+C-PARTITION-01, **NEW class: presentation identity used as stimulus identity (P38)**.
+The independent review found all eight original training stimuli repeated under
+the sealed examples' wrappers. The same class's deeper partial-family overlap was
+widened to the union of actual source-family member bytes across partitions, instead
+of whole-family hash equality. Source identity and rendered content are derived;
+training examples are distinct. B's unchanged owner witness now refuses the shared
+member, while the explicitly exercised paraphrase residual remains
+`semantic_family_independence_not_established`. Closing semantic family independence
+requires W5-R3-Q06 adjudication, absent here; no classifier or appointment is invented.
+
+## Final verification and source custody
+
+Source was frozen, all blocking reviews were closed, then the final wave ran once:
+
+`PATH="$PWD/.venv/bin:$PATH" .venv/bin/python -m docs.superpowers.journals.gy-builders.root.verify`
+
+The runner asserts the imported package belongs to this worktree and enumerates each
+file/node explicitly. Its 600-second budget derives from measured cold owner startup
+of about 120 seconds. **178 passed, 7 warnings; 29.431 seconds including cold startup**
+(1.94 seconds pytest execution), exit 0. The pass count was independently reconciled
+against all individual progress events in the complete receipt, using
+`^(\.+)(?=\{|$)` to exclude relative warning paths. No test is excluded as inherited;
+no directory-wide, backend-wide or CI-parity suite was run. Warnings are retained:
+loaded-process fork, intentionally forged signer serialization, plugin rewrite and
+the new candidate `construct` name's Pydantic method-shadowing warning. They do not
+change the gate result; the cosmetic field naming stays with the CB1 owner.
+
+Complete deciding outputs under the ignored `gy-builders/root/raw/` directory:
+
+| Receipt and SHA-256 | Outcome |
+| --- | --- |
+| `integration-final.txt@4849e08048aa288ac06749c9b9ee07dd551cc75cd0236da02d1c7b6b6bacd451` | All explicitly named final tests pass; two actual killed PIDs, exit `-9`, and SQL/CAS identity sets emitted. |
+| `ruff-final.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18` | Exact changed mechanism, parser, test and root-harness Python files pass. |
+| `scope-audit-final.txt@1b3edbe476f8ee05762951f0707e11852f5042189ab9a9db2f6c8c90e74dc510` | Complete 2,851 base `src/**` blobs, including 2,640 Python files, independently compared with git diff: every base Python owner unchanged; protected debt/ledger and governed artifacts unchanged. |
+| `census-final.json@d4e969ea0ca2a4174d5665f26b8805ad229267c297a2337113b97f32e871e2ce` | Live exact two-parser census passes, with final implementation/source hashes and actual directory identity. |
+| `census-final-corrupt-a.txt@393c29b57a856d945cbac0360a53d4d46190ef5863fd6aaeb0973d402caa0f8d` | Corrupt parser A only: exit 1, disagreement. |
+| `census-final-corrupt-b.txt@393c29b57a856d945cbac0360a53d4d46190ef5863fd6aaeb0973d402caa0f8d` | Corrupt parser B only: exit 1, disagreement. |
+| `census-final-receipt-green.txt@d4e969ea0ca2a4174d5665f26b8805ad229267c297a2337113b97f32e871e2ce` | `--check --receipt` recomputation matches retained output exactly. |
+| `census-final-receipt-red.txt@4566f625c88576d9c4b2a89fb61fe9339a64bbf6a211b19ec94a6dce2ecedb48` | Only the UK identical-string numerator changed: exit 1, receipt drift. |
+| `census-final-removal.txt@9ec14de345b337de3ad7bdd75a513054395e8b338f14f26dfd4c5a133072a3ab` | Removing actual reconciliation leaves markers intact but makes the unchanged corruption negative fail. |
+| `staged-diff-check-final.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | Final staged whitespace gate passes; complete whitespace-bearing raw test output was moved intact into ignored raw, never trimmed. |
+| `source-commit-readback.json@a5be8259333f7c46f37a5cface7fb7a6f035acc8b48445cdf21913fd0cccb6e7` | Every changed file reread from `ee284fa3811ab237b87b282e7f4a33476e1a25eb` equals working bytes; attached branch and no committed raw dump. |
+
+Tracked mechanism sources are the Fabric `evidence/{ceiling_relations,non_data_acquisition}.py`,
+Runtime `quality/{non_data_acquisition,adaptation_transition,operator_comprehension}.py`,
+Lex `knowledge/{multilingual_assurance,locale_census}.py` and both locale tools, each
+at `ee284fa3811ab237b87b282e7f4a33476e1a25eb`; their source bodies are not duplicated
+in this journal. The source registry and synthetic corpora are pinned by that same
+commit. No prior owner path is replaced or subordinated, so no StrangleReceipt is
+fabricated. No existing governed epoch is bumped or reissued, and epoch freshness
+is explicitly not claimed. All decisions declare that any future transition must
+be based on the immutable lane merge base, not a workstream start.
+
+## Findings routed to other owners
+
+- `int-r2-ceiling-vocabulary-owners`: all eight software relations and their owner
+  are delivered as closure evidence; an authorized register/index follow-up remains
+  necessary because this lane cannot edit DEBT-REGISTER.md or LEDGER.md.
+- `int-r6-independent-current-leaf-identity-census` / W5-S30: executed independent
+  census and corruption receipts are delivered; the same register prohibition applies.
+- `GY-AS1`: independently owned 63-case oracle/battery remains unbuilt here; AQ1's
+  independent verifier/demanding-owner ports remain available for it. `GY-VC1` owns
+  the canonical lattice crosswalk; DS15/Atlas owns the future UI projection.
+- `WP-08` and `w5-institutional-authority-slots`: signer/substitute/domain authority
+  remain absent. CR1 supplies the H2 durable response core, addressing the recorded
+  runtime precondition for research waves 6/7 without claiming CR2/CR3 completion.
+- `W5-R3-Q06`: item adjudication, governance loss and semantic family independence
+  remain institutional; actual operator studies and population transport remain
+  unestablished. WP-09 stays withheld.
+- `W5-R6-Q05`: jurisdictional co-authentic reconciliation remains institutional.
+  W5-R6-Q07 owns future trust/key-custody appointment. WP-11's English-pivot split
+  and WP-12's ten-requirement RTL evidence pack stay withheld. Arbitrary text-to-frame
+  semantic adequacy has **no producer in this delivered mechanism**; its explicit
+  output is `not_established`, not equivalence.
+- Existing `core.artifacts.ownership.ArtifactOwnershipIndex` owns the CR1 foreign-writer
+  concurrency residual; `runtime.http.services.control` owns the observed startup-order
+  limitation. Both are routed under P27 and left unchanged, not classified as an
+  inherited failing test. External execution/exactly-once is not claimed.
+- The locale census assumes quiescent local sources; atomic filesystem snapshot
+  custody against adversarial ABA changes is outside its structural claim. No such
+  snapshot owner is allocated by this lane.
+- Default architecture verification is `not_completed` under the user's explicit
+  compiler prohibition. No passed/skipped substitute is reported.

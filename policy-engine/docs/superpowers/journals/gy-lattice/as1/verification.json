@@ -1,0 +1,103 @@
+{
+  "task": "GY-AS1",
+  "status": "verified_pending_root_integrated_closeout",
+  "source_sha256": {
+    "src/polisyos/fabric/evidence/acquisition_assurance.py": "d61826d20c992504e7e87ae44ecb2109f62d8f6b12f8d210e101077165b755a8",
+    "tools/quality/validation/check_gy_acquisition_assurance.py": "45a2dfc887b4e0da453c74f81fdb05e487d01718dba54f341137ad2d5b2564ed",
+    "docs/reference/gy-acquisition-assurance-corpus.json": "5ba11a2f0d80dca0fca8ff30f6544d01b79e7e0be412e0eb8d0c5498ea22ad13",
+    "tests/unit/fabric/test_acquisition_assurance.py": "d6f6df9dc52f446dc4e006ccda645dc9248dda270aff7c8c56831ec0a3ae14ec",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py": "4e0e1e78056b4d45241a8bc36faa0361cefb91a95a9a6f2eac2ae9691a62b10a"
+  },
+  "explicit_test_nodes": [
+    "tests/unit/fabric/test_acquisition_assurance.py::test_assurance_executes_frozen_corpus_and_persisted_consumer",
+    "tests/unit/fabric/test_acquisition_assurance.py::test_terminal_requires_substantive_bound_complete_owner_basis",
+    "tests/unit/fabric/test_acquisition_assurance.py::test_event_cannot_close_without_recomputed_targeted_current_evidence",
+    "tests/unit/fabric/test_acquisition_assurance.py::test_duplicate_event_has_one_persisted_acquisition_effect",
+    "tests/unit/fabric/test_acquisition_assurance.py::test_remove_boundary_property_keep_terminal_markers_refuses",
+    "tests/unit/fabric/test_acquisition_assurance.py::test_ordinary_data_control_observes_admitted_availability_change",
+    "tests/unit/fabric/test_acquisition_assurance.py::test_rule_change_revalidates_current_use_and_preserves_old_receipt",
+    "tests/unit/fabric/test_acquisition_assurance.py::test_persisted_consumer_rejects_self_stamped_closure",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_complete_corpus_reconciles_two_parser_stacks",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_independent_oracle_grades_real_persisted_consumers",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_each_named_mutant_fails_on_its_own_witness",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_removing_oracle_independence_refuses",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_corrupt_immutable_input_refuses_before_grade",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_oracle_does_not_import_subject_decoder_or_comparison",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_oracle_seal_is_not_derived_from_selected_file",
+    "tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_cli_creates_ignored_scratch_from_absent_directory"
+  ],
+  "deciding_gates": [
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_gy_acquisition_assurance --check",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/baseline-green.txt",
+      "sha256": "a8199dae9358d28f3d854d2e907e5f71d502b8b4a89695dc1d721582590130b5"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_gy_acquisition_assurance --mutation-battery",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/seven-mutants-complete.txt",
+      "sha256": "5a8ecdf9bff3a6eeefd3793e6f99b0473acd1cf4ef3cbdcd8525f92c2972b4c5"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_gy_acquisition_assurance --check --challenge decoder",
+      "exit_code": 2,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/independence-decoder.txt",
+      "sha256": "7687b4dcb2e96899c36246f602c86b6499f019abc5360df3bc261c2f9fd6434c"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_gy_acquisition_assurance --check --challenge loader",
+      "exit_code": 2,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/independence-loader.txt",
+      "sha256": "65677464d66fb780965a504f48c106d978511ba4189b6690d1c2333891c7b5ba"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_gy_acquisition_assurance --check --challenge comparator",
+      "exit_code": 2,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/independence-comparator.txt",
+      "sha256": "a2122dec9184f772d8165a536feb233c26e2e8e71428f329c17541263deca64b"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.quality.validation.check_gy_acquisition_assurance --check --challenge unconfined",
+      "exit_code": 2,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/independence-unconfined.txt",
+      "sha256": "84b27d068cad64438c10f9a58ffc54e5791fd5fbced2ebff6588eb9b72d5411c"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/fabric/test_acquisition_assurance.py::test_assurance_executes_frozen_corpus_and_persisted_consumer -o addopts='' -q",
+      "exit_code": 1,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/red-missing-mechanism-isolated.txt",
+      "sha256": "59255dd5dd462146752f6bb66925b12e3f477f2c3e97421cb25bff32899aa0b4"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/fabric/test_acquisition_assurance.py::test_assurance_executes_frozen_corpus_and_persisted_consumer tests/unit/fabric/test_acquisition_assurance.py::test_terminal_requires_substantive_bound_complete_owner_basis tests/unit/fabric/test_acquisition_assurance.py::test_event_cannot_close_without_recomputed_targeted_current_evidence tests/unit/fabric/test_acquisition_assurance.py::test_duplicate_event_has_one_persisted_acquisition_effect tests/unit/fabric/test_acquisition_assurance.py::test_remove_boundary_property_keep_terminal_markers_refuses tests/unit/fabric/test_acquisition_assurance.py::test_ordinary_data_control_observes_admitted_availability_change tests/unit/fabric/test_acquisition_assurance.py::test_rule_change_revalidates_current_use_and_preserves_old_receipt tests/unit/fabric/test_acquisition_assurance.py::test_persisted_consumer_rejects_self_stamped_closure -o addopts='' -q",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/unit-first.txt",
+      "sha256": "dee6287a615a92ac2f318dcc984982a85e999e509777080346f23d38c42dff5f"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_complete_corpus_reconciles_two_parser_stacks tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_corrupt_immutable_input_refuses_before_grade tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_oracle_does_not_import_subject_decoder_or_comparison tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_oracle_seal_is_not_derived_from_selected_file -o addopts='' -q",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/checker-targeted.txt",
+      "sha256": "edbbf6ef8a106c0a34b71b4cb6e4156c5e5165b80064688063387312a8be5a5a"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_cli_creates_ignored_scratch_from_absent_directory -o addopts='' -q",
+      "exit_code": 1,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/red-fresh-checkout-scratch.txt",
+      "sha256": "f372ba8f8c98a51f4434acdf389ce7fd2d9816111f963d5433f5bec5a528967e"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/repo_quality/tools/test_gy_acquisition_assurance.py::test_cli_creates_ignored_scratch_from_absent_directory -o addopts='' -q",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/green-fresh-checkout-scratch.txt",
+      "sha256": "ef6c207c21fa17938d2c8058847144d0a02ef0d20a37efbbd42aa5cc0b161554"
+    },
+    {
+      "command": ".venv/bin/python -m ruff check src/polisyos/fabric/evidence/acquisition_assurance.py tools/quality/validation/check_gy_acquisition_assurance.py tests/unit/fabric/test_acquisition_assurance.py tests/repo_quality/tools/test_gy_acquisition_assurance.py",
+      "exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/as1/raw/ruff-final.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ]
+}

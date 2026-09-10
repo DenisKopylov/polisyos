@@ -1,7 +1,8 @@
 # GY-AQ1 decision: candidate non-data acquisition on Fabric evidence owners
 
 Stage 1 decision, 2026-09-10. Source is the lane's immutable merge base
-`07c89304d`; execution has not started. The task definition is
+`07c89304d`; this decision was committed before execution at `c628361c5`.
+Stage-2 amendments below record the implemented boundary. The task definition is
 `docs/plans/active/layer3-slices/GY-engine-subordination.md` §9, GY-AQ1.
 The binding claim rule is `W5-K01` in
 `docs/system-design-decisions/wave5-evidence-substitution-ratification.md` §4.1.
@@ -66,6 +67,16 @@ the admitted candidate and current requested use. Every emitted result carries a
 structural candidate-only authority boundary and an empty institutional signer
 slot. Process closure, when an independently recomputed candidate predicate
 passes, has no approval, publication, truth or mandate consequence.
+
+The implemented `AcquisitionEvaluationContext` is immutable and supplied to both
+semantic verification ports and demanding-owner re-entry. It binds request,
+claim and gap identities; full demand hash; exact candidate, vocabulary and
+optional planner-report refs; every requested-use dimension; and an aware
+evaluation time. Audit recomputation rebuilds this context from persisted inputs
+and the requested evaluation time. A ceiling-admitted use can still fail the
+owner's narrower predicate; an absent context cannot invoke an older context-free
+port successfully. Independent review found the initial use/time omission as a
+new P02/P10 class; this is the whole-port-context correction, not a default use.
 
 The audit reader reopens the persisted artifact and recomputes the decision; a
 caller-constructed or edited result is not authoritative. The evidence/verifier
@@ -145,11 +156,14 @@ becoming authority; a candidate receipt being read as approval; a new vocabulary
 entry requiring code; or the binding contract remaining green after removing real
 owner validation while retaining marker strings.
 
-P37 predicate grades are frozen in receipts: content identity, registry consistency,
-set/graph/interval relations and candidate predicate recomputation are `recomputed`;
-independent port comparisons are `independently_reconciled` only when actually run.
-Institutional truth/standing not independently admitted is `not_established` and
-cannot turn on authority. P38 limitation: correct comparison of candidate
+P37 predicate grades are frozen in receipts: structural demand classification is
+`recomputed` with the explicit `candidate_demand_structure_only` scope, while
+institutional truth/standing is `not_established` and cannot turn on authority.
+Content identity, registry consistency and set/graph/interval relations are
+recomputed. Separately allocated ports actually compare resolved candidate
+content for the bound context; their identities are recorded, but this is not a
+claim that AS1 or institutional independent assurance has been performed.
+P38 limitation: correct comparison of candidate
 definitions is not proof that an external institution accepts those definitions.
 That divergence is enforced by the output boundary, not left as prose.
 
@@ -157,9 +171,10 @@ That divergence is enforced by the output boundary, not left as prose.
 
 Mechanism paths: new `src/polisyos/fabric/evidence/non_data_acquisition.py`, new
 `src/polisyos/fabric/evidence/ceiling_relations.py`, and the new composition-only
-bridge `src/polisyos/runtime/quality/non_data_acquisition.py`. Vocabulary data
-will live beside the Fabric owner; candidate specimen data lives under
-`tests/fixtures/non_data_acquisition/`. Tests are the named files
+bridge `src/polisyos/runtime/quality/non_data_acquisition.py`. Authored relation
+vocabulary data lives in `src/polisyos/fabric/evidence/ceiling_vocabulary.json`;
+candidate specimen builders live in the named tests without a duplicate derived
+fixture directory. Tests are the named files
 `tests/unit/fabric/test_non_data_acquisition.py` and
 `tests/unit/fabric/test_ceiling_relations.py`; existing planner regression tests
 will be selected by explicit file/node names after importer discovery. Documentation

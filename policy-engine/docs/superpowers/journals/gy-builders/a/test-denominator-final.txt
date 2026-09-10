@@ -1,0 +1,4 @@
+tests/unit/fabric/test_ceiling_relations.py: 24
+tests/unit/fabric/test_non_data_acquisition.py: 46
+
+{"ambiguous": 0, "ast": {"tests/unit/fabric/test_ceiling_relations.py": 24, "tests/unit/fabric/test_non_data_acquisition.py": 46}, "file_type_denominator": "two named Python test modules", "pytest": {"tests/unit/fabric/test_ceiling_relations.py": 24, "tests/unit/fabric/test_non_data_acquisition.py": 46}}

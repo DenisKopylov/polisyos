@@ -1,0 +1,18 @@
+/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/quality/operator_comprehension.py:42: UserWarning: Field name "construct" in "ScenarioItem" shadows an attribute in parent "InstrumentModel"
+  class ScenarioItem(InstrumentModel):
+/Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/quality/operator_comprehension.py:150: UserWarning: Field name "construct" in "SafetyCell" shadows an attribute in parent "InstrumentModel"
+  class SafetyCell(InstrumentModel):
+{
+  "corpus_path": "tests/fixtures/runtime_quality/operator_comprehension.json",
+  "corpus_sha256": "6dd22d7585ea1ef3c3ae10e27e49bf3e1fa36cb01dc39cd25bae0569ebbfa828",
+  "item_denominator": 40,
+  "training_items": 8,
+  "sealed_items": 32,
+  "complete_pair_denominator": 256,
+  "exact_source_reuse_pairs": 0,
+  "independent_reverse_pair_count": 0,
+  "mutant_distinct_sources": true,
+  "mutant_declared_family_overlap": 1,
+  "real_owner_accepts_overlapping_declared_family": true,
+  "disposition": "admitted"
+}

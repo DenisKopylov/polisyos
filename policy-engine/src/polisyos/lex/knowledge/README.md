@@ -41,3 +41,12 @@ Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 - Files: 5 Python files
 - Exports: 11 lazy exports in `__init__.py`
 - Notable delta: extraction payloads moved to `polisyos.data_forge.domains.legal.contracts`; Lex keeps runtime graph/search result models.
+
+## Candidate multilingual assurance
+
+`multilingual_assurance.py` extends Lex semantic evaluation with finite candidate rendition/action
+comparison, content-bound CAS readback, empty-holder refusal and append-only invalidation. It reuses
+`core.artifacts` integrity and strict Ed25519 verification; no signing or legal-equivalence authority
+is produced. `locale_census.py` measures catalogue structure only and has an independently allocated
+tool-side parser; exact agreement cannot establish translation quality. Named RTL source-content
+pack `IL-Hebr` retains every WP-12 evidence slot empty and admits no locale or jurisdiction.

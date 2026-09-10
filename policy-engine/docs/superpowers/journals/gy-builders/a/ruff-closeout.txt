@@ -1,0 +1,12 @@
+E501 Line too long (105 > 100)
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:33:101
+   |
+31 |             return ref
+32 |
+33 |         def resolve_wrong_target(self: NonDataAcquisitionRuntime, ref: str, kind: str) -> dict[str, Any]:
+   |                                                                                                     ^^^^^
+34 |             if ref == "sha256:" + "0" * 64:
+35 |                 ref = self._probe_candidate
+   |
+
+Found 1 error.

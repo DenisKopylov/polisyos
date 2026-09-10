@@ -1,0 +1,12 @@
+................                                                         [100%]
+=============================== warnings summary ===============================
+tests/unit/runtime/quality/test_operator_comprehension.py::test_w5_k02_conformance_cannot_establish_human_comprehension
+  /Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/quality/operator_comprehension.py:42: UserWarning: Field name "construct" in "ScenarioItem" shadows an attribute in parent "InstrumentModel"
+    class ScenarioItem(InstrumentModel):
+
+tests/unit/runtime/quality/test_operator_comprehension.py::test_w5_k02_conformance_cannot_establish_human_comprehension
+  /Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/src/polisyos/runtime/quality/operator_comprehension.py:150: UserWarning: Field name "construct" in "SafetyCell" shadows an attribute in parent "InstrumentModel"
+    class SafetyCell(InstrumentModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+16 passed, 2 warnings in 24.15s

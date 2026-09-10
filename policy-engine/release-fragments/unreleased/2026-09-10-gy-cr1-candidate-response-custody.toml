@@ -1,0 +1,11 @@
+id = "2026-09-10-gy-cr1-candidate-response-custody"
+title = "Persist candidate response custody without action authority"
+type = "added"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Add durable candidate response requests, failed-safe decisions, restart evidence and audit clock snapshots over the existing control outbox and CAS."
+surface_classification = "internal"
+evidence = ["docs/superpowers/journals/2026-09-10-gy-builders-b.md", "tests/unit/runtime/quality/test_adaptation_transition.py"]
+compatibility = "Additive internal schema family; existing control-store and governed epoch bytes remain unchanged."
+migration = "No migration required. Run the adaptation_transition package worker against the existing local persistence owners."
+limitations = "WP-08 signer slots remain typed and empty. Missing signer roles terminate failed_safe; no protected response, preauthorization or external execution is granted."

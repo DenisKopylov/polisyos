@@ -158,3 +158,36 @@ silently reissued.
    Preserve complete output and remove no user files. Reopen the pattern register,
    record the final readback and all residuals, then hand root the frozen write set
    for its serialized commit and integrated review.
+
+## Stage-2 architecture amendment: preserve governed owner bytes
+
+The pre-edit scan found `module:polisyos.runtime.http.services.control_plane_store`
+as a `decisive: true` member in
+`architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json`.
+**The proposed public-reader edit is withdrawn before implementation.** The architect
+ruled that CR1 may consume the existing `_get_outbox_event_by_key` method through one
+documented internal Runtime composition seam; known event IDs use the public getter.
+This is owner reuse, not a duplicate query or database. No store source is changed,
+and its existing governed bytes remain intact. Exact SQL/conflict/concurrent-delivery
+tests exercise the seam without capped list enumeration. The complete recorded
+member-path and dotted-identity denominator is checked at closeout; the initial
+literal search alone is not treated as a zero-impact proof.
+
+Review refinement (`P08`, one new temporal class): snapshot readback rejects a
+request observation, decision publication, restart receipt or restart observation
+that is later than `as_of`. Restart references carry `not_supplied`,
+`current_candidate` or `expired_candidate`; none licenses reopening. Historical
+reconstruction before an already-published decision is explicitly refused rather
+than projecting future availability. This is a bounded audit reader, not the
+whole-history temporal engine.
+
+Measured concurrency refinement: the existing CAS ownership index uses only a
+per-instance thread lock. Two CR1 store instances writing distinct request bytes
+concurrently lost one ownership entry (`raw/verify-final.txt`, `ArtifactOwnershipError`),
+before reaching the outbox. CR1 therefore reuses Fabric's existing
+`atomic.file_lock` around **only CAS put plus immediate readback**, at
+`<cas-root>/artifacts/ownership/adaptation-transition.lock`; outbox operations remain
+concurrent. No CAS owner source is edited. The guarantee is bounded to cooperating
+CR1 writers in that local CAS root. Foreign writers ignoring the lock remain a
+CAS-ownership integration residual and can fail closed; their cross-owner safety is
+not claimed. Platforms without the real process lock are refused.

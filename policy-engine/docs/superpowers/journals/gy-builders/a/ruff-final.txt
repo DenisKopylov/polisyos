@@ -1,0 +1,104 @@
+ANN202 Missing return type annotation for private function `retain_candidate`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:25:13
+   |
+23 |         original_resolve = NonDataAcquisitionRuntime._resolve
+24 |
+25 |         def retain_candidate(self, payload, kind):
+   |             ^^^^^^^^^^^^^^^^
+26 |             ref = original_persist(self, payload, kind)
+27 |             if kind == "fabric.non_data_acquisition.candidate":
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `self`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:25:30
+   |
+23 |         original_resolve = NonDataAcquisitionRuntime._resolve
+24 |
+25 |         def retain_candidate(self, payload, kind):
+   |                              ^^^^
+26 |             ref = original_persist(self, payload, kind)
+27 |             if kind == "fabric.non_data_acquisition.candidate":
+   |
+
+ANN001 Missing type annotation for function argument `payload`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:25:36
+   |
+23 |         original_resolve = NonDataAcquisitionRuntime._resolve
+24 |
+25 |         def retain_candidate(self, payload, kind):
+   |                                    ^^^^^^^
+26 |             ref = original_persist(self, payload, kind)
+27 |             if kind == "fabric.non_data_acquisition.candidate":
+   |
+
+ANN001 Missing type annotation for function argument `kind`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:25:45
+   |
+23 |         original_resolve = NonDataAcquisitionRuntime._resolve
+24 |
+25 |         def retain_candidate(self, payload, kind):
+   |                                             ^^^^
+26 |             ref = original_persist(self, payload, kind)
+27 |             if kind == "fabric.non_data_acquisition.candidate":
+   |
+
+ANN202 Missing return type annotation for private function `resolve_wrong_target`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:31:13
+   |
+29 |             return ref
+30 |
+31 |         def resolve_wrong_target(self, ref, kind):
+   |             ^^^^^^^^^^^^^^^^^^^^
+32 |             if ref == "sha256:" + "0" * 64:
+33 |                 ref = self._probe_candidate
+   |
+help: Add return type annotation
+
+ANN001 Missing type annotation for function argument `self`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:31:34
+   |
+29 |             return ref
+30 |
+31 |         def resolve_wrong_target(self, ref, kind):
+   |                                  ^^^^
+32 |             if ref == "sha256:" + "0" * 64:
+33 |                 ref = self._probe_candidate
+   |
+
+ANN001 Missing type annotation for function argument `ref`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:31:40
+   |
+29 |             return ref
+30 |
+31 |         def resolve_wrong_target(self, ref, kind):
+   |                                        ^^^
+32 |             if ref == "sha256:" + "0" * 64:
+33 |                 ref = self._probe_candidate
+   |
+
+ANN001 Missing type annotation for function argument `kind`
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:31:45
+   |
+29 |             return ref
+30 |
+31 |         def resolve_wrong_target(self, ref, kind):
+   |                                             ^^^^
+32 |             if ref == "sha256:" + "0" * 64:
+33 |                 ref = self._probe_candidate
+   |
+
+T201 `print` found
+  --> docs/superpowers/journals/gy-builders/a/removal_probe.py:43:5
+   |
+41 |     )
+42 |     result = pytest.main([gate, "-o", "addopts=", "-q"])
+43 |     print(f"mutant={args.mutant}; deciding_gate_exit={int(result)}; expected=1")
+   |     ^^^^^
+44 |     if result != pytest.ExitCode.TESTS_FAILED:
+45 |         raise SystemExit("decisive property removal did not turn the real gate red")
+   |
+help: Remove `print`
+
+Found 9 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

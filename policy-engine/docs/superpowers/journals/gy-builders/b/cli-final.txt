@@ -1,0 +1,42 @@
+COMMAND /Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/.venv/bin/python -m polisyos.runtime.quality.adaptation_transition --root /Users/deniskopylov/polisyos/.worktrees/gy-builders/policy-engine/docs/superpowers/journals/gy-builders/b/raw/cli-smoke-sg6o629z --tenant tenant-1 --cell cell-1 process outbox_af1b3a2f6c6446a6
+{
+  "schema_version": "polisyos.runtime.adaptation_transition.v1",
+  "authority_boundary": {
+    "boundary_id": null,
+    "authoritative_for": [
+      "candidate_response_custody"
+    ],
+    "may_not_use_for": [
+      "protected_action_authorization",
+      "external_policy_execution",
+      "restart_authorization",
+      "signer_appointment"
+    ],
+    "source_authority": "deterministic_producer",
+    "posture": "shadow",
+    "rule_version_refs": [
+      "polisyos.runtime.adaptation_transition.v1",
+      "WP-08",
+      "FM-OPS-16"
+    ],
+    "evidence_kind": null,
+    "decision_grade": null,
+    "evidence_basis": null,
+    "known_limits": [
+      "No institutional signer or after-hours substitute is appointed."
+    ]
+  },
+  "appointed_signer": null,
+  "after_hours_substitute": null,
+  "execution_authorized": false,
+  "request_ref": "sha256:1fbb8c8ab6ccda42599e2b85271d80560142fe72bddc8d0e97eb641f6c061760",
+  "status": "failed_safe",
+  "missing_role": "appointed_policy_rollback_authority",
+  "reason": "institutional_signer_not_established",
+  "predicate_provenance": "not_established",
+  "conservative_posture": "no_authority_expansion",
+  "effective_at": "2026-09-10T06:50:49Z",
+  "escalate_at": "2026-09-10T06:51:49Z",
+  "public_meaning": "protected_response_withheld"
+}
+CLI custody readback: one SQL publication, matching complete CAS set.

@@ -166,3 +166,37 @@ and legal-evaluation substrate available. Post-build acceptance is executable ma
 claim refused, not institutional readiness. New findings are bucketed NEW class versus same class
 one level deeper; a second same-class finding widens the invariant or declares a falsified bounded
 residual, never starts a per-instance ladder.
+
+## Stage-2 review amendment C-R01
+
+Classified NEW: the first RTL pack form retained withholding correctly but did not yet carry source
+content through a producer and reader (P01/P02). The correction extends the SAME MAEP owner with
+`run_source_content` and `read_source_content`: actual synthetic Hebrew/mixed-direction bytes are
+content-bound in the existing candidate CAS kind and read back only for the declared
+`IL-Hebr`/`he`/`Hebr` scope. Missing/wrong scope or corrupted binding refuses. This is source-content
+custody, not proof of language identification, rendering accessibility, jurisdiction authority or
+UI-locale support. The ten WP-12 slots remain empty. The result explicitly enumerates the wider MAEP
+check plane as recomputed, consumer_asserted or not_established; finite frame comparison cannot be
+misread as completion of unbuilt glossary, natural-language interpretation or institutional checks.
+
+## Stage-2 partition amendment C-PARTITION-01
+
+Independent B review found a NEW P38 class: the original corpus reused held-out source text under
+training/display wrappers while admission compared the decorated text and partition-prefixed family
+names. The full pair census and inverse check are retained in B's receipt. This batch changes the
+new candidate corpus schema from 1 to 2 and the new instrument producer version to 2; no pre-existing
+governed epoch is touched. `stimulus_text` and `stimulus_family` carry the actual undecorated source
+bytes. The owner derives displayed content, source identity and source-family identity from them;
+partition/modality wrappers and item labels do not participate in the decisive identity. The decisive partition test compares the complete UNION of declared source-family member bytes
+across training/sealed partitions, not equality of whole-family IDs; any shared member refuses.
+Stimulus membership in its declared family is validated, so every displayed source is covered. Training fixtures are replaced with distinct source examples.
+
+This proves exact source and declared-family disjointness only. A distinct-byte semantic paraphrase
+is the explicit bounded residual: it may pass the structural split, but emitted
+`semantic_independence` remains `not_established` and human comprehension false. The smallest
+missing capability is independently appointed item/family adjudication (W5-R3-Q06), not another
+normalizer or an invented semantic oracle. The residual is demonstrated in an executable witness.
+
+The prior `authority_level=candidate_only` field denotes artifact/evidence authority; schema 2 adds
+an explicit declared target authority level to the population context. This is a synthetic scenario
+role, never an appointment or permission to act.

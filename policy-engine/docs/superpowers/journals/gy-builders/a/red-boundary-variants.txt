@@ -1,0 +1,35 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___________ test_audit_reader_recomputes_forged_candidate_resolution ___________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1485/test_audit_reader_recomputes_f0')
+
+    def test_audit_reader_recomputes_forged_candidate_resolution(tmp_path):
+        module, _, runtime = make_runtime(tmp_path)
+        request = module.NonDataRequest(request_id="forged", claim_ref="claim:1", gap_id="gap:1",
+                                       demand=DEMANDS["legal_mandate"])
+        result = runtime.acquire(request, at=datetime(2026, 9, 10, tzinfo=UTC))
+        payload = result.model_dump(mode="json", exclude={"artifact_ref"})
+        payload["resolution_state"] = "reentry_closed"
+        payload["reason_codes"] = []
+        forged = runtime._persist(payload, "fabric.non_data_acquisition.receipt")
+>       with pytest.raises(ValueError, match="receipt_recomputation_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/fabric/test_non_data_acquisition.py:286: Failed
+_______ test_jurisdiction_subordination_is_bound_to_the_demonstrated_act _______
+
+    def test_jurisdiction_subordination_is_bound_to_the_demonstrated_act():
+        request, ceiling = scope_payload(), ceiling_payload()
+        request["action_ref"] = ceiling["action_ref"] = "action:new-competence"
+>       assert not evaluate(requested=request, ceiling=ceiling).permitted
+E       AssertionError: assert not True
+E        +  where True = CeilingResult(permitted=True, relations={'population': True, 'jurisdiction': True, 'purpose_audience': True, 'source_t...gth': True, 'maximum_commitment_stage': True}, exact_controls=True, authority_granted=False, institutional_signer=None).permitted
+E        +    where CeilingResult(permitted=True, relations={'population': True, 'jurisdiction': True, 'purpose_audience': True, 'source_t...gth': True, 'maximum_commitment_stage': True}, exact_controls=True, authority_granted=False, institutional_signer=None) = evaluate(requested={'action_ref': 'action:new-competence', 'assumption_refs': ['assumption:stable@1'], 'audience_ref': 'audience:reviewer', 'claim_kind': 'claim:conditional', ...}, ceiling={'action_ref': 'action:new-competence', 'assumption_refs': ['assumption:stable@1'], 'audience_ref': 'audience:team', 'claim_kind': 'claim:conditional', ...})
+
+tests/unit/fabric/test_ceiling_relations.py:192: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/test_non_data_acquisition.py::test_audit_reader_recomputes_forged_candidate_resolution
+FAILED tests/unit/fabric/test_ceiling_relations.py::test_jurisdiction_subordination_is_bound_to_the_demonstrated_act
+2 failed in 1.19s

@@ -4091,6 +4091,20 @@
       "target_root": "ir"
     },
     {
+      "source_module": "polisyos.fabric.evidence.non_data_acquisition",
+      "source_root": "fabric",
+      "source_file": "src/polisyos/fabric/evidence/non_data_acquisition.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.fabric.evidence.non_data_acquisition",
+      "source_root": "fabric",
+      "source_file": "src/polisyos/fabric/evidence/non_data_acquisition.py",
+      "target_module": "polisyos.core.artifacts.store",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.fabric.identity.segment_manifest",
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/identity/segment_manifest.py",
@@ -9663,6 +9677,41 @@
       "target_root": "ir"
     },
     {
+      "source_module": "polisyos.lex.knowledge.multilingual_assurance",
+      "source_root": "lex",
+      "source_file": "src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "target_module": "polisyos.core.artifacts.ids",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.lex.knowledge.multilingual_assurance",
+      "source_root": "lex",
+      "source_file": "src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.lex.knowledge.multilingual_assurance",
+      "source_root": "lex",
+      "source_file": "src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "target_module": "polisyos.core.artifacts.signing",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.lex.knowledge.multilingual_assurance",
+      "source_root": "lex",
+      "source_file": "src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "target_module": "polisyos.core.artifacts.store",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.lex.knowledge.multilingual_assurance",
+      "source_root": "lex",
+      "source_file": "src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.lex.knowledge.search",
       "source_root": "lex",
       "source_file": "src/polisyos/lex/knowledge/search.py",
@@ -11931,6 +11980,41 @@
       "target_root": "fabric"
     },
     {
+      "source_module": "polisyos.runtime.quality.adaptation_transition",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/adaptation_transition.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.adaptation_transition",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/adaptation_transition.py",
+      "target_module": "polisyos.core.artifacts.store",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.adaptation_transition",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/adaptation_transition.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.adaptation_transition",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/adaptation_transition.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.adaptation_transition",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/adaptation_transition.py",
+      "target_module": "polisyos.fabric.io",
+      "target_root": "fabric"
+    },
+    {
       "source_module": "polisyos.runtime.quality.approval",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/approval.py",
@@ -12531,6 +12615,27 @@
       "source_file": "src/polisyos/runtime/quality/metamorphic_controls.py",
       "target_module": "polisyos.scientist.validation.policy_grounding",
       "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.non_data_acquisition",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/non_data_acquisition.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.non_data_acquisition",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/non_data_acquisition.py",
+      "target_module": "polisyos.fabric.evidence.non_data_acquisition",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.operator_comprehension",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/operator_comprehension.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
     },
     {
       "source_module": "polisyos.runtime.quality.performance_budget",

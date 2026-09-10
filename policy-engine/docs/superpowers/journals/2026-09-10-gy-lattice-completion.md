@@ -116,6 +116,23 @@ The bounded residual is explicit: finite synthetic proof is not completeness of
 the real world's causal models, institutions or providers. Further examples of
 that residual do not trigger an open-ended institutional subsystem build.
 
+**GL-AS1-INPUT-02 — the independent oracle caught a malformed adversary.**
+The first live subject run failed with 24 field differences over all eight form
+cases. The fixture generator had aliased candidate facts and owner requirements;
+removing a candidate fact also removed the corresponding demand. This is a new
+fixture-construction class, distinct from the bounded terminal-proof residual.
+The correction restores the eight complete owner requirements while preserving
+the missing candidate fact and plausible signature. Root checked every restored
+key set against the eight distinct substantive obligations. The expectation file
+and all case IDs remain unchanged. The corrected input SHA-256 is
+`5ba11a2f0d80dca0fca8ff30f6544d01b79e7e0be412e0eb8d0c5498ea22ad13`;
+the failed deciding output is `gy-lattice/as1/raw/baseline-first.txt`.
+
+Commit `30dd80249` contains the oracle program/tests and the initial seal record;
+the TSV itself was omitted because the existing broad `*.tsv` ignore matched it.
+An append-only correction adds a narrow tracked-artifact exception and the sealed
+TSV. Branch readback identified the omission before any delivery claim.
+
 **GL-CR2-01 — expansion is a state property, not an event label.**
 Root independently adjudicated the restart review against OPS-R5 `AUD-F06`,
 `amendment-state-invariants.md`: `protected_restart_or_expansion_has_fresh_restart_evidence`

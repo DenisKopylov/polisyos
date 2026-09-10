@@ -1,0 +1,85 @@
+{
+  "ambiguous_count": 0,
+  "construction_rule": "docs/superpowers/journals/corr-evidence/a-expansion/2026-09-09-construction-rule.md@e3d857b32dd07228113f5ac3669ad40adaec0ff9",
+  "content_hash": "sha256:aa5595e49ff54d48fc1ec6315e9020c88570e3185d8f671030ee7c6620a5fdd1",
+  "correctness_bound": null,
+  "declared_at": "2026-09-09T09:44:52.187194+00:00",
+  "diagnostic": "docs/superpowers/journals/corr-evidence/a-expansion/suite.py@32c34be4229130762c46a9d06747f61780ffa7f6",
+  "executable_negative_count": 48,
+  "existing_owner_sources": [
+    "src/polisyos/runtime/quality/grounding_calibration.py@17bc9abd1cd790ea06bcb4f6bdae7d6f4f4fc326",
+    "src/polisyos/runtime/quality/grounding_relation.py@24eb77299a24eb29a5104f29e20ff02fcb5ef9ba",
+    "src/polisyos/runtime/quality/grounding_bind.py@c864cc722dcb353b083db9d72a5e0dc39ce64102"
+  ],
+  "families": [
+    {
+      "family": "opposite_sign",
+      "limitation": "A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.",
+      "requested_count": 3
+    },
+    {
+      "family": "target_assignment",
+      "limitation": "A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.",
+      "requested_count": 45
+    }
+  ],
+  "independent_identity_hash": "sha256:765709651ca871234441f88dd3c4302e6bbebe5bf9e309c013e9f50a494e7fdc",
+  "input_census": {
+    "assignment_count": 3,
+    "assignment_identity_hash": "sha256:296e1b64a918bd585ad224a104ac70bd8113561b950eed7b65bc80ecf0225b07",
+    "file_type_denominators": {
+      "frame": "complete JSON inputs array",
+      "raw_knob_dictionary": "complete root JSON object key set",
+      "suite": "complete JSON mismatches array",
+      "world": "complete JSON policy_slot_map array"
+    },
+    "identity_delta": [],
+    "independence": "not_established; same held support, algorithmic set reconciliation only",
+    "independent_target_transposition_identity_hash": "sha256:d0ad4b37fe623c04786d6b83c6b987f8ab865b5aae54da68f3cc353003b07db2",
+    "operator_count": 3,
+    "operator_identity_hash": "sha256:07fefdc4712ea1120bbd3596b87f8d170a2f3efed3c742586ee0afe47941bb46",
+    "opposite_sign_count": 3,
+    "opposite_sign_identity_hash": "sha256:b9c2810d513df9f1b662951ee99ac428773e368909a9d8e3f809c3ecf2fbfac4",
+    "proposed_case_count": 48,
+    "purpose": "pre_outcome_construction_support_only",
+    "raw_knob_bytes_sha256": "sha256:005d89f0ab1728a4f6c20cccad5781c1ef7721f82215c8de7c21622f3abe4328",
+    "raw_knob_source": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+    "runtime_refusal_result": "not_established; no binder or solver invoked",
+    "schema_version": "corr.refusal_expansion_input_census.v1",
+    "source_unit_count": 2,
+    "source_unit_identity_hash": "sha256:f9e1cd445a3736590ae49258157a0695846ceac061f629c9729fd739f36af331",
+    "status": "passed",
+    "synthetic": true,
+    "target_transposition_count": 45,
+    "target_transposition_identity_hash": "sha256:d0ad4b37fe623c04786d6b83c6b987f8ab865b5aae54da68f3cc353003b07db2",
+    "tracked_sources": [
+      "architecture/policy_design_case/corr/grounding-2026-09-08/frame.json@2f844bc3fec18485c06d7e0240e8ac1789625ee7",
+      "architecture/policy_design_case/corr/grounding-2026-09-08/suite.json@f6f7779a018294c2425818243587aa39fb1e9491",
+      "architecture/policy_design_case/corr/grounding_proof_world_input.json@f355a8fd98023365d3572ded0db233c6034893f9"
+    ],
+    "world_cas_byte_identity": "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+    "world_logical_content_hash": "sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6",
+    "world_slot_count": 16,
+    "world_slot_identity_hash": "sha256:5d413d1e36a74a7c11b3a9794b417cb507ada8d5d9931b68b13303de004469e1"
+  },
+  "input_sources": [
+    "architecture/policy_design_case/corr/grounding-2026-09-08/frame.json@2f844bc3fec18485c06d7e0240e8ac1789625ee7",
+    "architecture/policy_design_case/corr/grounding-2026-09-08/suite.json@f6f7779a018294c2425818243587aa39fb1e9491",
+    "architecture/policy_design_case/corr/grounding_proof_world_input.json@f355a8fd98023365d3572ded0db233c6034893f9"
+  ],
+  "limitation": "A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.",
+  "manifest_identity_hash": "sha256:542d9179579f16832f9e5b820543b6dd156445e52cff40eba06eb0cb8f548411",
+  "proof_input_hash": "sha256:8b8db9c24b9c2b78ec3e90b31ab9baf3156beba0b8a053f9bf32db993638ce08",
+  "provenance": {
+    "accepted_binding_correctness": "not_established",
+    "case_construction": "recomputed",
+    "denominator": "independently_reconciled",
+    "independent_adjudication": "not_established"
+  },
+  "reference_hash": "sha256:f20a23c7e51a1afb9ad565e7f732b73455441ef010606472e3e3d97271c3428d",
+  "requested_manifest_count": 48,
+  "schema_version": "corr.refusal_expansion_declaration.v1",
+  "source_cluster_count": 1,
+  "source_cluster_identity_hash": "sha256:d5470da74caafd65fcaec15f26b13169e153ca43e34742e8973ba5d5a966ffc9",
+  "synthetic": true
+}

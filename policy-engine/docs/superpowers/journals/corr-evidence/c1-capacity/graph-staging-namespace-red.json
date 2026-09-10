@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_usage_reconciles_all_registered_namespaces_and_applied_configuration"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.8336488750064746,
+  "returncode": 1,
+  "stderr": "E\n======================================================================\nERROR: test_usage_reconciles_all_registered_namespaces_and_applied_configuration (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_usage_reconciles_all_registered_namespaces_and_applied_configuration)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\", line 140, in test_usage_reconciles_all_registered_namespaces_and_applied_configuration\n    self.assertEqual(usage[\"applied_limits\"], asdict(self.limits))\n                     ~~~~~^^^^^^^^^^^^^^^^^^\nKeyError: 'applied_limits'\n\n----------------------------------------------------------------------\nRan 1 test in 0.672s\n\nFAILED (errors=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

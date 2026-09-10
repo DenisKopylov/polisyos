@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_risk.py tests/unit/runtime/quality/test_grounding_calibration.py tests/unit/runtime/quality/test_grounding_bind.py -q --junitxml=.tmp/corr-a-final.xml",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_grounding_risk.py",
+    "tests/unit/runtime/quality/test_grounding_calibration.py",
+    "tests/unit/runtime/quality/test_grounding_bind.py",
+    "-q",
+    "--junitxml=.tmp/corr-a-final.xml"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 79.57569287507795,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "......................................                                   [100%]\n=============================== warnings summary ===============================\ntests/unit/runtime/quality/test_grounding_bind.py::test_forged_promotable_production_certificate_resolves_non_promotable\n  /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/runtime/quality/grounding_bind.py:416: UserWarning: Pydantic serializer warnings:\n    PydanticSerializationUnexpectedValue(Expected `tuple[str, ...]` - serialized value may not be as expected [field_name='validation_reasons', input_value=['owned_calibration_anchor_validated'], input_type=list])\n    payload = handler(self)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+  "stderr": ""
+}

@@ -1,0 +1,28 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/runtime/quality/generation_source.py src/polisyos/runtime/quality/generation_cycle.py src/polisyos/runtime/quality/design_generation.py tests/unit/runtime/quality/test_generation_source.py tests/unit/runtime/quality/historical_artifacts.py tests/unit/runtime/quality/test_promotion_sequence.py tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py docs/superpowers/journals/corr-evidence/c/c2_removal.py docs/superpowers/journals/corr-evidence/c/c2_n6_projection.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/quality/generation_source.py",
+    "src/polisyos/runtime/quality/generation_cycle.py",
+    "src/polisyos/runtime/quality/design_generation.py",
+    "tests/unit/runtime/quality/test_generation_source.py",
+    "tests/unit/runtime/quality/historical_artifacts.py",
+    "tests/unit/runtime/quality/test_promotion_sequence.py",
+    "tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py",
+    "docs/superpowers/journals/corr-evidence/c/c2_removal.py",
+    "docs/superpowers/journals/corr-evidence/c/c2_n6_projection.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.042779416078701615,
+  "timeout_seconds": 120.0,
+  "timed_out": false,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

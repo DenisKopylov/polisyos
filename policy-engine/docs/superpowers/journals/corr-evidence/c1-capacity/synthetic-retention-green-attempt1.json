@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "authority_granted": false,
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_verification",
+    "--child",
+    "--test",
+    "test_synthetic_retention"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 2.3073674170300364,
+  "stdout": "",
+  "stderr": "test_complete_ordinal_frame_and_source_intake (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_complete_ordinal_frame_and_source_intake) ... ok\ntest_real_campaign_sdk_estimator_and_bounded_mock (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_real_campaign_sdk_estimator_and_bounded_mock) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.964s\n\nOK\n"
+}

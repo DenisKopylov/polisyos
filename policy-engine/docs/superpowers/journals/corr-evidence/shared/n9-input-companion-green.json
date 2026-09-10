@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_input_preserves_actual_cg2_producer_output tests/unit/runtime/quality/test_generation_source.py::test_synthetic_cg2_contract_mechanism_remains_non_promotable -q --tb=short --junitxml=.tmp/corr-n9-input.xml",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_input_preserves_actual_cg2_producer_output",
+    "tests/unit/runtime/quality/test_generation_source.py::test_synthetic_cg2_contract_mechanism_remains_non_promotable",
+    "-q",
+    "--tb=short",
+    "--junitxml=.tmp/corr-n9-input.xml"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 97.03117283305619,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "..                                                                       [100%]\n",
+  "stderr": ""
+}

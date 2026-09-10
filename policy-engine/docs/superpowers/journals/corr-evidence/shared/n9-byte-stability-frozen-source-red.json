@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace -q --tb=short",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace",
+    "-q",
+    "--tb=short"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 42.15665154205635,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__ test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace ___\ntests/repo_quality/tools/test_layer3_gy_promotion_contract.py:370: in test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace\n    first = checker.build_contract_json_for_write(POLICY_ENGINE_ROOT)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntools/quality/validation/check_layer3_gy_promotion_contract.py:588: in build_contract_json_for_write\n    payload, plan = _build_payload_with_comparison_plan(repo_root)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntools/quality/validation/check_layer3_gy_promotion_contract.py:256: in _build_payload_with_comparison_plan\n    ) = _run_with_isolated_confidence_ledger(\ntools/quality/validation/check_layer3_gy_promotion_contract.py:155: in _run_with_isolated_confidence_ledger\n    session = ConfidenceLedgerSession._for_verification(\nsrc/polisyos/runtime/quality/confidence_ledger.py:1269: in _for_verification\n    return cls(\nsrc/polisyos/runtime/quality/confidence_ledger.py:1153: in __init__\n    _baseline, _quick_fence, deployment_identity = _admit_loaded_runtime(loaded_root)\n                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/runtime/quality/confidence_ledger.py:4417: in _admit_loaded_runtime\n    _assert_loaded_runtime_matches_import_baseline(\nsrc/polisyos/runtime/quality/confidence_ledger.py:4408: in _assert_loaded_runtime_matches_import_baseline\n    raise ConfidenceLedgerError(\"canonical_loaded_runtime_mismatch\")\nE   polisyos.runtime.quality.confidence_ledger.ConfidenceLedgerError: canonical_loaded_runtime_mismatch: canonical_loaded_runtime_mismatch\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace\n",
+  "stderr": ""
+}

@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "authority_granted": false,
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_verification",
+    "--child",
+    "--test",
+    "test_synthetic_retention.SyntheticRetentionTests.test_warm_progress_bins_exclude_startup_and_replay_cleanup"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 0.07066962507087737,
+  "stdout": "",
+  "stderr": "test_warm_progress_bins_exclude_startup_and_replay_cleanup (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_warm_progress_bins_exclude_startup_and_replay_cleanup) ... FAIL\n\n======================================================================\nFAIL: test_warm_progress_bins_exclude_startup_and_replay_cleanup (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_warm_progress_bins_exclude_startup_and_replay_cleanup)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py\", line 99, in test_warm_progress_bins_exclude_startup_and_replay_cleanup\n    raise AssertionError(\"retention_complete_warm_trace_analysis_missing\")\nAssertionError: retention_complete_warm_trace_analysis_missing\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (failures=1)\n"
+}

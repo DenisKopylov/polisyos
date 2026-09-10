@@ -1,0 +1,28 @@
+{
+  "authority_granted": false,
+  "denominator": "complete native telemetry stream and both run-emitted resource/worker summaries",
+  "input_count": 100,
+  "native_filename_sets_equal": true,
+  "omitted_scope": "recomputable generated synthetic inputs/results remain in declared scratch; mock attempt clocks are outside native memory proof",
+  "preflight_complete": true,
+  "primary_files": {
+    "profile-summary.json": {
+      "bytes": 2119,
+      "sha256": "24df28929b2752b8fb77f6a8276d2a1ebc827e51e05c11ce403eea51db996751",
+      "source_path": ".tmp/corr-c1-capacity/synthetic-retention/100/profile-summary.json"
+    },
+    "samples.jsonl": {
+      "bytes": 40263,
+      "sha256": "c1c34a10dd461ab9fd5e386b39498a074c309b9f50a6719717ff1aeb08d5f595",
+      "source_path": ".tmp/corr-c1-capacity/synthetic-retention/100/profile/samples.jsonl"
+    },
+    "worker-summary.json": {
+      "bytes": 1746,
+      "sha256": "7935322f8074f1acfce6d1e3db48a85e1bb067108e5b688a17c6f3b9e018d267",
+      "source_path": ".tmp/corr-c1-capacity/synthetic-retention/100/worker/worker-summary.json"
+    }
+  },
+  "raw_bytes_preserved": true,
+  "schema_version": "corr.synthetic_retention_primary_archive.v1",
+  "synthetic": true
+}

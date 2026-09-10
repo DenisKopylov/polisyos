@@ -1,0 +1,48 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "73c0b354b8c6ce54923abf909dbcbaed6628e764c719de41e4faa5ed1e3ba547",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "self_verification",
+    "phase_key": "sha256:7b58bb46e7bf3e5a58371326d8e2330f998f7541be948600961bdd64be2a3038",
+    "prompt_hash": "sha256:64fe6efa5fe42beecee9484fc6ff3b77227cd539519c966ce58886d7a76b0826",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.00028541707433760166,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 323,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:8386f68db3452ab369f3a7d5afc993d1431114f21c5994563f056db2f526f6cb",
+  "prompt_hash": "sha256:64fe6efa5fe42beecee9484fc6ff3b77227cd539519c966ce58886d7a76b0826",
+  "provider_usage": {
+    "completion_tokens": 140,
+    "completion_tokens_details": null,
+    "prompt_tokens": 314,
+    "prompt_tokens_details": null,
+    "total_tokens": 454
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 545,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:e0048d1f7cfb1ad1bea7e2f4ee895b455bc5bc6b4c7ca79cbddc2cd7f9ef30f7",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 12.362087583984248,
+  "usage": {
+    "completion_tokens": 140,
+    "prompt_tokens": 314,
+    "total_tokens": 454
+  }
+}

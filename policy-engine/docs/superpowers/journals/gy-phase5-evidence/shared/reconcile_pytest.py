@@ -1,7 +1,11 @@
 """Compare independent complete pytest collection and executed JUnit identities."""
 
+import hashlib
+import io
 import json
 import sys
+from collections import Counter
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -27,7 +31,13 @@ def main() -> None:
     junit = next(arg.split("=", 1)[1] for arg in arguments if arg.startswith("--junitxml="))
     arguments = [arg for arg in arguments if not arg.startswith("--junitxml=")]
     collected = Collection()
-    rc = pytest.main([*arguments, "--collect-only"], plugins=[collected])
+    compact = "--compact" in sys.argv[2:]
+    collection_stdout, collection_stderr = io.StringIO(), io.StringIO()
+    if compact:
+        with redirect_stdout(collection_stdout), redirect_stderr(collection_stderr):
+            rc = pytest.main([*arguments, "--collect-only"], plugins=[collected])
+    else:
+        rc = pytest.main([*arguments, "--collect-only"], plugins=[collected])
     cases = ElementTree.parse(junit).findall(".//testcase")  # noqa: S314 - local pytest output
     expected = set(collected.nodes)
     # Resolve JUnit's dotted class path against the complete collected identities.
@@ -66,6 +76,28 @@ def main() -> None:
         "duplicate_execution": len(executed) != len(observed),
         "nonpassing_executions": failures,
     }
+    if compact:
+        result.pop("collected_identities")
+        result.pop("executed_identities")
+        result.update({
+            "collected_count": len(expected),
+            "executed_count": len(observed),
+            "collected_identity_hash": hashlib.sha256(
+                json.dumps(sorted(expected), separators=(",", ":")).encode()
+            ).hexdigest(),
+            "executed_identity_hash": hashlib.sha256(
+                json.dumps(sorted(observed), separators=(",", ":")).encode()
+            ).hexdigest(),
+            "duplicate_collection_identities": {
+                key: count for key, count in Counter(collected.nodes).items() if count > 1
+            },
+            "duplicate_execution_identities": {
+                key: count for key, count in Counter(executed).items() if count > 1
+            },
+        })
+        if rc:
+            result["failed_collection_stdout"] = collection_stdout.getvalue()
+            result["failed_collection_stderr"] = collection_stderr.getvalue()
     sys.stdout.write(json.dumps(result, indent=2) + "\n")
     if (
         rc

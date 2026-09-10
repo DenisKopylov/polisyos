@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.b.cg3_world_time_diagnostic",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.cg3_world_time_diagnostic"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.12904687505215406,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "{\n  \"manifest_denominator\": \"all *.manifest.json under actual composed WMR CAS\",\n  \"manifest_count\": 33,\n  \"manifest_identity_hash\": \"8dfdd30d5b750c5365217416a88d7c1a55aa5d5baad9e21f246235bd41394b96\",\n  \"independent_manifest_identity_hash\": \"8dfdd30d5b750c5365217416a88d7c1a55aa5d5baad9e21f246235bd41394b96\",\n  \"complete_wmr_artifact_count\": 17,\n  \"complete_wmr_artifact_identity_hash\": \"f70cb0b8167fc1d9a4454862d2ce13e5aa5c104ce7ba5ef2b2c1a4e051af905a\",\n  \"selected_denominator\": \"all actual WMR artifacts with the report's logical content_hash\",\n  \"logical_world_content_hash\": \"sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6\",\n  \"selected_artifact_count\": 17,\n  \"selected_artifact_identity_hash\": \"f70cb0b8167fc1d9a4454862d2ce13e5aa5c104ce7ba5ef2b2c1a4e051af905a\",\n  \"every_selected_body_independently_reconciled\": true,\n  \"complete_body_leaf_count\": 274,\n  \"body_leaf_identity_hashes\": [\n    \"52e72614beff2d12e62809e38cab0646d4f943023cbffdd3d076c92d61276778\"\n  ],\n  \"changed_leaf_paths_across_complete_selected_set\": [\n    [\n      \"created_at\"\n    ],\n    [\n      \"data_forge_binding_ref\",\n      \"provenance_manifest_ref\"\n    ]\n  ],\n  \"identity_omissions_or_additions\": false,\n  \"stored_report_reference\": {\n    \"component_versions\": {\n      \"L2\": \"out_of_scope\",\n      \"L3\": \"out_of_scope\",\n      \"L6\": \"sha256:9021ea6a85391bac68899ee47cba45003bc4204c2acf3e64794f16870865f176\",\n      \"WMR\": \"sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6\"\n    },\n    \"edge_count\": 38,\n    \"reference_epoch\": \"synthetic-refusal:9021ea6a85391bac\",\n    \"reference_hash\": \"sha256:9021ea6a85391bac68899ee47cba45003bc4204c2acf3e64794f16870865f176\",\n    \"substrate_registry_hash\": \"sha256:33f9b7bedd9a8e48f906dd6dd122288dc85f5b1cde48c3361a6ceff15203107c\",\n    \"substrate_registry_id\": \"substrate_version_33f9b7bedd9a8e48\"\n  },\n  \"writer_then_check_checkpoint\": \"930b8e10fb09332ed2a1cb9df38e3e1a5ad1460c\"\n}\n",
+  "stderr": ""
+}

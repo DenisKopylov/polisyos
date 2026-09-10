@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q --tb=short tests/repo_quality/tools/test_export_runtime_openapi.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "tests/repo_quality/tools/test_export_runtime_openapi.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 69.22508995898534,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________ test_real_openapi_export_confines_app_artifacts ________________\n/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/repo_quality/tools/test_export_runtime_openapi.py:31: in test_real_openapi_export_confines_app_artifacts\n    assert outside == [], f\"openapi_app_artifacts_escaped_assigned_output: {outside}\"\nE   AssertionError: openapi_app_artifacts_escaped_assigned_output: ['.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob', '.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json']\nE   assert ['.polisyos/c...anifest.json'] == []\nE     \nE     Left contains 2 more items, first extra item: '.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob'\nE     Use -v to get more diff\n----------------------------- Captured stdout call -----------------------------\n/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1410/test_real_openapi_export_confi0/assigned/runtime_api_v1.openapi.json\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_export_runtime_openapi.py::test_real_openapi_export_confines_app_artifacts\n",
+  "stderr": ""
+}

@@ -1,0 +1,21 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "format",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph_state_census.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/graph_capacity_removal.py"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.0433039169292897,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "1 file reformatted, 1 file left unchanged\n",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

@@ -1,0 +1,25 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--select",
+    "SIM117",
+    "--fix",
+    "--unsafe-fixes",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_staging.py",
+    "tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.05535191704984754,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\n  --> tests/unit/data_forge/domains/academic/batch/test_graph_staging.py:77:13\n   |\n75 |               ) as payload:\n76 |                   payload[\"refs\"].append(\"first\")\n77 | /             with self.assertRaisesRegex(self.module.GraphCapacityError, \"max_group_contributions\"):\n78 | |                 with groups.edit(\"edge\", dict, contribution=\"second\"):\n   | |______________________________________________________________________^\n79 |                       self.fail(\"oversized aggregate entered its mutation scope\")\n80 |               self.assertEqual(groups.get(\"edge\")[\"refs\"], [\"first\"])\n   |\nhelp: Combine `with` statements\n\nSIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\n  --> tests/unit/data_forge/domains/academic/batch/test_graph_staging.py:90:13\n   |\n88 |               ) as payload:\n89 |                   payload[\"refs\"].append(\"first\")\n90 | /             with self.assertRaisesRegex(self.module.GraphCapacityError, \"max_group_bytes\"):\n91 | |                 with groups.edit(\"edge\", dict, contribution=\"x\" * 601):\n   | |_______________________________________________________________________^\n92 |                       self.fail(\"oversized serialized contribution entered mutation scope\")\n   |\nhelp: Combine `with` statements\n\nSIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\n   --> tests/unit/data_forge/domains/academic/batch/test_graph_staging.py:105:13\n    |\n103 |               ) as value:\n104 |                   value[\"refs\"].extend([\"positive\", \"positive\"])\n105 | /             with self.assertRaisesRegex(self.module.GraphCapacityError, \"max_pair_contributions\"):\n106 | |                 with pairs.edit(\n107 | |                     (\"p\", \"o\"), dict, contribution_delta=2, contribution=[\"negative\", \"negative\"]\n108 | |                 ):\n    | |__________________^\n109 |                       self.fail(\"whole-pair fan-in was not checked before merge\")\n    |\nhelp: Combine `with` statements\n\nSIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements\n   --> tests/unit/data_forge/domains/academic/batch/test_graph_staging.py:157:13\n    |\n155 |                   pass\n156 |               store.groups(\"synthetic_pairs\", pair=True)\n157 | /             with self.assertRaisesRegex(RuntimeError, \"interrupted\"):\n158 | |                 with store.groups(\"synthetic_groups\").edit(\"key\", dict, contribution=\"second\"):\n    | |_______________________________________________________________________________________________^\n159 |                       raise RuntimeError(\"interrupted\")\n160 |           usage = self.module.read_staging_usage(self.path)\n    |\nhelp: Combine `with` statements\n\nFound 6 errors (2 fixed, 4 remaining).\n",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

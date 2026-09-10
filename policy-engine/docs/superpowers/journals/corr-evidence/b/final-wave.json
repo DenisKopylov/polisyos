@@ -1,0 +1,201 @@
+{
+  "state": "B_scoped_verification_complete_CG2_CG3_v3_and_S3_v4_checked_and_corruption_falsified_writer_frozen_for_root_guardrails",
+  "resource": "Root-coordinated runtime/import slots; serialize .tmp/gy-s-composed-wmr-* writes and same-report mutations. CG2/CG3 v3 read the exact declared original CAS input. Actual runtime source-flip probes require an exclusive all-runtime-stop window.",
+  "environment": "PATH lane .venv/bin first; PYTHONPATH=.:src; JAX_PLATFORMS=cpu",
+  "targeted_timeout_seconds": 900,
+  "report_timeout_seconds": 900,
+  "timeout_basis": "Initial expanded B/credal/cycle run reached the 300-second limit under concurrent heavy imports without a completed JUnit artifact (final-targeted.json, capture124 / child-9, 300.197s). Retry preserves its exact pytest argv and starts after A releases, with a 900s budget. Prior paired owner measured62.857s and pure owner42.102s were insufficient estimates for expanded importer scope. Full S3 report generation takes several minutes and --write --check recomputes twice.",
+  "pytest_argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "--junitxml=docs/superpowers/journals/corr-evidence/b/final-targeted.xml",
+    "tests/unit/foundry/validation/test_legal_correspondence.py",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_real_unrelated_law_target_cannot_authorize_a_knob",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_missing_legal_subject_is_ambiguous_before_numeric_units",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_subject_comparison_removal_turns_real_transposition_gate_red",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_subject_forwarding_removal_turns_real_positive_gate_red",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_historical_law_record_remains_readable_without_current_authority",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_record_cannot_be_restamped_with_current_binding",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_nested_serialization_preserves_original_bytes",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_all_real_law_map_entries_trace_to_l3_provision_without_injected_authority",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_frozen_subject_producer_is_invariant_to_the_proposed_law_mapping",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_every_real_law_knob_pair_is_recognized_only_relative_to_synthetic_sources",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_current_law_resolution_rejects_rehashed_recognition_splices",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_subject_membership_and_actual_law_route_grow_as_data",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_synthetic_recognition_does_not_authorize_credal_or_atom_consumers",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_law_bound_lever_fails_closed_for_dangling_map_entries",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_phase5_law_owner_refusal_survives_credal_and_atom_consumers",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_phase5_law_resolution_exception_keeps_declared_dependency",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_phase5_law_handoff_removal_goes_red",
+    "tests/unit/runtime/quality/test_credal_reference.py::test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it",
+    "tests/unit/runtime/quality/test_cycle_substrate.py::test_law_resolver_rechecks_bundle_hash_before_lex_authority_use"
+  ],
+  "root_integration_state": "Both required importers passed in shared/n9-current-reissue-wave-observed.json (wholewaveRC1, only3reportcompanions failed); full26identities reconciled in shared/n9-current-reissue-wave-identities.json. Exact3companion corrections passed and reconciled separately in shared/n9-companion-delta-green.json and n9-companion-delta-identities.json. All at87908174; no invented26cleanrerun.",
+  "root_integration_pytest_nodes": [
+    "tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_owner_replay_projection_round_trips_through_json",
+    "tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2"
+  ],
+  "report_argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_layer3_gy_intervention_substrate_contract",
+    "--write",
+    "--check",
+    "--output-format",
+    "json"
+  ],
+  "drift_argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json",
+    "tools.quality.validation.check_layer3_gy_intervention_substrate_contract",
+    "/task_acceptance/mechanism_validation_is_task_completion", "true",
+    "--checker-arg=--check", "--checker-arg=--output-format", "--checker-arg=json",
+    "--timeout-seconds", "600", "--expect-issue-code", "intervention_substrate_contract_drift"
+  ],
+  "comparison_removal_argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.removal",
+    "subject_comparison"
+  ],
+  "forwarding_removal_argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.removal",
+    "source_forwarding"
+  ],
+  "cg3_report_write_argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_admission_contract",
+    "--write",
+    "--output-format",
+    "json"
+  ],
+  "cg3_report_check_argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_admission_contract",
+    "--check",
+    "--output-format",
+    "json"
+  ],
+  "cg3_report_corruption_argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "architecture/policy_design_case/grounding_admission_contract.json",
+    "tools.quality.validation.check_grounding_admission_contract",
+    "/source_authority_strangle/default_flipped",
+    "false",
+    "--checker-arg=--check",
+    "--checker-arg=--output-format",
+    "--checker-arg=json",
+    "--timeout-seconds",
+    "600",
+    "--expect-issue-code",
+    "grounding_admission_contract_drift"
+  ],
+  "cg3_report_identity_argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.cg3_identity_census",
+    "--live"
+  ],
+  "collection": "Original43-case execution is retained as RC1 with its single setup failure; final-targeted-identity-retry.json reconciles its complete identities. Only the failed node's store configuration changed, then downstream-canonical-config-green.json and downstream-canonical-config-identity.json prove its passing exact rerun. No original case is excluded or original RC rewritten.",
+  "completed_evidence": [
+    "final-targeted-retry.json",
+    "final-targeted.xml",
+    "final-targeted-identity-retry.json",
+    "downstream-legal-ref-diagnosis.json",
+    "downstream-canonical-config-green.json",
+    "downstream-canonical-config.xml",
+    "downstream-canonical-config-identity.json",
+    "comparison-removal-final.json",
+    "forwarding-removal-final.json"
+  ],
+  "current_authority_limit": "Source-relative synthetic recognition cannot establish real legal truth, full K_ref freshness or current promotion authority; required broader owner captures remain root-coordinated.",
+  "cg3_status": {
+    "historical_v2_writer": "RC0; cg3-report-write.json",
+    "historical_v2_independent_check": "RC1 only drift; cg3-report-check.json; actual prior v2 preserved at155645235e5a75b9b4053e83770df609eb26ef94",
+    "input_diagnosis": "cg3-world-time-owner-replay.json RC0: all17 actual sources and1134 reference nodes reconciled; actual created_at changes as_of, reference hashes/epoch and derived L6 component only; projected38edge set identical",
+    "v3_writer": "RC0; cg3-v3-write.json;56.783s",
+    "v3_independent_check": "RC0; cg3-v3-check.json;58.935s",
+    "identity_reconciliation": "RC0; cg3-v3-identity.json; all20original probes retained, all12original mutations plus1source-authority removal, no identity delta",
+    "actual_persisted_corruption": "cg3-v3-persisted-corruption.json wrapper0/actualchecker1 exactdrift, 50.651s, exactbyte restoration"
+  },
+  "shared_proof_input": {
+    "decision": "proof-input-decision.md",
+    "source_checkpoint": "664f22a3807ecfc7e9d54aad7a7a0bd68aafdd40",
+    "binding": "architecture/policy_design_case/corr/grounding_proof_world_input.json",
+    "producer": "proof-input-declaration.json RC0",
+    "whole_mirrored_file": "proof-input-green.json RC0; proof-input-identity-final.json RC0, full19/19 identity sets equal, no nonpassing/ambiguous/missing/duplicate",
+    "matching_removal": "proof-input-matching-removal.json RC1;64.042s; actual positive stays valid while false time/logical/schema metadata loses required refusal",
+    "removal_argv": [
+      ".venv/bin/python", "-m",
+      "docs.superpowers.journals.corr-evidence.b.removal", "proof_source_binding"
+    ],
+    "identity_argv": [
+      ".venv/bin/python", "-m",
+      "docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest",
+      "docs/superpowers/journals/corr-evidence/b/proof-input-green.json", "--compact"
+    ]
+  },
+  "cg2_v3_write_argv": [
+    ".venv/bin/python", "-m",
+    "tools.quality.validation.check_grounding_bind_contract", "--write", "--output-format", "json"
+  ],
+  "cg2_v3_check_argv": [
+    ".venv/bin/python", "-m",
+    "tools.quality.validation.check_grounding_bind_contract", "--check", "--output-format", "json"
+  ],
+  "cg2_v3_identity_argv": [
+    ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.a.identity_census"
+  ],
+  "cg2_v3_corruption_argv": [
+    ".venv/bin/python", "-m",
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "architecture/policy_design_case/grounding_bind_contract.json",
+    "tools.quality.validation.check_grounding_bind_contract",
+    "/admission_run_probes/persisted_snapshot/admitted_spend", "0.0",
+    "--checker-arg=--check", "--checker-arg=--output-format", "--checker-arg=json",
+    "--timeout-seconds", "600", "--expect-issue-code", "grounding_bind_contract_drift"
+  ],
+  "cg2_v3_status": {
+    "writer": "cg2-v3-write.json RC0;51.151s",
+    "independent_check": "cg2-v3-check.json RC0;51.364s",
+    "persisted_corruption": "cg2-v3-persisted-corruption.json wrapper0/actualchecker1 exactdrift;51.108s; actual0.04 to0.0; exactbytes restored",
+    "complete_identity_census": "cg2-v3-identity-final.json RC0 via existing A owner; all original probe/mutation/boundary/resolver/relation identities retained; actual frozen frame and suite fully reconciled",
+    "canonical_authority": "actual HC-F11–HC-F14 confidence-layer withholding retained separately"
+  },
+  "cg5_position_argv": [
+    ".venv/bin/python", "-m",
+    "tools.quality.validation.check_grounding_active_controller_contract",
+    "--check", "--output-format", "json"
+  ],
+  "cg5_position": "cg5-current-position.json RC1;40.862s; actual canonical confidence_layer_vintage refusal at Academic owner HC-F11–HC-F14, before CG5 live payload; current freshness not_established, no inherited attribution, no closed-owner repair",
+  "s3_v4_status": {
+    "prior_v3_checkpoint": "1fcd5aa53bff08638ffdd4c3b50df0eebf35e757; actualreportblob adec38a93665c880896b0194458305b2de9d0839",
+    "original_red": "s3-own-envelope-red.json RC1; four explicitly named failure witnesses; complete passing execution identity set not_established because originalrun had noJUnit",
+    "wrapper_green": "s3-own-envelope-green.json RC0;33.734s; complete5/5 identities reconciled in s3-own-envelope-green-identities.json",
+    "guard_removal": "s3-own-envelope-removal-final.json RC1;32.935s; full5/5 reconciled in s3-own-envelope-removal-identities.json; bothpositives valid and exactly3 intendednegative failures",
+    "writer_check": "s3-v4-write-check.json RC0;428.741s; actualbehavior pass/issuesempty",
+    "persisted_corruption": "s3-v4-persisted-corruption.json wrapper0/actualchild1;230.500s; exactdrift, behaviorpass, exactbytesrestored",
+    "complete_output_census": "report-emission-complete-green.json RC0;32.672s; wholechangedJSON299/299 and actual6generatedowneroutputs independentlyreconciled; noownmarker gaps",
+    "complete_v3_v4_body_comparison": "samecensus; all3949prior/3950currentnodes compared by recursive/iterativewalks; onlyexact3governedenvelopechanges; allbehavior/coverage equal; cases16/16 andmutations9/9 retained",
+    "runtime_scope": "CORR-B requested synthetic recognition implemented/orchestrated; parentGY-S3 authoritativeacceptance remainsnot_established; rootnormalguardrails stillpending",
+    "census_argv": [
+      ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.b.report_emission_census",
+      "--s3-prior-blob", "adec38a93665c880896b0194458305b2de9d0839"
+    ],
+    "removal_argv": [
+      ".venv/bin/python", "-m", "docs.superpowers.journals.corr-evidence.b.removal", "report_envelope"
+    ]
+  }
+}

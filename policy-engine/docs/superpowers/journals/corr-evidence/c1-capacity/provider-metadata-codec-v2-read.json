@@ -1,0 +1,18 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.declare_contract_retry"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 1.922660292009823,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"metadata_path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/provider-metadata-codec-v2.json\",\n  \"models\": {\n    \"data\": [\n      {\n        \"context_length\": 400000,\n        \"created\": 1677610602,\n        \"id\": \"deepseek-ai/DeepSeek-V4-Flash-0731\",\n        \"max_tokens\": 16384,\n        \"object\": \"model\",\n        \"owned_by\": \"gonka\"\n      },\n      {\n        \"context_length\": 180000,\n        \"created\": 1677610602,\n        \"id\": \"MiniMaxAI/MiniMax-M2.7\",\n        \"max_tokens\": 16384,\n        \"object\": \"model\",\n        \"owned_by\": \"gonka\"\n      }\n    ],\n    \"object\": \"list\"\n  },\n  \"next_action\": \"bind observed pricing schema before retry declaration; no model calls\",\n  \"original_declaration_hash\": \"sha256:cd49225d5de3b6dbc9c973c4f01ff12ea8d1c91fa8614a7a2c821d72e1d00546\",\n  \"pricing\": {\n    \"cost_multiplier\": 1,\n    \"currency\": \"USD\",\n    \"default_model\": \"MiniMaxAI/MiniMax-M2.7\",\n    \"fx_updated_at\": \"2026-09-09T10:01:21.981981283Z\",\n    \"gonka_usd\": 0.1202913,\n    \"margin_pct\": 0,\n    \"models\": [\n      {\n        \"model_id\": \"MiniMaxAI/MiniMax-M2.7\",\n        \"ngonka_per_token\": 10,\n        \"upstream_ngonka_per_token\": 1,\n        \"usd_per_million_tokens\": 0.0012029130000000001,\n        \"usd_per_token\": 1.202913e-09\n      },\n      {\n        \"model_id\": \"deepseek-ai/DeepSeek-V4-Flash-0731\",\n        \"ngonka_per_token\": 10,\n        \"upstream_ngonka_per_token\": 1,\n        \"usd_per_million_tokens\": 0.0012029130000000001,\n        \"usd_per_token\": 1.202913e-09\n      }\n    ],\n    \"pricing_updated_at\": \"2026-09-09T10:01:20.181026681Z\"\n  }\n}\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

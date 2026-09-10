@@ -4,14 +4,24 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import duckdb
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.academic.batch._graph_staging import (
+    DiskGroups,
+    DiskValues,
+    GraphCapacityLimits,
+    RowSpool,
+    StagingStore,
+    execute_rows,
+    publish_owned_output,
+    query_rows,
+    read_staging_usage,
+)
 from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import (
     VerifiedClaimAdjudicationRows,
     load_verified_claim_adjudication_rows,
@@ -163,7 +173,9 @@ CREATE TABLE IF NOT EXISTS ac_causal_claims_raw (
     span_contamination_detected BOOLEAN DEFAULT FALSE,
     mechanism                 VARCHAR,
     domain                    VARCHAR,
-    trust_score               FLOAT DEFAULT 0.0
+    trust_score               FLOAT DEFAULT 0.0,
+    synthetic                 BOOLEAN,
+    source_provenance_json    VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS ac_claim_adjudications (
@@ -382,6 +394,20 @@ def _admitted_claim_parts(
     return admitted, operational, vocabulary_values
 
 
+def _record_has_synthetic_ancestry(record: WorkRecord) -> bool:
+    """Retain any constructed ancestry over the complete actual input record."""
+    pending: list[object] = [record.model_dump(mode="json")]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            if value.get("synthetic") is True:
+                return True
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
+    return False
+
+
 def _load_claim_adjudications(
     path: Path | None,
     admitted_rows: VerifiedClaimAdjudicationRows | None,
@@ -393,22 +419,81 @@ def _load_claim_adjudications(
     return None
 
 
-def _load_rows_grouped_by_openalex_id(path: Path | None) -> dict[str, list[dict[str, Any]]]:
-    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+def _bounded_jsonl(path: Path, limits: GraphCapacityLimits) -> Iterable[Any]:
+    with open(path, "rb") as fh:
+        while line := fh.readline(limits.max_record_bytes + 1):
+            limits.check("max_record_bytes", path, len(line))
+            if line.strip():
+                yield json.loads(line)
+
+
+def _load_rows_grouped_by_openalex_id(path: Path | None, staging: StagingStore) -> DiskGroups:
+    grouped = staging.groups("simulation_numeric_inputs")
     if path is None or not path.exists():
         return grouped
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            row = json.loads(line)
-            if not isinstance(row, dict):
-                continue
-            openalex_id = str(row.get("openalex_id") or "").strip()
-            if openalex_id:
-                grouped[openalex_id].append(row)
+    for row in _bounded_jsonl(path, staging.limits):
+        if not isinstance(row, dict):
+            continue
+        openalex_id = str(row.get("openalex_id") or "").strip()
+        if openalex_id:
+            with grouped.edit(openalex_id, list, contribution=row) as rows:
+                staging.check("max_auxiliary_rows_per_work", openalex_id, len(rows) + 1)
+                rows.append(row)
     return grouped
+
+
+def _bounded_resolver(
+    con: duckdb.DuckDBPyConnection, staging: StagingStore
+) -> CanonicalVariableResolver:
+    # Keep the existing vocabulary/approval owner. Preflight its entire variable
+    # input before from_connection materializes vocabulary and similarity matrices.
+    from polisyos.data_forge.domains.academic.knowledge import canonical_resolver as owner
+
+    entries = 0
+    size = 0
+    sources = (
+        owner._seed_canonical_names(),
+        owner.runtime_canonical_names(),
+        owner._seed_approved_synonyms().items(),
+        owner.runtime_approved_synonyms().items(),
+        ((key, value.__dict__) for key, value in owner.runtime_canonical_entries().items()),
+    )
+    for source in sources:
+        for value in source:
+            entries += 1
+            size += staging.encoded_size(value)
+            staging.check("max_resolver_vocabulary_entries", "canonical resolver", entries)
+            staging.check("max_resolver_vocabulary_bytes", "canonical resolver", size)
+    for sql in (
+        "SELECT canonical_name FROM ac_skg_canonization_cache WHERE approved=TRUE",
+        "SELECT synonym,canonical_name FROM ac_skg_variable_synonyms WHERE approved=TRUE",
+    ):
+        for row in query_rows(con, sql, store=staging):
+            entries += 1
+            size += staging.encoded_size(row)
+            staging.check("max_resolver_vocabulary_entries", "canonical resolver", entries)
+            staging.check("max_resolver_vocabulary_bytes", "canonical resolver", size)
+    resolver = CanonicalVariableResolver.from_connection(con)
+    resolver._unresolved_mentions = staging.counts("resolver_unresolved_mentions")
+    staging.observe("resolver_vocabulary_entries", entries, maximum=True)
+    staging.observe("resolver_vocabulary_bytes", size, maximum=True)
+    return resolver
+
+
+def _configure_graph_capacity(
+    con: duckdb.DuckDBPyConnection,
+    staging: StagingStore,
+    db_path: Path,
+) -> None:
+    staging.track_database(db_path)
+    con.execute(f"SET memory_limit='{staging.limits.duckdb_memory_bytes}B'")
+    con.execute("SET threads=1")
+    con.execute(f"SET max_temp_directory_size='{staging.limits.max_disk_bytes}B'")
+    spill_path = str(staging.path.parent / "duckdb-temp").replace("'", "''")
+    con.execute(f"SET temp_directory='{spill_path}'")
+    for setting in ("memory_limit", "max_temp_directory_size", "threads", "temp_directory"):
+        actual = con.execute("SELECT current_setting(?)", [setting]).fetchone()[0]
+        staging.configure(f"duckdb_{setting}", actual)
 
 
 def _legacy_strength_from_adjudication(adjudication: dict) -> str:
@@ -512,20 +597,21 @@ def _truncate(con: duckdb.DuckDBPyConnection) -> None:
 def _flush_all(
     con: duckdb.DuckDBPyConnection,
     stats: GraphStats,
-    work_batch: list[tuple],
-    concept_batch: list[tuple],
-    estimate_batch: list[tuple],
-    raw_claim_batch: list[tuple],
-    claim_adjudication_batch: list[tuple],
-    claim_batch: list[tuple],
-    topic_batch: list[tuple],
-    topic_sel_batch: list[tuple],
-    extraction_batch: list[tuple],
-    boundary_batch: list[tuple],
-    ingest_error_batch: list[tuple],
+    work_batch: RowSpool,
+    concept_batch: RowSpool,
+    estimate_batch: RowSpool,
+    raw_claim_batch: RowSpool,
+    claim_adjudication_batch: RowSpool,
+    claim_batch: RowSpool,
+    topic_batch: RowSpool,
+    topic_sel_batch: RowSpool,
+    extraction_batch: RowSpool,
+    boundary_batch: RowSpool,
+    ingest_error_batch: RowSpool,
 ) -> None:
     if work_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_works "
             "("
             "id, title, doi, abstract, year, publication_date, language, work_type, is_retracted, "
@@ -539,7 +625,8 @@ def _flush_all(
         work_batch.clear()
 
     if concept_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_work_concepts "
             "(work_id, topic_id, concept, level, score) VALUES (?, ?, ?, ?, ?)",
             concept_batch,
@@ -548,7 +635,8 @@ def _flush_all(
         concept_batch.clear()
 
     if estimate_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_parameter_estimates "
             "(id, work_id, variable_name, estimate, ci_low, ci_high, "
             "std_error, unit, domain, study_design, sample_size, "
@@ -560,7 +648,8 @@ def _flush_all(
         estimate_batch.clear()
 
     if raw_claim_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_causal_claims_raw "
             "("
             "id, work_id, cause, effect, direction, claim_vocabulary_schema_version, "
@@ -570,16 +659,17 @@ def _flush_all(
             "legacy_strength_label, record_extraction_mode, claim_text, claim_explicitness, "
             "strong_design_evidence, "
             "design_quality_tier, publish_to_graph, publish_blockers, span_contamination_detected, "
-            "mechanism, domain, trust_score"
+            "mechanism, domain, trust_score, synthetic, source_provenance_json"
             ") "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             raw_claim_batch,
         )
         stats.raw_claims += len(raw_claim_batch)
         raw_claim_batch.clear()
 
     if claim_adjudication_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_claim_adjudications "
             "("
             "claim_id, work_id, cause, effect, claim_type, design_family, causal_credibility, "
@@ -596,7 +686,8 @@ def _flush_all(
         claim_adjudication_batch.clear()
 
     if claim_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_causal_claims "
             "("
             "id, work_id, cause, effect, direction, claim_vocabulary_schema_version, "
@@ -612,7 +703,8 @@ def _flush_all(
         claim_batch.clear()
 
     if topic_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_topics "
             "(topic_id, display_name, policy_block, policy_subblock, source_file, works_count, cited_by_count, score_core, score_domain, score_context) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -622,7 +714,8 @@ def _flush_all(
         topic_batch.clear()
 
     if topic_sel_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_topic_selections "
             "(run_id, topic_id, work_id, rank, selection_score, batch_origin, selected_at) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -632,7 +725,8 @@ def _flush_all(
         topic_sel_batch.clear()
 
     if extraction_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_article_extractions "
             "(extraction_id, run_id, work_id, extraction_mode, extraction_json, context_json, confidence, token_prompt, token_completion, cost_usd) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -642,7 +736,8 @@ def _flush_all(
         extraction_batch.clear()
 
     if boundary_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_boundary_conditions "
             "(boundary_id, work_id, variable, operator, threshold_value, scope_text, confidence) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -652,7 +747,8 @@ def _flush_all(
         boundary_batch.clear()
 
     if ingest_error_batch:
-        con.executemany(
+        execute_rows(
+            con,
             "INSERT OR REPLACE INTO ac_ingest_errors "
             "(error_id, run_id, stage, topic_id, work_id, error_code, error_message, payload_ref) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -728,7 +824,14 @@ def _edge_quality_summary(payload: dict[str, object]) -> dict[str, object]:
     else:
         confidence_summary = {"min": None, "max": None, "mean": None}
     strong_count = sum(1 for flag in strong_flags if flag)
+    source_flags = payload.get("synthetic_sources", [])
+    source_marker: dict[str, bool] = {}
+    if any(value is True for value in source_flags):
+        source_marker["synthetic"] = True
+    elif source_flags and all(value is False for value in source_flags):
+        source_marker["synthetic"] = False
     return {
+        **source_marker,
         "graph_layer": "candidate",
         "claim_ids": claim_ids,
         "design_quality_tiers": tiers,
@@ -750,19 +853,21 @@ def _materialize_skg(
     *,
     con: duckdb.DuckDBPyConnection,
     stats: GraphStats,
+    staging: StagingStore,
     skg_version_id: int,
-    skg_articles_batch: list[tuple],
-    variable_mentions: dict[str, int],
-    variable_display: dict[str, str],
-    skg_parameter_batch: list[tuple],
-    edge_accumulator: dict[tuple[str, str, str], dict[str, object]],
-    edge_evidence_batch: list[tuple],
-    simulation_parameter_batch: list[tuple],
-    context_attr_batch: list[tuple],
-    moderation_edge_batch: list[tuple],
+    skg_articles_batch: RowSpool,
+    variable_mentions: DiskValues,
+    variable_display: DiskValues,
+    skg_parameter_batch: RowSpool,
+    edge_accumulator: DiskGroups,
+    edge_evidence_batch: RowSpool,
+    simulation_parameter_batch: RowSpool,
+    context_attr_batch: RowSpool,
+    moderation_edge_batch: RowSpool,
 ) -> None:
     if skg_articles_batch:
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_articles(
                 openalex_id, doi, title, year, cited_by_count,
@@ -773,8 +878,8 @@ def _materialize_skg(
         )
         stats.skg_articles = len(skg_articles_batch)
 
-    resolver = CanonicalVariableResolver.from_connection(con)
-    variable_rows: list[tuple] = []
+    resolver = _bounded_resolver(con, staging)
+    variable_rows = staging.rows("variable_rows")
     for canonical_name, mention_count in variable_mentions.items():
         resolution = resolver.resolve(canonical_name)
         resolver.persist_resolution(con, resolution)
@@ -796,7 +901,8 @@ def _materialize_skg(
             )
         )
     if variable_rows:
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_variables(
                 canonical_name,
@@ -816,7 +922,7 @@ def _materialize_skg(
         stats.skg_variables = len(variable_rows)
 
     if skg_parameter_batch:
-        validated_parameter_rows: list[tuple] = []
+        validated_parameter_rows = staging.rows("validated_parameter_rows")
         for row in skg_parameter_batch:
             param_id, canonical_name, openalex_id, parameter_json, context_json = row
             try:
@@ -836,7 +942,8 @@ def _materialize_skg(
             except ValueError as exc:
                 stats.json_validation_failures += 1
                 logger.warning("Skipping malformed ac_skg_parameters row {}: {}", param_id, exc)
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_parameters(
                 param_id, canonical_name, openalex_id, parameter_json, context_json
@@ -846,7 +953,7 @@ def _materialize_skg(
         )
         stats.skg_parameters = len(validated_parameter_rows)
 
-    edge_rows: list[tuple] = []
+    edge_rows = staging.rows("edge_rows")
     for (src, dst, direction), payload in edge_accumulator.items():
         article_refs = sorted(set(payload["article_refs"]))  # type: ignore[index]
         evidence_samples = payload["evidence_samples"]  # type: ignore[index]
@@ -892,7 +999,8 @@ def _materialize_skg(
             )
 
     if edge_rows:
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_edges(
                 edge_id, src, dst, direction, n_articles, article_refs,
@@ -905,7 +1013,8 @@ def _materialize_skg(
         stats.skg_edges = len(edge_rows)
 
     if edge_evidence_batch:
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_edge_evidence(
                 edge_id, claim_id, openalex_id, src, dst, direction,
@@ -917,7 +1026,7 @@ def _materialize_skg(
         stats.skg_edge_evidence = len(edge_evidence_batch)
 
     if simulation_parameter_batch:
-        validated_simulation_rows: list[tuple] = []
+        validated_simulation_rows = staging.rows("validated_simulation_rows")
         for row in simulation_parameter_batch:
             (
                 numeric_id,
@@ -979,7 +1088,8 @@ def _materialize_skg(
                 logger.warning(
                     "Skipping malformed ac_skg_simulation_parameters row {}: {}", numeric_id, exc
                 )
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_simulation_parameters(
                 numeric_id, openalex_id, canonical_name, estimate_type, point_estimate,
@@ -993,7 +1103,8 @@ def _materialize_skg(
         stats.skg_simulation_parameters = len(validated_simulation_rows)
 
     if context_attr_batch:
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_context_attributes(
                 attr_id, openalex_id, canonical_name, attribute_value,
@@ -1006,7 +1117,8 @@ def _materialize_skg(
         stats.skg_context_attributes = len(context_attr_batch)
 
     if moderation_edge_batch:
-        con.executemany(
+        execute_rows(
+            con,
             """
             INSERT OR REPLACE INTO ac_skg_moderation_edges(
                 moderation_id, base_cause, base_effect, moderator, base_claim_id,
@@ -1041,14 +1153,29 @@ def load_graph(
     claim_adjudications_path: Path | None = None,
     admitted_claim_adjudications: VerifiedClaimAdjudicationRows | None = None,
     simulation_ready_numeric_path: Path | None = None,
+    capacity_limits: GraphCapacityLimits | None = None,
+    staging_dir: Path | None = None,
+    source_provenance: dict[str, object] | None = None,
 ) -> GraphStats:
     """Load records into DuckDB tables (without creating indexes)."""
     if admitted_claim_adjudications is not None:
         require_verified_claim_adjudication_rows(admitted_claim_adjudications)
+    if insert_batch_size <= 0:
+        raise ValueError("insert_batch_size must be positive")
+    limits = capacity_limits or GraphCapacityLimits()
+    limits = replace(limits, max_batch_rows=min(insert_batch_size, limits.max_batch_rows))
     stats = GraphStats()
     con = duckdb.connect(str(db_path))
 
+    staging: StagingStore | None = None
     try:
+        staging = StagingStore(
+            (staging_dir or db_path.with_suffix(db_path.suffix + ".staging")) / "graph-load.sqlite",
+            limits,
+            source_provenance=source_provenance,
+        )
+        staging.reset()
+        _configure_graph_capacity(con, staging, db_path)
         _init_schema(con)
         _truncate(con)
         skg_version_id = next_skg_version(
@@ -1072,28 +1199,23 @@ def load_graph(
             stats.runs = 1
 
         # Preload topics catalog when present.
-        topic_batch: list[tuple] = []
+        topic_batch = staging.rows("topic_batch")
         if topics_catalog_path and topics_catalog_path.exists():
-            with open(topics_catalog_path, encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    row = json.loads(line)
-                    topic_batch.append(
-                        (
-                            str(row.get("topic_id") or ""),
-                            str(row.get("display_name") or ""),
-                            str(row.get("policy_block") or ""),
-                            str(row.get("policy_subblock") or ""),
-                            str(row.get("source_file") or ""),
-                            int(row.get("works_count") or 0),
-                            int(row.get("cited_by_count") or 0),
-                            int(row.get("score_core") or 0),
-                            int(row.get("score_domain") or 0),
-                            int(row.get("score_context") or 0),
-                        )
+            for row in _bounded_jsonl(topics_catalog_path, staging.limits):
+                topic_batch.append(
+                    (
+                        str(row.get("topic_id") or ""),
+                        str(row.get("display_name") or ""),
+                        str(row.get("policy_block") or ""),
+                        str(row.get("policy_subblock") or ""),
+                        str(row.get("source_file") or ""),
+                        int(row.get("works_count") or 0),
+                        int(row.get("cited_by_count") or 0),
+                        int(row.get("score_core") or 0),
+                        int(row.get("score_domain") or 0),
+                        int(row.get("score_context") or 0),
                     )
+                )
 
         claim_adjudications = _load_claim_adjudications(
             claim_adjudications_path,
@@ -1102,32 +1224,46 @@ def load_graph(
         simulation_numeric_file_present = bool(
             simulation_ready_numeric_path is not None and simulation_ready_numeric_path.exists()
         )
-        simulation_numeric_rows = _load_rows_grouped_by_openalex_id(simulation_ready_numeric_path)
-        work_batch: list[tuple] = []
-        concept_batch: list[tuple] = []
-        estimate_batch: list[tuple] = []
-        raw_claim_batch: list[tuple] = []
-        claim_adjudication_batch: list[tuple] = []
-        claim_batch: list[tuple] = []
-        topic_sel_batch: list[tuple] = []
-        extraction_batch: list[tuple] = []
-        boundary_batch: list[tuple] = []
-        ingest_error_batch: list[tuple] = []
-        topic_seen: set[str] = {str(t[0]) for t in topic_batch if t and t[0]}
-        skg_articles_batch: list[tuple] = []
-        skg_parameter_batch: list[tuple] = []
-        simulation_parameter_batch: list[tuple] = []
-        variable_mentions: defaultdict[str, int] = defaultdict(int)
-        variable_display: dict[str, str] = {}
-        edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
-        edge_evidence_batch: list[tuple] = []
-        context_attr_batch: list[tuple] = []
-        moderation_edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
+        simulation_numeric_rows = _load_rows_grouped_by_openalex_id(
+            simulation_ready_numeric_path, staging
+        )
+        work_batch = staging.rows("work_batch")
+        concept_batch = staging.rows("concept_batch")
+        estimate_batch = staging.rows("estimate_batch")
+        raw_claim_batch = staging.rows("raw_claim_batch")
+        claim_adjudication_batch = staging.rows("claim_adjudication_batch")
+        claim_batch = staging.rows("claim_batch")
+        topic_sel_batch = staging.rows("topic_sel_batch")
+        extraction_batch = staging.rows("extraction_batch")
+        boundary_batch = staging.rows("boundary_batch")
+        ingest_error_batch = staging.rows("ingest_error_batch")
+        topic_seen = staging.values("topic_seen")
+        for topic in topic_batch:
+            if topic and topic[0]:
+                topic_seen.add(str(topic[0]))
+        skg_articles_batch = staging.rows("skg_articles_batch")
+        skg_parameter_batch = staging.rows("skg_parameter_batch")
+        simulation_parameter_batch = staging.rows("simulation_parameter_batch")
+        variable_mentions = staging.counts("variable_mentions")
+        variable_display = staging.values("variable_display")
+        edge_accumulator = staging.groups("exact_edges")
+        edge_evidence_batch = staging.rows("edge_evidence_batch")
+        context_attr_batch = staging.rows("context_attr_batch")
+        moderation_edge_accumulator = staging.groups("moderation_edges")
 
         for record in records:
+            staging.check_record(record.model_dump(mode="json"), record.id)
             admitted_claims = [
                 _admitted_claim_parts(claim_transport) for claim_transport in record.causal_claims
             ]
+            if _record_has_synthetic_ancestry(record):
+                for _, claim, _ in admitted_claims:
+                    claim["synthetic"] = True
+                    claim["source_provenance"] = {
+                        "synthetic": True,
+                        "scope": "record_contains_constructed_source",
+                        "input_source_provenance": claim.get("source_provenance"),
+                    }
             work_batch.append(
                 (
                     record.id,
@@ -1233,6 +1369,8 @@ def load_graph(
                         claim.get("mechanism", ""),
                         claim.get("domain", ""),
                         record.trust_score,
+                        claim.get("synthetic"),
+                        json.dumps(claim.get("source_provenance"), ensure_ascii=False),
                     )
                 )
                 adjudication = resolve_current_claim_adjudication(
@@ -1563,27 +1701,33 @@ def load_graph(
                     "match_quality": str(mod_edge_raw.get("match_quality") or ""),
                     "alignment_source": str(mod_edge_raw.get("alignment_source") or ""),
                 }
-                payload = moderation_edge_accumulator.get(key)
-                representative = _choose_moderation_representative(
-                    None if payload is None else payload.get("representative"),  # type: ignore[arg-type]
-                    candidate,
-                )
-                if payload is None:
-                    moderation_edge_accumulator[key] = {
-                        "representative": representative,
-                        "source_refs": {record.id},
-                        "evidence_count": int(mod_edge_raw.get("evidence_count") or 1),
-                        "confidence": float(candidate["confidence"]),
-                    }
-                    continue
-                payload["representative"] = representative
-                payload["source_refs"].add(record.id)  # type: ignore[union-attr]
-                payload["evidence_count"] = int(payload.get("evidence_count") or 0) + int(
-                    mod_edge_raw.get("evidence_count") or 1
-                )
-                payload["confidence"] = max(
-                    float(payload.get("confidence") or 0.0), float(candidate["confidence"])
-                )
+                with moderation_edge_accumulator.edit(
+                    key,
+                    dict,
+                    contribution=mod_edge_raw,
+                ) as payload:
+                    representative = _choose_moderation_representative(
+                        payload.get("representative"),  # type: ignore[arg-type]
+                        candidate,
+                    )
+                    if not payload:
+                        payload.update(
+                            {
+                                "representative": representative,
+                                "source_refs": {record.id},
+                                "evidence_count": int(mod_edge_raw.get("evidence_count") or 1),
+                                "confidence": float(candidate["confidence"]),
+                            }
+                        )
+                        continue
+                    payload["representative"] = representative
+                    payload["source_refs"].add(record.id)  # type: ignore[union-attr]
+                    payload["evidence_count"] = int(payload.get("evidence_count") or 0) + int(
+                        mod_edge_raw.get("evidence_count") or 1
+                    )
+                    payload["confidence"] = max(
+                        float(payload.get("confidence") or 0.0), float(candidate["confidence"])
+                    )
 
             if len(work_batch) >= insert_batch_size:
                 _flush_all(
@@ -1624,8 +1768,9 @@ def load_graph(
                 direction = str(claim.get("direction") or "mixed").strip().lower()
                 key = (src, dst, direction)
                 edge_id = hash_edge_id(src, dst, direction)
-                if key not in edge_accumulator:
-                    edge_accumulator[key] = {
+                with edge_accumulator.edit(
+                    key,
+                    lambda: {
                         "article_refs": [],
                         "evidence_samples": [],
                         "scope_conditions": [],
@@ -1636,63 +1781,68 @@ def load_graph(
                         "claim_confidences": [],
                         "publish_blockers": [],
                         "strong_design_flags": [],
-                    }
-                payload = edge_accumulator[key]
-                payload["article_refs"].append(record.id)  # type: ignore[index]
-                confidence_value = (
-                    float(adjudication.get("claim_validity_score") or record.extraction_confidence)
-                    if adjudication is not None
-                    else float(record.extraction_confidence)
-                )
-                sample_size = (
-                    int(record.metadata.get("sample_size"))
-                    if record.metadata.get("sample_size") not in (None, "")
-                    else None
-                )
-                evidence_strength = _infer_edge_strength(vocabulary_values)
-                payload["evidence_samples"].append(  # type: ignore[index]
-                    (
-                        evidence_strength,
-                        confidence_value,
-                        record.year,
-                        sample_size,
-                        str(vocabulary_values["source_basis"] or "fulltext"),
-                        bool(record.is_retracted),
-                        record.fwci,
+                        "synthetic_sources": [],
+                    },
+                    contribution=claim,
+                ) as payload:
+                    payload["synthetic_sources"].append(claim.get("synthetic"))
+                    payload["article_refs"].append(record.id)  # type: ignore[index]
+                    confidence_value = (
+                        float(
+                            adjudication.get("claim_validity_score") or record.extraction_confidence
+                        )
+                        if adjudication is not None
+                        else float(record.extraction_confidence)
                     )
-                )
-                payload["scope_conditions"].extend(claim.get("scope_conditions") or [])  # type: ignore[index]
-                payload["effect_sizes"].append(claim.get("effect_size"))  # type: ignore[index]
-                payload["claim_ids"].append(cid)  # type: ignore[index]
-                if claim.get("design_quality_tier") is not None:
-                    payload["design_tiers"].append(int(claim.get("design_quality_tier")))  # type: ignore[index]
-                design_hint = str(vocabulary_values["design_family_hint"] or "").strip()
-                if design_hint:
-                    payload["design_family_hints"].append(design_hint)  # type: ignore[index]
-                payload["claim_confidences"].append(
-                    float(vocabulary_values["claim_extraction_confidence"] or 0.0)
-                )  # type: ignore[index]
-                payload["publish_blockers"].extend(claim.get("publish_blockers") or [])  # type: ignore[index]
-                payload["strong_design_flags"].append(
-                    bool(claim.get("strong_design_evidence") or False)
-                )  # type: ignore[index]
-                edge_evidence_batch.append(
-                    (
-                        edge_id,
-                        cid,
-                        record.id,
-                        src,
-                        dst,
-                        direction,
-                        evidence_strength,
-                        confidence_value,
-                        str(adjudication.get("design_family") or ""),
-                        int(claim.get("design_quality_tier"))
-                        if claim.get("design_quality_tier") is not None
-                        else None,
-                        skg_version_id,
+                    sample_size = (
+                        int(record.metadata.get("sample_size"))
+                        if record.metadata.get("sample_size") not in (None, "")
+                        else None
                     )
-                )
+                    evidence_strength = _infer_edge_strength(vocabulary_values)
+                    payload["evidence_samples"].append(  # type: ignore[index]
+                        (
+                            evidence_strength,
+                            confidence_value,
+                            record.year,
+                            sample_size,
+                            str(vocabulary_values["source_basis"] or "fulltext"),
+                            bool(record.is_retracted),
+                            record.fwci,
+                        )
+                    )
+                    payload["scope_conditions"].extend(claim.get("scope_conditions") or [])  # type: ignore[index]
+                    payload["effect_sizes"].append(claim.get("effect_size"))  # type: ignore[index]
+                    payload["claim_ids"].append(cid)  # type: ignore[index]
+                    if claim.get("design_quality_tier") is not None:
+                        payload["design_tiers"].append(int(claim.get("design_quality_tier")))  # type: ignore[index]
+                    design_hint = str(vocabulary_values["design_family_hint"] or "").strip()
+                    if design_hint:
+                        payload["design_family_hints"].append(design_hint)  # type: ignore[index]
+                    payload["claim_confidences"].append(
+                        float(vocabulary_values["claim_extraction_confidence"] or 0.0)
+                    )  # type: ignore[index]
+                    payload["publish_blockers"].extend(claim.get("publish_blockers") or [])  # type: ignore[index]
+                    payload["strong_design_flags"].append(
+                        bool(claim.get("strong_design_evidence") or False)
+                    )  # type: ignore[index]
+                    edge_evidence_batch.append(
+                        (
+                            edge_id,
+                            cid,
+                            record.id,
+                            src,
+                            dst,
+                            direction,
+                            evidence_strength,
+                            confidence_value,
+                            str(adjudication.get("design_family") or ""),
+                            int(claim.get("design_quality_tier"))
+                            if claim.get("design_quality_tier") is not None
+                            else None,
+                            skg_version_id,
+                        )
+                    )
 
                 variable_mentions[src] += 1
                 variable_mentions[dst] += 1
@@ -1701,32 +1851,27 @@ def load_graph(
 
         # ingest errors (optional)
         if ingest_errors_path and ingest_errors_path.exists():
-            with open(ingest_errors_path, encoding="utf-8") as fh:
-                for line in fh:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    row = json.loads(line)
-                    if not isinstance(row, dict):
-                        continue
-                    ingest_error_batch.append(
-                        (
-                            _stable_hash(
-                                str(row.get("run_id") or run_id),
-                                str(row.get("stage") or ""),
-                                str(row.get("topic_id") or ""),
-                                str(row.get("work_id") or ""),
-                                str(row.get("error_code") or ""),
-                            ),
+            for row in _bounded_jsonl(ingest_errors_path, staging.limits):
+                if not isinstance(row, dict):
+                    continue
+                ingest_error_batch.append(
+                    (
+                        _stable_hash(
                             str(row.get("run_id") or run_id),
                             str(row.get("stage") or ""),
                             str(row.get("topic_id") or ""),
                             str(row.get("work_id") or ""),
                             str(row.get("error_code") or ""),
-                            str(row.get("error_message") or ""),
-                            str(row.get("payload_ref") or ""),
-                        )
+                        ),
+                        str(row.get("run_id") or run_id),
+                        str(row.get("stage") or ""),
+                        str(row.get("topic_id") or ""),
+                        str(row.get("work_id") or ""),
+                        str(row.get("error_code") or ""),
+                        str(row.get("error_message") or ""),
+                        str(row.get("payload_ref") or ""),
                     )
+                )
 
         _flush_all(
             con,
@@ -1744,32 +1889,34 @@ def load_graph(
             ingest_error_batch,
         )
 
-        moderation_edge_batch = [
-            (
-                hash_moderation_edge_id(base_cause, base_effect, moderator),
-                base_cause,
-                base_effect,
-                moderator,
-                payload["representative"].get("base_claim_id"),  # type: ignore[index]
-                payload["representative"].get("direction_of_moderation"),  # type: ignore[index]
-                payload["representative"].get("quantitative_interaction"),  # type: ignore[index]
-                payload["representative"].get("interaction_pvalue"),  # type: ignore[index]
-                int(payload.get("evidence_count") or 1),
-                float(payload.get("confidence") or 0.5),
-                payload["representative"].get("match_quality"),  # type: ignore[index]
-                payload["representative"].get("alignment_source"),  # type: ignore[index]
-                json.dumps(sorted(payload["source_refs"]), ensure_ascii=False),  # type: ignore[index]
-                skg_version_id,
+        moderation_edge_batch = staging.rows("moderation_edge_batch")
+        for (base_cause, base_effect, moderator), payload in moderation_edge_accumulator.items():
+            moderation_edge_batch.append(
+                (
+                    hash_moderation_edge_id(base_cause, base_effect, moderator),
+                    base_cause,
+                    base_effect,
+                    moderator,
+                    payload["representative"].get("base_claim_id"),  # type: ignore[index]
+                    payload["representative"].get("direction_of_moderation"),  # type: ignore[index]
+                    payload["representative"].get("quantitative_interaction"),  # type: ignore[index]
+                    payload["representative"].get("interaction_pvalue"),  # type: ignore[index]
+                    int(payload.get("evidence_count") or 1),
+                    float(payload.get("confidence") or 0.5),
+                    payload["representative"].get("match_quality"),  # type: ignore[index]
+                    payload["representative"].get("alignment_source"),  # type: ignore[index]
+                    json.dumps(sorted(payload["source_refs"]), ensure_ascii=False),  # type: ignore[index]
+                    skg_version_id,
+                )
             )
-            for (base_cause, base_effect, moderator), payload in moderation_edge_accumulator.items()
-        ]
 
         _materialize_skg(
             con=con,
+            staging=staging,
             stats=stats,
             skg_version_id=skg_version_id,
             skg_articles_batch=skg_articles_batch,
-            variable_mentions=dict(variable_mentions),
+            variable_mentions=variable_mentions,
             variable_display=variable_display,
             skg_parameter_batch=skg_parameter_batch,
             edge_accumulator=edge_accumulator,
@@ -1787,7 +1934,10 @@ def load_graph(
             )
 
         con.execute("CHECKPOINT")
+        staging.check_disk(db_path)
     finally:
+        if staging is not None:
+            staging.close()
         con.close()
     return stats
 
@@ -1810,14 +1960,11 @@ def run_graph_load(
 ) -> GraphStats:
     """Run graph load."""
     started_at = datetime.now(UTC).isoformat()
+    limits = GraphCapacityLimits()
 
     def _iter_records() -> Iterable[WorkRecord]:
-        with open(config.merged_records_path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if line:
-                    payload = json.loads(line)
-                    yield adapt_jsonl_work_record_claims(payload, provenance="legacy_jsonl")
+        for payload in _bounded_jsonl(config.merged_records_path, limits):
+            yield adapt_jsonl_work_record_claims(payload, provenance="legacy_jsonl")
 
     cfg_json = json.dumps(
         {
@@ -1838,6 +1985,7 @@ def run_graph_load(
     stats = load_graph(
         records=_iter_records(),
         db_path=config.db_path,
+        capacity_limits=limits,
         insert_batch_size=config.graph_insert_batch,
         run_id=config.run_id,
         pass_name=config.pass_name,
@@ -1858,37 +2006,56 @@ def run_graph_load(
             else None
         ),
     )
-    write_stage_manifest(
-        manifest_path=config.manifests_dir / "graph_load.json",
-        stage="graph_load",
-        status="ok",
-        metrics={
-            "works": stats.works,
-            "concepts": stats.concepts,
-            "estimates": stats.estimates,
-            "raw_claims": stats.raw_claims,
-            "claim_adjudications": stats.claim_adjudications,
-            "claims": stats.claims,
-            "runs": stats.runs,
-            "topics": stats.topics,
-            "topic_selections": stats.topic_selections,
-            "article_extractions": stats.article_extractions,
-            "boundary_conditions": stats.boundary_conditions,
-            "ingest_errors": stats.ingest_errors,
-            "skg_articles": stats.skg_articles,
-            "skg_variables": stats.skg_variables,
-            "skg_edges": stats.skg_edges,
-            "skg_edge_evidence": stats.skg_edge_evidence,
-            "skg_family_edges": stats.skg_family_edges,
-            "skg_parameters": stats.skg_parameters,
-            "skg_simulation_parameters": stats.skg_simulation_parameters,
-            "skg_versions": stats.skg_versions,
-            "schema_generation": skg_schema_generation_basis().to_dict(),
-            "materialized_schema_identity": skg_materialized_schema_identity(config.db_path),
-            "json_validation_failures": stats.json_validation_failures,
-        },
-        artifacts=[config.db_path],
-        started_at=started_at,
+    usage = read_staging_usage(
+        config.db_path.with_suffix(config.db_path.suffix + ".staging") / "graph-load.sqlite",
+    )
+    stage_path = config.manifests_dir / "graph_load.json"
+    publish_owned_output(
+        stage_path,
+        lambda private: write_stage_manifest(
+            manifest_path=private,
+            stage="graph_load",
+            status="ok",
+            metrics={
+                "synthetic": usage["synthetic"],
+                "source_provenance": {
+                    "synthetic": usage["synthetic"],
+                    "authority": usage["authority"],
+                },
+                "works": stats.works,
+                "concepts": stats.concepts,
+                "estimates": stats.estimates,
+                "raw_claims": stats.raw_claims,
+                "claim_adjudications": stats.claim_adjudications,
+                "claims": stats.claims,
+                "runs": stats.runs,
+                "topics": stats.topics,
+                "topic_selections": stats.topic_selections,
+                "article_extractions": stats.article_extractions,
+                "boundary_conditions": stats.boundary_conditions,
+                "ingest_errors": stats.ingest_errors,
+                "skg_articles": stats.skg_articles,
+                "skg_variables": stats.skg_variables,
+                "skg_edges": stats.skg_edges,
+                "skg_edge_evidence": stats.skg_edge_evidence,
+                "skg_family_edges": stats.skg_family_edges,
+                "skg_parameters": stats.skg_parameters,
+                "skg_simulation_parameters": stats.skg_simulation_parameters,
+                "skg_versions": stats.skg_versions,
+                "schema_generation": skg_schema_generation_basis().to_dict(),
+                "materialized_schema_identity": skg_materialized_schema_identity(config.db_path),
+                "json_validation_failures": stats.json_validation_failures,
+            },
+            artifacts=[config.db_path],
+            started_at=started_at,
+        ),
+        paths=(
+            config.db_path,
+            config.db_path.with_suffix(config.db_path.suffix + ".wal"),
+            stage_path,
+        ),
+        limits=limits,
+        temporary_root=config.db_path.with_suffix(config.db_path.suffix + ".staging"),
     )
     return stats
 

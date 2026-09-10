@@ -72,3 +72,68 @@ unable to use publication authority. Deterministic candidate extraction continue
 without an admitted match. Test integration covers the actual rich serializers,
 Scientist intake, persisted receipt, DataForge materialization and both consumers;
 it does not appoint a production evaluator or supply production observations.
+
+## Declared held-abstract subsets
+
+`python -m polisyos.data_forge.domains.academic.batch.abstract_reextraction` accepts
+`--manifest`, `--provider-configuration`, and a new `--output-root`. Credentials
+arrive through the environment. The manifest binds the complete read-only held
+frame and the exact bounded subset before any call. Its provider configuration
+binds the model, endpoint, actual completion cap, serial concurrency, attempt
+limit and timeout. The command refuses a full pass and never reacquires fulltext.
+
+This route reuses `PolicyArticleExtractor`, rich occurrence serialization,
+`load_graph` and `run_edge_synthesize`. Missing source axes remain
+`not_established`; an explicit `unknown` remains a candidate value. Neither
+extractor confidence nor self-verification supplies independent adjudication.
+Without its existing verified adjudication capability, graph loading persists
+raw candidates and emits no publishable exact, family or contested edge.
+
+The run persists each provider response and unchanged usage, each produced work,
+all declared work outcomes, a separate output database and a candidate run report.
+Provider USD missing from usage stays null; a price calculated from observed
+tokens is separate from a provider invoice. Synthetic timing never produces a
+live-provider estimate. The legacy rich DTO's zero-default cost bookkeeping is
+explicitly labelled unestablished in the new record metadata and is not used by
+the estimator. The small pilot's stratum-weighted full-pass projection is an
+estimate with no precision guarantee, not authorization to run the full pass.
+
+Constructed inputs carry `synthetic: true` through raw occurrences and raw rows,
+then through exact/family/contested quality provenance. At the L2 consumer, any
+synthetic raw support conservatively marks every view of that source snapshot,
+including variable and claim siblings. Missing historical provenance stays
+absent. Mechanical tests can exercise signed adjudication and reassembly in an
+isolated synthetic namespace; governing CG2 consumption still refuses synthetic
+authority. This package never appoints a real adjudicator or supplies calibration.
+
+## Durable held-abstract campaigns
+
+The experimental module
+`python -m polisyos.data_forge.domains.academic.batch.reextraction_cli` exposes
+`prepare`, `run`, `recover`, and `finalize`. Preparation enumerates and independently
+reconciles the complete source frame, then writes an **unauthorized** compact run
+plan. Expanding the source requires a new source-bound plan; no current corpus
+count is compiled into the runner. The operator workflow and measured readiness
+limits are in
+[`campaign-cli.md`](../../../../../../docs/superpowers/journals/corr-evidence/c1-capacity/campaign-cli.md).
+
+`reextraction_campaign.py` owns the bounded queue, immutable per-attempt artifacts,
+SQLite checkpoints, whole-frame admission and exact completed-work replay.
+`reextraction_transport.py` uses the ordinary OpenAI SDK with an explicitly bound
+Gonka endpoint/model, no hidden retries, and credential checks before persistence.
+Its output is candidate evidence. A v2 campaign stops new dispatch on systemic
+provider failures and requires an explicit, append-only recovery record; v1
+receipts remain readable under their historical source epoch. An interrupted
+request whose response was not durably admitted remains unknown, with retries
+controlled by the immutable plan.
+
+Graph finalization is a separate, restartable operation on completed checkpoints;
+it never repeats extraction calls. The existing graph and synthesis owners use
+bounded disk staging instead of resident corpus collections. Limits apply to
+individual records, batches, aggregate groups, resolver vocabulary and owned disk
+use. A capacity refusal preserves the extraction checkpoint and publishes no
+completed graph manifest. Serialized-byte budgets are not hard process-RSS limits.
+Each completed candidate graph includes the actual input/outcome bindings, artifact
+hashes and recomputed staging-use StrangleReceipt. Synthetic ancestry cannot be
+removed by an enclosing caller's declaration. Raw extraction without verified
+adjudication still supplies no forwardable L2 confidence or governing authority.

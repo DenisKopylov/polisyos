@@ -1,0 +1,34 @@
+{
+  "authority_granted": false,
+  "no_execution_source_change": true,
+  "no_native_rerun": true,
+  "reason": "AGENTS receipt proportion: raw trace retained once; complete derived bins recomputable, not staged",
+  "records": [
+    {
+      "compact_path": "docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-100-interpretation.json",
+      "full_analysis_bytes": 44474,
+      "full_analysis_sha256": "sha256:5f815a1c659c4b9444e4b00a4eb8bc98fcbb0ea9b97229df2841a2e76fac7df3",
+      "input_count": 100,
+      "original_path": "docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-100-analysis.json",
+      "recomputable_local_path": ".tmp/corr-c1-capacity/synthetic-retention/100/derived/full-analysis.json",
+      "relocation_byte_identical": true,
+      "remaining_original_values_equal": true,
+      "removed_array_identity_reconciliation": "exact declared three windows",
+      "synthetic": true
+    },
+    {
+      "compact_path": "docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-1000-interpretation.json",
+      "full_analysis_bytes": 377728,
+      "full_analysis_sha256": "sha256:12163f196e22ceedb4ae6e85bc6e3d914b6b805c9ce8730a5155294397fae428",
+      "input_count": 1000,
+      "original_path": "docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-1000-analysis.json",
+      "recomputable_local_path": ".tmp/corr-c1-capacity/synthetic-retention/1000/derived/full-analysis.json",
+      "relocation_byte_identical": true,
+      "remaining_original_values_equal": true,
+      "removed_array_identity_reconciliation": "exact declared three windows",
+      "synthetic": true
+    }
+  ],
+  "schema_version": "corr.synthetic_retention_analysis_compaction.v1",
+  "synthetic": true
+}

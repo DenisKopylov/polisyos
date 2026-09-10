@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "context": {
+    "attempt_id": "758592603b1ea2571fca9c7e6832f8a7e6c05e6cadb8d1cb7ed5ca94572e29a0",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:885c6f430fda64d77328a009dd2b6520e3ad4f3046b3cf0dfb4ab4fff836bee7",
+    "prompt_hash": "sha256:8005467373a5c077944721550f32a0f4894917e177a9c7cafd11afba829d08bf",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2107389862",
+    "work_key": "sha256:727e70cc26f0300e8a484164210771280f2a8d77332d182f8fd451f0740739ee"
+  },
+  "parsed": {
+    "reason": "Describes a tool for clinical risk assessment, not empirical policy effects or causal estimates.",
+    "relevance_score": 0.1,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 38,
+    "prompt_tokens": 557,
+    "total_tokens": 595
+  }
+}

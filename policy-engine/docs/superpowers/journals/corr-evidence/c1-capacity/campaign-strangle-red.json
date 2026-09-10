@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_run_strangle_recomputes_actual_checkpoint_replay",
+    "-q"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 22.564735208055936,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________ test_run_strangle_recomputes_actual_checkpoint_replay _____________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1432/test_run_strangle_recomputes_a0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b2c7490>\n\n    @pytest.mark.asyncio\n    async def test_run_strangle_recomputes_actual_checkpoint_replay(tmp_path: Path, monkeypatch) -> None:\n        \"\"\"Removing durable replay while keeping receipt markers must make the proof fail.\"\"\"\n        owner = _owner()\n        transport = _SyntheticTransport()\n        plan = _plan(owner)\n        report = await owner.run_campaign(\n            plan, works=iter([_work()]), output_root=tmp_path / \"run\",\n            client_factory=transport.bind, safe_write_json=_safe_write,\n        )\n>       assert \"strangle_ref\" in report, \"run_emitted_checkpoint_strangle_missing\"\nE       AssertionError: run_emitted_checkpoint_strangle_missing\nE       assert 'strangle_ref' in {'artifact_kind': 'summary', 'attempts': {'returned': 3}, 'campaign_binding': 'sha256:8fee28258e0e36cfb4cc6c40ce281bd0bc40a33e640d3701f03386dbd65d3bf9', 'graph_finalization': 'not_started_separate_owner_stage', ...}\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py:301: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_run_strangle_recomputes_actual_checkpoint_replay\n",
+  "timed_out": false,
+  "timeout_seconds": 180.0
+}

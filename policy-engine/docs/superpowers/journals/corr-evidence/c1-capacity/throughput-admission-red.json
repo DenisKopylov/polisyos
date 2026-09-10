@@ -1,0 +1,41 @@
+{
+  "synthetic": true,
+  "authority_status": "candidate_measurement",
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-S",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.pilot_aux_verification",
+    "--child",
+    "--module",
+    "test_throughput_admission"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 0.43965975008904934,
+  "stdout": "",
+  "stderr": "test_actual_changed_source_and_changed_verdict_are_refused (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput_admission.ThroughputAdmissionTests.test_actual_changed_source_and_changed_verdict_are_refused) ... ERROR\n\n======================================================================\nERROR: test_actual_changed_source_and_changed_verdict_are_refused (docs.superpowers.journals.corr-evidence.c1-capacity.test_throughput_admission.ThroughputAdmissionTests.test_actual_changed_source_and_changed_verdict_are_refused)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_admission.py\", line 17, in test_actual_changed_source_and_changed_verdict_are_refused\n    owner = importlib.import_module(PREFIX + \"throughput_admission\")\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py\", line 88, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1398, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1371, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1335, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'docs.superpowers.journals.corr-evidence.c1-capacity.throughput_admission'\n\n----------------------------------------------------------------------\nRan 1 test in 0.002s\n\nFAILED (errors=1)\n",
+  "source_sha256": {
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/campaign_cli_removal.py": "2520f287eb59971e6a490fa782290c5c5b27fcca2c1caddd0c0de762b12a8857",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/capacity_common.py": "ab39f5dd94dc4f0c255f0c2364c6530456a3f01b60f0c3f3428d4d8dc3481e05",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/codec_strangle.py": "6391270f13cfa993251af178651a3c69d82d1769ff7cf72f12b1b0ff43152ed2",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/contract_probe.py": "907a82ac77acd236f81fa9e5697ab3637b94759a4b864d5ef142613c52ab475b",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/declare_contract_retry.py": "f924666b72d074c543f6d097a9767b9dbc125433d728a2e62112cd55e32aa9a3",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/declare_models.py": "ccd57e4411bcb25ca39adc2fe0ea44fb2548177cfb29f5c943d7a5a9c978c0f3",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_baseline.py": "42815f7d0ed806dfab617188c25a702354ff0c38e2541be51913d01f527edab8",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_aux_verification.py": "229fdd251c88506b9a0344561889bc15669eb13c822f4317d8929380bff8e03d",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/pilot_campaign.py": "5e4c3c7eba9363c5349279a6f021a3481f0b146e0fc630bdb83fd85dd376f4c2",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/process_telemetry.py": "d2bf3d5dad8d95c718ccd994c1f68009976c526c981e4b37e17326ce5ab5d130",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/profile_pilot.py": "c4b655c70526e099b7f9a4423090e39ad55040259a8b1c917407ba56c440f49c",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/telemetry_fixture.py": "af063a91cdc38d4ab6e062b3d1b53ec5a6dec4e00edab8cbc783765f2b4b31c0",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/telemetry_verification.py": "844c7bba11b2710f523c56620f3e8bf60d68bd96c196da3b0d761d9a31f4dd88",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_contract_probe.py": "45473d0c03cb4b2395fdebf3af7913f4e45d37211c9ce2370470e035d2d3eef4",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_process_telemetry.py": "635d66b19e507ced4187996a444a49ffd1b4db6bc647507e556e14747c4fa41e",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput.py": "5bb1e45625aa92c40b05f2046b5d88fd249da14e21bb39f59c20ee752f13de68",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_admission.py": "cb0876908caec54e567d18400d20fc1b630b414f2589d2b198a498d517175831",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_analysis.py": "b261ab31bdccb2e3948d45ec4859e6d7dcb2db541dfc73ae865afe796a344f7c",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_declaration.py": "373a0a19f12f32d34a662bc793623aa10c21920578b79e3bb3aff70de7bb4666",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_memory_fixture.py": "98a6105410db8ff66147228d6c54dacb36a6bb246467c0501a3e6442513cc110",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_runner.py": "fe8ff568f7247e8374d7abee95ddb6f219f644c408688585fc80d996aa0c5603",
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/throughput_verification.py": "c3e141cf86178f6438a33572c74b412b219d5106a783e6eb9245ba0e19d424c9"
+  }
+}

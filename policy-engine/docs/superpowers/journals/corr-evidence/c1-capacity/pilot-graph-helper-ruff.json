@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.042840334004722536,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "E501 Line too long (101 > 100)\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/pilot_graph_finalize.py:77:101\n   |\n75 |         outputs.append({\n76 |             \"model_id\": model, \"synthetic\": False, \"authority_status\": \"candidate_only\",\n77 |             \"original_root\": str(root), \"original_plan_sha256\": hashlib.sha256(raw_plan).hexdigest(),\n   |                                                                                                     ^\n78 |             \"graph_ref\": {\"path\": str(root / ref.path), \"sha256\": ref.sha256},\n79 |             \"original_source_file_count\": len(before),\n   |\n\nFound 1 error.\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

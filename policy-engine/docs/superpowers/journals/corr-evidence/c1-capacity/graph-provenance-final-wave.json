@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_capacity",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_staging"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 11.623169708065689,
+  "returncode": 0,
+  "stderr": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 11.379s\n\nOK\n",
+  "stdout": "{\"carrier_contract\": {\"ac_causal_claims_raw\": {\"source_provenance_json\": \"json\", \"synthetic\": \"boolean\"}, \"ac_claim_adjudications\": {}, \"ac_parameter_estimates\": {}, \"ac_skg_articles\": {\"context_json\": \"json\", \"extraction_json\": \"json\"}, \"ac_skg_canonization_cache\": {}, \"ac_skg_context_attributes\": {}, \"ac_skg_edge_evidence\": {}, \"ac_skg_edges\": {\"quality_signals_json\": \"json\"}, \"ac_skg_moderation_edges\": {}, \"ac_skg_variable_synonyms\": {}, \"ac_skg_variables\": {}, \"ac_skg_versions\": {}, \"ac_works\": {}}, \"owner_sources\": {\"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py\": \"b367ed95faddf6a5e31bbb3665f1d19cf84783913720c014e905cc754b12a9e2\", \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/batch/graph_builder.py\": \"18eff04d8ae247330be69086a84dc0d03dcea05013c62445be580181dc19403e\", \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/canonical_resolver.py\": \"41676c878ff6c84911b67b3350bd51f3dd3112672143e8305cfab0a08091fad9\", \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_store.py\": \"f448fc323db7ae5bc75f0cb3d4d909390cf8f853768a9557b65d73049ac67cb5\"}, \"reader_families\": [\"ac_causal_claims_raw\", \"ac_claim_adjudications\", \"ac_parameter_estimates\", \"ac_skg_articles\", \"ac_skg_canonization_cache\", \"ac_skg_context_attributes\", \"ac_skg_edge_evidence\", \"ac_skg_edges\", \"ac_skg_moderation_edges\", \"ac_skg_variable_synonyms\", \"ac_skg_variables\", \"ac_skg_versions\", \"ac_works\"], \"scope\": \"synthetic_codec_reconciliation\", \"synthetic\": true}\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

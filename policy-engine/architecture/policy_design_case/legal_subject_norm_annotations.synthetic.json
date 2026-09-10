@@ -1,0 +1,21 @@
+{
+  "schema_version": "policyos.foundry.legal_subject_annotations.v1",
+  "synthetic": true,
+  "declared_at": "2026-09-08",
+  "source_role": "norm",
+  "producer_ref": "synthetic.legal-subject.norm-annotations",
+  "annotations": [
+    {
+      "entity_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+      "subject": {"namespace": "synthetic.legal-subject-controls", "namespace_version": "1", "subject_id": "alpha", "valid_from": "1990-01-01", "valid_until": null}
+    },
+    {
+      "entity_ref": "lex_rule_thresholds:07baad7c3a120b0363322e71",
+      "subject": {"namespace": "synthetic.legal-subject-controls", "namespace_version": "1", "subject_id": "beta", "valid_from": "1990-01-01", "valid_until": null}
+    },
+    {
+      "entity_ref": "lex_rule_thresholds:01539d8d9b8cfedb489d689e",
+      "subject": {"namespace": "synthetic.legal-subject-controls", "namespace_version": "1", "subject_id": "gamma", "valid_from": "1990-01-01", "valid_until": null}
+    }
+  ]
+}

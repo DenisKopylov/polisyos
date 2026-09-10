@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.campaign_recovery_removal",
+    "recovery_quiescence"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.03728170809336,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________ test_recovery_requires_all_dispatched_attempts_to_settle ___________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1454/test_recovery_requires_all_dis0')\n\n    def test_recovery_requires_all_dispatched_attempts_to_settle(tmp_path):\n        works = _works()[:2]\n        plan = _plan(works)\n        with owner.CampaignCheckpoint(tmp_path / \"run\", plan, _writer()) as checkpoint:\n            checkpoint.prepare_inputs(iter(works))\n            keys = list(checkpoint.iter_work_keys())\n            earlier = checkpoint.begin_attempt(\n                keys[0], phase=\"screening\", model=\"synthetic:model\", prompt=\"A\"\n            )\n            later = checkpoint.begin_attempt(\n                keys[1], phase=\"screening\", model=\"synthetic:model\", prompt=\"B\"\n            )\n            checkpoint.fail_attempt(\n                later, kind=\"authentication_error\", retryable=False, status_code=401\n            )\n            stop = checkpoint.active_fatal_stop()\n>           with pytest.raises(ValueError, match=\"campaign_recovery_requires_quiescence\"):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign_recovery.py:192: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign_recovery.py::test_recovery_requires_all_dispatched_attempts_to_settle\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

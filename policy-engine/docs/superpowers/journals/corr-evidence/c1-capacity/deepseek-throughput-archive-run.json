@@ -1,0 +1,21 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence/c1-capacity.throughput_archive",
+    ".tmp/corr-c1-capacity/throughput/deepseek/throughput-report.json",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-throughput-declaration.json",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.026146332966163754,
+  "returncode": 1,
+  "stderr": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python: Error while finding module specification for 'docs.superpowers.journals.corr-evidence/c1-capacity.throughput_archive' (ModuleNotFoundError: No module named 'docs.superpowers.journals.corr-evidence/c1-capacity')\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

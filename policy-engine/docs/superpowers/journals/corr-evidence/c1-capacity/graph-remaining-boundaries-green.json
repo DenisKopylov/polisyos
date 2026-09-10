@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_resolver_vocabulary_accepts_measured_bounds_and_refuses_each_smaller_budget",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_pair_bytes_accept_exact_reservation_then_refuse_next_before_decode"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 1.866410666028969,
+  "returncode": 0,
+  "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 1.649s\n\nOK\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

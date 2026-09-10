@@ -1,0 +1,37 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-009",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:2adbdadf3dc0de043b1d60f6cef95002abad515cd7166128b4dcbcc1dc3dd977",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [],
+    "citation_summary": "This source is an abstract-only fallback that describes the scope of an article examining how EU Member States have implemented Controlled Foreign Company (CFC) rules under the EU Anti-Tax Avoidance Directive (2016/1164). The abstract provides no empirical results, quantitative estimates, causal claims, or methodological details. It merely states that the authors will examine implementation choices without presenting any findings or effect sizes.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.1,
+    "extraction_warnings": [
+      "Source is abstract-only with no empirical results or quantitative estimates",
+      "No causal claims, effect sizes, or statistical findings are present in the evidence bundle",
+      "No methodology, sample size, or study design information is available",
+      "The abstract only describes the scope of the article (examining implementation choices) rather than presenting findings",
+      "Cannot extract policy-relevant empirical evidence from this limited source"
+    ],
+    "mechanisms": [],
+    "methodology": null,
+    "methodology_enum": "unclear",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:be1b3b65554cab658093fa5fbc4fdcfda84de68a6f58c50b1d2b695adec4363f",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-009.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:a2e9325ae4f32d160b1b9ca078b3493a9e330550086eecb7d48325f0675c4cbe",
+  "work_id": "https://openalex.org/W4390288608"
+}

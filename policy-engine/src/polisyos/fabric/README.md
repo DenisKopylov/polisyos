@@ -42,6 +42,7 @@ subpackage READMEs below explain the implementation boundaries in more detail.
 | `query_world_table()`                   | Convenience helper for direct world-table reads.                                                  |
 | `query_claims()` / `query_events()`     | Helpers for claim and world-event query paths.                                                    |
 | `WorldQueryRequest` / `WorldQueryError` | Request and error surface for governed world queries.                                             |
+| `file_lock()` / `atomic_write_json()` | Existing filesystem lock and atomic metadata writer, reused by durable runtime admission accounting. |
 | `world`                                 | Lazy-loaded `polisyos.fabric.world` subpackage for lower-level write and materialization helpers. |
 
 `polisyos.fabric.__all__` is the stable public facade. Catalog and semantic

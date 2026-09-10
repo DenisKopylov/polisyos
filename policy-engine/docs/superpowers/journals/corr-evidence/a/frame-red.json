@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_calibration.py -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_grounding_calibration.py",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 209.13527866697405,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___ test_frame_tier_is_blind_to_binding_outcomes_and_shared_sources_cluster ____\n\n    def test_frame_tier_is_blind_to_binding_outcomes_and_shared_sources_cluster() -> None:\n        \"\"\"The same inputs and shared source remain one cluster after outcome changes.\"\"\"\n>       owner = importlib.import_module(\"polisyos.runtime.quality.grounding_calibration\")\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/unit/runtime/quality/test_grounding_calibration.py:10: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1398: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1371: in _find_and_load\n    ???\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nname = 'polisyos.runtime.quality.grounding_calibration'\nimport_ = <function _gcd_import at 0x102653e20>\n\n>   ???\nE   ModuleNotFoundError: No module named 'polisyos.runtime.quality.grounding_calibration'\n\n<frozen importlib._bootstrap>:1335: ModuleNotFoundError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_calibration.py::test_frame_tier_is_blind_to_binding_outcomes_and_shared_sources_cluster\n",
+  "stderr": ""
+}

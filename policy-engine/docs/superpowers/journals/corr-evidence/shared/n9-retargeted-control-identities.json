@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest docs/superpowers/journals/corr-evidence/shared/n9-retargeted-controls-green.json --compact",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest",
+    "docs/superpowers/journals/corr-evidence/shared/n9-retargeted-controls-green.json",
+    "--compact"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 41.00350262504071,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "{\n  \"denominator\": \"complete actual pytest collection versus complete executed JUnit testcase set\",\n  \"collection_returncode\": 0,\n  \"execution_returncode\": 0,\n  \"missing_executions\": [],\n  \"unexpected_executions\": [],\n  \"ambiguous_or_unresolved\": [],\n  \"duplicate_collection\": false,\n  \"duplicate_execution\": false,\n  \"nonpassing_executions\": [],\n  \"collected_count\": 2,\n  \"executed_count\": 2,\n  \"collected_identity_hash\": \"eb4de59becdfeef349a6cce89b9832fa6eac1372efd77c4dab92b459cec747c5\",\n  \"executed_identity_hash\": \"eb4de59becdfeef349a6cce89b9832fa6eac1372efd77c4dab92b459cec747c5\",\n  \"duplicate_collection_identities\": {},\n  \"duplicate_execution_identities\": {}\n}\n",
+  "stderr": ""
+}

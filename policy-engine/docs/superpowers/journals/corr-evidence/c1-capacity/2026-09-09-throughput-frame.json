@@ -1,0 +1,1434 @@
+{
+  "absent_ids": [],
+  "ambiguous_ids": [],
+  "authority_status": "candidate_only",
+  "blank_ids": [
+    "https://openalex.org/W1038226036",
+    "https://openalex.org/W1521233966",
+    "https://openalex.org/W1546518249",
+    "https://openalex.org/W1585070083",
+    "https://openalex.org/W1603244130",
+    "https://openalex.org/W1843131680",
+    "https://openalex.org/W1977276050",
+    "https://openalex.org/W1999395237",
+    "https://openalex.org/W2014548926",
+    "https://openalex.org/W2028324599",
+    "https://openalex.org/W2048330838",
+    "https://openalex.org/W2052523635",
+    "https://openalex.org/W2053339128",
+    "https://openalex.org/W2053830554",
+    "https://openalex.org/W2056681242",
+    "https://openalex.org/W2071620886",
+    "https://openalex.org/W2075745043",
+    "https://openalex.org/W2083242249",
+    "https://openalex.org/W2107639668",
+    "https://openalex.org/W2156314592",
+    "https://openalex.org/W2175105437",
+    "https://openalex.org/W2295298726",
+    "https://openalex.org/W2330643650",
+    "https://openalex.org/W2338770637",
+    "https://openalex.org/W2344322957",
+    "https://openalex.org/W2746834803",
+    "https://openalex.org/W2808934316",
+    "https://openalex.org/W2887998405",
+    "https://openalex.org/W2888129109",
+    "https://openalex.org/W2896441484",
+    "https://openalex.org/W2898576814",
+    "https://openalex.org/W2904075494",
+    "https://openalex.org/W2906647021",
+    "https://openalex.org/W2943324232",
+    "https://openalex.org/W2947640732",
+    "https://openalex.org/W2955152086",
+    "https://openalex.org/W2959093689",
+    "https://openalex.org/W2963713837",
+    "https://openalex.org/W2969494845",
+    "https://openalex.org/W2969598337",
+    "https://openalex.org/W2974748900",
+    "https://openalex.org/W2981034846",
+    "https://openalex.org/W2981533205",
+    "https://openalex.org/W2983446078",
+    "https://openalex.org/W2984732749",
+    "https://openalex.org/W3007809133",
+    "https://openalex.org/W3010216419",
+    "https://openalex.org/W3010726393",
+    "https://openalex.org/W3012551688",
+    "https://openalex.org/W3021699863",
+    "https://openalex.org/W3024055120",
+    "https://openalex.org/W3036223875",
+    "https://openalex.org/W3041014483",
+    "https://openalex.org/W3045265311",
+    "https://openalex.org/W3073651396",
+    "https://openalex.org/W3080631650",
+    "https://openalex.org/W3112038161",
+    "https://openalex.org/W3116661591",
+    "https://openalex.org/W3117999423",
+    "https://openalex.org/W3124442994",
+    "https://openalex.org/W3126744612",
+    "https://openalex.org/W3134243331",
+    "https://openalex.org/W3157180380",
+    "https://openalex.org/W3165002272",
+    "https://openalex.org/W3165365164",
+    "https://openalex.org/W3168048074",
+    "https://openalex.org/W3168889226",
+    "https://openalex.org/W3175310902",
+    "https://openalex.org/W3176433772",
+    "https://openalex.org/W3193808870",
+    "https://openalex.org/W3195409473",
+    "https://openalex.org/W3196764360",
+    "https://openalex.org/W3200533846",
+    "https://openalex.org/W3205658047",
+    "https://openalex.org/W3213584897",
+    "https://openalex.org/W3215653830",
+    "https://openalex.org/W3215758791",
+    "https://openalex.org/W3216299306",
+    "https://openalex.org/W36555384",
+    "https://openalex.org/W4200364528",
+    "https://openalex.org/W4205760939",
+    "https://openalex.org/W4224037170",
+    "https://openalex.org/W4233538899",
+    "https://openalex.org/W4251311868",
+    "https://openalex.org/W4285753641",
+    "https://openalex.org/W4286461489",
+    "https://openalex.org/W4296791044",
+    "https://openalex.org/W4309614486",
+    "https://openalex.org/W4312229730",
+    "https://openalex.org/W4312332399",
+    "https://openalex.org/W4312873373",
+    "https://openalex.org/W4313378326",
+    "https://openalex.org/W4313652413",
+    "https://openalex.org/W4320157967",
+    "https://openalex.org/W4323318026",
+    "https://openalex.org/W4361214216",
+    "https://openalex.org/W4365139222",
+    "https://openalex.org/W4368246774",
+    "https://openalex.org/W4376860826",
+    "https://openalex.org/W4379054937",
+    "https://openalex.org/W4385486368",
+    "https://openalex.org/W4386136982",
+    "https://openalex.org/W4387112758",
+    "https://openalex.org/W4390150508",
+    "https://openalex.org/W4392399969",
+    "https://openalex.org/W4393905269",
+    "https://openalex.org/W4395449205",
+    "https://openalex.org/W4396557548",
+    "https://openalex.org/W4396669653",
+    "https://openalex.org/W4396972859",
+    "https://openalex.org/W4400101038",
+    "https://openalex.org/W4400101084",
+    "https://openalex.org/W4400101259",
+    "https://openalex.org/W4400101283",
+    "https://openalex.org/W4403990728",
+    "https://openalex.org/W4408237280",
+    "https://openalex.org/W4408349004",
+    "https://openalex.org/W4415938321",
+    "https://openalex.org/W846363242"
+  ],
+  "complete_work_count": 310829,
+  "complete_work_identity_digest": "sha256:14888b8ecc824f0365d148afa70cccf15c10213f15710b675c219ac894abbf29",
+  "content_hash": "sha256:8d1ae9819c38c72dff44920b763cee6a3bf8dbd6dd6a84c8cc50cc660560ec27",
+  "declared_at": "2026-09-09T10:50:42.939587+00:00",
+  "eligible_count": 310710,
+  "eligible_identity_digest": "sha256:7c5893275a7b0e2223fbdf547be265e8b4c8a6233b9fd314c29c16bc3b96c40c",
+  "eligible_input_basis_digest": "sha256:cb23ad8aeaf686297010c5cfa4a9726f0744743b213e27a4928db2a7bc973a22",
+  "excluded_frozen_pilot_ids": [
+    "https://openalex.org/W2107389862",
+    "https://openalex.org/W2134044742",
+    "https://openalex.org/W3121515037",
+    "https://openalex.org/W4392374705",
+    "https://openalex.org/W4394884575",
+    "https://openalex.org/W4399636837"
+  ],
+  "identity_value_reconciliation": "equal_complete_python_and_sql_sets",
+  "independent_sql_eligible_count": 310710,
+  "independent_sql_work_count": 310829,
+  "original_six_declaration_hash": "sha256:e7f53a12a078d6e2c904453f8a8ccd1b2312e1d597ea17f98734dd756781fe5d",
+  "original_six_declaration_path": "docs/superpowers/journals/corr-evidence/c/abstract-subset-manifest.json",
+  "schema_version": "corr.throughput_frame.v1",
+  "selected_members": [
+    {
+      "abstract_content_hash": "sha256:0b4c8eb9e04e3c6b2d3952518078845b2963c13523c2199e0730bd04a88fcece",
+      "abstract_length": 270,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3160415851"
+    },
+    {
+      "abstract_content_hash": "sha256:2fe4f43bbdb2439092d00b3d6e95d10ad2a9dc754458a505d41fc580f952274c",
+      "abstract_length": 1293,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2109460161"
+    },
+    {
+      "abstract_content_hash": "sha256:87a3ed55b8aa91f2ff2341bec855f8ca5a2d6c706adc29c712bc316540934e9a",
+      "abstract_length": 1380,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1525284470"
+    },
+    {
+      "abstract_content_hash": "sha256:203f0a3a8705fcb33a31433d47b43e81f88f4e509af316556183d5bd23b44f30",
+      "abstract_length": 62,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2580286392"
+    },
+    {
+      "abstract_content_hash": "sha256:032d33c76da83c96b3fd103c644a362fd8bc5da4335fcd0ca81c2b44371805df",
+      "abstract_length": 996,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2569872753"
+    },
+    {
+      "abstract_content_hash": "sha256:c27dfb3cd32128d09f7ea7f092ea23dd237e6a1d6c70e5d7cfd186a482c1376c",
+      "abstract_length": 1429,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4382698663"
+    },
+    {
+      "abstract_content_hash": "sha256:64e5eed6e067f477ec2d300658ae79d115393232d17cf4752f2dfb9cc4b2659d",
+      "abstract_length": 833,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2066113762"
+    },
+    {
+      "abstract_content_hash": "sha256:902b15f236eaf0160f538642e8a8268fe29a133df9576d9ba2c380ea2af3233d",
+      "abstract_length": 1158,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4407585255"
+    },
+    {
+      "abstract_content_hash": "sha256:33cf48d849378390cca71407fee47d990b4fd134663d60b0fb968723f4267fa8",
+      "abstract_length": 2315,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1530984793"
+    },
+    {
+      "abstract_content_hash": "sha256:2adbdadf3dc0de043b1d60f6cef95002abad515cd7166128b4dcbcc1dc3dd977",
+      "abstract_length": 196,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4390288608"
+    },
+    {
+      "abstract_content_hash": "sha256:4d2807b4a0fe7710978699835f511a730a6f19cc2b66b09f511b0e713beea27e",
+      "abstract_length": 1103,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4293275412"
+    },
+    {
+      "abstract_content_hash": "sha256:640366fe9a45a3867294da1bb408528899543b821b25d375f307fe11aa957f62",
+      "abstract_length": 1363,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3036404624"
+    },
+    {
+      "abstract_content_hash": "sha256:52b11ffdb6c9721cb2754cfba5668de4f080b7bffc1e0af33b2830ef9195d3c3",
+      "abstract_length": 16,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4220941927"
+    },
+    {
+      "abstract_content_hash": "sha256:3ce387d885b65e39f868bfd2f6d30b0b8f6974b9777a9fd40e99eb4136be6b87",
+      "abstract_length": 1066,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4403152880"
+    },
+    {
+      "abstract_content_hash": "sha256:744dcfff7436d3b18f29c25dd3532373be1d6762921504c7913e8691a2ca134e",
+      "abstract_length": 1368,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2067593902"
+    },
+    {
+      "abstract_content_hash": "sha256:147319c2deee65c5c89202a00018b80001c85656d8c6d5e0f4f1781b158ed586",
+      "abstract_length": 272,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1598532867"
+    },
+    {
+      "abstract_content_hash": "sha256:93bb92111276e0cedcb7f2209c6c4edf331f46e78cba7412bdb2306c7878b66a",
+      "abstract_length": 933,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2952958682"
+    },
+    {
+      "abstract_content_hash": "sha256:a9acd941e3456883ccacda00e93fe6acebc115120b92470bce6e449873f6e330",
+      "abstract_length": 4394,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4211083409"
+    },
+    {
+      "abstract_content_hash": "sha256:5ce7ca5ed07b677aab7a4e725f2ce7cec05ea2cbc2e42c3410c4b35801297855",
+      "abstract_length": 519,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4304815946"
+    },
+    {
+      "abstract_content_hash": "sha256:81c978e1ddabb9ca2a41ad231387aa7d33a2e2d9337d06734bb1cf93eae2d7b3",
+      "abstract_length": 1310,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4388035950"
+    },
+    {
+      "abstract_content_hash": "sha256:df9255fc4d7d9742673f3d6499b424a8c1986d58a4d22ce8462544a5c518997e",
+      "abstract_length": 1359,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2164368093"
+    },
+    {
+      "abstract_content_hash": "sha256:dc6796a7adb114d51e79f6e2bfc7af47378ab36c845ec2d18180cc5474f43888",
+      "abstract_length": 316,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1977680690"
+    },
+    {
+      "abstract_content_hash": "sha256:cf4e7e00ee4bb4ef7acf55886490b069d5cf7cd8baa2b27204e641fd9ea3b8d0",
+      "abstract_length": 1078,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W12971584"
+    },
+    {
+      "abstract_content_hash": "sha256:32b612c29bb9ca5396b0426caf36b41fcee91babf2361c0181921990c3cfe882",
+      "abstract_length": 1431,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1578141807"
+    },
+    {
+      "abstract_content_hash": "sha256:0eb37ff9c65a5c8afe244a5788d60819b2921d95ef6526ad2b33cee8e474715c",
+      "abstract_length": 161,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1967032036"
+    },
+    {
+      "abstract_content_hash": "sha256:3061069a1ad5c1637c24626a4e31b9a79e47dcf73d983bd6db4dc1d0e18d661a",
+      "abstract_length": 1218,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2781830372"
+    },
+    {
+      "abstract_content_hash": "sha256:edc8a073d9c846fedf3e8c06c313c17238f6bc7ef1d23f0691b58abdc3019e1d",
+      "abstract_length": 1781,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4406803843"
+    },
+    {
+      "abstract_content_hash": "sha256:09bdff337c0b710c0f5eba7fa2f26f6f92130f48d5da7bdf314150c818572e5b",
+      "abstract_length": 786,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4394923665"
+    },
+    {
+      "abstract_content_hash": "sha256:4ed5ff585795ec71d3ebc84fbad622a4dfb1ef92623d1c0d174c1d27ac8bce1f",
+      "abstract_length": 1002,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3147860633"
+    },
+    {
+      "abstract_content_hash": "sha256:dd58c702a741c6e94fbf7be604c04ceebb311d5e67d2fa8a1829c73e4ce68a0c",
+      "abstract_length": 1409,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1967223005"
+    },
+    {
+      "abstract_content_hash": "sha256:703d4b5409dedf30ac9d29ae0d9548d97f20af115e1998dafaf65ebb0b407594",
+      "abstract_length": 590,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1967859365"
+    },
+    {
+      "abstract_content_hash": "sha256:1a89147610c98d0a29255494e619329172176883c8d5e2508a197b19c1a2681b",
+      "abstract_length": 966,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4408760115"
+    },
+    {
+      "abstract_content_hash": "sha256:0afed4ebac2fe3ca88176bb2f9e72ed2c7a4cbb8287c6bd628fdd0fb026338a6",
+      "abstract_length": 2167,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4390285931"
+    },
+    {
+      "abstract_content_hash": "sha256:08bfcedc1344c93aa1f734e6a8735df6179a8e156d0d8c41b71bb99f5ce37556",
+      "abstract_length": 91,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3015192800"
+    },
+    {
+      "abstract_content_hash": "sha256:48353bddf1cca4d2cb43b32173a55029dd4fcf82600f21f51407aa575248ba0f",
+      "abstract_length": 1150,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2959679043"
+    },
+    {
+      "abstract_content_hash": "sha256:9699bb0d8129deba424e21355115d028274180ff0359c69107158cf00518caec",
+      "abstract_length": 1626,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2921809274"
+    },
+    {
+      "abstract_content_hash": "sha256:77f3d2369ce7821b61f3313bf5b2e48c877d45e3ff1d901f33244cf0982cf03e",
+      "abstract_length": 853,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4285216966"
+    },
+    {
+      "abstract_content_hash": "sha256:386b837886215206f729deeef73251577a41fdc1ecebcaccf55e61e484a2ba76",
+      "abstract_length": 1022,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2093815455"
+    },
+    {
+      "abstract_content_hash": "sha256:50046f667a8ec56ad00fd3922f286746c81c923c4d5d9387157838f6bf22e15f",
+      "abstract_length": 1750,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2910359649"
+    },
+    {
+      "abstract_content_hash": "sha256:f77b2b5a8460c016f8e1ab2c60666bf0ef6b4b52121635c5d188fe6903f565c6",
+      "abstract_length": 784,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2110249953"
+    },
+    {
+      "abstract_content_hash": "sha256:89195e66ccdea8d546a32d3aa50ab8e8cd132a2b2d69dd604e4281c3045ad4d2",
+      "abstract_length": 1068,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2034459620"
+    },
+    {
+      "abstract_content_hash": "sha256:7cf2ba66867c985a0a14019806d7325ad37f9f23a95b7292e0610b632775c91c",
+      "abstract_length": 2051,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W633402960"
+    },
+    {
+      "abstract_content_hash": "sha256:daef15d77c9dd8970b54a949a8b5edef6df278dec97f97b167bcc9ca73a1596c",
+      "abstract_length": 752,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3017103252"
+    },
+    {
+      "abstract_content_hash": "sha256:2f87698da31caf8e4e2f69fad7fb955d3108491c07c8d5ab879235540067d8ea",
+      "abstract_length": 1145,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1989237617"
+    },
+    {
+      "abstract_content_hash": "sha256:742f65f98e9d0e70e79749c3514a12266ecbd98589a3145536ae8c3e6059dbf4",
+      "abstract_length": 1680,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4323352846"
+    },
+    {
+      "abstract_content_hash": "sha256:85799fcf8161ef9e2e322dda0cbde71c92632020e75a18de086b3194ac682ec9",
+      "abstract_length": 865,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4380853825"
+    },
+    {
+      "abstract_content_hash": "sha256:7b0b301e1813deee24d32f4159b043bae2fbf23924e3d966f30ee13bb8c303cd",
+      "abstract_length": 937,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W231002401"
+    },
+    {
+      "abstract_content_hash": "sha256:4770aca749146e057c285ded271bdb76cf59e87883dd0e2ab9c48d4c92912560",
+      "abstract_length": 1462,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2011380194"
+    },
+    {
+      "abstract_content_hash": "sha256:b6fcbbe6a98e584a8219a3d9e118e48a10aa1f1eb2e86dfffcb5606daf4ff781",
+      "abstract_length": 571,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4367679838"
+    },
+    {
+      "abstract_content_hash": "sha256:2fbbbee8e5d6a1dd525325a815656693db9ff70114382df4208ca0e19849c906",
+      "abstract_length": 927,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2903690013"
+    },
+    {
+      "abstract_content_hash": "sha256:2c2cb42aa2230904eed8948aa70ab598448daed5968647c0d6a15d8600bd1cdf",
+      "abstract_length": 2381,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2115506886"
+    },
+    {
+      "abstract_content_hash": "sha256:59764d8f9e082911d4bdf0e5ae9d431a8faa59dbd360190409434313af20aaea",
+      "abstract_length": 38,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2604279332"
+    },
+    {
+      "abstract_content_hash": "sha256:c3a655be64a29142a0a9f27f7e7c7af7c6c0f7bea452acee8030bb23a9997ed8",
+      "abstract_length": 1038,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2969764142"
+    },
+    {
+      "abstract_content_hash": "sha256:3c9e26cfca6784fd49d5004f67db1e7bf419488f8696903265f1179accd886cb",
+      "abstract_length": 1468,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2979268893"
+    },
+    {
+      "abstract_content_hash": "sha256:b5c4b7dc51522ce0709266cd09fa695d6a348cb91d27d68d2267bf3b9ba59a39",
+      "abstract_length": 657,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3021731726"
+    },
+    {
+      "abstract_content_hash": "sha256:edac9fe86e363ac4237c980137f770dda99734c0f61faecf76a6454acc8d0856",
+      "abstract_length": 996,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1994709797"
+    },
+    {
+      "abstract_content_hash": "sha256:89fdd7ab04b90f079449902cff482dec72a4fee89960b1c8b8c8bc26df15262d",
+      "abstract_length": 1362,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3167706700"
+    },
+    {
+      "abstract_content_hash": "sha256:7a87747667c90f7d210643b723cee0df60aa450a5c7069de671b927b1ce10c59",
+      "abstract_length": 317,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2050898595"
+    },
+    {
+      "abstract_content_hash": "sha256:8531fd46f637a77a78fb0cf856d1b507818bee25b4df3b149294b11595104b91",
+      "abstract_length": 938,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W593931623"
+    },
+    {
+      "abstract_content_hash": "sha256:f7a3e89db9747beda58de27c2a8aa177c09c54e620d61ccb6c65bc155341d016",
+      "abstract_length": 1463,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2937395062"
+    },
+    {
+      "abstract_content_hash": "sha256:bdf1f2962fccd5c8ef2fade28e57c1e64516adaaf63666c66a26e0a244c991b3",
+      "abstract_length": 785,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4297445743"
+    },
+    {
+      "abstract_content_hash": "sha256:2b573ac9a487cd3ed099cc39ba3fc28c716626d803e9645275194c8958252258",
+      "abstract_length": 922,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4381297230"
+    },
+    {
+      "abstract_content_hash": "sha256:ebc34bd671cd07e442575ee220ae86e078f5994d990cac8ac28636e31264e6c1",
+      "abstract_length": 1438,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4385757780"
+    },
+    {
+      "abstract_content_hash": "sha256:c45faace36858f24f30f38fc2f32ce8091bdd412b5d1dd3b310849830cf1668f",
+      "abstract_length": 874,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3199849508"
+    },
+    {
+      "abstract_content_hash": "sha256:327e5619f7148101a36ea060fc35640c2f5df58e3f62f056143405add8486622",
+      "abstract_length": 1072,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2112557184"
+    },
+    {
+      "abstract_content_hash": "sha256:bb38f4e5c10825aa7442ada4707056b363b8b592ed9dc44e575da22a48768d6f",
+      "abstract_length": 1613,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2183339174"
+    },
+    {
+      "abstract_content_hash": "sha256:a143a331ad9499c6696cad60390308418bb5a37d6d41b8ccf5815704fb124768",
+      "abstract_length": 243,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4306741870"
+    },
+    {
+      "abstract_content_hash": "sha256:af513287615b0a12c718894efaf37c153120aa463ddd4c1a40098dd5cb8297ae",
+      "abstract_length": 1089,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4394598578"
+    },
+    {
+      "abstract_content_hash": "sha256:58a7699ada3e8288aff8f886f8232c20e2306fec3919d4832f87cb217e39d30c",
+      "abstract_length": 1428,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2785591888"
+    },
+    {
+      "abstract_content_hash": "sha256:abb9561302e7a945a440ceaa97a4f8cb931ed4737348a7ef18a6bccfe39c7a88",
+      "abstract_length": 72,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2265908198"
+    },
+    {
+      "abstract_content_hash": "sha256:835c1c5e27c8b0ad02909b97206e82e5c23310e0d1ff4468709b62ad026611c1",
+      "abstract_length": 1224,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3095855344"
+    },
+    {
+      "abstract_content_hash": "sha256:1feb146c71d2cd27392eaadd486934b82dcb733164570f7297214e7de01ad595",
+      "abstract_length": 1762,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4406151165"
+    },
+    {
+      "abstract_content_hash": "sha256:b4fed67c6c127ceedd84b0c9d43ebf48569d6a4e89239705cb6b88977da0f378",
+      "abstract_length": 512,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1871683743"
+    },
+    {
+      "abstract_content_hash": "sha256:9f341e1d0e5f9de6afe9684d213067ff1d2ad631315f5aee5f5cd215e7d7ba1f",
+      "abstract_length": 1024,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2020561991"
+    },
+    {
+      "abstract_content_hash": "sha256:ba70b66aeb0a4e2c94466f3a78714fd46af17a1a168bf5b2f5f2c3245d9ecbc4",
+      "abstract_length": 1612,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3152021969"
+    },
+    {
+      "abstract_content_hash": "sha256:0e1b7a96429149c15168f4c0fb0d46c8899e6743da368d7206c0815bac308181",
+      "abstract_length": 624,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2185657295"
+    },
+    {
+      "abstract_content_hash": "sha256:fdddfdb89c9295ba717b180eef702b6ff978a412a53e7aae36a16cca75915c58",
+      "abstract_length": 1076,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2787133282"
+    },
+    {
+      "abstract_content_hash": "sha256:890db817cd15a5bf1d21984ee0b1335b3806e0bfce77429be3e63d8d26c717ba",
+      "abstract_length": 2192,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3117059995"
+    },
+    {
+      "abstract_content_hash": "sha256:bf4d7dd892bc5d4ca880f3757fe888c40acfff3babaf958755acab942886c8ca",
+      "abstract_length": 818,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1525620590"
+    },
+    {
+      "abstract_content_hash": "sha256:0d7006d1eb5abdf6630efc9aa6a636b45e749d59761e4dea1659af1941da0c5a",
+      "abstract_length": 1263,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4386569019"
+    },
+    {
+      "abstract_content_hash": "sha256:f5fde11ac7dfc9c4adf104d7ca452ff5c94dfb7a05d1e93696a495fc44c5b7ee",
+      "abstract_length": 2400,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1489295663"
+    },
+    {
+      "abstract_content_hash": "sha256:661997e2860377c31169ef8ef1925c83babc292c5811a94ffa0971257f73bdb2",
+      "abstract_length": 771,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2242310931"
+    },
+    {
+      "abstract_content_hash": "sha256:390dd93dda7ba107032917ba3cdc2b48754f76287992219f5389c82c483cb6f2",
+      "abstract_length": 1167,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3123430537"
+    },
+    {
+      "abstract_content_hash": "sha256:8e9c84cfd7a66b7d7ccf21aec7d7246d3efbf69ed5b4061785dd6206792cadfc",
+      "abstract_length": 1715,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2969647806"
+    },
+    {
+      "abstract_content_hash": "sha256:089b90a74ab927db00b1768d3381e9c186e81942c41547f4866a4b79f2531cb6",
+      "abstract_length": 677,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3127519207"
+    },
+    {
+      "abstract_content_hash": "sha256:d514300055fef8888263bc32254c4cb4819b6316a80ecc1afe2da3f95a39e505",
+      "abstract_length": 932,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1498431798"
+    },
+    {
+      "abstract_content_hash": "sha256:420f7450713a5d7ebaaa04d65b4aa94220558e3acd0981ae1eca3385f0f724a3",
+      "abstract_length": 1996,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4409524942"
+    },
+    {
+      "abstract_content_hash": "sha256:0cedf44a65041f99500df0edbbdc47f040835ef7174e3448e40ec3493b2408ee",
+      "abstract_length": 688,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3118619447"
+    },
+    {
+      "abstract_content_hash": "sha256:450c9781355c8147fc065322e4beadf48a1df763a8aa94ee759a72f9dce18767",
+      "abstract_length": 1056,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3119912866"
+    },
+    {
+      "abstract_content_hash": "sha256:090a829892ea5e85090f6b4ab99396aff88af69e23e7aa0a034fa03c0bda0452",
+      "abstract_length": 1380,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3088774653"
+    },
+    {
+      "abstract_content_hash": "sha256:f3b421ca3f62f18997e27163f893b8ced1e90e5493cddd5e99233383875392b0",
+      "abstract_length": 201,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2265023267"
+    },
+    {
+      "abstract_content_hash": "sha256:853e08ea3e1f138a6188a0a8c86a413e6df4fca115d9941de5c18b77337484d5",
+      "abstract_length": 1056,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3194691687"
+    },
+    {
+      "abstract_content_hash": "sha256:e8ad783412eb9ed51375a869b9d303f06825fac4799a9ea37217ea8c4ac80948",
+      "abstract_length": 2018,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1802032614"
+    },
+    {
+      "abstract_content_hash": "sha256:e88253ab0ebf967d55b23e9ed502318369fd2047d1cf8b428a6798b3d8c7c529",
+      "abstract_length": 666,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2168538307"
+    },
+    {
+      "abstract_content_hash": "sha256:97bdb9ec9aa2f058fcb2227e6cf9a83b2e5e395b43fd765e0927c66153dfd51a",
+      "abstract_length": 1071,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4205970178"
+    },
+    {
+      "abstract_content_hash": "sha256:0e19d43eeebc2aa51ed89c0d0e1c3860d45b7503a47fdb198e3894faac825516",
+      "abstract_length": 1646,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1978393164"
+    },
+    {
+      "abstract_content_hash": "sha256:23e2a24925e45806a64127b3e6ab0d0876010aad4d7501139c8ec9eacb53e21b",
+      "abstract_length": 264,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2121507569"
+    },
+    {
+      "abstract_content_hash": "sha256:d13ed69c2397ff02076d7a88c4b171bdd6c53e6cf38c59ee73816c1bb6d1bbac",
+      "abstract_length": 1084,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2801235645"
+    },
+    {
+      "abstract_content_hash": "sha256:0104d8ac7877b79d82430993c7da93b83ac6fb8baf39e27f4d33e08b807cbe66",
+      "abstract_length": 1361,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2128296262"
+    },
+    {
+      "abstract_content_hash": "sha256:7907ffbd481c4c9bfaf7991d160e8eda75ebf107ee12263d1f1af5f0e5457d61",
+      "abstract_length": 680,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4410897227"
+    },
+    {
+      "abstract_content_hash": "sha256:8c93bca894a6933a27ac1e3f81e69cd2ccfbefd1ef6e88599dc70d72bdd66507",
+      "abstract_length": 1252,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4307263058"
+    },
+    {
+      "abstract_content_hash": "sha256:b6f782963ba150b45d90223b6314309f8608e6036f4b12b55103e3676b58f335",
+      "abstract_length": 1890,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4319031873"
+    },
+    {
+      "abstract_content_hash": "sha256:8331bb5c71b79bc36853e6f84f7812ea625b4cd1333ceca46cc179a602054bf0",
+      "abstract_length": 585,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3123979795"
+    },
+    {
+      "abstract_content_hash": "sha256:e295d3feb3d49a58432980c59763491b8d88c546b63f475017a3cae8f4f01c8e",
+      "abstract_length": 1147,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4408307519"
+    },
+    {
+      "abstract_content_hash": "sha256:62174c57431b7fefacd72e5f586aee256ff66c7d876ac3c2103f5efa8c3a131a",
+      "abstract_length": 1742,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2940855133"
+    },
+    {
+      "abstract_content_hash": "sha256:99fda527d8f9aff8866f19e1f11c751cb6df0b58b44da50c2b7d8cab1579b854",
+      "abstract_length": 745,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3136031369"
+    },
+    {
+      "abstract_content_hash": "sha256:432b836bc932c5f18208327e502e3e263dc2299aa29ea3b52c46ae1198d311ae",
+      "abstract_length": 1012,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2918100557"
+    },
+    {
+      "abstract_content_hash": "sha256:eb1356cc6618535aee90943d295a41b055fb89b31937bfc75964a7207f9d9da8",
+      "abstract_length": 1863,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2966228676"
+    },
+    {
+      "abstract_content_hash": "sha256:3b6a128f739b224639b39af20807e9b673c164d1cbb77e260fe0d4d4a78a2c80",
+      "abstract_length": 883,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2023965767"
+    },
+    {
+      "abstract_content_hash": "sha256:bf63d1062c27120e2a0fe1f36ef59c311f1ae6ab9351b134ba56dddb2dd677ea",
+      "abstract_length": 1274,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4394939074"
+    },
+    {
+      "abstract_content_hash": "sha256:4190d62cb79c01ee9dd6d1f2f7f2691a4cdbb98c7b96b30828c20703b1b95424",
+      "abstract_length": 2667,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3118886345"
+    },
+    {
+      "abstract_content_hash": "sha256:d247a5bd8dfa1bb0b59e1a50053cc02d4faf056741771a074b8046a8ab79a154",
+      "abstract_length": 115,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2003092227"
+    },
+    {
+      "abstract_content_hash": "sha256:d2df9d8b48c561854aca4550e7cc6a94dd91450fd71e9e0c42c1bc3d397a85ed",
+      "abstract_length": 933,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1502354414"
+    },
+    {
+      "abstract_content_hash": "sha256:c366bdadb689f1ec194ba1265c2fde3e9375095357a51c028d94c050dfcb86d3",
+      "abstract_length": 1789,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2119173078"
+    },
+    {
+      "abstract_content_hash": "sha256:738def393bac37900e6f47356c843dc5ca24e7ef2842423bc0fb094696bbcc56",
+      "abstract_length": 632,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1987003658"
+    },
+    {
+      "abstract_content_hash": "sha256:e3a7ce1a7542bd4ef3a64b3db025f3ef542eef9c0c64087ca9b3369b009d24e1",
+      "abstract_length": 1164,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2921753550"
+    },
+    {
+      "abstract_content_hash": "sha256:ce62717f2f26bc3135cc27d2c7f2470b5565d3d390ea697678616554fac5e973",
+      "abstract_length": 1997,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4213300912"
+    },
+    {
+      "abstract_content_hash": "sha256:7a1f2f3c957ab5f75cb30c8d9e0b107cc53784e541d8fbe772c3ef194e1b0496",
+      "abstract_length": 162,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4405977783"
+    },
+    {
+      "abstract_content_hash": "sha256:5da3ee70f27819c5691f3b44f283eb6f88d2adb74ac1657c1daa9b8fb205b2e0",
+      "abstract_length": 1091,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2096675920"
+    },
+    {
+      "abstract_content_hash": "sha256:d2e4c07aad86305721048a0cd696e5fb984096b0114d95624f8bd0c17072dc2b",
+      "abstract_length": 1565,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4315701568"
+    },
+    {
+      "abstract_content_hash": "sha256:461e38c4620355207c2a5e867a94112be622d9698c41d3dfc9831662ad872d17",
+      "abstract_length": 718,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2139437542"
+    },
+    {
+      "abstract_content_hash": "sha256:bb38297a1bdbf59b33ee527f185f045b0083b361859f05ac5e15202c5ef31a06",
+      "abstract_length": 1333,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2102770351"
+    },
+    {
+      "abstract_content_hash": "sha256:1e614a318167789faf3cbd79c87aca074b0f12a7c17374f3588d7edc3daa5f6f",
+      "abstract_length": 1363,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2884622465"
+    },
+    {
+      "abstract_content_hash": "sha256:332162d7767b5af155d77832d7ab1672b2a3e9c3ba5e7605e8ddf136ae686405",
+      "abstract_length": 351,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4386208602"
+    },
+    {
+      "abstract_content_hash": "sha256:876daf2470c12fd72db4f214b2ec80f7091e3ae1f3bbfdf9716516c1e54c60a8",
+      "abstract_length": 1283,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2784256815"
+    },
+    {
+      "abstract_content_hash": "sha256:a883e690af89a8fd91fd0caf689b51c8707a8b1d1d3c87e1b6534cef763ff844",
+      "abstract_length": 1727,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1570935459"
+    },
+    {
+      "abstract_content_hash": "sha256:14c7548ec0d136bbc4e20c736811643def03908fcc648544ecbff16b5c78079b",
+      "abstract_length": 665,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3002884007"
+    },
+    {
+      "abstract_content_hash": "sha256:4136562155771bf77290e91010ac43e30ed6e43404c6c0418e2c17827d907cdd",
+      "abstract_length": 1327,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4413060397"
+    },
+    {
+      "abstract_content_hash": "sha256:bf0d26811b6a09b417cb681a762812cdc30310ef0f0120cc190f376d2f167473",
+      "abstract_length": 3799,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2032675776"
+    },
+    {
+      "abstract_content_hash": "sha256:4f3c299e8542eebae498da32dff485c545fbf9e6e5d888e461eb94300d90d2fc",
+      "abstract_length": 841,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2081271947"
+    },
+    {
+      "abstract_content_hash": "sha256:935eccd7338ad573c8d5a21005b16301484dca9a291d6becee60dd3b4a131e24",
+      "abstract_length": 934,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3122924405"
+    },
+    {
+      "abstract_content_hash": "sha256:8fba9e61e71e49abcc640dc87b7c7e993c835703502d532d275614b6aa399151",
+      "abstract_length": 2342,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3083767862"
+    },
+    {
+      "abstract_content_hash": "sha256:4fc268a353dfbbd97704af3e50ced28cb6bd7b9d2162678d612974d8ebd72038",
+      "abstract_length": 805,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2084588346"
+    },
+    {
+      "abstract_content_hash": "sha256:d3dced3151af858a1d06eac031e6dcaf358adb72bd4f8eea1acb0b7ec365402a",
+      "abstract_length": 971,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2062949001"
+    },
+    {
+      "abstract_content_hash": "sha256:ef84074283bff0c07527f8443a91163f611823c27fe1950f95c8db5f575fb82b",
+      "abstract_length": 1597,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3036096597"
+    },
+    {
+      "abstract_content_hash": "sha256:50184ac5f3ba28434e7c56e6f3c8f13ccfe041dbafe3185efdd2b21c87a70473",
+      "abstract_length": 857,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4409194483"
+    },
+    {
+      "abstract_content_hash": "sha256:c083f49045ba92cfd34944583eac61922c90c18047934aee6a9e5fed6ad09b5d",
+      "abstract_length": 1308,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3157627614"
+    },
+    {
+      "abstract_content_hash": "sha256:bcd6e9f77138249d878d7e8c79619c4f876fb8cfa241447509908794321378b5",
+      "abstract_length": 1453,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2060715566"
+    },
+    {
+      "abstract_content_hash": "sha256:b6b411baac20b2e3e929b1263066863fca96d5c433ae559fa6ed9aef4bed4628",
+      "abstract_length": 814,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2127884743"
+    },
+    {
+      "abstract_content_hash": "sha256:956dfc17d62ea709e022dbaa211cf4a59d31a0a3dcc50474fd60c056cbd9650b",
+      "abstract_length": 1342,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1593719938"
+    },
+    {
+      "abstract_content_hash": "sha256:5622da2a810e59afed99089ce4913f395c87d915631bb534426a50cbeb96a6b6",
+      "abstract_length": 1400,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3199119789"
+    },
+    {
+      "abstract_content_hash": "sha256:5cec7b6ac4b5d486938d11007327ddbe65b7f07bbb19be7cab01c67537fb2e72",
+      "abstract_length": 32,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2912654919"
+    },
+    {
+      "abstract_content_hash": "sha256:d2d2868347c9d99eb20e1fce87ec56c07662d4693827531f500a47047a64f31e",
+      "abstract_length": 1111,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2963621840"
+    },
+    {
+      "abstract_content_hash": "sha256:95c9f26c5614c6c7302ab7ba7e6186c17b08b1b7064ab3a39f3108579f11b92b",
+      "abstract_length": 1559,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3086683522"
+    },
+    {
+      "abstract_content_hash": "sha256:1de6a016e94d0499fd99b493342fbc6283c7cdf73ff18db0ebc3ddb459d00596",
+      "abstract_length": 354,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2895166894"
+    },
+    {
+      "abstract_content_hash": "sha256:f2ae436c824b398c81577f8927f6852b0b55517797d04386758870523aa8e0da",
+      "abstract_length": 1144,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1972574304"
+    },
+    {
+      "abstract_content_hash": "sha256:7a291fa3244ca7a7be9e16986faef401d49d7463da739aca4bb9d60301c71ef4",
+      "abstract_length": 1450,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2330523035"
+    },
+    {
+      "abstract_content_hash": "sha256:875dd23b7f0f8be1e6f36290a3098844f86f1d3f94b878056208cc7a6583c227",
+      "abstract_length": 403,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2096318148"
+    },
+    {
+      "abstract_content_hash": "sha256:6344068c0eaac76fb1d54e90c0412f0d119914e048d8e56ae52132ecbed8234b",
+      "abstract_length": 907,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2009339535"
+    },
+    {
+      "abstract_content_hash": "sha256:8f9f50b220b708f85203a1609d524cd2cf1ad3ce78017b2afd1e42b018ff2426",
+      "abstract_length": 5197,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2901722213"
+    },
+    {
+      "abstract_content_hash": "sha256:db9a7e27983b246df2e599db285d715458f48d2b6f68b3554350b5196a95abbc",
+      "abstract_length": 829,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1861714967"
+    },
+    {
+      "abstract_content_hash": "sha256:cacfa42fc9d9b8ae97bb52827aab7cabaade273e6582ce89bedf6ebc71f8ba71",
+      "abstract_length": 1326,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1526626803"
+    },
+    {
+      "abstract_content_hash": "sha256:92ac29f0fc58d9b22b3cbac797e44138890db72eca06fa1d335be351f6babb33",
+      "abstract_length": 1458,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4399487622"
+    },
+    {
+      "abstract_content_hash": "sha256:df5118583eb45e906c95cf21cd7610c85dad5857c099b2de69e0cb955b00eead",
+      "abstract_length": 678,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2071178202"
+    },
+    {
+      "abstract_content_hash": "sha256:b7b329920ef653b34a224f37331f7cd7ce90839c76f252e09705f06f11852f40",
+      "abstract_length": 919,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3021475380"
+    },
+    {
+      "abstract_content_hash": "sha256:2df4a3ae10d21edd6b6a78d1cbbc5cd5d23a42bd692f68ad9c9f3b7c92dfddb5",
+      "abstract_length": 2230,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4410014402"
+    },
+    {
+      "abstract_content_hash": "sha256:359f5ae9ce77474485a102531d1cf15783fec295fc18bbf8c11cbe2a5476e7c3",
+      "abstract_length": 779,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1980630858"
+    },
+    {
+      "abstract_content_hash": "sha256:e4271862492621356e8abce8ba7247b062ec857c6b7e018e047b31fd6bf91850",
+      "abstract_length": 1045,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2009212856"
+    },
+    {
+      "abstract_content_hash": "sha256:27159efe83a123f5eb8746d98f72c90c3d021c92f891a7a2cf21d6a1a87ad546",
+      "abstract_length": 2471,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4405119379"
+    },
+    {
+      "abstract_content_hash": "sha256:ad989481c2c1136204dba2f68ffd1d239bd533b4a30fb38c48f4ace6d7207587",
+      "abstract_length": 330,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W10641110"
+    },
+    {
+      "abstract_content_hash": "sha256:66d5f87bf05d7b8791daf9254ebfbf7ab237c70dd2177c4ef85d51cde9b77d07",
+      "abstract_length": 1229,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2999999368"
+    },
+    {
+      "abstract_content_hash": "sha256:41ce06ece66e7bdcdfdf12ea906fc4c757d7457cd9a93cb62c7c5677061d27ab",
+      "abstract_length": 1467,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2967061187"
+    },
+    {
+      "abstract_content_hash": "sha256:611a8cfba5d12a85149bb636c9de845740c087b8fbf6beeb5faeb4fde0543e06",
+      "abstract_length": 754,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4385751016"
+    },
+    {
+      "abstract_content_hash": "sha256:b43e6d654cc9e322d9237f7777a6666478754920728b3d0cbaa62a024eea4a19",
+      "abstract_length": 1132,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2975253554"
+    },
+    {
+      "abstract_content_hash": "sha256:c2089bf5aa690d0a856129b66c82ee9b57ae09c23de1d9217b7da3f6f73098d7",
+      "abstract_length": 1571,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4281740453"
+    },
+    {
+      "abstract_content_hash": "sha256:a2f3e46be673b43e924c79f6d4ef8f6403a840183dbb64e70d080bebedf4f63b",
+      "abstract_length": 866,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4213252529"
+    },
+    {
+      "abstract_content_hash": "sha256:7f5bec45e8223e1e58d4ad7dcbe9b7e43e90cd3ad19eedc44f19e84d737faf57",
+      "abstract_length": 1073,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3007265359"
+    },
+    {
+      "abstract_content_hash": "sha256:584e411d83e042ebd9a80f8003c9adb9edbc6338108a869e7a5cd2cbe7624f9a",
+      "abstract_length": 1630,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3012491997"
+    },
+    {
+      "abstract_content_hash": "sha256:921590fd8cc6b18baa67726390065807336ecc4c21703cb9912d2bf5bed9fe2c",
+      "abstract_length": 582,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2991271416"
+    },
+    {
+      "abstract_content_hash": "sha256:1454c28aaf2309c1bc49ad21a657bb4d0bf5ec445f85ec1d2c82a53415d24267",
+      "abstract_length": 1065,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1952211442"
+    },
+    {
+      "abstract_content_hash": "sha256:51e909363225fb1d67497a07e3e6ff8de06c6f2161d3b47102ec90fb5b507a2f",
+      "abstract_length": 1378,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2897403008"
+    },
+    {
+      "abstract_content_hash": "sha256:3b8a6ce29d3d548f130e569095ab6c41b5adda0ddcff00e50899dec912a6baa9",
+      "abstract_length": 871,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2139982741"
+    },
+    {
+      "abstract_content_hash": "sha256:f110e50b8fe4f5e0b8f65016bd52b804b9c8f0add53753256f52d9c4b05959a2",
+      "abstract_length": 1318,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W138062146"
+    },
+    {
+      "abstract_content_hash": "sha256:96d0905d27cd0f19cb67f01a5e8c5cb38cecb4e8d6b0245c0f3d2439a176f617",
+      "abstract_length": 1611,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2336000508"
+    },
+    {
+      "abstract_content_hash": "sha256:3875317a5e8f35f82c9cc1d3d991501bc2bd2b2f7dc5b157447f0aacf3d490b6",
+      "abstract_length": 798,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4214728822"
+    },
+    {
+      "abstract_content_hash": "sha256:b6630031668a05b4564a17899f1870cf6a2544da5c6478d2878d50db76ae493f",
+      "abstract_length": 1017,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3012239086"
+    },
+    {
+      "abstract_content_hash": "sha256:15146990e3bd61fcb7e0647776b22245af30c3ba8028ba85547e602fa96fd031",
+      "abstract_length": 1430,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W1982809111"
+    },
+    {
+      "abstract_content_hash": "sha256:f2d2f965ce93a78c59dc90fb4aedd0d82fa024174111e30f4e16663022a0fa3f",
+      "abstract_length": 773,
+      "stratum": 0,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2801523351"
+    },
+    {
+      "abstract_content_hash": "sha256:d9979679960ef2dbc88d665ed0e80d7bff2664cdd65c5e989e28aeedf128a7a2",
+      "abstract_length": 1340,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W4294044967"
+    },
+    {
+      "abstract_content_hash": "sha256:a63ef730c91ae2304dbe64638ef0fb5e33952b5d627048eabf6677dd02c64176",
+      "abstract_length": 1367,
+      "stratum": 2,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3174147300"
+    }
+  ],
+  "selection_rule": "original input-length terciles; exclude frozen six; lowest salted ID hashes; round-robin tiers",
+  "selection_salt": "corr-held-abstract-throughput.v1",
+  "selection_uses_outcomes": false,
+  "source_open_mode": "read_only",
+  "source_path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "source_table": "ac_works",
+  "strata": [
+    {
+      "member_count": 103570,
+      "member_identity_digest": "sha256:bf672000fd5974f15d4cd5dc21b2ae85b92f7b2e4d54db72af404698e183e0ad",
+      "stratum": 0
+    },
+    {
+      "member_count": 103570,
+      "member_identity_digest": "sha256:39c73374c4695f3e432f90ede4128f1212e04df719cc623c9ad88e0a7e556fe7",
+      "stratum": 1
+    },
+    {
+      "member_count": 103570,
+      "member_identity_digest": "sha256:1ec4dc7bb7cf5e9c439542d5585ac664b0147f0c0e9e88b46e68c7d8c3ab5675",
+      "stratum": 2
+    }
+  ],
+  "stratum_reconciliation": "equal_complete_python_and_sql_identity_sets",
+  "synthetic": false
+}

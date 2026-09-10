@@ -1,0 +1,49 @@
+{
+  "authority_granted": false,
+  "authority_status": "candidate_measurement",
+  "campaign_finished_monotonic_seconds": 572820.995767791,
+  "campaign_summary": {
+    "artifact_kind": "summary",
+    "attempts": {
+      "returned": 3000
+    },
+    "campaign_binding": "sha256:3fc6645b293005d7a9dc8b892d9ed706c5cfdf11bc06d3ee7d43e7b318034699",
+    "execution_status": "complete",
+    "fatal_stop_ref": null,
+    "graph_finalization": "not_started_separate_owner_stage",
+    "outcomes": {
+      "extracted": 1000
+    },
+    "queue_peak": 2,
+    "schema_version": "policyos.academic.extraction_campaign.v2",
+    "scope": "candidate_only",
+    "strangle_ref": {
+      "path": "strangles/02b6029445095a91f4252d981d2e4426cb49ab9e104819790900fdaf7686749d.json",
+      "sha256": "sha256:f907b01d44d56e58990c0c349069d39b9bd04f1544b0a5ee92b62c060c6a5a08"
+    },
+    "synthetic": true,
+    "unknown_usage_attempts": 0,
+    "works": {
+      "complete": 1000
+    }
+  },
+  "completed_work_count": 1000,
+  "declaration_hash": "sha256:c794e4957d37cb73de88696a8c42ae6cca90246086827055c7b1cc1c8b484dfe",
+  "end_reconciliation_seconds": 0.3258602919522673,
+  "execution_source_finish_comparison": "recomputed_equal",
+  "extracted_work_count": 1000,
+  "mock_http_attempt_count": 3000,
+  "mock_peak_active": 1,
+  "mock_phase_counts": {
+    "extraction": 1000,
+    "screening": 1000,
+    "self_verification": 1000
+  },
+  "mock_response_stream_hash": "sha256:a0dfcbdc2ff920343818aaf72e126009e47a500f7cb7f8267d8d7eba60bdf072",
+  "mock_schema_validity": "actual_typed_owner",
+  "provider_observation_count": 3000,
+  "provider_usage": "constructed_not_billable",
+  "retained_mock_payloads": 0,
+  "schema_version": "corr.synthetic_campaign_retention.v1.worker",
+  "synthetic": true
+}

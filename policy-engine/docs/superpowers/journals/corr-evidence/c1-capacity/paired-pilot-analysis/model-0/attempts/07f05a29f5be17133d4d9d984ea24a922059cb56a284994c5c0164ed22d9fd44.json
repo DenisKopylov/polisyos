@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:dbacb22c01c05b5a104e5ed9c13efb3a779ab2b50ed5b952c23715a3b46402d5",
+  "context": {
+    "attempt_id": "07f05a29f5be17133d4d9d984ea24a922059cb56a284994c5c0164ed22d9fd44",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:3b1d77b0025cbb41bc53c3a6a8789df2c837f8acf51eb9ff4b79f8a34d9996c4",
+    "prompt_hash": "sha256:c7abfbdcf3a8147cefced66817273b649886d4473a44e8e8789d15a4c903191d",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4399636837",
+    "work_key": "sha256:7941cde9c442f7b039dbc4b25074ca1c7c003fae1af304a8c5f33b7483511956"
+  },
+  "parsed": {
+    "reason": "Narrative review and documentary analysis of bioplastics definitions; no empirical policy effects or quantitative estimates.",
+    "relevance_score": 0.2,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 41,
+    "prompt_tokens": 804,
+    "total_tokens": 845
+  }
+}

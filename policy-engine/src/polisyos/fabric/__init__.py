@@ -47,6 +47,7 @@ __all__ = [
     "fabric_event_to_authored_text",
     "fabric_fact_to_quantity_value",
     "fabric_get_data",
+    "file_lock",
     "query_claims",
     "query_events",
     "query_world_table",
@@ -113,6 +114,7 @@ class _LazyReexportModule(ModuleType):
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "atomic_write_json": ("polisyos.fabric.io.atomic", "atomic_write_json"),
+    "file_lock": ("polisyos.fabric.io.atomic", "file_lock"),
     "AccessRef": ("polisyos.fabric.evidence.decision_data", "AccessRef"),
     "AuthoredText": ("polisyos.fabric.evidence.decision_data", "AuthoredText"),
     "FabricDecisionData": ("polisyos.fabric.evidence.decision_data", "FabricDecisionData"),

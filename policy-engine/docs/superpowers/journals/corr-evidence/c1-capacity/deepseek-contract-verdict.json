@@ -1,0 +1,48 @@
+{
+  "actual_attempts": 1,
+  "attempt_observation": {
+    "authority_status": "candidate_only",
+    "base_url": "https://api.proxy.gonka.gg/v1",
+    "context": {
+      "attempt_id": "contract-1",
+      "campaign_id": "sha256:4c31c02ea8424fb20b291cfcf7b35d1d7834cb6e8c1196d05048701942cc44ca",
+      "input_hash": "sha256:f65faaa6c442a4b42244f8e14e9f08c4d7461faa4dd8067231b6fd6edefafe43",
+      "phase": "extraction",
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3121515037"
+    },
+    "error_kind": null,
+    "estimator_elapsed_seconds": 0.3001867919228971,
+    "finish_reason": "stop",
+    "local_estimator": "injected_repository_estimator",
+    "local_prompt_token_estimate": 3401,
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "parsed_response_hash": "sha256:5926db74eeda2e415c16bbe8b2dace46505da79812f38982da76974d17bad6b1",
+    "prompt_hash": "sha256:f830bcdd63c6279f8e1a1fa440517ee6928e31a627344dc2b90d5f6099d91e74",
+    "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "response_content_hash": "sha256:27b0ca6458116b943d62ae4442f8dcd42d3902f9d97b9494559310b6ac60ea24",
+    "retryable": false,
+    "schema_version": "policyos.academic.extraction_attempt.v1",
+    "status": "returned",
+    "status_code": 200,
+    "synthetic": false,
+    "transport_elapsed_seconds": 76.63176991697401,
+    "usage": {
+      "completion_tokens": 1175,
+      "prompt_tokens": 3537,
+      "total_tokens": 4712
+    }
+  },
+  "authority_status": "candidate_only",
+  "contract_satisfied": true,
+  "declaration_hash": "sha256:4c31c02ea8424fb20b291cfcf7b35d1d7834cb6e8c1196d05048701942cc44ca",
+  "declared_attempts": 1,
+  "error_kind": null,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_artifact": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-contract-response.json",
+  "response_hash": "sha256:5926db74eeda2e415c16bbe8b2dace46505da79812f38982da76974d17bad6b1",
+  "synthetic": false,
+  "typed_result_hash": "sha256:6431271d57036f56b9593fdfcf53fb235d006f9ac7e27d1996cac5382b69f859",
+  "typed_schema_hash": "sha256:efcbbace8786a54ef8b1c0b49f8e317eb40d6f90e202d74191d2486f9a32fe7d",
+  "work_id": "https://openalex.org/W3121515037"
+}

@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.cg3_surface_census --emissions-only",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.cg3_surface_census",
+    "--emissions-only"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.18616162496618927,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "{\n  \"class_count\": 16,\n  \"crosscheck\": \"complete AST annotated fields vs independent whole-class lexical fields\",\n  \"denominator\": \"src/polisyos/runtime/quality/grounding_admission.py::all top-level classes\",\n  \"independent_return\": \"apply_registry_patch returns the content-addressed registry patch\",\n  \"independently_addressed_artifacts\": {\n    \"GroundingAdmissionCertificate\": [\n      \"certificate_id\"\n    ],\n    \"GroundingAdmissionLedger\": [\n      \"ledger_id\"\n    ],\n    \"GroundingLeverRegistryPatch\": [\n      \"patch_id\"\n    ]\n  },\n  \"nested_details\": \"non-addressed resolution details remain inside their marked certificate\",\n  \"source_sha256\": \"ab7ccfed588f830f0528881ff9969eb84b224103b69305376a35a3d67d245c80\",\n  \"status\": \"pass\"\n}\n",
+  "stderr": ""
+}

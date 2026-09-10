@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_staging"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.5115450830198824,
+  "returncode": 1,
+  "stderr": ".....E\n======================================================================\nERROR: test_usage_survives_row_flush_and_measures_committed_edits_only (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_usage_survives_row_flush_and_measures_committed_edits_only)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\", line 110, in test_usage_survives_row_flush_and_measures_committed_edits_only\n    usage = self.module.read_staging_usage(self.path)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'polisyos.data_forge.domains.academic.batch._graph_staging' has no attribute 'read_staging_usage'\n\n----------------------------------------------------------------------\nRan 6 tests in 2.081s\n\nFAILED (errors=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

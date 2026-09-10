@@ -1,0 +1,23 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/data_forge/domains/academic/batch/reextraction_transport.py",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_transport.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/contract_probe.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/test_contract_probe.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.18769099994096905,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "ANN202 Missing return type annotation for private function `chat`\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/test_contract_probe.py:15:19\n   |\n14 |     class SyntheticClient:\n15 |         async def chat(self, **kwargs):\n   |                   ^^^^\n16 |             return {}, {}\n   |\nhelp: Add return type annotation\n\nANN003 Missing type annotation for `**kwargs`\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/test_contract_probe.py:15:30\n   |\n14 |     class SyntheticClient:\n15 |         async def chat(self, **kwargs):\n   |                              ^^^^^^^^\n16 |             return {}, {}\n   |\n\nANN202 Missing return type annotation for private function `chat`\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/test_contract_probe.py:30:19\n   |\n29 |     class SyntheticClient:\n30 |         async def chat(self, **kwargs):\n   |                   ^^^^\n31 |             return {\"causal_claims\": []}, {}\n   |\nhelp: Add return type annotation\n\nANN003 Missing type annotation for `**kwargs`\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/test_contract_probe.py:30:30\n   |\n29 |     class SyntheticClient:\n30 |         async def chat(self, **kwargs):\n   |                              ^^^^^^^^\n31 |             return {\"causal_claims\": []}, {}\n   |\n\nS101 Use of `assert` detected\n  --> docs/superpowers/journals/corr-evidence/c1-capacity/test_contract_probe.py:34:5\n   |\n33 |     client = probe._ObservedClient(SyntheticClient())\n34 |     assert await client.chat(model=\"synthetic\", temperature=0.0, prompt=\"synthetic\") == (\n   |     ^^^^^^\n35 |         {\"causal_claims\": []}, {},\n36 |     )\n   |\n\nPT012 `pytest.raises()` block should contain a single simple statement\n   --> tests/unit/data_forge/domains/academic/batch/test_reextraction_transport.py:159:9\n    |\n157 |           http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),\n158 |       ) as transport:\n159 | /         with pytest.raises(owner.ExtractionRequestError, match=\"unsafe_response_refused\"):\n160 | |             await transport.bind({\"attempt_id\": \"encoded-echo\"}).chat(\n161 | |                 model=\"MiniMaxAI/MiniMax-M2.7\", temperature=0.0, prompt=\"Return JSON\",\n162 | |             )\n163 | |             owner_received = True\n    | |_________________________________^\n164 |       assert not owner_received\n165 |       output = capsys.readouterr()\n    |\n\nFound 6 errors.\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

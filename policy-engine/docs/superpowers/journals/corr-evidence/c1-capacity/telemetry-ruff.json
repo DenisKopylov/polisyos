@@ -1,0 +1,10 @@
+{
+  "synthetic": true,
+  "scope": "instrumentation_only",
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/corr-evidence/c1-capacity/process_telemetry.py docs/superpowers/journals/corr-evidence/c1-capacity/test_process_telemetry.py docs/superpowers/journals/corr-evidence/c1-capacity/telemetry_fixture.py docs/superpowers/journals/corr-evidence/c1-capacity/telemetry_verification.py",
+  "chunk_id": "225039",
+  "wall_time_seconds": 0.648110584,
+  "exit_code": 0,
+  "original_token_count": 5,
+  "output": "All checks passed!\n"
+}

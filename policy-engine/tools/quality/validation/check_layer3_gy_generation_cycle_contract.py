@@ -19,6 +19,7 @@ TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
 import argparse
 import asyncio
 import copy
+import hashlib
 import json
 import sys
 import time
@@ -95,6 +96,28 @@ _COMPARISON_IDENTITY_FIELDS = {
     "comparison_projection_schema_version",
     "comparison_rule_version",
 }
+
+# One report-only transition measured by the actual owners before admission:
+# docs/superpowers/journals/corr-evidence/c/c2-n6-reissue-ancestry-binding.json.
+# These bind complete projections, not a field allowlist or a semantic migration.
+_SOURCE_REISSUE_HISTORICAL_BYTES_HASH = (
+    "sha256:2e931ccfcd07141178eb622ec03348a7db3d1f437cc396b5f909eba41ae7136a"
+)
+_SOURCE_REISSUE_HISTORICAL_CONTRACT_HASH = (
+    "sha256:63578d18c4091dacc3f1c8ed8597b4a5359dcdd45079c5b0d78c511359c4b3fd"
+)
+_SOURCE_REISSUE_HISTORICAL_COMPARISON_HASH = (
+    "sha256:bc1357e25c771b42d82c42e2a88f49247bfc5fc9367cbec7c9d291d9b0d74f34"
+)
+_SOURCE_REISSUE_HISTORICAL_PROJECTION_HASH = (
+    "sha256:8d2acb427f7c6f35bd4594fd5be5214371352069ca5fee867c0a513e1e4cfd9e"
+)
+_SOURCE_REISSUE_CURRENT_COMPARISON_HASH = (
+    "sha256:8538a5321f16525f4460361d94c45e199b792d4309a46aa7b4c71065011e1c94"
+)
+_SOURCE_REISSUE_CURRENT_PROJECTION_HASH = (
+    "sha256:10bc7f5de2a466b1993cbc11743096738c7bec854e246fb88c7ddb8f3cb4d5f1"
+)
 
 _EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "revision_not_terminal_driven",
@@ -320,10 +343,15 @@ async def _build_live_payload_in_verification_namespace(
     )
     payload: dict[str, Any] = {
         "schema_version": GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION,
+        "synthetic": run.synthetic,
         "contract_id": "policyos.runtime.generation_cycle_controller",
         "producer": "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
         "source_modules": [
             "src/polisyos/runtime/quality/generation_cycle.py",
+            "src/polisyos/runtime/quality/generation_source.py",
+            "src/polisyos/runtime/quality/grounding_risk.py",
+            "src/polisyos/runtime/quality/confidence_ledger.py",
+            "src/polisyos/runtime/quality/promotion_sequence.py",
             "src/polisyos/scientist/orchestration/workflows/engine_simple.py",
             "src/polisyos/runtime/quality/design_generation.py",
             "src/polisyos/runtime/quality/joint_simulation_horizon.py",
@@ -366,8 +394,8 @@ async def _build_live_payload_in_verification_namespace(
         "compute_economics": {
             "lane": "Lane-0",
             "engine_set_reuse": "one_controller_engine_set_reused_across_cycles",
-            "owner_io": "zero",
-            "non_cached_run_visibility": "rederive_audit_only",
+            "owner_io": "temporary_ledger_cas_and_candidate_custody_directories",
+            "non_cached_run_visibility": "writer_and_check_rederive_from_live_owners",
         },
     }
     payload["fail_closed_probes"] = _fail_closed_reports(payload)
@@ -750,9 +778,12 @@ def _validate_committed_contract_text(
                 comparison_plan=context.comparison_plan,
             )
         except ValueError as exc:
-            if str(exc) != "generation_cycle_comparison_admission_manifest_drift":
+            if str(exc) not in {
+                "generation_cycle_comparison_admission_manifest_drift",
+                "generation_cycle_governed_reissue_refused",
+            }:
                 raise
-            issues.append({"code": "generation_cycle_comparison_admission_manifest_drift"})
+            issues.append({"code": str(exc)})
             expected_text = None
     if expected_text is not None and committed_text.encode("utf-8") != expected_text.encode(
         "utf-8"
@@ -1147,6 +1178,27 @@ def _comparison_content_hash(
     )
 
 
+def _reissue_projection_hash(
+    payload: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> str:
+    """Bind the complete admitted report projection and comparison rule identity."""
+
+    stable = {
+        key: value
+        for key, value in payload.items()
+        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+    }
+    return gy_content_hash(
+        {
+            "comparison_projection_schema_version": payload["comparison_projection_schema_version"],
+            "comparison_rule_version": payload["comparison_rule_version"],
+            "comparison_admission_manifest": plan.manifest,
+            "projected_report": plan.project(stable),
+        }
+    )
+
+
 def _reconcile_frozen_contract(
     repo_root: Path,
     live: dict[str, Any],
@@ -1155,9 +1207,16 @@ def _reconcile_frozen_contract(
     path = repo_root / OUTPUT_PATH
     if not path.is_file():
         return live
-    frozen = json.loads(path.read_text(encoding="utf-8"))
+    historical_bytes = path.read_bytes()
+    frozen = json.loads(historical_bytes)
     if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
         raise ValueError("generation_cycle_legacy_contract_content_hash_drift")
+    if frozen.get("schema_version") != live.get("schema_version"):
+        if not _is_authorized_controller_source_reissue(historical_bytes, frozen, live, plan):
+            raise ValueError("generation_cycle_governed_reissue_refused")
+        # Fresh current owner output has already passed real receipt admission in
+        # _build_live_payload_in_verification_namespace. Never restamp old records.
+        return live
     if not _frozen_comparison_identity_admissible(frozen, plan):
         raise ValueError("generation_cycle_comparison_admission_manifest_drift")
     identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
@@ -1169,6 +1228,53 @@ def _reconcile_frozen_contract(
     _set_comparison_identity(reconciled, plan)
     reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
     return reconciled
+
+
+def _is_authorized_controller_source_reissue(
+    historical_bytes: bytes,
+    frozen: dict[str, Any],
+    live: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Admit only the run-measured complete historical/current report transition."""
+
+    try:
+        if (
+            "sha256:" + hashlib.sha256(historical_bytes).hexdigest()
+            != _SOURCE_REISSUE_HISTORICAL_BYTES_HASH
+            or json.loads(historical_bytes) != frozen
+            or frozen["schema_version"]
+            != "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v1"
+            or live["schema_version"] != GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION
+            or frozen["contract_content_hash"] != _SOURCE_REISSUE_HISTORICAL_CONTRACT_HASH
+            or frozen["contract_content_hash"] != _contract_content_hash(frozen)
+            or frozen["comparison_content_hash"] != _SOURCE_REISSUE_HISTORICAL_COMPARISON_HASH
+            or live["comparison_admission_manifest"] != plan.manifest
+            or live["comparison_content_hash"] != _SOURCE_REISSUE_CURRENT_COMPARISON_HASH
+            or live["comparison_content_hash"] != _comparison_content_hash(live, plan)
+            or validate_payload(live)["status"] != "pass"
+        ):
+            return False
+        historical_run = GenerationCycleRun.model_validate(frozen["generation_cycle_run"])
+        current_run = GenerationCycleRun.model_validate(live["generation_cycle_run"])
+        if (
+            historical_run.schema_version != "policyos.runtime.generation_cycle_controller.v1"
+            or current_run.schema_version != "policyos.runtime.generation_cycle_controller.v2"
+        ):
+            return False
+        old_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=frozen["comparison_admission_manifest"],
+            owner_rule_registry=canonical_promotion_verification_comparison_owner_rule_registry(),
+        )
+        return (
+            frozen["comparison_content_hash"] == _comparison_content_hash(frozen, old_plan)
+            and _reissue_projection_hash(frozen, old_plan)
+            == _SOURCE_REISSUE_HISTORICAL_PROJECTION_HASH
+            and _reissue_projection_hash(live, plan) == _SOURCE_REISSUE_CURRENT_PROJECTION_HASH
+        )
+    except (KeyError, TypeError, ValueError):
+        return False
 
 
 def _frozen_comparison_identity_admissible(

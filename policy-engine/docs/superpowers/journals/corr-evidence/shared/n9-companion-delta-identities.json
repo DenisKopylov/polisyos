@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest docs/superpowers/journals/corr-evidence/shared/n9-companion-delta-green.json --compact",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest",
+    "docs/superpowers/journals/corr-evidence/shared/n9-companion-delta-green.json",
+    "--compact"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 48.03236458299216,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "{\n  \"denominator\": \"complete actual pytest collection versus complete executed JUnit testcase set\",\n  \"collection_returncode\": 0,\n  \"execution_returncode\": 0,\n  \"missing_executions\": [],\n  \"unexpected_executions\": [],\n  \"ambiguous_or_unresolved\": [],\n  \"duplicate_collection\": false,\n  \"duplicate_execution\": false,\n  \"nonpassing_executions\": [],\n  \"collected_count\": 3,\n  \"executed_count\": 3,\n  \"collected_identity_hash\": \"fa929c9b3b8558a6830d994d0f1c9b075fb19c8ea162b355741fe1ccd27d7d2e\",\n  \"executed_identity_hash\": \"fa929c9b3b8558a6830d994d0f1c9b075fb19c8ea162b355741fe1ccd27d7d2e\",\n  \"duplicate_collection_identities\": {},\n  \"duplicate_execution_identities\": {}\n}\n",
+  "stderr": ""
+}

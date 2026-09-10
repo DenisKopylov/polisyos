@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check tools/quality/validation/check_grounding_bind_contract.py tools/quality/validation/check_grounding_refusal_sensitivity.py docs/superpowers/journals/corr-evidence/a/replicate_world_input.py docs/superpowers/journals/corr-evidence/a/removal.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tools/quality/validation/check_grounding_bind_contract.py",
+    "tools/quality/validation/check_grounding_refusal_sensitivity.py",
+    "docs/superpowers/journals/corr-evidence/a/replicate_world_input.py",
+    "docs/superpowers/journals/corr-evidence/a/removal.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.06783175002783537,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "T201 `print` found\n  --> docs/superpowers/journals/corr-evidence/a/replicate_world_input.py:37:5\n   |\n35 |     if record.content_hash != args.record_hash:\n36 |         raise ValueError(\"pinned_world_record_hash_mismatch\")\n37 |     print(\n   |     ^^^^^\n38 |         json.dumps(\n39 |             {\n   |\nhelp: Remove `print`\n\nFound 1 error.\nNo fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).\n",
+  "stderr": ""
+}

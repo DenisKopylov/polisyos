@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.b.calibration_core_facade --expected-schema-hash 8604a7efb7c724ee5b970b9f6e1b5f2d245876d718a6eb9a63d9954140c3097d",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.b.calibration_core_facade",
+    "--expected-schema-hash",
+    "8604a7efb7c724ee5b970b9f6e1b5f2d245876d718a6eb9a63d9954140c3097d"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 35.47316341602709,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "{\n  \"scope\": \"Actual complete deep-import owner collection, filtered to the assigned source module\",\n  \"owned_deep_import_findings\": [],\n  \"reference_is_existing_core_class\": true,\n  \"proof_input_schema_hash\": \"8604a7efb7c724ee5b970b9f6e1b5f2d245876d718a6eb9a63d9954140c3097d\",\n  \"expected_schema_hash\": \"8604a7efb7c724ee5b970b9f6e1b5f2d245876d718a6eb9a63d9954140c3097d\",\n  \"schema_unchanged\": true\n}\n",
+  "stderr": ""
+}

@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/foundry/validation/legal_correspondence.py src/polisyos/runtime/quality/intervention_substrate.py tests/unit/foundry/validation/test_legal_correspondence.py tests/unit/runtime/quality/test_intervention_substrate.py tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/foundry/validation/legal_correspondence.py",
+    "src/polisyos/runtime/quality/intervention_substrate.py",
+    "tests/unit/foundry/validation/test_legal_correspondence.py",
+    "tests/unit/runtime/quality/test_intervention_substrate.py",
+    "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.0749452079180628,
+  "stdout": "E501 Line too long (102 > 100)\n    --> src/polisyos/runtime/quality/intervention_substrate.py:1459:101\n     |\n1457 |                 \"status\": \"not_established\",\n1458 |                 \"capability\": \"producer_missing\",\n1459 |                 \"reason\": (\"Synthetic source-relative recognition is implemented; real legal-subject \"\n     |                                                                                                     ^^\n1460 |                            \"authority remains CORR-B1 and is not established by it.\"),\n1461 |             }\n     |\n\nFound 1 error.\n",
+  "stderr": ""
+}

@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_grounding_refusal_sensitivity --declare --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_refusal_sensitivity",
+    "--declare",
+    "--world-cas",
+    ".tmp/gy-s-composed-wmr-cas",
+    "--world-ref",
+    "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+    "--declarations",
+    "architecture/policy_design_case/corr/grounding-2026-09-08"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 122.35319629102014,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tools/quality/validation/check_grounding_refusal_sensitivity.py\", line 92, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tools/quality/validation/check_grounding_refusal_sensitivity.py\", line 41, in main\n    inputs, sources = build_owner_frame_inputs(root, world, domain=world.policy_domain)\n                      ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/runtime/quality/grounding_calibration.py\", line 259, in build_owner_frame_inputs\n    pairs = json.loads(path.read_bytes(), object_pairs_hook=lambda pairs: pairs)\n                       ~~~~~~~~~~~~~~~^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py\", line 782, in read_bytes\n    with self.open(mode='rb', buffering=0) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py\", line 776, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/repo:/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json'\n"
+}

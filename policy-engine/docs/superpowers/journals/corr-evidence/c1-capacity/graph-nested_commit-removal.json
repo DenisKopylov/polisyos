@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_capacity_removal",
+    "nested_commit"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.8978962090332061,
+  "returncode": 1,
+  "stderr": "test_nested_edit_survives_reopen_and_exception_rolls_back (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_nested_edit_survives_reopen_and_exception_rolls_back) ... ERROR\n\n======================================================================\nERROR: test_nested_edit_survives_reopen_and_exception_rolls_back (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_nested_edit_survives_reopen_and_exception_rolls_back)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\", line 47, in test_nested_edit_survives_reopen_and_exception_rolls_back\n    payload[\"refs\"].add(\"uncommitted\")\n    ~~~~~~~^^^^^^^^\nKeyError: 'refs'\n\n----------------------------------------------------------------------\nRan 1 test in 0.009s\n\nFAILED (errors=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

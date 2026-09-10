@@ -1,0 +1,16 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": "corepack pnpm install --frozen-lockfile",
+  "argv": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile"
+  ],
+  "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 6.347711083944887,
+  "stdout": "Scope: all 6 workspace projects\nLockfile is up to date, resolution step is skipped\nProgress: resolved 1, reused 0, downloaded 0, added 0\nPackages: +1215\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\nProgress: resolved 1215, reused 1213, downloaded 0, added 53\nProgress: resolved 1215, reused 1213, downloaded 0, added 266\nProgress: resolved 1215, reused 1213, downloaded 0, added 556\nProgress: resolved 1215, reused 1213, downloaded 0, added 884\nProgress: resolved 1215, reused 1213, downloaded 0, added 1212\nProgress: resolved 1215, reused 1213, downloaded 0, added 1215, done\n\napps/runtime-dashboard prepare$ node ../../tools/devx/install_repo_hooks.mjs\napps/runtime-dashboard prepare: Done\n╭ Warning ─────────────────────────────────────────────────────────────────────╮\n│                                                                              │\n│   Ignored build scripts: @sentry/cli@2.58.5, esbuild@0.25.12,                │\n│   esbuild@0.27.7, lefthook@2.1.6, msw@2.14.2, unrs-resolver@1.11.1.          │\n│   Run \"pnpm approve-builds\" to pick which dependencies should be allowed     │\n│   to run scripts.                                                            │\n│                                                                              │\n╰──────────────────────────────────────────────────────────────────────────────╯\nDone in 6.2s using pnpm v10.33.2\n",
+  "stderr": ""
+}

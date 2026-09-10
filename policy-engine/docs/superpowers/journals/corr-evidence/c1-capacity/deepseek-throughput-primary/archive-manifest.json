@@ -1,0 +1,207 @@
+{
+  "authority_granted": false,
+  "authority_status": "candidate_measurement",
+  "corrected_interpretation": "separate v2 artifact; original reports preserved byte-identically",
+  "declaration_hash": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+  "declaration_path": "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-throughput-declaration.json",
+  "excluded_rebuildable_files": [
+    {
+      "path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/checkpoint.sqlite-shm",
+      "reason": "rebuildable SQLite shared-memory index"
+    }
+  ],
+  "full_pass_executed": false,
+  "level_denominators": [
+    {
+      "concurrency": 1,
+      "outcome_count": 12,
+      "profile_sample_count": 529,
+      "provider_observation_count": 12,
+      "terminal_count": 12,
+      "work_count": 12
+    }
+  ],
+  "primary_files": [
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1-report.json",
+      "bytes": 4176,
+      "sha256": "sha256:9dd334d05f08cf90b6cc1f66f02c973c8ea8d5d5166c5815f33244f0b7695c0b",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1-report.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/checkpoint.sqlite",
+      "bytes": 4096,
+      "sha256": "sha256:f1c1d714b195aa1795c50ed2db1795613d868a07340cbf0b1a563384fdfebdcf",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/checkpoint.sqlite"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/checkpoint.sqlite-wal",
+      "bytes": 127752,
+      "sha256": "sha256:35b98b298bbd91a1a468ed3406fc30333ccc3606fbfa1db230c91f98cfd22e15",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/checkpoint.sqlite-wal"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/000.json",
+      "bytes": 1981,
+      "sha256": "sha256:0ad4606043d71b39baf4d2905106e3517b66d5abed7941ca4ae68e6819ce2f67",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/000.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/001.json",
+      "bytes": 919,
+      "sha256": "sha256:fd463da719c709ce4ae2b0b1bd5df9af2db8161e1a8d7bbc1bfe458aa73ddc83",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/001.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/002.json",
+      "bytes": 919,
+      "sha256": "sha256:7cbe63fba4760d6dc7c41f56428877038f84f6e2399d38bc9799fc4286d8553c",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/002.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/003.json",
+      "bytes": 919,
+      "sha256": "sha256:8882dabf2dfbab02059cd508c8207795529306cf798e0235c96375f2c82f6e33",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/003.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/004.json",
+      "bytes": 919,
+      "sha256": "sha256:477e6d8521a97969dd26d53b9a1d51f23cdbd1517a397fd132c567e653445baf",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/004.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/005.json",
+      "bytes": 4277,
+      "sha256": "sha256:501a998c4b63b95cea21bb6235c518f5236e78f44710c546e115a5cbb73c0d4e",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/005.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/006.json",
+      "bytes": 11611,
+      "sha256": "sha256:4c22bded7df41beecad7fb1f43f5a916ee921ae2369d5c3938775cd127c3c284",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/006.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/007.json",
+      "bytes": 919,
+      "sha256": "sha256:970b070e1535b9ccd146c9f17e4bf65fd86b068c6b07f5f74a7edebea7b8324e",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/007.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/008.json",
+      "bytes": 919,
+      "sha256": "sha256:3a39c0154989cfefdcced143b20891e1b2ef556bba7e25dd64f993695bc91bed",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/008.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/009.json",
+      "bytes": 919,
+      "sha256": "sha256:3c9aedac8b50edc4cc72f4bc5046db46955fb35f6c1893684ad6d0337bc41e5f",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/009.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/010.json",
+      "bytes": 919,
+      "sha256": "sha256:1062a3a145a9bedd9d788fbc423005248d6cb0f33054672e9dfaa0b6475efa08",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/010.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/outcomes/011.json",
+      "bytes": 919,
+      "sha256": "sha256:a574e176f4689aa8529e25558421eb2b00334ae5c439bf77bf6fbad86444dafd",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/011.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-000.json",
+      "bytes": 1698,
+      "sha256": "sha256:5f9c70bfdb7aac8f15dca9781b03cec87b37ad1d8ad18d183ba0faf6cceefee7",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-000.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-001.json",
+      "bytes": 1071,
+      "sha256": "sha256:6475a6c07aae1de85681b70c7423c7c2437943f4996c91a108538c5495da5bbc",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-001.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-002.json",
+      "bytes": 1073,
+      "sha256": "sha256:9bba25ada5d9e440c2ed6f79054fd5fdc7e79baf9dab111a8c01b0a17f17b1d4",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-002.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-003.json",
+      "bytes": 1073,
+      "sha256": "sha256:899c0abc1d56547303bc2ce708f4c07cbb328ddfd5ea6ef69dac4767d90094c7",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-003.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-004.json",
+      "bytes": 1071,
+      "sha256": "sha256:5704753958bd2cc8b6251d915f1abee9ce2c29ff0e459f9249c9a08484e32230",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-004.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-005.json",
+      "bytes": 1701,
+      "sha256": "sha256:cccb5ddd720d64ab1ca8f3980a7bd22e8a74b534793f6dbdf803f6da6334a960",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-005.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-006.json",
+      "bytes": 1702,
+      "sha256": "sha256:4f468bd4f78b90357cf678ff272c067cd99d7c9e78a9bd6f684ee85e44eb7ec7",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-006.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-007.json",
+      "bytes": 1072,
+      "sha256": "sha256:f62ec7c105da59199b50f2a85995d0044005fbb889e6b64e34c3988b04d6f54c",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-007.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-008.json",
+      "bytes": 1072,
+      "sha256": "sha256:62d46c667c6fa94b01bdf45a827ae3ee273df881a689a543b250561909258902",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-008.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-009.json",
+      "bytes": 1072,
+      "sha256": "sha256:5f0257085dd4dc9fab54bd24c9aef664fa27bd3f262a4de3abcde4745dd7cccf",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-009.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-010.json",
+      "bytes": 1073,
+      "sha256": "sha256:a176cc1b761ffdc820af78bdd66bc7bd2252022b7773984a5705f4c2ca2f28e0",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-010.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/concurrency-1/provider_attempts/throughput-1-011.json",
+      "bytes": 1072,
+      "sha256": "sha256:715c000a45ae8e4a80f41e9b8012eaa7ef936265066f7573cd8bd9079e6bfc33",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-011.json"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/profile-1/samples.jsonl",
+      "bytes": 487760,
+      "sha256": "sha256:6bccdbcd94230a31b96004558e73fe657612a524d5ba1e60b92ce86e22530b9b",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/profile-1/samples.jsonl"
+    },
+    {
+      "archive_path": "docs/superpowers/journals/corr-evidence/c1-capacity/deepseek-throughput-primary/throughput-report.json",
+      "bytes": 1125,
+      "sha256": "sha256:5c5883014ef29095bd569a5e10a698dd08caac73eb8a68d2270ac4059f1725dc",
+      "source_path": ".tmp/corr-c1-capacity/throughput/deepseek/throughput-report.json"
+    }
+  ],
+  "schema_version": "corr.throughput_primary_archive.v1",
+  "synthetic": false,
+  "unrun_concurrencies": [
+    4,
+    16,
+    32
+  ]
+}

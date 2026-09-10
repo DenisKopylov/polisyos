@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.devx.architecture.guardrails",
+    "check"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 255.9977332080016,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "Generated artifact freshness clean: runtime-api-client (5 generator-observed outputs).\nGenerated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).\nStandalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.\nArchitecture guardrail check FAILED:\n- runtime-openapi-snapshot output probe changed paths outside its assigned scratch root: policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph-finalizer-handoff.md, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph-profile-archive-final-ruff-v2.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph-profile-archive-final-ruff.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph-profile-table-reconciliation.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_profile_archive.py, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-100-analysis.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-100-interpretation.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-1000-analysis.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-1000-interpretation.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-analysis-compaction.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-results.md.\n- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/schemas/runtime_api_v1.openapi.json.\n- trust-claim-posture-register output probe changed paths outside its assigned scratch root: policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-derived-location-correction.json, policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-results.md.\n",
+  "timed_out": false,
+  "timeout_seconds": 600.0
+}

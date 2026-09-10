@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_grounding_bind_contract --write --output-format json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_grounding_bind_contract",
+    "--write",
+    "--output-format",
+    "json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 80.59963233303279,
+  "stdout": "{\n  \"issues\": [],\n  \"status\": \"pass\"\n}\n",
+  "stderr": "2026-09-08 20:45:45.858 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/gy-s-composed-wmr-world/fabric-world.duckdb\n2026-09-08 20:45:45.957 | INFO     | polisyos.common.logger:_call:120 - 💾 Database connected: :memory:\n/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/runtime/quality/grounding_bind.py:416: UserWarning: Pydantic serializer warnings:\n  PydanticSerializationUnexpectedValue(Expected `tuple[str, ...]` - serialized value may not be as expected [field_name='validation_reasons', input_value=['owned_calibration_anchor_validated'], input_type=list])\n  payload = handler(self)\n"
+}

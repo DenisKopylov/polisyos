@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "authority_granted": false,
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_verification",
+    "--child",
+    "--test",
+    "test_synthetic_retention.SyntheticRetentionTests.test_complete_ordinal_frame_and_source_intake",
+    "--remove-source"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 1.0571409160038456,
+  "stdout": "",
+  "stderr": "test_complete_ordinal_frame_and_source_intake (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_complete_ordinal_frame_and_source_intake) ... FAIL\n\n======================================================================\nFAIL: test_complete_ordinal_frame_and_source_intake (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_complete_ordinal_frame_and_source_intake)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py\", line 45, in test_complete_ordinal_frame_and_source_intake\n    checks._refuses(\"retention_execution_source_changed\"),\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 148, in __exit__\n    next(self.gen)\n    ~~~~^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_pilot_analysis.py\", line 35, in _refuses\n    raise AssertionError(\"missing required refusal: \" + reason)\nAssertionError: missing required refusal: retention_execution_source_changed\n\n----------------------------------------------------------------------\nRan 1 test in 0.819s\n\nFAILED (failures=1)\n"
+}

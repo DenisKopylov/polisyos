@@ -1,0 +1,79 @@
+{
+  "actual_http_attempts": 1,
+  "authority_status": "candidate_measurement",
+  "declaration_hash": "sha256:a7a506573601b7f35080adad5257d3bc9eda00d9069e1d0ead9a29d502abc1ab",
+  "error_kind": "malformed_output",
+  "parsed_response": null,
+  "provider_observation": {
+    "authority_status": "candidate_only",
+    "base_url": "https://api.proxy.gonka.gg/v1",
+    "context": {
+      "attempt_id": "diagnostic",
+      "campaign_id": "sha256:a7a506573601b7f35080adad5257d3bc9eda00d9069e1d0ead9a29d502abc1ab",
+      "input_hash": "sha256:032d33c76da83c96b3fd103c644a362fd8bc5da4335fcd0ca81c2b44371805df",
+      "phase": "extraction",
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2569872753"
+    },
+    "error_kind": "malformed_output",
+    "estimator_elapsed_seconds": 0.0975338330026716,
+    "finish_reason": "abort",
+    "local_estimator": "injected_repository_estimator",
+    "local_prompt_token_estimate": 3554,
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "prompt_hash": "sha256:d50438a0a42b7085c26a8d63d756f43d06d6bfb166c72731eab5b747e7021576",
+    "provider_usage": {
+      "completion_tokens": 0,
+      "completion_tokens_details": null,
+      "prompt_tokens": 3540,
+      "prompt_tokens_details": null,
+      "total_tokens": 3540
+    },
+    "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+    "response_characters": 7,
+    "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+    "response_content_hash": "sha256:7d329bb7d9d43bf17bcafd4cb8203e1b94423923e87980bd1d2d9fc525d50b99",
+    "response_leading_code_fence": false,
+    "retryable": true,
+    "schema_version": "policyos.academic.extraction_attempt.v3",
+    "status": "failed",
+    "status_code": 200,
+    "synthetic": false,
+    "transport_elapsed_seconds": 0.29544791590888053,
+    "usage": {
+      "completion_tokens": 0,
+      "prompt_tokens": 3540,
+      "total_tokens": 3540
+    }
+  },
+  "raw_provider_error_body_retained": false,
+  "response_facts": [
+    {
+      "code_interpretation": "provider assertion, not independent cause or origin proof",
+      "http_status": 200,
+      "origin": "not_established",
+      "provider_body_retained": false,
+      "provider_code": null,
+      "provider_code_state": "absent",
+      "retry_after_seconds": null,
+      "success_shape": {
+        "choice_count": 1,
+        "content_has_code_fence": false,
+        "content_has_object_braces": false,
+        "content_json": "invalid",
+        "content_length": 7,
+        "content_type": "string",
+        "finish_reason": "unrecognized_or_absent",
+        "json_error_position": 0,
+        "json_root_type": null,
+        "raw_content_retained": false,
+        "reasoning_length": null,
+        "tool_call_count": null
+      }
+    }
+  ],
+  "schema_version": "corr.provider_error_diagnostic.v2",
+  "scope": "not a pilot, throughput, quality, calibration or representativeness estimate",
+  "synthetic": false,
+  "typed_contract_satisfied": false
+}

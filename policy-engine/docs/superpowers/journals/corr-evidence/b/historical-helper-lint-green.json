@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check docs/superpowers/journals/corr-evidence/b/baseline.py docs/superpowers/journals/corr-evidence/b/historical_source_census.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/corr-evidence/b/baseline.py",
+    "docs/superpowers/journals/corr-evidence/b/historical_source_census.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.07078879105392843,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "ANN401 Dynamically typed expressions (typing.Any) are disallowed in `__getattr__`\n  --> docs/superpowers/journals/corr-evidence/b/baseline.py:27:41\n   |\n25 |         self.evaluations = 0\n26 |\n27 |     def __getattr__(self, name: str) -> Any:\n   |                                         ^^^\n28 |         return getattr(self.store, name)\n   |\n\nANN401 Dynamically typed expressions (typing.Any) are disallowed in `**kwargs`\n  --> docs/superpowers/journals/corr-evidence/b/baseline.py:30:49\n   |\n28 |         return getattr(self.store, name)\n29 |\n30 |     def evaluate_rule_threshold(self, **kwargs: Any) -> LegalThresholdEvaluation:\n   |                                                 ^^^\n31 |         self.evaluations += 1\n32 |         return self.store.evaluate_rule_threshold(**kwargs)\n   |\n\nANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`\n  --> docs/superpowers/journals/corr-evidence/b/historical_source_census.py:22:18\n   |\n22 | def visit(value: Any, path: str) -> None:\n   |                  ^^^\n23 |     if isinstance(value, dict):\n24 |         if (value.get(\"schema_version\") == \"policyos.runtime.intervention_substrate_lift.v2\"\n   |\n\nFound 3 errors.\n",
+  "stderr": ""
+}

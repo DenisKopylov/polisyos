@@ -1,0 +1,76 @@
+{
+  "schema_version": "corr.abstract_cost_target_declaration.v1",
+  "declared_at": "2026-09-08T18:13:09.448712+00:00",
+  "provider_run_status": "not_started",
+  "synthetic": false,
+  "scope": "cost_target_only_no_extraction_authorized",
+  "source_path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "source_open_mode": "read_only",
+  "source_row_basis_digest": "sha256:1eee91c76447b1c70226cb0748238c3fcc82717c1cf64455711466b0f01aa27a",
+  "raw_claim_id_work_basis_digest": "sha256:4af84d06ad923ac73332331d7fabb9c3a133f7ee74e657ec931d476a42d80ec7",
+  "subset_declaration_digest": "sha256:8d63505a398ca11b0623c5e01fe308b3d372cb6a511b6b9807976fb904789bb0",
+  "selection_change": null,
+  "primary_target": "all_eligible_held_ac_works_abstracts",
+  "secondary_target": "historical_raw_claim_source_works_with_held_abstracts",
+  "target_identity_digest": "sha256:d20611e568ca022cd1e667a0f7484533f424fc2c80850fb3d91dd38185341ef8",
+  "denominators": {
+    "held_work_rows": 310829,
+    "primary_eligible_abstract_work_ids": 310710,
+    "raw_claim_rows_and_unique_id_work_pairs": 137589,
+    "raw_claim_unique_ids": 137589,
+    "raw_claim_unique_work_ids": 65335,
+    "secondary_target_work_ids": 65327,
+    "raw_source_works_without_held_abstract": 8,
+    "eligible_works_without_raw_claim": 245383
+  },
+  "strata": [
+    {
+      "stratum": 0,
+      "complete_eligible_member_count": 103570,
+      "secondary_target_member_count": 14350,
+      "secondary_target_identity_digest": "sha256:b592c6506f005de1654280876b5bdc93c0a5d9e52fd9a7205414be6c5a9d6fe2",
+      "unchanged_pilot_member_count": 2
+    },
+    {
+      "stratum": 1,
+      "complete_eligible_member_count": 103570,
+      "secondary_target_member_count": 20675,
+      "secondary_target_identity_digest": "sha256:3e7e68100bc00f8e89be70c6ad371d67e6cf42f1756bbc45c0875840c8b0859d",
+      "unchanged_pilot_member_count": 2
+    },
+    {
+      "stratum": 2,
+      "complete_eligible_member_count": 103570,
+      "secondary_target_member_count": 30302,
+      "secondary_target_identity_digest": "sha256:e9d5a6bdda2667b9c587aeedb0ad721362abf8d25d9e77513a5faf655c167633",
+      "unchanged_pilot_member_count": 2
+    }
+  ],
+  "unavailable_abstract_work_ids": [
+    "https://openalex.org/W2808934316",
+    "https://openalex.org/W2898576814",
+    "https://openalex.org/W2969494845",
+    "https://openalex.org/W3200533846",
+    "https://openalex.org/W4386136982",
+    "https://openalex.org/W4395449205",
+    "https://openalex.org/W4408237280",
+    "https://openalex.org/W4408349004"
+  ],
+  "raw_source_work_ids_without_held_work": [],
+  "selected_members_in_raw_claim_source_set": [
+    "https://openalex.org/W4394884575"
+  ],
+  "independent_complete_identity_sets": {
+    "raw_id_work_pairs": "equal",
+    "raw_work_ids": "equal",
+    "eligible_stratum_members": "equal",
+    "target_stratum_members": "equal",
+    "unavailable_abstract_work_ids": "equal",
+    "difference": [],
+    "ambiguous": []
+  },
+  "conditional_forecast_assumption": "Exchangeability of provider phase frequencies, token use and wall time within the unchanged input-length tiers between the selected held-abstract frame and the historical raw-claim source works. This is an assumption, not measured exchangeability; no precision guarantee.",
+  "unavailable_abstract_cost": "not_established; excluded from conditional forecast",
+  "occurrence_reextraction_cost": "not_established; the target counts source works rather than historical claim occurrences",
+  "declaration_digest": "sha256:87d8a661bebd0ceeb4b440853cccb84f377d17a8aff9c25ece22cfe866fe854f"
+}

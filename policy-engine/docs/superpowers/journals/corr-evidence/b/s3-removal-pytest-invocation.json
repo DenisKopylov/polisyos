@@ -1,0 +1,16 @@
+{
+  "invocation": "pytest.main",
+  "argv": [
+    "pytest",
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "tests/repo_quality/tools/test_layer3_gy_intervention_substrate_contract.py",
+    "-q",
+    "--junitxml=docs/superpowers/journals/corr-evidence/b/s3-own-envelope-removal.xml"
+  ],
+  "returncode": 1,
+  "complete_output_capture": "s3-own-envelope-removal-final.json"
+}

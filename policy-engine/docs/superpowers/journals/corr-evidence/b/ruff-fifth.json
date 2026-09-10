@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/foundry/validation/legal_correspondence.py src/polisyos/runtime/quality/intervention_substrate.py tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py tests/unit/foundry/validation/test_legal_correspondence.py tests/unit/runtime/quality/test_intervention_substrate.py docs/superpowers/journals/corr-evidence/b/removal.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/foundry/validation/legal_correspondence.py",
+    "src/polisyos/runtime/quality/intervention_substrate.py",
+    "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+    "tests/unit/foundry/validation/test_legal_correspondence.py",
+    "tests/unit/runtime/quality/test_intervention_substrate.py",
+    "docs/superpowers/journals/corr-evidence/b/removal.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 0.07019254192709923,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

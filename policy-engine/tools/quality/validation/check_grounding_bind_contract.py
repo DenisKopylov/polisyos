@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 OUTPUT_PATH = "architecture/policy_design_case/grounding_bind_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.grounding_bind_contract.v1"
+SCHEMA_VERSION = "policyos.policy_design_case.grounding_bind_contract.v3"
 EXPECTED_MUTATIONS = {
     "calibration_owner_validation_removed",
     "certificate_revalidation_removed",
@@ -75,7 +75,30 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     )
 
     repo_root = (repo_root or _default_repo_root()).resolve()
-    reference = build_credal_reference(repo_root)
+    from polisyos.runtime.quality.grounding_calibration import (
+        build_refusal_reference_scaffold,
+        grounding_proof_world_input_evidence,
+    )
+
+    try:
+        canonical = build_credal_reference(repo_root)
+        canonical_attempt = {"status": "available", "reference_hash": canonical.reference_hash}
+    except ValueError as exc:
+        try:
+            refusal = json.loads(str(exc))
+        except json.JSONDecodeError:
+            raise exc from None
+        if "confidence_layer_vintage" not in refusal:
+            raise
+        canonical_attempt = {
+            "status": "blocked",
+            "authority_evidence": "not_established",
+            "owner_refusal": refusal,
+        }
+    # Mechanism controls retain their full original identity sets. They are
+    # explicitly synthetic, separate from the canonical attempt above.
+    proof_world_input, world = grounding_proof_world_input_evidence(repo_root)
+    reference = build_refusal_reference_scaffold(repo_root, world)
     engine = GroundingRelationEngine(reference)
     exact_cert = engine.certificate_for(
         _pure_synonym_probe(engine),
@@ -111,13 +134,9 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             )
         ),
         "exact_bind": _decision_summary(seed_gate.certificate_for(exact_cert)),
-        "certified_specialization_bind": _decision_summary(
-            seed_gate.certificate_for(spec_cert)
-        ),
+        "certified_specialization_bind": _decision_summary(seed_gate.certificate_for(spec_cert)),
         "cold_start_freeze": _decision_summary(gate.certificate_for(exact_cert)),
-        "false_analog_hard_abstain": _decision_summary(
-            seed_gate.certificate_for(false_cert)
-        ),
+        "false_analog_hard_abstain": _decision_summary(seed_gate.certificate_for(false_cert)),
         "real_n4_out_of_lever_handoff": real_n4_novel_handoff,
     }
     probes["tampered_fail_closed"] = _decision_summary(
@@ -157,6 +176,11 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
 
     payload = {
         "schema_version": SCHEMA_VERSION,
+        "synthetic": True,
+        "canonical_attempt": canonical_attempt,
+        "proof_world_input": proof_world_input,
+        "control_reference_scope": "synthetic_structural_full_L6_WMR_owner_projection",
+        "admission_run_probes": _admission_run_probes(repo_root, reference),
         "gy_lifecycle_marker": SCHEMA_VERSION,
         "contract_id": "policyos.runtime.grounding_bind_caab",
         "runtime_schema_version": GROUNDING_BIND_SCHEMA_VERSION,
@@ -164,16 +188,19 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "owner": "polisyos.runtime.quality.grounding_bind",
         "source_modules": [
             "src/polisyos/runtime/quality/grounding_bind.py",
+            "src/polisyos/runtime/quality/grounding_risk.py",
+            "src/polisyos/runtime/quality/grounding_calibration.py",
             "src/polisyos/runtime/quality/grounding_relation.py",
             "src/polisyos/runtime/quality/credal_reference.py",
             "tools/quality/validation/check_grounding_bind_contract.py",
             "tools/quality/validation/check_grounding_relation_contract.py",
         ],
         "reuse_existing_owners": [
-            "CG0 CredalReference built from real L2/L3/L6/WMR owners",
+            "CG0 canonical reference attempt plus separately marked full L6/WMR structural controls",
             "CG1 GroundingRelationEngine.certificate_for and relation_set",
             "CG1 axis witnesses and cross-modal CP-SAT witnesses",
             "CG1 recorded N4 replay candidate source",
+            "CG2 GroundingRunBudget persisted with CoreCAS and Fabric locking/atomic writes",
             "GY-N11 confidence ledger semantics not wired here; status recorded as not_wired",
         ],
         "no_second_reference_store": True,
@@ -204,13 +231,12 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "resolve_grounding_decision_promotability_for_contract_testing"
             ),
             "contract_testing_store": "cg2_contract_seed_anchor_non_promotable",
-            "consumer_enforcement_status": (
-                "deferred_to_cg2_wiring_cg6_no_production_consumer_wired"
-            ),
+            "consumer_enforcement_status": "n4_shadow_chain_and_n9_owner_resolver",
             "consumer_obligation": (
-                "Every future production consumer of a CG2 bind must resolve "
-                "promotability against the owned store before acting; no consumer "
-                "may trust GroundingDecisionCertificate.production_promotable."
+                "N4 consumes CG2 in its candidate/shadow CG1-CG5 chain; N9 "
+                "_resolve_cg2_owner_promotability invokes the owned resolver. "
+                "GroundingDecisionCertificate.production_promotable is advisory; "
+                "actual reference ancestry and durable admission evidence are re-resolved."
             ),
         },
         "behavioral_mutations": _mutation_reports(reference, exact_cert, false_cert),
@@ -222,15 +248,21 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "capability_reality": {
             "typed_contract_artifact": (
                 "GroundingDecisionCertificate + GroundingSafeSet + "
-                "GroundingRiskLedger + GroundingCalibrationDecision"
+                "GroundingRiskLedger + GroundingCalibrationDecision + "
+                "GroundingRunAdmission + GroundingAdmissionStrangleReceipt"
             ),
             "producer": "GroundingBindGate.certificate_for",
-            "persisted_artifact_event": OUTPUT_PATH,
+            "persisted_artifact_event": (
+                "CoreCAS run-admission events with a locked atomic head; " + OUTPUT_PATH
+            ),
             "orchestration_bridge": (
                 "CG2 consumes content-bound CG1 certificate and live CG0 reference; "
                 "bind output is a decision certificate, not silent admission"
             ),
-            "consumer": "future production grounding admission surface / CG3 novel handoff",
+            "consumer": (
+                "N4 _ground_trinity_bundle candidate/shadow chain; "
+                "N9 _resolve_cg2_owner_promotability; CG3 novel handoff"
+            ),
             "verification": "this recomputing validator plus unit probes and mutation reports",
             "surface": "generated Policy Design Case CG2 contract artifact",
             "semantic_test": (
@@ -244,7 +276,12 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "decision layer revalidates CG1 against live CG0, treats ambiguity as abstain, "
                 "and freezes uncalibrated strata"
             ),
-            "missing_capability_labels": ["consumer_missing"],
+            "missing_capability_labels": [],
+            "authority_readiness": {
+                "production_calibration": "artifact_missing",
+                "canonical_reference": canonical_attempt["status"],
+                "verification_scope": "synthetic_mechanism_only",
+            },
             "acceptance_signal": "contract check plus corrupt-field check pass; mutations are red",
         },
     }
@@ -255,7 +292,12 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     """Validate a CG2 payload against behavioral properties."""
 
     issues = _core_issues(payload, require_mutations=True)
-    return {"status": "pass" if not issues else "fail", "issues": issues}
+    return {
+        "status": "pass" if not issues else "fail",
+        "issues": issues,
+        "verification_scope": "synthetic_mechanism_only",
+        "canonical_attempt": payload.get("canonical_attempt", {"status": "not_established"}),
+    }
 
 
 def validate(repo_root: Path | None = None) -> dict[str, Any]:
@@ -286,6 +328,8 @@ def validate(repo_root: Path | None = None) -> dict[str, Any]:
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "outputs": declared_outputs(),
+        "verification_scope": "synthetic_mechanism_only",
+        "canonical_attempt": live["canonical_attempt"],
         "verdicts": {
             key: value.get("decision")
             for key, value in live.get("probes", {}).items()
@@ -321,6 +365,7 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
     ] = True
     corrupted["relation_outcome_map"]["generalization"]["decision"] = "bind"
     corrupted["behavioral_mutations"][0]["status"] = "green"
+    corrupted["admission_run_probes"]["persisted_snapshot"]["admitted_spend"] = 0.0
     report = validate_payload(corrupted)
     return {
         "status": "pass" if report["status"] == "fail" else "fail",
@@ -337,7 +382,14 @@ def _core_issues(
     *,
     require_mutations: bool,
 ) -> list[dict[str, Any]]:
-    issues: list[dict[str, Any]] = []
+    from polisyos.runtime.quality.grounding_calibration import (
+        grounding_proof_world_input_evidence_issues,
+    )
+
+    issues: list[dict[str, Any]] = [
+        {"code": code}
+        for code in grounding_proof_world_input_evidence_issues(payload.get("proof_world_input", {}))
+    ]
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "grounding_bind_schema_mismatch"})
     if payload.get("no_second_reference_store") is not True:
@@ -352,7 +404,7 @@ def _core_issues(
             probes,
             "production_default_freeze",
             "abstain",
-            "cold_start_conservative",
+            "synthetic_input_candidate_only",
         )
     )
     issues.extend(
@@ -360,7 +412,7 @@ def _core_issues(
             probes,
             "fabricated_calibration_fail_closed",
             "abstain",
-            "cold_start_conservative",
+            "synthetic_input_candidate_only",
         )
     )
     issues.extend(_expect_decision(probes, "exact_bind", "bind", "bind_eligible"))
@@ -377,7 +429,7 @@ def _core_issues(
             probes,
             "cold_start_freeze",
             "abstain",
-            "cold_start_conservative",
+            "synthetic_input_candidate_only",
         )
     )
     issues.extend(
@@ -428,8 +480,14 @@ def _core_issues(
     if _probe(probes, "deterministic_decision").get("same_content_hash") is not True:
         issues.append({"code": "grounding_bind_decision_not_deterministic"})
     production = _probe(probes, "production_default_freeze")
-    if production.get("risk_spend", 0.0) <= production.get("risk_budget", 0.0):
-        issues.append({"code": "grounding_bind_cold_start_risk_not_conservative"})
+    if production.get("risk_spend") != 0.0:
+        issues.append({"code": "grounding_bind_refused_candidate_charged"})
+    run = payload.get("admission_run_probes", {})
+    run_issues = _run_admission_issues(run)
+    if run_issues:
+        issues.append(
+            {"code": "grounding_bind_run_admission_invariant_failed", "issues": run_issues}
+        )
     fabricated = _probe(probes, "fabricated_calibration_fail_closed")
     if fabricated.get("calibration_owner_validated") is True:
         issues.append({"code": "grounding_bind_fabricated_calibration_owner_validated"})
@@ -466,12 +524,12 @@ def _core_issues(
         if bogus.get("dto_rejected") is not True:
             issues.append({"code": "grounding_bind_bogus_hash_forge_not_rejected"})
         honest = _probe(resolution, "honest_hash_forge")
-        if honest.get("dto_rejected") is True:
-            issues.append({"code": "grounding_bind_honest_hash_forge_dto_rejected"})
+        if honest.get("dto_rejected") is not True:
+            issues.append({"code": "grounding_bind_synthetic_hash_forge_intake_not_rejected"})
         honest_resolution = _probe(honest, "resolution")
         if (
             honest_resolution.get("promotable") is not False
-            or honest_resolution.get("reason") != "owned_anchor_missing"
+            or honest_resolution.get("reason") != "synthetic_input_cannot_grant_authority"
         ):
             issues.append({"code": "grounding_bind_honest_hash_forge_promotable"})
         testing = _probe(resolution, "contract_testing_bind")
@@ -486,10 +544,9 @@ def _core_issues(
     if (
         not isinstance(authority, dict)
         or authority.get("certificate_promotable_field") != "advisory_not_authority"
-        or authority.get("production_owned_store")
-        != "empty_none_wired_no_caller_population_path"
+        or authority.get("production_owned_store") != "empty_none_wired_no_caller_population_path"
         or authority.get("consumer_enforcement_status")
-        != "deferred_to_cg2_wiring_cg6_no_production_consumer_wired"
+        != "n4_shadow_chain_and_n9_owner_resolver"
     ):
         issues.append({"code": "grounding_bind_promotability_authority_scope_missing"})
     robust = _probe(probes, "robust_multi_safe_real_exercise")
@@ -504,10 +561,14 @@ def _core_issues(
     relation_map = payload.get("relation_outcome_map", {})
     for relation in {"exact", "certified-specialization"}:
         if relation_map.get(relation, {}).get("decision") != "bind":
-            issues.append({"code": "grounding_bind_eligible_relation_not_bound", "relation": relation})
+            issues.append(
+                {"code": "grounding_bind_eligible_relation_not_bound", "relation": relation}
+            )
     for relation in {"unknown", "blocked"}:
         if relation_map.get(relation, {}).get("decision") == "bind":
-            issues.append({"code": "grounding_bind_ineligible_relation_bound", "relation": relation})
+            issues.append(
+                {"code": "grounding_bind_ineligible_relation_bound", "relation": relation}
+            )
     for relation in {"generalization", "partial", "compositional"}:
         row = relation_map.get(relation, {})
         if row.get("coverage_status") != "structurally_enforced_unreachable":
@@ -518,7 +579,9 @@ def _core_issues(
                 }
             )
         if row.get("decision") == "bind":
-            issues.append({"code": "grounding_bind_unreachable_relation_bound", "relation": relation})
+            issues.append(
+                {"code": "grounding_bind_unreachable_relation_bound", "relation": relation}
+            )
     if relation_map.get("false-analog", {}).get("decisive_reason") != "false_analog_hard_abstain":
         issues.append({"code": "grounding_bind_false_analog_not_hard_abstain"})
     if relation_map.get("novel-candidate", {}).get("decision") != "novel_candidate":
@@ -593,22 +656,14 @@ def _relation_outcome_map(
     gate = _gate(reference, calibration_seed_anchor=True)
     return {
         "exact": _decision_summary(gate.certificate_for(exact_cert)),
-        "certified-specialization": _decision_summary(
-            gate.certificate_for(spec_cert)
-        ),
+        "certified-specialization": _decision_summary(gate.certificate_for(spec_cert)),
         "generalization": _unreachable_relation_row("generalization"),
         "partial": _unreachable_relation_row("partial"),
         "compositional": _unreachable_relation_row("compositional"),
-        "false-analog": _decision_summary(
-            gate.certificate_for(false_cert)
-        ),
+        "false-analog": _decision_summary(gate.certificate_for(false_cert)),
         "novel-candidate": dict(novel_row),
-        "unknown": _decision_summary(
-            gate.certificate_for(unknown_cert)
-        ),
-        "blocked": _decision_summary(
-            gate.certificate_for(blocked_cert)
-        ),
+        "unknown": _decision_summary(gate.certificate_for(unknown_cert)),
+        "blocked": _decision_summary(gate.certificate_for(blocked_cert)),
     }
 
 
@@ -697,20 +752,14 @@ def _production_api_boundary_probes(reference: Any, *, exact_cert: Any) -> dict[
         "policy_disable_calibration_owner_validation": {
             "disable_calibration_owner_validation": True
         },
-        "policy_disable_certificate_revalidation": {
-            "disable_certificate_revalidation": True
-        },
+        "policy_disable_certificate_revalidation": {"disable_certificate_revalidation": True},
         "policy_disable_content_hash_check": {"disable_content_hash_check": True},
         "policy_disable_robust_singleton_check": {"disable_robust_singleton_check": True},
-        "policy_disable_false_analog_hard_abstain": {
-            "disable_false_analog_hard_abstain": True
-        },
+        "policy_disable_false_analog_hard_abstain": {"disable_false_analog_hard_abstain": True},
         "policy_disable_exact_spec_only_rule": {"disable_exact_spec_only_rule": True},
         "policy_disable_calibration_freeze": {"disable_calibration_freeze": True},
         "policy_disable_epoch_binding": {"disable_epoch_binding": True},
-        "policy_risk_component_bounds_override": {
-            "risk_component_bounds": {"delta_monitor": 0.0}
-        },
+        "policy_risk_component_bounds_override": {"risk_component_bounds": {"delta_monitor": 0.0}},
         "policy_delta_ground_budget_override": {"delta_ground_budget": 1.0},
     }
     for probe_id, kwargs in unsafe_policy_kwargs.items():
@@ -762,11 +811,31 @@ def _promotability_resolution_probes(reference: Any, *, exact_cert: Any) -> dict
         recompute_content_hash=True,
         recompute_grounding_decision_content_hash=recompute_grounding_decision_content_hash,
     )
-    honest = GroundingDecisionCertificate.model_validate(honest_payload)
-    honest_resolution = resolve_grounding_decision_promotability(
-        honest,
-        reference,
+    try:
+        GroundingDecisionCertificate.model_validate(honest_payload)
+    except ValueError as exc:
+        honest_dto_error = str(exc)
+    else:
+        honest_dto_error = None
+    # Deliberately bypass intake to prove the downstream resolver also refuses;
+    # this marked synthetic attack control is never an admitted owner receipt.
+    honest = test_decision.model_copy(
+        update={
+            **{
+                key: honest_payload[key]
+                for key in (
+                    "authority_scope",
+                    "production_promotable",
+                    "content_hash",
+                    "certificate_id",
+                )
+            },
+            "calibration": test_decision.calibration.model_copy(
+                update=honest_payload["calibration"]
+            ),
+        }
     )
+    honest_resolution = resolve_grounding_decision_promotability(honest, reference)
     bogus_payload = _forged_promotable_payload(
         test_decision,
         recompute_content_hash=False,
@@ -791,7 +860,9 @@ def _promotability_resolution_probes(reference: Any, *, exact_cert: Any) -> dict
     return {
         "bogus_hash_forge": bogus_row,
         "honest_hash_forge": {
-            "dto_rejected": False,
+            "synthetic": True,
+            "dto_rejected": honest_dto_error is not None,
+            "dto_error": honest_dto_error,
             "certificate_promotable_claim": honest.production_promotable,
             "resolution": honest_resolution.model_dump(mode="json"),
         },
@@ -1004,7 +1075,6 @@ def _mutation_reports(reference: Any, exact_cert: Any, false_cert: Any) -> list[
 def _promotability_resolver_mutation(reference: Any, exact_cert: Any) -> dict[str, Any]:
     from polisyos.runtime.quality.grounding_bind import (
         GroundingBindGate,
-        GroundingDecisionCertificate,
         recompute_grounding_decision_content_hash,
         resolve_grounding_decision_promotability,
     )
@@ -1018,14 +1088,27 @@ def _promotability_resolver_mutation(reference: Any, exact_cert: Any) -> dict[st
         recompute_content_hash=True,
         recompute_grounding_decision_content_hash=recompute_grounding_decision_content_hash,
     )
-    forged = GroundingDecisionCertificate.model_validate(forged_payload)
+    forged = test_decision.model_copy(
+        update={
+            **{
+                key: forged_payload[key]
+                for key in (
+                    "authority_scope",
+                    "production_promotable",
+                    "content_hash",
+                    "certificate_id",
+                )
+            },
+            "calibration": test_decision.calibration.model_copy(
+                update=forged_payload["calibration"]
+            ),
+        }
+    )
     store_resolution = resolve_grounding_decision_promotability(forged, reference)
     field_trusting_result = bool(forged.production_promotable)
     return {
         "mutation_id": "promotability_resolver_store_resolution_removed",
-        "status": "red"
-        if field_trusting_result and not store_resolution.promotable
-        else "green",
+        "status": "red" if field_trusting_result and not store_resolution.promotable else "green",
         "decision": "promotable" if field_trusting_result else "non_promotable",
         "decisive_reason": "unsafe_resolver_trusted_certificate_promotable_field",
         "content_hash": forged.content_hash,
@@ -1066,8 +1149,83 @@ def _gate(reference: Any, **policy_updates: Any) -> Any:
     return GroundingBindGate.for_contract_testing(reference, **policy_updates)
 
 
+def _admission_run_probes(repo_root: Path, reference: Any) -> dict[str, Any]:
+    """Execute the real binder and durable owner over a marked mechanical run."""
+    from tempfile import TemporaryDirectory
+
+    from polisyos.runtime.quality.grounding_bind import GroundingBindGate, GroundingRunBudget
+    from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
+    from tools.quality.validation.check_grounding_relation_contract import (
+        _false_analog_probe,
+        _pure_synonym_probe,
+    )
+
+    engine = GroundingRelationEngine(reference)
+    with TemporaryDirectory(prefix="cg2-admission-", dir=repo_root / ".tmp") as scratch:
+        owner = GroundingRunBudget.for_contract_testing(Path(scratch), run_id="cg2-admission-proof")
+        gate = GroundingBindGate.for_contract_testing(
+            reference, calibration_seed_anchor=True, run_budget=owner
+        )
+        candidates = [
+            engine.certificate_for(_false_analog_probe("sign_swap"), proposal_id=f"free-{index}")
+            for index in range(12)
+        ]
+        attempts = [_decision_summary(gate.certificate_for(row)) for row in candidates]
+        supported = [
+            engine.certificate_for(_pure_synonym_probe(engine), proposal_id=f"admit-{index}")
+            for index in range(6)
+        ]
+        admissions = [_decision_summary(gate.certificate_for(row)) for row in supported]
+        replay = _decision_summary(gate.certificate_for(supported[0]))
+        snapshot = owner.to_payload()
+    result = {
+        "synthetic": True,
+        "attempts": attempts,
+        "admissions": admissions,
+        "replay": replay,
+        "persisted_snapshot": snapshot,
+        "correctness_bound": None,
+    }
+    return {**result, "issues": _run_admission_issues(result)}
+
+
+def _run_admission_issues(run: dict[str, Any]) -> list[str]:
+    """Recompute every probe predicate instead of trusting its reported issue list."""
+    issues = []
+    attempts, admissions = run.get("attempts", []), run.get("admissions", [])
+    snapshot, replay = run.get("persisted_snapshot", {}), run.get("replay", {})
+    if not attempts or any(row.get("risk_spend") != 0 for row in attempts):
+        issues.append("candidate_exploration_spent_or_not_exercised")
+    if [row.get("decision") for row in admissions] != ["bind"] * 4 + ["abstain"] * 2:
+        issues.append("preemptive_admission_cap_wrong")
+    if snapshot.get("admission_count") != sum(row.get("decision") == "bind" for row in admissions):
+        issues.append("independent_persisted_admission_count_mismatch")
+    if replay.get("risk_spend") != 0 or snapshot.get("admitted_spend") != 0.04:
+        issues.append("replay_charged_or_run_budget_wrong")
+    if run.get("synthetic") is not True or any(
+        row.get("synthetic") is not True
+        or row.get("production_promotable") is not False
+        or row.get("admission_strangle", {}).get("status") != "strangled"
+        for row in [*attempts, *admissions, replay]
+    ):
+        issues.append("synthetic_authority_or_default_strangle_failed")
+    for row in admissions[4:]:
+        admission = row.get("run_admission", {})
+        if (
+            row.get("decisive_reason") != "risk_budget_exhausted_candidate_custody"
+            or admission.get("run_continues") is not True
+            or admission.get("authority_band") != "candidate"
+            or admission.get("correctness_bound", "absent") is not None
+        ):
+            issues.append("exhausted_run_candidate_custody_missing")
+    return issues
+
+
 def _decision_summary(decision: Any) -> dict[str, Any]:
     return {
+        "synthetic": decision.synthetic,
+        "run_admission": decision.run_admission.model_dump(mode="json"),
+        "admission_strangle": decision.admission_strangle.model_dump(mode="json"),
         "bound_atom_id": decision.bound_atom_id,
         "authority_scope": decision.authority_scope,
         "calibration_status": decision.calibration.status,
@@ -1085,9 +1243,7 @@ def _decision_summary(decision: Any) -> dict[str, Any]:
         "revalidation": decision.revalidation.model_dump(mode="json"),
         "risk_budget": decision.risk_ledger.delta_ground_budget,
         "risk_spend": decision.risk_ledger.total_spend,
-        "risk_entries": [
-            item.model_dump(mode="json") for item in decision.risk_ledger.entries
-        ],
+        "risk_entries": [item.model_dump(mode="json") for item in decision.risk_ledger.entries],
         "safe_count": len(decision.safe_t.safe_atom_ids),
         "safe_atom_ids": list(decision.safe_t.safe_atom_ids),
         "selected_relation": decision.selected_relation,
@@ -1128,8 +1284,7 @@ def _spoofed_calibration_ledger(certificate: Any, reference: Any) -> Any:
     region = str(signature.get("scope") or "unknown")
     relation = str(certificate.selected_relation)
     anchor_id = (
-        "cg2_contract_seed_anchor:"
-        f"{reference.reference_epoch}:{operator}:{region}:{relation}"
+        f"cg2_contract_seed_anchor:{reference.reference_epoch}:{operator}:{region}:{relation}"
     )
     record = CalibrationStratumRecord(
         operator_family=operator,

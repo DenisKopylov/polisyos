@@ -22,7 +22,7 @@ import json
 import subprocess
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -60,6 +60,8 @@ from polisyos.runtime.quality.credal_reference import (
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
+    _component_versions,
+    _reference_hash,
 )
 from polisyos.runtime.quality.generation_cycle import (
     CandidateSummary,
@@ -91,6 +93,8 @@ from polisyos.runtime.quality.promotion_sequence import (
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
+_CONTRACT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion_contract.v2"
+_CREDAL_REFERENCE_SOURCE = "src/polisyos/runtime/quality/credal_reference.py"
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"capture_wall_time_seconds", "contract_content_hash"}
 
 _COMPARISON_IDENTITY_FIELDS = {
@@ -274,7 +278,12 @@ def _build_payload_with_comparison_plan(
         promotion_input=contract_input,
     )
     payload: dict[str, Any] = {
-        "schema_version": GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+        "schema_version": _CONTRACT_SCHEMA_VERSION,
+        "synthetic": True,
+        "proof_input_strangle": _proof_input_strangle(
+            consumed=contract_input.grounding_decision_certificate,
+            reference=contract_input.credal_reference,
+        ),
         "contract_id": "policyos.runtime.quality.canonical_n9_promotion_sequence",
         "produced_by": "tools/quality/validation/check_layer3_gy_promotion_contract.py",
         "source_modules": [
@@ -287,6 +296,7 @@ def _build_payload_with_comparison_plan(
             "src/polisyos/runtime/quality/grounding_bind.py",
             "src/polisyos/core/contracts/value_outer_set.py",
             "src/polisyos/scientist/methods/search/judge_stack.py",
+            _CREDAL_REFERENCE_SOURCE,
         ],
         "pattern_pass": {
             "relevant_ids": ["P05", "P10", "P14", "P15", "P27", "P28", "P29", "P32"],
@@ -354,8 +364,10 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     """Validate a frozen N9 contract payload without live gate re-derivation."""
 
     issues: list[dict[str, Any]] = []
-    if payload.get("schema_version") != GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+    if payload.get("schema_version") != _CONTRACT_SCHEMA_VERSION:
         issues.append({"code": "schema_version_drift"})
+    if payload.get("synthetic") is not True:
+        issues.append({"code": "synthetic_proof_marker_drift"})
     if payload.get("obligation_denominator") != _obligation_denominator():
         issues.append({"code": "obligation_denominator_drift"})
     witness = payload.get("obligation_instance_mutation_witness")
@@ -404,6 +416,18 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     production_shadow = _receipt_from_payload(payload, "production_honest_shadow", issues)
     non_promotable = _receipt_from_payload(payload, "non_promotable_contract_stamp", issues)
     if contract_refusal is not None:
+        try:
+            expected_input_strangle = _proof_input_strangle(
+                consumed=contract_refusal.owner_projection.grounding_decision_certificate,
+                reference=_credal_reference(),
+            )
+            if (
+                not expected_input_strangle["default_flipped"]
+                or payload.get("proof_input_strangle") != expected_input_strangle
+            ):
+                issues.append({"code": "proof_input_strangle_drift"})
+        except (AttributeError, KeyError, TypeError, ValueError):
+            issues.append({"code": "proof_input_strangle_drift"})
         _validate_n11_projection(
             contract_refusal,
             receipt_key="contract_lane_anytime_refusal",
@@ -931,6 +955,8 @@ def _reconcile_frozen_contract(
         return live
     if _is_authorized_credal_input_epoch_reissue(frozen, live, plan):
         return live
+    if _is_authorized_corr_input_epoch_reissue(frozen, live, plan):
+        return live
     identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
     frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
     live_body = {key: value for key, value in live.items() if key not in identity_fields}
@@ -978,6 +1004,99 @@ def _frozen_comparison_identity_admissible(
         frozen,
         legacy_plan,
     )
+
+
+def _is_authorized_corr_input_epoch_reissue(
+    frozen: dict[str, Any], live: dict[str, Any], plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Reissue only the governed CG2 input epoch and its measured dependencies.
+
+    Historical inputs are retired, never asserted to be equivalent to the new
+    producer output. Every other governing field remains under its typed owner.
+    """
+    if (
+        frozen.get("schema_version") != GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
+        or live.get("schema_version") != _CONTRACT_SCHEMA_VERSION
+        or frozen.get("comparison_admission_manifest") != plan.manifest
+        or live.get("comparison_admission_manifest") != plan.manifest
+        or any(frozen.get(field) != live.get(field)
+               for field in _COMPARISON_IDENTITY_FIELDS - {"comparison_content_hash"})
+        or frozen.get("comparison_content_hash") != _comparison_content_hash(frozen, plan)
+        or "proof_input_strangle" in frozen
+        or "synthetic" in frozen
+        or live.get("synthetic") is not True
+        or live.get("source_modules") != [*frozen.get("source_modules", ()), _CREDAL_REFERENCE_SOURCE]
+    ):
+        return False
+    excluded = _COMPARISON_IDENTITY_FIELDS | _CONTENT_HASH_EXCLUDED_TOP_LEVEL
+    before = plan.project({key: value for key, value in frozen.items() if key not in excluded})
+    after = plan.project({key: value for key, value in live.items() if key not in excluded})
+    transitioned = False
+    try:
+        for entry in plan.entries:
+            old, new = before, after
+            old_record, new_record = frozen, live
+            for segment in entry.path:
+                old, new = old[segment], new[segment]
+                old_record, new_record = old_record[segment], new_record[segment]
+            previous = old["owner_projection"]["grounding_decision_certificate"]
+            current = new["owner_projection"]["grounding_decision_certificate"]
+            if previous is None and current is None:
+                if old != new:
+                    return False
+                continue
+            old_input = GroundingDecisionCertificate.model_validate(
+                old_record["owner_projection"]["grounding_decision_certificate"]
+            )
+            new_input = GroundingDecisionCertificate.model_validate(
+                new_record["owner_projection"]["grounding_decision_certificate"]
+            )
+            if (
+                old_input.schema_version != "policyos.runtime.grounding_decision_certificate.v1"
+                or new_input.schema_version != "policyos.runtime.grounding_decision_certificate.v2"
+                or old_input.authority_scope != "contract_testing"
+                or new_input.authority_scope != "contract_testing"
+                or old_input.production_promotable or new_input.production_promotable
+                or old_input.content_hash != recompute_grounding_decision_content_hash(old_input)
+                or new_input.content_hash != recompute_grounding_decision_content_hash(new_input)
+                or old["cg2_resolution_reason"] != "non_production_anchor_scope"
+                or new["cg2_resolution_reason"] != "synthetic_input_cannot_grant_authority"
+            ):
+                return False
+            packet = _proof_input_strangle(consumed=new_input, reference=_credal_reference())
+            if not packet["default_flipped"] or live["proof_input_strangle"] != packet:
+                return False
+            old_reference = old["owner_projection"]["credal_reference"]
+            new_reference = new["owner_projection"]["credal_reference"]
+            if (
+                old_reference["schema_version"] not in {
+                    "policyos.runtime.grounding_credal_reference.v1",
+                    "policyos.runtime.grounding_credal_reference.v2",
+                }
+                or new_reference["schema_version"] != "policyos.runtime.grounding_credal_reference.v2"
+                or old_reference["reference_hash"] != old_input.reference_hash
+                or old_reference["reference_epoch"] != old_input.reference_epoch
+                or new_reference["reference_hash"] != new_input.reference_hash
+                or new_reference["reference_epoch"] != new_input.reference_epoch
+            ):
+                return False
+            old["owner_projection"]["grounding_decision_certificate"] = current
+            for field in ("schema_version", "reference_hash", "reference_epoch"):
+                old_reference[field] = new_reference[field]
+            old["cg2_resolution_reason"] = new["cg2_resolution_reason"]
+            for obligation in old["obligations"]:
+                obligation["evidence_refs"] = [
+                    new_input.certificate_id if ref == old_input.certificate_id else ref
+                    for ref in obligation["evidence_refs"]
+                ]
+            transitioned = True
+        before["schema_version"] = after["schema_version"]
+        before["synthetic"] = after["synthetic"]
+        before["proof_input_strangle"] = after["proof_input_strangle"]
+        before["source_modules"] = after["source_modules"]
+    except (AttributeError, KeyError, IndexError, TypeError, ValueError):
+        return False
+    return transitioned and before == after
 
 
 def _is_authorized_credal_input_epoch_reissue(
@@ -1609,16 +1728,24 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
         ),
         _SourceFlipCase(
             mutation_id="source_flip_timeout_to_favorable",
-            guard="proof timeout carried as unknown",
+            guard="missing EFFECT evidence stays unknown despite the legacy timeout flag",
             replacements=(
                 _SourceFlipReplacement(
                     relative_path=source,
-                    old="    if promotion_input.force_proof_timeout:",
-                    new="    if False and promotion_input.force_proof_timeout:",
+                    old=(
+                        "        gate_id=PromotionGateId.GYK_ENTAILMENT,\n"
+                        "        status=PromotionObligationStatus.UNKNOWN,\n"
+                        "        reason=PromotionFailClosedReason.UNKNOWN,"
+                    ),
+                    new=(
+                        "        gate_id=PromotionGateId.GYK_ENTAILMENT,\n"
+                        "        status=PromotionObligationStatus.SATISFIED,\n"
+                        "        reason=None,"
+                    ),
                 ),
             ),
             probe_command=_pytest_probe(
-                f"{test_file}::test_timeout_unknown_never_promotes_or_fabricates_block"
+                f"{test_file}::test_timeout_knob_cannot_decide_effect_or_fabricate_block"
             ),
         ),
         _SourceFlipCase(
@@ -1661,24 +1788,8 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     relative_path=generation_source,
-                    old=(
-                        "        if validate_canonical_promotion_receipt(\n"
-                        "            parsed,\n"
-                        "            candidate_summary=summary,\n"
-                        "            design_problem=problem,\n"
-                        "            value_receipt=summary.value_receipt,\n"
-                        "        ):\n"
-                        "            return False"
-                    ),
-                    new=(
-                        "        if False and validate_canonical_promotion_receipt(\n"
-                        "            parsed,\n"
-                        "            candidate_summary=summary,\n"
-                        "            design_problem=problem,\n"
-                        "            value_receipt=summary.value_receipt,\n"
-                        "        ):\n"
-                        "            return False"
-                    ),
+                    old="    return promotion_receipt_allows_decision_front(",
+                    new="    return True or promotion_receipt_allows_decision_front(",
                 ),
             ),
             probe_command=_pytest_probe(
@@ -1941,41 +2052,37 @@ def _cg2_contract_bind() -> tuple[CredalReference, GroundingDecisionCertificate]
         reference,
         calibration_seed_anchor=True,
     ).certificate_for(cg1)
-    payload = decision.model_dump(mode="json")
-    safe_candidate = next(
-        item
-        for item in payload["safe_t"]["candidates"]
-        if item["relation"] == "exact" and not item["is_adversarial_countercandidate"]
-    )
-    safe_candidate = {**safe_candidate, "safe": True, "reason": "contract_owner_bind"}
-    safe_atom_id = str(safe_candidate["atom_id"])
-    payload.update(
-        {
-            "decision": "bind",
-            "decisive_reason": "bind_eligible",
-            "selected_relation": "exact",
-            "bound_atom_id": safe_atom_id,
-            "closed_obligations": tuple(
-                sorted({*payload["closed_obligations"], "unit_scale_consistent"})
-            ),
-            "open_obligations": (),
-            "safe_t": {
-                "safe_atom_ids": (safe_atom_id,),
-                "candidates": (safe_candidate,),
-                "robust_singleton": True,
-            },
-            "revalidation": {
-                **payload["revalidation"],
-                "replayed_selected_relation": "exact",
-                "replayed_selected_atom_id": safe_atom_id,
-                "selected_relation_reproduced": True,
-                "selected_atom_reproduced": True,
-            },
-        }
-    )
-    payload["content_hash"] = recompute_grounding_decision_content_hash(payload)
-    payload["certificate_id"] = f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
-    return reference, GroundingDecisionCertificate.model_validate(payload)
+    return reference, decision
+
+
+def _proof_input_strangle(
+    *, consumed: GroundingDecisionCertificate | None, reference: CredalReference | None,
+) -> dict[str, Any]:
+    """Re-run the real binder; never accept post-production certificate authorship."""
+    if reference is None or consumed is None:
+        raise ValueError("proof_input_grounding_source_missing")
+    engine = GroundingRelationEngine(reference)
+    relation = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
+    recomputed = GroundingBindGate.for_contract_testing(
+        reference, calibration_seed_anchor=True,
+    ).certificate_for(relation)
+    payload = {
+        "schema_version": "policyos.runtime.quality.n9_proof_input_strangle.v1",
+        "packet_type": "StrangleReceipt",
+        "synthetic": True,
+        "predicate_provenance": "recomputed",
+        "owner": "polisyos.runtime.quality.grounding_bind.GroundingBindGate",
+        "legacy_path": "post_production_cg2_certificate_rewrite",
+        "default_path": "unchanged_actual_cg2_producer_output",
+        "consumed_content_hash": consumed.content_hash,
+        "recomputed_content_hash": recomputed.content_hash,
+        "default_flipped": (
+            consumed.model_dump(mode="json") == recomputed.model_dump(mode="json")
+            and consumed.synthetic is True
+            and not consumed.production_promotable
+        ),
+    }
+    return {**payload, "content_hash": gy_content_hash(payload)}
 
 
 def _boundary() -> AuthorityBoundary:
@@ -2072,18 +2179,16 @@ def _credal_reference() -> CredalReference:
         _policy_slot("budget_slot", "government.balance"),
         _policy_slot("transfer_slot", "household_cells.transfer_intensity"),
     ]
+    edges = [
+        replace(edge, provenance={**edge.provenance, "synthetic": True}).with_content_hash()
+        for edge in edges
+    ]
     edge_index = {edge.key: edge for edge in edges}
-    component_versions = {
-        "L2": "unit-l2",
-        "L3": "unit-l3",
-        "L6": _component_hash(edges, prefix="L6_"),
-        "WMR": "unit-wmr",
-    }
-    reference_hash = gy_content_hash(
-        {
-            "component_versions": component_versions,
-            "edges": [edge.to_payload() for edge in sorted(edges, key=lambda item: item.key)],
-        }
+    component_versions = _component_versions(edge_index, world_model_record_hash="unit-wmr")
+    reference_hash = _reference_hash(
+        component_versions=component_versions,
+        edge_index=edge_index,
+        as_of="2026-06-29",
     )
     return CredalReference(
         schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -2189,16 +2294,6 @@ def _policy_slot(policy_slot: str, world_slot: str) -> CredalReferenceEdge:
         ),
         provenance={"owner": "WMR", "source": "unit"},
     ).with_content_hash()
-
-
-def _component_hash(edges: list[CredalReferenceEdge], *, prefix: str) -> str:
-    return gy_content_hash(
-        [
-            edge.content_hash
-            for edge in sorted(edges, key=lambda item: item.key)
-            if edge.modality.startswith(prefix)
-        ]
-    )
 
 
 def _tax_atom(engine: GroundingRelationEngine) -> object:

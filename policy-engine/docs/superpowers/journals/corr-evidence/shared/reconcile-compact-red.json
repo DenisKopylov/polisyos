@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.shared.reconcile_compact_probe",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.reconcile_compact_probe"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 4.43218808399979,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "{\"returncode\": 0, \"record\": {\"denominator\": \"complete actual pytest collection versus complete executed JUnit testcase set\", \"collection_returncode\": 0, \"execution_returncode\": 0, \"collected_identities\": [\".tmp/corr-reconcile-ai615o2v/test_synthetic_reconcile.py::test_capture_identity\"], \"executed_identities\": [\".tmp/corr-reconcile-ai615o2v/test_synthetic_reconcile.py::test_capture_identity\"], \"missing_executions\": [], \"unexpected_executions\": [], \"ambiguous_or_unresolved\": [], \"duplicate_collection\": false, \"duplicate_execution\": false, \"nonpassing_executions\": []}}\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/shared/reconcile_compact_probe.py\", line 30, in <module>\n    raise AssertionError(\"compact_reconciliation_repeats_derived_identity_sets\")\nAssertionError: compact_reconciliation_repeats_derived_identity_sets\n"
+}

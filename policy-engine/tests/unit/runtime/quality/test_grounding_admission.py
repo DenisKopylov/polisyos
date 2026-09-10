@@ -15,7 +15,9 @@ from polisyos.runtime.quality.grounding_admission import (
     GroundingAdmissionEngine,
     GroundingAdmissionPolicy,
     apply_grounding_admission_registry_patch,
+    recompute_admission_ledger_content_hash,
     recompute_grounding_admission_content_hash,
+    recompute_registry_patch_content_hash,
 )
 from polisyos.runtime.quality.grounding_bind import GroundingBindGate
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
@@ -42,7 +44,9 @@ def test_real_novel_lever_admits_and_records_content_addressed_patch() -> None:
     assert cg2.decision == "novel_candidate"
     assert admission.decision == "admit_new_lever"
     assert admission.authority_scope == "production"
-    assert admission.production_promotable is True
+    assert admission.production_promotable is False
+    assert admission.synthetic is True
+    assert admission.authority_limitation == "synthetic_input_cannot_grant_authority"
     assert admission.stable_unique.stable is True
     assert admission.mechanism_witness.status == "closed"
     assert admission.registry_patch is not None
@@ -217,6 +221,8 @@ def test_forged_admission_certificate_cannot_patch_registry_without_re_resolutio
     forged_payload["decision"] = "admit_new_lever"
     forged_payload["decisive_reason"] = "all_obligations_closed"
     forged_payload["production_promotable"] = True
+    forged_payload["synthetic"] = False  # Dishonest claim; the real source remains synthetic.
+    forged_payload["authority_limitation"] = None
     forged_payload["content_hash"] = recompute_grounding_admission_content_hash(forged_payload)
     forged_payload["certificate_id"] = (
         f"cg3_cert_{forged_payload['content_hash'].removeprefix('sha256:')[:16]}"
@@ -233,6 +239,110 @@ def test_forged_admission_certificate_cannot_patch_registry_without_re_resolutio
     assert forged.decision == "admit_new_lever"
     assert resolution.applied is False
     assert resolution.reason == "admission_re_resolution_mismatch"
+
+
+def test_synthetic_reference_cannot_be_laundered_by_a_false_cg2_flag() -> None:
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.grounding_bind import (
+        GroundingDecisionCertificate,
+        recompute_grounding_decision_content_hash,
+    )
+
+    source = _reference(include_mechanism=True)
+    edges = {
+        key: replace(edge, provenance={**edge.provenance, "synthetic": True}).with_content_hash()
+        for key, edge in source.essential_edges.items()
+    }
+    reference = replace(
+        source,
+        essential_edges=edges,
+        reference_hash=gy_content_hash([edge.to_payload() for edge in edges.values()]),
+    )
+    cg1 = GroundingRelationEngine(reference).certificate_for(
+        {**_novel_transfer_probe(), "synthetic": True}, proposal_id="synthetic-cg3-ancestry"
+    )
+    cg2 = GroundingBindGate(reference).certificate_for(cg1)
+    payload = cg2.model_dump(mode="json")
+    payload["synthetic"] = False
+    payload["run_admission"]["synthetic"] = False
+    payload["admission_strangle"]["synthetic"] = False
+    payload["content_hash"] = recompute_grounding_decision_content_hash(payload)
+    payload["certificate_id"] = f"cg2_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
+    dishonest = GroundingDecisionCertificate.model_validate(payload)
+    admission = GroundingAdmissionEngine(reference).decide(dishonest, cg1_certificate=cg1)
+    assert admission.decision == "admit_new_lever"
+    assert admission.registry_patch is not None
+    assert admission.synthetic is True
+    assert admission.production_promotable is False
+    assert admission.authority_limitation == "synthetic_input_cannot_grant_authority"
+
+
+def test_legacy_cg3_producer_control_preserves_its_own_serialized_epoch() -> None:
+    import json
+    from pathlib import Path
+
+    from pydantic import TypeAdapter
+
+    fixture = json.loads(
+        (Path(__file__).parent / "fixtures/grounding_admission_v1.json").read_bytes()
+    )
+    assert fixture["synthetic"] is True
+    body = fixture["certificate"]
+    certificate = GroundingAdmissionCertificate.model_validate(body)
+    assert certificate.schema_version == "policyos.runtime.grounding_admission_certificate.v1"
+    assert certificate.model_dump(mode="json") == body
+    adapter = TypeAdapter(dict[str, GroundingAdmissionCertificate])
+    assert adapter.dump_python({"certificate": certificate}, mode="json") == {"certificate": body}
+    assert recompute_grounding_admission_content_hash(certificate) == body["content_hash"]
+    assert certificate.registry_patch is not None
+    assert certificate.admission_ledger is not None
+    assert certificate.registry_patch.model_dump(mode="json") == body["registry_patch"]
+    assert certificate.admission_ledger.model_dump(mode="json") == body["admission_ledger"]
+    assert (
+        recompute_registry_patch_content_hash(certificate.registry_patch)
+        == body["registry_patch"]["content_hash"]
+    )
+    assert (
+        recompute_admission_ledger_content_hash(certificate.admission_ledger)
+        == body["admission_ledger"]["content_hash"]
+    )
+
+
+def test_v2_synthetic_admission_cannot_self_stamp_production_authority() -> None:
+    reference = _reference(include_mechanism=True)
+    cg1, cg2 = _cg2_novel(reference, _novel_transfer_probe())
+    admission = GroundingAdmissionEngine(reference).decide(cg2, cg1_certificate=cg1)
+    payload = admission.model_dump(mode="json")
+    payload["production_promotable"] = True
+    payload["content_hash"] = recompute_grounding_admission_content_hash(payload)
+    payload["certificate_id"] = f"cg3_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
+    with pytest.raises(ValueError, match="synthetic_admission_must_not_grant_authority"):
+        GroundingAdmissionCertificate.model_validate(payload)
+
+
+def test_every_independently_addressed_cg3_emission_retains_synthetic_provenance() -> None:
+    reference = _reference(include_mechanism=True)
+    cg1, cg2 = _cg2_novel(reference, _novel_transfer_probe())
+    engine = GroundingAdmissionEngine(reference)
+    admission = engine.decide(cg2, cg1_certificate=cg1)
+    assert admission.decision == "admit_new_lever"
+    assert admission.production_promotable is False
+    assert admission.registry_patch is not None
+    assert admission.admission_ledger is not None
+    for artifact, expected_schema in (
+        (admission, "policyos.runtime.grounding_admission_certificate.v2"),
+        (admission.registry_patch, "policyos.runtime.grounding_lever_registry_patch.v2"),
+        (admission.admission_ledger, "policyos.runtime.grounding_admission_ledger.v2"),
+    ):
+        body = artifact.model_dump(mode="json")
+        assert body.get("schema_version") == expected_schema
+        assert body.get("synthetic") is True
+    applied = engine.apply_registry_patch(admission, cg2, cg1_certificate=cg1)
+    assert applied.applied is True
+    assert applied.patch is not None
+    assert applied.patch.model_dump(mode="json")["synthetic"] is True
+    assert applied.patch.application_status == "shadow_applied"
 
 
 def test_self_loop_outcome_wish_edge_does_not_admit() -> None:
@@ -317,7 +427,9 @@ def test_unregistered_operator_signature_match_is_graded_signature_only() -> Non
 
     assert admission.decision == "non_new"
     assert admission.registry_patch is None
-    novel = next(item for item in admission.obligations if item.obligation_id == "novel_irreducible")
+    novel = next(
+        item for item in admission.obligations if item.obligation_id == "novel_irreducible"
+    )
     assert novel.evidence["existing_atom_match_kind"] == "signature_only"
     assert novel.evidence["operator_denotation_proof"] == "unresolved"
     assert novel.evidence["existing_atom_operator"] == "tax_relief_rate"
@@ -391,7 +503,9 @@ def test_compatibility_derived_denotation_alias_is_non_new() -> None:
     assert admission.decision == "non_new"
     assert admission.decisive_reason == "novel_irreducible_failed_existing_atom"
     assert admission.registry_patch is None
-    novel = next(item for item in admission.obligations if item.obligation_id == "novel_irreducible")
+    novel = next(
+        item for item in admission.obligations if item.obligation_id == "novel_irreducible"
+    )
     assert novel.evidence["existing_atom_match_kind"] == "signature_only"
     assert novel.evidence["operator_denotation_proof"] == "unresolved"
 
@@ -412,13 +526,18 @@ def test_map_mentioned_outcome_slot_is_not_actuatable_without_positive_write_pro
     assert admission.decision == "acquire_then_decide"
     assert admission.mechanism_witness.status == "open"
     assert admission.mechanism_witness.evidence["actuatability"]["actuatable"] is False
-    assert admission.mechanism_witness.evidence["actuatability"]["reason"] == "no_positive_writability_proof"
+    assert (
+        admission.mechanism_witness.evidence["actuatability"]["reason"]
+        == "no_positive_writability_proof"
+    )
     assert "do_semantics" in admission.open_obligations
     assert admission.registry_patch is None
 
 
 def _cg2_novel(reference: CredalReference, probe: dict[str, object]) -> tuple[object, object]:
-    cg1 = GroundingRelationEngine(reference).certificate_for(probe, proposal_id=str(probe["proposal_id"]))
+    cg1 = GroundingRelationEngine(reference).certificate_for(
+        probe, proposal_id=str(probe["proposal_id"])
+    )
     cg2 = GroundingBindGate.for_contract_testing(
         reference,
         calibration_seed_anchor=True,

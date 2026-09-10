@@ -1,0 +1,135 @@
+{
+  "schema_version": "policyos.runtime.grounding_calibration_frame.v1",
+  "synthetic": false,
+  "declared_at": "2026-09-08T17:31:57.546038Z",
+  "input_source_refs": {
+    "intervention_knob_dictionary": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json@sha256:1aeda52a40c01aca9656365f6205a78c6972a284b7a9a74aa487de2de140a706",
+    "lex_intervention_map": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json@sha256:9c39fb2d70059290f00226518cec80e03e65aff89d2310ed2dc8e8d31c9e16ce",
+    "observation_to_contract_manifest": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json@sha256:481c32a566e8696b3ed1f98368fabdb24f4d34268b733915f75e64a807be04ee",
+    "policy_scenario_templates": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json@sha256:5d1cec715f450d2ef2d6e047669dad9ba7b5644b8b93b3d9dc9f3153b422af5b",
+    "slot_family_manifest": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/slot_family_manifest.json@sha256:7700d633d83592d0010ef1598e05c8bbca58b27080986de2325ce365a9bb95cb",
+    "owner_authority_bindings": "repo://architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json@sha256:1546c17eb58f2dafac602ae2950f62e0776f6dcaf4157d07c16c35d5a9d5bb76",
+    "world_model_record": "world_model_record_61fb1eeb738aac25@sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6"
+  },
+  "inputs": [
+    {
+      "input_id": "budget_allocation_multiplier",
+      "synthetic": false,
+      "operator_family": "budget_allocation_multiplier",
+      "target_type": "float",
+      "domain": "fiscal_credit",
+      "signature": {
+        "X_do": [
+          "government.balance"
+        ],
+        "params": {
+          "kind": "range",
+          "value_type": "float",
+          "min_value": 0.0,
+          "max_value": 2.0,
+          "unit": null
+        },
+        "modal_claims": {
+          "L6": {
+            "operator": "budget_allocation_multiplier"
+          },
+          "WMR": {
+            "targets": [
+              "government.balance"
+            ]
+          }
+        }
+      },
+      "source_units": [
+        "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json@sha256:1aeda52a40c01aca9656365f6205a78c6972a284b7a9a74aa487de2de140a706",
+        "world_model_record_61fb1eeb738aac25@sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6"
+      ],
+      "ambiguity": null
+    },
+    {
+      "input_id": "procurement_shock_intensity",
+      "synthetic": false,
+      "operator_family": "procurement_shock_intensity",
+      "target_type": "float",
+      "domain": "fiscal_credit",
+      "signature": {
+        "X_do": [
+          "cells.distress_score"
+        ],
+        "params": {
+          "kind": "range",
+          "value_type": "float",
+          "min_value": -1.0,
+          "max_value": 1.0,
+          "unit": null
+        },
+        "modal_claims": {
+          "L6": {
+            "operator": "procurement_shock_intensity"
+          },
+          "WMR": {
+            "targets": [
+              "cells.distress_score"
+            ]
+          }
+        }
+      },
+      "source_units": [
+        "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json@sha256:1aeda52a40c01aca9656365f6205a78c6972a284b7a9a74aa487de2de140a706",
+        "world_model_record_61fb1eeb738aac25@sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6"
+      ],
+      "ambiguity": null
+    },
+    {
+      "input_id": "tax_relief_rate",
+      "synthetic": false,
+      "operator_family": "tax_relief_rate",
+      "target_type": "float",
+      "domain": "fiscal_credit",
+      "signature": {
+        "X_do": [
+          "global.tax_rate"
+        ],
+        "params": {
+          "kind": "range",
+          "value_type": "float",
+          "min_value": 0.0,
+          "max_value": 0.5,
+          "unit": null
+        },
+        "modal_claims": {
+          "L6": {
+            "operator": "tax_relief_rate"
+          },
+          "WMR": {
+            "targets": [
+              "global.tax_rate"
+            ]
+          }
+        }
+      },
+      "source_units": [
+        "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json@sha256:1aeda52a40c01aca9656365f6205a78c6972a284b7a9a74aa487de2de140a706",
+        "world_model_record_61fb1eeb738aac25@sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6"
+      ],
+      "ambiguity": null
+    }
+  ],
+  "selected_stratum": [
+    "budget_allocation_multiplier",
+    "float",
+    "fiscal_credit",
+    "cross_modal"
+  ],
+  "epoch_scope": {
+    "proposer_model": "owner_input_projection_no_model",
+    "prompt_version": "no_prompt",
+    "atom_birth_cohort": "2026-09-08-owner-inputs",
+    "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb"
+  },
+  "source_cluster_unit": "connected_component_of_shared_support_source_refs",
+  "sampling_rule": "at_most_one_observation_per_source_cluster",
+  "label_status": "not_collected",
+  "correctness_bound": null,
+  "content_hash": "sha256:9c9f24752fda3bc46de86ad20a606e238a4ec41eba3554d1aeee0f6fbc151709"
+}

@@ -1,0 +1,30 @@
+{
+  "authority_granted": false,
+  "authority_status": "candidate_measurement",
+  "comparison_limitation": "Disjoint block sizes confound concurrency with input mix; descriptive knee only, no causal optimum or correctness claim.",
+  "correctness_claim": null,
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "full_pass_executed": false,
+  "levels": [
+    {
+      "concurrency": 1,
+      "report_hash": "sha256:7895c636a87f3eb202685c774867f7e8fcdbba0e9bfc566351e041bdc1ae269b",
+      "report_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1-report.json",
+      "status": "measured",
+      "stop_decision": {
+        "knee_established": true,
+        "reason": "error_rate_above_10_percent",
+        "stop_higher_levels": true,
+        "typed_success_throughput_relative_gain": null
+      }
+    }
+  ],
+  "schema_version": "corr.direct_extraction_throughput_report.v1",
+  "scope_limitation": "No screening, self-verification, fulltext acquisition, or end-to-end corpus extrapolation.",
+  "synthetic": false,
+  "unrun_concurrencies": [
+    4,
+    16,
+    32
+  ]
+}

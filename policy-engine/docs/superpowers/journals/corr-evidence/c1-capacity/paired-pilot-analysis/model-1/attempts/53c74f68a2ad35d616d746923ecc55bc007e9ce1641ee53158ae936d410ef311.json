@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "53c74f68a2ad35d616d746923ecc55bc007e9ce1641ee53158ae936d410ef311",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "screening",
+    "phase_key": "sha256:0a85a20cf9baa9a6e8abe9a44ecac406f2b70734cbfee86e5c9c5d71eba7e224",
+    "prompt_hash": "sha256:f81b6843840d05111151fc2b1183d79871816d179cf268155d1748f147ca2a41",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4392374705",
+    "work_key": "sha256:785053708ac2bdaa1808918a89890e84054f7fa6fe745936470f7437e11fc4c8"
+  },
+  "parsed": {
+    "reason": "Marine biology/chemistry study of toxin production in dinoflagellates; no policy content, causal claims, or quantitative policy estimates",
+    "relevance_score": 0.05,
+    "relevant": false
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 267,
+    "prompt_tokens": 997,
+    "total_tokens": 1264
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json tools.quality.validation.check_trust_claim_posture /payload_digest '\"sha256:0000000000000000000000000000000000000000000000000000000000000000\"' --checker-arg=--check --checker-arg=--repo-root --checker-arg=. --checker-arg=--json --timeout-seconds 180",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.report_artifact_corruption",
+    "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+    "tools.quality.validation.check_trust_claim_posture",
+    "/payload_digest",
+    "\"sha256:0000000000000000000000000000000000000000000000000000000000000000\"",
+    "--checker-arg=--check",
+    "--checker-arg=--repo-root",
+    "--checker-arg=.",
+    "--checker-arg=--json",
+    "--timeout-seconds",
+    "180"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.1398742919554934,
+  "timeout_seconds": 240.0,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/shared/report_artifact_corruption.py\", line 212, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/shared/report_artifact_corruption.py\", line 183, in main\n    evidence = run_probe(\n        artifact=args.artifact, checker_module=args.checker_module, pointer=args.pointer,\n        replacement=_DECODER.decode(args.replacement_json), checker_args=args.checker_arg,\n        timeout_seconds=args.timeout_seconds,\n    )\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/shared/report_artifact_corruption.py\", line 115, in run_probe\n    raise ValueError(\"decisive_leaf_must_be_boolean_or_numeric\")\nValueError: decisive_leaf_must_be_boolean_or_numeric\n"
+}

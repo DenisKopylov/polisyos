@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py::test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners -q -rP --junitxml=docs/superpowers/journals/corr-evidence/c/c2-n6-report-ancestry-red.xml",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py::test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners",
+    "-q",
+    "-rP",
+    "--junitxml=docs/superpowers/journals/corr-evidence/c/c2-n6-report-ancestry-red.xml"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 61.19539787503891,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_ test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners _\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12fa49e00>\n\n    def test_generation_cycle_writer_reissues_exact_history_with_actual_current_owners(\n        monkeypatch: pytest.MonkeyPatch,\n    ) -> None:\n        live_session = checker.ConfidenceLedgerSession\n    \n        class _SessionProxy:\n            @classmethod\n            def _for_verification(cls, *args: object, **kwargs: object):\n                del cls\n                return live_session._for_verification(*args, **kwargs)\n    \n            @classmethod\n            def from_repo(cls, *args: object, **kwargs: object) -> None:\n                del cls, args, kwargs\n                raise AssertionError(\"N6 checker touched the checkout confidence ledger\")\n    \n        monkeypatch.setattr(\n            checker,\n            \"ConfidenceLedgerSession\",\n            _SessionProxy,\n        )\n    \n        emitted = json.loads(checker.build_contract_json_for_write(POLICY_ENGINE_ROOT))\n        assert checker.validate_payload(emitted)[\"status\"] == \"pass\"\n        assert emitted[\"schema_version\"] == checker.GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION\n        assert emitted[\"generation_cycle_run\"][\"source_preservation_receipt\"][\"status\"] == (\n            \"not_established\"\n        )\n        assert emitted[\"generation_cycle_run\"][\"source_handoff_refs\"] == []\n>       assert \"synthetic\" in emitted, \"standalone_report_synthetic_ancestry_absent\"\nE       AssertionError: standalone_report_synthetic_ancestry_absent\nE       assert 'synthetic' in {'behavioral_mutations': [{'issue_codes': ['new_grammar_element_not_owned'], 'mutation_id': 'revision_not_terminal_dri...c93e7193a16dabc866170687fe9b73a1', 'comparison_projection_schema_version': 'policyos.gy.comparison_projection.v2', ...}\n\ntests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py:85: AssertionError\n",
+  "stderr": ""
+}

@@ -1,0 +1,48 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "7e1c29e473bd783477a4ecc6ee5446aed2e0cc2375886e1858b1426cee698b64",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-deepseek-2026-09-09",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "phase": "screening",
+    "phase_key": "sha256:8a262f4efc558a4e53fe752542e8cc98a7d0178d5ee0defd1dc0f25c03326ba8",
+    "prompt_hash": "sha256:c04606db1b78a920d171de9df1ae5ce9577e00f54a9ea5b78b09f8601a48cb75",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.17947225004900247,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 687,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:24c5f33729e7e7155466d3e8fed63a2fbcad141556326e7ed3d23411dd8dc0b8",
+  "prompt_hash": "sha256:c04606db1b78a920d171de9df1ae5ce9577e00f54a9ea5b78b09f8601a48cb75",
+  "provider_usage": {
+    "completion_tokens": 47,
+    "completion_tokens_details": null,
+    "prompt_tokens": 668,
+    "prompt_tokens_details": null,
+    "total_tokens": 715
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 231,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:07e3ed87d4284bd6118d289b5a6bb9da8a785f1269c9d9b6139fd38c413ed2c0",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 18.423336750012822,
+  "usage": {
+    "completion_tokens": 47,
+    "prompt_tokens": 668,
+    "total_tokens": 715
+  }
+}

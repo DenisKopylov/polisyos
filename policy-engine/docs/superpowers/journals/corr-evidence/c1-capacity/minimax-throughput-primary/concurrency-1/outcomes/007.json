@@ -1,0 +1,273 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-007",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:902b15f236eaf0160f538642e8a8268fe29a133df9576d9ba2c380ea2af3233d",
+  "parsed_response": {
+    "boundary_conditions": [
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "Effect magnitudes may differ in other cocoa-producing regions with different pollinator communities, soil types, or climate patterns",
+        "required_value": "Major cocoa-producing countries (Brazil, Ghana, Indonesia)",
+        "scope_text": "experimental data from three major cocoa-producing countries: Brazil, Ghana and Indonesia",
+        "variable": "geographic_region"
+      },
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "Temperature effect on yield may not apply during cooler periods when heat stress is not limiting",
+        "required_value": "Hot season",
+        "scope_text": "Cooler temperatures by 7 °C during the hot season increased yield by up to 31%",
+        "variable": "season"
+      },
+      {
+        "condition_type": "threshold",
+        "consequence_if_violated": "Hand-pollination effect may be smaller in regions with adequate natural pollination",
+        "required_value": "Low natural pollinator abundance",
+        "scope_text": "showing cocoa yield is limited by pollination",
+        "variable": "pollinator_abundance"
+      }
+    ],
+    "causal_claims": [
+      {
+        "cause_variable": "hand_pollination",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.75,
+        "claim_id": "cc_01",
+        "claim_text": "Hand-pollination increased cocoa yield by 20%, showing cocoa yield is limited by pollination.",
+        "counterevidence_notes": null,
+        "design_family_hint": "rct",
+        "direction": "positive",
+        "effect_size": 20,
+        "effect_variable": "cocoa_yield",
+        "evidence_strength": "rct",
+        "extraction_warnings": [
+          "Abstract-only source limits ability to verify methodological details",
+          "Sample size not reported in abstract"
+        ],
+        "method_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 1,
+            "text": "We present a global analysis of pollination, cocoa tree, plantation, and climate factors affecting cocoa yield, with experimental data from three major cocoa-producing countries: Brazil, Ghana and Indonesia."
+          }
+        ],
+        "scope_conditions": [
+          "Brazil, Ghana, Indonesia",
+          "Smallholder cocoa farms"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 2,
+            "text": "Hand-pollination increased yield by 20%, showing cocoa yield is limited by pollination, but not nutrients."
+          }
+        ]
+      },
+      {
+        "cause_variable": "soil_resource_availability",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.7,
+        "claim_id": "cc_02",
+        "claim_text": "Leaf litter and large cacao trees increased cocoa yield by 9-19%, indicating soil resource availability and access affect yield.",
+        "counterevidence_notes": null,
+        "design_family_hint": "rct",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "cocoa_yield",
+        "evidence_strength": "rct",
+        "extraction_warnings": [
+          "Effect size is a range (9-19%), not a point estimate",
+          "Abstract-only source limits verification"
+        ],
+        "method_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 1,
+            "text": "We present a global analysis of pollination, cocoa tree, plantation, and climate factors affecting cocoa yield, with experimental data from three major cocoa-producing countries: Brazil, Ghana and Indonesia."
+          }
+        ],
+        "scope_conditions": [
+          "Brazil, Ghana, Indonesia"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 3,
+            "text": "Leaf litter and large cacao trees, measures of soil resource availability and access, increased yield by 9-19%."
+          }
+        ]
+      },
+      {
+        "cause_variable": "temperature_reduction",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.72,
+        "claim_id": "cc_03",
+        "claim_text": "Cooler temperatures by 7°C during the hot season increased cocoa yield by up to 31%, indicating substantial risks from climate warming.",
+        "counterevidence_notes": null,
+        "design_family_hint": "rct",
+        "direction": "positive",
+        "effect_size": 31,
+        "effect_variable": "cocoa_yield",
+        "evidence_strength": "rct",
+        "extraction_warnings": [
+          "Effect described as 'up to 31%' suggesting upper bound",
+          "Abstract-only source limits verification of experimental controls"
+        ],
+        "method_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 1,
+            "text": "We present a global analysis of pollination, cocoa tree, plantation, and climate factors affecting cocoa yield, with experimental data from three major cocoa-producing countries: Brazil, Ghana and Indonesia."
+          }
+        ],
+        "scope_conditions": [
+          "Brazil, Ghana, Indonesia",
+          "Hot season conditions"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 4,
+            "text": "Cooler temperatures by 7 °C during the hot season increased yield by up to 31%, indicating substantial risks from climate warming."
+          }
+        ]
+      }
+    ],
+    "citation_summary": "International et al. (Year). Global analysis of pollination, cocoa tree, plantation, and climate factors affecting cocoa yield. Experimental data from Brazil, Ghana, and Indonesia. Key findings: hand-pollination increases yield by 20%; soil resources (leaf litter, large trees) increase yield by 9-19%; 7°C cooler temperatures during hot season increase yield by up to 31%.",
+    "empirical_parameters": [
+      {
+        "aggregation_level": "country",
+        "confidence_interval": null,
+        "display_name": "Effect of hand pollination on cocoa yield",
+        "evidence_strength": "rct",
+        "geographic_scope": "Brazil, Ghana, Indonesia",
+        "heterogeneity_note": "Effect reported as consistent across three countries",
+        "name": "hand_pollination_effect_on_cocoa_yield",
+        "parameter_type": "quantitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": null,
+        "transfer_conditions": [
+          "Similar pollinator abundance patterns",
+          "Comparable cocoa varieties"
+        ],
+        "transferability": "Limited to major cocoa-producing regions with similar pollination constraints",
+        "unit": "percentage_points",
+        "value": 20,
+        "value_qualitative": null,
+        "value_range": null
+      },
+      {
+        "aggregation_level": "country",
+        "confidence_interval": null,
+        "display_name": "Effect of leaf litter and large cacao trees on cocoa yield",
+        "evidence_strength": "rct",
+        "geographic_scope": "Brazil, Ghana, Indonesia",
+        "heterogeneity_note": "Range reflects variation across soil resource measures (leaf litter vs. tree size)",
+        "name": "soil_resource_effect_on_cocoa_yield",
+        "parameter_type": "distributional",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": null,
+        "transfer_conditions": [
+          "Adequate soil conditions for leaf litter accumulation"
+        ],
+        "transferability": "Applicable to cocoa plantations with soil management practices",
+        "unit": "percentage_points",
+        "value": null,
+        "value_qualitative": null,
+        "value_range": [
+          9,
+          19
+        ]
+      },
+      {
+        "aggregation_level": "country",
+        "confidence_interval": null,
+        "display_name": "Effect of 7°C cooler temperatures on cocoa yield during hot season",
+        "evidence_strength": "rct",
+        "geographic_scope": "Brazil, Ghana, Indonesia",
+        "heterogeneity_note": "Effect is conditional on hot season conditions",
+        "name": "temperature_reduction_effect_on_cocoa_yield",
+        "parameter_type": "quantitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": "Hot season",
+        "transfer_conditions": [
+          "Regions with seasonal temperature variation",
+          "Cocoa varieties sensitive to heat"
+        ],
+        "transferability": "Relevant to cocoa-growing regions experiencing heat stress",
+        "unit": "percentage_points",
+        "value": 31,
+        "value_qualitative": null,
+        "value_range": null
+      }
+    ],
+    "extraction_confidence": 0.65,
+    "extraction_warnings": [
+      "Source is abstract-only, limiting verification of methodological details",
+      "Sample size not reported in abstract",
+      "Effect sizes for soil resources presented as ranges (9-19%) rather than point estimates",
+      "Temperature effect described as 'up to 31%' suggesting upper bound",
+      "No confidence intervals or standard errors reported in abstract",
+      "No information on randomization procedures or control conditions",
+      "Temporal period of experiments not specified"
+    ],
+    "mechanisms": [
+      {
+        "description": "Pollinator limitation constrains cocoa yield; hand-pollination bypasses natural pollination constraints, directly increasing fruit set and yield",
+        "evidence_type": "natural_experiment",
+        "mediating_variables": [
+          "pollinator_abundance",
+          "fruit_set_rate"
+        ],
+        "theoretical_framework": "Pollination limitation hypothesis"
+      },
+      {
+        "description": "Soil resources (organic matter from leaf litter, root access from larger trees) improve nutrient and water availability, supporting higher plant productivity",
+        "evidence_type": "natural_experiment",
+        "mediating_variables": [
+          "soil_nutrients",
+          "soil_moisture",
+          "root_access"
+        ],
+        "theoretical_framework": "Resource availability theory"
+      },
+      {
+        "description": "High temperatures during hot seasons stress cocoa plants; temperature reduction decreases heat stress, improving physiological function and yield",
+        "evidence_type": "natural_experiment",
+        "mediating_variables": [
+          "plant_physiological_function",
+          "heat_stress_reduction"
+        ],
+        "theoretical_framework": "Climate stress physiology"
+      }
+    ],
+    "methodology": "Experimental study using hand-pollination interventions across three major cocoa-producing countries (Brazil, Ghana, Indonesia) to test pollination limitation, soil resource effects, and temperature effects on cocoa yield. The study compares yields under hand-pollination conditions versus natural pollination, and under different temperature conditions.",
+    "methodology_enum": "experimental",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:11dc3788b67a545de473e9abf09cf9233338b6a2842755fba950b8e0895e385a",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-007.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:a444d4a79f97ec17547f6df614a0765eb1d88eda6755d09b4cf130814e8f5c8c",
+  "work_id": "https://openalex.org/W4407585255"
+}

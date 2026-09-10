@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -11,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 OUTPUT_PATH = "architecture/policy_design_case/grounding_admission_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.grounding_admission_contract.v1"
+SCHEMA_VERSION = "policyos.policy_design_case.grounding_admission_contract.v3"
 EXPECTED_MUTATIONS = {
     "denotation_comparison_removed",
     "direct_mechanism_witness_removed",
@@ -25,6 +26,7 @@ EXPECTED_MUTATIONS = {
     "reject_only_on_proven_removed",
     "registry_patch_reresolution_removed",
     "substrate_registry_authority_restored",
+    "source_authority_resolution_removed",
 }
 
 
@@ -60,7 +62,31 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
     )
 
     repo_root = (repo_root or _default_repo_root()).resolve()
-    reference = build_credal_reference(repo_root)
+    from polisyos.runtime.quality.grounding_calibration import (
+        build_refusal_reference_scaffold,
+        grounding_proof_world_input_evidence,
+    )
+
+    try:
+        canonical = build_credal_reference(repo_root)
+        canonical_attempt = {"status": "available", "reference_hash": canonical.reference_hash}
+    except ValueError as exc:
+        try:
+            refusal = json.loads(str(exc))
+        except json.JSONDecodeError:
+            raise exc from None
+        if "confidence_layer_vintage" not in refusal:
+            raise
+        canonical_attempt = {
+            "status": "blocked",
+            "authority_evidence": "not_established",
+            "owner_refusal": refusal,
+        }
+    # The original complete control set runs against the same existing owner
+    # scaffold as CG2. Its source-relative mechanics cannot replace withheld
+    # canonical authority. Added mechanism data below is explicitly synthetic.
+    proof_world_input, world = grounding_proof_world_input_evidence(repo_root)
+    reference = build_refusal_reference_scaffold(repo_root, world)
     substrate_registry = build_substrate_registry_from_existing_catalogs(repo_root)
 
     admit_reference = _with_mechanism_edge(
@@ -323,6 +349,9 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
 
     payload = {
         "schema_version": SCHEMA_VERSION,
+        "synthetic": True,
+        "canonical_attempt": canonical_attempt,
+        "control_reference_scope": "synthetic_structural_full_L6_WMR_owner_projection",
         "gy_lifecycle_marker": SCHEMA_VERSION,
         "contract_id": "policyos.runtime.grounding_admission_rt3",
         "runtime_schema_version": GROUNDING_ADMISSION_SCHEMA_VERSION,
@@ -330,15 +359,17 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "source_modules": [
             "src/polisyos/runtime/quality/grounding_admission.py",
             "src/polisyos/runtime/quality/grounding_bind.py",
+            "src/polisyos/runtime/quality/grounding_calibration.py",
             "src/polisyos/runtime/quality/grounding_relation.py",
             "src/polisyos/runtime/quality/credal_reference.py",
+            "src/polisyos/runtime/quality/intervention_substrate.py",
             "src/polisyos/runtime/quality/substrate_registry.py",
             "tools/quality/validation/check_grounding_admission_contract.py",
         ],
         "reuse_existing_owners": [
             "CG2 GroundingDecisionCertificate novel_candidate handoff",
             "CG1 GroundingRelationCertificate as content-bound proposal replay carrier",
-            "CG0 CredalReference built from real L2/L3/L6/WMR owners",
+            "Complete real L6/WMR structural owner scaffold, explicitly synthetic; L2/L3 authority out of scope",
             "WMR_WORLD_SLOT and WMR_POLICY_SLOT_MAP edges for world bindability",
             "L2 SKG causal evidence edges for mechanism witness resolution",
             "CG0/L2 owner-lifted L5 trust signals on mechanism evidence edges for data_trust",
@@ -421,7 +452,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "surface": "generated Policy Design Case CG3 contract artifact",
             "semantic_test": (
                 "admit/acquire/reject/non-new/fail-closed probes and mutation-red "
-                "checks over live owner-built reference"
+                "checks over the marked full L6/WMR owner scaffold; no canonical authority claim"
             ),
         },
         "pattern_pass": {
@@ -443,10 +474,15 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "certificate-as-claim envelope; admission and patching re-resolve "
                 "mechanism, WMR, L5 trust, StableUnique, and registry effects from owners"
             ),
-            "missing_capability_labels": [],
+            "missing_capability_labels": ["verification_missing"],
+            "bounded_limitation": "Canonical authority evidence is not established by synthetic controls.",
             "acceptance_signal": "contract check plus corrupt-field check pass; mutations are red",
         },
     }
+    authority = _source_authority_control(admit_reference, cg1_admit, cg2_admit, admit)
+    payload["behavioral_mutations"].append(authority["mutation"])
+    payload["source_authority_strangle"] = authority["receipt"]
+    payload["proof_world_input"] = proof_world_input
     return _json_stable(payload)
 
 
@@ -525,6 +561,7 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
     ] = "admit_new_lever"
     corrupted["probes"]["low_trust_hop_chain"]["data_trust_cap"] = 0.95
     corrupted["behavioral_mutations"][0]["status"] = "green"
+    corrupted["probes"]["admit_real_novel_data_only_free_grow"]["production_promotable"] = True
     report = validate_payload(corrupted)
     return {
         "status": "pass" if report["status"] == "fail" else "fail",
@@ -541,12 +578,72 @@ def _core_issues(
     *,
     require_mutations: bool,
 ) -> list[dict[str, Any]]:
-    issues: list[dict[str, Any]] = []
+    from polisyos.runtime.quality.grounding_calibration import (
+        grounding_proof_world_input_evidence_issues,
+    )
+
+    issues: list[dict[str, Any]] = [
+        {"code": code}
+        for code in grounding_proof_world_input_evidence_issues(payload.get("proof_world_input", {}))
+    ]
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "grounding_admission_schema_mismatch"})
     if payload.get("no_parallel_reference_or_registry") is not True:
         issues.append({"code": "grounding_admission_parallel_reference_or_registry"})
     probes = payload.get("probes", {})
+    if payload.get("synthetic") is not True or payload.get("control_reference_scope") != (
+        "synthetic_structural_full_L6_WMR_owner_projection"
+    ):
+        issues.append({"code": "grounding_admission_control_source_scope_missing"})
+    canonical = payload.get("canonical_attempt", {})
+    if canonical.get("status") == "blocked":
+        if canonical.get("authority_evidence") != "not_established" or not isinstance(
+            canonical.get("owner_refusal"), dict
+        ):
+            issues.append({"code": "grounding_admission_canonical_refusal_missing"})
+    elif canonical.get("status") != "available" or not canonical.get("reference_hash"):
+        issues.append({"code": "grounding_admission_canonical_attempt_missing"})
+    for identity, row in _admission_rows(probes):
+        if identity == "real_n4_recorded_handoff":
+            # The captured N4 row remains explicitly historical, not reissued
+            # under current CG3 fields or treated as a current positive.
+            if (
+                row.get("frozen_receipt") is not True
+                or row.get("production_promotable") is not False
+                or row.get("authority_scope") != "shadow_only"
+            ):
+                issues.append({"code": "grounding_admission_historical_capture_restamped"})
+            continue
+        if (
+            row.get("synthetic") is not True
+            or row.get("authority_limitation") != "synthetic_input_cannot_grant_authority"
+            or row.get("production_promotable") is not False
+        ):
+            issues.append({"code": "grounding_admission_synthetic_authority_escape", "probe": identity})
+        if row.get("registry_patch_id") and (
+            row.get("registry_patch_schema_version") != "policyos.runtime.grounding_lever_registry_patch.v2"
+            or row.get("registry_patch_synthetic") is not True
+            or row.get("admission_ledger_schema_version") != "policyos.runtime.grounding_admission_ledger.v2"
+            or row.get("admission_ledger_synthetic") is not True
+        ):
+            issues.append({"code": "grounding_admission_child_source_provenance_missing", "probe": identity})
+    source_mutation = next(
+        (
+            row for row in payload.get("behavioral_mutations", [])
+            if isinstance(row, dict) and row.get("mutation_id") == "source_authority_resolution_removed"
+        ),
+        {},
+    )
+    source_current = _probe(probes, "admit_real_novel_data_only_free_grow")
+    source_removed = source_mutation.get("probe", {})
+    receipt = payload.get("source_authority_strangle", {})
+    if not receipt or receipt != _source_authority_receipt(
+        reference_hash=receipt.get("reference_hash"),
+        source_synthetic=receipt.get("source_synthetic"),
+        current=source_current,
+        removed=source_removed,
+    ) or receipt.get("default_flipped") is not True:
+        issues.append({"code": "grounding_admission_source_authority_strangle_failed"})
     issues.extend(
         _expect_decision(
             probes,
@@ -793,6 +890,7 @@ def _with_mechanism_edge(
                 ),
             ),
             provenance={
+                "synthetic": True,
                 "owner": "L2",
                 "source": "ac_causal_claims",
                 "version": "cg3_validator_data_only_probe",
@@ -838,6 +936,7 @@ def _with_positive_policy_input_slot(reference: Any, target: str) -> Any:
                 ),
             ),
             provenance={
+                "synthetic": True,
                 "owner": "WMR",
                 "source": "cg3_validator_owner_shaped_wmr_slot",
                 "signals": {
@@ -873,6 +972,7 @@ def _with_policy_slot_world_slot_map(reference: Any, target: str) -> Any:
                 ),
             ),
             provenance={
+                "synthetic": True,
                 "owner": "WMR",
                 "source": "cg3_validator_owner_shaped_policy_slot_map",
             },
@@ -914,6 +1014,7 @@ def _with_contested_completion(reference: Any) -> Any:
                 ),
             ),
             provenance={
+                "synthetic": True,
                 "owner": "L2",
                 "source": "ac_skg_contested_edges",
                 "version": "cg3_validator_data_only_probe",
@@ -1002,6 +1103,8 @@ def _admission_summary(certificate: Any) -> dict[str, Any]:
         "decisive_reason": certificate.decisive_reason,
         "authority_scope": certificate.authority_scope,
         "production_promotable": certificate.production_promotable,
+        "synthetic": certificate.synthetic,
+        "authority_limitation": certificate.authority_limitation,
         "open_obligations": list(certificate.open_obligations),
         "closed_obligations": list(certificate.closed_obligations),
         "stable_unique": certificate.stable_unique.stable,
@@ -1019,6 +1122,18 @@ def _admission_summary(certificate: Any) -> dict[str, Any]:
         "registry_patch_status": certificate.registry_patch.application_status
         if certificate.registry_patch
         else None,
+        "registry_patch_schema_version": certificate.registry_patch.schema_version
+        if certificate.registry_patch
+        else None,
+        "registry_patch_synthetic": certificate.registry_patch.synthetic
+        if certificate.registry_patch
+        else None,
+        "admission_ledger_schema_version": certificate.admission_ledger.schema_version
+        if certificate.admission_ledger
+        else None,
+        "admission_ledger_synthetic": certificate.admission_ledger.synthetic
+        if certificate.admission_ledger
+        else None,
         "decision_front_created": certificate.registry_patch.decision_front_created
         if certificate.registry_patch
         else None,
@@ -1027,6 +1142,80 @@ def _admission_summary(certificate: Any) -> dict[str, Any]:
         "delta_within_budget": certificate.delta_adm_ledger.within_budget,
         "n11_composition_status": certificate.delta_adm_ledger.n11_composition_status,
         "novel_irreducible_evidence": novel.evidence if novel else {},
+    }
+
+
+def _admission_rows(value: Any, prefix: str = "") -> list[tuple[str, dict[str, Any]]]:
+    """Walk every emitted decision summary, including nested subtype controls."""
+    if not isinstance(value, dict):
+        return []
+    if "decision" in value and "authority_scope" in value:
+        return [(prefix, value)]
+    return [
+        row
+        for key, child in value.items()
+        for row in _admission_rows(child, f"{prefix}.{key}" if prefix else str(key))
+    ]
+
+
+def _source_authority_receipt(
+    *, reference_hash: Any, source_synthetic: Any,
+    current: dict[str, Any], removed: dict[str, Any],
+) -> dict[str, Any]:
+    """Hash the observed default transition; no receipt author supplies its verdict."""
+    flipped = (
+        source_synthetic is True
+        and current.get("decision") == removed.get("decision") == "admit_new_lever"
+        and current.get("synthetic") is True
+        and current.get("authority_limitation") == "synthetic_input_cannot_grant_authority"
+        and current.get("production_promotable") is False
+        and current.get("registry_patch_status") == "shadow_applied"
+        and current.get("registry_patch_synthetic") is True
+        and current.get("admission_ledger_synthetic") is True
+        and removed.get("production_promotable") is True
+    )
+    payload = {
+        "schema_version": SCHEMA_VERSION,
+        "packet_type": "StrangleReceipt",
+        "owner": "polisyos.runtime.quality.grounding_admission",
+        "replaced_path": "admit_new_lever_and_production_scope_without_source_authority_resolution",
+        "default_path": "owner_recomputed_source_authority_with_candidate_and_shadow_continuation",
+        "predicate_provenance": "recomputed",
+        "reference_hash": reference_hash,
+        "source_synthetic": source_synthetic,
+        "current_certificate_hash": current.get("content_hash"),
+        "removal_certificate_hash": removed.get("content_hash"),
+        "default_flipped": flipped,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    return {**payload, "content_hash": f"sha256:{hashlib.sha256(encoded).hexdigest()}"}
+
+
+def _source_authority_control(reference: Any, cg1: Any, cg2: Any, current: Any) -> dict[str, Any]:
+    """Remove only source resolution while replaying the same actual positive."""
+    from unittest.mock import patch
+
+    from polisyos.runtime.quality import grounding_admission as owner
+
+    source_synthetic = owner._synthetic_admission_input(cg2, reference)
+    with patch.object(owner, "_synthetic_admission_input", lambda _cg2, _reference: False):
+        removed = owner.GroundingAdmissionEngine(reference).decide(cg2, cg1_certificate=cg1)
+    current_summary = _admission_summary(current)
+    removed_summary = _admission_summary(removed)
+    receipt = _source_authority_receipt(
+        reference_hash=reference.reference_hash,
+        source_synthetic=source_synthetic,
+        current=current_summary,
+        removed=removed_summary,
+    )
+    return {
+        "receipt": receipt,
+        "mutation": _mutation_row(
+            "source_authority_resolution_removed",
+            bool(receipt["default_flipped"]),
+            removed_summary,
+            note="Actual source and CG2 markers retained; only owner source-authority resolution removed.",
+        ),
     }
 
 
@@ -1235,6 +1424,8 @@ def _mutation_reports(
     forged_payload["decision"] = "admit_new_lever"
     forged_payload["decisive_reason"] = "all_obligations_closed"
     forged_payload["production_promotable"] = True
+    forged_payload["synthetic"] = False  # Dishonest DTO; actual source remains marked.
+    forged_payload["authority_limitation"] = None
     forged_payload["registry_patch"] = good.registry_patch.model_dump(mode="json")
     forged_payload["content_hash"] = recompute_grounding_admission_content_hash(forged_payload)
     forged_payload["certificate_id"] = (

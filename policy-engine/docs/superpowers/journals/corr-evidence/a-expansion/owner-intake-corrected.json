@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a-expansion.owner_intake",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a-expansion.owner_intake"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 365.395957083907,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "{\n  \"all_original_numeric_leaf_count\": 12,\n  \"all_original_numeric_leaf_identity_hash\": \"sha256:5c791035c062ccaa8b1fbb72310b0d73881e0cf594ffd9edfd09ccf6676ea89f\",\n  \"identity_delta\": [],\n  \"independent_frozen_suite_identity_hash\": \"sha256:18f60e476d8e8f8fae8d980b303a6b824f55425beb928faa55511d472122ade1\",\n  \"magnitude_grid_executable_status\": \"ambiguous_original_effect_magnitude_absent\",\n  \"no_runtime_refusal_outcomes_measured\": true,\n  \"operator_domain_bound_leaf_count\": 12,\n  \"operator_domain_bound_leaf_identity_hash\": \"sha256:5c791035c062ccaa8b1fbb72310b0d73881e0cf594ffd9edfd09ccf6676ea89f\",\n  \"original_assignment_atom_identity_hash\": \"sha256:18f60e476d8e8f8fae8d980b303a6b824f55425beb928faa55511d472122ade1\",\n  \"original_assignment_count\": 3,\n  \"original_effect_magnitude_reason\": \"No original signature provides a scalar effect magnitude or an effect unit. Every numeric leaf is an operator-domain min/max bound. Those bounds cannot be relabelled as an effect estimate. Sign is categorical.\",\n  \"original_effect_magnitude_status\": \"not_established\",\n  \"proof_input_hash\": \"sha256:8b8db9c24b9c2b78ec3e90b31ab9baf3156beba0b8a053f9bf32db993638ce08\",\n  \"reference_hash\": \"sha256:f20a23c7e51a1afb9ad565e7f732b73455441ef010606472e3e3d97271c3428d\",\n  \"requested_magnitude_coordinates\": 96,\n  \"schema_version\": \"corr.refusal_expansion_owner_intake.v1\",\n  \"source_refs\": [\n    \"architecture/policy_design_case/corr/grounding-2026-09-08/frame.json@2f844bc3fec18485c06d7e0240e8ac1789625ee7\",\n    \"architecture/policy_design_case/corr/grounding-2026-09-08/suite.json@f6f7779a018294c2425818243587aa39fb1e9491\",\n    \"architecture/policy_design_case/corr/grounding_proof_world_input.json@f355a8fd98023365d3572ded0db233c6034893f9\",\n    \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/runtime/quality/grounding_relation.py@24eb77299a24eb29a5104f29e20ff02fcb5ef9ba\"\n  ],\n  \"stage\": \"declaration_only_no_solver_no_binder\",\n  \"status\": \"passed\",\n  \"synthetic\": true\n}\n",
+  "stderr": ""
+}

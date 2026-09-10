@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_campaign_graph_finalization.py::test_graph_finalizer_refuses_incomplete_checkpoint_before_build",
+    "-q"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 2.468678625067696,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______ test_graph_finalizer_refuses_incomplete_checkpoint_before_build ________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1442/test_graph_finalizer_refuses_i0')\n\n    def test_graph_finalizer_refuses_incomplete_checkpoint_before_build(tmp_path: Path) -> None:\n        \"\"\"Registered source presence cannot stand in for a completed campaign.\"\"\"\n        from polisyos.data_forge.domains.academic.batch import pipeline\n        from tests.unit.data_forge.domains.academic.batch.test_reextraction_campaign import (\n            _owner,\n            _plan,\n            _safe_write,\n            _work,\n        )\n    \n        owner = _owner()\n        plan = _plan(owner)\n        root = tmp_path / \"campaign\"\n        with owner.CampaignCheckpoint(root, plan, _safe_write) as checkpoint:\n            checkpoint.prepare_inputs([_work()])\n>       finalize = pipeline.finalize_extraction_campaign_graph\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: module 'polisyos.data_forge.domains.academic.batch.pipeline' has no attribute 'finalize_extraction_campaign_graph'\n\ntests/unit/data_forge/domains/academic/batch/test_campaign_graph_finalization.py:25: AttributeError\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_campaign_graph_finalization.py::test_graph_finalizer_refuses_incomplete_checkpoint_before_build\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

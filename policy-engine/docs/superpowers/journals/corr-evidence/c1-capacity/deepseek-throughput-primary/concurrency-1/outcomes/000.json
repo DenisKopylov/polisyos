@@ -1,0 +1,34 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-000",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+  "error_kind": null,
+  "input_hash": "sha256:0b4c8eb9e04e3c6b2d3952518078845b2963c13523c2199e0730bd04a88fcece",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [],
+    "citation_summary": "The evidence bundle contains an abstract that discusses municipal solid waste management in urban localities, but does not provide any empirical evidence, causal claims, or quantitative parameters. The title mentions a hand operated seed cleaner for small-holder farmers, but the abstract content is unrelated to the title.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.05,
+    "extraction_warnings": [
+      "The abstract content does not match the title; no policy-relevant empirical evidence is present.",
+      "No causal claims, mechanisms, or boundary conditions could be extracted due to lack of relevant content."
+    ],
+    "mechanisms": [],
+    "methodology": "No methodology described; abstract only mentions municipal solid waste management as an important activity, no empirical design or analysis.",
+    "methodology_enum": "unknown",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:95f7977c1412abf1a892b54c0e114e065f5e603b98e85bbaa4c503816d136441",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-000.json",
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "requested_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:af3568ea4bb5b75558b9ec00d60f3188f8c215410832e7b1883fd4512a8121f7",
+  "work_id": "https://openalex.org/W3160415851"
+}

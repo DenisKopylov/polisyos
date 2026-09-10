@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check tools/quality/validation/check_grounding_bind_contract.py tools/quality/validation/check_grounding_refusal_sensitivity.py docs/superpowers/journals/corr-evidence/a/replicate_world_input.py docs/superpowers/journals/corr-evidence/a/removal.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tools/quality/validation/check_grounding_bind_contract.py",
+    "tools/quality/validation/check_grounding_refusal_sensitivity.py",
+    "docs/superpowers/journals/corr-evidence/a/replicate_world_input.py",
+    "docs/superpowers/journals/corr-evidence/a/removal.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.06601800001226366,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

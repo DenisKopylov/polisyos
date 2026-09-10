@@ -1,0 +1,31 @@
+{
+  "schema_version": "corr.abstract_provider_configuration.v1",
+  "declared_at": "2026-09-08T17:18:39.106849+00:00",
+  "scope": "subset",
+  "synthetic": false,
+  "subset_declaration_digest": "sha256:8d63505a398ca11b0623c5e01fe308b3d372cb6a511b6b9807976fb904789bb0",
+  "model_id": "gpt-4.1-mini-2025-04-14",
+  "base_url": "https://api.openai.com/v1",
+  "api": "chat_completions",
+  "json_mode": true,
+  "max_completion_tokens": 4096,
+  "transport_attempts_per_call": 1,
+  "per_call_timeout_seconds": 120,
+  "max_phase_calls": 18,
+  "concurrency": 1,
+  "pricing": {
+    "source": "https://developers.openai.com/api/docs/models/gpt-4.1-mini",
+    "verified_at": "2026-09-08",
+    "currency": "USD",
+    "per_million_tokens": {
+      "input": 0.4,
+      "cached_input": 0.1,
+      "output": 1.6
+    },
+    "provider_invoice": false,
+    "uncached_when_cache_usage_missing": "upper_estimate",
+    "batch_discount": false
+  },
+  "provider_run_status": "not_started",
+  "configuration_digest": "sha256:4669a79afdb881e82ec06f25db97c670ecc0de54dc5672142a847f17ab7d24d2"
+}

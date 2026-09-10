@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py::test_finalize_cli_replays_historical_input_and_refuses_incomplete",
+    "-q"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 1.666562500060536,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______ test_finalize_cli_replays_historical_input_and_refuses_incomplete _______\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1458/test_finalize_cli_replays_hist0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109387360>\n\n    def test_finalize_cli_replays_historical_input_and_refuses_incomplete(tmp_path, monkeypatch):\n        owner = _owner()\n>       assert hasattr(owner, \"finalize_plan\"), \"campaign_graph_cli_bridge_missing\"\nE       AssertionError: campaign_graph_cli_bridge_missing\nE       assert False\nE        +  where False = hasattr(<module 'polisyos.data_forge.domains.academic.batch.reextraction_cli' from '/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/batch/reextraction_cli.py'>, 'finalize_plan')\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py:450: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py::test_finalize_cli_replays_historical_input_and_refuses_incomplete\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

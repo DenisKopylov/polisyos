@@ -1,0 +1,31 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "d6d71545f80a9cbb30b594ebdc671e72e25ad4d30a05d0c9b6422aeb2df42ab0",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "screening",
+    "phase_key": "sha256:bed19235eb02f90c414ca8f0515cb7bfd6f2c611f4206e688f6ea42ce9d9244d",
+    "prompt_hash": "sha256:c04606db1b78a920d171de9df1ae5ce9577e00f54a9ea5b78b09f8601a48cb75",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "parsed": {
+    "reason": "Empirical study on electoral institutions and public spending with theoretical predictions but no specific quantitative effect estimates or clear causal identification strategy described",
+    "relevance_score": 0.45,
+    "relevant": true
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 532,
+    "prompt_tokens": 740,
+    "total_tokens": 1272
+  }
+}

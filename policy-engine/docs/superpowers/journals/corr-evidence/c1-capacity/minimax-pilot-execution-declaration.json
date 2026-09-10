@@ -1,0 +1,21 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.pilot_campaign",
+    "declare",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-pilot-v3-declaration.json",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/minimax-codec-v2-contract-verdict.json"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 17.397436667000875,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"execution_binding\": \"docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-pilot-execution-binding.json\"\n}\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

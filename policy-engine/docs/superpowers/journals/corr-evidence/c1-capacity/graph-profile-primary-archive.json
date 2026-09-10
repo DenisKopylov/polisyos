@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_profile_archive",
+    "archive"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 1.655785541050136,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"frames\": [\n    {\n      \"archived_primary\": [\n        {\n          \"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/graph-resource-profiles/100/samples.jsonl\",\n          \"sha256\": \"52fae87707c8a6a646adec40c902e984372c3599d4a3275a9b97aa52af3e4913\"\n        },\n        {\n          \"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/graph-resource-profiles/100/profile-result.json\",\n          \"sha256\": \"618ffca1b216f23e7fb5d3b30075f920ef2481be2ccac53546ae5f1a57666ba4\"\n        },\n        {\n          \"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/graph-resource-profiles/100/profile-completed.json\",\n          \"sha256\": \"278bc9c51982fe3ec812954c1c73ec95f66d4fce33cc0fe44597db3fcbb2f360\"\n        }\n      ],\n      \"complete_work_identities_equal\": true,\n      \"provider_attempts\": 0,\n      \"scope\": \"candidate_only\",\n      \"size\": 100,\n      \"sql_and_iterator_count\": 100,\n      \"synthetic\": true,\n      \"work_identity_hash\": \"sha256:3d44c58ccccdb1f95c3c50fae90e5be6c0f8e881ef437515c2953eb3d2f79004\"\n    },\n    {\n      \"archived_primary\": [\n        {\n          \"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/graph-resource-profiles/1000/samples.jsonl\",\n          \"sha256\": \"3c8f280b37453a8ac1236cf8a379b4796713f936e5da12bf216bf04a7c75aa82\"\n        },\n        {\n          \"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/graph-resource-profiles/1000/profile-result.json\",\n          \"sha256\": \"52fc72d6afa12407cab814ff94190f399af21752c188f9446d02edc23dc2bbaa\"\n        },\n        {\n          \"path\": \"docs/superpowers/journals/corr-evidence/c1-capacity/graph-resource-profiles/1000/profile-completed.json\",\n          \"sha256\": \"6b01a71b8fbada3af7c2ed436c3739e61b9e89fc6fea47cbec4d8ba0a5efe8f2\"\n        }\n      ],\n      \"complete_work_identities_equal\": true,\n      \"provider_attempts\": 0,\n      \"scope\": \"candidate_only\",\n      \"size\": 1000,\n      \"sql_and_iterator_count\": 1000,\n      \"synthetic\": true,\n      \"work_identity_hash\": \"sha256:c788ac85eb7fc0b7e5d86c5fee20d67c77d77592e367701da57e4c0578e054e1\"\n    }\n  ],\n  \"mode\": \"archive\",\n  \"scope\": \"candidate_only\",\n  \"synthetic\": true\n}\n\n",
+  "timed_out": false,
+  "timeout_seconds": 120.0
+}

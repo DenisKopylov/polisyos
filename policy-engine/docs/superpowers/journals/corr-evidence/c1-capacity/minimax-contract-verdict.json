@@ -1,0 +1,47 @@
+{
+  "actual_attempts": 1,
+  "attempt_observation": {
+    "authority_status": "candidate_only",
+    "base_url": "https://api.proxy.gonka.gg/v1",
+    "context": {
+      "attempt_id": "contract-1",
+      "campaign_id": "sha256:cd49225d5de3b6dbc9c973c4f01ff12ea8d1c91fa8614a7a2c821d72e1d00546",
+      "input_hash": "sha256:f65faaa6c442a4b42244f8e14e9f08c4d7461faa4dd8067231b6fd6edefafe43",
+      "phase": "extraction",
+      "synthetic": false,
+      "work_id": "https://openalex.org/W3121515037"
+    },
+    "error_kind": "malformed_output",
+    "estimator_elapsed_seconds": 0.3011380829848349,
+    "finish_reason": "stop",
+    "local_estimator": "injected_repository_estimator",
+    "local_prompt_token_estimate": 3401,
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "prompt_hash": "sha256:f830bcdd63c6279f8e1a1fa440517ee6928e31a627344dc2b90d5f6099d91e74",
+    "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+    "response_content_hash": "sha256:1fb7b1add3a37b308842c94fdafbd47343a658d4be5e1157562be359ee4d154a",
+    "retryable": true,
+    "schema_version": "policyos.academic.extraction_attempt.v1",
+    "status": "failed",
+    "status_code": 200,
+    "synthetic": false,
+    "transport_elapsed_seconds": 16.431984458002262,
+    "usage": {
+      "completion_tokens": 2319,
+      "prompt_tokens": 3404,
+      "total_tokens": 5723
+    }
+  },
+  "authority_status": "candidate_only",
+  "contract_satisfied": false,
+  "declaration_hash": "sha256:cd49225d5de3b6dbc9c973c4f01ff12ea8d1c91fa8614a7a2c821d72e1d00546",
+  "declared_attempts": 1,
+  "error_kind": "malformed_output",
+  "model_id": "MiniMaxAI/MiniMax-M2.7",
+  "response_artifact": null,
+  "response_hash": null,
+  "synthetic": false,
+  "typed_result_hash": null,
+  "typed_schema_hash": "sha256:efcbbace8786a54ef8b1c0b49f8e317eb40d6f90e202d74191d2486f9a32fe7d",
+  "work_id": "https://openalex.org/W3121515037"
+}

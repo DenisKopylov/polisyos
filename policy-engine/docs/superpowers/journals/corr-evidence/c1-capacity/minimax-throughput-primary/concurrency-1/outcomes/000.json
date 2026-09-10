@@ -1,0 +1,38 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-000",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:0b4c8eb9e04e3c6b2d3952518078845b2963c13523c2199e0730bd04a88fcece",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [],
+    "citation_summary": "This evidence bundle contains a critical content mismatch: the title describes a study on 'hand operated seed cleaner for small-holder farmers in East Hararghe, Oromia' but the abstract content exclusively discusses municipal solid waste management in urban localities. The abstract provides only general statements about population growth and municipal waste management responsibilities with no quantitative parameters, effect sizes, causal claims, or empirical evidence. Source is abstract-only with no methodology or results sections.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.05,
+    "extraction_warnings": [
+      "CRITICAL: Title and abstract content are completely mismatched - title concerns agricultural equipment (seed cleaner) while abstract discusses municipal solid waste management",
+      "No quantitative parameters, effect sizes, or empirical estimates available in the evidence bundle",
+      "No causal claims with effect sizes can be extracted - abstract contains only general descriptive statements",
+      "No methodology section present - source is abstract-only fallback",
+      "No sample size, geographic scope, or time period specified for any empirical analysis",
+      "Evidence bundle provides no policy-relevant empirical evidence due to content mismatch and lack of quantitative information"
+    ],
+    "mechanisms": [],
+    "methodology": null,
+    "methodology_enum": null,
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:53bf4d175b578366308b58e875a22f1c51437e582c06a61b4c0f1f3ca6e04e94",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-000.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:bad46e191f12efc8ee8f20fad8fdedfc92828f29b05fbbd5cbd54d29b8721bf5",
+  "work_id": "https://openalex.org/W3160415851"
+}

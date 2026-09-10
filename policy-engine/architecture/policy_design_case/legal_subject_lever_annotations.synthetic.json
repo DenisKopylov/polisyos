@@ -1,0 +1,21 @@
+{
+  "schema_version": "policyos.foundry.legal_subject_annotations.v1",
+  "synthetic": true,
+  "declared_at": "2026-09-08",
+  "source_role": "lever",
+  "producer_ref": "synthetic.legal-subject.lever-annotations",
+  "annotations": [
+    {
+      "entity_ref": "knob:budget_allocation_multiplier",
+      "subject": {"namespace": "synthetic.legal-subject-controls", "namespace_version": "1", "subject_id": "alpha", "valid_from": "1990-01-01", "valid_until": null}
+    },
+    {
+      "entity_ref": "knob:procurement_shock_intensity",
+      "subject": {"namespace": "synthetic.legal-subject-controls", "namespace_version": "1", "subject_id": "beta", "valid_from": "1990-01-01", "valid_until": null}
+    },
+    {
+      "entity_ref": "knob:tax_relief_rate",
+      "subject": {"namespace": "synthetic.legal-subject-controls", "namespace_version": "1", "subject_id": "gamma", "valid_from": "1990-01-01", "valid_until": null}
+    }
+  ]
+}

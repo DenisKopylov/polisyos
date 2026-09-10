@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_capacity_removal",
+    "output_disk"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 3.1137726249871776,
+  "returncode": 1,
+  "stderr": "test_direct_synthesis_counts_queue_bytes_in_shared_output_budget (tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_direct_synthesis_counts_queue_bytes_in_shared_output_budget) ... \n  test_direct_synthesis_counts_queue_bytes_in_shared_output_budget (tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_direct_synthesis_counts_queue_bytes_in_shared_output_budget) (queue_name_length=98304) ... FAIL\n\n======================================================================\nFAIL: test_direct_synthesis_counts_queue_bytes_in_shared_output_budget (tests.unit.data_forge.domains.academic.batch.test_graph_capacity.GraphCapacityTests.test_direct_synthesis_counts_queue_bytes_in_shared_output_budget) (queue_name_length=98304)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py\", line 678, in test_direct_synthesis_counts_queue_bytes_in_shared_output_budget\n    with self.assertRaisesRegex(GraphCapacityError, \"max_disk_bytes\"):\n         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: GraphCapacityError not raised\n\n----------------------------------------------------------------------\nRan 1 test in 2.226s\n\nFAILED (failures=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

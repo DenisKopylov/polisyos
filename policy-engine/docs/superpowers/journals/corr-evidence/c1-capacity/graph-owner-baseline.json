@@ -1,0 +1,18 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_baseline"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 4.024388250079937,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_baseline.py\", line 40, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_baseline.py\", line 27, in main\n    snapshot = complete_database_snapshot(config.db_path)\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py\", line 64, in complete_database_snapshot\n    with duckdb.connect(str(path), read_only=True) as con:\n         ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_capacity.py\", line 73, in complete_database_snapshot\n    assert columns[index][0] in {\"created_at\", \"started_at\", \"finished_at\"}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 120.0
+}

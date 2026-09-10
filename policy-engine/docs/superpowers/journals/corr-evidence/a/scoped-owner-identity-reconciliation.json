@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest docs/superpowers/journals/corr-evidence/a/scoped-owner-final.json --compact",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest",
+    "docs/superpowers/journals/corr-evidence/a/scoped-owner-final.json",
+    "--compact"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 279.9009197499836,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "{\n  \"denominator\": \"complete actual pytest collection versus complete executed JUnit testcase set\",\n  \"collection_returncode\": 0,\n  \"execution_returncode\": 0,\n  \"missing_executions\": [],\n  \"unexpected_executions\": [],\n  \"ambiguous_or_unresolved\": [],\n  \"duplicate_collection\": false,\n  \"duplicate_execution\": false,\n  \"nonpassing_executions\": [],\n  \"collected_count\": 38,\n  \"executed_count\": 38,\n  \"collected_identity_hash\": \"71151bd7ea79d1419695f8d237fbbc7288bc3e2d30f486f66936335b4f4170cf\",\n  \"executed_identity_hash\": \"71151bd7ea79d1419695f8d237fbbc7288bc3e2d30f486f66936335b4f4170cf\",\n  \"duplicate_collection_identities\": {},\n  \"duplicate_execution_identities\": {}\n}\n",
+  "stderr": ""
+}

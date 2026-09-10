@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/foundry/validation/test_legal_correspondence.py::test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/foundry/validation/test_legal_correspondence.py::test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 45.056858416995965,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___ test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular ____\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1374/test_distinct_ancestor_artifac0')\n\n    def test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular(tmp_path):\n        from polisyos.foundry.validation import legal_correspondence as owner\n    \n        store = artifacts.FileSystemCAS(tmp_path)\n        refs = {}\n        for role, entity, digest in ((\"lever\", \"lever:a\", \"a\"), (\"norm\", \"norm:a\", \"c\")):\n            ancestor = store.put_json({\"synthetic\": True, \"role\": role}, artifacts.PutOptions(\n                kind=\"synthetic.annotation\", media_type=\"application/json\",\n                producer=artifacts.ProducerInfo(\n                    component=\"synthetic.same_subject_producer\", version=\"1\")))\n            refs[role] = _source(store, role, [(entity, digest, \"alpha\")], inputs=[\n                artifacts.InputRef(artifact_id=ancestor.artifact_id, role=\"source_annotation\")])\n>       with pytest.raises(ValueError, match=\"legal_subject_source_circular\"):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/foundry/validation/test_legal_correspondence.py:120: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/foundry/validation/test_legal_correspondence.py::test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular\n",
+  "stderr": ""
+}

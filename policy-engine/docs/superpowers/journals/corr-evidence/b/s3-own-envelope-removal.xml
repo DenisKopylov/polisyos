@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="29.223" timestamp="2026-09-09T10:54:37.663404+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.repo_quality.tools.test_layer3_gy_intervention_substrate_contract" name="test_actual_wrapper_marks_its_constructed_report" time="29.025" /><testcase classname="tests.repo_quality.tools.test_layer3_gy_intervention_substrate_contract" name="test_actual_marked_report_remains_valid" time="0.012" /><testcase classname="tests.repo_quality.tools.test_layer3_gy_intervention_substrate_contract" name="test_validator_refuses_equal_unmarked_live_and_saved_report[absent]" time="0.011"><failure message="AssertionError: {'artifact': 'architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json', 'behavior_status': 'pass', 'issues': [], 'outputs': ['architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json'], ...}&#10;assert 'pass' == 'fail'&#10;  &#10;  - fail&#10;  + pass">emitted_payload = {'artifact_kind': 'runtime.quality.intervention_substrate_lift', 'behavior_report': {'authority_limitations': [{'capab...pine / Foundry persisted source recognition', ...}, 'contract_id': 'policyos.runtime.intervention_substrate_lift', ...}
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1409/test_validator_refuses_equal_u0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13baa2f90&gt;
+invalid_marker = 'absent'
+
+    @pytest.mark.parametrize("invalid_marker", ["absent", False, None])
+    def test_validator_refuses_equal_unmarked_live_and_saved_report(
+        emitted_payload: dict[str, Any],
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        invalid_marker: str | bool | None,
+    ) -&gt; None:
+        if invalid_marker == "absent":
+            emitted_payload.pop("synthetic", None)
+        else:
+            emitted_payload["synthetic"] = invalid_marker
+        result = _validate_equal_saved_and_live(emitted_payload, tmp_path, monkeypatch)
+        assert result["behavior_status"] == "pass"
+&gt;       assert result["status"] == "fail", result
+E       AssertionError: {'artifact': 'architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json', 'behavior_status': 'pass', 'issues': [], 'outputs': ['architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json'], ...}
+E       assert 'pass' == 'fail'
+E         
+E         - fail
+E         + pass
+
+tests/repo_quality/tools/test_layer3_gy_intervention_substrate_contract.py:67: AssertionError</failure></testcase><testcase classname="tests.repo_quality.tools.test_layer3_gy_intervention_substrate_contract" name="test_validator_refuses_equal_unmarked_live_and_saved_report[False]" time="0.012"><failure message="AssertionError: {'artifact': 'architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json', 'behavior_status': 'pass', 'issues': [], 'outputs': ['architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json'], ...}&#10;assert 'pass' == 'fail'&#10;  &#10;  - fail&#10;  + pass">emitted_payload = {'artifact_kind': 'runtime.quality.intervention_substrate_lift', 'behavior_report': {'authority_limitations': [{'capab...pine / Foundry persisted source recognition', ...}, 'contract_id': 'policyos.runtime.intervention_substrate_lift', ...}
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1409/test_validator_refuses_equal_u1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13b9488d0&gt;
+invalid_marker = False
+
+    @pytest.mark.parametrize("invalid_marker", ["absent", False, None])
+    def test_validator_refuses_equal_unmarked_live_and_saved_report(
+        emitted_payload: dict[str, Any],
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        invalid_marker: str | bool | None,
+    ) -&gt; None:
+        if invalid_marker == "absent":
+            emitted_payload.pop("synthetic", None)
+        else:
+            emitted_payload["synthetic"] = invalid_marker
+        result = _validate_equal_saved_and_live(emitted_payload, tmp_path, monkeypatch)
+        assert result["behavior_status"] == "pass"
+&gt;       assert result["status"] == "fail", result
+E       AssertionError: {'artifact': 'architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json', 'behavior_status': 'pass', 'issues': [], 'outputs': ['architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json'], ...}
+E       assert 'pass' == 'fail'
+E         
+E         - fail
+E         + pass
+
+tests/repo_quality/tools/test_layer3_gy_intervention_substrate_contract.py:67: AssertionError</failure></testcase><testcase classname="tests.repo_quality.tools.test_layer3_gy_intervention_substrate_contract" name="test_validator_refuses_equal_unmarked_live_and_saved_report[None]" time="0.012"><failure message="AssertionError: {'artifact': 'architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json', 'behavior_status': 'pass', 'issues': [], 'outputs': ['architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json'], ...}&#10;assert 'pass' == 'fail'&#10;  &#10;  - fail&#10;  + pass">emitted_payload = {'artifact_kind': 'runtime.quality.intervention_substrate_lift', 'behavior_report': {'authority_limitations': [{'capab...pine / Foundry persisted source recognition', ...}, 'contract_id': 'policyos.runtime.intervention_substrate_lift', ...}
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1409/test_validator_refuses_equal_u2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13b949370&gt;
+invalid_marker = None
+
+    @pytest.mark.parametrize("invalid_marker", ["absent", False, None])
+    def test_validator_refuses_equal_unmarked_live_and_saved_report(
+        emitted_payload: dict[str, Any],
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        invalid_marker: str | bool | None,
+    ) -&gt; None:
+        if invalid_marker == "absent":
+            emitted_payload.pop("synthetic", None)
+        else:
+            emitted_payload["synthetic"] = invalid_marker
+        result = _validate_equal_saved_and_live(emitted_payload, tmp_path, monkeypatch)
+        assert result["behavior_status"] == "pass"
+&gt;       assert result["status"] == "fail", result
+E       AssertionError: {'artifact': 'architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json', 'behavior_status': 'pass', 'issues': [], 'outputs': ['architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json'], ...}
+E       assert 'pass' == 'fail'
+E         
+E         - fail
+E         + pass
+
+tests/repo_quality/tools/test_layer3_gy_intervention_substrate_contract.py:67: AssertionError</failure></testcase></testsuite></testsuites>

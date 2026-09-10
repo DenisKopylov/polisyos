@@ -1,0 +1,21 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_actual_sigkill_restart_retains_completed_identity_sets",
+    "-q",
+    "-s"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 20.233836584025994,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F\n=================================== FAILURES ===================================\n_________ test_actual_sigkill_restart_retains_completed_identity_sets __________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1420/test_actual_sigkill_restart_re0')\n\n    @pytest.mark.asyncio\n    async def test_actual_sigkill_restart_retains_completed_identity_sets(tmp_path: Path) -> None:\n        \"\"\"Kill a real OS worker between phase intent and response, then replay it.\"\"\"\n        owner = _owner()\n        works = [_work(index) for index in range(3)]\n        plan = _plan(owner, works, max_attempts=18)\n        uninterrupted = _SyntheticTransport()\n        await owner.run_campaign(\n            plan, works=iter(works), output_root=tmp_path / \"control\",\n            client_factory=uninterrupted.bind, safe_write_json=_safe_write,\n        )\n        root = tmp_path / \"interrupted\"\n        child = subprocess.Popen([\n            sys.executable, \"-m\", __name__, str(root),\n        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)\n        deadline = time.monotonic() + 120\n        try:\n            while not (root / \"kill-ready.json\").exists():\n>               assert child.poll() is None, \"synthetic_worker_terminated_before_barrier\"\nE               AssertionError: synthetic_worker_terminated_before_barrier\nE               assert 1 is None\nE                +  where 1 = poll()\nE                +    where poll = <Popen: returncode: 1 args: ['/Users/deniskopylov/polisyos/.worktrees/gy-cor...>.poll\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py:285: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_actual_sigkill_restart_retains_completed_identity_sets\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

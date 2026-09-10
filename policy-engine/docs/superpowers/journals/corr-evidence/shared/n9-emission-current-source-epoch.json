@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.shared.n9_emission_census",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.n9_emission_census"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 0.09502170898485929,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "{\n  \"declaration_vs_producer_missing\": [],\n  \"declaration_vs_wiring_missing\": [],\n  \"evidence_kind_denominator\": 3,\n  \"file_type_denominator\": \"complete Python module AST\",\n  \"marker_at_owned_emissions\": {\n    \"_persist_bridge\": true,\n    \"persist_effect_obligation\": true,\n    \"persist_effective_independence\": true\n  },\n  \"owned_cas_emissions\": {\n    \"_persist_bridge\": \"N9PromotionEvidenceBridgeRecord\",\n    \"persist_effect_obligation\": \"_EffectObligationProducerRecord\",\n    \"persist_effective_independence\": \"_EffectiveIndependenceProducerRecord\"\n  },\n  \"producer_vs_declaration_missing\": [],\n  \"scope\": \"static source denominator; runtime authority requires the independent probes\",\n  \"sha256\": \"9616a4c879688023870c3e040bfc5e3ab2f67fa3ee285d714a3bc7615280e92c\",\n  \"source\": \"src/polisyos/runtime/quality/promotion_sequence.py\",\n  \"wiring_vs_declaration_missing\": []\n}\n",
+  "stderr": ""
+}

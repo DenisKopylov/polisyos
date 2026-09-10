@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_dispatch_requires_complete_frame_admission",
+    "-q"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 3.571357332984917,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________ test_dispatch_requires_complete_frame_admission ________________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1434/test_dispatch_requires_complet0')\n\n    def test_dispatch_requires_complete_frame_admission(tmp_path: Path) -> None:\n        \"\"\"Registering a selected work alone cannot bypass the complete input frame.\"\"\"\n        owner = _owner()\n        with owner.CampaignCheckpoint(tmp_path / \"run\", _plan(owner), _safe_write) as checkpoint:\n            key = checkpoint.register_work(_work())\n>           with pytest.raises(ValueError, match=\"campaign_input_frame_not_admitted\"):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py:176: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign.py::test_dispatch_requires_complete_frame_admission\n",
+  "timed_out": false,
+  "timeout_seconds": 180.0
+}

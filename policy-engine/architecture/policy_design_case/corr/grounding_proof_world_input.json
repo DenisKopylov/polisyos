@@ -1,0 +1,16 @@
+{
+  "schema_version": "policyos.runtime.grounding_proof_world_input.v1",
+  "synthetic": true,
+  "purpose": "structural_grounding_proof_only",
+  "source_ref": {
+    "artifact_id": "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+    "kind": "runtime.quality.world_model_record",
+    "media_type": "application/json"
+  },
+  "cas_root": ".tmp/gy-s-composed-wmr-cas",
+  "source_schema_version": "policyos.runtime.world_model_record.v1",
+  "world_content_hash": "sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6",
+  "world_created_at": "2026-09-08T16:59:01.685331+00:00",
+  "declared_at": "2026-09-09T06:31:38.456649+00:00",
+  "content_hash": "sha256:8b8db9c24b9c2b78ec3e90b31ab9baf3156beba0b8a053f9bf32db993638ce08"
+}

@@ -244,6 +244,16 @@ def test_phase5_configured_value_port_family_reaches_owner_selection_and_replay(
 def test_phase5_real_unrelated_law_target_cannot_authorize_a_knob() -> None:
     """Real threshold truth cannot establish a different law/lever correspondence."""
     bundle = load_l6_intervention_substrate(REPO_ROOT)
+    lex = _lex_store()
+    bundle = _with_subject_spine(bundle, lex)
+    positive = resolve_law_bound_lever(
+        bundle, law_token=BUDGET_LAW, knob_id="budget_allocation_multiplier",
+        parameter_value=0.24, legal_store=lex,
+    )
+    assert positive.recognition.status == "passed"
+    assert positive.legal_threshold_evaluation["status"] == "admitted"
+    assert positive.synthetic is True
+    assert positive.current_authority_status == "blocked"
     manifest = copy.deepcopy(bundle.lex_authority_manifest)
     entries = {row["law_token"]: row for row in manifest["intervention_map_entries"]}
     budget, tax = entries["budget_law"], entries["tax_relief_statute"]
@@ -257,12 +267,63 @@ def test_phase5_real_unrelated_law_target_cannot_authorize_a_knob() -> None:
         law_token=tax["law_token"],
         knob_id="tax_relief_rate",
         parameter_value=0.24,
-        legal_store=_lex_store(),
+        legal_store=lex,
     )
-    assert result.legal_threshold_evaluation["status"] == "admitted"
+    assert result.recognition.status == "rejected"
+    assert result.recognition.reason_code == "legal_subject_mismatch"
+    assert result.legal_threshold_evaluation is None
+    assert result.numeric_evaluation_status == "not_run"
     assert result.status == "blocked"
-    assert result.mapping_evidence_ref is None
-    assert result.mapping_predicate_provenance == "consumer_asserted"
+    assert result.mapping_evidence_ref is not None
+    assert result.mapping_predicate_provenance == "recomputed"
+
+
+def test_missing_legal_subject_is_ambiguous_before_numeric_units(monkeypatch) -> None:
+    """Deleting early subject admission wrongly evaluates an ungrounded unit."""
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    manifest = copy.deepcopy(bundle.lex_authority_manifest)
+    for row in manifest["intervention_map_entries"]:
+        if row["law_token"] == BUDGET_LAW:
+            row["measurement_expectations"]["candidate_unit"] = "corr.invalid.unit"
+    bundle = replace_intervention_substrate_bundle(
+        bundle, update={"lex_authority_manifest": manifest})
+    lex = _lex_store()
+    evaluations = []
+    evaluate = lex.evaluate_rule_threshold
+
+    def observed_evaluate(**kwargs):
+        evaluations.append(kwargs)
+        return evaluate(**kwargs)
+
+    monkeypatch.setattr(lex, "evaluate_rule_threshold", observed_evaluate)
+    result = resolve_law_bound_lever(
+        bundle, law_token=BUDGET_LAW, knob_id="budget_allocation_multiplier",
+        parameter_value=1.0, legal_store=lex,
+    )
+    assert evaluations == []
+    assert result.recognition.status == "ambiguous"
+    assert result.numeric_evaluation_status == "not_run"
+    assert result.legal_threshold_evaluation is None
+    assert result.knob_id == "budget_allocation_multiplier"
+    assert result.current_authority_status == "blocked"
+
+
+def test_subject_comparison_removal_turns_real_transposition_gate_red(monkeypatch) -> None:
+    from polisyos.foundry.validation import legal_correspondence as owner
+
+    monkeypatch.setattr(owner, "_same_subject", lambda lever, norm: True)
+    with pytest.raises(AssertionError):
+        test_phase5_real_unrelated_law_target_cannot_authorize_a_knob()
+
+
+def test_subject_forwarding_removal_turns_real_positive_gate_red(monkeypatch) -> None:
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    original = owner.recognize_legal_correspondence
+    monkeypatch.setattr(owner, "recognize_legal_correspondence",
+                        lambda store, ref, request: original(store, None, request))
+    with pytest.raises(AssertionError):
+        test_phase5_real_unrelated_law_target_cannot_authorize_a_knob()
 
 
 def test_phase5_route_growth_ambiguity_and_source_substitution() -> None:
@@ -332,6 +393,39 @@ def test_phase5_historical_law_record_remains_readable_without_current_authority
     assert historical.status == "admissible"
     assert historical.current_authority_status == "blocked"
     assert historical.mapping_evidence_ref is None
+
+
+def test_historical_v2_law_record_cannot_be_restamped_with_current_binding() -> None:
+    import json
+
+    from polisyos.runtime.quality.intervention_substrate import LawLeverResolution
+
+    payload = json.loads((Path(__file__).parent / "fixtures/intervention_law_lift_v2.json")
+                         .read_text())
+    historical = LawLeverResolution.model_validate(payload)
+    assert historical.content_hash == payload["content_hash"]
+    assert historical.current_authority_status == "blocked"
+    payload["knob_id"] = "budget_allocation_multiplier"
+    with pytest.raises(ValueError, match="historical_epoch_cannot_carry_current_recognition"):
+        LawLeverResolution.model_validate(payload)
+
+
+def test_historical_v2_law_nested_serialization_preserves_original_bytes() -> None:
+    import json
+
+    from pydantic import BaseModel
+
+    from polisyos.core import canon
+    from polisyos.runtime.quality.intervention_substrate import LawLeverResolution
+
+    class Container(BaseModel):
+        law: LawLeverResolution
+
+    raw = json.loads((Path(__file__).parent / "fixtures/intervention_law_lift_v2.json").read_text())
+    nested = Container(law=LawLeverResolution.model_validate(raw))
+    spec = canon.CanonSpec(forbid_floats=False, exclude_none=False)
+    assert canon.to_canonical_bytes(nested.model_dump(mode="json"), spec) == canon.to_canonical_bytes(
+        {"law": raw}, spec)
 
 
 def test_phase5_route_context_binds_source_and_rejects_forged_method_constraint() -> None:
@@ -453,6 +547,19 @@ def _lex_store() -> LegalKnowledgeStore:
     return LegalKnowledgeStore(L3_DB, L3_DB.parent)
 
 
+def _with_subject_spine(bundle, lex):
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.quality.intervention_substrate import (
+        produce_intervention_legal_subject_spine,
+    )
+
+    ref = produce_intervention_legal_subject_spine(
+        REPO_ROOT, bundle, legal_store=lex, store=FileSystemCAS(REPO_ROOT / ".polisyos/cas"))
+    return replace_intervention_substrate_bundle(bundle, update={
+        "owner_authority_manifest": {**bundle.owner_authority_manifest,
+                                     "legal_subject_spine_ref": ref.model_dump(mode="json")}})
+
+
 def test_l6_world_slot_authority_is_not_hardcoded_in_default_mechanisms() -> None:
     assert L6_MECHANISM_IDS.isdisjoint(DEFAULT_MECHANISM_REGISTRY.mechanisms)
 
@@ -515,6 +622,7 @@ def test_all_real_knobs_bind_world_slots_through_owner_without_injected_authorit
 def test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value() -> None:
     bundle = load_l6_intervention_substrate(REPO_ROOT)
     lex = _lex_store()
+    bundle = _with_subject_spine(bundle, lex)
 
     admitted = resolve_law_bound_lever(
         bundle,
@@ -532,7 +640,8 @@ def test_law_bound_lever_traces_real_l3_threshold_and_blocks_violating_value() -
     )
 
     assert admitted.status == "blocked"
-    assert admitted.mapping_evidence_ref is None
+    assert admitted.mapping_evidence_ref is not None
+    assert admitted.recognition.status == "passed"
     assert admitted.legal_threshold_evaluation["status"] == "admitted"
     assert admitted.provision_ref.startswith("duckdb://")
     assert admitted.knob.operator_kind == "budget_allocation_multiplier"
@@ -557,20 +666,162 @@ def test_all_real_law_map_entries_trace_to_l3_provision_without_injected_authori
             knob_ids = raw_knobs.get("knob_ids") or raw_knobs.get("knobs") or raw_knobs.get("knob_id")
         else:
             knob_ids = raw_knobs
-        knob_id = knob_ids[0]
-        raw_knob = bundle.knob_dictionary[knob_id]
-        value = (float(raw_knob["min"]) + float(raw_knob["max"])) / 2.0
-        traced[law_token] = resolve_law_bound_lever(
-            bundle,
-            law_token=law_token,
-            knob_id=knob_id,
-            parameter_value=value,
-            legal_store=lex,
-        )
+        assert isinstance(knob_ids, (list, tuple)), (law_token, knob_ids)
+        for knob_id in knob_ids:
+            raw_knob = bundle.knob_dictionary[knob_id]
+            value = (float(raw_knob["min"]) + float(raw_knob["max"])) / 2.0
+            traced[(law_token, knob_id)] = resolve_law_bound_lever(
+                bundle,
+                law_token=law_token,
+                knob_id=knob_id,
+                parameter_value=value,
+                legal_store=lex,
+            )
 
-    assert set(traced) == set(bundle.lex_intervention_map)
+    owner_pairs = {(row["law_token"], knob_id)
+                   for row in bundle.lex_authority_manifest["intervention_map_entries"]
+                   for knob_id in row["knob_ids"]}
+    assert set(traced) == owner_pairs
+    assert {law for law, _knob in traced} == set(bundle.lex_intervention_map)
     assert all(item.provision_ref.startswith("duckdb://") for item in traced.values())
     assert all(item.threshold_id for item in traced.values())
+    assert all(item.numeric_evaluation_status == "not_run" for item in traced.values())
+
+
+def test_frozen_subject_producer_is_invariant_to_the_proposed_law_mapping(tmp_path) -> None:
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.intervention_substrate import (
+        produce_intervention_legal_subject_spine,
+    )
+
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    store = artifacts.FileSystemCAS(tmp_path)
+    lex = _lex_store()
+    original = produce_intervention_legal_subject_spine(
+        REPO_ROOT, bundle, legal_store=lex, store=store)
+    manifest = copy.deepcopy(bundle.lex_authority_manifest)
+    entries = manifest["intervention_map_entries"]
+    targets = [row["provision_ref"] for row in entries]
+    for row, target in zip(entries, targets[1:] + targets[:1], strict=True):
+        row["provision_ref"] = target
+    changed = replace_intervention_substrate_bundle(bundle, update={
+        "lex_authority_manifest": manifest, "lex_intervention_map": {"novel": ["fake_knob"]}})
+    assert changed.content_hash != bundle.content_hash
+    assert produce_intervention_legal_subject_spine(
+        REPO_ROOT, changed, legal_store=lex, store=store) == original
+
+
+def test_every_real_law_knob_pair_is_recognized_only_relative_to_synthetic_sources() -> None:
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    bundle = _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), _lex_store())
+    expected = {(law, knob) for law in bundle.lex_intervention_map
+                for knob in owner._lex_map_knobs(bundle.lex_intervention_map, law)}
+    independently_derived = {(row["law_token"], knob)
+                             for row in bundle.lex_authority_manifest["intervention_map_entries"]
+                             for knob in row["knob_ids"]}
+    assert expected == independently_derived
+    observed = set()
+    for law, knob in sorted(expected):
+        value = owner._representative_knob_value(bundle.knob_dictionary[knob], knob_id=knob)
+        result = resolve_law_bound_lever(
+            bundle, law_token=law, knob_id=knob, parameter_value=value, legal_store=_lex_store())
+        observed.add((result.law_token, result.knob_id))
+        assert result.recognition.status == "passed"
+        assert result.synthetic is True
+        assert result.current_authority_status == "blocked"
+        assert result.mapping_evidence_ref is not None
+    assert observed == expected
+    print({"denominator": "complete L6 law/knob pairs", "total": len(expected),
+           "identity_hash": gy_content_hash(sorted(expected)),
+           "independent_identity_hash": gy_content_hash(sorted(independently_derived)),
+           "identity_symmetric_difference": sorted(expected ^ independently_derived)})
+
+
+def test_current_law_resolution_rejects_rehashed_recognition_splices() -> None:
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.intervention_substrate import LawLeverResolution
+
+    lex = _lex_store()
+    result = resolve_law_bound_lever(
+        _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), lex),
+        law_token=BUDGET_LAW, knob_id="budget_allocation_multiplier",
+        parameter_value=0.24, legal_store=lex)
+    assert result.recognition.status == "passed"
+    for key, value in (("lever_ref", "knob:tax_relief_rate"),
+                       ("norm_ref", "lex_rule_thresholds:other")):
+        payload = result.model_dump(mode="json")
+        payload["recognition"]["request"][key] = value
+        payload.pop("content_hash")
+        payload["content_hash"] = gy_content_hash(payload)
+        with pytest.raises(ValueError, match="law_mapping_recognition_entity_mismatch"):
+            LawLeverResolution.model_validate(payload)
+    for key, value in (("synthetic", False), ("mapping_reason_code", "invented_pass")):
+        payload = result.model_dump(mode="json")
+        payload[key] = value
+        payload.pop("content_hash")
+        payload["content_hash"] = gy_content_hash(payload)
+        with pytest.raises(ValueError, match="law_mapping_recognition_projection_mismatch"):
+            LawLeverResolution.model_validate(payload)
+
+
+def test_subject_membership_and_actual_law_route_grow_as_data(tmp_path) -> None:
+    import json
+
+    from polisyos.core import artifacts
+    from polisyos.foundry import LegalSubjectAnnotationSource
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    lex = _lex_store()
+    threshold = lex.resolve_rule_threshold(
+        threshold_id=FREE_GROW_L3_THRESHOLD_ID, as_of=FREE_GROW_L3_AS_OF)
+    assert threshold is not None
+    grown = owner._free_grow_bundle(load_l6_intervention_substrate(REPO_ROOT),
+                                    threshold=threshold, as_of=FREE_GROW_L3_AS_OF)
+    declarations = {}
+    for role, entity in (("lever", "knob:" + FREE_GROW_KNOB),
+                         ("norm", "lex_rule_thresholds:" + FREE_GROW_L3_THRESHOLD_ID)):
+        path = REPO_ROOT / "architecture/policy_design_case" / (
+            f"legal_subject_{role}_annotations.synthetic.json")
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        raw["annotations"].append({"entity_ref": entity, "subject": {
+            "namespace": "synthetic.legal-subject-controls", "namespace_version": "1",
+            "subject_id": "data_only_new_subject", "valid_from": "1990-01-01"}})
+        declarations[role] = LegalSubjectAnnotationSource.model_validate(raw)
+    store = artifacts.FileSystemCAS(tmp_path)
+    ref = owner.produce_intervention_legal_subject_spine(
+        REPO_ROOT, grown, legal_store=lex, store=store, annotations=declarations)
+    grown = replace_intervention_substrate_bundle(grown, update={
+        "owner_authority_manifest": {**grown.owner_authority_manifest,
+                                     "legal_subject_spine_ref": ref.model_dump(mode="json")}})
+    result = resolve_law_bound_lever(
+        grown, law_token=FUTURE_RELIEF_LAW, knob_id=FREE_GROW_KNOB, parameter_value=0.2,
+        legal_store=lex, correspondence_store=store)
+    assert result.recognition.status == "passed"
+    assert result.knob.operator_kind == FREE_GROW_KNOB
+    assert result.knob.target_world_slots == (FREE_GROW_SLOT,)
+    assert result.synthetic is True
+    assert result.current_authority_status == "blocked"
+    assert result.mapping_evidence_ref is not None
+
+
+def test_synthetic_recognition_does_not_authorize_credal_or_atom_consumers() -> None:
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    # This integration positive must share the actual credal consumer's logical
+    # evidence identity. An absolute DB URI correctly fails content binding.
+    lex = LegalKnowledgeStore(
+        L3_DB, L3_DB.parent, canonical_db_ref_path=owner.DEFAULT_L3_LEX_DB_PATH)
+    bundle = _with_subject_spine(load_l6_intervention_substrate(REPO_ROOT), lex)
+    report = owner._law_credal_consumer_behavior_report(
+        REPO_ROOT, bundle, owner.production_composed_world_model_record(REPO_ROOT))
+    assert report["source_relative_recognition_passed"] is True
+    assert report["status"] == "pass"
+    assert not report["law_denominator"]["consumer_identity_difference"]
+    assert not report["atom_denominator"]["identity_symmetric_difference"]
+    assert report["remove_status_keep_markers_goes_red"] is True
+    assert report["remove_association_keep_incomplete_goes_red"] is True
 
 
 def test_law_bound_lever_fails_closed_for_dangling_map_entries() -> None:

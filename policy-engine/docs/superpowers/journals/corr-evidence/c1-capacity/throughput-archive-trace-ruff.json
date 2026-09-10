@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_trace_analysis.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 0.10471924999728799,
+  "stdout": "All checks passed!\n",
+  "stderr": "",
+  "source_sha256": {
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive.py": "8ee68b25860f8a454c2c484864b188fed072f5d31efe466b84ec0fb0c082e973",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_archive.py": "083cf793f9d6914f7e542d8a9743f2dad0db6826d598f84b3c0c217a9eb26570",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_trace_analysis.py": "67beba90e3cf1d187461b6e1f09c741dda173c029e34e1c1f84d2fdeae002ad0",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/test_throughput_trace.py": "ba9aafb2356d08143d31acf48c42ef61d23d44d4a431dba91bf24737cea11927",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/throughput_archive_verification.py": "f2966b158837402c5f6306605c31222b5ce97cf208365406f706a95b7cd152b0"
+  }
+}

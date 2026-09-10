@@ -474,12 +474,9 @@ def test_owner_projection_round_trips_exact_open_world_vector_identity() -> None
 
 
 def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> None:
-    frozen = json.loads(
-        (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
-        ).read_text(encoding="utf-8")
-    )
+    from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
+
+    frozen = historical_generation_cycle_v1()
     payload = frozen["generation_cycle_run"]["promotion_port"]["receipts"][0]
     owner = payload["owner_projection"]
 
@@ -3807,13 +3804,10 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
 
 @_requires_cp_sat
 def test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue() -> None:
+    from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 
-    historical_contract = json.loads(
-        (
-            REPO_ROOT / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
-        ).read_text(encoding="utf-8")
-    )
+    historical_contract = historical_generation_cycle_v1()
     historical = historical_contract["generation_cycle_run"]["promotion_port"]["receipts"][0]
     historical_receipt = promotion_sequence_module.parse_canonical_promotion_history_receipt(
         historical

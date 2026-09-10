@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest docs/superpowers/journals/corr-evidence/b/final-targeted-retry.json --compact",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.gy-phase5-evidence.shared.reconcile_pytest",
+    "docs/superpowers/journals/corr-evidence/b/final-targeted-retry.json",
+    "--compact"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": -9,
+  "capture_returncode": 124,
+  "elapsed_seconds": 120.06112216599286,
+  "timeout_seconds": 120.0,
+  "timed_out": true,
+  "stdout": "",
+  "stderr": ""
+}

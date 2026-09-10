@@ -1,4 +1,1495 @@
 {
+  "admission_run_probes": {
+    "admissions": [
+      {
+        "admission_strangle": {
+          "admission_event_ref": "sha256:3a5480e1fcfebb1b4de45980db5057fab9bd1802c123480d2b3f94480990808c",
+          "decision": "bind",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.01,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": "cg0_atom_4164e221ec82011c",
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_b33e45af96707900",
+        "cg1_content_hash": "sha256:b33e45af967079007c9ae88889a6c6f41efec4f2e399a4c0f4ba10cfb9ff0bc2",
+        "content_hash": "sha256:d9d451e1335eeb27a505093ff29c35fc5042b64bd724c7f2609784e8f2b02b6b",
+        "decision": "bind",
+        "decisive_reason": "bind_eligible",
+        "open_obligations": [],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": true,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:b33e45af967079007c9ae88889a6c6f41efec4f2e399a4c0f4ba10cfb9ff0bc2",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_a4d21613744f1937",
+          "replayed_content_hash": "sha256:a4d21613744f1937cf34cb4fc7f7e02eb551c2af5fc473e33dc885ea24542f3a",
+          "replayed_critical_contradictions": [],
+          "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
+          "replayed_selected_relation": "exact",
+          "selected_atom_reproduced": true,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [
+          {
+            "bound": 0.01,
+            "component": "relation_admission",
+            "conservative_bound": false,
+            "source": "configured_admission_ceiling_not_correctness_calibration",
+            "spend": 0.01
+          }
+        ],
+        "risk_spend": 0.01,
+        "run_admission": {
+          "admitted_spend": 0.01,
+          "authority_band": "candidate",
+          "binding_key": "sha256:e748607a609d06e949604b372769ee28b58da58194450f86a7b8f2f603647e30",
+          "charged_this_attempt": 0.01,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": "sha256:3a5480e1fcfebb1b4de45980db5057fab9bd1802c123480d2b3f94480990808c",
+          "reason": "synthetic_mechanical_admission",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "admitted",
+          "synthetic": true
+        },
+        "safe_atom_ids": [
+          "cg0_atom_4164e221ec82011c"
+        ],
+        "safe_count": 1,
+        "selected_relation": "exact",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": "sha256:2a770d962bf69ee07b960511e6e90a580b87284df808252321682c4c743158bd",
+          "decision": "bind",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.01,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": "cg0_atom_4164e221ec82011c",
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_f51c6e93e0a15e9e",
+        "cg1_content_hash": "sha256:f51c6e93e0a15e9e6a9710ed4a457c20dff2bab7a8bde1e2638abc4ad6baa4b0",
+        "content_hash": "sha256:e5123552cb269750cbb223a4e7d4e0a15853458eb5db4e3dc1927235c0d69a2c",
+        "decision": "bind",
+        "decisive_reason": "bind_eligible",
+        "open_obligations": [],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": true,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:f51c6e93e0a15e9e6a9710ed4a457c20dff2bab7a8bde1e2638abc4ad6baa4b0",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_cc479a89d113621a",
+          "replayed_content_hash": "sha256:cc479a89d113621a8d94046dfd280dde11b08d0c1ea7965857542e4e27653ef3",
+          "replayed_critical_contradictions": [],
+          "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
+          "replayed_selected_relation": "exact",
+          "selected_atom_reproduced": true,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [
+          {
+            "bound": 0.01,
+            "component": "relation_admission",
+            "conservative_bound": false,
+            "source": "configured_admission_ceiling_not_correctness_calibration",
+            "spend": 0.01
+          }
+        ],
+        "risk_spend": 0.01,
+        "run_admission": {
+          "admitted_spend": 0.02,
+          "authority_band": "candidate",
+          "binding_key": "sha256:c58a1ba266b99bb1c2009132e55a73717468783e72f388aeaf1a106e44a94435",
+          "charged_this_attempt": 0.01,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": "sha256:2a770d962bf69ee07b960511e6e90a580b87284df808252321682c4c743158bd",
+          "reason": "synthetic_mechanical_admission",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "admitted",
+          "synthetic": true
+        },
+        "safe_atom_ids": [
+          "cg0_atom_4164e221ec82011c"
+        ],
+        "safe_count": 1,
+        "selected_relation": "exact",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": "sha256:528199c0ebad09c69283648fa9cfa985cb4454ed34652d6f047e3244a0ad8d43",
+          "decision": "bind",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.01,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": "cg0_atom_4164e221ec82011c",
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_43da815deee0e611",
+        "cg1_content_hash": "sha256:43da815deee0e611f124c5d59a0554bda397659b0568a2fd0860d197856b3fd1",
+        "content_hash": "sha256:527cbaf4438af587db406cb8e735dc1e376a4783cb8659b2030e52438e4e726a",
+        "decision": "bind",
+        "decisive_reason": "bind_eligible",
+        "open_obligations": [],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": true,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:43da815deee0e611f124c5d59a0554bda397659b0568a2fd0860d197856b3fd1",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_3ca8b21f116cc899",
+          "replayed_content_hash": "sha256:3ca8b21f116cc89971700e383064b2f1c2abe75ae336b6b7b2ff40b06133f917",
+          "replayed_critical_contradictions": [],
+          "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
+          "replayed_selected_relation": "exact",
+          "selected_atom_reproduced": true,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [
+          {
+            "bound": 0.01,
+            "component": "relation_admission",
+            "conservative_bound": false,
+            "source": "configured_admission_ceiling_not_correctness_calibration",
+            "spend": 0.01
+          }
+        ],
+        "risk_spend": 0.01,
+        "run_admission": {
+          "admitted_spend": 0.03,
+          "authority_band": "candidate",
+          "binding_key": "sha256:44364f910f3fb63be24b45be1708af105b210c432b23653e90b1c94554ba354d",
+          "charged_this_attempt": 0.01,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": "sha256:528199c0ebad09c69283648fa9cfa985cb4454ed34652d6f047e3244a0ad8d43",
+          "reason": "synthetic_mechanical_admission",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "admitted",
+          "synthetic": true
+        },
+        "safe_atom_ids": [
+          "cg0_atom_4164e221ec82011c"
+        ],
+        "safe_count": 1,
+        "selected_relation": "exact",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": "sha256:540ab6f9522056997d4d4af15e581f9f8d3ab7fb19d3299bb66694d0ea938887",
+          "decision": "bind",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.01,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": "cg0_atom_4164e221ec82011c",
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_f7b9315c5c084b78",
+        "cg1_content_hash": "sha256:f7b9315c5c084b789f0dbdb2c8fab33c399915abf42fc52302d61a78931a64fc",
+        "content_hash": "sha256:02b3db76f20ca02927e5df2f16ee003d0f36fbb401fcbb7e658d259d3f1661a6",
+        "decision": "bind",
+        "decisive_reason": "bind_eligible",
+        "open_obligations": [],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": true,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:f7b9315c5c084b789f0dbdb2c8fab33c399915abf42fc52302d61a78931a64fc",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_392affe1f17716f2",
+          "replayed_content_hash": "sha256:392affe1f17716f2c65ceb839ddf4ed5cd9b37cd400e8dfc14010c8b2f988067",
+          "replayed_critical_contradictions": [],
+          "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
+          "replayed_selected_relation": "exact",
+          "selected_atom_reproduced": true,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [
+          {
+            "bound": 0.01,
+            "component": "relation_admission",
+            "conservative_bound": false,
+            "source": "configured_admission_ceiling_not_correctness_calibration",
+            "spend": 0.01
+          }
+        ],
+        "risk_spend": 0.01,
+        "run_admission": {
+          "admitted_spend": 0.04,
+          "authority_band": "candidate",
+          "binding_key": "sha256:bc93163c26510649a93a1a47da8ec3c5fee28e575a63e7c2c0889e34f8595fbe",
+          "charged_this_attempt": 0.01,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": "sha256:540ab6f9522056997d4d4af15e581f9f8d3ab7fb19d3299bb66694d0ea938887",
+          "reason": "synthetic_mechanical_admission",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "admitted",
+          "synthetic": true
+        },
+        "safe_atom_ids": [
+          "cg0_atom_4164e221ec82011c"
+        ],
+        "safe_count": 1,
+        "selected_relation": "exact",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_e686003fabc59283",
+        "cg1_content_hash": "sha256:e686003fabc592836222008d488ccfb99fd558ac3b8ae115261778fa9ec78c63",
+        "content_hash": "sha256:d84d6a18fdc33293bb969f739bea1ebe4cce0262095fa003dda4297c31d2465e",
+        "decision": "abstain",
+        "decisive_reason": "risk_budget_exhausted_candidate_custody",
+        "open_obligations": [],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": true,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:e686003fabc592836222008d488ccfb99fd558ac3b8ae115261778fa9ec78c63",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_59c0c7afb1c420b8",
+          "replayed_content_hash": "sha256:59c0c7afb1c420b89b5fce1111e6b1e84ca29489cd6397d1031c6dc3efbfccc7",
+          "replayed_critical_contradictions": [],
+          "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
+          "replayed_selected_relation": "exact",
+          "selected_atom_reproduced": true,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.04,
+          "authority_band": "candidate",
+          "binding_key": "sha256:60714a7a2ad8bc29236cc79d6800443f89ea8385b64c96e63023ddbb497318c7",
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "risk_budget_exhausted_candidate_custody",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "exhausted",
+          "synthetic": true
+        },
+        "safe_atom_ids": [
+          "cg0_atom_4164e221ec82011c"
+        ],
+        "safe_count": 1,
+        "selected_relation": "exact",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_513b61d6e4bd63ef",
+        "cg1_content_hash": "sha256:513b61d6e4bd63efd76f65ece8147007a572083aef5596a96cac0c4c47f506d7",
+        "content_hash": "sha256:e8e0d48318b6c972119c3422719cec6977bf16ea402726d00708087ae1661f78",
+        "decision": "abstain",
+        "decisive_reason": "risk_budget_exhausted_candidate_custody",
+        "open_obligations": [],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": true,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:513b61d6e4bd63efd76f65ece8147007a572083aef5596a96cac0c4c47f506d7",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_7db95471467347c3",
+          "replayed_content_hash": "sha256:7db95471467347c388b1a20eebd39b0d6a94065a295d1c4262d5e85f254361ba",
+          "replayed_critical_contradictions": [],
+          "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
+          "replayed_selected_relation": "exact",
+          "selected_atom_reproduced": true,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.04,
+          "authority_band": "candidate",
+          "binding_key": "sha256:f4aaf30cc7ea49dee3b7bcd281e6c7018b57ad4034db1216e221ed5b503eb6d4",
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "risk_budget_exhausted_candidate_custody",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "exhausted",
+          "synthetic": true
+        },
+        "safe_atom_ids": [
+          "cg0_atom_4164e221ec82011c"
+        ],
+        "safe_count": 1,
+        "selected_relation": "exact",
+        "synthetic": true
+      }
+    ],
+    "attempts": [
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_aec31a4e6bdef27a",
+        "cg1_content_hash": "sha256:aec31a4e6bdef27a80e564e0b97743ce450d83d069f2a718a8ba88c525075f33",
+        "content_hash": "sha256:d0c4b4e4b75c50def68409293fb4d13bc95f742671ffb157267121a3879a5f1a",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:aec31a4e6bdef27a80e564e0b97743ce450d83d069f2a718a8ba88c525075f33",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_6735f06c87d6a689",
+          "replayed_content_hash": "sha256:6735f06c87d6a689986141ec60d3044a74e4cb5eb6cfe91a3aa639216abd3b89",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_62e011981450cda0",
+        "cg1_content_hash": "sha256:62e011981450cda044a4ce3bdb231c753e985cb25765be787cc66cc13b6f614a",
+        "content_hash": "sha256:1646eaf6e8d35690b3919d60eabfaaf4c879e8f37fcbfd31049d57b0094bbe8d",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:62e011981450cda044a4ce3bdb231c753e985cb25765be787cc66cc13b6f614a",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_95d6eac97a287812",
+          "replayed_content_hash": "sha256:95d6eac97a2878125c69ad59b037f9a1c802420b6a351bfe735b35b95787ca23",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_d8b80240b5008401",
+        "cg1_content_hash": "sha256:d8b80240b500840162e2e5ff0924d21cf6ae82a181ef46844956b400dd0d305b",
+        "content_hash": "sha256:fce305b3be94583460917dba2ac9c6cf3251ce07f2a4b8a90dd18de8537352e6",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:d8b80240b500840162e2e5ff0924d21cf6ae82a181ef46844956b400dd0d305b",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_3618f76954ca1c8d",
+          "replayed_content_hash": "sha256:3618f76954ca1c8d5b9f45a1e1c7b14ef153402ac801ad33806c53104199308f",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_09ce36ad9cb68931",
+        "cg1_content_hash": "sha256:09ce36ad9cb68931b11c7dcac2a672ef11bb4a203f1b22960c1e8b4f81bb9d25",
+        "content_hash": "sha256:2d1f7424f15565abc58790640e2097f579ccaa1b7622c4bd7c4cff3509e5d264",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:09ce36ad9cb68931b11c7dcac2a672ef11bb4a203f1b22960c1e8b4f81bb9d25",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_cbfd373df71db7c3",
+          "replayed_content_hash": "sha256:cbfd373df71db7c3317fcdd6af6270a8ed4480b73e105ff594dc85dbf2c295da",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_6cb91dc53b70d6f6",
+        "cg1_content_hash": "sha256:6cb91dc53b70d6f6f3a379eb8187751d64513d1b087d866acc0f49dfb930cded",
+        "content_hash": "sha256:f9e77184f07d01067f9ba5e4cfde3e17e6bd349efe1baecfc2e2b5de26791fdd",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:6cb91dc53b70d6f6f3a379eb8187751d64513d1b087d866acc0f49dfb930cded",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_bcf673d37e6d68f9",
+          "replayed_content_hash": "sha256:bcf673d37e6d68f939bcf2b97887d977ca190c233e1e2fed2f6735d73b6674f4",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_507fae7cfc68de56",
+        "cg1_content_hash": "sha256:507fae7cfc68de56da260367ec84fba47773334a5cb4309210edc46f04a2c1d0",
+        "content_hash": "sha256:19452b01868c7dbb118f510eb2ca5c36f9b17bff58ac45158991a345cdebc410",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:507fae7cfc68de56da260367ec84fba47773334a5cb4309210edc46f04a2c1d0",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_1f4a97a6e900729c",
+          "replayed_content_hash": "sha256:1f4a97a6e900729c8b059750d59fd4e199dbf6e6fb142cf92568a4c56b87195a",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_5a813737df59d254",
+        "cg1_content_hash": "sha256:5a813737df59d254d0b946e8a1d166bd2f348b9148949c064e1abfca2b5d4832",
+        "content_hash": "sha256:a1c3dcb631f062692cedea7a75fe18b1a8e51845768af5c478b9804870d15f80",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:5a813737df59d254d0b946e8a1d166bd2f348b9148949c064e1abfca2b5d4832",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_a364d2d30782614e",
+          "replayed_content_hash": "sha256:a364d2d30782614e3c7d1ea7162de515e9f70df9090ac0264200762f686962ea",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_c07cf34d94241c5d",
+        "cg1_content_hash": "sha256:c07cf34d94241c5de923eaa6579997cab533a9ef42c66d0fe4bea464b928a71a",
+        "content_hash": "sha256:78d6bef7efee30fc6000e7b834b9a0503ade12bb9d7a8fd452fb3109dbf5cb01",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:c07cf34d94241c5de923eaa6579997cab533a9ef42c66d0fe4bea464b928a71a",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_834aa0e1309bf0e6",
+          "replayed_content_hash": "sha256:834aa0e1309bf0e6932745ef6fa37119a37af0d7a96d5f3c41b9539528422d26",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_ff557b7fa7cb79c7",
+        "cg1_content_hash": "sha256:ff557b7fa7cb79c7a9baeda6b27d54713899d2745fa5b3b61fab24572d5195c8",
+        "content_hash": "sha256:cc764599f5518f30a313cc780273602a2ab0aef3d31e1b7f09a0b1ca1c955f0a",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:ff557b7fa7cb79c7a9baeda6b27d54713899d2745fa5b3b61fab24572d5195c8",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_56d453cb4e528ce7",
+          "replayed_content_hash": "sha256:56d453cb4e528ce794002df702db59dac314eb2fe26c5033fd0151e2b8f7a1ba",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_4e453dc33d1cf78a",
+        "cg1_content_hash": "sha256:4e453dc33d1cf78a91d565d40f75622d4c02d25236aa2cebe23b87c48a502836",
+        "content_hash": "sha256:49bb29a040c6b2ac82197aae525c0c10e79013bd5c3cda03b017c94a13fd1a74",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:4e453dc33d1cf78a91d565d40f75622d4c02d25236aa2cebe23b87c48a502836",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_7f7afa2f86394184",
+          "replayed_content_hash": "sha256:7f7afa2f86394184237be14fffbabad64c4e2d0e34d8f4b6208e734c48f7c8fd",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_7b86bc7fb1b725de",
+        "cg1_content_hash": "sha256:7b86bc7fb1b725de86496c1b14ba5ab0d33fc297e7f1d29f0e52449294defcdd",
+        "content_hash": "sha256:f6d63b1d8aad1c27c5cdf1c75e8a0fd68705d1a6b836bf15b04e81d1c95619f6",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:7b86bc7fb1b725de86496c1b14ba5ab0d33fc297e7f1d29f0e52449294defcdd",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_fd017965dc185b40",
+          "replayed_content_hash": "sha256:fd017965dc185b405e1a4d112faf07316c5703a8b84200e5c5a6021c09eaf4ee",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      },
+      {
+        "admission_strangle": {
+          "admission_event_ref": null,
+          "decision": "abstain",
+          "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+          "observed_attempt_charge": 0.0,
+          "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+          "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+          "status": "strangled",
+          "synthetic": true
+        },
+        "authority_scope": "contract_testing",
+        "bound_atom_id": null,
+        "calibration_owner_validated": true,
+        "calibration_source": "cg2_contract_seed_anchor",
+        "calibration_status": "calibrated",
+        "calibration_validation_reasons": [
+          "owned_calibration_anchor_validated"
+        ],
+        "cg1_certificate_id": "cg1_cert_64591f583c878dc3",
+        "cg1_content_hash": "sha256:64591f583c878dc3b9cc8b73dc69d9c65104219577e32b17aabb823ea205c919",
+        "content_hash": "sha256:1367931c8f75398e627c3d51a8e2be013fbfa9415b1be472c3f1499ab7176d14",
+        "decision": "abstain",
+        "decisive_reason": "false_analog_hard_abstain",
+        "open_obligations": [
+          "admissibility_closed",
+          "no_unresolved_critical_axis"
+        ],
+        "production_promotable": false,
+        "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+        "revalidation": {
+          "content_hash_valid": true,
+          "critical_contradiction_tuple_reproduced": false,
+          "critical_contradictions_reproduced": true,
+          "expected_content_hash": "sha256:64591f583c878dc3b9cc8b73dc69d9c65104219577e32b17aabb823ea205c919",
+          "not_more_permissive_than_full": true,
+          "reference_versions_match": true,
+          "replayed": true,
+          "replayed_certificate_id": "cg1_cert_3b6d234ebd80b459",
+          "replayed_content_hash": "sha256:3b6d234ebd80b459d2846e18a63bf5e293e705ed01770eeffca32ae92ecb7bdb",
+          "replayed_critical_contradictions": [
+            "op",
+            "target",
+            "sign",
+            "scope",
+            "population",
+            "outcome",
+            "effect_path"
+          ],
+          "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
+          "replayed_selected_relation": "novel-candidate",
+          "selected_atom_reproduced": false,
+          "selected_relation_reproduced": true,
+          "stale_reasons": [],
+          "status": "passed"
+        },
+        "risk_budget": 0.05,
+        "risk_entries": [],
+        "risk_spend": 0.0,
+        "run_admission": {
+          "admitted_spend": 0.0,
+          "authority_band": "candidate",
+          "binding_key": null,
+          "charged_this_attempt": 0.0,
+          "correctness_bound": null,
+          "custody_rule": "INT-K06",
+          "event_ref": null,
+          "reason": "candidate_exploration",
+          "run_continues": true,
+          "run_id": "cg2-admission-proof",
+          "schema_version": "policyos.runtime.grounding_run_admission.v1",
+          "status": "candidate",
+          "synthetic": true
+        },
+        "safe_atom_ids": [],
+        "safe_count": 0,
+        "selected_relation": "novel-candidate",
+        "synthetic": true
+      }
+    ],
+    "correctness_bound": null,
+    "issues": [],
+    "persisted_snapshot": {
+      "admission_count": 4,
+      "admitted_spend": 0.04,
+      "correctness_bound": null,
+      "custody_rule": "INT-K06",
+      "reason": "complete_admission_chain_recomputed",
+      "run_continues": true,
+      "run_id": "cg2-admission-proof",
+      "schema_version": "policyos.runtime.grounding_run_budget.v1",
+      "status": "current",
+      "synthetic": true
+    },
+    "replay": {
+      "admission_strangle": {
+        "admission_event_ref": "sha256:3a5480e1fcfebb1b4de45980db5057fab9bd1802c123480d2b3f94480990808c",
+        "decision": "bind",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
+      "authority_scope": "contract_testing",
+      "bound_atom_id": "cg0_atom_4164e221ec82011c",
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_b33e45af96707900",
+      "cg1_content_hash": "sha256:b33e45af967079007c9ae88889a6c6f41efec4f2e399a4c0f4ba10cfb9ff0bc2",
+      "content_hash": "sha256:9e14ef0a9b4e42c2b03b01b6bd8a5cfd4d2b6ef546526a402eef1f73a33d8094",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:b33e45af967079007c9ae88889a6c6f41efec4f2e399a4c0f4ba10cfb9ff0bc2",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_a4d21613744f1937",
+        "replayed_content_hash": "sha256:a4d21613744f1937cf34cb4fc7f7e02eb551c2af5fc473e33dc885ea24542f3a",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": 0.04,
+        "authority_band": "candidate",
+        "binding_key": "sha256:e748607a609d06e949604b372769ee28b58da58194450f86a7b8f2f603647e30",
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": "sha256:3a5480e1fcfebb1b4de45980db5057fab9bd1802c123480d2b3f94480990808c",
+        "reason": "synthetic_mechanical_admission",
+        "run_continues": true,
+        "run_id": "cg2-admission-proof",
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "admitted",
+        "synthetic": true
+      },
+      "safe_atom_ids": [
+        "cg0_atom_4164e221ec82011c"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact",
+      "synthetic": true
+    },
+    "synthetic": true
+  },
   "behavioral_mutations": [
     {
       "content_hash": null,
@@ -10,7 +1501,7 @@
       "status": "red"
     },
     {
-      "content_hash": "sha256:8da20b521cd5899be6fa2d02f854cca24da642688d680e968e03778126273035",
+      "content_hash": "sha256:6c9d4a2c2e3d6cf9693a1e15c42ff74f6651a5bdf15c52b9be85760030cece24",
       "decision": "bind",
       "decisive_reason": "bind_eligible",
       "dto_invariant_raised": false,
@@ -19,7 +1510,7 @@
       "status": "red"
     },
     {
-      "content_hash": "sha256:2609120db553255bace7954e113ce05df91249205b20af3424656ab520493a58",
+      "content_hash": "sha256:d9fe81db9c4a09c1f4f752aa9a8c445562336ad528ed715a2473e05833e5b54a",
       "decision": "bind",
       "decisive_reason": "bind_eligible",
       "dto_invariant_raised": false,
@@ -46,7 +1537,7 @@
       "status": "red"
     },
     {
-      "content_hash": "sha256:6256d9b5ad02d12a999458c358604917a554d80c1c64276ab6be135f1f01a0cf",
+      "content_hash": "sha256:5d9ee004f891c5f2bb87b6d938c0bb3214631b8eeb806e07db42f097320fd787",
       "decision": "bind",
       "decisive_reason": "bind_eligible",
       "dto_invariant_raised": false,
@@ -55,7 +1546,7 @@
       "status": "red"
     },
     {
-      "content_hash": "sha256:9c09d44ab18e7c4ea9da3cc9ce83b472c73e5f8b2c834d63e264d38f12246903",
+      "content_hash": "sha256:f1f087201c779415cf8f2b9b2294edbe501b8b2565972f278fcf97ee9155dec6",
       "decision": "promotable",
       "decisive_reason": "unsafe_resolver_trusted_certificate_promotable_field",
       "dto_invariant_raised": false,
@@ -65,13 +1556,13 @@
       "store_resolution": {
         "authority_scope": "production",
         "certificate_anchor_content_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
-        "certificate_id": "cg2_cert_9c09d44ab18e7c4e",
+        "certificate_id": "cg2_cert_f1f087201c779415",
         "certificate_promotable_claim": true,
         "content_hash_valid": true,
         "decision": "bind",
         "owned_anchor_id": "fabricated_production_anchor",
         "promotable": false,
-        "reason": "owned_anchor_missing",
+        "reason": "synthetic_input_cannot_grant_authority",
         "reference_epoch_match": true,
         "store_anchor_content_hash": null,
         "store_authority_scope": "production"
@@ -96,18 +1587,60 @@
       "status": "unreachable_structural"
     }
   ],
+  "canonical_attempt": {
+    "authority_evidence": "not_established",
+    "owner_refusal": {
+      "confidence_layer_vintage": {
+        "adjudication_contradicting_evidence_rows": 342,
+        "binding_status": "recomputed",
+        "claim_evidence_axis": "absent",
+        "claim_subtrees": 137714,
+        "confidence_reproducibility": "not_reproducible_under_current_rule",
+        "consumer_action": "withhold_confidence_forwarding",
+        "contradiction_basis": "HC-F06/HC-F07; stored observational contradicts retained adjudication",
+        "declared_on": "2026-09-07",
+        "evidence_ref": "docs/superpowers/journals/2026-09-05-historical-cohorts.md",
+        "extraction_documents": 310829,
+        "layers": [
+          {
+            "current_rule_outcome": "zero_confidence",
+            "row_count": 7607,
+            "table": "ac_skg_edges"
+          },
+          {
+            "current_rule_outcome": "zero_confidence",
+            "row_count": 15945,
+            "table": "ac_skg_family_edges"
+          },
+          {
+            "current_rule_outcome": "not_emitted",
+            "row_count": 723,
+            "table": "ac_skg_contested_edges"
+          }
+        ],
+        "limitation": "Stored values remain historical audit bytes. Outcomes describe retained memberships, not a full data-pass replay, paper truth, or the generating rule. Unregistered or rewritten databases require their own declaration; absence of this restriction is not evidence of current-rule reproducibility.",
+        "measurement_basis": "independently_reconciled",
+        "published_evidence_rows": 7868,
+        "rule_ref": "claim-explicit-evidence-axis/B1-B2; historical-cohorts/HC-F11-HC-F14",
+        "schema_version": "academic.confidence_layer_vintage.v1",
+        "snapshot_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+      }
+    },
+    "status": "blocked"
+  },
   "capability_reality": {
-    "consumer": "future production grounding admission surface / CG3 novel handoff",
+    "consumer": "N4 _ground_trinity_bundle candidate/shadow chain; N9 _resolve_cg2_owner_promotability; CG3 novel handoff",
     "orchestration_bridge": "CG2 consumes content-bound CG1 certificate and live CG0 reference; bind output is a decision certificate, not silent admission",
-    "persisted_artifact_event": "architecture/policy_design_case/grounding_bind_contract.json",
+    "persisted_artifact_event": "CoreCAS run-admission events with a locked atomic head; architecture/policy_design_case/grounding_bind_contract.json",
     "producer": "GroundingBindGate.certificate_for",
     "semantic_test": "forged/stale/tampered fail closed, false analog hard abstains, cold-start freezes, out-of-lever N4 hands off, and unsafe mutations go red",
     "surface": "generated Policy Design Case CG2 contract artifact",
-    "typed_contract_artifact": "GroundingDecisionCertificate + GroundingSafeSet + GroundingRiskLedger + GroundingCalibrationDecision",
+    "typed_contract_artifact": "GroundingDecisionCertificate + GroundingSafeSet + GroundingRiskLedger + GroundingCalibrationDecision + GroundingRunAdmission + GroundingAdmissionStrangleReceipt",
     "verification": "this recomputing validator plus unit probes and mutation reports"
   },
   "cg1_schema_version": "policyos.runtime.grounding_relation_certificate.v1",
   "contract_id": "policyos.runtime.grounding_bind_caab",
+  "control_reference_scope": "synthetic_structural_full_L6_WMR_owner_projection",
   "fast_replay_never_more_permissive_grid": {
     "grid_scope": "bind_eligible_exact_and_certified_specialization_replay",
     "tested": 2,
@@ -115,15 +1648,18 @@
     "violation_count": 0,
     "violations": []
   },
-  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_bind_contract.v1",
+  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_bind_contract.v3",
   "no_parallel_relation_engine": true,
   "no_second_reference_store": true,
   "owner": "polisyos.runtime.quality.grounding_bind",
   "pattern_pass": {
     "acceptance_signal": "contract check plus corrupt-field check pass; mutations are red",
-    "missing_capability_labels": [
-      "consumer_missing"
-    ],
+    "authority_readiness": {
+      "canonical_reference": "blocked",
+      "production_calibration": "artifact_missing",
+      "verification_scope": "synthetic_mechanism_only"
+    },
+    "missing_capability_labels": [],
     "relevant_ids": [
       "P01",
       "P03",
@@ -140,93 +1676,86 @@
   },
   "probes": {
     "certified_specialization_bind": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "bind",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
-      "bound_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+      "bound_atom_id": "cg0_atom_4164e221ec82011c",
       "calibration_owner_validated": true,
       "calibration_source": "cg2_contract_seed_anchor",
       "calibration_status": "calibrated",
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_cb09c4beb43f9eac",
-      "cg1_content_hash": "sha256:cb09c4beb43f9eac8f9e556a651233b3709b8e518b5606597fc3d5312acee5b0",
-      "content_hash": "sha256:2ee5ff856eb88b496cf3d2e9d24b5e7efd86e41ab4024faf1d03bb6d1796db98",
+      "cg1_certificate_id": "cg1_cert_447aac34f449166b",
+      "cg1_content_hash": "sha256:447aac34f449166bb100ea50115ae36cc11c3f72ceb532e5089d581bee72e7bb",
+      "content_hash": "sha256:8920f0a226ac028b59a918a68c0f576fd91f43796707f5947706867fc73b8f67",
       "decision": "bind",
       "decisive_reason": "bind_eligible",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:cb09c4beb43f9eac8f9e556a651233b3709b8e518b5606597fc3d5312acee5b0",
+        "expected_content_hash": "sha256:447aac34f449166bb100ea50115ae36cc11c3f72ceb532e5089d581bee72e7bb",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_16308d4eb863ef0d",
-        "replayed_content_hash": "sha256:16308d4eb863ef0deaba567e3c0ada8dd4b4924f829cdb3d9994862abcbd1126",
+        "replayed_certificate_id": "cg1_cert_b0d31e89677bc6c5",
+        "replayed_content_hash": "sha256:b0d31e89677bc6c555cfc83aff53831a1d28ae9a7d1e81e087a992279de3a92a",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "certified-specialization",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "certified-specialization"
+      "selected_relation": "certified-specialization",
+      "synthetic": true
     },
     "cold_start_freeze": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "production",
       "bound_atom_id": null,
       "calibration_owner_validated": false,
@@ -235,177 +1764,143 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_missing"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:3d3643ee404dc35986063f278a9069f7852deaa5a68e560d56ae607fc5d55ca1",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:546672def54948fdcfd1ff38ea9eee615d4ddf29878881dead0a9191befebe0f",
       "decision": "abstain",
-      "decisive_reason": "cold_start_conservative",
+      "decisive_reason": "synthetic_input_candidate_only",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_e1f25d63ca6d96f0",
-        "replayed_content_hash": "sha256:e1f25d63ca6d96f096e1812fdf77aa92e2f888c62afaa5768a9ff57070334b42",
+        "replayed_certificate_id": "cg1_cert_9b88d30026d30478",
+        "replayed_content_hash": "sha256:9b88d30026d3047864c8cf0e08cb2d8449fcbdca0625c6bf277359edc78acd54",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "exact",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.01,
-          "component": "delta_monitor",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.01
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0106,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     },
     "deterministic_decision": {
-      "first_content_hash": "sha256:4af54caa6eb04732fecc1bcdd6b8effb957b45f8bce82c43c4bd2941d59e6461",
+      "first_content_hash": "sha256:6a7d75ea02a8e2d931831fcfb6fd7bc99688dd85c42084b7100225598d643380",
       "same_content_hash": true,
-      "second_content_hash": "sha256:4af54caa6eb04732fecc1bcdd6b8effb957b45f8bce82c43c4bd2941d59e6461"
+      "second_content_hash": "sha256:6a7d75ea02a8e2d931831fcfb6fd7bc99688dd85c42084b7100225598d643380"
     },
     "exact_bind": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "bind",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
-      "bound_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+      "bound_atom_id": "cg0_atom_4164e221ec82011c",
       "calibration_owner_validated": true,
       "calibration_source": "cg2_contract_seed_anchor",
       "calibration_status": "calibrated",
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:4af54caa6eb04732fecc1bcdd6b8effb957b45f8bce82c43c4bd2941d59e6461",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:6a7d75ea02a8e2d931831fcfb6fd7bc99688dd85c42084b7100225598d643380",
       "decision": "bind",
       "decisive_reason": "bind_eligible",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_e1f25d63ca6d96f0",
-        "replayed_content_hash": "sha256:e1f25d63ca6d96f096e1812fdf77aa92e2f888c62afaa5768a9ff57070334b42",
+        "replayed_certificate_id": "cg1_cert_9b88d30026d30478",
+        "replayed_content_hash": "sha256:9b88d30026d3047864c8cf0e08cb2d8449fcbdca0625c6bf277359edc78acd54",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "exact",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     },
     "fabricated_calibration_fail_closed": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "production",
       "bound_atom_id": null,
       "calibration_owner_validated": false,
@@ -414,85 +1909,68 @@
       "calibration_validation_reasons": [
         "caller_calibration_not_owner_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:5bfd744ba0a84860bce01a38095876c6ae28519ed4ff861fbe57ba2af990cadc",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:2672b006ddc30256a421ce6f66e7a60321d1d1902df70c79edd787038b609f5d",
       "decision": "abstain",
-      "decisive_reason": "cold_start_conservative",
+      "decisive_reason": "synthetic_input_candidate_only",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_e1f25d63ca6d96f0",
-        "replayed_content_hash": "sha256:e1f25d63ca6d96f096e1812fdf77aa92e2f888c62afaa5768a9ff57070334b42",
+        "replayed_certificate_id": "cg1_cert_9b88d30026d30478",
+        "replayed_content_hash": "sha256:9b88d30026d3047864c8cf0e08cb2d8449fcbdca0625c6bf277359edc78acd54",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "exact",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.01,
-          "component": "delta_monitor",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.01
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0106,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     },
     "false_analog_hard_abstain": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
       "bound_atom_id": null,
       "calibration_owner_validated": true,
@@ -501,26 +1979,26 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_ed2f885a294f2f6a",
-      "cg1_content_hash": "sha256:ed2f885a294f2f6a7acdb3fcc628e80c65eea93fbbe81160231a92c0bfa9dca7",
-      "content_hash": "sha256:81d9b9e00015ee40aa4d2c01026484237db28b305b3e4c48a454e1665bb6ed5b",
+      "cg1_certificate_id": "cg1_cert_2c60c68c3e41cef4",
+      "cg1_content_hash": "sha256:2c60c68c3e41cef4e4147d585d244637f39b0e65c8cf7aa12394616f4f0d9ba3",
+      "content_hash": "sha256:1708f1fba46c83ac161303b00644e161b22183f13b4d819277cf7e0be8188433",
       "decision": "abstain",
       "decisive_reason": "false_analog_hard_abstain",
       "open_obligations": [
         "no_unresolved_critical_axis"
       ],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": false,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:ed2f885a294f2f6a7acdb3fcc628e80c65eea93fbbe81160231a92c0bfa9dca7",
+        "expected_content_hash": "sha256:2c60c68c3e41cef4e4147d585d244637f39b0e65c8cf7aa12394616f4f0d9ba3",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_fbde7b647d730d99",
-        "replayed_content_hash": "sha256:fbde7b647d730d9933cb6bb5f9faa1ae0ecf84db7b3e9e86d17ec5ab71bcabe0",
+        "replayed_certificate_id": "cg1_cert_1b359c385cf06038",
+        "replayed_content_hash": "sha256:1b359c385cf0603818a72563ad4576535f4e0f3ce75146d8dfc440ab373f709a",
         "replayed_critical_contradictions": [
           "op",
           "target",
@@ -530,64 +2008,47 @@
           "outcome",
           "effect_path"
         ],
-        "replayed_selected_atom_id": "cg1_counter_2df9778288147591",
+        "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
         "replayed_selected_relation": "novel-candidate",
         "selected_atom_reproduced": false,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [],
       "safe_count": 0,
-      "selected_relation": "novel-candidate"
+      "selected_relation": "novel-candidate",
+      "synthetic": true
     },
     "forged_relation_fail_closed": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
       "bound_atom_id": null,
       "calibration_owner_validated": true,
@@ -596,26 +2057,26 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_a844ff3902cfe90a",
-      "cg1_content_hash": "sha256:a844ff3902cfe90ae27d744210f9833dd3c9f374798d19f6acce8f5cf1593db5",
-      "content_hash": "sha256:9221cf77680c154d4ccc6845252241c112c210cc1ecc4e5a4dc8b170e7ed402b",
+      "cg1_certificate_id": "cg1_cert_6fa1ba37660a37f9",
+      "cg1_content_hash": "sha256:6fa1ba37660a37f9fc5ed57b1a44c610245b2806fb95a033b0d6f5382d1de0f4",
+      "content_hash": "sha256:89cdee5398db2f7e479a87c38b972792e8a1c60db7b3b17ec9312a1f1d59386d",
       "decision": "abstain",
       "decisive_reason": "relation_revalidation_mismatch",
       "open_obligations": [
         "no_unresolved_critical_axis"
       ],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": false,
         "critical_contradictions_reproduced": false,
-        "expected_content_hash": "sha256:a844ff3902cfe90ae27d744210f9833dd3c9f374798d19f6acce8f5cf1593db5",
+        "expected_content_hash": "sha256:6fa1ba37660a37f9fc5ed57b1a44c610245b2806fb95a033b0d6f5382d1de0f4",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_5d60932c0faa2a13",
-        "replayed_content_hash": "sha256:5d60932c0faa2a133b87466c50320a4445ad34ad08fd960dc2856889c52ef4eb",
+        "replayed_certificate_id": "cg1_cert_b1fbb3bdca63cdab",
+        "replayed_content_hash": "sha256:b1fbb3bdca63cdabafed47068a459d55d006426a09156c6c309d3bf42acdbaee",
         "replayed_critical_contradictions": [
           "op",
           "target",
@@ -625,64 +2086,47 @@
           "outcome",
           "effect_path"
         ],
-        "replayed_selected_atom_id": "cg1_counter_2df9778288147591",
+        "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
         "replayed_selected_relation": "novel-candidate",
         "selected_atom_reproduced": false,
         "selected_relation_reproduced": false,
         "stale_reasons": [],
         "status": "mismatch"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [],
       "safe_count": 0,
-      "selected_relation": "novel-candidate"
+      "selected_relation": "novel-candidate",
+      "synthetic": true
     },
     "production_default_freeze": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "production",
       "bound_atom_id": null,
       "calibration_owner_validated": false,
@@ -691,83 +2135,56 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_missing"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:3d3643ee404dc35986063f278a9069f7852deaa5a68e560d56ae607fc5d55ca1",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:546672def54948fdcfd1ff38ea9eee615d4ddf29878881dead0a9191befebe0f",
       "decision": "abstain",
-      "decisive_reason": "cold_start_conservative",
+      "decisive_reason": "synthetic_input_candidate_only",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_e1f25d63ca6d96f0",
-        "replayed_content_hash": "sha256:e1f25d63ca6d96f096e1812fdf77aa92e2f888c62afaa5768a9ff57070334b42",
+        "replayed_certificate_id": "cg1_cert_9b88d30026d30478",
+        "replayed_content_hash": "sha256:9b88d30026d3047864c8cf0e08cb2d8449fcbdca0625c6bf277359edc78acd54",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "exact",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.01,
-          "component": "delta_monitor",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.01
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0106,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     },
     "real_n4_out_of_lever_handoff": {
       "authority_scope": "contract_testing",
@@ -807,11 +2224,21 @@
       "decisive_reason": "real_multi_safe_unreachable_in_current_live_lever_space",
       "exercise_status": "unreachable_structurally_enforced",
       "mutation_status": "unreachable_structural",
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation_disabled": false,
       "structural_rule": "CG2 robust-singleton check remains enforced on every revalidated certificate; no live CG1 certificate currently yields |Safe_t| > 1"
     },
     "stale_epoch_fail_closed": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
       "bound_atom_id": null,
       "calibration_owner_validated": true,
@@ -820,19 +2247,19 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:c63db9bb0d18005442f4b52cf54c3b2f9d2ae2c40a5c470d3755b9e5edf9da4f",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:20fef4fae47ed9b6cf734b96a9e28c95d4a1a085c9da0d698268190a8424455c",
       "decision": "abstain",
       "decisive_reason": "stale_cg1_certificate",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:bdffbfa92589082c",
+      "reference_epoch": "kref:8306417ed9d98a4a",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": false,
         "critical_contradictions_reproduced": false,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": false,
         "reference_versions_match": false,
         "replayed": false,
@@ -848,59 +2275,42 @@
         ],
         "status": "stale"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     },
     "tampered_fail_closed": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
       "bound_atom_id": null,
       "calibration_owner_validated": true,
@@ -909,19 +2319,19 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:1e6985f324439acb7afc2618023de1a02c1ef4079dbd377b784c1009891c17d2",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:223411c359d263b2385964a1d8dc9393ee718a77b58c9389685caeb6622e3818",
       "decision": "abstain",
       "decisive_reason": "tampered_cg1_certificate",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": false,
         "critical_contradiction_tuple_reproduced": false,
         "critical_contradictions_reproduced": false,
-        "expected_content_hash": "sha256:7993be8d450b803c0a86920911f9c852bc16e2eccfdaca54a21f1fdad1583c47",
+        "expected_content_hash": "sha256:28956e9031a78974c06ba51dbf62499912cd8b99952db59df627c5ab61f95b13",
         "not_more_permissive_than_full": false,
         "reference_versions_match": true,
         "replayed": false,
@@ -935,57 +2345,30 @@
         "stale_reasons": [],
         "status": "tampered"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     }
   },
   "production_api_boundary_probes": {
@@ -1056,6 +2439,16 @@
       "error": "1 validation error for GroundingBindPolicy\ncalibration_source\n  Extra inputs are not permitted [type=extra_forbidden, input_value='cg2_contract_seed_anchor', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
     },
     "prior_hole_caller_ledger_sample0": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "production",
       "bound_atom_id": null,
       "calibration_owner_validated": false,
@@ -1064,85 +2457,68 @@
       "calibration_validation_reasons": [
         "caller_calibration_not_owner_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:5bfd744ba0a84860bce01a38095876c6ae28519ed4ff861fbe57ba2af990cadc",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:2672b006ddc30256a421ce6f66e7a60321d1d1902df70c79edd787038b609f5d",
       "decision": "abstain",
-      "decisive_reason": "cold_start_conservative",
+      "decisive_reason": "synthetic_input_candidate_only",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_e1f25d63ca6d96f0",
-        "replayed_content_hash": "sha256:e1f25d63ca6d96f096e1812fdf77aa92e2f888c62afaa5768a9ff57070334b42",
+        "replayed_certificate_id": "cg1_cert_9b88d30026d30478",
+        "replayed_content_hash": "sha256:9b88d30026d3047864c8cf0e08cb2d8449fcbdca0625c6bf277359edc78acd54",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "exact",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.01,
-          "component": "delta_monitor",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.01
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0106,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     },
     "spoofed_caller_ledger_valid_hash_high_samples": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "production",
       "bound_atom_id": null,
       "calibration_owner_validated": false,
@@ -1151,89 +2527,62 @@
       "calibration_validation_reasons": [
         "caller_calibration_not_owner_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:5bfd744ba0a84860bce01a38095876c6ae28519ed4ff861fbe57ba2af990cadc",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:2672b006ddc30256a421ce6f66e7a60321d1d1902df70c79edd787038b609f5d",
       "decision": "abstain",
-      "decisive_reason": "cold_start_conservative",
+      "decisive_reason": "synthetic_input_candidate_only",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_e1f25d63ca6d96f0",
-        "replayed_content_hash": "sha256:e1f25d63ca6d96f096e1812fdf77aa92e2f888c62afaa5768a9ff57070334b42",
+        "replayed_certificate_id": "cg1_cert_9b88d30026d30478",
+        "replayed_content_hash": "sha256:9b88d30026d3047864c8cf0e08cb2d8449fcbdca0625c6bf277359edc78acd54",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "exact",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.01,
-          "component": "delta_monitor",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.01
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0106,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     }
   },
   "promotability_authority": {
     "certificate_promotable_field": "advisory_not_authority",
-    "consumer_enforcement_status": "deferred_to_cg2_wiring_cg6_no_production_consumer_wired",
-    "consumer_obligation": "Every future production consumer of a CG2 bind must resolve promotability against the owned store before acting; no consumer may trust GroundingDecisionCertificate.production_promotable.",
+    "consumer_enforcement_status": "n4_shadow_chain_and_n9_owner_resolver",
+    "consumer_obligation": "N4 consumes CG2 in its candidate/shadow CG1-CG5 chain; N9 _resolve_cg2_owner_promotability invokes the owned resolver. GroundingDecisionCertificate.production_promotable is advisory; actual reference ancestry and durable admission evidence are re-resolved.",
     "contract_testing_resolver": "resolve_grounding_decision_promotability_for_contract_testing",
     "contract_testing_store": "cg2_contract_seed_anchor_non_promotable",
     "production_owned_store": "empty_none_wired_no_caller_population_path",
@@ -1242,7 +2591,7 @@
   "promotability_resolution_probes": {
     "bogus_hash_forge": {
       "dto_rejected": true,
-      "error": "1 validation error for GroundingDecisionCertificate\n  Value error, decision_certificate_content_hash_mismatch [type=value_error, input_value={'schema_version': 'polic....grounding_bind.cg2.v1'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+      "error": "1 validation error for GroundingDecisionCertificate\n  Value error, decision_certificate_content_hash_mismatch [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
     },
     "contract_testing_bind": {
       "authority_scope": "contract_testing",
@@ -1250,115 +2599,78 @@
       "production_promotable": false,
       "resolution": {
         "authority_scope": "contract_testing",
-        "certificate_anchor_content_hash": "sha256:c73b7ac0d81541e4db097ad4b447dce68e9f057fd4fa672414b7e75fa5493b84",
-        "certificate_id": "cg2_cert_4af54caa6eb04732",
+        "certificate_anchor_content_hash": "sha256:e0d80a8347459e7594cb4bebb1aa5909f767d0577d611899e60fea6322b28233",
+        "certificate_id": "cg2_cert_6a7d75ea02a8e2d9",
         "certificate_promotable_claim": false,
         "content_hash_valid": true,
         "decision": "bind",
-        "owned_anchor_id": "cg2_contract_seed_anchor:kref:956b076b990299fe:tax_relief_rate:global:exact",
+        "owned_anchor_id": "cg2_contract_seed_anchor:synthetic-refusal:f20a23c7e51a1afb:tax_relief_rate:global:exact",
         "promotable": false,
-        "reason": "non_production_anchor_scope",
+        "reason": "synthetic_input_cannot_grant_authority",
         "reference_epoch_match": true,
-        "store_anchor_content_hash": "sha256:c73b7ac0d81541e4db097ad4b447dce68e9f057fd4fa672414b7e75fa5493b84",
+        "store_anchor_content_hash": "sha256:e0d80a8347459e7594cb4bebb1aa5909f767d0577d611899e60fea6322b28233",
         "store_authority_scope": "contract_testing"
       }
     },
     "honest_hash_forge": {
       "certificate_promotable_claim": true,
-      "dto_rejected": false,
+      "dto_error": "1 validation error for GroundingDecisionCertificate\n  Value error, synthetic_certificate_cannot_grant_authority [type=value_error, input_value={'schema_version': 'polic...d_attempt_charge': 0.0}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+      "dto_rejected": true,
       "resolution": {
         "authority_scope": "production",
         "certificate_anchor_content_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
-        "certificate_id": "cg2_cert_9c09d44ab18e7c4e",
+        "certificate_id": "cg2_cert_f1f087201c779415",
         "certificate_promotable_claim": true,
         "content_hash_valid": true,
         "decision": "bind",
         "owned_anchor_id": "fabricated_production_anchor",
         "promotable": false,
-        "reason": "owned_anchor_missing",
+        "reason": "synthetic_input_cannot_grant_authority",
         "reference_epoch_match": true,
         "store_anchor_content_hash": null,
         "store_authority_scope": "production"
-      }
+      },
+      "synthetic": true
     }
+  },
+  "proof_world_input": {
+    "binding_content_hash": "sha256:8b8db9c24b9c2b78ec3e90b31ab9baf3156beba0b8a053f9bf32db993638ce08",
+    "binding_ref": "repo:architecture/policy_design_case/corr/grounding_proof_world_input.json",
+    "purpose": "structural_grounding_proof_only",
+    "source_ref": {
+      "artifact_id": "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5",
+      "kind": "runtime.quality.world_model_record",
+      "media_type": "application/json"
+    },
+    "source_schema_version": "policyos.runtime.world_model_record.v1",
+    "strangle_receipt": {
+      "binding_content_hash": "sha256:8b8db9c24b9c2b78ec3e90b31ab9baf3156beba0b8a053f9bf32db993638ce08",
+      "binding_ref": "repo:architecture/policy_design_case/corr/grounding_proof_world_input.json",
+      "content_hash": "sha256:3813aa4ee4adcff7b823358ec42f22db1fda18a1ee8f37b1dca947c5c744d7e4",
+      "default_flipped": true,
+      "default_path": "declared_exact_WMR_bytes_schema_logical_hash_and_creation_time",
+      "matching_predicate_removal_accepts_wrong_time": true,
+      "owner": "polisyos.runtime.quality.grounding_calibration",
+      "packet_type": "StrangleReceipt",
+      "predicate_provenance": "recomputed",
+      "rehashed_wrong_source_time_refused": true,
+      "repeat_source_bytes_and_time_equal": true,
+      "replaced_path": "fresh_composed_WMR_for_each_structural_proof",
+      "schema_version": "policyos.runtime.grounding_proof_world_input.v1",
+      "source_artifact_id": "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5"
+    },
+    "synthetic": true,
+    "world_content_hash": "sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6",
+    "world_created_at": "2026-09-08T16:59:01.685331+00:00"
   },
   "reference": {
     "component_versions": {
-      "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
-      "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
-      "L6": "sha256:5e10244a19f700a155bc2a0b4f59eb4b0c3128488c999d48514d0dd9393224d3",
-      "WMR": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf"
+      "L2": "out_of_scope",
+      "L3": "out_of_scope",
+      "L6": "sha256:f20a23c7e51a1afb9ad565e7f732b73455441ef010606472e3e3d97271c3428d",
+      "WMR": "sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6"
     },
     "denominator_status": {
-      "L2_CANONICAL_VARIABLE": {
-        "confirmed": 54404,
-        "contested": 528,
-        "incomplete": 244,
-        "total": 55176
-      },
-      "L2_CAUSAL_CLAIM": {
-        "confirmed": 376,
-        "contested": 7492,
-        "total": 7868
-      },
-      "L2_CAUSAL_EDGE": {
-        "confirmed": 14,
-        "contested": 7232,
-        "incomplete": 361,
-        "total": 7607
-      },
-      "L2_CONTESTED_EDGE": {
-        "contested": 723,
-        "total": 723
-      },
-      "L2_DATA_FORGE_VARIABLE_ALIGNMENT": {
-        "confirmed": 13912,
-        "contested": 437,
-        "incomplete": 5977,
-        "total": 20326
-      },
-      "L2_FAMILY_EDGE": {
-        "confirmed": 45,
-        "contested": 3908,
-        "incomplete": 11992,
-        "total": 15945
-      },
-      "L2_MODERATION_EDGE": {
-        "confirmed": 579,
-        "contested": 1257,
-        "incomplete": 23199,
-        "total": 25035
-      },
-      "L2_VARIABLE_ALIGNMENT": {
-        "confirmed": 72,
-        "contested": 335,
-        "total": 407
-      },
-      "L2_VARIABLE_HIERARCHY": {
-        "confirmed": 175,
-        "incomplete": 54182,
-        "total": 54357
-      },
-      "L3_AMENDMENT": {
-        "confirmed": 1494,
-        "contested": 1204,
-        "deprecated": 350,
-        "incomplete": 153090,
-        "out_of_scope": 58,
-        "total": 156196
-      },
-      "L3_REFERENCE_EDGE": {
-        "confirmed": 40419,
-        "contested": 33374,
-        "total": 73793
-      },
-      "L3_RULE_THRESHOLD": {
-        "confirmed": 51590,
-        "contested": 319712,
-        "deprecated": 3084,
-        "out_of_scope": 130,
-        "total": 374516
-      },
       "L6_KNOB_OPERATOR": {
         "confirmed": 3,
         "total": 3
@@ -1366,14 +2678,6 @@
       "L6_KNOB_WORLD_SLOT": {
         "confirmed": 3,
         "total": 3
-      },
-      "L6_LEX_INTERVENTION_MAP": {
-        "confirmed": 3,
-        "total": 3
-      },
-      "L6_OBSERVATION_CONTRACT_ROUTE": {
-        "confirmed": 4,
-        "total": 4
       },
       "WMR_POLICY_SLOT_MAP": {
         "confirmed": 16,
@@ -1384,12 +2688,22 @@
         "total": 16
       }
     },
-    "edge_count": 791994,
-    "reference_epoch": "kref:956b076b990299fe",
-    "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f"
+    "edge_count": 38,
+    "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
+    "reference_hash": "sha256:f20a23c7e51a1afb9ad565e7f732b73455441ef010606472e3e3d97271c3428d"
   },
   "relation_outcome_map": {
     "blocked": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
       "bound_atom_id": null,
       "calibration_owner_validated": false,
@@ -1398,9 +2712,9 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_missing"
       ],
-      "cg1_certificate_id": "cg1_cert_b713afd06600b104",
-      "cg1_content_hash": "sha256:b713afd06600b104647406dfbe1b16f39293776be7cc4a37985f9affdaa532fb",
-      "content_hash": "sha256:3a86ec852d16147f9a1b3bef7f7e9b7fd7d92c8e823019bf427502c38c6c970b",
+      "cg1_certificate_id": "cg1_cert_5a9d8a23378d1456",
+      "cg1_content_hash": "sha256:5a9d8a23378d1456c2db433f5f840845020ed5e4889be899524cc1c253401787",
+      "content_hash": "sha256:1d6d501fe4420899228f44076ef4ceef9a1447562295b37f6186ae22d52f2d26",
       "decision": "abstain",
       "decisive_reason": "relation_not_bind_eligible",
       "open_obligations": [
@@ -1411,161 +2725,117 @@
         "l3_l6_consistency"
       ],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:b713afd06600b104647406dfbe1b16f39293776be7cc4a37985f9affdaa532fb",
+        "expected_content_hash": "sha256:5a9d8a23378d1456c2db433f5f840845020ed5e4889be899524cc1c253401787",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_32149518941ca73c",
-        "replayed_content_hash": "sha256:32149518941ca73cab7fe49486fc3bf61ce4909e1ad0f30d8209b5f9ff6062d2",
+        "replayed_certificate_id": "cg1_cert_7fbb7e9c8fb6e5f9",
+        "replayed_content_hash": "sha256:7fbb7e9c8fb6e5f9e7c45c45df1ea37a40bcdcdf251d0c0cb3da27071564c8c0",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "blocked",
         "selected_atom_reproduced": false,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.01,
-          "component": "delta_monitor",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.01
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0106,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [],
       "safe_count": 0,
-      "selected_relation": "blocked"
+      "selected_relation": "blocked",
+      "synthetic": true
     },
     "certified-specialization": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "bind",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
-      "bound_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+      "bound_atom_id": "cg0_atom_4164e221ec82011c",
       "calibration_owner_validated": true,
       "calibration_source": "cg2_contract_seed_anchor",
       "calibration_status": "calibrated",
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_cb09c4beb43f9eac",
-      "cg1_content_hash": "sha256:cb09c4beb43f9eac8f9e556a651233b3709b8e518b5606597fc3d5312acee5b0",
-      "content_hash": "sha256:2ee5ff856eb88b496cf3d2e9d24b5e7efd86e41ab4024faf1d03bb6d1796db98",
+      "cg1_certificate_id": "cg1_cert_447aac34f449166b",
+      "cg1_content_hash": "sha256:447aac34f449166bb100ea50115ae36cc11c3f72ceb532e5089d581bee72e7bb",
+      "content_hash": "sha256:8920f0a226ac028b59a918a68c0f576fd91f43796707f5947706867fc73b8f67",
       "decision": "bind",
       "decisive_reason": "bind_eligible",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:cb09c4beb43f9eac8f9e556a651233b3709b8e518b5606597fc3d5312acee5b0",
+        "expected_content_hash": "sha256:447aac34f449166bb100ea50115ae36cc11c3f72ceb532e5089d581bee72e7bb",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_16308d4eb863ef0d",
-        "replayed_content_hash": "sha256:16308d4eb863ef0deaba567e3c0ada8dd4b4924f829cdb3d9994862abcbd1126",
+        "replayed_certificate_id": "cg1_cert_b0d31e89677bc6c5",
+        "replayed_content_hash": "sha256:b0d31e89677bc6c555cfc83aff53831a1d28ae9a7d1e81e087a992279de3a92a",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "certified-specialization",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "certified-specialization"
+      "selected_relation": "certified-specialization",
+      "synthetic": true
     },
     "compositional": {
       "coverage_status": "structurally_enforced_unreachable",
@@ -1576,93 +2846,86 @@
       "structural_rule": "CG2 exact/spec-only check remains enforced on every revalidated certificate"
     },
     "exact": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "bind",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
-      "bound_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+      "bound_atom_id": "cg0_atom_4164e221ec82011c",
       "calibration_owner_validated": true,
       "calibration_source": "cg2_contract_seed_anchor",
       "calibration_status": "calibrated",
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_0417e64e15506211",
-      "cg1_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
-      "content_hash": "sha256:4af54caa6eb04732fecc1bcdd6b8effb957b45f8bce82c43c4bd2941d59e6461",
+      "cg1_certificate_id": "cg1_cert_9571307b0e762476",
+      "cg1_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
+      "content_hash": "sha256:6a7d75ea02a8e2d931831fcfb6fd7bc99688dd85c42084b7100225598d643380",
       "decision": "bind",
       "decisive_reason": "bind_eligible",
       "open_obligations": [],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:0417e64e155062119921b57928f1ee475bf22ab38c4894952b5f435aeea1a98f",
+        "expected_content_hash": "sha256:9571307b0e76247697c4fa78688a2ec914544b5a4f7500b6ae052d4e83cba7be",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_e1f25d63ca6d96f0",
-        "replayed_content_hash": "sha256:e1f25d63ca6d96f096e1812fdf77aa92e2f888c62afaa5768a9ff57070334b42",
+        "replayed_certificate_id": "cg1_cert_9b88d30026d30478",
+        "replayed_content_hash": "sha256:9b88d30026d3047864c8cf0e08cb2d8449fcbdca0625c6bf277359edc78acd54",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "exact",
         "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [
-        "cg0_atom_f9cbad6daba5c6a2"
+        "cg0_atom_4164e221ec82011c"
       ],
       "safe_count": 1,
-      "selected_relation": "exact"
+      "selected_relation": "exact",
+      "synthetic": true
     },
     "false-analog": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
       "bound_atom_id": null,
       "calibration_owner_validated": true,
@@ -1671,26 +2934,26 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_validated"
       ],
-      "cg1_certificate_id": "cg1_cert_ed2f885a294f2f6a",
-      "cg1_content_hash": "sha256:ed2f885a294f2f6a7acdb3fcc628e80c65eea93fbbe81160231a92c0bfa9dca7",
-      "content_hash": "sha256:81d9b9e00015ee40aa4d2c01026484237db28b305b3e4c48a454e1665bb6ed5b",
+      "cg1_certificate_id": "cg1_cert_2c60c68c3e41cef4",
+      "cg1_content_hash": "sha256:2c60c68c3e41cef4e4147d585d244637f39b0e65c8cf7aa12394616f4f0d9ba3",
+      "content_hash": "sha256:1708f1fba46c83ac161303b00644e161b22183f13b4d819277cf7e0be8188433",
       "decision": "abstain",
       "decisive_reason": "false_analog_hard_abstain",
       "open_obligations": [
         "no_unresolved_critical_axis"
       ],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": false,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:ed2f885a294f2f6a7acdb3fcc628e80c65eea93fbbe81160231a92c0bfa9dca7",
+        "expected_content_hash": "sha256:2c60c68c3e41cef4e4147d585d244637f39b0e65c8cf7aa12394616f4f0d9ba3",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_fbde7b647d730d99",
-        "replayed_content_hash": "sha256:fbde7b647d730d9933cb6bb5f9faa1ae0ecf84db7b3e9e86d17ec5ab71bcabe0",
+        "replayed_certificate_id": "cg1_cert_1b359c385cf06038",
+        "replayed_content_hash": "sha256:1b359c385cf0603818a72563ad4576535f4e0f3ce75146d8dfc440ab373f709a",
         "replayed_critical_contradictions": [
           "op",
           "target",
@@ -1700,62 +2963,35 @@
           "outcome",
           "effect_path"
         ],
-        "replayed_selected_atom_id": "cg1_counter_2df9778288147591",
+        "replayed_selected_atom_id": "cg1_counter_edb9504bd40e8fad",
         "replayed_selected_relation": "novel-candidate",
         "selected_atom_reproduced": false,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_monitor",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": false,
-          "source": "calibrated_stratum_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0007,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [],
       "safe_count": 0,
-      "selected_relation": "novel-candidate"
+      "selected_relation": "novel-candidate",
+      "synthetic": true
     },
     "generalization": {
       "coverage_status": "structurally_enforced_unreachable",
@@ -1806,6 +3042,16 @@
       "structural_rule": "CG2 exact/spec-only check remains enforced on every revalidated certificate"
     },
     "unknown": {
+      "admission_strangle": {
+        "admission_event_ref": null,
+        "decision": "abstain",
+        "default_owner": "runtime.quality.grounding_risk.GroundingRunBudget",
+        "observed_attempt_charge": 0.0,
+        "predecessor_ref": "grounding_bind.cg2.v1:per_certificate_risk_entries",
+        "schema_version": "policyos.runtime.grounding_admission_strangle.v1",
+        "status": "strangled",
+        "synthetic": true
+      },
       "authority_scope": "contract_testing",
       "bound_atom_id": null,
       "calibration_owner_validated": false,
@@ -1814,9 +3060,9 @@
       "calibration_validation_reasons": [
         "owned_calibration_anchor_missing"
       ],
-      "cg1_certificate_id": "cg1_cert_9ad03adfb1bf836b",
-      "cg1_content_hash": "sha256:9ad03adfb1bf836be515180ce9a143ee10ae544efb43993909872041091b5a54",
-      "content_hash": "sha256:e657b4b0908cc97006a069f021ef0a889a9254bd3365f0cdb081942a1ba38c43",
+      "cg1_certificate_id": "cg1_cert_83336e517b49428c",
+      "cg1_content_hash": "sha256:83336e517b49428ce6d085abef2ce368444a4d0f1623d0fa9770200f4804261b",
+      "content_hash": "sha256:9269d51fb7af1a65fc0ca57ce2ce930b56f767e6848b2f1c8ee6fab5c5e19d0f",
       "decision": "abstain",
       "decisive_reason": "relation_not_bind_eligible",
       "open_obligations": [
@@ -1828,74 +3074,47 @@
         "no_unresolved_critical_axis"
       ],
       "production_promotable": false,
-      "reference_epoch": "kref:956b076b990299fe",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb",
       "revalidation": {
         "content_hash_valid": true,
         "critical_contradiction_tuple_reproduced": true,
         "critical_contradictions_reproduced": true,
-        "expected_content_hash": "sha256:9ad03adfb1bf836be515180ce9a143ee10ae544efb43993909872041091b5a54",
+        "expected_content_hash": "sha256:83336e517b49428ce6d085abef2ce368444a4d0f1623d0fa9770200f4804261b",
         "not_more_permissive_than_full": true,
         "reference_versions_match": true,
         "replayed": true,
-        "replayed_certificate_id": "cg1_cert_d2a102ef82348831",
-        "replayed_content_hash": "sha256:d2a102ef823488314a9ad5b9dd384062a7a32baa69c354d1e69c1f8a6c18808d",
+        "replayed_certificate_id": "cg1_cert_82b3d26676586810",
+        "replayed_content_hash": "sha256:82b3d266765868102702bdbcea928b2359224afce48cdbd0f969e5e5a66747ae",
         "replayed_critical_contradictions": [],
-        "replayed_selected_atom_id": "cg0_atom_f9cbad6daba5c6a2",
+        "replayed_selected_atom_id": "cg0_atom_4164e221ec82011c",
         "replayed_selected_relation": "unknown",
-        "selected_atom_reproduced": false,
+        "selected_atom_reproduced": true,
         "selected_relation_reproduced": true,
         "stale_reasons": [],
         "status": "passed"
       },
-      "risk_budget": 0.01,
-      "risk_entries": [
-        {
-          "bound": 0.0002,
-          "component": "delta_RT1",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0002
-        },
-        {
-          "bound": 0.01,
-          "component": "delta_monitor",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.01
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_ref",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_retrieval_novel",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_runtime",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        },
-        {
-          "bound": 0.0001,
-          "component": "delta_type_adm",
-          "conservative_bound": true,
-          "source": "conservative_cold_start_bound",
-          "spend": 0.0001
-        }
-      ],
-      "risk_spend": 0.0106,
+      "risk_budget": 0.05,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "run_admission": {
+        "admitted_spend": null,
+        "authority_band": "candidate",
+        "binding_key": null,
+        "charged_this_attempt": 0.0,
+        "correctness_bound": null,
+        "custody_rule": "INT-K06",
+        "event_ref": null,
+        "reason": "candidate_exploration",
+        "run_continues": true,
+        "run_id": null,
+        "schema_version": "policyos.runtime.grounding_run_admission.v1",
+        "status": "candidate",
+        "synthetic": true
+      },
       "safe_atom_ids": [],
       "safe_count": 0,
-      "selected_relation": "unknown"
+      "selected_relation": "unknown",
+      "synthetic": true
     }
   },
   "relation_outcome_set": [
@@ -1910,19 +3129,23 @@
     "unknown"
   ],
   "reuse_existing_owners": [
-    "CG0 CredalReference built from real L2/L3/L6/WMR owners",
+    "CG0 canonical reference attempt plus separately marked full L6/WMR structural controls",
     "CG1 GroundingRelationEngine.certificate_for and relation_set",
     "CG1 axis witnesses and cross-modal CP-SAT witnesses",
     "CG1 recorded N4 replay candidate source",
+    "CG2 GroundingRunBudget persisted with CoreCAS and Fabric locking/atomic writes",
     "GY-N11 confidence ledger semantics not wired here; status recorded as not_wired"
   ],
-  "runtime_schema_version": "policyos.runtime.grounding_decision_certificate.v1",
-  "schema_version": "policyos.policy_design_case.grounding_bind_contract.v1",
+  "runtime_schema_version": "policyos.runtime.grounding_decision_certificate.v2",
+  "schema_version": "policyos.policy_design_case.grounding_bind_contract.v3",
   "source_modules": [
     "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/runtime/quality/grounding_risk.py",
+    "src/polisyos/runtime/quality/grounding_calibration.py",
     "src/polisyos/runtime/quality/grounding_relation.py",
     "src/polisyos/runtime/quality/credal_reference.py",
     "tools/quality/validation/check_grounding_bind_contract.py",
     "tools/quality/validation/check_grounding_relation_contract.py"
-  ]
+  ],
+  "synthetic": true
 }

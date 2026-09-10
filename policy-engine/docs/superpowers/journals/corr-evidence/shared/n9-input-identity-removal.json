@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.shared.n9_evidence_removal producer_identity",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.n9_evidence_removal",
+    "producer_identity"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 31.960688667022623,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________ test_n9_contract_input_preserves_actual_cg2_producer_output __________\ntests/repo_quality/tools/test_layer3_gy_promotion_contract.py:32: in test_n9_contract_input_preserves_actual_cg2_producer_output\n    assert returned.model_dump(mode=\"json\") == emitted[0].model_dump(mode=\"json\"), (\nE   AssertionError: n9_contract_input_was_authored_after_real_binder_returned\nE   assert {'admission_s...3', ...}, ...} == {'admission_s...3', ...}, ...}\nE     \nE     Omitting 27 identical items, use -vv to show\nE     Differing items:\nE     {'closed_obligations': ['admissibility_closed', 'estimand_grounded', 'unit_scale_consistent', 'target_writable_wmr_slot', 'operator_registered_lever', 'l3_l6_consistency', ...]} != {'closed_obligations': ['admissibility_closed', 'estimand_grounded', 'unit_scale_consistent', 'target_writable_wmr_slot', 'operator_registered_lever', 'l3_l6_consistency', ...]}\nE     {'content_hash': 'sha256:9d4bac5a18bbb876f8232f5d415caf51ee5ba706e411c29f3eec5c5ad2ea035f'} != {'content_hash': 'sha256:43e47ff94332eed2ea07e7298572b2927b04522fc39a7a78070589d0a8c838a3'}\nE     Use -v to get more diff\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_input_preserves_actual_cg2_producer_output\n",
+  "stderr": ""
+}

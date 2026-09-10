@@ -1,0 +1,419 @@
+{
+  "certificate": {
+    "acquisition_need": null,
+    "admission_ledger": {
+      "admission_certificate_id": "cg3_cert_1a9568373c85ea81",
+      "application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
+      "authority_scope": "production",
+      "content_hash": "sha256:44be9e5fc3463a3f6f2b3329ab77337c82180d26c4c09e633683be3a31f71a93",
+      "ledger_id": "cg3_ledger_44be9e5fc3463a3f",
+      "patch_ids": [
+        "cg3_patch_10f378fc6e9731e6"
+      ],
+      "reversible": true
+    },
+    "authority_scope": "production",
+    "certificate_id": "cg3_cert_55ffab7e9c984490",
+    "cg1_certificate_id": "cg1_cert_a9b605e2e1ef0e6a",
+    "cg1_content_hash": "sha256:a9b605e2e1ef0e6aa8250c0df3ee5476f393dc9201e27258c2c39273dfa31b4f",
+    "cg1_expected_content_hash": "sha256:a9b605e2e1ef0e6aa8250c0df3ee5476f393dc9201e27258c2c39273dfa31b4f",
+    "cg2_certificate_id": "cg2_cert_fa70ab821c42d4a1",
+    "cg2_content_hash": "sha256:fa70ab821c42d4a10d79d8d54b8556b3843767f0153d778135d2eff0a80988f8",
+    "cg2_expected_content_hash": "sha256:fa70ab821c42d4a10d79d8d54b8556b3843767f0153d778135d2eff0a80988f8",
+    "closed_obligations": [
+      "parse",
+      "novel_irreducible",
+      "type",
+      "world_bindable_or_acquirable",
+      "do_semantics",
+      "mechanism_witness",
+      "estimand",
+      "admissibility",
+      "data_trust",
+      "ambiguity",
+      "cg2_novel_handoff",
+      "cg1_content_bound"
+    ],
+    "content_hash": "sha256:55ffab7e9c984490d97271f286350c471c4b5148eb825a822fe8154729a79be1",
+    "data_trust": {
+      "evidence_ref": "L2_CAUSAL_CLAIM::household_cells.transfer_intensity->household_cells.disposable_income",
+      "owner": "CG0/L2 owner-lifted L5 trust signals",
+      "reason": "l5_trust_floor_met",
+      "resolved_trust_cap": 0.92,
+      "status": "closed",
+      "trust_floor": 0.5
+    },
+    "decision": "admit_new_lever",
+    "decisive_reason": "all_obligations_closed",
+    "decisive_reject_proof": null,
+    "delta_adm_ledger": {
+      "calibration_status": "cold_start_no_admission_history",
+      "delta_adm_budget": 0.01,
+      "entries": [
+        {
+          "bound": 0.0005,
+          "component": "admissibility",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0005
+        },
+        {
+          "bound": 0.0007,
+          "component": "ambiguity",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0007
+        },
+        {
+          "bound": 0.0006,
+          "component": "data_trust",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0006
+        },
+        {
+          "bound": 0.0005,
+          "component": "do_semantics",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0005
+        },
+        {
+          "bound": 0.0004,
+          "component": "estimand",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0004
+        },
+        {
+          "bound": 0.0015,
+          "component": "mechanism_witness",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0015
+        },
+        {
+          "bound": 0.0007,
+          "component": "novel_irreducible",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0007
+        },
+        {
+          "bound": 0.0004,
+          "component": "parse",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0004
+        },
+        {
+          "bound": 0.0005,
+          "component": "type",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0005
+        },
+        {
+          "bound": 0.0007,
+          "component": "world_bindable_or_acquirable",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_obligation_soundness_bound",
+          "spend": 0.0007
+        }
+      ],
+      "guarantee_statement": "P(hallucinated admit) <= delta_adm conditional on obligation/validator soundness and CG0 reference completeness; GY-N11 confidence ledger composition is not wired.",
+      "n11_composition_status": "not_wired",
+      "n11_confidence_ledger_ref": null,
+      "total_spend": 0.0065,
+      "within_budget": true
+    },
+    "mechanism_witness": {
+      "evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "household_cells.disposable_income",
+            "src": "household_cells.transfer_intensity"
+          }
+        ],
+        "path_length": 1,
+        "path_trust_cap": 0.92,
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ]
+      },
+      "evidence_refs": [
+        "L2_CAUSAL_CLAIM::household_cells.transfer_intensity->household_cells.disposable_income"
+      ],
+      "owner": "L2/SKG causal evidence",
+      "status": "closed"
+    },
+    "obligations": [
+      {
+        "evidence": {
+          "operator": "emergency_cooling_subsidy",
+          "target": "household_cells.transfer_intensity"
+        },
+        "obligation_id": "parse",
+        "owner": "CG1 parsed proposal",
+        "reason": "coherent_do_hypothesis_parsed",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "obligation_id": "novel_irreducible",
+        "owner": "CG0/L6 atom universe",
+        "reason": "no_existing_atom_paraphrase_bundle_or_specialization",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "operator": "emergency_cooling_subsidy",
+          "target": "household_cells.transfer_intensity"
+        },
+        "obligation_id": "type",
+        "owner": "WMR type system",
+        "reason": "operator_target_typed_against_world_model",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "completion_count": 1
+        },
+        "obligation_id": "world_bindable_or_acquirable",
+        "owner": "WMR/CG0 reference",
+        "reason": "target_has_existing_or_acquirable_world_completion",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "actuatability": {
+            "actuatable": true,
+            "evidence": {
+              "role": "policy_input",
+              "source": "unit"
+            },
+            "reason": "wmr_positive_policy_input_metadata",
+            "target": "household_cells.transfer_intensity"
+          },
+          "x_do": {
+            "rate": 0.4
+          }
+        },
+        "obligation_id": "do_semantics",
+        "owner": "CG1 do_AST + WMR policy slot taxonomy",
+        "reason": "actuatable_do_semantics_present",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "evidence": {
+            "caller_claims_ignored": false,
+            "path": [
+              {
+                "direction": "positive",
+                "dst": "household_cells.disposable_income",
+                "src": "household_cells.transfer_intensity"
+              }
+            ],
+            "path_length": 1,
+            "path_trust_cap": 0.92,
+            "source_modalities": [
+              "L2_CAUSAL_CLAIM"
+            ]
+          },
+          "evidence_refs": [
+            "L2_CAUSAL_CLAIM::household_cells.transfer_intensity->household_cells.disposable_income"
+          ],
+          "owner": "L2/SKG causal evidence",
+          "status": "closed"
+        },
+        "obligation_id": "mechanism_witness",
+        "owner": "L2/SKG causal evidence",
+        "reason": "real_l2_skg_mechanism_witness_resolved",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "estimand": "average_treatment_effect"
+        },
+        "obligation_id": "estimand",
+        "owner": "CG1 proposal signature",
+        "reason": "effect_estimand_defined",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "admissibility": "passed"
+        },
+        "obligation_id": "admissibility",
+        "owner": "L3/Lex admissibility",
+        "reason": "l3_admissibility_closed",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "evidence_ref": "L2_CAUSAL_CLAIM::household_cells.transfer_intensity->household_cells.disposable_income",
+          "owner": "CG0/L2 owner-lifted L5 trust signals",
+          "reason": "l5_trust_floor_met",
+          "resolved_trust_cap": 0.92,
+          "status": "closed",
+          "trust_floor": 0.5
+        },
+        "obligation_id": "data_trust",
+        "owner": "CG0/L2 owner-lifted L5 trust signals",
+        "reason": "l5_data_trust_floor_met",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "completions": [
+            {
+              "evidence_ref": "WMR_WORLD_SLOT::household_cells.transfer_intensity",
+              "kind": "existing_slot",
+              "reason": "existing_wmr_world_slot",
+              "status": "confirmed",
+              "target_slot": "household_cells.transfer_intensity"
+            }
+          ],
+          "reason": "single_existing_world_slot_completion",
+          "stable": true,
+          "stable_new_lever_key": "sha256:c2b1fad716547c3f9b8d3055c958b0e4d38f9d41a41b16576547cb11ac932c50"
+        },
+        "obligation_id": "ambiguity",
+        "owner": "CG0 credal completions",
+        "reason": "stable_unique_single_completion",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "cg3_handoff": true,
+          "decision": "novel_candidate",
+          "expected_hash": "sha256:fa70ab821c42d4a10d79d8d54b8556b3843767f0153d778135d2eff0a80988f8",
+          "reason": "cg2_novel_candidate_handoff_resolved",
+          "valid": true
+        },
+        "obligation_id": "cg2_novel_handoff",
+        "owner": "CG2 GroundingDecisionCertificate",
+        "reason": "cg2_novel_candidate_handoff_resolved",
+        "status": "closed"
+      },
+      {
+        "evidence": {
+          "expected_hash": "sha256:a9b605e2e1ef0e6aa8250c0df3ee5476f393dc9201e27258c2c39273dfa31b4f",
+          "reason": "cg1_content_bound",
+          "valid": true
+        },
+        "obligation_id": "cg1_content_bound",
+        "owner": "CG1 GroundingRelationCertificate",
+        "reason": "cg1_proposal_certificate_content_bound_to_cg2",
+        "status": "closed"
+      }
+    ],
+    "open_obligations": [],
+    "production_promotable": true,
+    "proposal_signature": {
+      "X_do": [
+        "household_cells.transfer_intensity"
+      ],
+      "admissibility": "passed",
+      "effect_path": [
+        "emergency_cooling_subsidy",
+        "household_cells.transfer_intensity",
+        "household_cells.disposable_income"
+      ],
+      "estimand": "average_treatment_effect",
+      "evidence": [],
+      "modal_claims": {
+        "NL": {
+          "estimand": "average_treatment_effect",
+          "op": "emergency_cooling_subsidy",
+          "outcome": "household_cells.disposable_income",
+          "target": "household_cells.transfer_intensity"
+        },
+        "do_AST": {
+          "do_value": {
+            "rate": 0.4
+          },
+          "op": "emergency_cooling_subsidy",
+          "target": "household_cells.transfer_intensity"
+        }
+      },
+      "op": "emergency_cooling_subsidy",
+      "outcome": [
+        "household_cells.disposable_income"
+      ],
+      "params": {
+        "rate": 0.4
+      },
+      "population": "households",
+      "scope": "households",
+      "sign": "increase",
+      "time": null,
+      "unit": "ratio",
+      "wm_version": "unit-wmr",
+      "x_do": {
+        "rate": 0.4
+      }
+    },
+    "reference_epoch": "kref:6c8d9d3bf7928f40",
+    "reference_hash": "sha256:b011a1ad08d818905de541e47cc52ec61a8be6b100fc31b248ccd764351db395",
+    "reference_versions": {
+      "L2": "sha256:d6a869fd99c4a35901dc07b83134013da8a6f6d6001eb9f32986386249a93099",
+      "L3": "unit-l3",
+      "L6": "sha256:2eedc7f6b8b7f85d5de597b3bd5758d26fbee296f17ce10157c34562c0aba397",
+      "WMR": "unit-wmr"
+    },
+    "registry_patch": {
+      "application_status": "shadow_applied",
+      "authority_scope": "production",
+      "content_hash": "sha256:10f378fc6e9731e62d7afcacd5f29fccde6dad33d58e8a5e308741e06fab653e",
+      "decision_front_created": false,
+      "idempotency_key": "sha256:8d4bdf4e4e349646de2d9b6be217dad8f27d32ed855dd4029b864d676f8cfced",
+      "lex_map": {},
+      "operator_kind": "emergency_cooling_subsidy",
+      "owner": "GY-S0/L6 intervention substrate",
+      "parameter_domain": {
+        "kind": "range",
+        "max_value": 1.0,
+        "min_value": 0.0,
+        "unit": "ratio",
+        "value_type": "float"
+      },
+      "patch_id": "cg3_patch_10f378fc6e9731e6",
+      "reversible": true,
+      "source_reference_epoch": "kref:6c8d9d3bf7928f40",
+      "source_reference_hash": "sha256:b011a1ad08d818905de541e47cc52ec61a8be6b100fc31b248ccd764351db395",
+      "target_world_slots": [
+        "household_cells.transfer_intensity"
+      ]
+    },
+    "schema_version": "policyos.runtime.grounding_admission_certificate.v1",
+    "stable_unique": {
+      "completions": [
+        {
+          "evidence_ref": "WMR_WORLD_SLOT::household_cells.transfer_intensity",
+          "kind": "existing_slot",
+          "reason": "existing_wmr_world_slot",
+          "status": "confirmed",
+          "target_slot": "household_cells.transfer_intensity"
+        }
+      ],
+      "reason": "single_existing_world_slot_completion",
+      "stable": true,
+      "stable_new_lever_key": "sha256:c2b1fad716547c3f9b8d3055c958b0e4d38f9d41a41b16576547cb11ac932c50"
+    },
+    "validator_version": "policyos.runtime.grounding_admission.cg3.v1"
+  },
+  "producer_source": "src/polisyos/runtime/quality/grounding_admission.py",
+  "producer_source_sha256": "02ba2b921016bfca8001c1a04a4e1c2cda73316e310e2f39243b0b23a09833ef",
+  "purpose": "synthetic compatibility control from the old producer",
+  "synthetic": true
+}

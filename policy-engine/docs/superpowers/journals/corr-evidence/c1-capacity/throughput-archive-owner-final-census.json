@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "denominator": "all test methods in two named mirrored lane helper test modules",
+  "ast_count": 4,
+  "unittest_count": 4,
+  "identity_sets_equal": true,
+  "identity_set_sha256": "f4ca4cd402088be1c303396861554de15456302a8fdeaefbf3ca8f85777b8d7d"
+}

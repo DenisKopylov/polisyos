@@ -1,0 +1,20 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a-expansion.reconcile",
+    "--capture",
+    "docs/superpowers/journals/corr-evidence/a-expansion/assignment-removal-red.json"
+  ],
+  "capture_returncode": 0,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.13403016701340675,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"actual_case_count\": 48,\n  \"actual_control_count\": 3,\n  \"actual_control_identity_hash\": \"sha256:07fefdc4712ea1120bbd3596b87f8d170a2f3efed3c742586ee0afe47941bb46\",\n  \"actual_identity_hash\": \"sha256:765709651ca871234441f88dd3c4302e6bbebe5bf9e309c013e9f50a494e7fdc\",\n  \"correctness_or_refusal_rate_claim\": \"out_of_scope; this gate reconciles identities only\",\n  \"denominator\": \"complete frozen assignment JSON array x complete pinned WMR slot JSON array\",\n  \"expected_case_count\": 48,\n  \"expected_control_count\": 3,\n  \"expected_control_identity_hash\": \"sha256:07fefdc4712ea1120bbd3596b87f8d170a2f3efed3c742586ee0afe47941bb46\",\n  \"expected_identity_hash\": \"sha256:765709651ca871234441f88dd3c4302e6bbebe5bf9e309c013e9f50a494e7fdc\",\n  \"independence\": \"algorithmic reconciliation over one shared support population\",\n  \"input_census_status\": \"passed\",\n  \"issues\": [],\n  \"missing\": [],\n  \"missing_controls\": [],\n  \"schema_version\": \"corr.refusal_expansion_identity_reconciliation.v1\",\n  \"status\": \"passed\",\n  \"synthetic\": true,\n  \"unexpected\": [],\n  \"unexpected_controls\": []\n}\n",
+  "timed_out": false,
+  "timeout_seconds": 60.0
+}

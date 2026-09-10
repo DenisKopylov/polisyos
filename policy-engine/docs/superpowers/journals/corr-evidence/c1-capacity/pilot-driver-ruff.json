@@ -1,0 +1,21 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/pilot_campaign.py",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/profile_pilot.py"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.07541133393533528,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F401 [*] `json` imported but unused\n --> docs/superpowers/journals/corr-evidence/c1-capacity/profile_pilot.py:7:8\n  |\n5 | import argparse\n6 | import importlib\n7 | import json\n  |        ^^^^\n8 | import sqlite3\n9 | import sys\n  |\nhelp: Remove unused import: `json`\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.\n",
+  "timed_out": false,
+  "timeout_seconds": 300.0
+}

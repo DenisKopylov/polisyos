@@ -1,0 +1,24 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_separates_full_record_from_verified_comparison_identity tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_source_flip_harness_targets_current_n11_guards_and_tests -vv --durations=0 --junitxml=.tmp/corr-n9-companion-delta.xml",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace",
+    "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_separates_full_record_from_verified_comparison_identity",
+    "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_source_flip_harness_targets_current_n11_guards_and_tests",
+    "-vv",
+    "--durations=0",
+    "--junitxml=.tmp/corr-n9-companion-delta.xml"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 142.73505104193464,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python\ncachedir: _cache/pytest\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\nhypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/_cache/hypothesis'))\ntest taxonomy enabled; active pytest quarantines=0\nrootdir: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine\nconfigfile: pytest.ini\nplugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0\nasyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 3 items\n\ntests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace PASSED [ 33%]\ntests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_separates_full_record_from_verified_comparison_identity PASSED [ 66%]\ntests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_source_flip_harness_targets_current_n11_guards_and_tests PASSED [100%]\n\n- generated xml file: /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.tmp/corr-n9-companion-delta.xml -\n============================== slowest durations ===============================\n73.79s call     tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace\n36.64s call     tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_contract_separates_full_record_from_verified_comparison_identity\n\n(7 durations < 0.005s hidden.  Use -vv to show these durations.)\n======================== 3 passed in 138.47s (0:02:18) =========================\n",
+  "stderr": ""
+}

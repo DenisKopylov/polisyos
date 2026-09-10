@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.shared.reconcile_compact_probe",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.shared.reconcile_compact_probe"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 6.298676042002626,
+  "timeout_seconds": 30.0,
+  "timed_out": false,
+  "stdout": "{\"returncode\": 0, \"record\": {\"denominator\": \"complete actual pytest collection versus complete executed JUnit testcase set\", \"collection_returncode\": 0, \"execution_returncode\": 0, \"missing_executions\": [], \"unexpected_executions\": [], \"ambiguous_or_unresolved\": [], \"duplicate_collection\": false, \"duplicate_execution\": false, \"nonpassing_executions\": [], \"collected_count\": 1, \"executed_count\": 1, \"collected_identity_hash\": \"7c1220ca83b41bb405be1aa5082a4669e870786af04a8f0ed44ac0931dd69325\", \"executed_identity_hash\": \"7c1220ca83b41bb405be1aa5082a4669e870786af04a8f0ed44ac0931dd69325\", \"duplicate_collection_identities\": {}, \"duplicate_execution_identities\": {}}}\n",
+  "stderr": ""
+}

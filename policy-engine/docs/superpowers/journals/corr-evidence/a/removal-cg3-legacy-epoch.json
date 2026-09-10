@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.removal cg3_legacy_epoch",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.removal",
+    "cg3_legacy_epoch"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 162.3767528750468,
+  "timeout_seconds": 300.0,
+  "timed_out": false,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____ test_legacy_cg3_producer_control_preserves_its_own_serialized_epoch ______\ntests/unit/runtime/quality/test_grounding_admission.py:292: in test_legacy_cg3_producer_control_preserves_its_own_serialized_epoch\n    certificate = GroundingAdmissionCertificate.model_validate(body)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   pydantic_core._pydantic_core.ValidationError: 2 validation errors for GroundingAdmissionCertificate\nE   registry_patch\nE     Value error, registry_patch_content_hash_mismatch [type=value_error, input_value={'application_status': 's...ls.transfer_intensity']}, input_type=dict]\nE       For further information visit https://errors.pydantic.dev/2.12/v/value_error\nE   admission_ledger\nE     Value error, admission_ledger_content_hash_mismatch [type=value_error, input_value={'admission_certificate_i...6'], 'reversible': True}, input_type=dict]\nE       For further information visit https://errors.pydantic.dev/2.12/v/value_error\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_admission.py::test_legacy_cg3_producer_control_preserves_its_own_serialized_epoch\n",
+  "stderr": ""
+}

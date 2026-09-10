@@ -1,0 +1,476 @@
+{
+  "regeneration": {
+    "argv": [
+      ".venv/bin/python",
+      "-m",
+      "tools.quality.validation.check_trust_claim_posture",
+      "--repo-root",
+      ".",
+      "--write",
+      "--output-root",
+      ".tmp/corr-trust-posture-output",
+      "--json"
+    ],
+    "returncode": 0,
+    "stdout": "{\"ast\":{\"consuming_file_count\":41,\"declaring_file_count\":110,\"direct_empty_site_count\":10,\"direct_literal_file_count\":21,\"direct_literal_site_count\":46,\"direct_literal_subject_count\":28,\"exact_field_file_count\":121,\"may_not_use_for_literal_file_count\":29,\"may_not_use_for_literal_site_count\":45,\"may_not_use_for_literal_subject_count\":57,\"may_not_use_for_raw_file_count\":135,\"method\":\"ast\",\"raw_candidate_count\":122,\"role_counts\":{\"ambiguous\":0,\"carries_only\":5,\"consumes_only\":6,\"declares_and_consumes\":35,\"declares_only\":75,\"substring_collision\":1},\"row_digest\":\"sha256:12c8a3fe7db8d1e4c2f9e9aeb58da4fa1156bf18df1a7b1a56d396324c5beacf\",\"scanned_python_count\":138,\"wrapper_literal_file_count\":33,\"wrapper_literal_site_count\":71,\"wrapper_literal_subject_count\":35},\"declared_outputs\":[\"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\"],\"issue_codes\":[\"DS11-SOURCE-COLLISION\",\"DS11-SOURCE-RUNTIME-BOUND\"],\"payload_digest\":\"sha256:e254c49bd2c75a682d16820b4c8032f7ad07728dcd68bdd91701a3a9b544027c\",\"schema_version\":\"policyos.trust.claim_posture_register.v1\",\"source_set_digest\":\"sha256:cfb6129c0be66b95ddc701d123c6b85e6fdfc7573320e6c31dd245a46ecb8f1e\",\"tokenize\":{\"consuming_file_count\":41,\"declaring_file_count\":110,\"direct_empty_site_count\":10,\"direct_literal_file_count\":21,\"direct_literal_site_count\":46,\"direct_literal_subject_count\":28,\"exact_field_file_count\":121,\"may_not_use_for_literal_file_count\":29,\"may_not_use_for_literal_site_count\":45,\"may_not_use_for_literal_subject_count\":57,\"may_not_use_for_raw_file_count\":135,\"method\":\"tokenize\",\"raw_candidate_count\":122,\"role_counts\":{\"ambiguous\":0,\"carries_only\":5,\"consumes_only\":6,\"declares_and_consumes\":35,\"declares_only\":75,\"substring_collision\":1},\"row_digest\":\"sha256:8bb0c6b0fbe2cdcc204abe6ac700fcba62a4396f511966e713a226573d50a3db\",\"scanned_python_count\":138,\"wrapper_literal_file_count\":33,\"wrapper_literal_site_count\":71,\"wrapper_literal_subject_count\":35},\"write_set\":[\"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\"]}\n",
+    "stderr": "",
+    "timed_out": false,
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": ".:src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "elapsed_seconds": 39.188763125101104,
+    "timeout_seconds": 300,
+    "canonical_unchanged": true,
+    "canonical_sha256": "4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa",
+    "source_head": "778d8ce6b3be5a1730bbd3b10b7af5cf72c5aebe"
+  },
+  "comparison": {
+    "scope": "complete typed node identity/value comparison; objects, arrays, scalars, null, and absence remain distinct",
+    "old_path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+    "old_sha256": "4af87f48bfd98f892987b75b3a632863aa387b1aa47494d95109e5c85f858efa",
+    "new_path": ".tmp/corr-trust-posture-output/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+    "new_sha256": "9ef1d7d3c72f8fdd2e5a3737666c6fcc1fe40fcf5814d9f6943b6eaeb5205d7f",
+    "old_node_count": 77274,
+    "new_node_count": 77274,
+    "independent_recursive_iterative_maps_equal": true,
+    "changed_node_count": 28,
+    "changed_identity_sets_equal": true,
+    "added_identity_count": 0,
+    "removed_identity_count": 0,
+    "changed_top_level_groups": {
+      "admitted_sources": 2,
+      "ast_derivation": 3,
+      "claims": 8,
+      "payload_digest": 1,
+      "source_inventory": 10,
+      "source_set_digest": 1,
+      "token_derivation": 3
+    },
+    "semantic_identity_sets": {
+      "admitted_sources": {
+        "identity_key": "path",
+        "old_count": 145,
+        "new_count": 145,
+        "added": [],
+        "removed": [],
+        "changed": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/promotion_sequence.py"
+        ]
+      },
+      "source_inventory": {
+        "identity_key": "path",
+        "old_count": 122,
+        "new_count": 122,
+        "added": [],
+        "removed": [],
+        "changed": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/promotion_sequence.py"
+        ]
+      },
+      "claims": {
+        "identity_key": "claim_id",
+        "old_count": 364,
+        "new_count": 364,
+        "added": [],
+        "removed": [],
+        "changed": [
+          "claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca",
+          "claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005",
+          "claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab",
+          "claim-posture:91e212ebea0c5d0d81529241346b5ee9dee9b6a3448c2da1dcb416337ffa6a86"
+        ]
+      },
+      "admitted_verifiers": {
+        "identity_key": "ref",
+        "old_count": 3,
+        "new_count": 3,
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "projection_groups": {
+        "identity_key": "group_id",
+        "old_count": 5,
+        "new_count": 5,
+        "added": [],
+        "removed": [],
+        "changed": []
+      }
+    },
+    "changes": [
+      {
+        "pointer": "/admitted_sources/104/content_digest",
+        "before": [
+          "str",
+          "sha256:3b0fc0ffe53144058aa4593d1596a36ed215164413501525795323bb25ca91a7"
+        ],
+        "after": [
+          "str",
+          "sha256:906a1d1200c5868586ef1a237ce8f18aa071c170507d2271cead41a38549f9d7"
+        ]
+      },
+      {
+        "pointer": "/admitted_sources/91/content_digest",
+        "before": [
+          "str",
+          "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151"
+        ],
+        "after": [
+          "str",
+          "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a"
+        ]
+      },
+      {
+        "pointer": "/ast_derivation/may_not_use_for_raw_members/82/content_digest",
+        "before": [
+          "str",
+          "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151"
+        ],
+        "after": [
+          "str",
+          "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a"
+        ]
+      },
+      {
+        "pointer": "/ast_derivation/may_not_use_for_raw_members/95/content_digest",
+        "before": [
+          "str",
+          "sha256:3b0fc0ffe53144058aa4593d1596a36ed215164413501525795323bb25ca91a7"
+        ],
+        "after": [
+          "str",
+          "sha256:906a1d1200c5868586ef1a237ce8f18aa071c170507d2271cead41a38549f9d7"
+        ]
+      },
+      {
+        "pointer": "/ast_derivation/row_digest",
+        "before": [
+          "str",
+          "sha256:1590c03d68680fa22edd7f56b75e6071c9fd036a2bebbdf49130ccc89b8b14a9"
+        ],
+        "after": [
+          "str",
+          "sha256:12c8a3fe7db8d1e4c2f9e9aeb58da4fa1156bf18df1a7b1a56d396324c5beacf"
+        ]
+      },
+      {
+        "pointer": "/claims/22/source_bindings/1/content_digest",
+        "before": [
+          "str",
+          "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151"
+        ],
+        "after": [
+          "str",
+          "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a"
+        ]
+      },
+      {
+        "pointer": "/claims/22/source_bindings/1/coordinate/line",
+        "before": [
+          "int",
+          4938
+        ],
+        "after": [
+          "int",
+          5224
+        ]
+      },
+      {
+        "pointer": "/claims/223/source_bindings/0/content_digest",
+        "before": [
+          "str",
+          "sha256:3b0fc0ffe53144058aa4593d1596a36ed215164413501525795323bb25ca91a7"
+        ],
+        "after": [
+          "str",
+          "sha256:906a1d1200c5868586ef1a237ce8f18aa071c170507d2271cead41a38549f9d7"
+        ]
+      },
+      {
+        "pointer": "/claims/223/source_bindings/0/coordinate/line",
+        "before": [
+          "int",
+          5361
+        ],
+        "after": [
+          "int",
+          5505
+        ]
+      },
+      {
+        "pointer": "/claims/25/source_bindings/1/content_digest",
+        "before": [
+          "str",
+          "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151"
+        ],
+        "after": [
+          "str",
+          "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a"
+        ]
+      },
+      {
+        "pointer": "/claims/25/source_bindings/1/coordinate/line",
+        "before": [
+          "int",
+          4938
+        ],
+        "after": [
+          "int",
+          5224
+        ]
+      },
+      {
+        "pointer": "/claims/62/source_bindings/1/content_digest",
+        "before": [
+          "str",
+          "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151"
+        ],
+        "after": [
+          "str",
+          "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a"
+        ]
+      },
+      {
+        "pointer": "/claims/62/source_bindings/1/coordinate/line",
+        "before": [
+          "int",
+          4938
+        ],
+        "after": [
+          "int",
+          5224
+        ]
+      },
+      {
+        "pointer": "/payload_digest",
+        "before": [
+          "str",
+          "sha256:74a1fd09557bb9537ea62771df8c06ae570acfba315cc76f182218e52f21e8c2"
+        ],
+        "after": [
+          "str",
+          "sha256:e254c49bd2c75a682d16820b4c8032f7ad07728dcd68bdd91701a3a9b544027c"
+        ]
+      },
+      {
+        "pointer": "/source_inventory/74/authoritative_sites/0/coordinate/line",
+        "before": [
+          "int",
+          4938
+        ],
+        "after": [
+          "int",
+          5224
+        ]
+      },
+      {
+        "pointer": "/source_inventory/74/content_digest",
+        "before": [
+          "str",
+          "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151"
+        ],
+        "after": [
+          "str",
+          "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a"
+        ]
+      },
+      {
+        "pointer": "/source_inventory/74/declaration_coordinates/0/line",
+        "before": [
+          "int",
+          4938
+        ],
+        "after": [
+          "int",
+          5224
+        ]
+      },
+      {
+        "pointer": "/source_inventory/74/declaration_coordinates/1/line",
+        "before": [
+          "int",
+          4943
+        ],
+        "after": [
+          "int",
+          5229
+        ]
+      },
+      {
+        "pointer": "/source_inventory/74/forbidden_sites/0/coordinate/line",
+        "before": [
+          "int",
+          4943
+        ],
+        "after": [
+          "int",
+          5229
+        ]
+      },
+      {
+        "pointer": "/source_inventory/86/authoritative_sites/0/coordinate/line",
+        "before": [
+          "int",
+          5361
+        ],
+        "after": [
+          "int",
+          5505
+        ]
+      },
+      {
+        "pointer": "/source_inventory/86/content_digest",
+        "before": [
+          "str",
+          "sha256:3b0fc0ffe53144058aa4593d1596a36ed215164413501525795323bb25ca91a7"
+        ],
+        "after": [
+          "str",
+          "sha256:906a1d1200c5868586ef1a237ce8f18aa071c170507d2271cead41a38549f9d7"
+        ]
+      },
+      {
+        "pointer": "/source_inventory/86/declaration_coordinates/0/line",
+        "before": [
+          "int",
+          5361
+        ],
+        "after": [
+          "int",
+          5505
+        ]
+      },
+      {
+        "pointer": "/source_inventory/86/declaration_coordinates/1/line",
+        "before": [
+          "int",
+          5362
+        ],
+        "after": [
+          "int",
+          5506
+        ]
+      },
+      {
+        "pointer": "/source_inventory/86/forbidden_sites/0/coordinate/line",
+        "before": [
+          "int",
+          5362
+        ],
+        "after": [
+          "int",
+          5506
+        ]
+      },
+      {
+        "pointer": "/source_set_digest",
+        "before": [
+          "str",
+          "sha256:e089caf58bfb148d23ad2c8151eef95c8c05a1f0dad4134d0d84df763aa08304"
+        ],
+        "after": [
+          "str",
+          "sha256:cfb6129c0be66b95ddc701d123c6b85e6fdfc7573320e6c31dd245a46ecb8f1e"
+        ]
+      },
+      {
+        "pointer": "/token_derivation/may_not_use_for_raw_members/82/content_digest",
+        "before": [
+          "str",
+          "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151"
+        ],
+        "after": [
+          "str",
+          "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a"
+        ]
+      },
+      {
+        "pointer": "/token_derivation/may_not_use_for_raw_members/95/content_digest",
+        "before": [
+          "str",
+          "sha256:3b0fc0ffe53144058aa4593d1596a36ed215164413501525795323bb25ca91a7"
+        ],
+        "after": [
+          "str",
+          "sha256:906a1d1200c5868586ef1a237ce8f18aa071c170507d2271cead41a38549f9d7"
+        ]
+      },
+      {
+        "pointer": "/token_derivation/row_digest",
+        "before": [
+          "str",
+          "sha256:eac33e2c55bde0dacdc740885ffd7f903f2428c97252dddb2c80164f3b78a481"
+        ],
+        "after": [
+          "str",
+          "sha256:8bb0c6b0fbe2cdcc204abe6ac700fcba62a4396f511966e713a226573d50a3db"
+        ]
+      }
+    ]
+  },
+  "causal_analysis": {
+    "classification": "same source-custody freshness class; valid generated companion refresh, not changed trust algorithm or claim admission",
+    "exact_causal_sources": [
+      {
+        "path": "src/polisyos/runtime/quality/generation_cycle.py",
+        "original_source_ref": "9619f6d2d:policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "original_sha256": "sha256:ee1033212813a248ecb3c0385441318b6136ecfbe454cd9ce856787881845151",
+        "current_sha256": "sha256:6e33dfd61c6d7f315099289796a1bd77f346dcaeb3890276bcc6ab34a6231a0a",
+        "original_and_current_complete_authority_denial_keyword_ast_sets_equal": true,
+        "keyword_identity_count": 2,
+        "source_inventory_literal_values_equal": true
+      },
+      {
+        "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+        "original_source_ref": "9619f6d2d:policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "original_sha256": "sha256:3b0fc0ffe53144058aa4593d1596a36ed215164413501525795323bb25ca91a7",
+        "current_sha256": "sha256:906a1d1200c5868586ef1a237ce8f18aa071c170507d2271cead41a38549f9d7",
+        "original_and_current_complete_authority_denial_keyword_ast_sets_equal": true,
+        "keyword_identity_count": 2,
+        "source_inventory_literal_values_equal": true
+      }
+    ],
+    "all_claim_nonbinding_fields_unchanged": true,
+    "affected_claims": [
+      {
+        "claim_id": "claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca",
+        "subject": "forecast_support_tiering",
+        "effective_state": "blocked",
+        "predicate_fields_unchanged": true
+      },
+      {
+        "claim_id": "claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005",
+        "subject": "value_grounded_welfare_comparison",
+        "effective_state": "blocked",
+        "predicate_fields_unchanged": true
+      },
+      {
+        "claim_id": "claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab",
+        "subject": "observable_subset_calibration",
+        "effective_state": "blocked",
+        "predicate_fields_unchanged": true
+      },
+      {
+        "claim_id": "claim-posture:91e212ebea0c5d0d81529241346b5ee9dee9b6a3448c2da1dcb416337ffa6a86",
+        "subject": "grounded_partial_admissible_policy_design",
+        "effective_state": "blocked",
+        "predicate_fields_unchanged": true
+      }
+    ],
+    "all_other_typed_differences": "source content digests, declaration/site line coordinates, AST/token row digests, source_set_digest, and payload_digest; complete delta retained in comparison",
+    "canonical_unchanged": true,
+    "recommended_owner_command": [
+      ".venv/bin/python",
+      "-m",
+      "tools.quality.validation.check_trust_claim_posture",
+      "--repo-root",
+      ".",
+      "--write",
+      "--json"
+    ],
+    "scope_limits": "Only scratch regeneration performed. Canonical publication, independent --check and final guardrail replay remain root-owned."
+  }
+}

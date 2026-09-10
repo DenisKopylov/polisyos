@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/runtime/quality/test_intervention_substrate.py::test_missing_legal_subject_is_ambiguous_before_numeric_units",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_missing_legal_subject_is_ambiguous_before_numeric_units"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 217.22716987493914,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________ test_missing_legal_subject_is_ambiguous_before_numeric_units _________\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13bc89a70>\n\n    def test_missing_legal_subject_is_ambiguous_before_numeric_units(monkeypatch) -> None:\n        \"\"\"Deleting early subject admission wrongly evaluates an ungrounded unit.\"\"\"\n        bundle = load_l6_intervention_substrate(REPO_ROOT)\n        manifest = copy.deepcopy(bundle.lex_authority_manifest)\n        for row in manifest[\"intervention_map_entries\"]:\n            if row[\"law_token\"] == BUDGET_LAW:\n                row[\"measurement_expectations\"][\"candidate_unit\"] = \"corr.invalid.unit\"\n        bundle = replace_intervention_substrate_bundle(\n            bundle, update={\"lex_authority_manifest\": manifest})\n        lex = _lex_store()\n        evaluations = []\n        evaluate = lex.evaluate_rule_threshold\n    \n        def observed_evaluate(**kwargs):\n            evaluations.append(kwargs)\n            return evaluate(**kwargs)\n    \n        monkeypatch.setattr(lex, \"evaluate_rule_threshold\", observed_evaluate)\n        result = resolve_law_bound_lever(\n            bundle, law_token=BUDGET_LAW, knob_id=\"budget_allocation_multiplier\",\n            parameter_value=1.0, legal_store=lex,\n        )\n>       assert evaluations == []\nE       AssertionError: assert [{'applies_to...e': 1.0, ...}] == []\nE         \nE         Left contains one more item: {'applies_to': '25 percent', 'as_of': '1998-01-01', 'candidate_unit': 'corr.invalid.unit', 'candidate_value': 1.0, ...}\nE         Use -v to get more diff\n\ntests/unit/runtime/quality/test_intervention_substrate.py:290: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_intervention_substrate.py::test_missing_legal_subject_is_ambiguous_before_numeric_units\n",
+  "stderr": ""
+}

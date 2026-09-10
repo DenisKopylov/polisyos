@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="24" time="76.678" timestamp="2026-09-09T08:48:25.510146+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_default_n4_port_preserves_actual_organ_bundle" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_synthetic_cg2_contract_mechanism_remains_non_promotable" time="0.386" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_actual_source_roundtrip_and_repeat_identity" time="2.495" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_contract_scope_marks_each_persisted_capsule" time="0.007" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_source_replay_requires_actual_persistence_owner_profile" time="0.030" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_tracked_owner_epochs_remain_exactly_readable" time="0.083" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_default_controller_custody_and_missing_protected_admission" time="17.667" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_data_only_new_candidate_preserves_complete_source_identity" time="3.893" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_actual_retained_source_drives_effect_writer_and_marks_bridge" time="0.879" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_current_effect_bridge_binds_actual_historical_emitter_epoch" time="0.827"><failure message="pydantic_core._pydantic_core.ValidationError: 47 validation errors for _EffectObligationProducerRecord&#10;intervention_substrate&#10;  Value error, intervention_substrate_bundle_content_hash_mismatch: expected sha256:4c8b211c302fe97786e0d6419297f6f3e325636e68a31af6f6f55f7a71953c76, got sha256:d6c995b7d68f7df33f3f10033cc1cee19e88500db34e47df5db9f21d9993ccbc [type=value_error, input_value={'content_hash': 'sha256:...schema_version': '1.0'}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/value_error&#10;world_model_record.substrate_registry_ref.resolved_entries.0.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.80000000000000004'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.0.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.1.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.1.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.2.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.65000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.2.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.3.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.3.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.4.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.59999999999999998'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.4.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.5.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.80000000000000004'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.5.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.6.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.6.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.7.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.7.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.8.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.8.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.9.coverage_score&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;world_model_record.substrate_registry_ref.resolved_entries.9.trust_cap&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;parameter_value.float&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;parameter_value.int&#10;  Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/int_type&#10;parameter_value.str&#10;  Input should be a valid string [type=string_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/string_type&#10;parameter_value.bool&#10;  Input should be a valid boolean [type=bool_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/bool_type&#10;l6_resolution.parameter_value.float&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;l6_resolution.parameter_value.int&#10;  Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/int_type&#10;l6_resolution.parameter_value.str&#10;  Input should be a valid string [type=string_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/string_type&#10;l6_resolution.parameter_value.bool&#10;  Input should be a valid boolean [type=bool_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/bool_type&#10;l6_resolution.domain.min_value.float&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;l6_resolution.domain.min_value.int&#10;  Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/int_type&#10;l6_resolution.domain.max_value.float&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.5'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;l6_resolution.domain.max_value.int&#10;  Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0.5'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/int_type&#10;grounding_relation.axis_witnesses.0.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.1.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.2.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.3.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.4.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.5.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.6.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.7.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.8.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.9.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.10.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.11.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.12.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.71999999999999997'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type&#10;grounding_relation.axis_witnesses.13.confidence&#10;  Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/float_type">actual_n4_source = (DesignProblem(schema_version='policyos.runtime.design_problem.v1', design_problem_id='gy_n4_test_problem', problem_st...oundingRunBudget', status='strangled', decision='abstain', admission_event_ref=None, observed_attempt_charge=0.0))),)))
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1391/test_current_effect_bridge_bin0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13cff0490&gt;
+
+    def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
+        actual_n4_source, tmp_path, monkeypatch
+    ):
+        """A new run of the pinned v1 emitter remains history under a claimed v2 bridge."""
+        import hashlib
+        import json
+        import sys
+        import types
+    
+        from polisyos.core import artifacts
+        from polisyos.runtime.quality import promotion_sequence as current
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from tests.unit.runtime.quality.historical_artifacts import (
+            PROMOTION_EMITTER_BASE_BLOB,
+            historical_owner_bytes,
+        )
+    
+        problem, organ = actual_n4_source
+        store = artifacts.FileSystemCAS(tmp_path / "cas")
+        repository = GenerationSourceRepository(store)
+        source_ref = repository.persist(
+            run_id="synthetic-historical-writer", cycle_index=0, problem=problem, organ=organ
+        )
+        resolved = repository.resolve(
+            refs=(source_ref,),
+            run_id="synthetic-historical-writer",
+            summary=_source_summary(organ),
+            problem=problem,
+        )
+        assert resolved.status == "resolved", resolved.code
+        context = resolved.context
+        writer = context["effect_obligation_writer_input"]
+        promotion_input = current.CanonicalPromotionInput(
+            design_problem_binding=current.N9DesignProblemBinding.from_problem(problem),
+            candidate_summary=_source_summary(organ),
+            world_model_record=context["world_model_record"],
+            grounding_decision_certificate=context["grounding_decision_certificate"],
+            credal_reference=context["credal_reference"],
+        )
+    
+        # Execute the entire pinned historical owner. No current receipt is restamped.
+        name = "polisyos.runtime.quality._corr_historical_promotion_emitter"
+        historical = types.ModuleType(name)
+        historical.__package__ = "polisyos.runtime.quality"
+        historical.__file__ = f"git:{PROMOTION_EMITTER_BASE_BLOB}"
+        monkeypatch.setitem(sys.modules, name, historical)
+        raw_module = historical_owner_bytes(PROMOTION_EMITTER_BASE_BLOB)
+        exec(compile(raw_module, historical.__file__, "exec"), historical.__dict__)  # noqa: S102
+        old_input = historical.CanonicalPromotionInput(
+            design_problem_binding=historical.N9DesignProblemBinding.from_problem(problem),
+            candidate_summary=_source_summary(organ),
+            world_model_record=context["world_model_record"],
+            grounding_decision_certificate=context["grounding_decision_certificate"],
+            credal_reference=context["credal_reference"],
+        )
+        old_ref = historical.N9PromotionEvidenceBridgeRepository(store=store).persist_effect_obligation(
+            promotion_input=old_input,
+            **{name: getattr(writer, name) for name in type(writer).model_fields},
+        )
+        old_bridge = json.loads(store.get_bytes(old_ref.artifact_id))
+        old_raw = store.get_bytes(old_bridge["source_artifact_id"])
+        old_body = json.loads(old_raw)
+        assert old_body["schema_version"] == (
+            "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
+        )
+&gt;       parsed = current._EffectObligationProducerRecord.model_validate(old_body)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 47 validation errors for _EffectObligationProducerRecord
+E       intervention_substrate
+E         Value error, intervention_substrate_bundle_content_hash_mismatch: expected sha256:4c8b211c302fe97786e0d6419297f6f3e325636e68a31af6f6f55f7a71953c76, got sha256:d6c995b7d68f7df33f3f10033cc1cee19e88500db34e47df5db9f21d9993ccbc [type=value_error, input_value={'content_hash': 'sha256:...schema_version': '1.0'}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+E       world_model_record.substrate_registry_ref.resolved_entries.0.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.80000000000000004'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.0.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.1.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.1.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.2.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.65000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.2.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.3.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.3.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.4.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.59999999999999998'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.4.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.5.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.80000000000000004'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.5.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.84999999999999998'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.6.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.6.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.7.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.7.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.8.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.8.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.9.coverage_score
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       world_model_record.substrate_registry_ref.resolved_entries.9.trust_cap
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       parameter_value.float
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       parameter_value.int
+E         Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/int_type
+E       parameter_value.str
+E         Input should be a valid string [type=string_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/string_type
+E       parameter_value.bool
+E         Input should be a valid boolean [type=bool_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+E       l6_resolution.parameter_value.float
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       l6_resolution.parameter_value.int
+E         Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/int_type
+E       l6_resolution.parameter_value.str
+E         Input should be a valid string [type=string_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/string_type
+E       l6_resolution.parameter_value.bool
+E         Input should be a valid boolean [type=bool_type, input_value={'_type': 'float', 'repr': '0.080000000000000002'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+E       l6_resolution.domain.min_value.float
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       l6_resolution.domain.min_value.int
+E         Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/int_type
+E       l6_resolution.domain.max_value.float
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.5'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       l6_resolution.domain.max_value.int
+E         Input should be a valid integer [type=int_type, input_value={'_type': 'float', 'repr': '0.5'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/int_type
+E       grounding_relation.axis_witnesses.0.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.1.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.2.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.3.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.4.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.5.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.6.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.7.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.8.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.9.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.10.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.11.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.12.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '0.71999999999999997'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+E       grounding_relation.axis_witnesses.13.confidence
+E         Input should be a valid number [type=float_type, input_value={'_type': 'float', 'repr': '1'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/float_type
+
+tests/unit/runtime/quality/test_generation_source.py:770: ValidationError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_synthetic_independence_source_establishes_mechanics_but_never_authority" time="0.370" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_effect_writer_json_projection_preserves_complete_cg1" time="0.666" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_custody_requires_actual_reference" time="0.134" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_semantically_changed_writer_projection_refuses" time="0.611" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_conflicting_complete_source_for_same_triple_refuses" time="1.058" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_source_intake_recomputes_original_candidate_provenance" time="0.482" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation" time="0.146" /><testcase classname="tests.unit.runtime.quality.test_promotion_evidence_epoch" name="test_actual_v2_evidence_bridge_retains_its_exact_producer_bytes" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_promotion_evidence_epoch" name="test_actual_v1_independence_source_retains_its_exact_producer_bytes" time="0.006" /><testcase classname="tests.unit.data_forge.domains.academic.batch.test_abstract_reextraction" name="test_subset_persists_axes_and_refuses_unadjudicated_publication" time="0.808" /><testcase classname="tests.unit.data_forge.domains.academic.batch.test_abstract_reextraction" name="test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2" time="1.036" /><testcase classname="tests.unit.data_forge.domains.academic.batch.test_abstract_reextraction" name="test_removal_of_source_presence_preservation_breaks_actual_raw_projection" time="0.755" /><testcase classname="tests.unit.data_forge.domains.academic.batch.test_abstract_reextraction" name="test_removal_of_snapshot_provenance_breaks_sibling_consumer_gate" time="0.834" /><testcase classname="tests.unit.data_forge.domains.academic.batch.test_abstract_reextraction" name="test_removal_of_synthetic_authority_refusal_breaks_downstream_gate" time="1.008" /></testsuite></testsuites>

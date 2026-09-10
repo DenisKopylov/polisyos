@@ -1,0 +1,25 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "cc581ec4241f0233ae19798894ae30e480fb17c2d54095a81a76e7fd69892722",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "screening",
+    "phase_key": "sha256:5bea296cd4ee9cc878a029b95262a06acae08e14d766bd42b0c16d1bea1b0743",
+    "prompt_hash": "sha256:0cbebcec5d13783cde1bdbe19e15c8189fbb5df9cab0a3b060c3ea1da4fd0ffe",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2134044742",
+    "work_key": "sha256:01e7d7a65eaf498190810c2fc99bc68503c3edb70c7d4ff07425467aa0507a3b"
+  },
+  "error_kind": "malformed_output",
+  "retryable": true,
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "failed",
+  "status_code": 200,
+  "synthetic": false,
+  "usage": null
+}

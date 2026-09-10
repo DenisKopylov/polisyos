@@ -18,7 +18,7 @@ import re
 import time
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, is_dataclass, replace
+from dataclasses import dataclass, field, is_dataclass, replace
 from dataclasses import fields as dataclass_fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -90,6 +90,7 @@ if TYPE_CHECKING:
     from polisyos.ir.trinity import TrinityBundle
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
 
 DESIGN_GENERATION_SCHEMA_VERSION = "policyos.runtime.design_generation_under_a.v1"
 DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION = (
@@ -744,6 +745,27 @@ class DesignGenerationOrganRun:
     draft: object | None = None
     trinity_bundle: TrinityBundle | None = None
     critique: object | None = None
+    cycle_substrate_context: CycleSubstrateContext | None = None
+    credal_reference: CredalReference | None = None
+    candidate_sources: tuple[GenerationCandidateSource, ...] = ()
+
+
+class GenerationCandidateSource(_StrictModel):
+    """Actual N4 inputs and certificates retained when its shadow atom is emitted."""
+
+    candidate_id: str
+    proposal_id: str
+    intervention_id: str
+    proposal: dict[str, Any]
+    grounding_relation_certificate: GroundingRelationCertificate
+    grounding_decision_certificate: GroundingDecisionCertificate
+
+
+@dataclass
+class _N4SourceCapture:
+    reference: CredalReference | None = None
+    context: CycleSubstrateContext | None = None
+    candidates: list[GenerationCandidateSource] = field(default_factory=list)
 
 
 async def preflight_model_profile(client: object, *, model_id: str) -> ModelProfilePreflight:
@@ -786,6 +808,7 @@ async def generate_design_candidates_under_a(
     data_context: dict[str, Any] | None = None,
     world_model_record_ref: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    grounding_run_budget: GroundingRunBudget | None = None,
 ) -> GenerationUnderAResult:
     """Generate shadow candidates by reusing the real LLM organs and N2 atom bridge."""
 
@@ -798,6 +821,7 @@ async def generate_design_candidates_under_a(
         data_context=data_context,
         world_model_record_ref=world_model_record_ref,
         cycle_substrate_context=cycle_substrate_context,
+        grounding_run_budget=grounding_run_budget,
     )
     return organ_run.result
 
@@ -867,6 +891,7 @@ async def generate_design_candidate_bundle_under_a(
     data_context: dict[str, Any] | None = None,
     world_model_record_ref: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    grounding_run_budget: GroundingRunBudget | None = None,
 ) -> DesignGenerationOrganRun:
     """Run the canonical N4 organ path and own any gateway client it creates."""
 
@@ -881,7 +906,7 @@ async def generate_design_candidate_bundle_under_a(
         )
         llm_client = owned_llm_client
     try:
-        return await _generate_design_candidate_bundle_under_a(
+        organ_run = await _generate_design_candidate_bundle_under_a(
             design_problem,
             model_id=model_id,
             llm_client=llm_client,
@@ -890,6 +915,11 @@ async def generate_design_candidate_bundle_under_a(
             data_context=data_context,
             world_model_record_ref=world_model_record_ref,
             cycle_substrate_context=cycle_substrate_context,
+            grounding_run_budget=grounding_run_budget,
+        )
+        return replace(
+            organ_run,
+            cycle_substrate_context=organ_run.cycle_substrate_context or cycle_substrate_context,
         )
     finally:
         await _close_owned_generation_client(owned_llm_client)
@@ -916,6 +946,7 @@ async def _generate_design_candidate_bundle_under_a(
     data_context: dict[str, Any] | None,
     world_model_record_ref: str | None,
     cycle_substrate_context: CycleSubstrateContext | None,
+    grounding_run_budget: GroundingRunBudget | None = None,
 ) -> DesignGenerationOrganRun:
     """Execute N4 with an already resolved caller- or owner-supplied client."""
 
@@ -1193,6 +1224,7 @@ async def _generate_design_candidate_bundle_under_a(
             effective_runtime_config=effective_runtime_config,
         ).as_organ_run(draft=draft, trinity_bundle=bundle, critique=critique)
 
+    source_capture = _N4SourceCapture()
     try:
         candidates, dispositions = _content_bound_candidates(
             design_problem=design_problem,
@@ -1209,6 +1241,8 @@ async def _generate_design_candidate_bundle_under_a(
             reference=reference,
             relation_engine=relation_engine,
             cycle_substrate_context=cycle_substrate_context,
+            grounding_run_budget=grounding_run_budget,
+            source_capture=source_capture,
         )
     except (DesignGenerationError, InterventionSubstrateError, ValueError) as exc:
         return _terminal_result(
@@ -1290,6 +1324,9 @@ async def _generate_design_candidate_bundle_under_a(
         draft=draft,
         trinity_bundle=bundle,
         critique=critique,
+        cycle_substrate_context=source_capture.context,
+        credal_reference=source_capture.reference,
+        candidate_sources=tuple(source_capture.candidates),
     )
 
 
@@ -2465,6 +2502,8 @@ def _content_bound_candidates(
     reference: CredalReference | None,
     relation_engine: GroundingRelationEngine | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    grounding_run_budget: GroundingRunBudget | None = None,
+    source_capture: _N4SourceCapture | None = None,
 ) -> tuple[tuple[ShadowGeneratedCandidate, ...], tuple[GroundingDispositionRecord, ...]]:
     context = None
     context_l6_bundle = None
@@ -2498,7 +2537,10 @@ def _content_bound_candidates(
         )
     reference = reference or build_credal_reference(repo_root)
     relation_engine = relation_engine or GroundingRelationEngine(reference)
-    bind_gate = GroundingBindGate(reference)
+    bind_gate = GroundingBindGate(reference, run_budget=grounding_run_budget)
+    if source_capture is not None:
+        source_capture.reference = reference
+        source_capture.context = context
     admission_engine = GroundingAdmissionEngine(reference)
     phrasing_engine = GroundingPhrasingDefenseEngine(reference)
     if getattr(relation_engine, "reference", None) is reference:
@@ -2674,6 +2716,17 @@ def _content_bound_candidates(
                 )
                 continue
             candidates.append(candidate)
+            if source_capture is not None:
+                source_capture.candidates.append(
+                    GenerationCandidateSource(
+                        candidate_id=candidate.candidate_id,
+                        intervention_id=intervention.intervention_id,
+                        proposal_id=proposal_id,
+                        proposal=proposal,
+                        grounding_relation_certificate=cg1,
+                        grounding_decision_certificate=cg2,
+                    )
+                )
             dispositions.append(
                 GroundingDispositionRecord(
                     proposal_id=proposal_id,
@@ -2756,7 +2809,7 @@ def _candidate_lever_reference(intervention: InterventionSpec) -> str:
     return explicit.strip()
 
 
-def _candidate_parameter_value(intervention: InterventionSpec) -> object:
+def _candidate_parameter_value(intervention: InterventionSpec, *, default: object = 0) -> object:
     """Return one candidate-authored value for the resolver attempt."""
 
     for key, value in sorted(intervention.params.items()):
@@ -2769,7 +2822,7 @@ def _candidate_parameter_value(intervention: InterventionSpec) -> object:
             "target_world_slot",
         }:
             return value
-    return 0
+    return default
 
 
 def derive_lever_space_prompt_slice(
@@ -3869,6 +3922,9 @@ def _non_binding_cause(
     cg2: GroundingDecisionCertificate,
     cg3: GroundingAdmissionCertificate,
 ) -> dict[str, Any]:
+    # The certificate's own epoch serializer preserves absence in historical
+    # records. Do not turn a newly added DTO default into historical evidence.
+    admission_payload = cg3.model_dump(mode="json")
     return {
         "cg1_relation": cg1.selected_relation,
         "cg1_critical_contradictions": list(cg1.critical_contradictions),
@@ -3879,6 +3935,11 @@ def _non_binding_cause(
         "cg3_decision": cg3.decision,
         "cg3_reason": cg3.decisive_reason,
         "cg3_open_obligations": list(cg3.open_obligations),
+        **{
+            key: admission_payload[key]
+            for key in ("synthetic", "authority_limitation")
+            if key in admission_payload
+        },
     }
 
 

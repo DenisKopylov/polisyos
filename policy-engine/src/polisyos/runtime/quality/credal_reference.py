@@ -782,6 +782,28 @@ def edge_payload_sample(
 
 
 def _iter_l2_edges(repo_root: Path) -> Iterable[CredalReferenceEdge]:
+    """Carry the complete source snapshot's synthetic ancestry into every L2 view."""
+    db_path = repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
+    if not db_path.is_file():
+        return
+    with duckdb.connect(str(db_path), read_only=True) as con:
+        present = con.execute(
+            "SELECT 1 FROM information_schema.columns WHERE table_name = 'ac_causal_claims_raw' "
+            "AND column_name = 'synthetic'"
+        ).fetchone()
+        synthetic = present is not None and any(
+            value is True for (value,) in con.execute(
+                "SELECT synthetic FROM ac_causal_claims_raw"
+            ).fetchall()
+        )
+    for edge in _iter_l2_source_edges(repo_root):
+        if synthetic:
+            edge = replace(edge, provenance={**edge.provenance, "synthetic": True,
+                "synthetic_scope": "snapshot_contains_constructed_raw_support"}).with_content_hash()
+        yield edge
+
+
+def _iter_l2_source_edges(repo_root: Path) -> Iterable[CredalReferenceEdge]:
     from polisyos.data_forge.read_api import academic
 
     db_path = repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
@@ -1114,6 +1136,7 @@ def _derive_l2_causal_edge(
         "owner": "L2",
         "source": "ac_skg_edges",
         "version": version,
+        **({"synthetic": quality["synthetic"]} if "synthetic" in quality else {}),
         "signals": {
             "candidate_layer": str(layer or ""),
             "confidence": _float(confidence),

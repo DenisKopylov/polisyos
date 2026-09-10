@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m tools.quality.validation.check_trust_claim_posture --repo-root . --write --json",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_trust_claim_posture",
+    "--repo-root",
+    ".",
+    "--write",
+    "--json"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 37.6899945839541,
+  "timeout_seconds": 180.0,
+  "timed_out": false,
+  "stdout": "{\"ast\":{\"consuming_file_count\":41,\"declaring_file_count\":110,\"direct_empty_site_count\":10,\"direct_literal_file_count\":21,\"direct_literal_site_count\":46,\"direct_literal_subject_count\":28,\"exact_field_file_count\":121,\"may_not_use_for_literal_file_count\":29,\"may_not_use_for_literal_site_count\":45,\"may_not_use_for_literal_subject_count\":57,\"may_not_use_for_raw_file_count\":135,\"method\":\"ast\",\"raw_candidate_count\":122,\"role_counts\":{\"ambiguous\":0,\"carries_only\":5,\"consumes_only\":6,\"declares_and_consumes\":35,\"declares_only\":75,\"substring_collision\":1},\"row_digest\":\"sha256:12c8a3fe7db8d1e4c2f9e9aeb58da4fa1156bf18df1a7b1a56d396324c5beacf\",\"scanned_python_count\":138,\"wrapper_literal_file_count\":33,\"wrapper_literal_site_count\":71,\"wrapper_literal_subject_count\":35},\"declared_outputs\":[\"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\"],\"issue_codes\":[\"DS11-SOURCE-COLLISION\",\"DS11-SOURCE-RUNTIME-BOUND\"],\"payload_digest\":\"sha256:e254c49bd2c75a682d16820b4c8032f7ad07728dcd68bdd91701a3a9b544027c\",\"schema_version\":\"policyos.trust.claim_posture_register.v1\",\"source_set_digest\":\"sha256:cfb6129c0be66b95ddc701d123c6b85e6fdfc7573320e6c31dd245a46ecb8f1e\",\"tokenize\":{\"consuming_file_count\":41,\"declaring_file_count\":110,\"direct_empty_site_count\":10,\"direct_literal_file_count\":21,\"direct_literal_site_count\":46,\"direct_literal_subject_count\":28,\"exact_field_file_count\":121,\"may_not_use_for_literal_file_count\":29,\"may_not_use_for_literal_site_count\":45,\"may_not_use_for_literal_subject_count\":57,\"may_not_use_for_raw_file_count\":135,\"method\":\"tokenize\",\"raw_candidate_count\":122,\"role_counts\":{\"ambiguous\":0,\"carries_only\":5,\"consumes_only\":6,\"declares_and_consumes\":35,\"declares_only\":75,\"substring_collision\":1},\"row_digest\":\"sha256:8bb0c6b0fbe2cdcc204abe6ac700fcba62a4396f511966e713a226573d50a3db\",\"scanned_python_count\":138,\"wrapper_literal_file_count\":33,\"wrapper_literal_site_count\":71,\"wrapper_literal_subject_count\":35},\"write_set\":[\"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json\"]}\n",
+  "stderr": ""
+}

@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py -q -rP --junitxml=docs/superpowers/journals/corr-evidence/c/c2-n6-reissue-tests.xml",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py",
+    "-q",
+    "-rP",
+    "--junitxml=docs/superpowers/journals/corr-evidence/c/c2-n6-reissue-tests.xml"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 181.936319709057,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "...............F                                                         [100%]\n=================================== FAILURES ===================================\n_____________ test_current_epoch_keeps_strict_complete_projection ______________\n\ncurrent_owner_emission = ({'behavioral_mutations': [{'issue_codes': ['new_grammar_element_not_owned'], 'mutation_id': 'revision_not_terminal_dr... legacy_migrator=<function admit_canonical_promotion_receipt_for_comparison.<locals>.migrate_legacy at 0x13b953b60>))))\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1401/test_current_epoch_keeps_stric0')\n\n    def test_current_epoch_keeps_strict_complete_projection(current_owner_emission, tmp_path):\n        \"\"\"The one-time old-epoch transition does not admit later governing changes.\"\"\"\n        emitted, plan = current_owner_emission\n        destination = tmp_path / checker.OUTPUT_PATH\n        destination.parent.mkdir(parents=True)\n        original = copy.deepcopy(emitted)\n        original.pop(\"capture_wall_time_seconds\", None)\n        destination.write_text(json.dumps(original, indent=2, sort_keys=True) + \"\\n\")\n        changed = copy.deepcopy(original)\n        changed[\"unrelated_governing_value\"] = {\"synthetic\": True, \"value\": \"changed\"}\n        checker._set_comparison_identity(changed, plan)\n        changed[\"contract_content_hash\"] = checker._contract_content_hash(changed)\n>       with pytest.raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py:233: Failed\n==================================== PASSES ====================================\n",
+  "stderr": ""
+}

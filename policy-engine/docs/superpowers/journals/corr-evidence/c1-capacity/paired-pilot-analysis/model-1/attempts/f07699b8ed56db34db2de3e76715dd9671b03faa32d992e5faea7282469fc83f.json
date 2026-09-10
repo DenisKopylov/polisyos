@@ -1,0 +1,189 @@
+{
+  "artifact_kind": "attempt_result",
+  "campaign_binding": "sha256:689e5f264c417c78ebb17ecb43b9a7eda2ddfc4cfb75e9b51bc03e1be280fd97",
+  "context": {
+    "attempt_id": "f07699b8ed56db34db2de3e76715dd9671b03faa32d992e5faea7282469fc83f",
+    "attempt_ordinal": 1,
+    "campaign_id": "corr-frozen-six-minimax-2026-09-09",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "phase": "extraction",
+    "phase_key": "sha256:52ec37fc8346f5243eaac496c00f2cb3ae5651dfa6708f7e1d748d37b5afb01f",
+    "prompt_hash": "sha256:f830bcdd63c6279f8e1a1fa440517ee6928e31a627344dc2b90d5f6099d91e74",
+    "scope": "candidate_only",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W3121515037",
+    "work_key": "sha256:31f5389dfd54c0fc98b1905baa92a1be8666a6c531fad2a8366ac83a64fa7a03"
+  },
+  "parsed": {
+    "boundary_conditions": [
+      {
+        "condition_type": "threshold",
+        "consequence_if_violated": "The predicted relationship between electoral system and total primary spending reverses or disappears",
+        "required_value": "high (for proportional systems) or low (for majoritarian systems)",
+        "scope_text": "The model also predicts higher total primary spending in proportional (majoritarian) systems when the share of transfer spending is high (low).",
+        "variable": "share_of_transfer_spending"
+      },
+      {
+        "condition_type": "categorical",
+        "consequence_if_violated": "Effect direction depends on system type; predictions do not apply to mixed or other electoral systems",
+        "required_value": "proportional or majoritarian",
+        "scope_text": "voters have an incentive to elect representatives more prone to transfer (public good) spending in proportional (majoritarian) systems",
+        "variable": "electoral_system_type"
+      },
+      {
+        "condition_type": "ordinal",
+        "consequence_if_violated": "Effect may not transport to non-OECD developing countries or non-Latin American contexts",
+        "required_value": "OECD member or Latin American country",
+        "scope_text": "We study the effects of electoral institutions on the size and composition of public expenditure in OECD and Latin American countries.",
+        "variable": "country_income_development_level"
+      }
+    ],
+    "causal_claims": [
+      {
+        "cause_variable": "electoral_system",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.25,
+        "claim_id": "cc_01",
+        "claim_text": "Electoral institutions affect the size and composition of public expenditure",
+        "counterevidence_notes": "No counterevidence or heterogeneous effects discussed in abstract",
+        "design_family_hint": "unclear",
+        "direction": "mixed",
+        "effect_size": null,
+        "effect_variable": "public_expenditure",
+        "evidence_strength": "unknown",
+        "extraction_warnings": [
+          "Only abstract available; no numeric effect sizes provided; no specific methodology described; 'considerable support' is vague language without quantitative backing"
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "OECD and Latin American countries"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 0,
+            "text": "We study the effects of electoral institutions on the size and composition of public expenditure in OECD and Latin American countries."
+          }
+        ]
+      },
+      {
+        "cause_variable": "electoral_system_proportionality",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.2,
+        "claim_id": "cc_02",
+        "claim_text": "Voters elect representatives more prone to transfer and public good spending in proportional systems compared to majoritarian systems",
+        "counterevidence_notes": "This is a theoretical prediction, not an empirically estimated effect",
+        "design_family_hint": "theoretical",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "transfer_public_good_spending",
+        "evidence_strength": "theoretical",
+        "extraction_warnings": [
+          "Only abstract available; this is a theoretical model prediction, not an empirical causal estimate; no quantitative effect size provided"
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "OECD and Latin American countries"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 2,
+            "text": "We present a theoretical model in which voters anticipating government policy-making under different electoral systems have an incentive to elect representatives more prone to transfer (public good) spending in proportional (majoritarian) systems."
+          }
+        ]
+      },
+      {
+        "cause_variable": "electoral_system_proportionality",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.2,
+        "claim_id": "cc_03",
+        "claim_text": "Total primary spending is higher in proportional systems when transfer share is high, and higher in majoritarian systems when transfer share is low",
+        "counterevidence_notes": "This is a theoretical prediction; empirical support claimed but no specific estimates provided",
+        "design_family_hint": "theoretical",
+        "direction": "mixed",
+        "effect_size": null,
+        "effect_variable": "total_primary_spending",
+        "evidence_strength": "theoretical",
+        "extraction_warnings": [
+          "Only abstract available; theoretical prediction without empirical quantification; no effect sizes, confidence intervals, or standard errors provided"
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "OECD and Latin American countries",
+          "Conditional on share of transfer spending"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 3,
+            "text": "The model also predicts higher total primary spending in proportional (majoritarian) systems when the share of transfer spending is high (low)."
+          }
+        ]
+      }
+    ],
+    "citation_summary": "Milner and Judson (abstract only) study electoral institutions and public expenditure in OECD and Latin American countries. The paper presents a theoretical model predicting that proportional systems lead to more transfer/public good spending while majoritarian systems lead to more goods/services purchases. The abstract claims 'considerable support' for predictions but provides no quantitative effect estimates, confidence intervals, or standard errors. No specific empirical methodology is described in the available abstract.",
+    "empirical_parameters": [
+      {
+        "aggregation_level": "country",
+        "confidence_interval": null,
+        "display_name": "Effect of electoral system on public spending",
+        "evidence_strength": "unknown",
+        "geographic_scope": "OECD and Latin American countries",
+        "heterogeneity_note": "Effect depends on electoral system type (proportional vs majoritarian) and share of transfer spending",
+        "name": "electoral_system_effect_public_spending",
+        "parameter_type": "qualitative",
+        "std_error": null,
+        "subgroup_estimates": null,
+        "time_period": null,
+        "transfer_conditions": null,
+        "transferability": null,
+        "unit": "unitless",
+        "value": null,
+        "value_qualitative": "Considerable support for predictions found, but no specific quantitative estimates provided in abstract"
+      }
+    ],
+    "extraction_confidence": 0.15,
+    "extraction_warnings": [
+      "Only abstract available - no full text access",
+      "No numeric effect sizes, confidence intervals, or standard errors provided in abstract",
+      "No specific econometric methodology described",
+      "Sample size not provided",
+      "Causal claims are theoretical predictions rather than empirically estimated effects",
+      "'Considerable support' is vague language without quantitative backing",
+      "Cannot verify identification strategy from abstract alone",
+      "Low extraction confidence due to severe data limitations"
+    ],
+    "mechanisms": [
+      {
+        "description": "Voters anticipate government policy-making under different electoral systems and have incentives to elect representatives whose preferences align with the spending patterns facilitated by those systems. Proportional systems facilitate transfer and public good spending preferences, while majoritarian systems facilitate goods and services purchasing preferences.",
+        "evidence_type": "mixed",
+        "mediating_variables": [
+          "voter_preferences",
+          "representative_selection",
+          "transfer_spending_share",
+          "public_good_spending_share"
+        ],
+        "theoretical_framework": "Theoretical model of electoral institutions and public expenditure allocation"
+      }
+    ],
+    "methodology": "The abstract mentions defining 'rigorous measures of proportionality' for empirical investigation, but no specific econometric methodology is described. The paper appears to use cross-country comparative analysis with measures of electoral proportionality, but the identification strategy (e.g., instrumental variables, panel fixed effects, difference-in-differences) is not specified in the available abstract.",
+    "methodology_enum": "unclear",
+    "sample_size": null
+  },
+  "schema_version": "policyos.academic.extraction_campaign.v1",
+  "scope": "candidate_only",
+  "status": "returned",
+  "synthetic": false,
+  "usage": {
+    "completion_tokens": 2319,
+    "prompt_tokens": 3404,
+    "total_tokens": 5723
+  }
+}

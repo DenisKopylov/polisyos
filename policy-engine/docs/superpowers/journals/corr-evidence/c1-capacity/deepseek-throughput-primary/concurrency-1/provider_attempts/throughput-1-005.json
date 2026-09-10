@@ -1,0 +1,43 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "throughput-1-005",
+    "campaign_id": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+    "input_hash": "sha256:c27dfb3cd32128d09f7ea7f092ea23dd237e6a1d6c70e5d7cfd186a482c1376c",
+    "phase": "extraction",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W4382698663"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.0013302500592544675,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 3623,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:94f7374d8e8ad404fe3b434accb3d35ffb73e245874cd503f364d6c7ea4a5994",
+  "prompt_hash": "sha256:b76728e9d060247d60535ebef9e028a8eb5c9e0a215a08801f9e71ad8888c874",
+  "provider_usage": {
+    "completion_tokens": 687,
+    "completion_tokens_details": null,
+    "prompt_tokens": 3749,
+    "prompt_tokens_details": null,
+    "total_tokens": 4436
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 3072,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:3d7a5498e19780baca9ef8d2d1aa658403e3b9fd6eeb0376e4459182974a0d13",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 50.761722375056706,
+  "usage": {
+    "completion_tokens": 687,
+    "prompt_tokens": 3749,
+    "total_tokens": 4436
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/data_forge/domains/academic/batch/abstract_reextraction.py src/polisyos/data_forge/domains/academic/batch/article_extractor.py src/polisyos/data_forge/domains/academic/batch/graph_builder.py src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py src/polisyos/runtime/quality/credal_reference.py tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py docs/superpowers/journals/corr-evidence/c/verify_subset_declaration.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/data_forge/domains/academic/batch/abstract_reextraction.py",
+    "src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
+    "src/polisyos/data_forge/domains/academic/batch/graph_builder.py",
+    "src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py",
+    "docs/superpowers/journals/corr-evidence/c/verify_subset_declaration.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.12415037502069026,
+  "stdout": "S101 Use of `assert` detected\n  --> docs/superpowers/journals/corr-evidence/c/verify_subset_declaration.py:23:5\n   |\n21 |     configuration = _provider_configuration(configuration_path, manifest, model)\n22 |     ids = [work[\"id\"] for work in works]\n23 |     assert ids == [member[\"work_id\"] for member in manifest[\"selected_members\"]]\n   |     ^^^^^^\n24 |     print(\n25 |         json.dumps(\n   |\n\nT201 `print` found\n  --> docs/superpowers/journals/corr-evidence/c/verify_subset_declaration.py:24:5\n   |\n22 |     ids = [work[\"id\"] for work in works]\n23 |     assert ids == [member[\"work_id\"] for member in manifest[\"selected_members\"]]\n24 |     print(\n   |     ^^^^^\n25 |         json.dumps(\n26 |             {\n   |\nhelp: Remove `print`\n\nFound 2 errors.\nNo fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).\n",
+  "stderr": ""
+}

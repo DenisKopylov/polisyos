@@ -1,0 +1,48 @@
+{
+  "schema_version": "policyos.runtime.grounding_refusal_suite.v1",
+  "synthetic": true,
+  "declared_at": "2026-09-08T17:31:57.546038Z",
+  "frame_hash": "sha256:9c9f24752fda3bc46de86ad20a606e238a4ec41eba3554d1aeee0f6fbc151709",
+  "reference_scaffold_hash": "sha256:f20a23c7e51a1afb9ad565e7f732b73455441ef010606472e3e3d97271c3428d",
+  "original_input_source_refs": {
+    "intervention_knob_dictionary": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json@sha256:1aeda52a40c01aca9656365f6205a78c6972a284b7a9a74aa487de2de140a706",
+    "lex_intervention_map": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json@sha256:9c39fb2d70059290f00226518cec80e03e65aff89d2310ed2dc8e8d31c9e16ce",
+    "observation_to_contract_manifest": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json@sha256:481c32a566e8696b3ed1f98368fabdb24f4d34268b733915f75e64a807be04ee",
+    "policy_scenario_templates": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json@sha256:5d1cec715f450d2ef2d6e047669dad9ba7b5644b8b93b3d9dc9f3153b422af5b",
+    "slot_family_manifest": "repo:///Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/slot_family_manifest.json@sha256:7700d633d83592d0010ef1598e05c8bbca58b27080986de2325ce365a9bb95cb",
+    "owner_authority_bindings": "repo://architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json@sha256:1546c17eb58f2dafac602ae2950f62e0776f6dcaf4157d07c16c35d5a9d5bb76",
+    "world_model_record": "world_model_record_61fb1eeb738aac25@sha256:61fb1eeb738aac25a6dd71e307cfc6719046bdcd0bc09ddb44ce9b5e9b1d92e6"
+  },
+  "mismatches": [
+    {
+      "case_id": "budget_allocation_multiplier:cg0_atom_8d6c5db80d353640:opposite_sign",
+      "synthetic": true,
+      "atom_id": "cg0_atom_8d6c5db80d353640",
+      "source_input_hash": "sha256:d39f4d3044285a7f615afb5aa51a1299e84e1bbe994e2136eb102ef9fd728ff2",
+      "transform": "opposite_sign",
+      "original_sign": "increase",
+      "mismatched_sign": "decrease"
+    },
+    {
+      "case_id": "procurement_shock_intensity:cg0_atom_7f82b70839a77253:opposite_sign",
+      "synthetic": true,
+      "atom_id": "cg0_atom_7f82b70839a77253",
+      "source_input_hash": "sha256:e3da2db4d7a6ab164f15dd4b21aaedbed48532187b846ec560f0aa7a3c7bfc94",
+      "transform": "opposite_sign",
+      "original_sign": "decrease",
+      "mismatched_sign": "increase"
+    },
+    {
+      "case_id": "tax_relief_rate:cg0_atom_4164e221ec82011c:opposite_sign",
+      "synthetic": true,
+      "atom_id": "cg0_atom_4164e221ec82011c",
+      "source_input_hash": "sha256:7cb179313335ef45112d2a32fa244f61a740e034823f78bdf34e38702146a5d0",
+      "transform": "opposite_sign",
+      "original_sign": "decrease",
+      "mismatched_sign": "increase"
+    }
+  ],
+  "ambiguous_inputs": [],
+  "limitation": "A high refusal rate on constructed mismatches is not evidence that accepted bindings are correct.",
+  "content_hash": "sha256:f2e8931e256664e2946c06c8203bd979b2b733222a3e999447e63e6c227da72f"
+}

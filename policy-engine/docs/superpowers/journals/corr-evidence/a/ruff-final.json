@@ -1,0 +1,30 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check src/polisyos/runtime/quality/grounding_bind.py src/polisyos/runtime/quality/grounding_risk.py src/polisyos/runtime/quality/grounding_calibration.py tests/unit/runtime/quality/test_grounding_risk.py tests/unit/runtime/quality/test_grounding_calibration.py tests/unit/runtime/quality/test_grounding_bind.py tools/quality/validation/check_grounding_bind_contract.py tools/quality/validation/check_grounding_refusal_sensitivity.py docs/superpowers/journals/corr-evidence/a/baseline.py docs/superpowers/journals/corr-evidence/a/removal.py docs/superpowers/journals/corr-evidence/a/identity_census.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/runtime/quality/grounding_risk.py",
+    "src/polisyos/runtime/quality/grounding_calibration.py",
+    "tests/unit/runtime/quality/test_grounding_risk.py",
+    "tests/unit/runtime/quality/test_grounding_calibration.py",
+    "tests/unit/runtime/quality/test_grounding_bind.py",
+    "tools/quality/validation/check_grounding_bind_contract.py",
+    "tools/quality/validation/check_grounding_refusal_sensitivity.py",
+    "docs/superpowers/journals/corr-evidence/a/baseline.py",
+    "docs/superpowers/journals/corr-evidence/a/removal.py",
+    "docs/superpowers/journals/corr-evidence/a/identity_census.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.3707841249415651,
+  "timeout_seconds": 60.0,
+  "timed_out": false,
+  "stdout": "S603 `subprocess` call: check for execution of untrusted input\n  --> docs/superpowers/journals/corr-evidence/a/identity_census.py:48:20\n   |\n46 |     base = \"9619f6d2d892d7994ae3f29d3230362c41862f2d\"\n47 |     report_path = Path(\"architecture/policy_design_case/grounding_bind_contract.json\")\n48 |     before_bytes = subprocess.check_output(\n   |                    ^^^^^^^^^^^^^^^^^^^^^^^\n49 |         [\"git\", \"show\", f\"{base}:policy-engine/{report_path}\"], cwd=root\n50 |     )\n   |\n\nS607 Starting a process with a partial executable path\n  --> docs/superpowers/journals/corr-evidence/a/identity_census.py:49:9\n   |\n47 |     report_path = Path(\"architecture/policy_design_case/grounding_bind_contract.json\")\n48 |     before_bytes = subprocess.check_output(\n49 |         [\"git\", \"show\", f\"{base}:policy-engine/{report_path}\"], cwd=root\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n50 |     )\n51 |     after_bytes = report_path.read_bytes()\n   |\n\nB023 Function definition does not bind loop variable `parsed`\n  --> docs/superpowers/journals/corr-evidence/a/identity_census.py:73:17\n   |\n71 |         def mutation_hook(row: dict[str, Any]) -> dict[str, Any]:\n72 |             if \"mutation_id\" in row:\n73 |                 parsed.append(row[\"mutation_id\"])\n   |                 ^^^^^^\n74 |             return row\n   |\n\nE501 Line too long (129 > 100)\n   --> docs/superpowers/journals/corr-evidence/a/identity_census.py:145:101\n    |\n143 |         \"after_sha\": _sha(after_bytes),\n144 |         \"complete_identity_set_deltas\": sets,\n145 |         \"independent_crosschecks\": \"relation declaration vs map; mutation object-hook vs list walk; strict duplicate-aware JSON\",\n    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n146 |         \"frame_owner_identity_delta\": frame_delta,\n147 |         \"source_clusters\": len(connected),\n    |\n\nFound 4 errors.\n",
+  "stderr": ""
+}

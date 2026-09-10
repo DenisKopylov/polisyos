@@ -1,0 +1,112 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-005",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "error_kind": null,
+  "input_hash": "sha256:c27dfb3cd32128d09f7ea7f092ea23dd237e6a1d6c70e5d7cfd186a482c1376c",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [
+      {
+        "cause_variable": "principal_professionalism",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.25,
+        "claim_id": "cc_01",
+        "claim_text": "Professional Madrasah Principals will have a positive impact on the reform of the education system in Madrasas",
+        "counterevidence_notes": "No quantitative evidence provided; claim is speculative and based on qualitative description only",
+        "design_family_hint": "unclear",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "education_system_reform",
+        "evidence_strength": "unknown",
+        "extraction_warnings": [
+          "No effect size provided; no identification strategy; abstract-only source with low text quality"
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "Madrasas in Indonesia",
+          "Cilacap District"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 1,
+            "text": "Professional Madrasah Principals in the new paradigm of education management will have a positive impact and fundamental changes in the reform of the education system in Madrasas."
+          }
+        ]
+      },
+      {
+        "cause_variable": "principal_competence",
+        "claim_explicitness": "implicit",
+        "claim_extraction_confidence": 0.2,
+        "claim_id": "cc_02",
+        "claim_text": "The competence of the principal is very good in improving teacher performance and professionalism",
+        "counterevidence_notes": "No quantitative measurement of competence or performance; no comparison group; purely qualitative assessment",
+        "design_family_hint": "unclear",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "teacher_performance",
+        "evidence_strength": "unknown",
+        "extraction_warnings": [
+          "No effect size; no causal identification; qualitative descriptive approach only; abstract-only source"
+        ],
+        "method_spans": [],
+        "scope_conditions": [
+          "MI Al-Ma'arif Bojongsari school",
+          "Cilacap District"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 7,
+            "text": "The result is that professionalism has good performance, so the competence of the principal here is very good in improving teacher performance and professionalism."
+          }
+        ]
+      }
+    ],
+    "citation_summary": "This is a low-quality education management study from Indonesia examining principal competence at a single Islamic school (MI Al-Ma'arif Bojongsari). The abstract-only source provides no quantitative estimates, effect sizes, confidence intervals, or statistical analysis. The study uses a qualitative descriptive approach and makes only vague, non-quantified claims about positive relationships between principal competence and teacher performance. No causal identification strategy is employed.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.15,
+    "extraction_warnings": [
+      "Source is abstract_only with text_quality 'abstract_only' - full text not available",
+      "No quantitative estimates, effect sizes, or statistical results provided",
+      "No sample size reported",
+      "Study design is qualitative descriptive - no causal identification strategy",
+      "Claims are implicit and speculative without empirical backing",
+      "Single case study without comparison group",
+      "No confidence intervals, standard errors, or uncertainty measures available",
+      "All causal claims have extraction confidence below 0.30 due to lack of quantitative evidence"
+    ],
+    "mechanisms": [
+      {
+        "description": "Principals improve teacher performance by creating programs involving all school members, delegating authority to teachers and staff, and implementing programs to improve pedagogic competence",
+        "evidence_type": "survey",
+        "mediating_variables": [
+          "program_creation",
+          "authority_delegation",
+          "pedagogic_competence_programs"
+        ],
+        "theoretical_framework": null
+      }
+    ],
+    "methodology": "Qualitative descriptive approach using research procedures that produce data descriptions in the form of words, spoken, or a person's behavior. The study examines a single school (MI Al-Ma'arif Bojongsari) without comparison group or quantitative measurement.",
+    "methodology_enum": "qualitative_descriptive",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:cd687ec08469bca6e4fa463215650066952c2ead1ceb2dcc37c57ac444818d8e",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/provider_attempts/throughput-1-005.json",
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "requested_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:8f23154736f71ef0db7cb1c95777b410e43c9e0aeee7822b9615af3041d6c2f5",
+  "work_id": "https://openalex.org/W4382698663"
+}

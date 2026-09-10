@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "authority_granted": false,
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_verification",
+    "--child",
+    "--test",
+    "test_synthetic_retention.SyntheticRetentionTests.test_source_drift_at_worker_finish_is_not_attributed"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 2.2082546669989824,
+  "stdout": "",
+  "stderr": "test_source_drift_at_worker_finish_is_not_attributed (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_source_drift_at_worker_finish_is_not_attributed) ... FAIL\n\n======================================================================\nFAIL: test_source_drift_at_worker_finish_is_not_attributed (docs.superpowers.journals.corr-evidence.c1-capacity.test_synthetic_retention.SyntheticRetentionTests.test_source_drift_at_worker_finish_is_not_attributed)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_synthetic_retention.py\", line 130, in test_source_drift_at_worker_finish_is_not_attributed\n    checks._refuses(\"retention_execution_source_changed\"),\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 148, in __exit__\n    next(self.gen)\n    ~~~~^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/test_pilot_analysis.py\", line 35, in _refuses\n    raise AssertionError(\"missing required refusal: \" + reason)\nAssertionError: missing required refusal: retention_execution_source_changed\n\n----------------------------------------------------------------------\nRan 1 test in 1.845s\n\nFAILED (failures=1)\n"
+}

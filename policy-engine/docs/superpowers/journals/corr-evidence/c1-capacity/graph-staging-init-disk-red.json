@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_impossibly_small_disk_budget_is_a_typed_refusal"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 0.8166472919983789,
+  "returncode": 1,
+  "stderr": "E\n======================================================================\nERROR: test_impossibly_small_disk_budget_is_a_typed_refusal (tests.unit.data_forge.domains.academic.batch.test_graph_staging.GraphStagingTests.test_impossibly_small_disk_budget_is_a_typed_refusal)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_staging.py\", line 198, in test_impossibly_small_disk_budget_is_a_typed_refusal\n    self.module.StagingStore(self.path, replace(self.limits, max_disk_bytes=1),\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                             source_provenance={\"synthetic\": True})\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/src/polisyos/data_forge/domains/academic/batch/_graph_staging.py\", line 81, in __init__\n    self.con.executescript(\"\"\"\n    ~~~~~~~~~~~~~~~~~~~~~~^^^^\n        CREATE TABLE IF NOT EXISTS spool_rows (\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<25 lines>...\n        );\n        ^^\n    \"\"\")\n    ^^^^\nsqlite3.OperationalError: database or disk is full\n\n----------------------------------------------------------------------\nRan 1 test in 0.655s\n\nFAILED (errors=1)\n",
+  "stdout": "",
+  "timed_out": false,
+  "timeout_seconds": 30.0
+}

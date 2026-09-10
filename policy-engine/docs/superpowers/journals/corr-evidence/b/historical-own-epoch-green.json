@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_historical_law_record_remains_readable_without_current_authority tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_record_cannot_be_restamped_with_current_binding tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_nested_serialization_preserves_original_bytes",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_phase5_historical_law_record_remains_readable_without_current_authority",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_record_cannot_be_restamped_with_current_binding",
+    "tests/unit/runtime/quality/test_intervention_substrate.py::test_historical_v2_law_nested_serialization_preserves_original_bytes"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "elapsed_seconds": 50.390154624939896,
+  "stdout": "...                                                                      [100%]\n",
+  "stderr": ""
+}

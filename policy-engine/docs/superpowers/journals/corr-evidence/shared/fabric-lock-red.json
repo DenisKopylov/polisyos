@@ -1,0 +1,15 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -c 'from pathlib import Path; import tempfile; import polisyos.fabric as fabric; lock=getattr(fabric,\"file_lock\",None); assert callable(lock),\"CG2 cannot reuse the existing cross-process lock through the supported Fabric facade\"; from polisyos.fabric.io.atomic import file_lock; assert lock is file_lock; temporary=tempfile.TemporaryDirectory(dir=\".tmp\"); path=Path(temporary.name)/\"admission.lock\"; context=lock(path); context.__enter__(); assert path.is_file(); context.__exit__(None,None,None); temporary.cleanup()'",
+  "argv": [
+    ".venv/bin/python",
+    "-c",
+    "from pathlib import Path; import tempfile; import polisyos.fabric as fabric; lock=getattr(fabric,\"file_lock\",None); assert callable(lock),\"CG2 cannot reuse the existing cross-process lock through the supported Fabric facade\"; from polisyos.fabric.io.atomic import file_lock; assert lock is file_lock; temporary=tempfile.TemporaryDirectory(dir=\".tmp\"); path=Path(temporary.name)/\"admission.lock\"; context=lock(path); context.__enter__(); assert path.is_file(); context.__exit__(None,None,None); temporary.cleanup()"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 0.21342787495814264,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; import tempfile; import polisyos.fabric as fabric; lock=getattr(fabric,\"file_lock\",None); assert callable(lock),\"CG2 cannot reuse the existing cross-process lock through the supported Fabric facade\"; from polisyos.fabric.io.atomic import file_lock; assert lock is file_lock; temporary=tempfile.TemporaryDirectory(dir=\".tmp\"); path=Path(temporary.name)/\"admission.lock\"; context=lock(path); context.__enter__(); assert path.is_file(); context.__exit__(None,None,None); temporary.cleanup()\n                                                                                                                               ~~~~~~~~^^^^^^\nAssertionError: CG2 cannot reuse the existing cross-process lock through the supported Fabric facade\n"
+}

@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_calibration.py tests/unit/runtime/quality/test_grounding_risk.py -q",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_grounding_calibration.py",
+    "tests/unit/runtime/quality/test_grounding_risk.py",
+    "-q"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 58.30916758393869,
+  "stdout": "....F...........                                                         [100%]\n=================================== FAILURES ===================================\n___ test_refusal_suite_predeclared_complete_and_refusal_reason_is_structural ___\n\n    def test_refusal_suite_predeclared_complete_and_refusal_reason_is_structural() -> None:\n        from dataclasses import replace\n        from datetime import timedelta\n    \n        from polisyos.pdc import gy_content_hash\n        from tests.unit.runtime.quality.test_grounding_bind import _reference\n    \n        owner = importlib.import_module(\"polisyos.runtime.quality.grounding_calibration\")\n        original = _reference()\n        edges = {key: replace(edge, provenance={**edge.provenance, \"synthetic\": True}).with_content_hash()\n                 for key, edge in original.essential_edges.items()}\n        reference = replace(original, essential_edges=edges,\n                            reference_hash=gy_content_hash([edge.to_payload() for edge in edges.values()]))\n        frame = _frame(reference)\n        suite = owner.declare_refusal_suite(frame, reference, declared_at=frame.declared_at)\n        report = owner.run_refusal_suite(suite, frame, reference,\n                                         executed_at=frame.declared_at + timedelta(seconds=1))\n>       assert not report[\"issues\"]\nE       AssertionError: assert not ['constructed_mismatch_not_structurally_refused', 'matched_control_not_structurally_supported']\n\ntests/unit/runtime/quality/test_grounding_calibration.py:120: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_calibration.py::test_refusal_suite_predeclared_complete_and_refusal_reason_is_structural\n",
+  "stderr": ""
+}

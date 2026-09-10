@@ -1,0 +1,17 @@
+# CORR-B baseline findings
+
+`baseline-final.json` is the deciding execution receipt: exact module command, environment, RC **0**, elapsed **127.96541787509341 s**, and complete stdout/stderr. The script uses the real `resolve_law_bound_lever`, real Lex store, real owner registry and real composed WMR path; its counting adapter delegates the numerical evaluator unchanged. `baseline.json` and `baseline-corrected.json` retain harness failures before resolver execution (wrong path-map key; missing keyword-only argument), not product findings.
+
+| Finding | Deciding observation | Consequence |
+| --- | --- | --- |
+| B-R01 | Complete raw L6 JSON law/knob denominator is 3 pairs. Independent owner-binding manifest enumeration also yields 3; identity symmetric difference is empty. Raw and loaded knob identity sets agree. | Real denominator retained. The log field `independent_owner_registry_pairs` names the owner-binding manifest enumeration; it is not an enumeration of private registry storage. Every subsequently executed pair is resolved through the actual registry by the production owner. |
+| B-R02 | All 3 actual law results are lift v2, `status=blocked`, `current_authority_status=blocked`, `mapping_predicate_provenance=consumer_asserted`, `mapping_evidence_ref=null`. The numerical evaluator is invoked once for each. | Phase5 fail-closed authority remains present; there is no current subject recognition result. This is not current false authority admission. |
+| B-R03 | The actual tax pair with budget/tax provision references transposed, parameter 0.24, passes real numerical evaluation (`admitted`, `threshold_satisfied`) before ending at unknown-correspondence `blocked`. | Numerical truth does not decide subject correspondence. A positive and negative recognition mechanism is still needed; retaining permanent unknown refusal would not implement B. |
+| B-R04 | The budget pair with missing subject information and a deliberately invalid candidate unit invokes the numerical evaluator once and returns `unit_unresolved`. | Missing-subject ambiguity does not precede units. The typed result shape and actual runtime order must change together. |
+| B-R05 | Real default-value runs additionally encounter `threshold_violated` for budget and `temporal_not_in_force` for procurement and tax. | Those numerical/time facts remain visible and must not be confused with correspondence. Synthetic recognition success will not override a failing numeric/temporal obligation. |
+
+The design and exact proposed falsifiers/write set are in `design.md`. The remaining real-world subject authority is `CORR-B1` / `lever-legal-subject-key-in-the-norm-namespace`. A synthetic subject identity is a declared control, not a recovered statutory meaning or an institutional appointment.
+
+Not established by this run: a full L3 table census or the inherited 374,516-row number; real semantic subject assignments; an independent legal identity authority; production synthetic-source persistence/recognition (not yet built); a tree-wide proof that no alternative semantic owner exists. The relevant current resolver/type/consumer chain and nearby Foundry/chronology owner alternatives were read, and their source blob identities are in the receipt. No unmeasured conjunct is credited.
+
+Execution reserved `.tmp/gy-s-composed-wmr-*` only while the real owner ran; it is released after this receipt. The source/data inputs remain unchanged. B wrote only these research files in `corr-evidence/b`; no production edits or commits were made.

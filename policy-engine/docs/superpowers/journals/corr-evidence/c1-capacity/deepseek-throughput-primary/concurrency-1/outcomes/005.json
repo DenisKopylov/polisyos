@@ -1,0 +1,89 @@
+{
+  "actual_http_attempts": 1,
+  "attempt_id": "throughput-1-005",
+  "authority_granted": false,
+  "authority_status": "candidate_only",
+  "declaration_hash": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+  "error_kind": null,
+  "input_hash": "sha256:c27dfb3cd32128d09f7ea7f092ea23dd237e6a1d6c70e5d7cfd186a482c1376c",
+  "parsed_response": {
+    "boundary_conditions": [],
+    "causal_claims": [
+      {
+        "cause_variable": "principal_competence",
+        "claim_explicitness": "explicit",
+        "claim_extraction_confidence": 0.3,
+        "claim_id": "c_01",
+        "claim_text": "The competence of the principal here is very good in improving teacher performance and professionalism.",
+        "counterevidence_notes": "No counterevidence mentioned; study is descriptive and lacks rigorous causal identification.",
+        "design_family_hint": "unclear",
+        "direction": "positive",
+        "effect_size": null,
+        "effect_variable": "teacher_performance_and_professionalism",
+        "evidence_strength": "observational",
+        "extraction_warnings": [
+          "Claim is based on qualitative descriptive study; causal language may be over-interpreted."
+        ],
+        "method_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 5,
+            "text": "This study uses a qualitative descriptive approach, namely research procedures that produce data descriptions in the form of words, spoken, or a person's behavior."
+          }
+        ],
+        "scope_conditions": [
+          "MI Al-Ma'arif Bojongsari, Cilacap District"
+        ],
+        "source_basis": "abstract_only",
+        "supporting_spans": [
+          {
+            "score": 0.5,
+            "section": "abstract",
+            "sentence_index": 7,
+            "text": "The result is that professionalism has good performance, so the competence of the principal here is very good in improving teacher performance and professionalism."
+          }
+        ]
+      }
+    ],
+    "citation_summary": "A qualitative descriptive study on the managerial competence of a madrasa head in improving teacher professionalism and performance at MI Al-Maarif Bojongsari, Cilacap District. The study reports that principal competence is very good in improving teacher performance and professionalism, but provides no quantitative estimates or rigorous causal evidence.",
+    "empirical_parameters": [],
+    "extraction_confidence": 0.2,
+    "extraction_warnings": [
+      "Abstract only; no full text available.",
+      "Study design is qualitative descriptive, not suitable for causal inference.",
+      "No numeric effect sizes or statistical parameters reported.",
+      "Causal claims are based on descriptive statements, not rigorous identification."
+    ],
+    "mechanisms": [
+      {
+        "description": "Principal competence improves teacher performance and professionalism through creating programs involving all school members, delegating authority, and improving pedagogic competence.",
+        "evidence_type": "survey",
+        "mediating_variables": [
+          "program_creation",
+          "authority_delegation",
+          "pedagogic_competence"
+        ],
+        "theoretical_framework": null
+      }
+    ],
+    "methodology": {
+      "analysis": "descriptive",
+      "data": "descriptions in the form of words, spoken, or behavior",
+      "design": "qualitative descriptive",
+      "limitations": "No quantitative analysis, no causal identification, abstract only"
+    },
+    "methodology_enum": "qualitative_descriptive",
+    "sample_size": null
+  },
+  "provider_observation_hash": "sha256:ae5c828af5edf31f697062f8ef5df3037dd88e20d6bb7f429cf7db185d78c05a",
+  "provider_observation_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/provider_attempts/throughput-1-005.json",
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "requested_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "retryable": false,
+  "schema_version": "corr.direct_extraction_outcome.v1",
+  "status": "succeeded",
+  "synthetic": false,
+  "typed_result_hash": "sha256:4889647760389147dd5b0e001a6ce98391a00e2b8393f228d1d6a168e19526cc",
+  "work_id": "https://openalex.org/W4382698663"
+}

@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest -q tests/unit/foundry/validation/test_legal_correspondence.py::test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/foundry/validation/test_legal_correspondence.py::test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "elapsed_seconds": 66.5472263339907,
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___ test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular ____\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1371/test_distinct_ancestor_artifac0')\n\n    def test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular(tmp_path):\n        from polisyos.foundry.validation import legal_correspondence as owner\n    \n        store = artifacts.FileSystemCAS(tmp_path)\n        refs = {}\n        for role, entity, digest in ((\"lever\", \"lever:a\", \"a\"), (\"norm\", \"norm:a\", \"c\")):\n            ancestor = store.put_json({\"synthetic\": True, \"role\": role}, artifacts.PutOptions(\n                kind=\"synthetic.annotation\", media_type=\"application/json\",\n>               producer=artifacts.ProducerInfo(component=\"synthetic.same_subject_producer\")))\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           pydantic_core._pydantic_core.ValidationError: 1 validation error for ProducerInfo\nE           version\nE             Field required [type=missing, input_value={'component': 'synthetic.same_subject_producer'}, input_type=dict]\nE               For further information visit https://errors.pydantic.dev/2.12/v/missing\n\ntests/unit/foundry/validation/test_legal_correspondence.py:116: ValidationError\n=========================== short test summary info ============================\nFAILED tests/unit/foundry/validation/test_legal_correspondence.py::test_distinct_ancestor_artifacts_from_one_subject_producer_are_circular\n",
+  "stderr": ""
+}

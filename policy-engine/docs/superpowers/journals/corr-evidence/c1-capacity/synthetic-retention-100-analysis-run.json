@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.retention_analysis",
+    ".tmp/corr-c1-capacity/synthetic-retention/100/profile-summary.json",
+    "docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-100-analysis.json"
+  ],
+  "authority_granted": false,
+  "elapsed_seconds": 1.0371061250334606,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"synthetic\": true, \"analysis\": \"docs/superpowers/journals/corr-evidence/c1-capacity/synthetic-retention-100-analysis.json\"}\n",
+  "synthetic": true
+}

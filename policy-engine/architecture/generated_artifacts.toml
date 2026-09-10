@@ -1785,15 +1785,15 @@ generator = "Layer 3 GY intervention-substrate contract validator generated from
 verifier = "Layer 3 GY intervention-substrate contract validator and GY-M1 lifecycle gate"
 promotion_target = "registered canonical L6 lever, law-route, and method-route substrate lift contract for GY-S3"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, src/polisyos/lex/knowledge/store.py, src/polisyos/foundry/methods/selection/registry.py, and tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py"
+source_of_truth = "src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/foundry/validation/legal_correspondence.py, architecture/policy_design_case/legal_subject_lever_annotations.synthetic.json, architecture/policy_design_case/legal_subject_norm_annotations.synthetic.json, src/polisyos/runtime/quality/substrate_registry.py, src/polisyos/lex/knowledge/store.py, src/polisyos/foundry/methods/selection/registry.py, and tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py"
 outputs = [
   "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json",
 ]
 regenerate_commands = [
-  "uv run python tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --repo-root . --write --output-format json",
+  "uv run python -m tools.quality.validation.check_layer3_gy_intervention_substrate_contract --repo-root . --write --output-format json",
 ]
 commit_policy = "committed"
-freshness_rule = "Regenerate and commit whenever L6 knob-domain resolution, law-to-lever L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change."
+freshness_rule = "Regenerate and commit whenever L6 knob-domain resolution, law-to-lever subject recognition, independent subject-source ancestry, L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change. Report v4 marks its own constructed-control envelope synthetic and validates that invariant independently of drift; historical report epochs remain unchanged."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py"
 check_cwd = "."
@@ -1801,7 +1801,8 @@ check_command = [
   "uv",
   "run",
   "python",
-  "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_intervention_substrate_contract",
   "--repo-root",
   ".",
   "--check",
@@ -1855,15 +1856,15 @@ generator = "Layer 3 GY-N9 canonical promotion validator generated from the live
 verifier = "Layer 3 GY-N9 recomputing promotion contract validator, exact canonical-byte check, nested N11 projection/conditionality drift, rederive audit, and source-flip mutations"
 promotion_target = "registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, G4, and the current-head N11 promotion-certificate projection; fixed-time confidence remains a typed zero-spend refusal"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/confidence_ledger.py, architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py"
+source_of_truth = "src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/generation_source.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/confidence_ledger.py, architecture/production_quality/confidence_ledger.toml, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/runtime/quality/credal_reference.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py"
 outputs = [
   "architecture/policy_design_case/layer3_gy_promotion_contract.json",
 ]
 regenerate_commands = [
-  "JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json",
+  "JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python -m tools.quality.validation.check_layer3_gy_promotion_contract --write --output-format json",
 ]
 commit_policy = "committed"
-freshness_rule = "Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, N11 instrument registry/projection/spend semantics, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes."
+freshness_rule = "Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, N11 instrument registry/projection/spend semantics, CG2 promotability enforcement, source preservation and synthetic bridge provenance, S6/S7/S8 gate wrappers, or champion-path strangle scan changes."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_layer3_gy_promotion_contract.py"
 check_cwd = "."
@@ -1879,7 +1880,8 @@ check_command = [
   "--extra",
   "test",
   "python",
-  "tools/quality/validation/check_layer3_gy_promotion_contract.py",
+  "-m",
+  "tools.quality.validation.check_layer3_gy_promotion_contract",
   "--check",
   "--output-format",
   "json",
@@ -3978,3 +3980,87 @@ drift_gate = "automated"
 workflow = "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
 check_cwd = "."
 check_command = [".venv/bin/python", "-m", "tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit", "--check", "--json"]
+
+[[family]]
+id = "policy-design-case-cg2-admission-mechanism"
+label = "CG2 admission mechanism with explicit canonical-input position"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Existing CG2 contract owner: complete original relation and mutation controls plus durable admission replay"
+verifier = "CG2 contract recomputation, corrupt-field drift, and decisive admission/refusal removal probes"
+promotion_target = "mechanism proof only; canonical reference withholding remains separately visible and grants no authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/corr/grounding_proof_world_input.json, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/runtime/quality/grounding_risk.py, src/polisyos/runtime/quality/grounding_calibration.py, src/polisyos/runtime/quality/grounding_relation.py, src/polisyos/runtime/quality/credal_reference.py, src/polisyos/runtime/quality/world_model_record.py, src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, and tools/quality/validation/check_grounding_bind_contract.py"
+outputs = ["architecture/policy_design_case/grounding_bind_contract.json"]
+regenerate_commands = ["uv run python -m tools.quality.validation.check_grounding_bind_contract --repo-root . --write --output-format json"]
+commit_policy = "committed"
+freshness_rule = "Regenerate when CG2 relation admission, durable run accounting, synthetic ancestry, governing resolution, epoch, original mutation controls, or the complete declared proof-world input changes. Report v3 binds exact source bytes and creation time; an equal logical WMR hash cannot substitute for an unavailable source artifact. Retain canonical attempt and synthetic control scope separately."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_bind_contract.py"
+check_cwd = "."
+check_command = ["uv", "run", "python", "-m", "tools.quality.validation.check_grounding_bind_contract", "--repo-root", ".", "--check", "--output-format", "json"]
+
+[[family]]
+id = "policy-design-case-cg3-synthetic-input-admission"
+label = "CG3 admission with preserved synthetic input limitations"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Existing CG3 contract owner, preserving the complete original control and mutation denominator"
+verifier = "Recomputed CG3 decisions and registry patch controls plus synthetic authority refusal and decisive removal"
+promotion_target = "mechanism verification; marked control inputs grant no production authority"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/corr/grounding_proof_world_input.json, src/polisyos/runtime/quality/grounding_admission.py, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/runtime/quality/grounding_calibration.py, src/polisyos/runtime/quality/grounding_relation.py, src/polisyos/runtime/quality/credal_reference.py, src/polisyos/runtime/quality/world_model_record.py, src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, and tools/quality/validation/check_grounding_admission_contract.py"
+outputs = ["architecture/policy_design_case/grounding_admission_contract.json"]
+regenerate_commands = ["uv run python -m tools.quality.validation.check_grounding_admission_contract --repo-root . --write --output-format json"]
+commit_policy = "committed"
+freshness_rule = "Recompute current CG3 input migration controls when provenance propagation, current certificate emission, receiving consumers, or the complete declared proof-world input changes. Report v3 binds exact source bytes and creation time; unavailable source custody refuses. Preserve historical certificate epochs and every original semantic control."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_admission_contract.py"
+check_cwd = "."
+check_command = ["uv", "run", "python", "-m", "tools.quality.validation.check_grounding_admission_contract", "--repo-root", ".", "--check", "--output-format", "json"]
+
+[[family]]
+id = "policy-design-case-n6-source-preservation"
+label = "N6 generation cycle and immutable source preservation"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Existing N6 generation-cycle contract owner with source custody and reentry controls"
+verifier = "Recomputed generation-cycle receipts, comparison admission, explicit source-custody limitations, and corrupt-field drift; actual N4 source-preservation witnesses are separate bridge tests"
+promotion_target = "source custody and controller verification; an unavailable source does not become a writer input"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/generation_source.py, src/polisyos/runtime/quality/design_generation.py, src/polisyos/runtime/quality/grounding_risk.py, src/polisyos/runtime/quality/confidence_ledger.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/scientist/orchestration/workflows/engine_simple.py, src/polisyos/runtime/quality/joint_simulation_horizon.py, src/polisyos/scientist/methods/search/voi_scheduler.py, src/polisyos/pdc/_impl/layer2_design_search.py, and tools/quality/validation/check_layer3_gy_generation_cycle_contract.py"
+outputs = ["architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"]
+regenerate_commands = ["uv run python -m tools.quality.validation.check_layer3_gy_generation_cycle_contract --repo-root . --write --output-format json"]
+commit_policy = "committed"
+freshness_rule = "Recompute after N4 owner handoff, source-capsule persistence, N6 run or reentry serialization, N9 context consumption, or comparison-owner changes. Prior receipts retain their own epochs."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py"
+check_cwd = "."
+check_command = ["uv", "run", "python", "-m", "tools.quality.validation.check_layer3_gy_generation_cycle_contract", "--repo-root", ".", "--check", "--output-format", "json"]
+
+[[family]]
+id = "policy-design-case-grounding-refusal-sensitivity"
+label = "Pre-declared constructed-mismatch refusal sensitivity"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Run the frozen dated full L6 assignment suite through the real CG1 and CG2 owners"
+verifier = "Recompute the complete frame, paired contradiction witnesses and refusal result; corrupt-result and substantive-comparison removal must fail"
+promotion_target = "refusal sensitivity only; a high refusal rate on constructed mismatches is not evidence that accepted bindings are correct"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/corr/grounding-2026-09-08/frame.json, architecture/policy_design_case/corr/grounding-2026-09-08/suite.json, existing L6/WMR owners, src/polisyos/runtime/quality/grounding_calibration.py, and tools/quality/validation/check_grounding_refusal_sensitivity.py"
+outputs = ["architecture/policy_design_case/corr/grounding_refusal_sensitivity.json"]
+regenerate_commands = ["uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --write --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08"]
+commit_policy = "committed"
+freshness_rule = "Recompute against the unchanged dated declarations when the consuming owners change. New source inputs require a new pre-outcome declaration, never restamping the old campaign. The exact pinned WMR bytes and time must remain available in source custody; a fresh equal-logical-hash WMR cannot substitute for the declared artifact."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_grounding_refusal_sensitivity.py"
+check_cwd = "."
+check_command = ["uv", "run", "python", "-m", "tools.quality.validation.check_grounding_refusal_sensitivity", "--check", "--world-cas", ".tmp/gy-s-composed-wmr-cas", "--world-ref", "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5", "--declarations", "architecture/policy_design_case/corr/grounding-2026-09-08"]

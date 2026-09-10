@@ -1,0 +1,19 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/data_forge/domains/academic/batch/test_campaign_graph_finalization.py::test_completed_envelope_disk_refusal_precedes_publication"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 3.653111374936998,
+  "returncode": 1,
+  "stderr": "",
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________ test_completed_envelope_disk_refusal_precedes_publication ___________\n\ntmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-1468/test_completed_envelope_disk_r0')\n\n    def test_completed_envelope_disk_refusal_precedes_publication(tmp_path: Path) -> None:\n        \"\"\"Account actual serialized envelope bytes alongside every private output.\"\"\"\n        from polisyos.data_forge.domains.academic.batch import pipeline\n        from polisyos.data_forge.domains.academic.batch._graph_staging import (\n            GraphCapacityError,\n            GraphCapacityLimits,\n        )\n    \n        root = tmp_path / \"campaign\"\n        plan, transport = _candidate_checkpoint(root, 1)\n        original = _input_projection(root)\n        writer = _writer()\n        valid_ref = pipeline.finalize_extraction_campaign_graph(plan, root, safe_write_json=writer)\n        valid = pipeline.resolve_extraction_campaign_graph(plan, root, valid_ref)\n        assert valid[\"graph_metrics\"][\"raw_claims\"] == 1\n        assert valid[\"synthetic\"] is True\n        build = root / \"graph-builds\" / Path(valid_ref.path).stem\n        actual_bytes = sum(path.stat().st_size for path in build.rglob(\"*\") if path.is_file())\n        limit = actual_bytes * 4\n        completed_before = {path.name for path in (root / \"graphs\").iterdir()}\n    \n        def padded_writer(path: Path, payload: object) -> None:\n            writer(path, payload)\n            # Valid JSON and every marker remain; actual codec output exceeds the cap.\n            with path.open(\"ab\") as stream:\n                stream.write(b\" \" * (limit * 2))\n    \n>       with pytest.raises(GraphCapacityError, match=\"max_disk_bytes\"):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'polisyos.data_forge.domains.academic.batch._graph_staging.GraphCapacityError'>\n\ntests/unit/data_forge/domains/academic/batch/test_campaign_graph_finalization.py:200: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/data_forge/domains/academic/batch/test_campaign_graph_finalization.py::test_completed_envelope_disk_refusal_precedes_publication\n1 failed in 2.41s\n",
+  "timed_out": false,
+  "timeout_seconds": 120.0
+}

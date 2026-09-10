@@ -1,0 +1,43 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "throughput-1-006",
+    "campaign_id": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+    "input_hash": "sha256:64e5eed6e067f477ec2d300658ae79d115393232d17cf4752f2dfb9cc4b2659d",
+    "phase": "extraction",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2066113762"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.0013432089472189546,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 3313,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "parsed_response_hash": "sha256:be6956be25902220ead860e6d614389282856503670ec821e791a8d06ab5dd8b",
+  "prompt_hash": "sha256:fb79e890d07c48507c7fa2b619c6db602288ddcf0cf7d6f1685845bb1177ef17",
+  "provider_usage": {
+    "completion_tokens": 2176,
+    "completion_tokens_details": null,
+    "prompt_tokens": 3433,
+    "prompt_tokens_details": null,
+    "total_tokens": 5609
+  },
+  "reported_model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "response_characters": 9928,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:fa693dd59c3e1ebd0e03245128ca91191079d2d0b916261326236544a7387138",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 63.22649725002702,
+  "usage": {
+    "completion_tokens": 2176,
+    "prompt_tokens": 3433,
+    "total_tokens": 5609
+  }
+}

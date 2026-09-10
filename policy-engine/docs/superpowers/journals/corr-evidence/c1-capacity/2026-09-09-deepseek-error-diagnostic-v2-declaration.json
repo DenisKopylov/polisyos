@@ -1,0 +1,34 @@
+{
+  "authority_status": "candidate_measurement",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "content_hash": "sha256:12fc9d7a5cf4d1599c4ad36134c6746fa62bed6cb9ff412c470715d940d368e2",
+  "declared_at": "2026-09-09T11:23:35.863432+00:00",
+  "error_body_policy": "closed code vocabulary and numeric Retry-After only; no raw body",
+  "full_pass_authorized": false,
+  "helper_source_hash": "sha256:b1d095d15de6a43661baf0f6ab29ad3a8d12d8d5f279e53bec402d5f8b842507",
+  "max_http_attempts": 1,
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+  "output_root": ".tmp/corr-c1-capacity/error-diagnostic/deepseek",
+  "purpose": "one_observed_failure_retry_diagnostic",
+  "retries": 0,
+  "schema_version": "corr.provider_error_diagnostic_declaration.v2",
+  "scope": "not a pilot, throughput, quality, calibration or representativeness estimate",
+  "selection": {
+    "member": {
+      "abstract_content_hash": "sha256:2fe4f43bbdb2439092d00b3d6e95d10ad2a9dc754458a505d41fc580f952274c",
+      "abstract_length": 1293,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2109460161"
+    },
+    "original_error_kind": "upstream_rate_limit",
+    "original_outcome_hash": "sha256:5c4fbc71725fe1b627b6b1406a8550ce2895e654d3cf04ce575859b2c9d67ba4",
+    "original_outcome_path": ".tmp/corr-c1-capacity/throughput/deepseek/concurrency-1/outcomes/001.json",
+    "original_prompt_hash": "sha256:4f8c6a3325ea8486abe7d3c7664106c3c43fc07f2486f3e0b1bbecd6ca13f4e2"
+  },
+  "selection_rule": "first failed ordinal in earliest executed level; outcome-selected",
+  "success_body_policy": "closed structural types, lengths and JSON syntax only; no raw text",
+  "synthetic": false,
+  "throughput_declaration_hash": "sha256:6e495f968b8385e666b65ac8fa08f15726e9f60f86ddab6ebb836849a99a1984",
+  "throughput_declaration_path": "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-deepseek-throughput-declaration.json"
+}

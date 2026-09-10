@@ -1,0 +1,43 @@
+{
+  "authority_status": "candidate_only",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "context": {
+    "attempt_id": "throughput-1-003",
+    "campaign_id": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+    "input_hash": "sha256:203f0a3a8705fcb33a31433d47b43e81f88f4e509af316556183d5bd23b44f30",
+    "phase": "extraction",
+    "synthetic": false,
+    "work_id": "https://openalex.org/W2580286392"
+  },
+  "error_kind": null,
+  "estimator_elapsed_seconds": 0.001213708077557385,
+  "finish_reason": "stop",
+  "local_estimator": "injected_repository_estimator",
+  "local_prompt_token_estimate": 2928,
+  "model_id": "MiniMaxAI/MiniMax-M2.7",
+  "parsed_response_hash": "sha256:cbbc622e5de308ea4b1ee84ca743ce37889e040ef4e78984c0b0a08b1e1ebc67",
+  "prompt_hash": "sha256:f790578e4e4afd120233a4770fba26f01c180f959ef130932c38b36002f52dbd",
+  "provider_usage": {
+    "completion_tokens": 629,
+    "completion_tokens_details": null,
+    "prompt_tokens": 2930,
+    "prompt_tokens_details": null,
+    "total_tokens": 3559
+  },
+  "reported_model_id": "MiniMaxAI/MiniMax-M2.7",
+  "response_characters": 3026,
+  "response_codec": "polisyos.data_forge.domains.academic.batch.article_extractor._parse_json_object",
+  "response_content_hash": "sha256:7671f3705a4b783c428ff29de9728ba773cfa973276545b937ef6d6c50cd675c",
+  "response_leading_code_fence": false,
+  "retryable": false,
+  "schema_version": "policyos.academic.extraction_attempt.v3",
+  "status": "returned",
+  "status_code": 200,
+  "synthetic": false,
+  "transport_elapsed_seconds": 51.17435858305544,
+  "usage": {
+    "completion_tokens": 629,
+    "prompt_tokens": 2930,
+    "total_tokens": 3559
+  }
+}

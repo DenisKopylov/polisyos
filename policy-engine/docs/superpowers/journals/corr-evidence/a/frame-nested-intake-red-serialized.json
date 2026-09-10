@@ -1,0 +1,21 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_calibration.py::test_frame_intakes_recompute_mutable_nested_content -q --tb=short",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/runtime/quality/test_grounding_calibration.py::test_frame_intakes_recompute_mutable_nested_content",
+    "-q",
+    "--tb=short"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 106.33514704101253,
+  "timeout_seconds": 600.0,
+  "timed_out": false,
+  "stdout": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n_______ test_frame_intakes_recompute_mutable_nested_content[declaration] _______\ntests/unit/runtime/quality/test_grounding_calibration.py:248: in test_frame_intakes_recompute_mutable_nested_content\n    with pytest.raises(ValueError, match=\"content_hash_mismatch\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n________ test_frame_intakes_recompute_mutable_nested_content[execution] ________\ntests/unit/runtime/quality/test_grounding_calibration.py:248: in test_frame_intakes_recompute_mutable_nested_content\n    with pytest.raises(ValueError, match=\"content_hash_mismatch\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_grounding_calibration.py::test_frame_intakes_recompute_mutable_nested_content[declaration]\nFAILED tests/unit/runtime/quality/test_grounding_calibration.py::test_frame_intakes_recompute_mutable_nested_content[execution]\n",
+  "stderr": ""
+}

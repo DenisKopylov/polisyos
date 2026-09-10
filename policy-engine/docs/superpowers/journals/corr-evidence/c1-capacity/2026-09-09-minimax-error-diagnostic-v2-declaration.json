@@ -1,0 +1,34 @@
+{
+  "authority_status": "candidate_measurement",
+  "base_url": "https://api.proxy.gonka.gg/v1",
+  "content_hash": "sha256:a7a506573601b7f35080adad5257d3bc9eda00d9069e1d0ead9a29d502abc1ab",
+  "declared_at": "2026-09-09T11:23:37.883703+00:00",
+  "error_body_policy": "closed code vocabulary and numeric Retry-After only; no raw body",
+  "full_pass_authorized": false,
+  "helper_source_hash": "sha256:b1d095d15de6a43661baf0f6ab29ad3a8d12d8d5f279e53bec402d5f8b842507",
+  "max_http_attempts": 1,
+  "model_id": "MiniMaxAI/MiniMax-M2.7",
+  "output_root": ".tmp/corr-c1-capacity/error-diagnostic/minimax",
+  "purpose": "one_observed_failure_retry_diagnostic",
+  "retries": 0,
+  "schema_version": "corr.provider_error_diagnostic_declaration.v2",
+  "scope": "not a pilot, throughput, quality, calibration or representativeness estimate",
+  "selection": {
+    "member": {
+      "abstract_content_hash": "sha256:032d33c76da83c96b3fd103c644a362fd8bc5da4335fcd0ca81c2b44371805df",
+      "abstract_length": 996,
+      "stratum": 1,
+      "synthetic": false,
+      "work_id": "https://openalex.org/W2569872753"
+    },
+    "original_error_kind": "malformed_output",
+    "original_outcome_hash": "sha256:fa61fe27206d348d4b046ffa38541f5faab316c9bb798cccb10a9fac8cb0ae8a",
+    "original_outcome_path": ".tmp/corr-c1-capacity/throughput/minimax/concurrency-1/outcomes/004.json",
+    "original_prompt_hash": "sha256:d50438a0a42b7085c26a8d63d756f43d06d6bfb166c72731eab5b747e7021576"
+  },
+  "selection_rule": "first failed ordinal in earliest executed level; outcome-selected",
+  "success_body_policy": "closed structural types, lengths and JSON syntax only; no raw text",
+  "synthetic": false,
+  "throughput_declaration_hash": "sha256:b39ce3e64a6683654f63708f95467e5f7bdf1fa0bd01380c32b98c64f1f53d02",
+  "throughput_declaration_path": "docs/superpowers/journals/corr-evidence/c1-capacity/2026-09-09-minimax-throughput-declaration.json"
+}

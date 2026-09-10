@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -c 'import hashlib,json; from pathlib import Path; path=Path(\".tmp/corr-n9-live-before-reissue.json\"); raw=path.read_bytes(); payload=json.loads(raw); print(json.dumps({\"run_emitted_artifact\":str(path),\"sha256\":hashlib.sha256(raw).hexdigest(),\"proof_input_strangle_present\":\"proof_input_strangle\" in payload})); assert \"proof_input_strangle\" in payload, \"actual_current_proof_has_no_run_emitted_input_strangle\"'",
+  "argv": [
+    ".venv/bin/python",
+    "-c",
+    "import hashlib,json; from pathlib import Path; path=Path(\".tmp/corr-n9-live-before-reissue.json\"); raw=path.read_bytes(); payload=json.loads(raw); print(json.dumps({\"run_emitted_artifact\":str(path),\"sha256\":hashlib.sha256(raw).hexdigest(),\"proof_input_strangle_present\":\"proof_input_strangle\" in payload})); assert \"proof_input_strangle\" in payload, \"actual_current_proof_has_no_run_emitted_input_strangle\""
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.06563270790502429,
+  "timeout_seconds": null,
+  "timed_out": false,
+  "stdout": "{\"run_emitted_artifact\": \".tmp/corr-n9-live-before-reissue.json\", \"sha256\": \"2bfc05885dca6663dbb6db15b03a32d55fce8a3f228f822cef6e021cd4d294bc\", \"proof_input_strangle_present\": false}\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import hashlib,json; from pathlib import Path; path=Path(\".tmp/corr-n9-live-before-reissue.json\"); raw=path.read_bytes(); payload=json.loads(raw); print(json.dumps({\"run_emitted_artifact\":str(path),\"sha256\":hashlib.sha256(raw).hexdigest(),\"proof_input_strangle_present\":\"proof_input_strangle\" in payload})); assert \"proof_input_strangle\" in payload, \"actual_current_proof_has_no_run_emitted_input_strangle\"\n                                                                                                                                                                                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: actual_current_proof_has_no_run_emitted_input_strangle\n"
+}

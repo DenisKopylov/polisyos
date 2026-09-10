@@ -1,0 +1,22 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m ruff check tools/quality/validation/check_grounding_admission_contract.py docs/superpowers/journals/corr-evidence/b/cg3_report_authority_probe.py docs/superpowers/journals/corr-evidence/b/cg3_identity_census.py",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "tools/quality/validation/check_grounding_admission_contract.py",
+    "docs/superpowers/journals/corr-evidence/b/cg3_report_authority_probe.py",
+    "docs/superpowers/journals/corr-evidence/b/cg3_identity_census.py"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 1,
+  "capture_returncode": 1,
+  "elapsed_seconds": 0.07098850002512336,
+  "timeout_seconds": 60.0,
+  "timed_out": false,
+  "stdout": "RUF100 [*] Unused `noqa` directive (unused: `S607`)\n  --> docs/superpowers/journals/corr-evidence/b/cg3_identity_census.py:19:38\n   |\n18 | def _git_blob(path: str) -> bytes:\n19 |     return subprocess.check_output(  # noqa: S603,S607 - fixed local git show, constant paths.\n   |                                      ^^^^^^^^^^^^^^^^^\n20 |         [\"git\", \"show\", f\"{BASE}:policy-engine/{path}\"]\n21 |     )\n   |\nhelp: Remove unused `noqa` directive\n\nS607 Starting a process with a partial executable path\n  --> docs/superpowers/journals/corr-evidence/b/cg3_identity_census.py:20:9\n   |\n18 | def _git_blob(path: str) -> bytes:\n19 |     return subprocess.check_output(  # noqa: S603,S607 - fixed local git show, constant paths.\n20 |         [\"git\", \"show\", f\"{BASE}:policy-engine/{path}\"]\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n21 |     )\n   |\n\nE501 Line too long (106 > 100)\n  --> docs/superpowers/journals/corr-evidence/b/cg3_report_authority_probe.py:23:101\n   |\n21 |     report = owner.validate_payload(payload)\n22 |     codes = sorted({row[\"code\"] for row in report[\"issues\"]})\n23 |     sys.stdout.write(json.dumps({\"gate_status\": report[\"status\"], \"issue_codes\": codes}, indent=2) + \"\\n\")\n   |                                                                                                     ^^^^^^\n24 |     if \"grounding_admission_synthetic_authority_escape\" not in codes:\n25 |         raise AssertionError(\"report accepted a synthetic authority claim\")\n   |\n\nFound 3 errors.\n[*] 1 fixable with the `--fix` option.\n",
+  "stderr": ""
+}

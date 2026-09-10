@@ -13,6 +13,8 @@ negative-only result union, and the two catalog boundaries that resolve that
 authority before reading candidate runtime posture.
 Candidate method route constraints and their input-contract relation predicate
 also cross this stable facade; their implementation stays with method selection.
+Legal subject recognition exposes independently addressed source comparisons;
+these candidate results do not confer legal authority.
 """
 
 from __future__ import annotations
@@ -35,22 +37,48 @@ if TYPE_CHECKING:
         method_accepts_input_contract,
         select_method_for_input_contract,
     )
+    from polisyos.foundry.validation.legal_correspondence import (
+        LegalCorrespondenceRequest,
+        LegalCorrespondenceResult,
+        LegalSubjectAnnotationSource,
+        LegalSubjectIdentity,
+        LegalSubjectMembership,
+        LegalSubjectMembershipSource,
+        bind_legal_subject_annotations,
+        persist_legal_correspondence_result,
+        persist_legal_subject_annotations,
+        persist_legal_subject_membership_source,
+        produce_legal_subject_spine,
+        recognize_legal_correspondence,
+    )
 
 __all__ = [
     "DependencyProfileResolutionFailure",
     "EmbedderProtocol",
+    "LegalCorrespondenceRequest",
+    "LegalCorrespondenceResult",
+    "LegalSubjectAnnotationSource",
+    "LegalSubjectIdentity",
+    "LegalSubjectMembership",
+    "LegalSubjectMembershipSource",
     "MethodCatalogDependencyAuthorityRequest",
     "MethodRouteConstraint",
     "InputContractMethodSelection",
     "select_method_for_input_contract",
     "SentenceTransformerEmbedder",
     "TFIDFEmbedder",
+    "bind_legal_subject_annotations",
     "build_method_catalog_provenance_manifest",
     "build_method_catalog_runtime_identity",
     "compile",
     "compile_program",
     "execute",
     "method_accepts_input_contract",
+    "persist_legal_correspondence_result",
+    "persist_legal_subject_annotations",
+    "persist_legal_subject_membership_source",
+    "produce_legal_subject_spine",
+    "recognize_legal_correspondence",
     "select_method_candidates_for_requirements",
 ]
 
@@ -64,6 +92,30 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "EmbedderProtocol": (
         "polisyos.foundry.methods.backends.protocol",
         "EmbedderProtocol",
+    ),
+    "LegalCorrespondenceRequest": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "LegalCorrespondenceRequest",
+    ),
+    "LegalCorrespondenceResult": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "LegalCorrespondenceResult",
+    ),
+    "LegalSubjectAnnotationSource": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "LegalSubjectAnnotationSource",
+    ),
+    "LegalSubjectIdentity": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "LegalSubjectIdentity",
+    ),
+    "LegalSubjectMembership": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "LegalSubjectMembership",
+    ),
+    "LegalSubjectMembershipSource": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "LegalSubjectMembershipSource",
     ),
     "MethodCatalogDependencyAuthorityRequest": (
         "polisyos.foundry.methods.catalog.dependency_authority",
@@ -81,6 +133,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.backends.protocol",
         "TFIDFEmbedder",
     ),
+    "bind_legal_subject_annotations": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "bind_legal_subject_annotations",
+    ),
     "build_method_catalog_provenance_manifest": (
         "polisyos.foundry.methods.catalog.snapshot",
         "build_method_catalog_provenance_manifest",
@@ -95,6 +151,26 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "method_accepts_input_contract": (
         "polisyos.foundry.methods.selection",
         "method_accepts_input_contract",
+    ),
+    "persist_legal_correspondence_result": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "persist_legal_correspondence_result",
+    ),
+    "persist_legal_subject_annotations": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "persist_legal_subject_annotations",
+    ),
+    "persist_legal_subject_membership_source": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "persist_legal_subject_membership_source",
+    ),
+    "produce_legal_subject_spine": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "produce_legal_subject_spine",
+    ),
+    "recognize_legal_correspondence": (
+        "polisyos.foundry.validation.legal_correspondence",
+        "recognize_legal_correspondence",
     ),
     "select_method_candidates_for_requirements": (
         "polisyos.foundry.methods.selection",

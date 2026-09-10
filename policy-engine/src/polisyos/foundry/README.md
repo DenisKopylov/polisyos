@@ -40,6 +40,9 @@ agent-sim tooling.
 - [calibration/README.md](calibration/README.md) for measurement-aware fit
   loops and uncertainty hand-off.
 
+- [validation/README.md](validation/README.md) for legal subject recognition
+  against independently addressed membership sources, before numeric checks.
+
 - [agent_sim/README.md](agent_sim/README.md) for low-level ABM/RL executors and
   wiring.
 
@@ -63,6 +66,20 @@ The route interface's stable import boundary does not grant evidence authority.
 Its output remains a candidate search constraint; it certifies neither a source
 manifest nor observed data, causal effects, legal admissibility, or promotion.
 Internal method-selection implementation paths retain their existing maturity.
+
+Legal correspondence uses the `LegalCorrespondenceRequest` and
+`LegalCorrespondenceResult` facade contracts, with `LegalSubjectIdentity`,
+`LegalSubjectMembership`, and `LegalSubjectMembershipSource` for its source data.
+`persist_legal_subject_membership_source()` persists separate source tables;
+`produce_legal_subject_spine()` binds their content-addressed references without
+accepting a proposed mapping. `recognize_legal_correspondence()` compares subjects,
+and `persist_legal_correspondence_result()` retains the result for audit.
+Frozen annotation sources use `LegalSubjectAnnotationSource`,
+`persist_legal_subject_annotations()`, and `bind_legal_subject_annotations()` to
+bind independently declared annotations to current entity content.
+Recognition is relative to the addressed source. Synthetic provenance remains
+explicit, and neither synthetic data nor an unverified authority reference grants
+legal authority.
 
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of

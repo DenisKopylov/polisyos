@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "command": ".venv/bin/python -m docs.superpowers.journals.corr-evidence.a.cg3_surface_census",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.a.cg3_surface_census"
+  ],
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "returncode": 0,
+  "capture_returncode": 0,
+  "elapsed_seconds": 114.57468533399515,
+  "timeout_seconds": 120.0,
+  "timed_out": false,
+  "stdout": "{\n  \"consumer_crosscheck\": \"lexical whole-source tokens vs complete Python AST walk\",\n  \"historical_artifact_denominator\": \"architecture/**/*.json\",\n  \"historical_body_count\": 0,\n  \"historical_crosscheck\": \"iterative complete object walk vs JSON object-hook\",\n  \"json_files\": 510,\n  \"path_crosscheck\": \"os.walk vs Path.rglob exact sets\",\n  \"python_files\": 3070,\n  \"python_path_and_type_denominator\": \"src/**/*.py + tools/**/*.py\",\n  \"receiving_exporting_sources\": [\n    \"src/polisyos/runtime/quality/design_generation.py\",\n    \"src/polisyos/runtime/quality/grounding_active_controller.py\",\n    \"src/polisyos/runtime/quality/grounding_admission.py\",\n    \"tools/quality/validation/check_grounding_active_controller_contract.py\",\n    \"tools/quality/validation/check_grounding_admission_contract.py\"\n  ],\n  \"status\": \"pass\",\n  \"v1_full_certificate_bodies\": []\n}\n",
+  "stderr": ""
+}

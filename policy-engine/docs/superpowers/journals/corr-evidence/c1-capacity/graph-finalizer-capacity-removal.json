@@ -1,0 +1,18 @@
+{
+  "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+  "PYTHONPATH": ".:src",
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "docs.superpowers.journals.corr-evidence.c1-capacity.graph_finalizer_removal"
+  ],
+  "capture_returncode": 1,
+  "credential_scan_before_write": true,
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine",
+  "elapsed_seconds": 3.035651082987897,
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_finalizer_removal.py\", line 31, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_finalizer_removal.py\", line 26, in main\n    test_capacity_refusal_preserves_inputs_and_publishes_no_graph(root / \"removed\")\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/tests/unit/data_forge/domains/academic/batch/test_campaign_graph_finalization.py\", line 184, in test_capacity_refusal_preserves_inputs_and_publishes_no_graph\n    with pytest.raises(GraphCapacityError, match=\"max_record_bytes\"):\n         ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/lib/python3.14/site-packages/_pytest/raises.py\", line 710, in __exit__\n    fail(f\"DID NOT RAISE {self.expected_exceptions[0]!r}\")\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-corr/policy-engine/.venv/lib/python3.14/site-packages/_pytest/outcomes.py\", line 163, in __call__\n    raise Failed(msg=reason, pytrace=pytrace)\nFailed: DID NOT RAISE <class 'polisyos.data_forge.domains.academic.batch._graph_staging.GraphCapacityError'>\n",
+  "stdout": "{\"synthetic\": true, \"control\": \"valid\", \"removed_property\": \"actual_staging_capacity_check\", \"declared_limits_and_receipt_markers\": \"preserved\"}\n",
+  "timed_out": false,
+  "timeout_seconds": 120.0
+}

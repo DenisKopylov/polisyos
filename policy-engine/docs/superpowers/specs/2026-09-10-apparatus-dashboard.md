@@ -466,3 +466,45 @@ The failure/repair register was reopened before this Stage 1 closeout. No new
 pattern is needed: P29/P35/P37/P38/P40/P41 already cover the distinction between a
 completed suite, an unavailable individual measurement, station provenance, and
 unestablished root cause.
+
+## Stage 2 addendum: native accessibility measurement
+
+The exact single-file coverage replay reproduced the same timeout: exit 1,
+47.31s Vitest duration, 37.172s test, `raw/a11y-targeted-baseline.log`. A scratch
+copy instrumenting the actual awaited operations measured two JSDOM axe runs at
+14.595s and 11.877s over the complete body populations of 2,444 and 2,711 elements;
+that run passed in 27.26s against the same 30s test deadline
+(`raw/a11y-timing-probe-bound-deps.log`, exit 0, 33.65s Vitest). This is a
+measurement station operating near its watchdog, not an established product
+accessibility defect or fake-timer problem.
+
+Compose the existing `vitest.confidence-ledger-browser.config.ts` Browser Mode
+owner already reached by the full suite and provisioned with Chromium in CI. A
+scratch test under that exact owner configuration used the same component, same
+OpenAPI example, same dialog interaction, and the same two unfiltered zero-axe-
+violation assertions. Browser-native `axe-core` is already declared in the
+dashboard package; use it directly because the JSDOM `vitest-axe` wrapper imports
+Node `createRequire` and cannot execute in Browser Mode. Do not add a dependency.
+
+Positive browser receipt: `raw/a11y-browser-native-axe-probe.log`, exit 0, test
+3.02s, wall 5.31s. Negative control: remove `aria-labelledby` and `aria-label`
+from the actual rendered dialog, retaining all measurement/assertion code; the
+second assertion fails with `aria-dialog-name`, exit 1, test 3.59s, wall 6.37s
+(`raw/a11y-browser-dialog-name-negative.log`). Initial scratch package-resolution
+and Node-wrapper-import failures remain explicit probe setup non-receipts in
+`raw/a11y-timing-probe.log` and `raw/a11y-browser-probe.log`.
+
+After this addendum is committed and read back by root, rename
+`ConfidenceLedgerRiskSpend.a11y.test.tsx` to
+`ConfidenceLedgerRiskSpend.a11y.browser.test.tsx` in the same component directory.
+Import the identical OpenAPI document statically, following the existing browser
+twin test; import `axe-core` and call `axe.run(document.body)`; use browser-safe
+visibility matchers. Add that exact filename to the existing browser project's
+include array. Keep the **30,000ms** explicit deadline and both assertions; no
+rule exclusion, reduced DOM, test deletion or product component change. The
+existing unit exclusion for `.browser.test` routes it once into Browser Mode,
+while `test:coverage` still includes it through the same projects array. Existing
+Chromium setup already covers this additional browser test. All lanes retain
+the same suite watcher and coverage ratchet; no package/lock/workflow change.
+The native browser project's output directory must stay under ignored `_build`
+or this lane's ignored raw scratch, including failure screenshots/attachments.

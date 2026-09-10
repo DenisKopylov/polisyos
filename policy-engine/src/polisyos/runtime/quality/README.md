@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-08-28
+- Last updated: 2026-09-10
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 authority/status composition, evidence and claim binding, replay, closeout
@@ -96,6 +96,16 @@ Boundary notes:
   typed `policy_admission_missing` result; the invocation implements the
   producer/consumer capability without establishing a positive epoch policy,
   custody, projection or whole-history authenticity claim.
+- `acquisition_epoch_admission.py` is an internal operational module CLI. It resolves
+  the configured canonical acquisition provision, invokes the existing complete
+  semantic-epoch producer from persisted evidence refs, and reads its exact durable
+  negative receipt before JSON output. `policy_admission_missing` remains a refusal;
+  this caller grants no positive epoch authority.
+- `epoch_custody_audit.py` is an internal module CLI that invokes the existing
+  no-argument custody provider, persists the candidate request and exact typed
+  result, and reads both back before emitting an audit reference. The no-holder
+  and no-acceptance-owner outcomes remain `not_established`; audit persistence
+  does not authenticate the opaque history references.
 - `semantic_epoch_store.py` is the epoch family's append-only native history
   repository. Its compare-and-append head index and full-prefix reconstruction
   never become a shared physical chronology log or an authority head.

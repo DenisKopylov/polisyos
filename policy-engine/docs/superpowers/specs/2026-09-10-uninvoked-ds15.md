@@ -61,7 +61,7 @@ Source anchors for U15-F01–F03 are
 | `admit_acquisition_with_production_semantic_epoch` | Wire through new `src/polisyos/runtime/quality/acquisition_epoch_admission.py:main` | `python -m polisyos.runtime.quality.acquisition_epoch_admission --request REQUEST.json`; consumes real persisted input refs, invokes the existing complete producer and prints an exact-read persisted owner receipt. |
 | `CanonicalAcquisitionAuthority.from_provision` | Same new module resolves the provision from its configured authority repository and baseline file | Same CLI; no caller-supplied authority object or trust-anchor digest. Existing provision validation remains authoritative. |
 | `SemanticEpochService`, `SemanticEpochQualificationAdapter`, `QualificationConsumer.qualify`, `persist_semantic_epoch_production_receipt` | Existing `admit_acquisition_with_production_semantic_epoch` remains their composition caller; the new CLI makes that caller reachable | Same CLI; negative qualification is persisted by the existing producer. No new predicate signer, policy admission, positive history or activation route. |
-| `AgentActionAuthorityGateway` and `CurrentMandateOwnerEvidence` intake | **Deferred with a name: `DS15-MANDATE-INTAKE`**, owned by `team-runtime` with the external mandate institution supplying signed currentness/delegation evidence | Future production provider is `runtime/http/services/acquisition_authority_provider.py:ProductionAcquisitionAuthorityProvider`, installed through the existing `RuntimeContainerOverrides.acquisition_authority_provider` seam by the deployment app factory. Terminus must be the existing served acquisition decision-request and execute routes, including worker replay. |
+| `AgentActionAuthorityGateway` and `CurrentMandateOwnerEvidence` intake | **Deferred with a name: `DS15-MANDATE-INTAKE`**, owned by `team-runtime` with the external mandate institution supplying signed currentness/delegation evidence | Future production provider is `runtime/http/services/acquisition_authority_provider.py:ProductionAcquisitionAuthorityProvider`, composed through a governed deployment-factory extension owned by that task. `RuntimeContainerOverrides` is forbidden by ordinary non-dev app creation and is not the production route. Terminus must be the existing served acquisition decision-request and execute routes, including worker replay. |
 | `AcquisitionAuthorityGatewayProvider` | Same `DS15-MANDATE-INTAKE` task; the Protocol is not a caller | Must use both `for_request` and `for_job`, return the actual gateway and consume its persisted decision; a provider constructed only by tests will not close the task. |
 | `RealAcquisitionOwnerGateway`, `RecordedAcquisitionOwnerGateway`, temporal query composition | Existing callers; no source modification in this lane | Separate data-production / served temporal paths, measured by the root census; no DS15 mandate-authority claim is made from them. |
 
@@ -76,6 +76,21 @@ identity and exact run/resource context. Copying the test helper's private seal
 or writing a synthetic DS20 proof in a CLI would manufacture the floor the
 gateway exists to enforce. A gateway-independent missing-provider receipt
 would still leave the gateway uninvoked.
+
+**U15-F06 — the apparent alternate-embedding seam is explicitly forbidden in
+production.** A follow-up read of `runtime/http/app.py:create_runtime_api_app`
+establishes that any non-`None` `container_overrides` is placed in
+`direct_non_development_authority` and rejected when the default profile is
+not `dev`. The admitted `RuntimeDeploymentSecurity` class in
+`runtime/http/deployment_security.py` carries identity, cells, OPA, step-up,
+principal grants and human-decision custody; it carries no acquisition
+authority provider. Therefore simply writing an alternate app factory with the
+existing override is a development caller, and bypassing the guarded factory
+would cross the closed bootstrap authority boundary. This corrects the initial
+future-route inference in this decision; no signed-gateway source was written
+under that inference. `DS15-MANDATE-INTAKE` must first create the sanctioned
+governed deployment composition, with its owner revisiting the closed bootstrap
+surface explicitly. The absence is engineering as well as institutional.
 
 The missing task is not merely “appoint an owner.” `DS15-MANDATE-INTAKE` must
 build the purpose-specific typed-empty intake, independently verify and

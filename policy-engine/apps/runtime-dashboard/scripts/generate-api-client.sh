@@ -32,14 +32,11 @@ fi
 OPENAPI_FILE="${PROJECT_ROOT}/schemas/runtime_api_v1.openapi.json"
 OUT_FILE="${OUTPUT_ROOT}/apps/runtime-dashboard/src/api/types.ts"
 
-if command -v pnpm > /dev/null 2>&1; then
-  PNPM=(pnpm)
-elif command -v corepack > /dev/null 2>&1; then
-  PNPM=(corepack pnpm)
-else
-  echo "pnpm or corepack is required to run openapi-typescript" >&2
-  exit 1
+if ! command -v corepack > /dev/null 2>&1; then
+  echo "UNRUN: corepack is required to run the locked openapi-typescript" >&2
+  exit 2
 fi
+PNPM=(corepack pnpm --dir "${PROJECT_ROOT}/apps/runtime-dashboard")
 
 mkdir -p "$(dirname "${OUT_FILE}")"
 "${PNPM[@]}" exec openapi-typescript "${OPENAPI_FILE}" --output "${OUT_FILE}"

@@ -39,7 +39,8 @@ CANONICAL_JS_OUT="${OUTPUT_ROOT}/packages/runtime-api-client/canonicalRuntimeApi
 mkdir -p "$(dirname "${TYPES_OUT}")"
 cd "${PROJECT_ROOT}"
 
-npx --yes openapi-typescript@7.13.0 "${OPENAPI_FILE}" -o "${TYPES_OUT}"
+corepack pnpm --dir "${PROJECT_ROOT}/apps/runtime-dashboard" exec openapi-typescript \
+  "${PROJECT_ROOT}/${OPENAPI_FILE}" -o "${TYPES_OUT}"
 node packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs \
   --types "${TYPES_OUT}"
 PYTHONPATH=src:. "${PROJECT_ROOT}/.venv/bin/python" \

@@ -549,17 +549,20 @@ def _build_run_fingerprint(
     )
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    args = _parse_args(argv)
+def _run(args: argparse.Namespace) -> int:
     _handle_deprecated_single_model_mode(args)
 
     entries = select_abi_entries(args.models, include_deprecated=args.include_deprecated)
     if not entries:
+        if args.check:
+            raise GenerationError("No ABI entries selected; no snapshots were measured.")
         print("No ABI entries selected. Nothing to do.")
         return 0
 
     resolved_entries = _resolve_entries(entries)
     if not resolved_entries:
+        if args.check:
+            raise GenerationError("No ABI entries resolved; no snapshots were measured.")
         print("No ABI entries selected. Nothing to do.")
         return 0
 
@@ -569,7 +572,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             changed_sources, _ = _changed_source_scope(args.git_base_ref)
         except ValueError as exc:
-            print(f"ABI schema snapshot generation failed: {exc}", file=sys.stderr)
+            print(f"ABI schema snapshot check UNRUN: {exc}", file=sys.stderr)
             return 2
 
     # Git scope and saved baselines are diagnostic metadata, not sufficient
@@ -655,6 +658,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"({total_updates} file updates, scan_mode={scan_mode})"
     )
     return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Return a measured verdict, or exit 2 when schema execution is unavailable."""
+    args = _parse_args(argv)
+    try:
+        return _run(args)
+    except Exception as error:
+        # Exit 1 belongs only to a completed artifact comparison. Every producer
+        # (models, references, cache I/O) must complete before that verdict exists.
+        print(
+            f"ABI schema snapshot check UNRUN: {type(error).__name__}: {error}",
+            file=sys.stderr,
+        )
+        return 2
 
 
 if __name__ == "__main__":

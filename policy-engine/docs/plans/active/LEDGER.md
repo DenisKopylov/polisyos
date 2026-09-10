@@ -128,7 +128,7 @@ GY standing receipts (recognized hits/final line): `GY-DEF1`=2@3073, `GY-DEF2`=2
 | ladder | task ids | indexed here | why |
 | --- | ---: | ---: | --- |
 | Atlas slice sequence | 21 | 5 | open slices only; closed ones stay in the master plan |
-| `GY-engine-subordination.md` | 74 | 7 | indexed from the authoritative task-standing table (§8.5), recomputed every run: blocked=5, executed=50, not_executed=2, not_started=17. Only non-terminal rows are listed above. |
+| `GY-engine-subordination.md` | 74 | 7 | indexed from the authoritative task-standing table (§8.5), recomputed every run: blocked=5, executed=55, not_executed=2, not_started=12. Only non-terminal rows are listed above. |
 | 16 further plans (Foundry, Fabric, Scientist, UPDC, Layer2/3, …) | 213 | 0 | dormant lanes; out of the declared scope, counted so the remainder is visible |
 
 Measured 2026-08-23 across `docs/plans/active/**`: **271 task ids in 18 plans**. This ledger

@@ -4042,6 +4042,13 @@
       "target_root": "ir"
     },
     {
+      "source_module": "polisyos.fabric.evidence.acquisition_assurance",
+      "source_root": "fabric",
+      "source_file": "src/polisyos/fabric/evidence/acquisition_assurance.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.fabric.evidence.decision_data",
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/evidence/decision_data.py",

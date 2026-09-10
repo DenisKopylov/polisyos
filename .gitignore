@@ -142,3 +142,6 @@ policy-engine/docs/superpowers/journals/gy-builders/**/raw/
 **/.pnpm-store/
 .pnpm-state/
 **/.pnpm-debug.log
+
+# Local full gate evidence for the GY lattice lane.
+policy-engine/docs/superpowers/journals/gy-lattice/**/raw/

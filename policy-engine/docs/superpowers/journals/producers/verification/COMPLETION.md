@@ -49,3 +49,24 @@ raw/pnpm-install.log. The ordinary test command will be `uv run pytest` with nam
 Pending fresh Stage 2 verification; the decision documents distinguish existing mechanisms
 from missing appointments, coverage limits and missing authority capabilities. Completion
 will be recorded per row only after reading branch artifacts and actual gate results.
+
+## Stage 1 commit boundary
+
+The Claim Ledger, global-index and Atlas decisions plus the raw ignore policy were
+committed at `cc79d84fd70466c15d9c5b371a3d81a69397293e`. Root asserted attached branch
+identity and compared every committed file's `git show HEAD:path` bytes to its worktree
+bytes after commit. All matched. Source and tests remained at the lane base. Independent
+Atlas spec review found no consequential gap; it confirmed the signature-corruption
+negative reaches the live GET and drives the real route indicator.
+
+The complete production_invocation audit returned 0, with equal base/current hashes
+over 5,669 tracked src/tools/tests Python files and no regressions; receipt
+`raw/base-invocation.json@sha256:d85dd870812f1655103135454c3bf1cbfdcc86602b182448664424801100b099`.
+It reports target HTTP/callback methods as uninvoked under its documented static model.
+This is not source absence and not wiring proof. The separate AST source census and
+real HTTP gates resolve that distinction. The 7.7 MB recomputable view stays ignored.
+
+Foundry is sequenced after the initial three research scopes. Its actual proposed task
+is `FR-AUTH-01` in `docs/plans/active/foundry-runtime-authority.md`. This is an active-plan
+proposal created under the scheduling option, not an architect appointment or row-link
+receipt. Architect acceptance, allocation and linkage remain outstanding.

@@ -1,0 +1,10 @@
+{
+  "base": "43580c80b",
+  "copy": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/checkout",
+  "tar_file_members": 11067,
+  "independent_git_blob_count": 11067,
+  "all_tracked_bytes_match": true,
+  "mismatches": [],
+  "elapsed_seconds": 3.063,
+  "venv": "read-only dependency symlink to lane station; PYTHONPATH will bind copied source"
+}

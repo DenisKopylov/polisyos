@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c3_consumer_removal",
+    "replay"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T17:06:20.941703+00:00",
+  "elapsed_seconds": 243.048,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "Removed actual MethodBackend replay; bytes, schemas, refs and lineage checks retained.\n..FF.F.....                                                              [100%]\n=================================== FAILURES ===================================\n_ test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[result] _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:178: in test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact\n    with pytest.raises(ValueError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_ test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[evidence] _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:178: in test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact\n    with pytest.raises(ValueError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_ test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[seed] _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:178: in test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact\n    with pytest.raises(ValueError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[result]\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[evidence]\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[seed]\n",
+  "stderr": ""
+}

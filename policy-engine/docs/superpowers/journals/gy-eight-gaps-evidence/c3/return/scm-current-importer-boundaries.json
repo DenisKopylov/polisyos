@@ -1,0 +1,36 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/integration/foundry_scientist/test_method_node_bridge.py::test_foundry_method_registry_entry_executes_through_scientist_node",
+    "tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_phase2_estimate_consumes_real_foundry_method_output_with_measurement_authority",
+    "tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_foundry_consumer_rejects_untyped_synthetic_string_as_measurement_root",
+    "tests/unit/scientist/methods/causal/test_causal_evaluation_node.py::test_causal_evaluation_node_success",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_explicit_causal_method_uses_contract_route_not_value_population",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_default_method_accepts_actual_recorded_input_and_report_port",
+    "tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_method_input_roundtrips_measured_and_assumed_fields",
+    "tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_data_only_recipe_growth_uses_real_source_values",
+    "tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_fabricated_values_are_refused_with_all_markers",
+    "tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_novel_entities_and_unknown_owner_fail_closed"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T10:42:17.522785+00:00",
+  "elapsed_seconds": 133.26,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "FFFF......                                                               [100%]\n=================================== FAILURES ===================================\n______ test_foundry_method_registry_entry_executes_through_scientist_node ______\ntests/integration/foundry_scientist/test_method_node_bridge.py:69: in test_foundry_method_registry_entry_executes_through_scientist_node\n    assert outcome.status == \"ok\"\nE   AssertionError: assert 'fail' == 'ok'\nE     \nE     - ok\nE     + fail\n_ test_phase2_estimate_consumes_real_foundry_method_output_with_measurement_authority _\ntests/integration/runtime_quality/test_workspace_foundry_consumption.py:62: in test_phase2_estimate_consumes_real_foundry_method_output_with_measurement_authority\n    assert outcome.status == \"ok\"\nE   AssertionError: assert 'fail' == 'ok'\nE     \nE     - ok\nE     + fail\n__ test_foundry_consumer_rejects_untyped_synthetic_string_as_measurement_root __\ntests/integration/runtime_quality/test_workspace_foundry_consumption.py:121: in test_foundry_consumer_rejects_untyped_synthetic_string_as_measurement_root\n    assert outcome.status == \"ok\"\nE   AssertionError: assert 'fail' == 'ok'\nE     \nE     - ok\nE     + fail\n_____________________ test_causal_evaluation_node_success ______________________\ntests/unit/scientist/methods/causal/test_causal_evaluation_node.py:98: in test_causal_evaluation_node_success\n    assert outcome.status == \"ok\"\nE   AssertionError: assert 'fail' == 'ok'\nE     \nE     - ok\nE     + fail\n==================================== PASSES ====================================\n_ test_phase2_explicit_causal_method_uses_contract_route_not_value_population __\n=========================== short test summary info ============================\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_explicit_causal_method_uses_contract_route_not_value_population\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_phase2_default_method_accepts_actual_recorded_input_and_report_port\nPASSED tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_method_input_roundtrips_measured_and_assumed_fields\nPASSED tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_data_only_recipe_growth_uses_real_source_values\nPASSED tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_fabricated_values_are_refused_with_all_markers\nPASSED tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_panel_novel_entities_and_unknown_owner_fail_closed\nFAILED tests/integration/foundry_scientist/test_method_node_bridge.py::test_foundry_method_registry_entry_executes_through_scientist_node\nFAILED tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_phase2_estimate_consumes_real_foundry_method_output_with_measurement_authority\nFAILED tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_foundry_consumer_rejects_untyped_synthetic_string_as_measurement_root\nFAILED tests/unit/scientist/methods/causal/test_causal_evaluation_node.py::test_causal_evaluation_node_success\n",
+  "stderr": ""
+}

@@ -136,8 +136,40 @@ async def test_openalex_no_hit_query_records_trace_and_frontier(
     assert bundle.no_hit_frontier
     assert bundle.no_hit_frontier[0].provider == "openalex"
     assert bundle.no_hit_frontier[0].reason == "provider_returned_no_hits"
-    rows = con.execute(
-        "SELECT query, provider, reason FROM ac_skg_no_hit_frontier"
-    ).fetchall()
+    rows = con.execute("SELECT query, provider, reason FROM ac_skg_no_hit_frontier").fetchall()
     assert rows == [(brief.question, "openalex", "provider_returned_no_hits")]
     con.close()
+
+
+@pytest.mark.asyncio
+async def test_openalex_provider_exposes_complete_raw_work_population_from_actual_fetch(
+    monkeypatch,
+) -> None:
+    import hashlib
+
+    from polisyos.scholar.search import providers
+
+    payload = _fixture("credit_guarantee_firm_survival.json")
+    body = json.dumps(payload)
+    calls = []
+
+    async def recorded(url, *, headers, timeout_s):
+        calls.append(url)
+        return body
+
+    monkeypatch.setattr(providers, "_read_url_text", recorded)
+    provider = providers.OpenAlexWorksProvider()
+    result = await provider.search_with_works(
+        "loan guarantees SMEs firm survival impact evaluation",
+        constraints=SearchConstraints(source_types=["academic"]),
+        max_results=5,
+        timeout_s=5,
+    )
+    assert len(calls) == 1
+    assert result.raw_response == payload
+    assert result.response_sha256 == hashlib.sha256(body.encode()).hexdigest()
+    assert {work.openalex_id for work in result.works} == {row["id"] for row in payload["results"]}
+    assert {str(hit.url) for hit in result.hits} == {row["id"] for row in payload["results"]}
+    assert all(
+        work.raw_work == row for work, row in zip(result.works, payload["results"], strict=True)
+    )

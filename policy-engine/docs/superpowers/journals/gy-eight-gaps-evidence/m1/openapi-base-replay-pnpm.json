@@ -1,0 +1,14 @@
+{
+  "command": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--offline"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/checkout/policy-engine",
+  "elapsed_seconds": 5.298,
+  "returncode": 0,
+  "stdout": "Scope: all 6 workspace projects\nLockfile is up to date, resolution step is skipped\nProgress: resolved 1, reused 0, downloaded 0, added 0\nPackages: +1215\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\nProgress: resolved 1215, reused 1213, downloaded 0, added 95\nProgress: resolved 1215, reused 1213, downloaded 0, added 527\nProgress: resolved 1215, reused 1213, downloaded 0, added 747\nProgress: resolved 1215, reused 1213, downloaded 0, added 1189\nProgress: resolved 1215, reused 1213, downloaded 0, added 1215, done\n\napps/runtime-dashboard prepare$ node ../../tools/devx/install_repo_hooks.mjs\napps/runtime-dashboard prepare: Done\n\u256d Warning \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502                                                                              \u2502\n\u2502   Ignored build scripts: @sentry/cli@2.58.5, esbuild@0.25.12,                \u2502\n\u2502   esbuild@0.27.7, lefthook@2.1.6, msw@2.14.2, unrs-resolver@1.11.1.          \u2502\n\u2502   Run \"pnpm approve-builds\" to pick which dependencies should be allowed     \u2502\n\u2502   to run scripts.                                                            \u2502\n\u2502                                                                              \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\nDone in 5.2s using pnpm v10.33.2\n",
+  "stderr": ""
+}

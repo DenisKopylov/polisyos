@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class DistributionResult(BaseModel):
@@ -241,6 +242,67 @@ class MetricBindingMatch(BaseModel):
     execution_tier: str = "catalog"
     source: str = ""
     title: str = ""
+
+
+class CatalogContentIdentity(BaseModel):
+    """Pin bytes of one catalog input without granting those bytes new authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_path: str = Field(min_length=1)
+    content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    byte_size: int = Field(gt=0)
+
+
+class CatalogFetchBinding(BaseModel):
+    """Bind an executable tuple to the actual baseline/overlay catalog read."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.data_forge.catalog_fetch_binding.v1"] = (
+        "polisyos.data_forge.catalog_fetch_binding.v1"
+    )
+    baseline: CatalogContentIdentity
+    overlay_path: str | None
+    overlay: CatalogContentIdentity | None
+    metric_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    profile_id: str | None
+    requested_filters: dict[str, list[str]]
+    binding: MetricBindingMatch | None
+    target: ResolvedFetchTarget
+    predicate_basis: Literal["recomputed"] = "recomputed"
+
+
+class CatalogFetchRequest(BaseModel):
+    """One exact tuple submitted to catalog admission, independent of transport."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    metric_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    profile_id: str | None
+    filters: dict[str, list[str]]
+
+
+class CatalogFetchResolution(BaseModel):
+    """An ordered bulk outcome; unreadable source rows never become unsupported."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    request: CatalogFetchRequest
+    status: Literal["bound", "not_admitted", "ambiguous"]
+    binding: CatalogFetchBinding | None = None
+    reason: str | None = None
+
+    @model_validator(mode="after")
+    def _consistent_outcome(self) -> CatalogFetchResolution:
+        if self.status == "bound":
+            if self.binding is None or self.reason is not None:
+                raise ValueError("bound outcome requires its binding and no refusal reason")
+        elif self.binding is not None or not self.reason:
+            raise ValueError("non-bound outcome requires a reason and no binding")
+        return self
 
 
 class DatasetMatch(BaseModel):

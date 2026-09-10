@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.f1.semantic_delta"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:05:02.020128+00:00",
+  "elapsed_seconds": 50.89,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"committed_sha256\": \"42abe79cd8c85bcaac14f4da19aba0bc4042a6eedfb0d9d39f9b92168f810f81\", \"committed_source\": \"architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs_v2.json\", \"complete_semantic_delta\": [], \"receipt_sha256\": \"2507523725f333a6f89d9e38fbea34889bd67ac0414866650250d9e0a7397542\", \"recomputed_payload_sha256\": \"06afc7f84306ab8490659e2b2e67b5024ed1a805629d6678fcc555d06a538eca\", \"recomputed_source\": \"_build/gy-gaps/f1/canonical-check.json::stdout.recomputed_proofs\"}\n",
+  "stderr": ""
+}

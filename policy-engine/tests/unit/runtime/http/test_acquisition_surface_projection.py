@@ -38,6 +38,35 @@ def _sources() -> dict[str, dict[str, object]]:
     }
 
 
+def test_acquisition_growth_admits_the_current_governed_epoch() -> None:
+    sources = _sources()
+    assert sources["executor_contract"]["schema_version"].endswith(".v5")
+    assert sources["lifecycle_manifest"]["schema_version"].endswith(".v3")
+
+    payload = build_acquisition_growth_projection(**sources)
+
+    assert payload.n13b_history.admission == "not_reached"
+    assert payload.n13b_history.world_growth == "no_growth"
+
+
+@pytest.mark.parametrize("previous_epoch", ["executor_contract", "lifecycle_manifest", "both"])
+def test_acquisition_growth_refuses_previous_epochs_at_current_admission(
+    previous_epoch: str,
+) -> None:
+    sources = _sources()
+    if previous_epoch in {"executor_contract", "both"}:
+        sources["executor_contract"]["schema_version"] = (
+            "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
+        )
+    if previous_epoch in {"lifecycle_manifest", "both"}:
+        sources["lifecycle_manifest"]["schema_version"] = (
+            "policyos.layer3.gy.n13b.lifecycle_manifest.v2"
+        )
+
+    with pytest.raises(ValueError, match="acquisition_growth_source_schema_mismatch"):
+        build_acquisition_growth_projection(**sources)
+
+
 def test_acquisition_growth_preserves_structural_and_data_denominators() -> None:
     """DS15-STRUCTURAL-NOT-DATA and DS15-BINDING-NOT-DATA."""
 

@@ -1,0 +1,33 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_replays_actual_method_owner_and_preserves_raw_byte_custody",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[cost]",
+    "tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_conditional_output_adapter_preserves_verified_refusal_as_separate_artifact",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_playbook_admission_requires_produced_output_and_reuses_checked_execution",
+    "tests/unit/fabric/test_retrieval_fetch_custody.py::test_persisted_fetch_carries_complete_payload_and_actual_catalog",
+    "tests/unit/fabric/test_retrieval_fetch_custody.py::test_dataframe_payload_roundtrip_preserves_entire_table",
+    "tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T09:57:37.431284+00:00",
+  "elapsed_seconds": 119.598,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": ".......                                                                  [100%]\n==================================== PASSES ====================================\n_ test_foundry_consumer_replays_actual_method_owner_and_preserves_raw_byte_custody _\n_ test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[cost] _\n____________ test_real_measurement_root_resolves_and_binds_into_n9 _____________\n=========================== short test summary info ============================\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_replays_actual_method_owner_and_preserves_raw_byte_custody\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact[cost]\nPASSED tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_conditional_output_adapter_preserves_verified_refusal_as_separate_artifact\nPASSED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_playbook_admission_requires_produced_output_and_reuses_checked_execution\nPASSED tests/unit/fabric/test_retrieval_fetch_custody.py::test_persisted_fetch_carries_complete_payload_and_actual_catalog\nPASSED tests/unit/fabric/test_retrieval_fetch_custody.py::test_dataframe_payload_roundtrip_preserves_entire_table\nPASSED tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9\n",
+  "stderr": ""
+}

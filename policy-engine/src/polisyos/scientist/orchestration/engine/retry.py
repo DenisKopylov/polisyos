@@ -37,7 +37,11 @@ from polisyos.scientist.orchestration.engine.errors import (
     NodeTimeoutError,
     RetryExhaustedError,
 )
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeOutcome,
+    decode_node_outcome,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -368,7 +372,7 @@ def _execute_with_timeout_process(
         result_queue.join_thread()
 
     if status == "ok":
-        return NodeOutcome.model_validate(payload)
+        return decode_node_outcome(payload)
     if status == "error":
         raise RuntimeError(str(payload))
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
@@ -415,7 +419,7 @@ async def _execute_with_timeout_process_async(
         result_queue.join_thread()
 
     if status == "ok":
-        return NodeOutcome.model_validate(payload)
+        return decode_node_outcome(payload)
     if status == "error":
         raise RuntimeError(str(payload))
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")

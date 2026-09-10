@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from polisyos.foundry.methods.backends.dispatch import (
         BackendNotAvailableError,
         MethodDispatcher,
+        estimate_method_execution_cost_usd,
     )
     from polisyos.foundry.methods.backends.protocol import (
         MethodResult,
@@ -71,6 +72,7 @@ __all__ = [
     "ValidatedMethodFamily",
     "ValidatedMode",
     "ValidatedStatus",
+    "estimate_method_execution_cost_usd",
     "execute_heterogeneous_chain",
     "get_circuit_breaker_registry",
     "validated_bound_to_envelopes",
@@ -156,6 +158,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ValidatedStatus": (
         "polisyos.foundry.methods.backends.validated",
         "ValidatedStatus",
+    ),
+    "estimate_method_execution_cost_usd": (
+        "polisyos.foundry.methods.backends.dispatch",
+        "estimate_method_execution_cost_usd",
     ),
     "execute_heterogeneous_chain": (
         "polisyos.foundry.methods.backends.chain_executor",

@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.d1.fabric_removal",
+    "bulk_source"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T18:48:57.350568+00:00",
+  "elapsed_seconds": 31.252,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "REMOVED_PROPERTY bulk_source markers and real positive control retained\nF.                                                                       [100%]\n=================================== FAILURES ===================================\n______ test_bulk_catalog_owner_returns_nothing_on_mid_read_source_change _______\n\nreal_fetch_owner = namespace(service=<polisyos.fabric.retrieval.service.RetrievalService object at 0x10b0d4590>, graph=<polisyos.data_for...build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-81/test_bulk_catalog_owner_return0/overlay.duckdb'), result_updates={})\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11c7bb360>\n\n    def test_bulk_catalog_owner_returns_nothing_on_mid_read_source_change(\n        real_fetch_owner, monkeypatch\n    ):\n        owner = real_fetch_owner\n        store = owner.graph._store\n        actual = store.resolve_metric_bindings\n    \n        def changed(*args, **kwargs):\n            values = actual(*args, **kwargs)\n            owner.graph_path.write_bytes(owner.graph_path.read_bytes() + b\"changed-after-read\")\n            return values\n    \n        monkeypatch.setattr(store, \"resolve_metric_bindings\", changed)\n>       with pytest.raises(ValueError, match=\"catalog_fetch_source_changed\"):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/fabric/test_retrieval_fetch_custody.py:618: Failed\n==================================== PASSES ====================================\n=========================== short test summary info ============================\nPASSED tests/unit/fabric/test_retrieval_fetch_custody.py::test_bulk_catalog_owner_preserves_full_order_and_refuses_novel_tuple\nFAILED tests/unit/fabric/test_retrieval_fetch_custody.py::test_bulk_catalog_owner_returns_nothing_on_mid_read_source_change\n",
+  "stderr": ""
+}

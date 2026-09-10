@@ -1,0 +1,30 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/integration/foundry_scientist/test_method_node_bridge.py::test_foundry_method_bridge_refuses_absent_eval_safety_before_execution",
+    "tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+    "tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_foundry_consumer_rejects_untyped_synthetic_string_as_measurement_root",
+    "tests/unit/scientist/methods/causal/test_causal_evaluation_node.py::test_causal_evaluation_node_refuses_absent_eval_safety_before_execution"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T10:53:48.004544+00:00",
+  "elapsed_seconds": 46.742,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "....                                                                     [100%]\n==================================== PASSES ====================================\n____ test_foundry_method_bridge_refuses_absent_eval_safety_before_execution ____\n_ test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal _\n__ test_foundry_consumer_rejects_untyped_synthetic_string_as_measurement_root __\n=========================== short test summary info ============================\nPASSED tests/integration/foundry_scientist/test_method_node_bridge.py::test_foundry_method_bridge_refuses_absent_eval_safety_before_execution\nPASSED tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal\nPASSED tests/integration/runtime_quality/test_workspace_foundry_consumption.py::test_foundry_consumer_rejects_untyped_synthetic_string_as_measurement_root\nPASSED tests/unit/scientist/methods/causal/test_causal_evaluation_node.py::test_causal_evaluation_node_refuses_absent_eval_safety_before_execution\n",
+  "stderr": ""
+}

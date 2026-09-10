@@ -1765,6 +1765,44 @@ class WorkspaceContract(GyWaistModel):
     )
 
 
+class RefusedWorkspaceContract(GyWaistModel):
+    """Strict refused workspace; a separate type from an ordinary workspace.
+
+    Required null component refs cannot stand in for usable component artifacts.
+    The consumer resolves/recomputes the cited admission before using its reason.
+    Ordinary WorkspaceContract rejects this object and its raw JSON alike.
+    """
+
+    workspace_id: str = Field(..., pattern=ID_PATTERN)
+    parent_workspace_id: str | None = None
+    intent_ref: ArtifactRef
+    scope: dict[str, Any]
+    artifact_graph_ref: Literal[None] = Field(...)
+    constraint_store_ref: Literal[None] = Field(...)
+    agenda_ref: Literal[None] = Field(...)
+    frontier_ref: Literal[None] = Field(...)
+    allowed_operations: list[str]
+    budget: BudgetVector
+    recursion_policy: dict[str, Any] = Field(
+        default_factory=lambda: {
+            "max_depth": 0,
+            "max_child_workspaces": 0,
+            "decompose_allowed": False,
+        }
+    )
+    exit_requirements: dict[str, bool] = Field(
+        default_factory=lambda: {
+            "require_search_exit_contract": True,
+            "require_incompleteness_record": True,
+            "require_authority_boundaries_for_promotion": True,
+        }
+    )
+
+    component_state: Literal["unavailable"]
+    refusal_reason: str = Field(min_length=1)
+    refusal_source_admission_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
 class SearchLedgerEvent(GyWaistModel):
     """W3C-PROV-shaped event in the GY search ledger."""
 
@@ -1905,11 +1943,28 @@ class SearchCoverageRecord(_DictAccessModel):
 class SearchQualityRecord(_DictAccessModel):
     """Search-quality facts that separate domain limits from search failure."""
 
-    recall_at_known_seeds: float = Field(ge=0, le=1)
+    recall_at_known_seeds: float | None = Field(..., ge=0, le=1)
     known_seeds_missed: list[str] = Field(default_factory=list)
     freshness_ok: bool
     stale_source_classes: list[str] = Field(default_factory=list)
     semantic_benchmark_run: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def _require_unestablished_population_for_unavailable_recall(self) -> SearchQualityRecord:
+        if self.recall_at_known_seeds is None:
+            value = self.semantic_benchmark_run
+            if (
+                not isinstance(value, dict)
+                or set(value) != {"schema_version", "population_state", "request_ref", "reason"}
+                or value["schema_version"] != "policyos.gy.unestablished_search_population.v1"
+                or value["population_state"] != "not_established"
+                or not isinstance(value["request_ref"], str)
+                or not value["request_ref"]
+                or not isinstance(value["reason"], str)
+                or not value["reason"]
+            ):
+                raise ValueError("unavailable_recall_requires_typed_unestablished_population")
+        return self
 
 
 class SearchUnresolvedRecord(_DictAccessModel):
@@ -2292,6 +2347,7 @@ __all__ = [
     "OperationContract",
     "OperationInvocationRecord",
     "PortSpec",
+    "RefusedWorkspaceContract",
     "SearchBlockerRecord",
     "SearchBudgetRecord",
     "SearchCoverageRecord",

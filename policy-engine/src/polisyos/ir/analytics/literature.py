@@ -7,6 +7,7 @@ import importlib
 import json
 import re
 from collections.abc import Callable, Mapping, Sequence
+from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -197,13 +198,9 @@ class VersionedClaimVocabularyEnvelope(BaseModel):
     mechanism: str = ""
 
     design_family_hint: DesignFamily | None = None
-    design_family_hint_status: ClaimVocabularyAxisStatus = (
-        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
-    )
+    design_family_hint_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.NOT_ESTABLISHED
     evidence_strength: EvidenceStrength | None = None
-    evidence_strength_status: ClaimVocabularyAxisStatus = (
-        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
-    )
+    evidence_strength_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.NOT_ESTABLISHED
     claim_extraction_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     claim_extraction_confidence_status: ClaimVocabularyAxisStatus = (
         ClaimVocabularyAxisStatus.NOT_ESTABLISHED
@@ -330,6 +327,11 @@ class OpenAlexWorkText(BaseModel):
     content_sha256: str = ""
     raw_work: dict[str, Any] = Field(default_factory=dict)
 
+    def require_source_content(self) -> None:
+        """Require complete agreement with the selected raw OpenAlex source bytes."""
+
+        _require_openalex_source_content(self)
+
     @classmethod
     def from_openalex_work(cls, payload: dict[str, Any]) -> OpenAlexWorkText:
         """Build source text from one real OpenAlex work payload."""
@@ -406,7 +408,7 @@ class ClaimSpanGoldSet(BaseModel):
     records: list[ClaimSpanGoldRecord] = Field(default_factory=list)
 
 
-class ExtractorAccuracyReport(BaseModel):
+class LegacyExtractorAccuracyReportV1(BaseModel):
     """Measured extractor precision/recall against a governed gold set."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -422,6 +424,94 @@ class ExtractorAccuracyReport(BaseModel):
     precision: float = Field(default=0.0, ge=0.0, le=1.0)
     recall: float = Field(default=0.0, ge=0.0, le=1.0)
     matched_label_ids: list[str] = Field(default_factory=list)
+
+
+class OpenAlexSourceBindingResult(BaseModel):
+    """Custody of a candidate in selected source bytes, never semantic support."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+
+    claim_id: str
+    openalex_id: str
+    status: Literal["source_bound_candidate", "refused"]
+    authority_tier: Literal["candidate_unverified"] = "candidate_unverified"
+    semantic_support: Literal["not_established"] = "not_established"
+    source_snapshot_authenticity: Literal["not_established"] = "not_established"
+    predicate_basis: Literal["recomputed"] = "recomputed"
+    span_start: int | None = None
+    span_end: int | None = None
+    grounding_ref: str = ""
+    reason: str = ""
+
+
+class OpenAlexRecordedSource(BaseModel):
+    """One parsed recorded response bound to the exact bytes read by its owner.
+
+    Recording metadata is source-supplied custody context, not independent
+    authentication of OpenAlex or scientific support for extracted claims.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+
+    payload: dict[str, Any]
+    query: str
+    captured_at: str
+    content_sha256: str
+
+
+class OpenAlexExtractionCase(BaseModel):
+    """One declared work/query in an engineering extraction population."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+
+    case_id: str
+    openalex_id: str
+    query: str
+    source_ref: str
+    recorded_at: str | None
+    work: OpenAlexWorkText | None
+    source_error: str | None = None
+    gold_reviewed_at: str | None = None
+
+
+class OpenAlexExtractionObservation(BaseModel):
+    """Complete attempted extraction, including missing or rejected predictions."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+
+    case_id: str
+    openalex_id: str
+    query: str
+    source_ref: str
+    recorded_at: str | None
+    gold_reviewed_at: str | None = None
+    source_content_sha256: str | None
+    disposition: Literal["extracted", "source_unavailable", "extractor_failed"]
+    predictions: list[dict[str, Any]] = Field(default_factory=list)
+    constructed_negatives: list[dict[str, Any]] = Field(default_factory=list)
+    reason: str = ""
+
+
+class ExtractorAccuracyReport(BaseModel):
+    """Extractor engineering evidence; scientific accuracy awaits appointment."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.openalex_accuracy.v2"] = (
+        "policyos.policy_design_case.layer3_gy.openalex_accuracy.v2"
+    )
+    measurement_basis: Literal["extractor_execution_and_constructed_negatives"] = (
+        "extractor_execution_and_constructed_negatives"
+    )
+    accuracy_status: Literal["withheld_pending_adjudicator_appointment"] = (
+        "withheld_pending_adjudicator_appointment"
+    )
+    standing_rule_ref: Literal["correspondence-acceptance-standing-rule"] = (
+        "correspondence-acceptance-standing-rule"
+    )
+    precision: None = None
+    recall: None = None
+    observations: list[OpenAlexExtractionObservation] = Field(default_factory=list)
 
 
 class IdentificationStrategy(BaseModel):
@@ -900,9 +990,7 @@ class AdmittedClaimAdjudicationBatch(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = "1.0"
-    rule_version: Literal["claim-adjudication-admission.v1"] = (
-        "claim-adjudication-admission.v1"
-    )
+    rule_version: Literal["claim-adjudication-admission.v1"] = "claim-adjudication-admission.v1"
     raw_input_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     candidate_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     evaluation_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -1089,6 +1177,95 @@ def extract_span_grounded_claims_from_openalex_work(
     max_claims: int = 3,
     span_support_client: Any | None = None,
 ) -> list[CausalClaim]:
+    """Extract source-bound candidates without assigning semantic authority.
+
+    An explicitly supplied semantic client retains the existing optional filter.
+    Current candidate extraction and its instrument do not request that authority.
+    """
+
+    _require_openalex_source_content(work)
+    candidates = _extract_openalex_source_candidates(work, query=query, max_claims=max_claims)
+    if span_support_client is None:
+        return candidates
+    return [
+        claim
+        for claim in candidates
+        if validate_causal_claim_span_grounding(
+            work, claim, span_support_client=span_support_client
+        ).status
+        == "validated_supporting"
+    ]
+
+
+def _require_openalex_source_content(work: OpenAlexWorkText) -> None:
+    rebuilt = OpenAlexWorkText.from_openalex_work(work.raw_work)
+    if not re.fullmatch(r"https://openalex\.org/W[0-9]+", rebuilt.openalex_id):
+        raise ValueError("openalex_source_identity_invalid")
+    abstract = work.raw_work.get("abstract_inverted_index")
+    if not isinstance(abstract, dict) or not abstract:
+        raise ValueError("openalex_source_abstract_missing")
+    positions = []
+    for token, token_positions in abstract.items():
+        if not isinstance(token, str) or not token or not isinstance(token_positions, list):
+            raise ValueError("openalex_source_abstract_invalid")
+        if any(type(position) is not int or position < 0 for position in token_positions):
+            raise ValueError("openalex_source_abstract_invalid")
+        positions.extend(token_positions)
+    if len(set(positions)) != len(positions) or sorted(positions) != list(range(len(positions))):
+        raise ValueError("openalex_source_abstract_positions_invalid")
+    if rebuilt.model_dump(mode="json") != work.model_dump(mode="json"):
+        raise ValueError("openalex_source_content_mismatch")
+    if work.raw_work.get("is_retracted") is True:
+        raise ValueError("openalex_source_retracted")
+
+
+def validate_openalex_source_bound_candidate(
+    work: OpenAlexWorkText,
+    claim: CausalClaim,
+    *,
+    query: str,
+    max_claims: int = 3,
+) -> OpenAlexSourceBindingResult:
+    """Rederive the complete candidate from its selected raw source and query."""
+
+    try:
+        _require_openalex_source_content(work)
+        checked = CausalClaim.model_validate_json(claim.model_dump_json())
+        if checked.model_dump(mode="json") != claim.model_dump(mode="json"):
+            raise ValueError("openalex_candidate_typed_content_mismatch")
+        expected = _extract_openalex_source_candidates(work, query=query, max_claims=max_claims)
+        if not any(
+            checked.model_dump(mode="json") == row.model_dump(mode="json") for row in expected
+        ):
+            raise ValueError("openalex_candidate_extractor_content_mismatch")
+        span = checked.supporting_spans[0]
+        resolved = _resolve_span(work.source_text, span)
+        if resolved is None:
+            raise ValueError("openalex_candidate_span_unresolved")
+        start, end, _ = resolved
+    except (ValueError, TypeError, AttributeError, IndexError) as exc:
+        return OpenAlexSourceBindingResult(
+            claim_id=str(getattr(claim, "claim_id", "")),
+            openalex_id=work.openalex_id,
+            status="refused",
+            reason=str(exc),
+        )
+    return OpenAlexSourceBindingResult(
+        claim_id=claim.claim_id,
+        openalex_id=work.openalex_id,
+        status="source_bound_candidate",
+        span_start=start,
+        span_end=end,
+        grounding_ref=f"openalex-source-bound://{work.content_sha256}/{claim.claim_id}",
+    )
+
+
+def _extract_openalex_source_candidates(
+    work: OpenAlexWorkText,
+    *,
+    query: str,
+    max_claims: int = 3,
+) -> list[CausalClaim]:
     """Extract conservative candidate claims from real OpenAlex source text.
 
     The extractor is intentionally rule-based and source-bound: it only emits a
@@ -1150,15 +1327,7 @@ def extract_span_grounded_claims_from_openalex_work(
             design_quality_tier=_design_tier_for_sentence(sentence),
             publish_to_graph=False,
         )
-        if (
-            validate_causal_claim_span_grounding(
-                work,
-                claim,
-                span_support_client=span_support_client,
-            ).status
-            == "validated_supporting"
-        ):
-            claims.append(claim)
+        claims.append(claim)
         if len(claims) >= max_claims:
             break
     return claims
@@ -1240,144 +1409,158 @@ def validate_causal_claim_span_grounding(
 
 
 def evaluate_openalex_claim_extractor_accuracy(
-    gold_set: ClaimSpanGoldSet,
+    gold_set: ClaimSpanGoldSet | None = None,
     *,
     extractor: Callable[[OpenAlexWorkText, str], Sequence[CausalClaim]] | None = None,
     span_support_client: Any | None = None,
+    cases: Sequence[OpenAlexExtractionCase] | None = None,
 ) -> ExtractorAccuracyReport:
-    """Measure extractor precision/recall against human-labeled OpenAlex span gold."""
+    """Run the extractor and constructed negatives without a positive accuracy claim.
 
-    if extractor is None:
-        return _evaluate_gold_span_support_accuracy(
-            gold_set,
-            span_support_client=span_support_client,
-        )
-    active_extractor = extractor or (
-        lambda work, query: extract_span_grounded_claims_from_openalex_work(
-            work,
-            query=query,
-            span_support_client=span_support_client,
-        )
-    )
-    works = _load_gold_works(gold_set)
-    gold_by_key: dict[tuple[str, str], ClaimSpanGoldRecord] = {}
-    for record in gold_set.records:
-        if record.expected_supported:
-            gold_by_key[(record.openalex_id, _span_match_key(record.gold_span_text))] = record
+    Gold labels remain historical inputs identifying a dated population; neither
+    a label nor a model response supplies the absent adjudicator appointment.
+    """
 
-    matched_keys: set[tuple[str, str]] = set()
-    false_positive_count = 0
-    predicted_count = 0
-    for record in gold_set.records:
-        work = works.get(record.openalex_id)
-        if work is None:
-            continue
-        for claim in active_extractor(work, record.query):
-            grounding = validate_causal_claim_span_grounding(
-                work,
-                claim,
-                span_support_client=span_support_client,
-            )
-            if grounding.status != "validated_supporting":
+    del span_support_client
+    if cases is None:
+        if gold_set is None:
+            raise ValueError("openalex_extraction_population_missing")
+        declared = {}
+        for record in gold_set.records:
+            key = (record.source_fixture, record.openalex_id, record.query)
+            if key in declared:
                 continue
-            predicted_count += 1
-            span = claim.supporting_spans[0] if claim.supporting_spans else None
-            key = (record.openalex_id, _span_match_key(span.text if span else ""))
-            if key in gold_by_key:
-                matched_keys.add(key)
-            else:
-                false_positive_count += 1
-
-    true_positive_count = len(matched_keys)
-    false_negative_count = max(0, len(gold_by_key) - true_positive_count)
-    precision = (
-        true_positive_count / (true_positive_count + false_positive_count)
-        if true_positive_count + false_positive_count
-        else 0.0
+            source_error = None
+            source = None
+            try:
+                path = Path(record.source_fixture)
+                if not path.is_absolute():
+                    path = Path(__file__).resolve().parents[4] / path
+                source = load_recorded_openalex_source(path, query=record.query)
+                matches = [
+                    item for item in source.payload["results"] if item["id"] == record.openalex_id
+                ]
+                work = (
+                    OpenAlexWorkText.from_openalex_work(matches[0]) if len(matches) == 1 else None
+                )
+            except (OSError, ValueError, TypeError) as exc:
+                work = None
+                source_error = f"{type(exc).__name__}:{exc}"
+            declared[key] = OpenAlexExtractionCase(
+                case_id=_sha256_text(json.dumps(key)),
+                openalex_id=record.openalex_id,
+                query=record.query,
+                source_ref=(
+                    f"{record.source_fixture}@{source.content_sha256}"
+                    if source is not None
+                    else record.source_fixture
+                ),
+                recorded_at=source.captured_at if source is not None else None,
+                work=work,
+                source_error=source_error,
+                gold_reviewed_at=gold_set.provenance.get("reviewed_at"),
+            )
+        cases = [declared[key] for key in sorted(declared)]
+    active_extractor = extractor or (
+        lambda work, query: extract_span_grounded_claims_from_openalex_work(work, query=query)
     )
-    recall = (
-        true_positive_count / (true_positive_count + false_negative_count)
-        if true_positive_count + false_negative_count
-        else 0.0
-    )
-    matched_label_ids = [
-        gold_by_key[key].label_id for key in sorted(matched_keys, key=lambda item: item[1])
-    ]
-    return ExtractorAccuracyReport(
-        gold_record_count=len(gold_by_key),
-        predicted_claim_count=predicted_count,
-        true_positive_count=true_positive_count,
-        false_positive_count=false_positive_count,
-        false_negative_count=false_negative_count,
-        true_negative_count=0,
-        precision=round(precision, 6),
-        recall=round(recall, 6),
-        matched_label_ids=matched_label_ids,
-    )
+    observations = []
+    for case in cases:
+        base = {
+            "case_id": case.case_id,
+            "openalex_id": case.openalex_id,
+            "query": case.query,
+            "source_ref": case.source_ref,
+            "recorded_at": case.recorded_at,
+            "gold_reviewed_at": case.gold_reviewed_at,
+            "source_content_sha256": case.work.content_sha256 if case.work is not None else None,
+        }
+        if case.work is None:
+            observations.append(
+                OpenAlexExtractionObservation(
+                    **base,
+                    disposition="source_unavailable",
+                    reason=case.source_error or "declared_work_not_resolved",
+                )
+            )
+            continue
+        try:
+            claims = list(active_extractor(case.work, case.query))
+        except Exception as exc:
+            observations.append(
+                OpenAlexExtractionObservation(
+                    **base,
+                    disposition="extractor_failed",
+                    reason=f"{type(exc).__name__}:{exc}",
+                )
+            )
+            continue
+        predictions = []
+        negatives = []
+        for claim in claims:
+            if not isinstance(claim, CausalClaim):
+                predictions.append(
+                    {
+                        "disposition": "prediction_unreadable",
+                        "type": type(claim).__name__,
+                        "reason": "extractor_prediction_is_not_a_typed_causal_claim",
+                    }
+                )
+                continue
+            binding = validate_openalex_source_bound_candidate(case.work, claim, query=case.query)
+            predictions.append(
+                {
+                    "claim": claim.model_dump(mode="json"),
+                    "source_binding": binding.model_dump(mode="json"),
+                }
+            )
+            poisoned_spans = [
+                span.model_copy(
+                    update={
+                        "text": "This constructed span is absent from the selected source: "
+                        + case.case_id,
+                    }
+                )
+                for span in claim.supporting_spans
+            ]
+            poisoned = claim.model_copy(
+                update={
+                    "claim_text": "This constructed claim is absent from the selected source: "
+                    + case.case_id,
+                    "supporting_spans": poisoned_spans,
+                }
+            )
+            refusal = validate_openalex_source_bound_candidate(
+                case.work, poisoned, query=case.query
+            )
+            negatives.append(
+                {
+                    "claim_id": claim.claim_id,
+                    "construction": "absent_claim_and_span_text",
+                    "disposition": refusal.status,
+                    "reason": refusal.reason,
+                }
+            )
+        observations.append(
+            OpenAlexExtractionObservation(
+                **base,
+                disposition="extracted",
+                predictions=predictions,
+                constructed_negatives=negatives,
+            )
+        )
+    return ExtractorAccuracyReport(observations=observations)
 
 
 def _evaluate_gold_span_support_accuracy(
     gold_set: ClaimSpanGoldSet,
     *,
     span_support_client: Any | None,
-) -> ExtractorAccuracyReport:
-    works = _load_gold_works(gold_set)
-    true_positive_count = 0
-    true_negative_count = 0
-    false_positive_count = 0
-    false_negative_count = 0
-    predicted_count = 0
-    matched_label_ids: list[str] = []
-    measured_count = 0
-    for record in gold_set.records:
-        work = works.get(record.openalex_id)
-        if work is None:
-            if record.expected_supported:
-                false_negative_count += 1
-            else:
-                true_negative_count += 1
-            continue
-        measured_count += 1
-        claim = _gold_record_to_causal_claim(record, work)
-        grounding = validate_causal_claim_span_grounding(
-            work,
-            claim,
-            span_support_client=span_support_client,
-        )
-        predicted_supported = grounding.status == "validated_supporting"
-        if predicted_supported:
-            predicted_count += 1
-        if record.expected_supported and predicted_supported:
-            true_positive_count += 1
-            matched_label_ids.append(record.label_id)
-        elif record.expected_supported and not predicted_supported:
-            false_negative_count += 1
-        elif not record.expected_supported and predicted_supported:
-            false_positive_count += 1
-        else:
-            true_negative_count += 1
+) -> LegacyExtractorAccuracyReportV1:
+    """Fence the former default; historical report bytes remain readable in v1."""
 
-    precision = (
-        true_positive_count / (true_positive_count + false_positive_count)
-        if true_positive_count + false_positive_count
-        else 0.0
-    )
-    recall = (
-        true_positive_count / (true_positive_count + false_negative_count)
-        if true_positive_count + false_negative_count
-        else 0.0
-    )
-    return ExtractorAccuracyReport(
-        gold_record_count=measured_count,
-        predicted_claim_count=predicted_count,
-        true_positive_count=true_positive_count,
-        false_positive_count=false_positive_count,
-        false_negative_count=false_negative_count,
-        true_negative_count=true_negative_count,
-        precision=round(precision, 6),
-        recall=round(recall, 6),
-        matched_label_ids=sorted(matched_label_ids),
-    )
+    del gold_set, span_support_client
+    raise ValueError("correspondence-acceptance-standing-rule:adjudicator_appointment_missing")
 
 
 def _gold_record_to_causal_claim(
@@ -1504,9 +1687,7 @@ def _split_sentences(text: str) -> list[str]:
     if not normalized:
         return []
     return [
-        sentence.strip()
-        for sentence in re.split(r"(?<=[.!?])\s+", normalized)
-        if sentence.strip()
+        sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", normalized) if sentence.strip()
     ]
 
 
@@ -1587,7 +1768,7 @@ def _infer_cause_effect(sentence: str, *, query: str) -> tuple[str, str]:
             effect = _trim_variable_phrase(match.group("effect"))
             if cause and effect and cause != effect:
                 return cause, effect
-    query_terms = list(_meaningful_terms(query))
+    query_terms = sorted(_meaningful_terms(query))
     if len(query_terms) >= 2:
         return " ".join(query_terms[:2]), " ".join(query_terms[-2:])
     return "literature exposure", "reported outcome"
@@ -1595,7 +1776,9 @@ def _infer_cause_effect(sentence: str, *, query: str) -> tuple[str, str]:
 
 def _trim_variable_phrase(value: str) -> str:
     text = re.sub(r"\([^)]*\)", "", value)
-    text = re.sub(r"^[,;:\s]*(we|this paper|this study|the results|results)\s+", "", text, flags=re.I)
+    text = re.sub(
+        r"^[,;:\s]*(we|this paper|this study|the results|results)\s+", "", text, flags=re.I
+    )
     text = re.split(r"[,.;:]", text, maxsplit=1)[0]
     words = [
         word
@@ -1609,7 +1792,9 @@ def _trim_variable_phrase(value: str) -> str:
 
 def _infer_causal_direction(sentence: str) -> CausalDirection:
     lowered = sentence.casefold()
-    if any(term in lowered for term in ("unchanged", "no evidence", "little or no", "no discernible")):
+    if any(
+        term in lowered for term in ("unchanged", "no evidence", "little or no", "no discernible")
+    ):
         return CausalDirection.NULL
     if any(
         term in lowered
@@ -1783,7 +1968,9 @@ def _span_grounding_result(
     support_score: float = 0.0,
     reason: str,
 ) -> SpanGroundingResult:
-    authority_tier = "design_tier_l2" if status == "validated_supporting" else "candidate_unverified"
+    authority_tier = (
+        "design_tier_l2" if status == "validated_supporting" else "candidate_unverified"
+    )
     span_id = span.span_id if span else ""
     return SpanGroundingResult(
         claim_id=claim.claim_id,
@@ -1807,6 +1994,85 @@ def _span_match_key(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", _normalize_ws(text).casefold()).strip()
 
 
+def recorded_openalex_capture_time(payload: dict[str, Any]) -> str:
+    """Require the supplied UTC capture coordinate without inventing a date."""
+
+    recording = payload.get("_recording")
+    captured = recording.get("captured_at") if isinstance(recording, dict) else None
+    if not isinstance(captured, str) or not captured:
+        raise ValueError("openalex_recorded_capture_time_missing")
+    try:
+        parsed = datetime.fromisoformat(captured)
+    except ValueError as exc:
+        raise ValueError("openalex_recorded_capture_time_invalid") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() != timedelta(0):
+        raise ValueError("openalex_recorded_capture_time_not_utc")
+    return captured
+
+
+def validate_recorded_openalex_response(
+    payload: dict[str, Any], *, query: str, allow_empty: bool = False
+) -> str:
+    """Validate recorded response context and return its supplied capture time."""
+
+    recording = payload.get("_recording")
+    if not isinstance(recording, dict):
+        raise ValueError("OpenAlex fixture lacks recording metadata")
+    captured_at = recorded_openalex_capture_time(payload)
+    if recording.get("real_openalex_api_response") is not True:
+        raise ValueError("OpenAlex fixture is not marked recorded-real")
+    if recording.get("source") != "https://api.openalex.org/works":
+        raise ValueError("OpenAlex fixture source drift")
+    request_params = recording.get("request_params")
+    if not isinstance(request_params, dict):
+        raise ValueError("OpenAlex fixture request params missing")
+    if not isinstance(query, str) or not query or recording.get("query") != query:
+        raise ValueError("OpenAlex fixture recording query drift")
+    if request_params.get("search") != query:
+        raise ValueError("OpenAlex fixture request search drift")
+    if "abstract_inverted_index" not in str(request_params.get("select") or ""):
+        raise ValueError("OpenAlex fixture select omits abstract text")
+    results = payload.get("results")
+    if not isinstance(results, list):
+        raise ValueError("OpenAlex fixture results missing")
+    if not allow_empty and not results:
+        raise ValueError("OpenAlex fixture results unexpectedly empty")
+    for item in results:
+        if not isinstance(item, dict):
+            raise ValueError("OpenAlex fixture result shape invalid")
+        if not str(item.get("id") or "").startswith("https://openalex.org/W"):
+            raise ValueError("OpenAlex fixture work id invalid")
+        if not isinstance(item.get("abstract_inverted_index"), dict):
+            raise ValueError("OpenAlex fixture work lacks abstract text")
+    return captured_at
+
+
+def load_recorded_openalex_source(
+    path: Path, *, query: str | None = None, allow_empty: bool = False
+) -> OpenAlexRecordedSource:
+    """Read once and bind source bytes, request context, and capture metadata."""
+
+    raw = path.read_bytes()
+    payload = json.loads(raw)
+    if not isinstance(payload, dict):
+        raise ValueError("openalex_recorded_response_object_required")
+    recording = payload.get("_recording")
+    selected_query = (
+        query
+        if query is not None
+        else (recording.get("query") if isinstance(recording, dict) else None)
+    )
+    captured_at = validate_recorded_openalex_response(
+        payload, query=selected_query, allow_empty=allow_empty
+    )
+    return OpenAlexRecordedSource(
+        payload=payload,
+        query=selected_query,
+        captured_at=captured_at,
+        content_sha256="sha256:" + hashlib.sha256(raw).hexdigest(),
+    )
+
+
 def _load_gold_works(gold_set: ClaimSpanGoldSet) -> dict[str, OpenAlexWorkText]:
     repo_root = Path(__file__).resolve().parents[4]
     works: dict[str, OpenAlexWorkText] = {}
@@ -1814,7 +2080,7 @@ def _load_gold_works(gold_set: ClaimSpanGoldSet) -> dict[str, OpenAlexWorkText]:
         path = Path(record.source_fixture)
         if not path.is_absolute():
             path = repo_root / path
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload = load_recorded_openalex_source(path, query=record.query).payload
         for item in payload.get("results", []):
             if isinstance(item, dict) and str(item.get("id") or "") == record.openalex_id:
                 works[record.openalex_id] = OpenAlexWorkText.from_openalex_work(item)
@@ -1914,6 +2180,10 @@ __all__ = [
     "LiteratureEdgePrior",
     "Mechanism",
     "ModerationEdge",
+    "OpenAlexExtractionCase",
+    "OpenAlexExtractionObservation",
+    "OpenAlexRecordedSource",
+    "OpenAlexSourceBindingResult",
     "OpenAlexWorkText",
     "PaperKind",
     "ParameterType",
@@ -1930,7 +2200,11 @@ __all__ = [
     "extract_span_grounded_claims_from_openalex_work",
     "load_article_extraction_result",
     "load_literature_causal_prior",
+    "load_recorded_openalex_source",
     "persist_article_extraction_result",
     "persist_literature_causal_prior",
+    "recorded_openalex_capture_time",
     "validate_causal_claim_span_grounding",
+    "validate_openalex_source_bound_candidate",
+    "validate_recorded_openalex_response",
 ]

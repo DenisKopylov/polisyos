@@ -10,15 +10,17 @@ later GY paths must stay fenced from the Slice-0 fixture trajectory.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import tempfile
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core import scan_secret_and_pii
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -26,6 +28,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.data_forge import read_api
+from polisyos.foundry import InputContractMethodSelection
 from polisyos.pdc import (
     ApplicabilityResult,
     ArtifactEnvelope,
@@ -35,6 +38,8 @@ from polisyos.pdc import (
     BudgetVector,
     CertifiedOperationEnvelope,
     CompositionCertificate,
+    EvalSafetyVerifierPort,
+    EvaluationExecutionContext,
     EvidenceBasis,
     FrontierSnapshot,
     MethodOutputConsumptionRecord,
@@ -43,6 +48,7 @@ from polisyos.pdc import (
     OperationContract,
     OperationInvocationRecord,
     PortSpec,
+    RefusedWorkspaceContract,
     SearchBlockerRecord,
     SearchExitContract,
     SearchIncompletenessRecord,
@@ -72,11 +78,16 @@ from polisyos.runtime.quality.adapter_contracts import (
 from polisyos.runtime.quality.authority import ProductionLoopRunProof
 from polisyos.runtime.quality.data_forge_binding import (
     CatalogGraphProtocol,
+    MeasurementRootBindingError,
     MeasurementRootProducer,
     build_default_workspace_catalog_graph,
     canonical_catalog_result_for_workspace_loop,
     measurement_rows_for_catalog_payload,
     produce_phase2_recorded_panel_measurement_root,
+    produce_recorded_panel_method_input,
+    recorded_panel_method_input_target,
+    source_requirement_for_catalog_binding,
+    verify_recorded_panel_method_input,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingGraph,
@@ -85,20 +96,39 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
     compose_subdesigns as build_composition_certificate,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.graded_outcomes import (
+    S1_GRADED_OUTCOME_SCHEMA_VERSION,
+    GradedOutcomeDecision,
+    GradedOutcomeEvidenceInput,
+    compose_graded_outcome,
+)
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    Layer3GXPinnedRequest,  # noqa: TC001 - Pydantic resolves the actual nested request model.
+)
 from polisyos.runtime.quality.semantic_binding import (
     GySemanticBenchmark,
     SemanticAdequacyGate,
     SemanticBenchmarkRun,
     load_gy_semantic_benchmark,
 )
-from polisyos.runtime.quality.workspace.foundry_consumption import FoundryMethodOutputConsumer
-from polisyos.runtime.quality.workspace.scientist_node_adapters import ScientistNodeAdapter
+from polisyos.runtime.quality.workspace.foundry_consumption import (
+    ConstraintStoreIngestor,
+    FoundryConsumptionResult,
+    FoundryMethodOutputConsumer,
+    Phase2ConstraintAdmission,
+    Phase2RequirementBasis,
+    StagedFoundryInputBinding,
+    evaluate_constraint_store_for_phase2,
+    install_verified_staged_foundry_inputs,
+)
 from polisyos.runtime.quality.workspace.spine_repair_gates import (
     BlockedInputProducer,
     LexBoundsApplicabilityGate,
 )
 from polisyos.runtime.quality.workspace.workflow_playbook_projection import (
+    PlaybookStepAdmission,
     WorkflowPlaybookTrace,
+    admit_playbook_step,
     build_workflow_playbook_registry,
     select_playbook_for_intent,
     trace_playbook_execution,
@@ -289,16 +319,96 @@ class WorkspaceSearchLedger(SearchLedger):
     replay_levels: list[Literal["A", "B", "C"]]
 
 
+class RefusedWorkspaceSearchLedger(BaseModel):
+    """Actual refusal events; never an ordinary S2 SearchLedger instance.
+
+    The cited admission owns the unestablished recall population and the empty
+    counterexample denominator. No S2 search result or positive rate is claimed.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.gy.refused_workspace_search_ledger.v1"]
+    ledger_id: str
+    ledger_ref: str
+    case_id: str
+    workspace_id: str
+    events: list[SearchLedgerEvent]
+    admission_decision_refs: list[str]
+    source_admission_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    deterministic_replay_key: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    population_state: Literal["not_established"]
+    counterexample_population_state: Literal["not_applicable"]
+    counterexample_conversion_rate: Literal[None] = Field(...)
+    unavailable_reason: Literal["original_construct_evidence_admission_owner_missing"]
+    iterations: tuple[()]
+    candidate_refs: tuple[()]
+    counterexample_refs: tuple[()]
+    invocations: tuple[()]
+    applicability_results: tuple[()]
+    replay_levels: tuple[()]
+
+
 class WorkspaceSearchExitContract(SearchExitContract):
     """Search exit plus the required Slice-0 SearchLedger sidecar."""
 
-    workspace_contract: WorkspaceContract
+    workspace_contract: WorkspaceContract | RefusedWorkspaceContract
     workspace_contract_ref: str
     obligation_records: list[ObligationRecord] = Field(default_factory=list)
-    search_ledger: WorkspaceSearchLedger
+    search_ledger: WorkspaceSearchLedger | RefusedWorkspaceSearchLedger
     voi_audit: VOISelectionAudit
     artifact_envelopes: list[ArtifactEnvelope] = Field(default_factory=list)
     authority_derivation_traces: list[AuthorityDerivationTrace] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _bind_unavailable_workspace_ratios(self) -> WorkspaceSearchExitContract:
+        workspace = self.workspace_contract
+        if isinstance(self.search_ledger, RefusedWorkspaceSearchLedger) and not isinstance(
+            workspace, RefusedWorkspaceContract
+        ):
+            raise ValueError("refused_ledger_and_workspace_must_share_admission")
+        if isinstance(workspace, RefusedWorkspaceContract):
+            if not isinstance(self.search_ledger, RefusedWorkspaceSearchLedger):
+                raise ValueError("refused_ledger_and_workspace_must_share_admission")
+            admissions = [
+                row
+                for row in self.artifact_envelopes
+                if row.payload_schema_ref == PRODUCTION_CASE_ADMISSION_SCHEMA
+            ]
+            if (
+                self.terminal_state.kind != SearchTerminalKind.A_SPEC_GAP
+                or self.authority_boundary is not None
+                or workspace.allowed_operations != [PRODUCTION_CASE_OPERATION]
+                or workspace.refusal_reason != _MISSING_ORIGINAL_CONSTRUCT_OWNER
+                or len(admissions) != 1
+                or workspace.refusal_source_admission_ref != admissions[0].payload_ref
+                or self.incompleteness_record.search_quality.recall_at_known_seeds is not None
+                or self.search_ledger.counterexample_conversion_rate is not None
+                or self.search_ledger.source_admission_ref != workspace.refusal_source_admission_ref
+                or self.search_ledger.deterministic_replay_key
+                != workspace.refusal_source_admission_ref
+                or self.search_ledger.unavailable_reason != workspace.refusal_reason
+            ):
+                raise ValueError("refused_workspace_cannot_stand_for_available_components")
+        if self.search_ledger.counterexample_conversion_rate is None:
+            quality = self.incompleteness_record.search_quality
+            if (
+                quality.recall_at_known_seeds is not None
+                or self.search_ledger.iterations
+                or self.search_ledger.counterexample_refs
+                or self.authority_boundary is not None
+            ):
+                raise ValueError("unavailable_workspace_ratios_require_unestablished_population")
+        return self
+
+
+def workspace_exit_schema_version(
+    contract: WorkspaceSearchExitContract,
+) -> Literal["1.0", "2.0"]:
+    """Select the actual typed output dialect; ordinary fixture output stays v1."""
+    if isinstance(contract.search_ledger, RefusedWorkspaceSearchLedger):
+        return "2.0"
+    return "1.0"
 
 
 WorkspaceLoopRunProof = ProductionLoopRunProof
@@ -322,6 +432,47 @@ class WorkspaceIntentRunResult(BaseModel):
     method_output_consumption_ref: ArtifactRef | None = None
     foundry_input_provenance: str | None = None
     open_production_findings: list[str] = Field(default_factory=list)
+    adapter_admissions: list[PlaybookStepAdmission] = Field(default_factory=list)
+    phase2_method_selection: InputContractMethodSelection | None = None
+    constraint_admission: Phase2ConstraintAdmission | None = None
+
+
+def _phase2_constraint_blockers(
+    owner: ConstraintStoreIngestor,
+    admission: Phase2ConstraintAdmission,
+    *,
+    workspace_id: str,
+) -> list[SearchBlockerRecord]:
+    admitted_ref = str(admission.artifact_ref.artifact_id)
+    decision = evaluate_constraint_store_for_phase2(
+        admission,
+        owner=owner,
+        workspace_id=workspace_id,
+    )
+    if not (decision.blocks_promotion or decision.downgrades_authority):
+        return []
+    identities = [
+        *decision.blocking_constraint_ids,
+        *decision.limiting_constraint_ids,
+        *decision.warning_constraint_ids,
+    ]
+    if not identities:
+        raise WorkspaceInvariantError("constraint_decision_missing_explanatory_population")
+    return [
+        SearchBlockerRecord(
+            blocker_id=f"blocker-constraint-{index}",
+            workspace_id=workspace_id,
+            operation_class=OperationClass.VERIFY,
+            blocked_port="constraint_store",
+            missing_input=identity[:200],
+            reason="Requirement preflight forbids unrestricted A-side admission: " + identity,
+            applicability_result_ref=admitted_ref,
+            producer_missing_label="verification_missing",
+            severity="blocks_authority",
+            repair_options=[{"operation_class": OperationClass.REFINE.value, "reason": identity}],
+        )
+        for index, identity in enumerate(identities)
+    ]
 
 
 def _slug(value: str) -> str:
@@ -654,45 +805,43 @@ def _foundry_registry_estimate_candidates() -> list[str]:
     return sorted(dict.fromkeys(matches))[:10]
 
 
+class Phase2MethodSelectionError(MeasurementRootBindingError):
+    """Keep the complete candidate-selection result on typed binding refusal."""
+
+    def __init__(self, selection: InputContractMethodSelection, reason: str | None = None) -> None:
+        self.selection = selection
+        super().__init__(reason or "; ".join(selection.blockers))
+
+
 def _phase2_value_method_selection(
     intent: dict[str, Any],
     *,
     design_problem: DesignProblem,
+    contract_id: str | None = None,
 ) -> dict[str, Any]:
-    causal_variables = intent.get("causal_variables")
-    target_world_slots = (
-        tuple(str(item) for item in causal_variables)
-        if isinstance(causal_variables, list) and causal_variables
-        else ("credit_access", "firm_survival")
-    )
-    candidate = {
-        "candidate_id": str(intent.get("candidate_id") or "workspace_phase2_candidate"),
-        "atom": {
-            "intervention_id": str(intent.get("intervention_id") or "workspace_phase2"),
-            "target_world_slots": target_world_slots,
-        },
-        "diversity_key": (
-            str(intent.get("operation_class") or "estimate"),
-            *target_world_slots[:2],
-            "workspace_phase2",
-        ),
-    }
-    try:
-        from polisyos.foundry.methods.selection import select_value_method_for_problem
-    except ImportError as exc:
-        return {
-            "status": "blocked",
-            "blockers": ("value_method_selector_unavailable",),
-            "reason": str(exc),
-        }
-    return select_value_method_for_problem(
-        candidate=candidate,
-        problem=design_problem,
+    """Compatibility name for phase-2 causal candidate search, not N8 values."""
+
+    from polisyos.foundry import select_method_for_input_contract
+    from polisyos.foundry.methods.selection import MethodSelectionCriteria
+
+    if "observation_to_contract_manifest" in intent:
+        raise MeasurementRootBindingError("source_manifest_requires_verified_input_binding")
+    if contract_id is None:
+        if "observational_data_ref" in intent:
+            raise MeasurementRootBindingError("supplied_observation_contract_unestablished")
+        contract_id = recorded_panel_method_input_target().contract_id
+    # `report` is the actual causal node's method-output port. It constrains
+    # candidate search only: that node must still parse the emitted value as
+    # CausalEffectReport during real C1 conformance before Operation admission.
+    return select_method_for_input_contract(
+        contract_id=contract_id,
+        required_output_slots=("report",),
         requested_method_fqn=(
-            str(intent["causal_method_fqn"]) if intent.get("causal_method_fqn") else None
+            str(intent["causal_method_fqn"]) if "causal_method_fqn" in intent else None
         ),
-        observation_to_contract_manifest=intent.get("observation_to_contract_manifest"),
-    )
+        criteria=MethodSelectionCriteria(preferred_family="causal.inference"),
+        selection_context={"design_problem": design_problem.model_dump(mode="json")},
+    ).model_dump(mode="json")
 
 
 def _slot_names(slots: object) -> list[str]:
@@ -896,6 +1045,447 @@ def build_workspace_operation_registry() -> OperationRegistry:
     return OperationRegistry(operations=operations)
 
 
+# Production intake is diagnostic until the independent original-construct
+# evidence admission owner exists. No declared protocol can enable a positive.
+PRODUCTION_CASE_INTAKE_SCHEMA = "policyos.gy.production_case_intake.v1"
+PRODUCTION_CASE_ADMISSION_SCHEMA = "policyos.gy.production_case_admission.v1"
+PRODUCTION_CASE_ADMISSION_KIND = "pdc.gy.production_case_admission"
+PRODUCTION_CASE_OPERATION = "workspace.production_case_admission"
+_MISSING_ORIGINAL_CONSTRUCT_OWNER = "original_construct_evidence_admission_owner_missing"
+
+
+class ProductionCaseScope(BaseModel):
+    """Original supplied policy scope, independent of fixture success seeds."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    case_id: str = Field(min_length=1)
+    construct_scope_query: str = Field(min_length=1)
+    jurisdiction: str = Field(min_length=1)
+    population: str = Field(min_length=1)
+    time_horizon: str = Field(min_length=1)
+
+    @property
+    def fixture_id(self) -> str:
+        """Supply the existing source owner's contextual identifier, not fixture seeds."""
+        return self.case_id
+
+
+class ProductionCaseIntake(BaseModel):
+    """Complete external request and explicit scope; neither is source evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.gy.production_case_intake.v1"] = PRODUCTION_CASE_INTAKE_SCHEMA
+    pinned_request: Layer3GXPinnedRequest
+    scope: ProductionCaseScope
+    scope_source_fixture_id: str = Field(min_length=1)
+    scope_source_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_posture: Literal["research", "governed", "production"]
+    request_source_path: str = Field(min_length=1)
+    request_source_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_limit: Literal["request_custody_only_not_source_evidence"] = (
+        "request_custody_only_not_source_evidence"
+    )
+
+
+class ProductionCaseAdmission(BaseModel):
+    """Actual catalog attempts and S1 decisions, with no positive claim binding."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["policyos.gy.production_case_admission.v1"] = (
+        PRODUCTION_CASE_ADMISSION_SCHEMA
+    )
+    request_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    checked_at: datetime
+    catalog_sources: list[Any]
+    source_read_error: str | None
+    requested_constructs: list[str]
+    source_attempts: list[dict[str, Any]]
+    graded_inputs: list[GradedOutcomeEvidenceInput]
+    graded_decisions: list[GradedOutcomeDecision]
+    positive_admission_state: Literal["original_construct_evidence_admission_owner_missing"] = (
+        _MISSING_ORIGINAL_CONSTRUCT_OWNER
+    )
+    substantive_source_support: Literal["not_established"] = "not_established"
+    transport_occurrence: Literal["not_attempted"] = "not_attempted"
+    metric_population_basis: dict[str, Any]
+
+    custody_scope: Literal["catalog_attempt_and_graded_refusal_recomputation_only"] = (
+        "catalog_attempt_and_graded_refusal_recomputation_only"
+    )
+
+
+def _verify_production_case_intake(
+    intake: ProductionCaseIntake, *, repo_root: Path | None = None
+) -> None:
+    """Resolve canonical demand and scope bytes before calling a population original."""
+    from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+        LAYER3_GX_PINNED_REQUEST_FILENAME,
+        resolve_layer3_gx_data_home_selection,
+    )
+
+    root = _repo_root() if repo_root is None else repo_root.resolve()
+    selection = resolve_layer3_gx_data_home_selection(root, case=intake.pinned_request.case_id)
+    path = root / selection.data_home_artifact_path(LAYER3_GX_PINNED_REQUEST_FILENAME)
+    if not path.resolve().is_relative_to(root.resolve()):
+        raise WorkspaceInvariantError("production_case_request_source_outside_owner")
+    raw = path.read_bytes()
+    value = json.loads(raw)
+    if (
+        not isinstance(value, dict)
+        or intake.request_source_path != path.relative_to(root).as_posix()
+        or intake.request_source_sha256 != "sha256:" + hashlib.sha256(raw).hexdigest()
+        or intake.pinned_request.model_dump(mode="json") != value
+        or intake.scope.case_id != selection.case_id
+    ):
+        raise WorkspaceInvariantError("production_case_original_request_content_drift")
+    scope_path = root / "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json"
+    scope_raw = scope_path.read_bytes()
+    source = json.loads(scope_raw)
+    if not isinstance(source, dict) or not isinstance(source.get("fixtures"), list):
+        raise WorkspaceInvariantError("production_case_scope_source_unreadable")
+    candidates = [
+        row
+        for row in source["fixtures"]
+        if isinstance(row, dict) and row.get("fixture_id") == intake.scope_source_fixture_id
+    ]
+    if len(candidates) != 1:
+        raise WorkspaceInvariantError("production_case_scope_source_identity_not_unique")
+    candidate = WorkspaceFixtureManifest.model_validate(candidates[0])
+    expected = {
+        key: getattr(candidate, key)
+        for key in ("construct_scope_query", "jurisdiction", "population", "time_horizon")
+    }
+    expected["case_id"] = selection.case_id
+    if (
+        intake.scope.model_dump(mode="json") != expected
+        or intake.scope_source_sha256 != "sha256:" + hashlib.sha256(scope_raw).hexdigest()
+    ):
+        raise WorkspaceInvariantError("production_case_original_scope_content_drift")
+
+
+def _production_catalog_sources(catalog: read_api.catalog.DatasetCatalogGraph) -> list[Any]:
+    return [
+        value.model_dump(mode="json") if hasattr(value, "model_dump") else value
+        for value in catalog.source_content_identities()
+    ]
+
+
+def _production_source_attempts(
+    intake: ProductionCaseIntake, catalog: read_api.catalog.DatasetCatalogGraph
+) -> tuple[list[Any], str | None, list[dict[str, Any]]]:
+    """Enumerate complete requested bindings through the actual catalog owner.
+
+    The owner independently reconciles raw row identities and count against its
+    typed projection. Missing tables or malformed rows refuse the population;
+    neither can appear as a measured zero. Metadata admission is deliberately
+    distinct from transport occurrence and scientific original-construct support.
+    """
+    constructs = [row.construct_ref for row in intake.pinned_request.requested_constructs]
+    if not constructs or len(constructs) != len(set(constructs)):
+        raise WorkspaceInvariantError("production_original_requirement_population_invalid")
+    try:
+        before = _production_catalog_sources(catalog)
+    except Exception as exc:
+        error = f"{type(exc).__name__}:{exc}"
+        return (
+            [],
+            error,
+            [{"construct_ref": key, "status": "ambiguous", "reason": error} for key in constructs],
+        )
+    attempts: list[dict[str, Any]] = []
+    for construct in constructs:
+        try:
+            matches = catalog.reconciled_metric_binding_population(construct)
+            candidates = []
+            for match in matches:
+                try:
+                    selected = catalog.get_dataset(match.catalog_dataset_id)
+                    distributions = [
+                        row
+                        for row in catalog.get_distributions(match.catalog_dataset_id)
+                        if row.id == match.distribution_id
+                    ]
+                    if selected is None or len(distributions) != 1:
+                        raise ValueError("declared_catalog_target_not_readable")
+                    bound = catalog.bind_fetch_target(
+                        metric_id=match.metric_id,
+                        connector_id=match.connector_id,
+                        request_dataset_id=match.request_dataset_id,
+                        profile_id=match.profile_id,
+                        filters=match.default_filters,
+                    )
+                    if (
+                        bound.target.catalog_dataset_id != match.catalog_dataset_id
+                        or bound.target.distribution_id != match.distribution_id
+                    ):
+                        raise ValueError("catalog_selected_target_differs_from_declared_member")
+                    requirement, source_contract = source_requirement_for_catalog_binding(
+                        manifest=intake.scope,
+                        selected=selected,
+                        distributions=[row.model_dump(mode="json") for row in distributions],
+                        connector_type=bound.target.connector_id,
+                    )
+                    source = DataRequirementAdmissionGate().evaluate(requirement)
+                    connector = ConnectorAdmissionGate().evaluate(bound.target.connector_id)
+                    candidates.append(
+                        {
+                            "binding": match.model_dump(mode="json"),
+                            "status": "source_contract_checked",
+                            "catalog_binding": bound.model_dump(mode="json"),
+                            "source_requirement": requirement.model_dump(mode="json"),
+                            "source_contract": source_contract,
+                            "source_gate": source.model_dump(mode="json"),
+                            "connector_gate": connector.model_dump(mode="json"),
+                            "scientific_original_construct_support": "not_established",
+                        }
+                    )
+                except Exception as exc:
+                    candidates.append(
+                        {
+                            "binding": match.model_dump(mode="json"),
+                            "status": "ambiguous",
+                            "reason": f"{type(exc).__name__}:{exc}",
+                        }
+                    )
+            attempts.append(
+                {
+                    "construct_ref": construct,
+                    "status": "enumerated",
+                    "candidates": candidates,
+                    "no_declared_binding": len(matches) == 0,
+                }
+            )
+        except Exception as exc:
+            attempts.append(
+                {
+                    "construct_ref": construct,
+                    "status": "ambiguous",
+                    "reason": f"{type(exc).__name__}:{exc}",
+                }
+            )
+    if _production_catalog_sources(catalog) != before:
+        raise WorkspaceInvariantError("production_catalog_changed_during_admission")
+    if [row["construct_ref"] for row in attempts] != constructs:
+        raise WorkspaceInvariantError("production_requirement_attempt_identity_drift")
+    return before, None, attempts
+
+
+def _compose_production_case_admission(
+    *,
+    intake: ProductionCaseIntake,
+    request_ref: str,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    checked_at: datetime,
+    repo_root: Path | None = None,
+) -> ProductionCaseAdmission:
+    if (
+        checked_at.tzinfo is None
+        or checked_at.utcoffset() != timedelta(0)
+        or checked_at > datetime.now(UTC)
+    ):
+        raise WorkspaceInvariantError("production_admission_time_not_actual_utc")
+    _verify_production_case_intake(intake, repo_root=repo_root)
+    sources, source_error, attempts = _production_source_attempts(intake, catalog)
+    inputs = []
+    decisions = []
+    for construct in intake.pinned_request.requested_constructs:
+        # This branch preserves the attempted limitation request. The missing
+        # independent scientific admission owner is a non-overridable blocker,
+        # never a self-declared verifier or an empty evidence list called partial.
+        evidence = GradedOutcomeEvidenceInput(
+            schema_version=S1_GRADED_OUTCOME_SCHEMA_VERSION,
+            case_id=intake.pinned_request.case_id,
+            claim_id=construct.construct_ref,
+            authority_level=intake.requested_posture,
+            requested_outcome="publish_with_limitation",
+            evidence_profile="unsupported",
+            mandatory_gate_state="non_overridable",
+            limitation_reason_codes=(_MISSING_ORIGINAL_CONSTRUCT_OWNER,),
+            owner="team-runtime-quality",
+            decision_owner_ref=None,
+            authority_profile_ref=f"request-posture:{intake.requested_posture}",
+            ttl_expires_at=checked_at,
+            public_limitation_note=None,
+            rule_version_ref=S1_GRADED_OUTCOME_SCHEMA_VERSION,
+        )
+        decision = compose_graded_outcome(evidence)
+        if (
+            decision.outcome != "typed_blocker"
+            or decision.publication_effect != "publication_blocked"
+        ):
+            raise WorkspaceInvariantError("production_s1_missing_owner_must_block")
+        inputs.append(evidence)
+        decisions.append(decision)
+    return ProductionCaseAdmission(
+        request_ref=request_ref,
+        checked_at=checked_at,
+        catalog_sources=sources,
+        source_read_error=source_error,
+        requested_constructs=[
+            row.construct_ref for row in intake.pinned_request.requested_constructs
+        ],
+        source_attempts=attempts,
+        graded_inputs=inputs,
+        graded_decisions=decisions,
+        metric_population_basis={
+            "schema_version": "policyos.gy.production_metric_populations.v1",
+            "ratios": {
+                "recall_at_known_seeds": {
+                    "value": None,
+                    "denominator": None,
+                    "state": "not_established",
+                    "reason": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                },
+                "counterexample_conversion_rate": {
+                    "value": None,
+                    "denominator": 0,
+                    "state": "not_applicable",
+                    "reason": "no_counterexample_conversion_attempts",
+                },
+            },
+            "actual_counts": {
+                "source_requirements_attempted": len(attempts),
+                "s1_decisions": len(decisions),
+                "design_candidates_produced": 0,
+            },
+        },
+    )
+
+
+def _read_production_json(
+    store: FileSystemCAS,
+    ref: str,
+    *,
+    kind: str,
+    schema: str,
+    version: str = "1.0",
+    parents: tuple[str, ...] = (),
+    producer_component: str | None = None,
+) -> dict[str, Any]:
+    """Check actual bytes and immutable manifest before reading diagnostic fields."""
+    from polisyos.core.canon import from_canonical_bytes
+
+    raw = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
+    actual = "sha256:" + hashlib.sha256(raw).hexdigest()
+    if (
+        actual != ref
+        or str(manifest.artifact_id) != ref
+        or manifest.byte_size != len(raw)
+        or manifest.integrity.sha256 != actual.removeprefix("sha256:")
+        or manifest.kind != kind
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema != SchemaInfo(name=schema, version=version)
+        or (
+            producer_component is not None
+            and (
+                manifest.producer is None
+                or manifest.producer.component != producer_component
+                or manifest.producer.version != "1"
+            )
+        )
+        or [(str(item.artifact_id), item.role) for item in manifest.inputs]
+        != [(parent, "production_case_input") for parent in parents]
+    ):
+        raise WorkspaceInvariantError("production_case_raw_manifest_custody_drift")
+    value = from_canonical_bytes(raw)
+    if not isinstance(value, dict):
+        raise WorkspaceInvariantError("production_case_payload_not_object")
+    return value
+
+
+def resolve_production_case_admission(
+    *,
+    store: FileSystemCAS,
+    receipt_ref: str,
+    request_ref: str,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    repo_root: Path | None = None,
+) -> ProductionCaseAdmission:
+    """Recompute complete catalog attempts and actual S1 decisions at the consumer.
+
+    This verifies refusal custody only. No public metadata or caller-supplied
+    verifier can authorize a positive source-to-original-construct relation.
+    """
+    request = _read_production_json(
+        store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
+    )
+    intake = ProductionCaseIntake.model_validate(request)
+    if intake.model_dump(mode="json") != request:
+        raise WorkspaceInvariantError("production_case_intake_raw_shape_drift")
+    payload = _read_production_json(
+        store,
+        receipt_ref,
+        kind=PRODUCTION_CASE_ADMISSION_KIND,
+        schema=PRODUCTION_CASE_ADMISSION_SCHEMA,
+        parents=(request_ref,),
+        producer_component="polisyos.runtime.quality.workspace.loop.production_case",
+    )
+    recorded = ProductionCaseAdmission.model_validate(payload)
+    if recorded.model_dump(mode="json") != payload:
+        raise WorkspaceInvariantError("production_case_admission_raw_shape_drift")
+    expected = _compose_production_case_admission(
+        intake=intake,
+        request_ref=request_ref,
+        catalog=catalog,
+        checked_at=recorded.checked_at,
+        repo_root=repo_root,
+    )
+    if expected != recorded:
+        raise WorkspaceInvariantError("production_case_admission_content_recompute_drift")
+    return expected
+
+
+def _production_diagnostic_put(
+    store: FileSystemCAS,
+    payload: dict[str, Any],
+    *,
+    kind: str,
+    schema: str,
+    parents: tuple[str, ...],
+) -> str:
+    # Parent roles are included in the content as well as the manifest so CAS
+    # reuse cannot retain a different immutable ancestry for equal payloads.
+    body = dict(payload)
+    if body.get("request_ref") != (parents[0] if parents else None):
+        raise WorkspaceInvariantError("production_diagnostic_request_parent_drift")
+    scan = scan_secret_and_pii(
+        body, scope="DAG bundles", artifact_ref_or_route=kind, redact=False, block_on_findings=True
+    )
+    if scan.has_findings:
+        raise WorkspaceInvariantError("production_diagnostic_secret_pii_refused")
+    result = store.put_json(
+        body,
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=schema, version="1.0"),
+            producer=ProducerInfo(
+                component="polisyos.runtime.quality.workspace.loop.production_case", version="1"
+            ),
+            inputs=[
+                core_artifacts.InputRef(artifact_id=parent, role="production_case_input")
+                for parent in parents
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    ref = str(result.artifact_id)
+    if (
+        _read_production_json(
+            store,
+            ref,
+            kind=kind,
+            schema=schema,
+            parents=parents,
+            producer_component="polisyos.runtime.quality.workspace.loop.production_case",
+        )
+        != body
+    ):
+        raise WorkspaceInvariantError("production_diagnostic_emission_readback_drift")
+    return ref
+
+
 class WorkspaceLoop:
     """Deterministic Slice-0 workspace loop."""
 
@@ -905,9 +1495,24 @@ class WorkspaceLoop:
         registry: OperationRegistry | None = None,
         catalog_graph: CatalogGraphProtocol | None = None,
         artifact_store: FileSystemCAS | None = None,
+        staged_foundry_inputs: StagedFoundryInputBinding | None = None,
+        eval_safety_execution_context: EvaluationExecutionContext | None = None,
+        eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     ) -> None:
+        self._staged_foundry_inputs = staged_foundry_inputs
+        self._eval_safety_execution_context = eval_safety_execution_context
+        self._eval_safety_verifier = eval_safety_verifier
         self._registry = registry or build_workspace_operation_registry()
         self._artifact_store = artifact_store
+        self._phase2_constraint_readbacks: dict[
+            int, tuple[Phase2ConstraintAdmission, ConstraintStoreIngestor]
+        ] = {}
+        self._phase2_method_readbacks: dict[
+            int,
+            tuple[
+                ArtifactRef, FoundryMethodOutputConsumer, FoundryConsumptionResult, FileSystemCAS
+            ],
+        ] = {}
         if catalog_graph is None:
             catalog_graph = build_default_workspace_catalog_graph()
         self._catalog_graph = catalog_graph
@@ -1026,6 +1631,8 @@ class WorkspaceLoop:
                 run=run,
                 logger=logging.getLogger(f"polisyos.gy.phase2.{workspace_id}"),
                 claim_ledger_owner=build_default_claim_ledger_owner(store=store),
+                eval_safety_execution_context=self._eval_safety_execution_context,
+                eval_safety_verifier=self._eval_safety_verifier,
             ),
             bundle.bundle_ref,
         )
@@ -1098,19 +1705,76 @@ class WorkspaceLoop:
         intent: dict[str, Any],
         design_problem: DesignProblem,
     ) -> ExperimentState:
-        method_selection = _phase2_value_method_selection(
-            {**intent, "workspace_id": workspace_id},
-            design_problem=design_problem,
+        supplied_binding = None
+        if "observational_data_ref" in intent:
+            # A supplied null, string marker or detached DTO is not the recorded
+            # owner's default. Resolve the actual current binding before search.
+            if intent["observational_data_ref"] is None:
+                raise MeasurementRootBindingError("supplied_observation_ref_null")
+            raw_binding = design_problem.runtime_hints.get("foundry_input_binding_receipt_ref")
+            if raw_binding is None:
+                raise MeasurementRootBindingError("supplied_observation_contract_unestablished")
+            try:
+                binding_ref = core_artifacts.ArtifactRef.model_validate(
+                    raw_binding.model_dump(mode="python")
+                    if hasattr(raw_binding, "model_dump") else raw_binding
+                )
+                raw_observation = intent["observational_data_ref"]
+                observation_ref = core_artifacts.ArtifactRef.model_validate(
+                    raw_observation.model_dump(mode="python")
+                    if hasattr(raw_observation, "model_dump") else raw_observation
+                )
+                supplied_binding = verify_recorded_panel_method_input(
+                    store=self._phase2_store(), binding_receipt_ref=binding_ref,
+                )
+                if observation_ref != supplied_binding.observational_data_ref:
+                    raise ValueError("supplied_observation_binding_ref_mismatch")
+            except (ValueError, TypeError, KeyError) as exc:
+                raise MeasurementRootBindingError(
+                    f"supplied_observation_contract_unestablished:{exc}"
+                ) from exc
+            contract_id = supplied_binding.contract_target["contract_id"]
+        else:
+            contract_id = recorded_panel_method_input_target().contract_id
+        selection_intent = {**intent, "workspace_id": workspace_id}
+        if supplied_binding is not None and "causal_method_fqn" not in selection_intent:
+            selection_intent["causal_method_fqn"] = supplied_binding.receipt.method_fqn
+        method_selection = InputContractMethodSelection.model_validate(
+            _phase2_value_method_selection(
+                selection_intent, design_problem=design_problem, contract_id=contract_id,
+            )
         )
-        method_fqn = str(method_selection.get("selected_method_fqn") or "")
+        if method_selection.status != "selected":
+            raise Phase2MethodSelectionError(method_selection)
+        method_fqn = method_selection.selected_method_fqn
+        if method_fqn is None:
+            raise Phase2MethodSelectionError(method_selection, "selected_method_fqn_missing")
         causal_variables = self._phase2_causal_variables(intent=intent)
-        observational_data_ref = self._phase2_observational_data_ref(intent=intent)
-        return ExperimentState(
+        if supplied_binding is None:
+            try:
+                binding = produce_recorded_panel_method_input(
+                    store=self._phase2_store(), method_fqn=method_fqn,
+                )
+            except MeasurementRootBindingError as exc:
+                raise Phase2MethodSelectionError(method_selection, f"{method_fqn}: {exc}") from exc
+        else:
+            if supplied_binding.receipt.method_fqn != method_fqn:
+                raise Phase2MethodSelectionError(
+                    method_selection, "supplied_binding_method_mismatch"
+                )
+            binding = supplied_binding
+        observational_data_ref = binding.observational_data_ref
+        binding_receipt_ref = binding.binding_receipt_ref
+        state = ExperimentState(
             run_id=f"run-{_slug(workspace_id)}",
             observational_data_ref=observational_data_ref,
             causal_method_fqn=method_fqn,
             causal_method_params={},
             execution_profile="gy_phase2",
+            artifacts_index=(
+                {"foundry_input_binding_receipt_ref": binding_receipt_ref}
+                if binding_receipt_ref is not None else {}
+            ),
             params={
                 "policy_question": intent.get("policy_question"),
                 "causal_variables": causal_variables,
@@ -1121,7 +1785,7 @@ class WorkspaceLoop:
                 "random_seed": int(intent.get("random_seed", 42) or 42),
                 "causal_method_fqn": method_fqn,
                 "causal_method_params": {},
-                "causal_method_selection": method_selection,
+                "causal_method_selection": method_selection.model_dump(mode="json"),
                 "enable_causal_refutation": False,
                 "causal_refutation_params": {},
                 "enable_causal_sensitivity": False,
@@ -1129,6 +1793,18 @@ class WorkspaceLoop:
                 "causal_validity": {},
             },
         )
+        if self._staged_foundry_inputs is not None:
+            try:
+                state = install_verified_staged_foundry_inputs(
+                    store=self._phase2_store(), state=state,
+                    binding=self._staged_foundry_inputs,
+                )
+            except (OSError, ValueError, TypeError, KeyError) as exc:
+                raise Phase2MethodSelectionError(
+                    method_selection,
+                    "foundry_staged_intake_verification_missing:" + str(exc),
+                ) from exc
+        return state
 
     def _install_phase2_normative_inputs(
         self,
@@ -1330,15 +2006,50 @@ class WorkspaceLoop:
         next_state.reports_index[report_legal_report_ref] = legal_report_core_ref
         return next_state
 
-    def run_intent(self, intent: DesignProblem) -> WorkspaceIntentRunResult:
+    def readback_constraint_admission(self, admission: Phase2ConstraintAdmission) -> bytes:
+        """Read only an actual admission produced by this live loop and its owner."""
+        stored = self._phase2_constraint_readbacks.get(id(admission))
+        if stored is None or stored[0] is not admission:
+            raise ValueError("constraint_admission_not_from_this_loop")
+        return stored[1].readback(admission, workspace_id=admission.workspace_id)
+
+    def readback_method_consumption(self, ref: ArtifactRef) -> bytes:
+        """Return the exact consumed owner seal; deserialization grants no admission."""
+        stored = self._phase2_method_readbacks.get(id(ref))
+        if stored is None or stored[0] is not ref:
+            raise ValueError("phase2_method_consumption_not_this_loop_admission")
+        return stored[1]._require_verified_consumption(store=stored[3], consumption=stored[2])
+
+    def run_intent(
+        self,
+        intent: DesignProblem,
+        *,
+        constraint_basis: Phase2RequirementBasis | None = None,
+    ) -> WorkspaceIntentRunResult:
         """Run the Phase-2 DesignProblem/playbook path without widening Slice-0 fixtures."""
 
         if not isinstance(intent, DesignProblem):
             raise TypeError("WorkspaceLoop.run_intent requires a DesignProblem.")
         projected_intent = intent.to_workspace_intent()
         selection = select_playbook_for_intent(projected_intent)
-        workspace_id = (
-            f"ws-phase2-{_slug(str(projected_intent.get('policy_question') or 'intent'))}"
+        workspace_slug = _slug(str(projected_intent.get("policy_question") or "intent"))
+        workspace_id = f"ws-phase2-{workspace_slug}"
+        constraint_store = self._phase2_store()
+        constraint_owner = ConstraintStoreIngestor(store=constraint_store)
+        constraint_admission = constraint_owner.produce(
+            workspace_id=workspace_id,
+            design_problem=intent,
+            basis=constraint_basis,
+        )
+        self._phase2_constraint_readbacks[id(constraint_admission)] = (
+            constraint_admission, constraint_owner,
+        )
+        # Authority blockers do not suppress independent candidate smoke. A-side
+        # verification consumes the decision before it can admit an affected use.
+        constraint_blockers = _phase2_constraint_blockers(
+            constraint_owner,
+            constraint_admission,
+            workspace_id=workspace_id,
         )
         blockers: list[SearchBlockerRecord] = []
         executed = [OperationClass.BIND, OperationClass.ESTIMATE]
@@ -1352,6 +2063,7 @@ class WorkspaceLoop:
             if bounds.blocker is not None:
                 blockers.append(bounds.blocker)
             executed.append(OperationClass.REFINE)
+            blockers.extend(constraint_blockers)
             trace = trace_playbook_execution(
                 selection=selection,
                 executed_operation_classes=executed,
@@ -1371,14 +2083,61 @@ class WorkspaceLoop:
                 phase2_playbook_trace=trace,
                 search_blockers=blockers,
                 legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
+                constraint_admission=constraint_admission,
             )
 
         ctx, _bundle_ref = self._phase2_context(workspace_id=workspace_id)
-        state = self._phase2_state(
-            workspace_id=workspace_id,
-            intent=projected_intent,
-            design_problem=intent,
-        )
+        try:
+            state = self._phase2_state(
+                workspace_id=workspace_id,
+                intent=projected_intent,
+                design_problem=intent,
+            )
+        except MeasurementRootBindingError as exc:
+            blocker = SearchBlockerRecord(
+                blocker_id="blocker-foundry-method-input-binding",
+                workspace_id=workspace_id,
+                operation_class=OperationClass.BIND,
+                blocked_port="foundry_method_input_binding",
+                missing_input="verified_foundry_method_input",
+                reason=str(exc)[:800],
+                producer_missing_label="verification_missing",
+                severity="blocks_execution",
+                repair_options=[
+                    {
+                        "operation_class": OperationClass.ACQUIRE.value,
+                        "reason": (
+                            "Supply recorded input satisfying the selected method's "
+                            "actual contract."
+                        ),
+                    }
+                ],
+            )
+            return WorkspaceIntentRunResult(
+                workspace_id=workspace_id,
+                terminal_state=SearchTerminalState(
+                    kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED,
+                    reason="The recorded input owner refused the selected method binding.",
+                    blocking_obligations=[
+                        blocker.blocker_id,
+                        *[item.blocker_id for item in constraint_blockers],
+                    ],
+                ),
+                phase2_playbook_trace=trace_playbook_execution(
+                    selection=selection,
+                    executed_operation_classes=[],
+                    deviated_from_default=True,
+                    deviation_operation=OperationClass.REFINE,
+                    deviation_reason="foundry_method_input_binding_refused",
+                    blockers=[blocker],
+                    executed_legacy_aliases=[],
+                    out_of_scope_steps=[],
+                ),
+                search_blockers=[blocker, *constraint_blockers],
+                phase2_method_selection=getattr(exc, "selection", None),
+                legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
+                constraint_admission=constraint_admission,
+            )
         required_inputs = ["observational_data_ref", "causal_variables", "data_causal_graph"]
         state_facts = {
             "observational_data_ref": state.observational_data_ref,
@@ -1396,9 +2155,10 @@ class WorkspaceLoop:
         operation_invocations: list[OperationInvocationRecord] = []
         search_ledger_events: list[SearchLedgerEvent] = []
         artifact_envelopes: list[ArtifactEnvelope] = []
+        adapter_admissions: list[PlaybookStepAdmission] = []
         executed_aliases: list[str] = []
         out_of_scope_steps: list[dict[str, str]] = []
-        executed_operation_classes: list[OperationClass] = [OperationClass.BIND]
+        executed_operation_classes: list[OperationClass] = []
         method_output_consumption_record: MethodOutputConsumptionRecord | None = None
         method_output_consumption_ref: ArtifactRef | None = None
         authority_boundary: AuthorityBoundary | None = None
@@ -1439,31 +2199,39 @@ class WorkspaceLoop:
                         }
                     )
                     continue
+                if step.operation_class == OperationClass.VERIFY:
+                    current_constraints = _phase2_constraint_blockers(
+                        constraint_owner,
+                        constraint_admission,
+                        workspace_id=workspace_id,
+                    )
+                    if current_constraints:
+                        blockers.extend(current_constraints)
+                        break
                 if step.legacy_alias == "run_normative_arbitration":
                     execution_state = self._install_phase2_normative_inputs(
                         state=execution_state,
                         intent=projected_intent,
                     )
-                node = node_registry.get(step.node_id)
-                adapter = ScientistNodeAdapter.from_node(
-                    node,
-                    operation_id=step.adapter_operation_id,
-                    operation_class=step.operation_class,
-                    authority_transform={
-                        "kind": "hint_only",
-                        "requested_decision_grade": "descriptive_only",
-                        "rule_ref": "policyos.gy.phase2.playbooks.v1",
-                    },
-                    legacy_alias=step.legacy_alias,
-                )
                 invocation_id = f"invoke-phase2-{_slug(step.legacy_alias)}"
-                execution = adapter.execute_candidate(
+                admission = admit_playbook_step(
+                    step,
+                    node_registry=node_registry,
                     ctx=ctx,
                     state=execution_state,
                     workspace_id=workspace_id,
                     invocation_id=invocation_id,
-                    cycle_index=len(operation_invocations) + 1,
+                    cycle_index=len(adapter_admissions) + 1,
                 )
+                adapter_admissions.append(admission)
+                if admission.step is None:
+                    if admission.blocker is None:
+                        raise WorkspaceInvariantError("adapter_admission_refused_without_blocker")
+                    blockers.append(admission.blocker)
+                    break
+                execution = admission.conformance.execution
+                if execution is None:
+                    raise WorkspaceInvariantError("adapter_admitted_without_checked_execution")
                 operation_invocations.append(execution.invocation)
                 search_ledger_events.append(execution.ledger_event)
                 artifact_envelopes.extend(execution.artifact_envelopes)
@@ -1484,23 +2252,73 @@ class WorkspaceLoop:
                     break
                 execution_state = execution.outcome.state
                 if step.legacy_alias == "run_causal_evaluation":
-                    foundry = FoundryMethodOutputConsumer()
-                    consumed = foundry.consume_from_state(
-                        workspace_id=workspace_id,
-                        operation_invocation_id=execution.invocation.invocation_id,
-                        operation_class=OperationClass.ESTIMATE,
-                        state=execution.outcome.state,
-                        measurement_root_ref=state.observational_data_ref,
-                        constraint_store_ref=None,
-                    )
-                    method_output_consumption_record = consumed.record
-                    method_output_consumption_ref = foundry.persist_consumption(
-                        store=self._phase2_store(),
-                        consumption=consumed,
-                    )
-                    authority_boundary = consumed.authority_boundary
-                    foundry_input_provenance = consumed.input_provenance
-                    open_production_findings = list(consumed.open_production_findings)
+                    try:
+                        foundry_store = constraint_store
+                        foundry = FoundryMethodOutputConsumer(
+                            store=foundry_store,
+                            staged_input_source=(self._staged_foundry_inputs.source
+                                if self._staged_foundry_inputs is not None else None),
+                        )
+                        consumed = foundry.consume_from_state(
+                            workspace_id=workspace_id,
+                            operation_invocation_id=execution.invocation.invocation_id,
+                            operation_class=OperationClass.ESTIMATE,
+                            state=execution.outcome.state,
+                            measurement_root_ref=state.observational_data_ref,
+                            binding_receipt_ref=state.artifacts_index.get(
+                                "foundry_input_binding_receipt_ref"
+                            ),
+                        )
+                        # The initial result is verified computation, not yet an emitted
+                        # authority record. Reconcile the actual selected method first.
+                        constraint_admission = constraint_owner.reconcile_method(
+                            constraint_admission,
+                            method_owner=foundry,
+                            consumption=consumed,
+                        )
+                        self._phase2_constraint_readbacks[id(constraint_admission)] = (
+                            constraint_admission, constraint_owner,
+                        )
+                        consumed = foundry.bind_constraints(
+                            consumption=consumed,
+                            owner=constraint_owner,
+                            admission=constraint_admission,
+                        )
+                        constraint_blockers = _phase2_constraint_blockers(
+                            constraint_owner, constraint_admission, workspace_id=workspace_id
+                        )
+                        method_output_consumption_ref = foundry.persist_consumption(
+                            store=foundry_store,
+                            consumption=consumed,
+                        )
+                        self._phase2_method_readbacks[id(method_output_consumption_ref)] = (
+                            method_output_consumption_ref, foundry, consumed, foundry_store,
+                        )
+                        method_output_consumption_record = consumed.record
+                        authority_boundary = consumed.authority_boundary
+                        foundry_input_provenance = consumed.input_provenance
+                        open_production_findings = list(consumed.open_production_findings)
+                    except (ValueError, OSError) as exc:
+                        # An actual computation does not authorize use when its
+                        # current constraint/source readback cannot be substantiated.
+                        blockers.append(
+                            SearchBlockerRecord(
+                                blocker_id="blocker-foundry-constraint-consumption",
+                                workspace_id=workspace_id,
+                                operation_class=OperationClass.REFINE,
+                                blocked_port="method_output_consumption",
+                                missing_input="verified_foundry_constraint_consumption",
+                                reason=str(exc)[:800],
+                                severity="blocks_authority",
+                                producer_missing_label="verification_missing",
+                            )
+                        )
+                        break
+
+        existing_blockers = {item.blocker_id for item in blockers}
+        blockers.extend(
+            item for item in constraint_blockers if item.blocker_id not in existing_blockers
+        )
         trace = trace_playbook_execution(
             selection=selection,
             executed_operation_classes=list(dict.fromkeys(executed_operation_classes).keys()),
@@ -1529,15 +2347,269 @@ class WorkspaceLoop:
             terminal_state=terminal,
             phase2_playbook_trace=trace,
             search_blockers=blockers,
+            constraint_admission=constraint_admission,
             legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
             authority_boundary=authority_boundary,
             operation_invocations=operation_invocations,
             search_ledger_events=search_ledger_events,
             artifact_envelopes=artifact_envelopes,
+            adapter_admissions=adapter_admissions,
+            phase2_method_selection=InputContractMethodSelection.model_validate(
+                state.params["causal_method_selection"],
+            ),
             method_output_consumption_record=method_output_consumption_record,
             method_output_consumption_ref=method_output_consumption_ref,
             foundry_input_provenance=foundry_input_provenance,
             open_production_findings=open_production_findings,
+        )
+
+    def run_production_case(
+        self, *, request_ref: str, fixture_id: str | None = None
+    ) -> WorkspaceSearchExitContract:
+        """Attempt the original population through source owners and S1 before exit.
+
+        Positive original-construct admission remains unavailable. The emitted
+        diagnostic proves current source attempts and the real S1 refusal, not
+        scientific source support, measurement coverage, or model execution.
+        """
+        store = self._artifact_store
+        if store is None:
+            raise WorkspaceInvariantError("production_case_requires_actual_cas")
+        raw = _read_production_json(
+            store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
+        )
+        intake = ProductionCaseIntake.model_validate(raw)
+        if intake.model_dump(mode="json") != raw:
+            raise WorkspaceInvariantError("production_case_intake_raw_shape_drift")
+        if fixture_id is not None and intake.scope_source_fixture_id != fixture_id:
+            raise WorkspaceInvariantError("production_scope_source_differs_from_actual_request")
+        if not isinstance(self._catalog_graph, read_api.catalog.DatasetCatalogGraph):
+            raise WorkspaceInvariantError("production_case_requires_actual_catalog_owner")
+        admission = _compose_production_case_admission(
+            intake=intake,
+            request_ref=request_ref,
+            catalog=self._catalog_graph,
+            checked_at=datetime.now(UTC),
+        )
+        payload = admission.model_dump(mode="json")
+        receipt_ref = _production_diagnostic_put(
+            store,
+            payload,
+            kind=PRODUCTION_CASE_ADMISSION_KIND,
+            schema=PRODUCTION_CASE_ADMISSION_SCHEMA,
+            parents=(request_ref,),
+        )
+        # Actual current owner recomputation is consumed before a terminal can
+        # be formed. Deleting the producer call cannot leave marker-only credit.
+        checked = resolve_production_case_admission(
+            store=store,
+            receipt_ref=receipt_ref,
+            request_ref=request_ref,
+            catalog=self._catalog_graph,
+        )
+        if checked != admission:
+            raise WorkspaceInvariantError("production_case_emission_recompute_drift")
+        workspace_id = f"ws-production-{_slug(intake.pinned_request.case_id)}"
+        root = ArtifactRef(
+            artifact_id=f"request-{_slug(intake.pinned_request.case_id)}",
+            artifact_type="ProductionCaseIntake",
+            version="v1",
+            content_hash=request_ref,
+            schema_ref=PRODUCTION_CASE_INTAKE_SCHEMA,
+            uri=request_ref,
+        )
+        receipt = ArtifactRef(
+            artifact_id=f"admission-{_slug(intake.pinned_request.case_id)}",
+            artifact_type="ProductionCaseAdmission",
+            version="v1",
+            content_hash=receipt_ref,
+            schema_ref=PRODUCTION_CASE_ADMISSION_SCHEMA,
+            uri=receipt_ref,
+        )
+        obligations = [
+            ObligationRecord(
+                obligation_id=f"obligation-production-{_slug(item.claim_id)}",
+                obligation_type="original_construct_evidence_admission",
+                raised_by={"artifact_ref": receipt_ref},
+                blocks=[{"claim_id": item.claim_id, "action": "publication_or_design_credit"}],
+                description=(
+                    "An independent source-to-original-construct admission owner "
+                    "and admitted scoped evidence are missing."
+                ),
+                severity="blocks_promotion",
+                resolution_options=[
+                    {
+                        "owner": "team-runtime-quality",
+                        "capability": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                    },
+                    {
+                        "owner": "source-custody-or-appointed-adjudicator",
+                        "capability": "original_construct_and_scope_evidence_binding",
+                    },
+                ],
+                status="open",
+            )
+            for item in checked.graded_decisions
+        ]
+        decision = select_search_terminal(SearchExitDecisionInputs(verifier_gap=True))
+        terminal = decision.terminal_state().model_copy(
+            update={"blocking_obligations": [row.obligation_id for row in obligations]}
+        )
+        budget = {
+            "consumed": {
+                "compute": {
+                    "source_requirements_attempted": len(checked.requested_constructs),
+                    "s1_decisions": len(checked.graded_decisions),
+                }
+            },
+            "remaining": {},
+            "exhausted": [],
+        }
+        incomplete = SearchIncompletenessRecord(
+            record_id=f"incomplete-{workspace_id}",
+            workspace_id=workspace_id,
+            coverage={
+                "operations_attempted": [PRODUCTION_CASE_OPERATION],
+                "operations_not_attempted": [
+                    {
+                        "operation_id": "source_fetch_and_estimate",
+                        "reason": "independent_original_construct_admission_missing",
+                    }
+                ],
+                "methods_attempted": [],
+                "source_classes_checked": [],
+                "jurisdictions_checked": [intake.scope.jurisdiction],
+                "time_horizons_checked": [intake.scope.time_horizon],
+            },
+            search_quality={
+                "recall_at_known_seeds": None,
+                "freshness_ok": False,
+                "semantic_benchmark_run": {
+                    "schema_version": "policyos.gy.unestablished_search_population.v1",
+                    "population_state": "not_established",
+                    "request_ref": request_ref,
+                    "reason": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                },
+            },
+            unresolved={
+                "unmet_required_ports": [
+                    {
+                        "construct_ref": key,
+                        "reason": _MISSING_ORIGINAL_CONSTRUCT_OWNER,
+                        "attempt_receipt_ref": receipt_ref,
+                    }
+                    for key in checked.requested_constructs
+                ]
+            },
+            budget=budget,
+            next_best_actions=[],
+            ceiling_classification="unknown",
+        )
+        workspace = RefusedWorkspaceContract(
+            workspace_id=workspace_id,
+            intent_ref=root,
+            scope=intake.scope.model_dump(mode="json"),
+            component_state="unavailable",
+            artifact_graph_ref=None,
+            constraint_store_ref=None,
+            agenda_ref=None,
+            frontier_ref=None,
+            refusal_reason=_MISSING_ORIGINAL_CONSTRUCT_OWNER,
+            refusal_source_admission_ref=receipt_ref,
+            allowed_operations=[PRODUCTION_CASE_OPERATION],
+            budget=BudgetVector(),
+        )
+        workspace_payload = {
+            "request_ref": request_ref,
+            "workspace_contract": workspace.model_dump(mode="json"),
+        }
+        workspace_ref = _production_diagnostic_put(
+            store,
+            workspace_payload,
+            kind="pdc.gy.production_workspace",
+            schema="policyos.gy.production_workspace.v1",
+            parents=(request_ref, receipt_ref),
+        )
+        event = SearchLedgerEvent(
+            event_id=f"event-{workspace_id}-s1",
+            workspace_id=workspace_id,
+            cycle_index=0,
+            event_type="production_source_admission_and_s1_refused",
+            actor={"kind": "system", "id": PRODUCTION_CASE_OPERATION},
+            input_artifacts=[root],
+            output_artifacts=[receipt],
+            decision_record_ref=receipt_ref,
+            created_obligations=[row.obligation_id for row in obligations],
+            timestamp=checked.checked_at.isoformat(),
+        )
+        ledger = RefusedWorkspaceSearchLedger(
+            schema_version="policyos.gy.refused_workspace_search_ledger.v1",
+            ledger_id=f"ledger-{workspace_id}",
+            ledger_ref=f"gy://production/{workspace_id}/search-ledger",
+            case_id=intake.pinned_request.case_id,
+            workspace_id=workspace_id,
+            events=[event],
+            admission_decision_refs=[item.decision_id for item in checked.graded_decisions],
+            source_admission_ref=receipt_ref,
+            deterministic_replay_key=receipt_ref,
+            population_state="not_established",
+            counterexample_population_state="not_applicable",
+            unavailable_reason=_MISSING_ORIGINAL_CONSTRUCT_OWNER,
+            counterexample_conversion_rate=None,
+            iterations=[],
+            candidate_refs=[],
+            counterexample_refs=[],
+            invocations=[],
+            applicability_results=[],
+            replay_levels=[],
+        )
+        envelope = ArtifactEnvelope(
+            ref=receipt,
+            payload_ref=receipt_ref,
+            payload_schema_ref=PRODUCTION_CASE_ADMISSION_SCHEMA,
+            lifecycle_state="shadow",
+            created_by={"kind": "runtime", "id": PRODUCTION_CASE_OPERATION},
+            producer_operation={
+                "operation_id": PRODUCTION_CASE_OPERATION,
+                "operation_version": "v1",
+            },
+            input_artifacts=[root],
+            producer_roots=[root],
+            obligations=[row.obligation_id for row in obligations],
+        )
+        return WorkspaceSearchExitContract(
+            exit_id=f"exit-{workspace_id}",
+            workspace_id=workspace_id,
+            cycle_index=0,
+            terminal_state=terminal,
+            frontier_snapshot=FrontierSnapshot(
+                snapshot_id=f"frontier-{workspace_id}",
+                workspace_id=workspace_id,
+                cycle_index=0,
+                frontier_metrics={"design_candidate_count": 0},
+            ),
+            incompleteness_record=incomplete,
+            budget_ledger=budget,
+            output_artifacts=[receipt],
+            workspace_contract=workspace,
+            workspace_contract_ref=workspace_ref,
+            obligation_records=obligations,
+            search_ledger=ledger,
+            voi_audit=VOISelectionAudit(
+                audit_id=f"voi-{workspace_id}",
+                workspace_id=workspace_id,
+                selected_terminal=terminal.kind,
+                candidates=[],
+                continuation_allowed=False,
+                decision_rule_ref=WORKSPACE_ANYTIME_EXIT_RULE_VERSION,
+                notes=[
+                    (
+                        "VOI and search recall are not measured on an adjudicated "
+                        "original-construct population."
+                    )
+                ],
+            ),
+            artifact_envelopes=[envelope],
         )
 
     def run_fixture(
@@ -2993,6 +4065,7 @@ __all__ = [
     "MeasurementRootProducer",
     "OperationRegistration",
     "OperationRegistry",
+    "RefusedWorkspaceSearchLedger",
     "SearchExitDecisionInputs",
     "SearchTerminalDecision",
     "SemanticAdequacyGate",
@@ -3008,4 +4081,5 @@ __all__ = [
     "load_gy_semantic_benchmark",
     "load_workspace_fixture_manifest",
     "select_search_terminal",
+    "workspace_exit_schema_version",
 ]

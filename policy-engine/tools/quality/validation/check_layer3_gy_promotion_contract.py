@@ -74,9 +74,8 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
-    CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE,
     CanonicalPromotionInput,
     CanonicalPromotionReceipt,
     LegacyPromotionStrangleReceipt,
@@ -925,6 +924,8 @@ def _reconcile_frozen_contract(
     if not _frozen_comparison_identity_admissible(frozen, plan):
         raise ValueError("promotion_comparison_admission_manifest_drift")
     if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
+        if _is_authorized_v6_source_scope_epoch_reissue(frozen, live, plan):
+            return live
         if not _is_authorized_v3_to_v6_comparison_reissue(frozen, live, plan.manifest):
             raise ValueError("promotion_comparison_admission_manifest_drift")
         return live
@@ -1091,12 +1092,318 @@ def _is_authorized_v3_to_v6_comparison_reissue(
         and live.get("comparison_rule_version") == GY_VERIFICATION_COMPARISON_RULE_VERSION
         and receipt_epochs(frozen) == (GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,) * len(receipt_keys)
         and receipt_epochs(live)
-        == (CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION,) * len(receipt_keys)
+        == ("policyos.policy_design_case.layer3_gy.n9_promotion.v6",) * len(receipt_keys)
         and {row.get("owner_rule") for row in frozen_manifest if isinstance(row, dict)}
         == {CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE}
         and {row.get("owner_rule") for row in live_manifest if isinstance(row, dict)}
-        == {CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE}
+        == {CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE}
     )
+
+
+_N9_V6_EPOCH = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+_N9_V7_EPOCH = "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
+_N9_V6_SCOPE_RULE = "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3"
+_N9_V6_MEASUREMENT_OWNER = (
+    "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer.produce_from_catalog"
+)
+
+
+def _n9_v6_scope_hash(receipt: Any) -> str:
+    """Recompute the frozen v6 scope formula from its typed, complete owner input."""
+    owner = receipt.owner_projection
+    return gy_content_hash(
+        {
+            "rule_version": _N9_V6_SCOPE_RULE,
+            "promotion_rule_version": _N9_V6_EPOCH,
+            "design_problem_id": owner.design_problem_binding.design_problem_id,
+            "problem_content_hash": owner.design_problem_binding.problem_content_hash,
+            "candidate_id": owner.candidate_summary.candidate_id,
+            "candidate_content_hash": owner.candidate_summary.content_hash,
+            "operation_invocation_id": owner.operation_invocation_id,
+        }
+    )
+
+
+def _translate_n9_semantic_ledger_epoch(value: dict[str, Any]) -> dict[str, Any]:
+    """Recompute hash descendants of one typed rule transition without dropping fields."""
+    from polisyos.runtime.quality import confidence_ledger as owner
+
+    previous = owner.N9PromotionSemanticLedgerProjection.model_validate(value)
+    if previous.risk_scope.rule_ref != _N9_V6_EPOCH:
+        raise ValueError("promotion_reissue_ledger_epoch_invalid")
+    scope = owner.ConfidenceRiskBudgetScope.model_validate(
+        {**previous.risk_scope.model_dump(mode="json"), "rule_ref": _N9_V7_EPOCH}
+    )
+    scoped = previous.model_copy(update={"risk_scope": scope, "scope_id": scope.scope_id})
+    root_hash = owner._content_hash(
+        owner._n9_semantic_ledger_root_values(
+            receipt=scoped,
+            risk_scope=scope,
+        )
+    )
+    translated_hashes = {previous.root_projection_hash: root_hash}
+    events = []
+    checks = {}
+    for event in previous.events:
+        check = event.check.model_dump(mode="json")
+        check["filtration_projection_hash"] = translated_hashes[
+            event.check.filtration_projection_hash
+        ]
+        check["claim_execution_projection_hash"] = (
+            owner._semantic_claim_execution_projection_hash_from_projection(
+                owner.ConfidenceLedgerSemanticCheck.model_validate(check)
+            )
+        )
+        check["check_projection_hash"] = owner._content_hash(
+            {key: item for key, item in check.items() if key != "check_projection_hash"}
+        )
+        values = {
+            **event.model_dump(mode="json"),
+            "check": check,
+            "parent_event_projection_hash": translated_hashes[event.parent_event_projection_hash],
+        }
+        values["event_projection_hash"] = owner._content_hash(
+            {key: item for key, item in values.items() if key != "event_projection_hash"}
+        )
+        translated = owner.ConfidenceLedgerSemanticEvent.model_validate(values)
+        translated_hashes[event.event_projection_hash] = translated.event_projection_hash
+        events.append(translated.model_dump(mode="json"))
+        checks[translated.check.request_key] = translated.check.model_dump(mode="json")
+    payload = {
+        **scoped.model_dump(mode="json"),
+        "root_projection_hash": root_hash,
+        "events": events,
+        "checks": [checks[key] for key in sorted(checks)],
+        "head_event_projection_hash": translated_hashes[previous.head_event_projection_hash],
+    }
+    payload["projection_hash"] = owner._content_hash(
+        {key: item for key, item in payload.items() if key != "projection_hash"}
+    )
+    return owner.N9PromotionSemanticLedgerProjection.model_validate(payload).model_dump(mode="json")
+
+
+def _translate_n9_v6_receipt_epoch(
+    value: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, tuple[str, str, str]]]:
+    """Translate only the verified v6 source/scope derivation into current comparison custody."""
+    from polisyos.pdc import PromotionObligationDraft, PromotionObligationRecord
+    from polisyos.runtime.quality import confidence_ledger as ledger_owner
+    from polisyos.runtime.quality import promotion_sequence as owner
+
+    previous = owner.parse_canonical_promotion_history_receipt(value)
+    if previous.model_dump(mode="json") != value:
+        raise ValueError("promotion_reissue_historical_receipt_incomplete")
+    if previous.schema_version != _N9_V6_EPOCH or previous.promoted or previous.consumer_promotable:
+        raise ValueError("promotion_reissue_receipt_epoch_or_authority_invalid")
+    current_input = owner._input_from_owner_projection(previous.owner_projection, repo_root=None)
+    if current_input.schema_version != _N9_V7_EPOCH or current_input.producer_root_refs:
+        raise ValueError("promotion_reissue_requires_unbridged_contract_replay")
+    old_scope_hash = _n9_v6_scope_hash(previous)
+    old_drafts = [
+        PromotionObligationDraft.model_validate(
+            row.model_dump(
+                mode="json",
+                exclude=owner._PROMOTION_OBLIGATION_IDENTITY_FIELDS,
+            )
+        )
+        for row in previous.obligations
+        if row.obligation_role == "class_gate"
+    ]
+    new_drafts = []
+    for draft in old_drafts:
+        if draft.obligation_class == PromotionObligationClass.MEASUREMENT:
+            if draft.owner_ref != _N9_V6_MEASUREMENT_OWNER:
+                raise ValueError("promotion_reissue_measurement_source_invalid")
+            draft = draft.model_copy(update={"owner_ref": owner._MEASUREMENT_ROOT_OWNER_REF})
+        new_drafts.append(draft)
+    current_rows = owner._finalize_obligations(current_input, new_drafts)
+    if len(current_rows) != len(previous.obligations):
+        raise ValueError("promotion_reissue_obligation_identity_denominator_drift")
+    identity_map = {}
+    for old, current in zip(previous.obligations, current_rows, strict=True):
+        if (old.obligation_role, old.source_obligation_ref) != (
+            current.obligation_role,
+            current.source_obligation_ref,
+        ):
+            raise ValueError("promotion_reissue_obligation_order_drift")
+        old_draft = PromotionObligationDraft.model_validate(
+            old.model_dump(
+                mode="json",
+                exclude=owner._PROMOTION_OBLIGATION_IDENTITY_FIELDS,
+            )
+        )
+        if old.obligation_role == "class_gate":
+            source_ref, source_hash = owner._class_gate_source(old_draft)
+        else:
+            source_ref = current.source_obligation_ref
+            source_hash = current.source_obligation_content_hash
+            if source_ref == f"{owner.PROMOTION_SEQUENCE_REF}#effective_independence":
+                resolution = owner._evidence_resolution(None, "effective_independence")
+                source_hash = gy_content_hash(
+                    {
+                        "rule_version": _N9_V6_SCOPE_RULE,
+                        "source_obligation_ref": source_ref,
+                        "predicate_provenance": resolution.predicate_class,
+                        "capability_state": resolution.status,
+                        "owner_ref": owner._effective_independence_obligation(resolution).owner_ref,
+                    }
+                )
+            current_draft = PromotionObligationDraft.model_validate(
+                current.model_dump(
+                    mode="json",
+                    exclude=owner._PROMOTION_OBLIGATION_IDENTITY_FIELDS,
+                )
+            )
+            if old_draft != current_draft:
+                raise ValueError("promotion_reissue_decisive_predicate_drift")
+        expected_old = PromotionObligationRecord.from_draft(
+            old_draft,
+            obligation_role=old.obligation_role,
+            source_obligation_ref=source_ref,
+            source_obligation_content_hash=source_hash,
+            instance_scope_content_hash=old_scope_hash,
+        )
+        if old != expected_old:
+            raise ValueError("promotion_reissue_historical_obligation_derivation_invalid")
+        identity_map[old.obligation_instance_id] = (
+            current.obligation_instance_id,
+            old.source_obligation_ref,
+            old.obligation_role,
+        )
+    payload = previous.model_dump(mode="json")
+    payload["schema_version"] = _N9_V7_EPOCH
+    payload["obligations"] = [row.model_dump(mode="json") for row in current_rows]
+    rules = payload["computed_authority_boundary"]["rule_version_refs"]
+    if _N9_V6_EPOCH not in rules:
+        raise ValueError("promotion_reissue_boundary_epoch_missing")
+    payload["computed_authority_boundary"]["rule_version_refs"] = [
+        _N9_V7_EPOCH if rule == _N9_V6_EPOCH else rule for rule in rules
+    ]
+    certificate = payload["confidence_ledger_projection"]
+    if certificate["risk_scope"]["rule_ref"] != _N9_V6_EPOCH:
+        raise ValueError("promotion_reissue_certificate_epoch_invalid")
+    certificate["risk_scope"]["rule_ref"] = _N9_V7_EPOCH
+    certificate["projection_hash"] = ledger_owner._content_hash(
+        {key: item for key, item in certificate.items() if key != "projection_hash"}
+    )
+    payload["confidence_ledger_semantic_projection"] = _translate_n9_semantic_ledger_epoch(
+        payload["confidence_ledger_semantic_projection"]
+    )
+    payload["gate_outcome_hash"] = owner._gate_outcome_hash(
+        current_rows,
+        open_world_gate=current_input.open_world_gate,
+        epoch_validity_projection=current_input.epoch_validity_projection,
+    )
+    current = owner.CanonicalPromotionReceipt.model_validate(payload)
+    return current.model_dump(mode="json"), identity_map
+
+
+def _is_authorized_v6_source_scope_epoch_reissue(
+    frozen: dict[str, Any],
+    live: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
+) -> bool:
+    """Reconcile the entire admitted set through exact typed epoch derivations."""
+    if (
+        "comparison_admission_manifest" not in frozen
+        or not isinstance(frozen["comparison_admission_manifest"], list)
+        or live.get("comparison_admission_manifest") != plan.manifest
+    ):
+        return False
+    expected_manifest = [
+        {**entry, "owner_rule": CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE}
+        for entry in plan.manifest
+    ]
+    if frozen["comparison_admission_manifest"] != expected_manifest:
+        return False
+    if any(
+        frozen.get(field) != live.get(field)
+        for field in (
+            "comparison_projection_schema_version",
+            "comparison_rule_version",
+        )
+    ):
+        return False
+    try:
+        historical_plan = build_gy_comparison_projection_plan_from_manifest(
+            frozen,
+            manifest=frozen["comparison_admission_manifest"],
+            owner_rule_registry=canonical_promotion_verification_comparison_owner_rule_registry(),
+        )
+        if frozen.get("comparison_content_hash") != _comparison_content_hash(
+            frozen, historical_plan
+        ):
+            return False
+        # The earlier S3 input epoch is a separately governed transition. Keep
+        # its registered v6 owner and its exact predicate when composing it with
+        # this source/scope epoch; never normalize credal fields in the new one.
+        source = frozen
+        credal_transition = copy.deepcopy(frozen)
+        has_previous_credal = False
+        for entry in historical_plan.entries:
+            target: Any = credal_transition
+            for segment in entry.path:
+                target = target[segment]
+            reference = target["owner_projection"]["credal_reference"]
+            if reference is not None and reference["schema_version"] == (
+                "policyos.runtime.grounding_credal_reference.v1"
+            ):
+                reference["schema_version"] = "policyos.runtime.grounding_credal_reference.v2"
+                projection = target["owner_projection"]
+                projection["projection_hash"] = gy_content_hash(
+                    {key: item for key, item in projection.items() if key != "projection_hash"}
+                )
+                has_previous_credal = True
+        if has_previous_credal:
+            _set_comparison_identity(credal_transition, historical_plan)
+            credal_transition["contract_content_hash"] = _contract_content_hash(credal_transition)
+            if not _is_authorized_credal_input_epoch_reissue(
+                frozen, credal_transition, historical_plan
+            ):
+                return False
+            source = credal_transition
+        excluded = _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
+        previous_body = {key: value for key, value in source.items() if key not in excluded}
+        current_body = {key: value for key, value in live.items() if key not in excluded}
+        translated_body = copy.deepcopy(previous_body)
+        current_projection = plan.project(current_body)
+        identity_map = {}
+        for entry in historical_plan.entries:
+            raw: Any = previous_body
+            target: Any = translated_body
+            for segment in entry.path[:-1]:
+                raw = raw[segment]
+                target = target[segment]
+            projected, identities = _translate_n9_v6_receipt_epoch(raw[entry.path[-1]])
+            target[entry.path[-1]] = projected
+            for before, after in identities.items():
+                if before in identity_map and identity_map[before] != after:
+                    return False
+                identity_map[before] = after
+        witness = translated_body["obligation_instance_mutation_witness"]
+        old_id = witness["removed_obligation_instance_id"]
+        new_id, source_ref, role = identity_map[old_id]
+        if (
+            witness["removed_source_obligation_ref"] != source_ref
+            or witness["removed_obligation_role"] != role
+            or witness["authority_issues"]
+            != [
+                {
+                    "code": "decisive_obligation_omitted",
+                    "obligation_instance_id": old_id,
+                }
+            ]
+        ):
+            return False
+        witness["removed_obligation_instance_id"] = new_id
+        witness["authority_issues"][0]["obligation_instance_id"] = new_id
+        # The registered comparison plan owns both typed receipt projection and
+        # its outer operational-time semantics. Apply it to the entire translated
+        # body, just as for the actual live producer, rather than inserting an
+        # already projected receipt after that outer pass has completed.
+        return plan.project(translated_body) == current_projection
+    except (KeyError, IndexError, TypeError, ValueError):
+        return False
 
 
 def _set_comparison_identity(

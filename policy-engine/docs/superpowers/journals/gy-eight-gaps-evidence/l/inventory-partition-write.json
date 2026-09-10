@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.l_inventory_partition",
+    "--write"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T12:49:59.125143+00:00",
+  "elapsed_seconds": 0.118,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"inventory_path\": \"architecture/policy_design_case/inventory.json\",\n  \"inventory_denominator\": 272,\n  \"lifecycle_entry_denominator\": 176,\n  \"changes\": [\n    {\n      \"index\": 157,\n      \"path\": \"architecture/policy_design_case/layer3_gy_outcome_run.json\",\n      \"field\": \"family_id\",\n      \"before\": \"policy-design-case-layer3-gy-loop-artifacts\",\n      \"after\": \"policy-design-case-layer3-gy-loop-history-artifacts\"\n    },\n    {\n      \"index\": 157,\n      \"path\": \"architecture/policy_design_case/layer3_gy_outcome_run.json\",\n      \"field\": \"lifecycle\",\n      \"before\": \"generated_committed\",\n      \"after\": \"source_committed\"\n    }\n  ],\n  \"independent_field_identities_reconciled\": true,\n  \"write\": true,\n  \"before_sha256\": \"e211c2256d1311577d3b6cea006c955249e162506339201aea77e694838e8d32\",\n  \"after_sha256\": \"e7138eaa753474be1f20c0c9662a747616a1915ee61c5f0556f231bd6f3ff006\"\n}\n",
+  "stderr": ""
+}

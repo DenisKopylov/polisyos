@@ -7,6 +7,7 @@ import time as _time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from polisyos.core.contracts import BoundedLivenessConfig
 from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, RetryExhaustedError
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
@@ -520,3 +521,42 @@ class TestRetryTimeoutWorker:
             _node_execute_worker(node, ctx, state, result_queue)
 
         result_queue.put.assert_not_called()
+
+
+class _OutputAwareTransportNode:
+    def __init__(self, outcome, worker_pid_path):
+        self.outcome = outcome
+        self.worker_pid_path = worker_pid_path
+
+    def execute(self, ctx, state):
+        import os
+
+        self.worker_pid_path.write_text(str(os.getpid()))
+        return self.outcome
+
+
+@pytest.mark.skipif(
+    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_output_aware_fork_retry_preserves_complete_outcome(tmp_path, ctx, mode) -> None:
+    import asyncio
+    import os
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.scientist.orchestration.engine import OutputAwareNodeOutcome
+    from tests.unit.scientist.orchestration.engine.runner.test_serialization import (
+        _output_aware_transport_outcome,
+    )
+
+    outcome = _output_aware_transport_outcome(FileSystemCAS(tmp_path / "cas"))
+    worker_pid_path = tmp_path / "actual-worker-pid"
+    node = _OutputAwareTransportNode(outcome, worker_pid_path)
+    kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 10.0, "alias": "output-aware-wire"}
+    if mode == "sync":
+        restored = execute_with_retry_sync(node, ctx, outcome.state, **kwargs)
+    else:
+        restored = asyncio.run(execute_with_retry_async(node, ctx, outcome.state, **kwargs))
+    assert int(worker_pid_path.read_text()) != os.getpid()
+    assert type(restored) is OutputAwareNodeOutcome
+    assert restored.model_dump(mode="json") == outcome.model_dump(mode="json")

@@ -1,0 +1,28 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_inventory_registration_is_recomputed_from_custody",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_output_root_census_includes_unregistered_cas_members",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_actual_producer_namespaces_have_bounded_lifecycle_custody",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_lifecycle_custody_rejects_unbounded_namespaces",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_inventory_byte_drift_reaches_its_registered_verifier",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_real_alternative_namespaces_are_discovered_without_registration",
+    "-q"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:02:51.100046+00:00",
+  "elapsed_seconds": 2.942,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "..............                                                           [100%]\n",
+  "stderr": ""
+}

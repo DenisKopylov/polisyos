@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.k.caller_draft"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:28:38.516369+00:00",
+  "elapsed_seconds": 38.474,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"stage\": \"actual_current_source\", \"finding_identity_set\": [{\"column\": 15, \"line\": 1251, \"path\": \"src/polisyos/ir/analytics/literature.py\"}]}\n{\"stage\": \"unapplied_proposed_source\", \"receipt\": {\"source_denominator\": {\"roots\": [\"src\", \"tools\"], \"rglob_py\": 3065, \"os_walk_py\": 3065}, \"remaining_callers\": [], \"remaining_callers_disposition\": \"no_current_production_callers_of_fenced_predecessor\", \"caller_guard_ref\": \"recompute_openalex_accuracy_strangle\"}}\n{\"stage\": \"unapplied_new_alias_caller\", \"finding_identity_set\": [{\"column\": 45, \"line\": 2098, \"path\": \"src/polisyos/ir/analytics/literature.py\"}]}\n",
+  "stderr": ""
+}

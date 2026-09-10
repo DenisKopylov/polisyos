@@ -1,0 +1,31 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "-rA",
+    "tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_current_openalex_source_refs_bind_exact_configured_bytes",
+    "tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_recorded_source_preflight_refuses_unknown_or_invalid_capture_time",
+    "tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_current_artifact_reader_requires_an_object_and_checks_empty_content",
+    "tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_current_accuracy_recomputation_uses_supplied_complete_source_root",
+    "tests/unit/ir/test_literature_openalex_grounding.py::test_gold_instrument_preserves_capture_and_review_time_roles",
+    "tests/unit/ir/test_literature_openalex_grounding.py::test_recorded_source_loader_binds_the_exact_single_read"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:49:23.892455+00:00",
+  "elapsed_seconds": 4.053,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "......\n==================================== PASSES ====================================\n=========================== short test summary info ============================\nPASSED tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_current_openalex_source_refs_bind_exact_configured_bytes\nPASSED tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_recorded_source_preflight_refuses_unknown_or_invalid_capture_time\nPASSED tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_current_artifact_reader_requires_an_object_and_checks_empty_content\nPASSED tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_current_accuracy_recomputation_uses_supplied_complete_source_root\nPASSED tests/unit/ir/test_literature_openalex_grounding.py::test_gold_instrument_preserves_capture_and_review_time_roles\nPASSED tests/unit/ir/test_literature_openalex_grounding.py::test_recorded_source_loader_binds_the_exact_single_read\n",
+  "stderr": ""
+}

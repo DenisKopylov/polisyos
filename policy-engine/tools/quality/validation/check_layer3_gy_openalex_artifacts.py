@@ -14,7 +14,6 @@ import os
 import sys
 import tempfile
 import tomllib
-from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -25,10 +24,15 @@ from tools.lib.timing import run_timed_entrypoint
 
 FAMILY_ID = "policy-design-case-layer3-gy-openalex-artifacts"
 SOURCE_FAMILY_ID = "policy-design-case-layer3-gy-openalex-source-artifacts"
+HISTORY_FAMILY_ID = "policy-design-case-layer3-gy-openalex-history-artifacts"
+HISTORICAL_OUTPUTS_SHA256 = {
+    "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json": "sha256:f0a638647aebc33e327c989b816529cc6b0f750f081dab533dc3611ad47f8c68",
+    "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json": "sha256:c45e37e16c539787acaca9b44f0afed6fb3ed77b941f2ded78e40c3fa51239de",
+}
 CONFIG_PATH = "architecture/policy_design_case/layer3_gy_openalex_provider_config.json"
 GOLD_PATH = "architecture/policy_design_case/layer3_gy_openalex_claim_span_gold.json"
-ACCURACY_PATH = "architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json"
-INGEST_PATH = "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json"
+ACCURACY_PATH = "architecture/policy_design_case/layer3_gy_openalex_accuracy_report_v2.json"
+INGEST_PATH = "architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records_v2.json"
 OUTPUTS = [ACCURACY_PATH, INGEST_PATH]
 
 REAL_AGENT_MODEL_ID = "MiniMaxAI/MiniMax-M2.7"
@@ -171,8 +175,7 @@ def _deterministic_span_support_judgment(
     ):
         return "neutral", 0.93, "sector-specific span does not support the broad claim"
     if "remained essentially unchanged" in span and (
-        "reduced overall" in claim
-        or ("reduced" in claim and direction in {"negative", "positive"})
+        "reduced overall" in claim or ("reduced" in claim and direction in {"negative", "positive"})
     ):
         return "contradicts", 0.95, "stable-job span contradicts a reduction claim"
 
@@ -226,21 +229,23 @@ def validate(
     else:
         for relative_path, expected_payload in expected.items():
             committed = _read_json(repo_root / relative_path, issues)
-            if relative_path == ACCURACY_PATH and committed:
+            if relative_path == ACCURACY_PATH and committed is not None:
                 validate_accuracy_report_payload(
                     committed,
                     expected=expected_payload,
                     issues=issues,
+                    repo_root=repo_root,
                 )
-            if committed and committed != expected_payload:
+            if committed != expected_payload:
                 issues.append({"code": "layer3_gy_openalex_artifact_drift", "path": relative_path})
 
     if corrupt_field_drift_check:
         corrupted = json.loads(json.dumps(expected[ACCURACY_PATH]))
-        expected_precision = float(corrupted["accuracy"].get("precision") or 0.0)
-        corrupted["accuracy"]["precision"] = 0.0 if expected_precision != 0.0 else 1.0
+        corrupted["accuracy"]["precision"] = 1.0
         corrupt_issues: list[dict[str, str]] = []
-        validate_accuracy_report_payload(corrupted, expected[ACCURACY_PATH], corrupt_issues)
+        validate_accuracy_report_payload(
+            corrupted, expected[ACCURACY_PATH], corrupt_issues, repo_root=repo_root
+        )
         if corrupt_issues:
             issues.append({"code": "layer3_gy_openalex_corrupt_field_drift_detected"})
         else:
@@ -258,13 +263,8 @@ def validate(
     except Exception as exc:
         issues.append({"code": "layer3_gy_openalex_lifecycle_check_failed", "error": str(exc)})
 
-    status_issues = [
-        issue
-        for issue in issues
-        if issue.get("code") != "layer3_gy_openalex_corrupt_field_drift_detected"
-    ]
     return {
-        "status": "pass" if not status_issues else "fail",
+        "status": "pass" if not issues else "fail",
         "family_id": FAMILY_ID,
         "source_family_id": SOURCE_FAMILY_ID,
         "checked_artifacts": [CONFIG_PATH, GOLD_PATH, *OUTPUTS],
@@ -275,422 +275,465 @@ def validate(
     }
 
 
-def build_live_payloads(repo_root: Path) -> dict[str, dict[str, Any]]:
-    """Recompute GY-K proof payloads from live code and recorded-real cassettes."""
-
-    from polisyos.data_forge.domains.academic.knowledge.skg_store import (
-        ensure_skg_schema,
-        ingest_openalex_no_hit_frontier,
-        ingest_openalex_span_grounded_claims,
-    )
+def _recorded_provider_population(repo_root: Path) -> tuple[list[Any], list[dict[str, Any]]]:
     from polisyos.ir.analytics.literature import (
-        ClaimSpanGoldSet,
-        EvidenceSpan,
-        extract_span_grounded_claims_from_openalex_work,
-        validate_causal_claim_span_grounding,
+        OpenAlexExtractionCase,
+        load_recorded_openalex_source,
     )
-    from polisyos.runtime.quality.candidate_firewall import (
-        CandidateFirewallError,
-        assert_l2_claim_authority_span_grounded,
+
+    config = _read_required_json(repo_root / CONFIG_PATH)
+    paths = config["provenance"]["recorded_response_fixtures"]
+    cases = []
+    sources = []
+    for relative in paths:
+        source = load_recorded_openalex_source(repo_root / relative, allow_empty=True)
+        payload, query = source.payload, source.query
+        result = asyncio.run(_provider_works_from_fixture(payload, query=query))
+        source_ref = f"{relative}@{source.content_sha256}"
+        sources.append(
+            {
+                "source_ref": source_ref,
+                "query": query,
+                "recorded_at": source.captured_at,
+                "response_sha256": result.response_sha256,
+                "returned_work_ids": [str(row.get("id")) for row in result.raw_response["results"]],
+                "selected_hit_ids": [str(hit.url) for hit in result.hits],
+                "excluded_results": [list(row) for row in result.excluded_results],
+                "response_meta": result.raw_response.get("meta"),
+                "population_scope": "complete_recorded_response_not_global_OpenAlex",
+            }
+        )
+        for index, row in enumerate(result.raw_response["results"]):
+            work_id = str(row["id"])
+            matched = [work for work in result.works if work.openalex_id == work_id]
+            cases.append(
+                OpenAlexExtractionCase(
+                    case_id=_content_digest([source_ref, index, work_id, query]),
+                    openalex_id=work_id,
+                    query=query,
+                    source_ref=source_ref,
+                    recorded_at=source.captured_at,
+                    work=matched[0] if len(matched) == 1 else None,
+                )
+            )
+    return cases, sources
+
+
+async def _provider_works_from_fixture(payload: dict[str, Any], *, query: str) -> Any:
+    from unittest.mock import patch
+
+    from polisyos.scholar.search import providers
+    from polisyos.scholar.search.models import SearchConstraints
+
+    async def recorded_response(url: str, *, headers: dict[str, str], timeout_s: float) -> str:
+        del headers, timeout_s
+        from urllib.parse import parse_qs, urlparse
+
+        parsed = urlparse(url)
+        if parsed.scheme != "https" or parsed.netloc != "api.openalex.org":
+            raise ValueError("openalex_recorded_transport_target_mismatch")
+        if parse_qs(parsed.query).get("search") != [query]:
+            raise ValueError("openalex_recorded_transport_query_mismatch")
+        return json.dumps({key: value for key, value in payload.items() if key != "_recording"})
+
+    with patch.object(providers, "_read_url_text", recorded_response):
+        return await providers.OpenAlexWorksProvider().search_with_works(
+            query,
+            constraints=SearchConstraints(source_types=["academic"]),
+            max_results=max(1, len(payload["results"])),
+            timeout_s=5,
+        )
+
+
+def _content_digest(value: object) -> str:
+    import hashlib
+
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+def _build_current_accuracy_payload(repo_root: Path) -> dict[str, Any]:
+    from polisyos.ir.analytics.literature import evaluate_openalex_claim_extractor_accuracy
+
+    cases, sources = _recorded_provider_population(repo_root)
+    report = evaluate_openalex_claim_extractor_accuracy(cases=cases)
+    return {
+        "schema_version": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v2",
+        "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v2",
+        "produced_by": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+        "population_sources": sources,
+        "accuracy": report.model_dump(mode="json"),
+        "accuracy_provenance": {
+            "predicate_basis": "recomputed",
+            "adjudicator_appointment": "not_established",
+            "standing_rule_ref": "correspondence-acceptance-standing-rule",
+            "scope": "extractor_execution_and_constructed_negatives_only",
+        },
+    }
+
+
+def recompute_openalex_accuracy_strangle(repo_root: Path) -> dict[str, Any]:
+    """Reject production references to the fenced, extractor-free predecessor."""
+
+    import ast
+    import os
+
+    roots = [repo_root / name for name in ("src", "tools")]
+    paths = {path for root in roots for path in root.rglob("*.py")}
+    independent = {
+        Path(directory) / name
+        for root in roots
+        for directory, _, names in os.walk(root)
+        for name in names
+        if name.endswith(".py")
+    }
+    if not paths or paths != independent:
+        raise ValueError("openalex_strangle_source_denominator_unresolved")
+    predecessor = "_evaluate_gold_span_support_accuracy"
+    references = []
+    for path in sorted(paths):
+        relative = path.relative_to(repo_root).as_posix()
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=relative)
+        for node in ast.walk(tree):
+            target = (
+                node.id
+                if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
+                else node.attr
+                if isinstance(node, ast.Attribute) and isinstance(node.ctx, ast.Load)
+                else node.name
+                if isinstance(node, ast.alias)
+                else None
+            )
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "getattr"
+                and len(node.args) >= 2
+            ):
+                member = node.args[1]
+                if isinstance(member, ast.Constant):
+                    target = member.value
+            if target == predecessor:
+                references.append(
+                    {"path": relative, "line": node.lineno, "column": node.col_offset}
+                )
+    if references:
+        raise ValueError(
+            "openalex_unfenced_predecessor_reference:" + json.dumps(references, sort_keys=True)
+        )
+    return {
+        "source_denominator": {
+            "roots": ["src", "tools"],
+            "rglob_py": len(paths),
+            "os_walk_py": len(independent),
+        },
+        "remaining_callers": references,
+        "remaining_callers_disposition": "no_current_production_callers_of_fenced_predecessor",
+        "caller_guard_ref": "recompute_openalex_accuracy_strangle",
+    }
+
+
+def build_live_payloads(repo_root: Path) -> dict[str, dict[str, Any]]:
+    """Recompute complete provider→candidate SQL evidence and extractor instrumentation."""
+
+    from unittest.mock import patch
+
+    from polisyos.data_forge.domains.academic.batch.article_extractor import (
+        serialize_rich_claim_occurrence_vocabulary,
     )
+    from polisyos.data_forge.domains.academic.knowledge import skg_store
+    from polisyos.ir.analytics import literature
     from polisyos.scholar.search.models import SearchQueryTrace
 
-    _read_required_json(repo_root / CONFIG_PATH)
-    gold = ClaimSpanGoldSet.model_validate_json((repo_root / GOLD_PATH).read_text(encoding="utf-8"))
-    span_support_client = DeterministicSpanSupportClient()
-    accuracy_payload = _read_required_json(repo_root / ACCURACY_PATH)
-
-    witness_records: list[dict[str, Any]] = []
-    all_hit_sets: list[set[str]] = []
-    with tempfile.TemporaryDirectory(prefix="polisyos-gy-k-openalex-") as tmpdir:
-        con = duckdb.connect(str(Path(tmpdir) / "skg.duckdb"))
-        ensure_skg_schema(con)
-        seen_witness_keys: set[tuple[str, str, str]] = set()
-        for record in gold.records:
-            witness_key = (record.query, record.source_fixture, record.openalex_id)
-            if witness_key in seen_witness_keys:
-                continue
-            seen_witness_keys.add(witness_key)
-            fixture_payload = _read_required_json(repo_root / record.source_fixture)
-            _assert_recorded_openalex_fixture(
-                fixture_payload,
-                path=record.source_fixture,
-                query=record.query,
-            )
-            hits = asyncio.run(
-                _provider_hits_from_fixture(
-                    fixture_payload,
-                    query=record.query,
-                    max_results=5,
-                )
-            )
-            all_hit_sets.append({str(hit.url) for hit in hits})
-            work = _work_from_fixture(fixture_payload, record.openalex_id)
-            claims = extract_span_grounded_claims_from_openalex_work(
-                work,
-                query=record.query,
-                span_support_client=span_support_client,
-            )
-            trace = SearchQueryTrace(
-                query_node_id=f"gold:{record.label_id}",
-                query=record.query,
-                perspective="root",
-                provider="openalex",
-                hit_count=len(hits),
-                searched_at=_recorded_at(fixture_payload),
-            )
-            ingest_report = ingest_openalex_span_grounded_claims(
-                con,
-                work=work,
-                claims=claims,
-                query_trace=trace,
-                span_support_client=span_support_client,
-            )
-            witness_records.append(
-                {
-                    "label_id": record.label_id,
-                    "query": record.query,
-                    "fixture": record.source_fixture,
-                    "hit_ids": [str(hit.url) for hit in hits],
-                    "first_title": hits[0].title if hits else "",
-                    "ingested_claim_count": ingest_report.ingested_claim_count,
-                    "rejected_claim_count": ingest_report.rejected_claim_count,
-                    "authority_tier": ingest_report.authority_tier,
-                    "query_trace_id": ingest_report.query_trace_id,
-                }
-            )
-        no_hit_payload = _read_required_json(
-            repo_root / "tests/fixtures/scholar/openalex/no_hits.json"
-        )
-        no_hit_query = str(no_hit_payload.get("_recording", {}).get("query") or "")
-        _assert_recorded_openalex_fixture(
-            no_hit_payload,
-            path="tests/fixtures/scholar/openalex/no_hits.json",
-            query=no_hit_query,
-            allow_empty=True,
-        )
-        no_hit_hits = asyncio.run(
-            _provider_hits_from_fixture(no_hit_payload, query=no_hit_query, max_results=5)
-        )
-        no_hit_trace = SearchQueryTrace(
-            query_node_id="nohit:openalex",
-            query=no_hit_query,
-            perspective="root",
-            provider="openalex",
-            hit_count=len(no_hit_hits),
-            searched_at=_recorded_at(no_hit_payload),
-        )
-        no_hit_report = ingest_openalex_no_hit_frontier(con, query_trace=no_hit_trace)
-        skg_counts = {
-            "query_traces": int(con.execute("SELECT COUNT(*) FROM ac_skg_query_traces").fetchone()[0]),
-            "span_grounded_claims": int(
-                con.execute("SELECT COUNT(*) FROM ac_skg_span_grounded_claims").fetchone()[0]
-            ),
-            "edge_evidence": int(con.execute("SELECT COUNT(*) FROM ac_skg_edge_evidence").fetchone()[0]),
-            "no_hit_frontier": int(
-                con.execute("SELECT COUNT(*) FROM ac_skg_no_hit_frontier").fetchone()[0]
-            ),
-        }
-        con.close()
-
-    first_record = gold.records[0]
-    first_work = _work_from_fixture(
-        _recorded_fixture_payload(
-            repo_root,
-            first_record.source_fixture,
-            query=first_record.query,
-        ),
-        first_record.openalex_id,
-    )
-    first_claim = extract_span_grounded_claims_from_openalex_work(
-        first_work,
-        query=first_record.query,
-        span_support_client=span_support_client,
-    )[0]
-    valid_grounding = validate_causal_claim_span_grounding(
-        first_work,
-        first_claim,
-        span_support_client=span_support_client,
-    )
-    poisoned = first_claim.model_copy(
-        update={
-            "supporting_spans": [
-                EvidenceSpan(
-                    span_id="non-resolving",
-                    text="This span is not in the OpenAlex work text.",
-                    source_ref=first_work.openalex_id,
-                )
-            ],
-            "supporting_span_ids": ["non-resolving"],
-        }
-    )
-    rejected_grounding = validate_causal_claim_span_grounding(
-        first_work,
-        poisoned,
-        span_support_client=span_support_client,
-    )
-
-    second_record = gold.records[1]
-    second_work = _work_from_fixture(
-        _recorded_fixture_payload(
-            repo_root,
-            second_record.source_fixture,
-            query=second_record.query,
-        ),
-        second_record.openalex_id,
-    )
-    second_claim = extract_span_grounded_claims_from_openalex_work(
-        second_work,
-        query=second_record.query,
-        span_support_client=span_support_client,
-    )[0]
-    non_supporting_claim = second_claim.model_copy(
-        update={
-            "claim_id": f"{second_claim.claim_id}.non_supporting_title",
-            "claim_text": "Minimum wages substantially increase low-wage employment.",
-            "cause_variable": "minimum wages",
-            "effect_variable": "low-wage employment",
-            "supporting_spans": [
-                EvidenceSpan(
-                    span_id="title-present",
-                    text=second_work.title,
-                    source_ref=second_work.openalex_id,
-                    start_char=0,
-                    end_char=len(second_work.title),
-                    content_sha256=second_work.content_sha256,
-                )
-            ],
-            "supporting_span_ids": ["title-present"],
-        }
-    )
-    non_supporting_grounding = validate_causal_claim_span_grounding(
-        second_work,
-        non_supporting_claim,
-        span_support_client=span_support_client,
-    )
-
-    def _resolve_grounding(ref: str) -> dict[str, object] | None:
-        if ref != valid_grounding.grounding_ref:
-            return None
-        span = first_claim.supporting_spans[0]
-        return {
-            "grounding_ref": valid_grounding.grounding_ref,
-            "claim_id": first_claim.claim_id,
-            "claim_text": first_claim.claim_text,
-            "span_text": span.text,
-            "openalex_id": first_work.openalex_id,
-            "cause": first_claim.cause_variable,
-            "effect": first_claim.effect_variable,
-            "direction": first_claim.direction.value,
-            "design_family": first_claim.design_family_hint.value,
-            "section": span.section,
-            "support_status": valid_grounding.status,
-            "authority_tier": valid_grounding.authority_tier,
-            "source_content_sha256": first_work.content_sha256,
-        }
-
-    def _firewall_status(
-        payload: dict[str, object],
-        *,
-        with_resolver: bool = False,
-    ) -> str:
-        try:
-            assert_l2_claim_authority_span_grounded(
-                payload,
-                surface="l2_skg_ingest",
-                grounding_resolver=_resolve_grounding if with_resolver else None,
-                span_support_client=span_support_client,
-            )
-        except CandidateFirewallError:
-            return "blocked"
-        return "allowed"
-
-    web_bundle_status = _firewall_status(
-        {
-            "claim_authority": {
-                "source_kind": "scholar.web_evidence_bundle",
-                "source_ref": "webkb.openalex-candidate",
-                "authority_tier": "design_tier_l2",
-            }
-        }
-    )
-    web_self_attested_status = _firewall_status(
-        {
-            "claim_authority": {
-                "source_kind": "scholar.web_evidence_bundle",
-                "source_ref": "webkb.openalex-candidate",
-                "authority_tier": "design_tier_l2",
-                "span_grounding_status": "validated_supporting",
-                "validated_span_grounding_ref": valid_grounding.grounding_ref,
-            }
-        }
-    )
-    non_web_self_attested_status = _firewall_status(
-        {
-            "claim_authority": {
-                "source_kind": "openalex_span_grounded_claim",
-                "source_ref": valid_grounding.grounding_ref,
-                "authority_tier": "design_tier_l2",
-                "span_grounding_status": "validated_supporting",
-                "validated_span_grounding_ref": valid_grounding.grounding_ref,
-            }
-        }
-    )
-    non_web_no_grounding_status = _firewall_status(
-        {
-            "claim_authority": {
-                "source_kind": "openalex_span_grounded_claim",
-                "source_ref": valid_grounding.grounding_ref,
-                "authority_tier": "design_tier_l2",
-            }
-        }
-    )
-    assert_l2_claim_authority_span_grounded(
-        {
-            "claim_authority": {
-                "source_kind": "openalex_span_grounded_claim",
-                "source_ref": valid_grounding.grounding_ref,
-                "authority_tier": "design_tier_l2",
-                "span_grounding_status": valid_grounding.status,
-                "validated_span_grounding_ref": valid_grounding.grounding_ref,
-                "claim_id": first_claim.claim_id,
-                "claim_text": first_claim.claim_text,
-            }
-        },
-        surface="l2_skg_ingest",
-        grounding_resolver=_resolve_grounding,
-        span_support_client=span_support_client,
-    )
-    validated_status = "allowed"
-
-    ingest_payload = {
-        "schema_version": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v1",
-        "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v1",
+    cases, sources = _recorded_provider_population(repo_root)
+    instrument = literature.evaluate_openalex_claim_extractor_accuracy(cases=cases)
+    accuracy = {
+        "schema_version": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v2",
+        "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v2",
         "produced_by": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
-        "provider_config_ref": CONFIG_PATH,
-        "gold_set_ref": GOLD_PATH,
+        "population_sources": sources,
+        "accuracy": instrument.model_dump(mode="json"),
+        "accuracy_provenance": {
+            "predicate_basis": "recomputed",
+            "adjudicator_appointment": "not_established",
+            "standing_rule_ref": "correspondence-acceptance-standing-rule",
+            "scope": "extractor_execution_and_constructed_negatives_only",
+        },
+    }
+    observations = {row.case_id: row for row in instrument.observations}
+    witnesses = []
+    candidate_inputs = []
+    expected_claim_ids = set()
+    expected_native_rows = {}
+    with tempfile.TemporaryDirectory(prefix="polisyos-openalex-candidate-") as tmpdir:
+        con = duckdb.connect(str(Path(tmpdir) / "skg.duckdb"))
+        try:
+            skg_store.ensure_skg_schema(con)
+            for case in cases:
+                observation = observations[case.case_id]
+                if observation.disposition != "extracted":
+                    witnesses.append(
+                        {
+                            "case_id": case.case_id,
+                            "disposition": observation.disposition,
+                            "reason": observation.reason,
+                        }
+                    )
+                    continue
+                claims = [
+                    literature.CausalClaim.model_validate(row["claim"])
+                    for row in observation.predictions
+                ]
+                trace = SearchQueryTrace(
+                    query_node_id=case.case_id,
+                    query=case.query,
+                    perspective="root",
+                    provider="openalex",
+                    hit_count=len(
+                        next(
+                            row["selected_hit_ids"]
+                            for row in sources
+                            if row["source_ref"] == case.source_ref
+                        )
+                    ),
+                    searched_at=case.recorded_at,
+                )
+                report = skg_store.ingest_openalex_source_bound_candidates(
+                    con,
+                    work=case.work,
+                    claims=claims,
+                    query_trace=trace,
+                )
+                claim_ids = {claim.claim_id for claim in claims}
+                expected_claim_ids.update(claim_ids)
+                for candidate in claims:
+                    binding = literature.validate_openalex_source_bound_candidate(
+                        case.work, candidate, query=case.query
+                    )
+                    transport = skg_store.preflight_candidate_claim_vocabulary(
+                        serialize_rich_claim_occurrence_vocabulary(
+                            candidate, record_extraction_mode="openalex_span_grounded"
+                        )
+                    )
+                    vocabulary = skg_store.candidate_claim_vocabulary_store_values(transport)
+                    expected_native_rows[candidate.claim_id] = {
+                        "claim_id": candidate.claim_id,
+                        "openalex_id": case.openalex_id,
+                        "cause": candidate.cause_variable,
+                        "effect": candidate.effect_variable,
+                        "direction": candidate.direction.value,
+                        "claim_text": candidate.claim_text,
+                        "span_text": candidate.supporting_spans[0].text,
+                        "span_start": binding.span_start,
+                        "span_end": binding.span_end,
+                        "source_content_sha256": case.work.content_sha256,
+                        "support_status": binding.status,
+                        "authority_tier": "candidate_unverified",
+                        "grounding_ref": binding.grounding_ref,
+                        "query_trace_id": report.query_trace_id,
+                        "design_family": None,
+                        "design_quality_tier": candidate.design_quality_tier,
+                        "evidence_strength": skg_store.encode_edge_evidence_strength(
+                            vocabulary["evidence_strength"],
+                            status=vocabulary["evidence_strength_status"],
+                        ),
+                        "confidence": float(candidate.claim_extraction_confidence or 0.5),
+                        "skg_version": report.skg_version_id,
+                    }
+                candidate_inputs.extend((case, claim, trace) for claim in claims)
+                witnesses.append(
+                    {
+                        "case_id": case.case_id,
+                        "query": case.query,
+                        "source_ref": case.source_ref,
+                        "claim_ids": sorted(claim_ids),
+                        "authority_tier": report.authority_tier,
+                        "query_trace_id": report.query_trace_id,
+                    }
+                )
+            for source in sources:
+                if source["returned_work_ids"]:
+                    continue
+                trace = SearchQueryTrace(
+                    query_node_id=_content_digest(source),
+                    query=source["query"],
+                    perspective="root",
+                    provider="openalex",
+                    hit_count=0,
+                    searched_at=source["recorded_at"],
+                )
+                skg_store.ingest_openalex_no_hit_frontier(con, query_trace=trace)
+            cursor = con.execute("SELECT * FROM ac_skg_span_grounded_claims ORDER BY claim_id")
+            columns = [column[0] for column in cursor.description]
+            persisted_claims = [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
+            persisted_evidence_ids = {
+                row[0]
+                for row in con.execute("SELECT claim_id FROM ac_skg_edge_evidence").fetchall()
+            }
+            persisted_claim_ids = {row["claim_id"] for row in persisted_claims}
+            if (
+                expected_claim_ids != persisted_claim_ids
+                or expected_claim_ids != persisted_evidence_ids
+            ):
+                raise ValueError("openalex_candidate_ingest_identity_loss")
+            if {row["claim_id"]: row for row in persisted_claims} != expected_native_rows:
+                raise ValueError("openalex_candidate_complete_native_content_mismatch")
+            if any(
+                row[0] != "candidate"
+                for row in con.execute("SELECT candidate_layer FROM ac_skg_edges").fetchall()
+            ):
+                raise ValueError("openalex_candidate_layer_escape")
+            sql_trace_ids = sorted(
+                row[0] for row in con.execute("SELECT trace_id FROM ac_skg_query_traces").fetchall()
+            )
+            no_hit_rows = con.execute(
+                "SELECT query, provider, reason FROM ac_skg_no_hit_frontier ORDER BY frontier_id"
+            ).fetchall()
+        finally:
+            con.close()
+    if not candidate_inputs:
+        raise ValueError("openalex_candidate_population_produced_no_candidates")
+    case, claim, trace = candidate_inputs[0]
+    poisoned = claim.model_copy(
+        update={"claim_text": "Constructed claim outside this extractor/source binding."}
+    )
+
+    def attempt(row: Any) -> bool:
+        con = duckdb.connect(":memory:")
+        try:
+            try:
+                skg_store.ingest_openalex_source_bound_candidates(
+                    con, work=case.work, claims=[row], query_trace=trace
+                )
+            except ValueError:
+                return False
+            return bool(
+                con.execute("SELECT COUNT(*) FROM ac_skg_span_grounded_claims").fetchone()[0]
+            )
+        finally:
+            con.close()
+
+    baseline_fake_admitted = attempt(poisoned)
+    if baseline_fake_admitted:
+        raise ValueError("openalex_fake_candidate_owner_validation_missing")
+    actual_binding = skg_store.validate_openalex_source_bound_candidate
+    with patch.object(
+        skg_store,
+        "validate_openalex_source_bound_candidate",
+        lambda work, candidate, **kwargs: actual_binding(work, claim, **kwargs),
+    ):
+        removed_verifier_fake_admitted = attempt(poisoned)
+    if not removed_verifier_fake_admitted:
+        raise ValueError("openalex_owner_removal_control_not_decisive")
+    with patch.object(
+        literature, "extract_span_grounded_claims_from_openalex_work", lambda *args, **kwargs: []
+    ):
+        removed_extractor = literature.evaluate_openalex_claim_extractor_accuracy(cases=cases)
+    if removed_extractor == instrument:
+        raise ValueError("openalex_accuracy_default_did_not_consult_extractor")
+    if any(
+        negative["disposition"] != "refused"
+        for observation in instrument.observations
+        for negative in observation.constructed_negatives
+    ):
+        raise ValueError("openalex_constructed_negative_not_refused")
+    baseline_spans = {
+        (item.openalex_id, span.text)
+        for item, candidate, _ in candidate_inputs
+        for span in candidate.supporting_spans
+    }
+    novel = []
+    for item in cases:
+        if item.work is None:
+            continue
+        for query in literature._split_sentences(item.work.abstract_text):
+            for candidate in literature.extract_span_grounded_claims_from_openalex_work(
+                item.work, query=query
+            ):
+                if candidate.claim_id not in expected_claim_ids and any(
+                    (item.openalex_id, span.text) not in baseline_spans
+                    for span in candidate.supporting_spans
+                ):
+                    novel.append((item, query, candidate))
+    if not novel:
+        raise ValueError("openalex_data_only_novel_claim_witness_missing")
+    novel.sort(key=lambda row: (row[0].case_id, row[1], row[2].claim_id))
+    novel_case, novel_query, novel_claim = novel[0]
+    novel_trace = SearchQueryTrace(
+        query_node_id=_content_digest([novel_case.case_id, novel_query]),
+        query=novel_query,
+        perspective="root",
+        provider="openalex",
+        hit_count=1,
+        searched_at=novel_case.recorded_at,
+    )
+    con = duckdb.connect(":memory:")
+    try:
+        novel_report = skg_store.ingest_openalex_source_bound_candidates(
+            con,
+            work=novel_case.work,
+            claims=[novel_claim],
+            query_trace=novel_trace,
+        )
+        novel_ids = [
+            row[0]
+            for row in con.execute("SELECT claim_id FROM ac_skg_span_grounded_claims").fetchall()
+        ]
+        if (
+            novel_ids != [novel_claim.claim_id]
+            or novel_report.authority_tier != "candidate_unverified"
+        ):
+            raise ValueError("openalex_data_only_candidate_growth_failed")
+    finally:
+        con.close()
+    ingest = {
+        "schema_version": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v2",
+        "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v2",
+        "produced_by": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
         "ingest": {
-            "witness_records": witness_records,
-            "skg_counts": skg_counts,
-            "universality": {
-                "queries": sorted({str(record["query"]) for record in witness_records}),
-                "different_real_result_sets": len(all_hit_sets) >= 2
-                and all_hit_sets[0] != all_hit_sets[1],
+            "population_sources": sources,
+            "witness_records": witnesses,
+            "persisted_claims": persisted_claims,
+            "query_trace_ids": sql_trace_ids,
+            "no_hit_frontier": [list(row) for row in no_hit_rows],
+            "identity_sets_reconciled": True,
+            "owner_validation_control": {
+                "baseline_fake_admitted": baseline_fake_admitted,
+                "removed_verifier_fake_admitted": removed_verifier_fake_admitted,
             },
-            "no_hit_frontier": {
-                "query": no_hit_query,
-                "provider": "openalex",
-                "hit_count": len(no_hit_hits),
-                "frontier_reason": "provider_returned_no_hits",
-                "query_trace_id": no_hit_report.query_trace_id,
+            "data_only_growth_control": {
+                "source_ref": novel_case.source_ref,
+                "source_content_sha256": novel_case.work.content_sha256,
+                "source_capture_query": novel_case.query,
+                "constructed_selection_query": novel_query,
+                "new_claim_id": novel_claim.claim_id,
+                "new_span_not_in_baseline": True,
+                "authority_tier": novel_report.authority_tier,
+                "population_disposition": "isolated_engineering_selection_not_accuracy_population",
+                "external_query_occurrence": "not_established",
             },
-            "span_validation_probe": {
-                "valid_span_status": valid_grounding.status,
-                "non_resolving_span_status": rejected_grounding.status,
-                "non_supporting_span_status": non_supporting_grounding.status,
-            },
-            "web_firewall_probe": {
-                "unvalidated_web_bundle": web_bundle_status,
-                "web_self_attested": web_self_attested_status,
-                "non_web_self_attested": non_web_self_attested_status,
-                "non_web_no_grounding": non_web_no_grounding_status,
-                "validated_span_grounded_claim": validated_status,
+            "strangle_receipt": {
+                **recompute_openalex_accuracy_strangle(repo_root),
+                "predecessor_ref": "literature._evaluate_gold_span_support_accuracy",
+                "replacement_ref": "literature.evaluate_openalex_claim_extractor_accuracy",
+                "disposition": "fenced_default_flipped",
+                "default_before": "gold_claim_semantic_judgments_without_extractor",
+                "default_after": "actual_extractor_with_constructed_negative_source_checks",
+                "guard_ref": "test_extractor_instrument_observes_actual_default_extractor",
+                "default_removal_changed_report": removed_extractor != instrument,
+                "baseline_report_hash": _content_digest(instrument.model_dump(mode="json")),
+                "removed_report_hash": _content_digest(removed_extractor.model_dump(mode="json")),
+                "verified_by": "live_default_extractor_removal_and_real_candidate_owner_control",
             },
         },
     }
-    validate_accuracy_report_payload(accuracy_payload, expected=accuracy_payload, issues=[])
-    return {ACCURACY_PATH: accuracy_payload, INGEST_PATH: ingest_payload}
+    return {ACCURACY_PATH: accuracy, INGEST_PATH: ingest}
 
 
 def build_real_agent_accuracy_payload(repo_root: Path) -> dict[str, Any]:
-    """Measure OpenAlex claim/span support with the production default real agent."""
+    """Refuse a current positive accuracy reissue without the ruled appointment."""
 
-    from polisyos.scientist.validation.citation_faithfulness import (
-        evaluate_span_claim_entailment,
-    )
-
-    _ensure_src_path(repo_root)
-    gold_payload = _read_required_json(repo_root / GOLD_PATH)
-    gold_cases = [
-        {**record, "case_set": "gold"}
-        for record in gold_payload.get("records", [])
-        if isinstance(record, dict)
-    ]
-    cases = [*gold_cases, *HELD_OUT_ACCURACY_CASES]
-    case_judgments: list[dict[str, Any]] = []
-    for case in cases:
-        result = evaluate_span_claim_entailment(
-            claim=_claim_payload_from_accuracy_case(case),
-            evidence=_evidence_payload_from_accuracy_case(repo_root, case),
-            timeout_s=45.0,
-        )
-        agent_judgment = result.get("agent_judgment")
-        predicted_supported = result.get("label") == "supports"
-        case_judgments.append(
-            {
-                "label_id": str(case.get("label_id") or ""),
-                "case_set": str(case.get("case_set") or "gold"),
-                "openalex_id": str(case.get("openalex_id") or ""),
-                "source_fixture": str(case.get("source_fixture") or ""),
-                "claim_text": str(case.get("claim_text") or ""),
-                "span_text": str(case.get("gold_span_text") or ""),
-                "expected_supported": bool(case.get("expected_supported")),
-                "predicted_supported": bool(predicted_supported),
-                "decision": _agent_decision(result),
-                "confidence": _agent_confidence(result),
-                "label": str(result.get("label") or ""),
-                "status": str(result.get("status") or ""),
-                "reason_codes": list(result.get("reason_codes") or []),
-                "blocker_codes": list(result.get("blocker_codes") or []),
-                "agent_judgment": dict(agent_judgment) if isinstance(agent_judgment, dict) else {},
-                "judge_client": "create_traced_gateway_client",
-                "real_agent": "agent_judgment" in result,
-                "span_found_in_source": _span_exists_in_source(repo_root, case),
-            }
-        )
-
-    if not any(case.get("real_agent") for case in case_judgments):
-        raise RuntimeError("real-agent accuracy measurement did not receive any agent judgments")
-
-    accuracy = _accuracy_from_case_judgments(case_judgments)
-    if accuracy is None:
-        raise RuntimeError("real-agent accuracy measurement did not produce case judgments")
-    degraded = _degraded_accuracy_from_case_judgments(case_judgments)
-    payload = {
-        "schema_version": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v1",
-        "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v1",
-        "produced_by": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
-        "patterns": ["P01", "P05", "P10", "P15", "P29", "P31", "P32", "P33"],
-        "provider_config_ref": CONFIG_PATH,
-        "gold_set_ref": GOLD_PATH,
-        "accuracy": accuracy,
-        "degraded_extractor_accuracy": degraded,
-        "accuracy_provenance": {
-            "real_agent": True,
-            "deterministic_replay": False,
-            "judge_client": "create_traced_gateway_client",
-            "model_id": _real_agent_model_id(),
-            "model_variant_id": REAL_AGENT_MODEL_VARIANT_ID,
-            "measurement_timestamp": datetime.now(UTC).isoformat(),
-            "gold_case_count": len(gold_cases),
-            "held_out_case_count": len(HELD_OUT_ACCURACY_CASES),
-            "methodology": (
-                "Production default evaluate_span_claim_entailment over human-labeled "
-                "gold plus held-out OpenAlex cases; no span-support client injection."
-            ),
-        },
-        "case_judgments": case_judgments,
-    }
-    issues: list[dict[str, str]] = []
-    validate_accuracy_report_payload(payload, expected=payload, issues=issues)
-    blocking = [
-        issue
-        for issue in issues
-        if issue.get("code") != "layer3_gy_openalex_degraded_extractor_not_lower"
-    ]
-    if blocking:
-        raise RuntimeError(f"real-agent accuracy report failed validation: {blocking}")
-    return payload
+    del repo_root
+    raise ValueError("correspondence-acceptance-standing-rule:adjudicator_appointment_missing")
 
 
 def _claim_payload_from_accuracy_case(case: dict[str, Any]) -> dict[str, Any]:
@@ -766,10 +809,7 @@ def _agent_confidence(result: dict[str, Any]) -> float:
 
 
 def _degraded_accuracy_from_case_judgments(case_judgments: list[dict[str, Any]]) -> dict[str, Any]:
-    degraded_cases = [
-        {**case, "predicted_supported": False}
-        for case in case_judgments
-    ]
+    degraded_cases = [{**case, "predicted_supported": False} for case in case_judgments]
     degraded = _accuracy_from_case_judgments(degraded_cases)
     if degraded is None:
         raise RuntimeError("failed to build degraded accuracy report")
@@ -822,9 +862,9 @@ def _work_from_fixture(payload: dict[str, Any], openalex_id: str) -> Any:
 
 
 def _recorded_fixture_payload(repo_root: Path, relative_path: str, *, query: str) -> dict[str, Any]:
-    payload = _read_required_json(repo_root / relative_path)
-    _assert_recorded_openalex_fixture(payload, path=relative_path, query=query)
-    return payload
+    from polisyos.ir.analytics.literature import load_recorded_openalex_source
+
+    return load_recorded_openalex_source(repo_root / relative_path, query=query).payload
 
 
 def _assert_recorded_openalex_fixture(
@@ -834,39 +874,18 @@ def _assert_recorded_openalex_fixture(
     query: str,
     allow_empty: bool = False,
 ) -> None:
-    recording = payload.get("_recording")
-    if not isinstance(recording, dict):
-        raise ValueError(f"OpenAlex fixture lacks recording metadata: {path}")
-    if recording.get("real_openalex_api_response") is not True:
-        raise ValueError(f"OpenAlex fixture is not marked recorded-real: {path}")
-    if str(recording.get("source") or "") != "https://api.openalex.org/works":
-        raise ValueError(f"OpenAlex fixture source drift: {path}")
-    request_params = recording.get("request_params")
-    if not isinstance(request_params, dict):
-        raise ValueError(f"OpenAlex fixture request params missing: {path}")
-    if str(recording.get("query") or "") != query:
-        raise ValueError(f"OpenAlex fixture recording query drift: {path}")
-    if str(request_params.get("search") or "") != query:
-        raise ValueError(f"OpenAlex fixture request search drift: {path}")
-    if "abstract_inverted_index" not in str(request_params.get("select") or ""):
-        raise ValueError(f"OpenAlex fixture select omits abstract text: {path}")
-    results = payload.get("results")
-    if not isinstance(results, list):
-        raise ValueError(f"OpenAlex fixture results missing: {path}")
-    if not allow_empty and not results:
-        raise ValueError(f"OpenAlex fixture results unexpectedly empty: {path}")
-    for item in results:
-        if not isinstance(item, dict):
-            raise ValueError(f"OpenAlex fixture result shape invalid: {path}")
-        if not str(item.get("id") or "").startswith("https://openalex.org/W"):
-            raise ValueError(f"OpenAlex fixture work id invalid: {path}")
-        if not isinstance(item.get("abstract_inverted_index"), dict):
-            raise ValueError(f"OpenAlex fixture work lacks abstract text: {path}")
+    from polisyos.ir.analytics.literature import validate_recorded_openalex_response
+
+    try:
+        validate_recorded_openalex_response(payload, query=query, allow_empty=allow_empty)
+    except ValueError as exc:
+        raise ValueError(f"{exc}: {path}") from exc
 
 
 def _recorded_at(payload: dict[str, Any]) -> str:
-    recorded_at = payload.get("_recording", {}).get("captured_at")
-    return str(recorded_at or "2026-06-23T00:00:00+00:00")
+    from polisyos.ir.analytics.literature import recorded_openalex_capture_time
+
+    return recorded_openalex_capture_time(payload)
 
 
 def _validate_generated_artifacts_registration(
@@ -883,7 +902,7 @@ def _validate_generated_artifacts_registration(
     if not isinstance(family, dict):
         issues.append({"code": "layer3_gy_openalex_family_missing"})
     else:
-        if set(family.get("outputs") or []) != set(OUTPUTS):
+        if family.get("outputs") != OUTPUTS:
             issues.append({"code": "layer3_gy_openalex_output_scope_drift"})
         if family.get("lifecycle") != "generated_committed":
             issues.append({"code": "layer3_gy_openalex_lifecycle_drift"})
@@ -891,6 +910,20 @@ def _validate_generated_artifacts_registration(
             issues.append({"code": "layer3_gy_openalex_check_command_missing"})
         if "--write" not in " ".join(family.get("regenerate_commands") or []):
             issues.append({"code": "layer3_gy_openalex_regenerate_command_missing"})
+    history = families.get(HISTORY_FAMILY_ID)
+    if (
+        not isinstance(history, dict)
+        or history.get("lifecycle") != "source_committed"
+        or history.get("outputs") != list(HISTORICAL_OUTPUTS_SHA256)
+        or history.get("source_integrity_sha256") != HISTORICAL_OUTPUTS_SHA256
+    ):
+        issues.append({"code": "layer3_gy_openalex_history_partition_invalid"})
+    for output, expected_hash in HISTORICAL_OUTPUTS_SHA256.items():
+        path = repo_root / output
+        if not path.is_file():
+            issues.append({"code": "layer3_gy_openalex_history_output_missing", "path": output})
+        elif _sha256(path) != expected_hash:
+            issues.append({"code": "layer3_gy_openalex_history_integrity_drift", "path": output})
     source_family = families.get(SOURCE_FAMILY_ID)
     if not isinstance(source_family, dict):
         issues.append({"code": "layer3_gy_openalex_source_family_missing"})
@@ -924,69 +957,23 @@ def validate_accuracy_report_payload(
     payload: dict[str, Any],
     expected: dict[str, Any],
     issues: list[dict[str, str]],
+    *,
+    repo_root: Path | None = None,
 ) -> None:
-    if payload.get("schema_version") != expected.get("schema_version"):
-        issues.append({"code": "layer3_gy_openalex_accuracy_schema_drift"})
-    if payload.get("produced_by") != expected.get("produced_by"):
-        issues.append({"code": "layer3_gy_openalex_accuracy_producer_drift"})
-    recomputed = _accuracy_from_case_judgments(payload.get("case_judgments"))
-    if recomputed is None:
-        issues.append({"code": "layer3_gy_openalex_accuracy_case_judgments_missing"})
-    elif payload.get("accuracy") != recomputed or (
-        expected.get("accuracy") and payload.get("accuracy") != expected.get("accuracy")
-    ):
-        issues.append({"code": "layer3_gy_openalex_accuracy_metric_drift"})
+    """Recompute substantive current extractor evidence, never supplied arithmetic."""
 
-    provenance = payload.get("accuracy_provenance")
-    if not isinstance(provenance, dict):
-        issues.append({"code": "layer3_gy_openalex_accuracy_provenance_missing"})
-        provenance = {}
-    if provenance.get("real_agent") is not True:
-        issues.append({"code": "layer3_gy_openalex_accuracy_not_real_agent"})
-    if provenance.get("deterministic_replay") is not False:
-        issues.append({"code": "layer3_gy_openalex_accuracy_circular_replay"})
-    judge_client = str(provenance.get("judge_client") or "").casefold()
-    if any(token in judge_client for token in ("deterministic", "recorded", "replay")):
-        issues.append({"code": "layer3_gy_openalex_accuracy_circular_replay"})
-    provenance_model_id = str(provenance.get("model_id") or "")
-    if provenance_model_id != REAL_AGENT_MODEL_ID:
-        issues.append({"code": "layer3_gy_openalex_accuracy_model_mismatch"})
+    del expected
+    from polisyos.ir.analytics.literature import ExtractorAccuracyReport
+
     try:
-        held_out_case_count = int(provenance.get("held_out_case_count") or 0)
-    except (TypeError, ValueError):
-        held_out_case_count = 0
-    if held_out_case_count <= 0:
-        issues.append({"code": "layer3_gy_openalex_accuracy_held_out_missing"})
-
-    case_judgments = payload.get("case_judgments")
-    if isinstance(case_judgments, list):
-        held_out_cases = [
-            case
-            for case in case_judgments
-            if isinstance(case, dict) and case.get("case_set") == "held_out"
-        ]
-        if len(held_out_cases) != held_out_case_count:
-            issues.append({"code": "layer3_gy_openalex_accuracy_held_out_count_drift"})
-        if all(_case_looks_deterministic(case) for case in case_judgments if isinstance(case, dict)):
-            issues.append({"code": "layer3_gy_openalex_accuracy_circular_replay"})
-        for case in case_judgments:
-            if not isinstance(case, dict):
-                issues.append({"code": "layer3_gy_openalex_accuracy_case_judgment_invalid"})
-                continue
-            if "agent_judgment" not in case or not isinstance(case.get("agent_judgment"), dict):
-                issues.append({"code": "layer3_gy_openalex_accuracy_agent_judgment_missing"})
-            else:
-                judgment_model_id = str(case["agent_judgment"].get("model_id") or "")
-                if judgment_model_id != provenance_model_id:
-                    issues.append({"code": "layer3_gy_openalex_accuracy_model_mismatch"})
-            if not isinstance(case.get("predicted_supported"), bool):
-                issues.append({"code": "layer3_gy_openalex_accuracy_prediction_missing"})
-    degraded = payload.get("degraded_extractor_accuracy")
-    accuracy = payload.get("accuracy")
-    if isinstance(degraded, dict) and isinstance(accuracy, dict):
-        accuracy_recall = float(accuracy.get("recall") or 0.0)
-        if accuracy_recall > 0.0 and float(degraded.get("recall") or 0.0) >= accuracy_recall:
-            issues.append({"code": "layer3_gy_openalex_degraded_extractor_not_lower"})
+        ExtractorAccuracyReport.model_validate(payload["accuracy"])
+    except (KeyError, ValueError, TypeError):
+        issues.append({"code": "layer3_gy_openalex_accuracy_current_epoch_invalid"})
+        return
+    repo_root = (repo_root or Path(__file__).resolve().parents[3]).resolve()
+    current = _build_current_accuracy_payload(repo_root)
+    if payload != current:
+        issues.append({"code": "layer3_gy_openalex_accuracy_substantive_recompute_drift"})
 
 
 def _accuracy_from_case_judgments(value: object) -> dict[str, Any] | None:
@@ -1046,10 +1033,10 @@ def _case_looks_deterministic(case: dict[str, Any]) -> bool:
     return any(token in haystack for token in ("deterministic", "recorded", "replay"))
 
 
-def _read_json(path: Path, issues: list[dict[str, str]]) -> dict[str, Any]:
+def _read_json(path: Path, issues: list[dict[str, str]]) -> dict[str, Any] | None:
     if not path.is_file():
         issues.append({"code": "layer3_gy_openalex_artifact_missing", "path": str(path)})
-        return {}
+        return None
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
@@ -1060,8 +1047,16 @@ def _read_json(path: Path, issues: list[dict[str, str]]) -> dict[str, Any]:
                 "error": str(exc),
             }
         )
-        return {}
-    return payload if isinstance(payload, dict) else {}
+        return None
+    except (OSError, UnicodeError) as exc:
+        issues.append(
+            {"code": "layer3_gy_openalex_artifact_unreadable", "path": str(path), "error": str(exc)}
+        )
+        return None
+    if not isinstance(payload, dict):
+        issues.append({"code": "layer3_gy_openalex_artifact_object_required", "path": str(path)})
+        return None
+    return payload
 
 
 def _read_required_json(path: Path) -> dict[str, Any]:

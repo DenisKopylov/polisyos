@@ -1,0 +1,26 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_extraction_preserves_exact_sum_across_all_row_permutations"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T09:24:18.603138+00:00",
+  "elapsed_seconds": 88.89,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F\n=================================== FAILURES ===================================\n___ test_recorded_extraction_preserves_exact_sum_across_all_row_permutations ___\ntests/unit/runtime/quality/test_data_forge_binding.py:921: in test_recorded_extraction_preserves_exact_sum_across_all_row_permutations\n    assert all(actual == expected for _, actual in observations), observations\nE   AssertionError: [((9007199254740992.0, 1.0, -9007199254740992.0), (('alpha', '2018-05-01', 0.0), ('beta', '2018-05-01', 0.0), ('gamma'...a', '2018-05-01', 1.0), ('alpha', '2018-06-01', 1.0), ('beta', '2018-06-01', 1.0), ('gamma', '2018-06-01', 1.0), ...))]\nE   assert False\nE    +  where False = all(<generator object test_recorded_extraction_preserves_exact_sum_across_all_row_permutations.<locals>.<genexpr> at 0x13d5f7840>)\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_data_forge_binding.py::test_recorded_extraction_preserves_exact_sum_across_all_row_permutations\n",
+  "stderr": ""
+}

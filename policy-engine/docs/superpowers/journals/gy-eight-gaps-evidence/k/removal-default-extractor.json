@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy-gaps.k.removal",
+    "default-extractor"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:56:27.966665+00:00",
+  "elapsed_seconds": 3.66,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\"mode\": \"default-extractor\", \"selected\": \"tests/unit/ir/test_literature_openalex_grounding.py::test_extractor_instrument_observes_actual_default_extractor\", \"mutation_scope\": \"in-memory actual owner only; production source unchanged\"}\nF\n=================================== FAILURES ===================================\n_________ test_extractor_instrument_observes_actual_default_extractor __________\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1176f4e90>\n\n    def test_extractor_instrument_observes_actual_default_extractor(monkeypatch) -> None:\n        from polisyos.ir.analytics import literature\n    \n        gold = ClaimSpanGoldSet.model_validate_json(GOLD_PATH.read_text())\n        original = literature.extract_span_grounded_claims_from_openalex_work\n        calls = []\n    \n        def tracked(work, *, query, **kwargs):\n            calls.append((work.openalex_id, query))\n            return original(work, query=query, **kwargs)\n    \n        monkeypatch.setattr(literature, \"extract_span_grounded_claims_from_openalex_work\", tracked)\n        baseline = literature.evaluate_openalex_claim_extractor_accuracy(\n            gold,\n            span_support_client=_DeterministicSpanSupportClient(),\n        )\n>       assert calls, \"default accuracy instrument never called the actual extractor\"\nE       AssertionError: default accuracy instrument never called the actual extractor\nE       assert []\n\ntests/unit/ir/test_literature_openalex_grounding.py:206: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/ir/test_literature_openalex_grounding.py::test_extractor_instrument_observes_actual_default_extractor\n",
+  "stderr": ""
+}

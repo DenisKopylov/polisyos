@@ -1,0 +1,33 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+    "src/polisyos/runtime/quality/data_forge_binding.py",
+    "tools/quality/validation/check_layer3_gy_phase2_artifacts.py",
+    "tests/integration/foundry_scientist/test_method_node_bridge.py",
+    "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+    "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+    "tests/unit/scientist/methods/causal/test_causal_evaluation_node.py",
+    "tests/unit/runtime/quality/test_data_forge_binding.py",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T10:53:49.175917+00:00",
+  "elapsed_seconds": 0.062,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "I001 [*] Import block is un-sorted or un-formatted\n  --> tests/unit/scientist/methods/causal/test_causal_evaluation_node.py:11:1\n   |\n 9 |   _PYGRAPHVIZ_INSTALLED = importlib.util.find_spec(\"pygraphviz\") is not None\n10 |\n11 | / from polisyos.core.artifacts.manifest import SchemaInfo\n12 | | from polisyos.core.artifacts.store import FileSystemCAS, PutOptions\n13 | | from polisyos.core.canon import CanonSpec, from_canonical_bytes\n14 | | from polisyos.core.registry import build_default_registry_bundle\n15 | | from polisyos.core.run.context import RunContext\n16 | | from polisyos.foundry.methods.causal import (\n17 | |     GraphCausalData,\n18 | |     GraphCausalDataV1,\n19 | |     HTEObservationalData,\n20 | |     PanelObservationalData,\n21 | | )\n22 | | from polisyos.ir.analytics.causal import (\n23 | |     CausalEffectReport,\n24 | |     CausalMethod,\n25 | |     DiagnosticTest,\n26 | |     EstimationStatus,\n27 | |     RefutationResult,\n28 | |     RefutationTestType,\n29 | | )\n30 | | from polisyos.ir.analytics.causal_graph import (\n31 | |     CausalEdge,\n32 | |     CausalGraphModel,\n33 | |     EdgeMark,\n34 | |     GraphType,\n35 | |     persist_causal_graph_model,\n36 | | )\n37 | | from polisyos.ir.analytics.hte import HTEResult\n38 | | from polisyos.ir.analytics.sensitivity import SensitivityResult\n39 | | from polisyos.scientist.compute.job_spec import JobKey, JobResult\n40 | | from polisyos.scientist.orchestration.engine.context import ExecutionContext\n41 | | from polisyos.scientist.orchestration.engine.state import ExperimentState\n42 | | from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import RunCausalEvaluationNode\n43 | | from polisyos.scientist.nodes.builtins.state_keys import (\n44 | |     ARTIFACT_CAUSAL_ENVELOPE_REF,\n45 | |     ARTIFACT_CAUSAL_METHOD_RESULT_REF,\n46 | |     ARTIFACT_CAUSAL_REPORT_REF,\n47 | |     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,\n48 | |     ARTIFACT_HTE_RESULT_REF,\n49 | |     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,\n50 | |     ARTIFACT_SENSITIVITY_RESULT_REF,\n51 | | )\n   | |_^\n   |\nhelp: Organize imports\n\nF401 [*] `polisyos.scientist.nodes.builtins.state_keys.ARTIFACT_CAUSAL_ENVELOPE_REF` imported but unused\n  --> tests/unit/scientist/methods/causal/test_causal_evaluation_node.py:44:5\n   |\n42 | from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import RunCausalEvaluationNode\n43 | from polisyos.scientist.nodes.builtins.state_keys import (\n44 |     ARTIFACT_CAUSAL_ENVELOPE_REF,\n   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n45 |     ARTIFACT_CAUSAL_METHOD_RESULT_REF,\n46 |     ARTIFACT_CAUSAL_REPORT_REF,\n   |\nhelp: Remove unused import: `polisyos.scientist.nodes.builtins.state_keys.ARTIFACT_CAUSAL_ENVELOPE_REF`\n\nFound 2 errors.\n[*] 2 fixable with the `--fix` option.\n",
+  "stderr": ""
+}

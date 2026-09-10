@@ -1,0 +1,850 @@
+Timeout (0:03:00)!
+Thread 0x0000000176a2f000 [control-worker-gy-loop-proof-production-ua-msme-credit-worldban] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 373 in wait
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 669 in wait
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 197 in _lease_pulse
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000175a23000 [AnyIO worker thread] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 369 in wait
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/queue.py", line 202 in get
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 975 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000174a17000 [asyncio-portal-13e6fb890] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 548 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 2008 in _run_once
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 677 in run_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 706 in run_until_complete
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 2365 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_core/_eventloop.py", line 75 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py", line 524 in run_blocking_portal
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 950 in identify
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 961 in _fetch_source_identities
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 498 in reconciled_metric_binding_population
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py", line 657 in reconciled_metric_binding_population
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1198 in _production_source_attempts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1288 in _compose_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 916 in observe_compose
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 2388 in run_production_case
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py", line 564 in _run_workspace_production_case
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 4475 in observe_run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py", line 169 in _execute_workspace_loop_workflow
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py", line 112 in _execute_workflow_control_transition
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 3020 in _process_control_job
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 238 in _run_with_lease_heartbeat
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 163 in dispatch_once
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 4516 in _run_durable_workspace_loop_observation
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py", line 2591 in capture
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2879 in build_live_loop_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py", line 2627 in gy_l_complete_live_population
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 915 in call_fixture_func
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1202 in pytest_fixture_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1110 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1068 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 539 in getfixturevalue
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 707 in _fillfixtures
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1723 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 523 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 165 in pytest_runtest_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 131 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000175a23000 [AnyIO worker thread] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 369 in wait
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/queue.py", line 202 in get
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 975 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000174a17000 [asyncio-portal-13e6fb890] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 548 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 2008 in _run_once
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 677 in run_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 706 in run_until_complete
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 2365 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_core/_eventloop.py", line 75 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py", line 524 in run_blocking_portal
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 950 in identify
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 961 in _fetch_source_identities
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 872 in bind_fetch_targets
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 783 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py", line 692 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1210 in _production_source_attempts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1288 in _compose_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 916 in observe_compose
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1427 in resolve_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 927 in observe_resolve
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 1257 in _verify_live_loop_observation
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py", line 2614 in verify_with_actual_cas_control
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 4597 in _run_durable_workspace_loop_observation
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py", line 2591 in capture
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2879 in build_live_loop_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py", line 2627 in gy_l_complete_live_population
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 915 in call_fixture_func
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1202 in pytest_fixture_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1110 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1068 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 539 in getfixturevalue
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 707 in _fillfixtures
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1723 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 523 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 165 in pytest_runtest_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 131 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2126 in _communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1220 in communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 556 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2739 in _run_full_gx_on_new_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2887 in build_live_loop_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py", line 2627 in gy_l_complete_live_population
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 915 in call_fixture_func
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1202 in pytest_fixture_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1110 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1068 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 539 in getfixturevalue
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 707 in _fillfixtures
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1723 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 523 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 165 in pytest_runtest_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 131 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x000000017665b000 [control-worker-gy-loop-proof-production-ua-msme-credit-worldban] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 373 in wait
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 669 in wait
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 197 in _lease_pulse
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x000000017564f000 [AnyIO worker thread] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 369 in wait
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/queue.py", line 202 in get
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 975 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000174643000 [asyncio-portal-13bbe2060] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 548 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 2008 in _run_once
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 677 in run_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 706 in run_until_complete
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 2365 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_core/_eventloop.py", line 75 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py", line 524 in run_blocking_portal
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 950 in identify
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 961 in _fetch_source_identities
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 872 in bind_fetch_targets
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 783 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py", line 692 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1210 in _production_source_attempts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1288 in _compose_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 916 in observe_compose
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 2388 in run_production_case
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py", line 564 in _run_workspace_production_case
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 4475 in observe_run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py", line 169 in _execute_workspace_loop_workflow
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py", line 112 in _execute_workflow_control_transition
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py", line 3020 in _process_control_job
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 238 in _run_with_lease_heartbeat
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/http/services/control_worker.py", line 163 in dispatch_once
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 4516 in _run_durable_workspace_loop_observation
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 32 in actual_j_family_pair
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 915 in call_fixture_func
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1202 in pytest_fixture_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1110 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 539 in getfixturevalue
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 707 in _fillfixtures
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1723 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 523 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 165 in pytest_runtest_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 131 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x000000017564f000 [AnyIO worker thread] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 369 in wait
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/queue.py", line 202 in get
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 975 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000174643000 [asyncio-portal-13bbe2060] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 548 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 2008 in _run_once
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 677 in run_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 706 in run_until_complete
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py", line 2365 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/_core/_eventloop.py", line 75 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/anyio/from_thread.py", line 524 in run_blocking_portal
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 950 in identify
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 961 in _fetch_source_identities
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 922 in bind_fetch_targets
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 783 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py", line 692 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1210 in _production_source_attempts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1288 in _compose_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 916 in observe_compose
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1427 in resolve_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 927 in observe_resolve
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 1257 in _verify_live_loop_observation
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 4597 in _run_durable_workspace_loop_observation
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 32 in actual_j_family_pair
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 915 in call_fixture_func
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1202 in pytest_fixture_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1110 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 539 in getfixturevalue
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 707 in _fillfixtures
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1723 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 523 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 165 in pytest_runtest_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 131 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2126 in _communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1220 in communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 556 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2739 in _run_full_gx_on_new_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 40 in actual_j_family_pair
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 915 in call_fixture_func
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1202 in pytest_fixture_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 1110 in execute
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 539 in getfixturevalue
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/fixtures.py", line 707 in _fillfixtures
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1723 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 523 in setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 165 in pytest_runtest_setup
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 131 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+GY_J_CLI_TEST_PHASE {"nodeid": "tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear", "outcome": "passed", "when": "setup"}
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 949 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 949 in identify
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 961 in _fetch_source_identities
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 922 in bind_fetch_targets
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 783 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py", line 692 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1210 in _production_source_attempts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1288 in _compose_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 690 in observe_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1427 in resolve_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3268 in _recompute_j_family_semantics
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 790 in _j_family_semantics
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3039 in _compare_j_current_outputs
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 150 in compare_actual
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 307 in validate
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 158 in test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 1550 in visit_FunctionDef
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/ast.py", line 506 in visit
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/ast.py", line 514 in generic_visit
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/ast.py", line 506 in visit
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 1592 in scan
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 1633 in _loop_gx_caller_basis
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 1869 in __init__
+  File "__init__", line ??? in __init__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2718 in _run_full_gx_on_new_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3054 in _compare_j_current_outputs
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 150 in compare_actual
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 307 in validate
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 158 in test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2126 in _communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1220 in communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 556 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2739 in _run_full_gx_on_new_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3054 in _compare_j_current_outputs
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 150 in compare_actual
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 307 in validate
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 158 in test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 949 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 949 in identify
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 961 in _fetch_source_identities
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 872 in bind_fetch_targets
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py", line 783 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py", line 692 in bind_fetch_target
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1210 in _production_source_attempts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1288 in _compose_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 690 in observe_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src/polisyos/runtime/quality/workspace/loop.py", line 1427 in resolve_production_case_admission
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3268 in _recompute_j_family_semantics
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 790 in _j_family_semantics
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3042 in _compare_j_current_outputs
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 176 in test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2126 in _communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1220 in communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 556 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2739 in _run_full_gx_on_new_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3054 in _compare_j_current_outputs
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 176 in test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+Timeout (0:03:00)!
+Thread 0x0000000173637000 [Thread-1 (serve_forever)] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py", line 235 in serve_forever
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x0000000171aaf000 [polisyos-run-coro-sync_0] (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/concurrent/futures/thread.py", line 116 in _worker
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1023 in run
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1081 in _bootstrap_inner
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/threading.py", line 1043 in _bootstrap
+
+Thread 0x00000001f47a6180 (most recent call first):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/selectors.py", line 398 in select
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2126 in _communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1220 in communicate
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 556 in run
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 2739 in _run_full_gx_on_new_artifacts
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py", line 3054 in _compare_j_current_outputs
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py", line 176 in test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 372 in _main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 48 in main
+  File "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/j_cli_custody_diagnostic.py", line 74 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+GY_J_CLI_TEST_PHASE {"nodeid": "tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear", "outcome": "passed", "when": "call"}
+GY_J_CLI_TEST_PHASE {"nodeid": "tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py::test_full_recorded_gx_is_replayed_and_failed_marker_cannot_disappear", "outcome": "passed", "when": "teardown"}

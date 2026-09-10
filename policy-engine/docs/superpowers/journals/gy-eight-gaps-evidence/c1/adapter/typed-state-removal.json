@@ -1,0 +1,21 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c1_typed_state_removal"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:09:44.370580+00:00",
+  "elapsed_seconds": 42.921,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\n  \"results\": [\n    {\n      \"side\": \"input\",\n      \"variant\": \"identity_removed\",\n      \"passed\": true,\n      \"admitted\": true,\n      \"failures\": [],\n      \"node_calls\": [\n        \"execute\"\n      ],\n      \"input_bindings\": [],\n      \"source_output_bindings\": [\n        \"causal_report_ref.artifacts_index_value\"\n      ]\n    },\n    {\n      \"side\": \"input\",\n      \"variant\": \"scalar\",\n      \"passed\": true,\n      \"admitted\": true,\n      \"failures\": [],\n      \"node_calls\": [\n        \"execute\"\n      ],\n      \"input_bindings\": [],\n      \"source_output_bindings\": [\n        \"causal_report_ref.artifacts_index_value\"\n      ]\n    },\n    {\n      \"side\": \"output\",\n      \"variant\": \"identity_removed\",\n      \"passed\": true,\n      \"admitted\": true,\n      \"failures\": [],\n      \"node_calls\": [\n        \"execute\"\n      ],\n      \"input_bindings\": [\n        \"observational_data_ref\"\n      ],\n      \"source_output_bindings\": []\n    },\n    {\n      \"side\": \"output\",\n      \"variant\": \"scalar\",\n      \"passed\": true,\n      \"admitted\": true,\n      \"failures\": [],\n      \"node_calls\": [\n        \"execute\"\n      ],\n      \"input_bindings\": [\n        \"observational_data_ref\"\n      ],\n      \"source_output_bindings\": []\n    }\n  ]\n}\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/c1_typed_state_removal.py\", line 9, in <module>\n    raise SystemExit(c1_typed_boundary_review.main())\n                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/c1_typed_boundary_review.py\", line 77, in main\n    assert all(not item[\"admitted\"] for item in results), \"typed_ref_discriminator_removal_admitted\"\n           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: typed_ref_discriminator_removal_admitted\n"
+}

@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_output_root_census_includes_unregistered_cas_members",
+    "-q"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T14:35:51.091121+00:00",
+  "elapsed_seconds": 2.141,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n_______ test_output_root_census_includes_unregistered_cas_members[.blob] _______\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-3/test_output_root_census_includ0')\nsuffix = '.blob'\n\n    @pytest.mark.parametrize(\"suffix\", [\".blob\", \".jsonl\"])\n    def test_output_root_census_includes_unregistered_cas_members(\n        tmp_path: Path, suffix: str\n    ) -> None:\n        root = tmp_path / \"architecture/cas\"\n        root.mkdir(parents=True)\n        artifact = root / f\"unregistered{suffix}\"\n        artifact.write_bytes(b\"source evidence\\n\")\n        observed = _validator()._iter_contract_derived_output_root_files(\n            tmp_path, {\"architecture/cas\"}, (set(), set())\n        )\n>       assert observed == [artifact.relative_to(tmp_path).as_posix()]\nE       AssertionError: assert [] == ['architectur...istered.blob']\nE         \nE         Right contains one more item: 'architecture/cas/unregistered.blob'\nE         Use -v to get more diff\n\ntests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py:104: AssertionError\n______ test_output_root_census_includes_unregistered_cas_members[.jsonl] _______\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-3/test_output_root_census_includ1')\nsuffix = '.jsonl'\n\n    @pytest.mark.parametrize(\"suffix\", [\".blob\", \".jsonl\"])\n    def test_output_root_census_includes_unregistered_cas_members(\n        tmp_path: Path, suffix: str\n    ) -> None:\n        root = tmp_path / \"architecture/cas\"\n        root.mkdir(parents=True)\n        artifact = root / f\"unregistered{suffix}\"\n        artifact.write_bytes(b\"source evidence\\n\")\n        observed = _validator()._iter_contract_derived_output_root_files(\n            tmp_path, {\"architecture/cas\"}, (set(), set())\n        )\n>       assert observed == [artifact.relative_to(tmp_path).as_posix()]\nE       AssertionError: assert [] == ['architectur...stered.jsonl']\nE         \nE         Right contains one more item: 'architecture/cas/unregistered.jsonl'\nE         Use -v to get more diff\n\ntests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py:104: AssertionError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_output_root_census_includes_unregistered_cas_members[.blob]\nFAILED tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py::test_output_root_census_includes_unregistered_cas_members[.jsonl]\n",
+  "stderr": ""
+}

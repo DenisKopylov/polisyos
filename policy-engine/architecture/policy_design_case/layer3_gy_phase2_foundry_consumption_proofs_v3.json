@@ -1,0 +1,4367 @@
+{
+  "measurement": {
+    "issues": [
+      {
+        "code": "c3_operation_invocations_present_unmet",
+        "scenario": "stable"
+      },
+      {
+        "code": "c3_consumption_record_present_unmet",
+        "scenario": "stable"
+      },
+      {
+        "code": "c3_consumption_receipt_present_unmet",
+        "scenario": "stable"
+      },
+      {
+        "code": "c3_measurement_rooted_unmet",
+        "scenario": "stable"
+      },
+      {
+        "code": "c3_authority_is_measurement_unmet",
+        "scenario": "stable"
+      },
+      {
+        "code": "c3_measurement_roots_present_unmet",
+        "scenario": "stable"
+      }
+    ],
+    "status": "fail"
+  },
+  "proof_source": "actual_loop_constraint_owner_and_consumption_cas_readback",
+  "proofs": [
+    {
+      "constraint_and_consumption_readback": {
+        "closure": [
+          {
+            "content_semantic_digest": "semantic:sha256:7cc4c92564576040ceb0474d56b28497f3b097767dc11f12315124285cee254e",
+            "manifest": {
+              "artifact_id": "semantic:sha256:7cc4c92564576040ceb0474d56b28497f3b097767dc11f12315124285cee254e",
+              "authority": null,
+              "byte_size": 985,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [
+                {
+                  "artifact_id": "semantic:sha256:f31becd7ec9aaca531f46cafafb9efe8e14e76098bf342fd52cdbd9585bd0fd5",
+                  "role": "design_problem"
+                }
+              ],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:7cc4c92564576040ceb0474d56b28497f3b097767dc11f12315124285cee254e"
+              },
+              "kind": "gy.constraint_store",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_store",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:60598abf83f18b8ff12531b1a6868df38b1e3cc806058a7b73dbeb2d968d5cfd",
+            "payload": {
+              "authority_boundary": {
+                "authoritative_for": [
+                  "requirement_preflight_refusal"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "participation_legitimacy",
+                  "method_validity",
+                  "production_decision",
+                  "publication_authority"
+                ]
+              },
+              "decision": {
+                "blocking_constraint_ids": [
+                  "constraint_requirement_basis_missing"
+                ],
+                "blocks_promotion": true,
+                "downgrades_authority": true,
+                "limiting_constraint_ids": [],
+                "warning_constraint_ids": []
+              },
+              "design_problem_hash": "sha256:7981f6d50cfc5c581ad52619d87de48f9d994f55e1966414b6081d74f036464e",
+              "evaluation_phase": "requirement_preflight",
+              "generated_at": "observed:current_constraint_evaluation",
+              "method_consumption_hash": null,
+              "method_report_ref": null,
+              "missing_basis": [
+                "constraint_requirement_basis_missing"
+              ],
+              "parent_refs": [
+                {
+                  "artifact_id": "semantic:sha256:f31becd7ec9aaca531f46cafafb9efe8e14e76098bf342fd52cdbd9585bd0fd5",
+                  "role": "design_problem"
+                }
+              ],
+              "population": null,
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "snapshot": null,
+              "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+            }
+          },
+          {
+            "content_semantic_digest": "semantic:sha256:f31becd7ec9aaca531f46cafafb9efe8e14e76098bf342fd52cdbd9585bd0fd5",
+            "manifest": {
+              "artifact_id": "semantic:sha256:f31becd7ec9aaca531f46cafafb9efe8e14e76098bf342fd52cdbd9585bd0fd5",
+              "authority": null,
+              "byte_size": 1574,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:f31becd7ec9aaca531f46cafafb9efe8e14e76098bf342fd52cdbd9585bd0fd5"
+              },
+              "kind": "gy.constraint_problem",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_problem",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:5ed7c0f70b91814103d858f503f1808274b74299526cd951b5ca9c4aca19bd43",
+            "payload": {
+              "constraint_projection": "gy.constraint_problem",
+              "parent_refs": [],
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "source_payload": {
+                "authority_profile": {
+                  "authority_refs": [],
+                  "mandate": "Phase-2 validator mandate.",
+                  "requested_authority_level": "research",
+                  "requester_authority": "research"
+                },
+                "candidate_lever_space": {
+                  "allowed_operator_kinds": [
+                    "credit_access"
+                  ],
+                  "candidate_levers": [
+                    {
+                      "instrument": "credit support",
+                      "lever_id": "credit_access",
+                      "operator_kind": "credit_access",
+                      "target_slot": "credit_access"
+                    }
+                  ]
+                },
+                "constraints": [],
+                "design_problem_id": "design_problem_phase2_credit",
+                "domain": "social",
+                "evidence_acquisition_needs": {
+                  "needs": []
+                },
+                "ir_problem_frame_ref": null,
+                "jurisdiction_time": {
+                  "as_of": "2026-05-12",
+                  "data_time": "2024-2026",
+                  "policy_time": "2026-05-15",
+                  "region": "UA",
+                  "time_semantics": null,
+                  "valid_time": "2026-05-15"
+                },
+                "model_spec_ref": null,
+                "nl_provenance": {
+                  "raw_request": "Estimate a causal policy effect.",
+                  "source_context": {
+                    "run_id": "run-phase2-validator"
+                  },
+                  "source_surface": "phase2.validator"
+                },
+                "objectives": [
+                  {
+                    "description": "Estimate the causal effect.",
+                    "direction": "maximize",
+                    "metric_id": "firm_survival",
+                    "objective_id": "estimate_effect"
+                  }
+                ],
+                "outcome_of_interest": {
+                  "direction": "maximize",
+                  "estimand": "P(firm_survival | do(credit_access))",
+                  "metric_id": "firm_survival",
+                  "target_variable": "firm_survival"
+                },
+                "policy_request_frame_ref": null,
+                "problem_statement": "Estimate a causal policy effect.",
+                "runtime_hints": {
+                  "verification_required": true
+                },
+                "schema_version": "policyos.runtime.design_problem.v1",
+                "stakeholders": [
+                  {
+                    "name": "wartime MSMEs",
+                    "role": "beneficiary",
+                    "stakeholder_id": "wartime_msmes"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "closure_count": 2,
+        "independent_closure_count": 2,
+        "projection_policy": {
+          "method_evidence_timing": "existing _method_evidence_semantics after actual replay verification; no cost authority",
+          "observed_fields": [
+            "ArtifactManifest.created_at",
+            "constraint_request.generated_at",
+            "constraint_store.generated_at",
+            "obligation_graph.generated_at",
+            "obligation_graph.candidate_ledger[].observed_at",
+            "obligation_graph.deferred_or_rejected[].observed_at"
+          ],
+          "raw_custody_evidence": "complete_deciding_command_output",
+          "semantic_digests_are_cas_addresses": false
+        },
+        "request": {
+          "basis": null,
+          "design_problem": {
+            "authority_profile": {
+              "authority_refs": [],
+              "mandate": "Phase-2 validator mandate.",
+              "requested_authority_level": "research",
+              "requester_authority": "research"
+            },
+            "candidate_lever_space": {
+              "allowed_operator_kinds": [
+                "credit_access"
+              ],
+              "candidate_levers": [
+                {
+                  "instrument": "credit support",
+                  "lever_id": "credit_access",
+                  "operator_kind": "credit_access",
+                  "target_slot": "credit_access"
+                }
+              ]
+            },
+            "constraints": [],
+            "design_problem_id": "design_problem_phase2_credit",
+            "domain": "social",
+            "evidence_acquisition_needs": {
+              "needs": []
+            },
+            "ir_problem_frame_ref": null,
+            "jurisdiction_time": {
+              "as_of": "2026-05-12",
+              "data_time": "2024-2026",
+              "policy_time": "2026-05-15",
+              "region": "UA",
+              "time_semantics": null,
+              "valid_time": "2026-05-15"
+            },
+            "model_spec_ref": null,
+            "nl_provenance": {
+              "raw_request": "Estimate a causal policy effect.",
+              "source_context": {
+                "run_id": "run-phase2-validator"
+              },
+              "source_surface": "phase2.validator"
+            },
+            "objectives": [
+              {
+                "description": "Estimate the causal effect.",
+                "direction": "maximize",
+                "metric_id": "firm_survival",
+                "objective_id": "estimate_effect"
+              }
+            ],
+            "outcome_of_interest": {
+              "direction": "maximize",
+              "estimand": "P(firm_survival | do(credit_access))",
+              "metric_id": "firm_survival",
+              "target_variable": "firm_survival"
+            },
+            "policy_request_frame_ref": null,
+            "problem_statement": "Estimate a causal policy effect.",
+            "runtime_hints": {
+              "verification_required": true
+            },
+            "schema_version": "policyos.runtime.design_problem.v1",
+            "stakeholders": [
+              {
+                "name": "wartime MSMEs",
+                "role": "beneficiary",
+                "stakeholder_id": "wartime_msmes"
+              }
+            ]
+          },
+          "generated_at": "observed:current_constraint_evaluation",
+          "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+        },
+        "roots": [
+          {
+            "content_semantic_digest": "semantic:sha256:7cc4c92564576040ceb0474d56b28497f3b097767dc11f12315124285cee254e",
+            "manifest": {
+              "artifact_id": "semantic:sha256:7cc4c92564576040ceb0474d56b28497f3b097767dc11f12315124285cee254e",
+              "authority": null,
+              "byte_size": 985,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [
+                {
+                  "artifact_id": "semantic:sha256:f31becd7ec9aaca531f46cafafb9efe8e14e76098bf342fd52cdbd9585bd0fd5",
+                  "role": "design_problem"
+                }
+              ],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:7cc4c92564576040ceb0474d56b28497f3b097767dc11f12315124285cee254e"
+              },
+              "kind": "gy.constraint_store",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_store",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:60598abf83f18b8ff12531b1a6868df38b1e3cc806058a7b73dbeb2d968d5cfd",
+            "payload": {
+              "authority_boundary": {
+                "authoritative_for": [
+                  "requirement_preflight_refusal"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "participation_legitimacy",
+                  "method_validity",
+                  "production_decision",
+                  "publication_authority"
+                ]
+              },
+              "decision": {
+                "blocking_constraint_ids": [
+                  "constraint_requirement_basis_missing"
+                ],
+                "blocks_promotion": true,
+                "downgrades_authority": true,
+                "limiting_constraint_ids": [],
+                "warning_constraint_ids": []
+              },
+              "design_problem_hash": "sha256:7981f6d50cfc5c581ad52619d87de48f9d994f55e1966414b6081d74f036464e",
+              "evaluation_phase": "requirement_preflight",
+              "generated_at": "observed:current_constraint_evaluation",
+              "method_consumption_hash": null,
+              "method_report_ref": null,
+              "missing_basis": [
+                "constraint_requirement_basis_missing"
+              ],
+              "parent_refs": [
+                {
+                  "artifact_id": "semantic:sha256:f31becd7ec9aaca531f46cafafb9efe8e14e76098bf342fd52cdbd9585bd0fd5",
+                  "role": "design_problem"
+                }
+              ],
+              "population": null,
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "snapshot": null,
+              "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+            }
+          }
+        ]
+      },
+      "decisive_properties": {
+        "authority_is_measurement": false,
+        "consumption_receipt_present": false,
+        "consumption_record_present": false,
+        "measurement_rooted": false,
+        "measurement_roots_present": false,
+        "operation_invocations_present": false
+      },
+      "open_production_findings": [],
+      "request": {
+        "authority_profile": {
+          "authority_refs": [],
+          "mandate": "Phase-2 validator mandate.",
+          "requested_authority_level": "research",
+          "requester_authority": "research"
+        },
+        "candidate_lever_space": {
+          "allowed_operator_kinds": [
+            "credit_access"
+          ],
+          "candidate_levers": [
+            {
+              "instrument": "credit support",
+              "lever_id": "credit_access",
+              "operator_kind": "credit_access",
+              "target_slot": "credit_access"
+            }
+          ]
+        },
+        "constraints": [],
+        "design_problem_id": "design_problem_phase2_credit",
+        "domain": "social",
+        "evidence_acquisition_needs": {
+          "needs": []
+        },
+        "ir_problem_frame_ref": null,
+        "jurisdiction_time": {
+          "as_of": "2026-05-12",
+          "data_time": "2024-2026",
+          "policy_time": "2026-05-15",
+          "region": "UA",
+          "time_semantics": null,
+          "valid_time": "2026-05-15"
+        },
+        "model_spec_ref": null,
+        "nl_provenance": {
+          "raw_request": "Estimate a causal policy effect.",
+          "source_context": {
+            "run_id": "run-phase2-validator"
+          },
+          "source_surface": "phase2.validator"
+        },
+        "objectives": [
+          {
+            "description": "Estimate the causal effect.",
+            "direction": "maximize",
+            "metric_id": "firm_survival",
+            "objective_id": "estimate_effect"
+          }
+        ],
+        "outcome_of_interest": {
+          "direction": "maximize",
+          "estimand": "P(firm_survival | do(credit_access))",
+          "metric_id": "firm_survival",
+          "target_variable": "firm_survival"
+        },
+        "policy_request_frame_ref": null,
+        "problem_statement": "Estimate a causal policy effect.",
+        "runtime_hints": {
+          "verification_required": true
+        },
+        "schema_version": "policyos.runtime.design_problem.v1",
+        "stakeholders": [
+          {
+            "name": "wartime MSMEs",
+            "role": "beneficiary",
+            "stakeholder_id": "wartime_msmes"
+          }
+        ]
+      },
+      "scenario": "stable",
+      "synthetic_legacy_predicates": null,
+      "terminal": "search_ceiling_repair_required"
+    },
+    {
+      "constraint_and_consumption_readback": {
+        "closure": [
+          {
+            "content_semantic_digest": "semantic:sha256:222992142591cb24055f0983944db2a22c8210a803bbcb2b2d0b8762af57e9af",
+            "manifest": {
+              "artifact_id": "semantic:sha256:222992142591cb24055f0983944db2a22c8210a803bbcb2b2d0b8762af57e9af",
+              "authority": null,
+              "byte_size": 1628,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:222992142591cb24055f0983944db2a22c8210a803bbcb2b2d0b8762af57e9af"
+              },
+              "kind": "gy.constraint_problem",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_problem",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:0f81e707d408ca787d47e42bc56330c21d91e6f68b26aa45ef523064f6623ac5",
+            "payload": {
+              "constraint_projection": "gy.constraint_problem",
+              "parent_refs": [],
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "source_payload": {
+                "authority_profile": {
+                  "authority_refs": [],
+                  "mandate": "Phase-2 validator mandate.",
+                  "requested_authority_level": "research",
+                  "requester_authority": "research"
+                },
+                "candidate_lever_space": {
+                  "allowed_operator_kinds": [
+                    "credit_access"
+                  ],
+                  "candidate_levers": [
+                    {
+                      "instrument": "credit support",
+                      "lever_id": "credit_access",
+                      "operator_kind": "credit_access",
+                      "target_slot": "credit_access"
+                    }
+                  ]
+                },
+                "constraints": [],
+                "design_problem_id": "design_problem_phase2_credit",
+                "domain": "social",
+                "evidence_acquisition_needs": {
+                  "needs": []
+                },
+                "ir_problem_frame_ref": null,
+                "jurisdiction_time": {
+                  "as_of": "2026-05-12",
+                  "data_time": "2024-2026",
+                  "policy_time": "2026-05-15",
+                  "region": "UA",
+                  "time_semantics": null,
+                  "valid_time": "2026-05-15"
+                },
+                "model_spec_ref": null,
+                "nl_provenance": {
+                  "raw_request": "Estimate a causal policy effect.",
+                  "source_context": {
+                    "run_id": "run-phase2-validator"
+                  },
+                  "source_surface": "phase2.validator"
+                },
+                "objectives": [
+                  {
+                    "description": "Estimate the causal effect.",
+                    "direction": "maximize",
+                    "metric_id": "firm_survival",
+                    "objective_id": "estimate_effect"
+                  }
+                ],
+                "outcome_of_interest": {
+                  "direction": "maximize",
+                  "estimand": "P(firm_survival | do(credit_access))",
+                  "metric_id": "firm_survival",
+                  "target_variable": "firm_survival"
+                },
+                "policy_request_frame_ref": null,
+                "problem_statement": "Estimate a causal policy effect.",
+                "runtime_hints": {
+                  "observational_data_ref": "validator-synthetic-probe",
+                  "verification_required": false
+                },
+                "schema_version": "policyos.runtime.design_problem.v1",
+                "stakeholders": [
+                  {
+                    "name": "wartime MSMEs",
+                    "role": "beneficiary",
+                    "stakeholder_id": "wartime_msmes"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "content_semantic_digest": "semantic:sha256:7f88cab5e8c4dce9838ee7a009c835ed8cc57f48855c86694017fc2151a8b458",
+            "manifest": {
+              "artifact_id": "semantic:sha256:7f88cab5e8c4dce9838ee7a009c835ed8cc57f48855c86694017fc2151a8b458",
+              "authority": null,
+              "byte_size": 985,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [
+                {
+                  "artifact_id": "semantic:sha256:222992142591cb24055f0983944db2a22c8210a803bbcb2b2d0b8762af57e9af",
+                  "role": "design_problem"
+                }
+              ],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:7f88cab5e8c4dce9838ee7a009c835ed8cc57f48855c86694017fc2151a8b458"
+              },
+              "kind": "gy.constraint_store",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_store",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:29e1c55ef10d871e98a40df078f60a6ad44b3727fc92bd5a91a9adc11833508b",
+            "payload": {
+              "authority_boundary": {
+                "authoritative_for": [
+                  "requirement_preflight_refusal"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "participation_legitimacy",
+                  "method_validity",
+                  "production_decision",
+                  "publication_authority"
+                ]
+              },
+              "decision": {
+                "blocking_constraint_ids": [
+                  "constraint_requirement_basis_missing"
+                ],
+                "blocks_promotion": true,
+                "downgrades_authority": true,
+                "limiting_constraint_ids": [],
+                "warning_constraint_ids": []
+              },
+              "design_problem_hash": "sha256:3921322a5f95c5166246c7465cba6c0c6ef8066983c46f4fd1606fac0e7f3185",
+              "evaluation_phase": "requirement_preflight",
+              "generated_at": "observed:current_constraint_evaluation",
+              "method_consumption_hash": null,
+              "method_report_ref": null,
+              "missing_basis": [
+                "constraint_requirement_basis_missing"
+              ],
+              "parent_refs": [
+                {
+                  "artifact_id": "semantic:sha256:222992142591cb24055f0983944db2a22c8210a803bbcb2b2d0b8762af57e9af",
+                  "role": "design_problem"
+                }
+              ],
+              "population": null,
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "snapshot": null,
+              "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+            }
+          }
+        ],
+        "closure_count": 2,
+        "independent_closure_count": 2,
+        "projection_policy": {
+          "method_evidence_timing": "existing _method_evidence_semantics after actual replay verification; no cost authority",
+          "observed_fields": [
+            "ArtifactManifest.created_at",
+            "constraint_request.generated_at",
+            "constraint_store.generated_at",
+            "obligation_graph.generated_at",
+            "obligation_graph.candidate_ledger[].observed_at",
+            "obligation_graph.deferred_or_rejected[].observed_at"
+          ],
+          "raw_custody_evidence": "complete_deciding_command_output",
+          "semantic_digests_are_cas_addresses": false
+        },
+        "request": {
+          "basis": null,
+          "design_problem": {
+            "authority_profile": {
+              "authority_refs": [],
+              "mandate": "Phase-2 validator mandate.",
+              "requested_authority_level": "research",
+              "requester_authority": "research"
+            },
+            "candidate_lever_space": {
+              "allowed_operator_kinds": [
+                "credit_access"
+              ],
+              "candidate_levers": [
+                {
+                  "instrument": "credit support",
+                  "lever_id": "credit_access",
+                  "operator_kind": "credit_access",
+                  "target_slot": "credit_access"
+                }
+              ]
+            },
+            "constraints": [],
+            "design_problem_id": "design_problem_phase2_credit",
+            "domain": "social",
+            "evidence_acquisition_needs": {
+              "needs": []
+            },
+            "ir_problem_frame_ref": null,
+            "jurisdiction_time": {
+              "as_of": "2026-05-12",
+              "data_time": "2024-2026",
+              "policy_time": "2026-05-15",
+              "region": "UA",
+              "time_semantics": null,
+              "valid_time": "2026-05-15"
+            },
+            "model_spec_ref": null,
+            "nl_provenance": {
+              "raw_request": "Estimate a causal policy effect.",
+              "source_context": {
+                "run_id": "run-phase2-validator"
+              },
+              "source_surface": "phase2.validator"
+            },
+            "objectives": [
+              {
+                "description": "Estimate the causal effect.",
+                "direction": "maximize",
+                "metric_id": "firm_survival",
+                "objective_id": "estimate_effect"
+              }
+            ],
+            "outcome_of_interest": {
+              "direction": "maximize",
+              "estimand": "P(firm_survival | do(credit_access))",
+              "metric_id": "firm_survival",
+              "target_variable": "firm_survival"
+            },
+            "policy_request_frame_ref": null,
+            "problem_statement": "Estimate a causal policy effect.",
+            "runtime_hints": {
+              "observational_data_ref": "validator-synthetic-probe",
+              "verification_required": false
+            },
+            "schema_version": "policyos.runtime.design_problem.v1",
+            "stakeholders": [
+              {
+                "name": "wartime MSMEs",
+                "role": "beneficiary",
+                "stakeholder_id": "wartime_msmes"
+              }
+            ]
+          },
+          "generated_at": "observed:current_constraint_evaluation",
+          "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+        },
+        "roots": [
+          {
+            "content_semantic_digest": "semantic:sha256:7f88cab5e8c4dce9838ee7a009c835ed8cc57f48855c86694017fc2151a8b458",
+            "manifest": {
+              "artifact_id": "semantic:sha256:7f88cab5e8c4dce9838ee7a009c835ed8cc57f48855c86694017fc2151a8b458",
+              "authority": null,
+              "byte_size": 985,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [
+                {
+                  "artifact_id": "semantic:sha256:222992142591cb24055f0983944db2a22c8210a803bbcb2b2d0b8762af57e9af",
+                  "role": "design_problem"
+                }
+              ],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:7f88cab5e8c4dce9838ee7a009c835ed8cc57f48855c86694017fc2151a8b458"
+              },
+              "kind": "gy.constraint_store",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_store",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:29e1c55ef10d871e98a40df078f60a6ad44b3727fc92bd5a91a9adc11833508b",
+            "payload": {
+              "authority_boundary": {
+                "authoritative_for": [
+                  "requirement_preflight_refusal"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "participation_legitimacy",
+                  "method_validity",
+                  "production_decision",
+                  "publication_authority"
+                ]
+              },
+              "decision": {
+                "blocking_constraint_ids": [
+                  "constraint_requirement_basis_missing"
+                ],
+                "blocks_promotion": true,
+                "downgrades_authority": true,
+                "limiting_constraint_ids": [],
+                "warning_constraint_ids": []
+              },
+              "design_problem_hash": "sha256:3921322a5f95c5166246c7465cba6c0c6ef8066983c46f4fd1606fac0e7f3185",
+              "evaluation_phase": "requirement_preflight",
+              "generated_at": "observed:current_constraint_evaluation",
+              "method_consumption_hash": null,
+              "method_report_ref": null,
+              "missing_basis": [
+                "constraint_requirement_basis_missing"
+              ],
+              "parent_refs": [
+                {
+                  "artifact_id": "semantic:sha256:222992142591cb24055f0983944db2a22c8210a803bbcb2b2d0b8762af57e9af",
+                  "role": "design_problem"
+                }
+              ],
+              "population": null,
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "snapshot": null,
+              "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+            }
+          }
+        ]
+      },
+      "decisive_properties": {
+        "authority_is_measurement": false,
+        "consumption_receipt_present": false,
+        "consumption_record_present": false,
+        "measurement_rooted": false,
+        "measurement_roots_present": false,
+        "operation_invocations_present": false
+      },
+      "open_production_findings": [],
+      "request": {
+        "authority_profile": {
+          "authority_refs": [],
+          "mandate": "Phase-2 validator mandate.",
+          "requested_authority_level": "research",
+          "requester_authority": "research"
+        },
+        "candidate_lever_space": {
+          "allowed_operator_kinds": [
+            "credit_access"
+          ],
+          "candidate_levers": [
+            {
+              "instrument": "credit support",
+              "lever_id": "credit_access",
+              "operator_kind": "credit_access",
+              "target_slot": "credit_access"
+            }
+          ]
+        },
+        "constraints": [],
+        "design_problem_id": "design_problem_phase2_credit",
+        "domain": "social",
+        "evidence_acquisition_needs": {
+          "needs": []
+        },
+        "ir_problem_frame_ref": null,
+        "jurisdiction_time": {
+          "as_of": "2026-05-12",
+          "data_time": "2024-2026",
+          "policy_time": "2026-05-15",
+          "region": "UA",
+          "time_semantics": null,
+          "valid_time": "2026-05-15"
+        },
+        "model_spec_ref": null,
+        "nl_provenance": {
+          "raw_request": "Estimate a causal policy effect.",
+          "source_context": {
+            "run_id": "run-phase2-validator"
+          },
+          "source_surface": "phase2.validator"
+        },
+        "objectives": [
+          {
+            "description": "Estimate the causal effect.",
+            "direction": "maximize",
+            "metric_id": "firm_survival",
+            "objective_id": "estimate_effect"
+          }
+        ],
+        "outcome_of_interest": {
+          "direction": "maximize",
+          "estimand": "P(firm_survival | do(credit_access))",
+          "metric_id": "firm_survival",
+          "target_variable": "firm_survival"
+        },
+        "policy_request_frame_ref": null,
+        "problem_statement": "Estimate a causal policy effect.",
+        "runtime_hints": {
+          "observational_data_ref": "validator-synthetic-probe",
+          "verification_required": false
+        },
+        "schema_version": "policyos.runtime.design_problem.v1",
+        "stakeholders": [
+          {
+            "name": "wartime MSMEs",
+            "role": "beneficiary",
+            "stakeholder_id": "wartime_msmes"
+          }
+        ]
+      },
+      "scenario": "synthetic_probe",
+      "synthetic_legacy_predicates": {
+        "disposition": "superseded_unsafe_unbound_reference_admission",
+        "simulation_authority_observed": false,
+        "synthetic_provenance_observed": false,
+        "verifier_execution_not_inferred_from_unrelated_early_refusal": true
+      },
+      "terminal": "search_ceiling_repair_required"
+    },
+    {
+      "constraint_and_consumption_readback": {
+        "closure": [
+          {
+            "content_semantic_digest": "semantic:sha256:74335b930b54526b6bf5e5149b1be566a52e4b9a445b3534735a64c4ff013ec0",
+            "manifest": {
+              "artifact_id": "semantic:sha256:74335b930b54526b6bf5e5149b1be566a52e4b9a445b3534735a64c4ff013ec0",
+              "authority": null,
+              "byte_size": 985,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [
+                {
+                  "artifact_id": "semantic:sha256:bba00ac082f572ca1e400e71567bc24e8ea2809f9e144919e97b2fe4c0e9d0c3",
+                  "role": "design_problem"
+                }
+              ],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:74335b930b54526b6bf5e5149b1be566a52e4b9a445b3534735a64c4ff013ec0"
+              },
+              "kind": "gy.constraint_store",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_store",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:f2a5840ad855d2146cc9d2dd339e2fb6b103a402833cfc61babd16efc7324ada",
+            "payload": {
+              "authority_boundary": {
+                "authoritative_for": [
+                  "requirement_preflight_refusal"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "participation_legitimacy",
+                  "method_validity",
+                  "production_decision",
+                  "publication_authority"
+                ]
+              },
+              "decision": {
+                "blocking_constraint_ids": [
+                  "constraint_requirement_basis_missing"
+                ],
+                "blocks_promotion": true,
+                "downgrades_authority": true,
+                "limiting_constraint_ids": [],
+                "warning_constraint_ids": []
+              },
+              "design_problem_hash": "sha256:f50f69e7f6ef5ff68cead032243720df043cd7031c7b76031f18d2cd590d0e62",
+              "evaluation_phase": "requirement_preflight",
+              "generated_at": "observed:current_constraint_evaluation",
+              "method_consumption_hash": null,
+              "method_report_ref": null,
+              "missing_basis": [
+                "constraint_requirement_basis_missing"
+              ],
+              "parent_refs": [
+                {
+                  "artifact_id": "semantic:sha256:bba00ac082f572ca1e400e71567bc24e8ea2809f9e144919e97b2fe4c0e9d0c3",
+                  "role": "design_problem"
+                }
+              ],
+              "population": null,
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "snapshot": null,
+              "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+            }
+          },
+          {
+            "content_semantic_digest": "semantic:sha256:bba00ac082f572ca1e400e71567bc24e8ea2809f9e144919e97b2fe4c0e9d0c3",
+            "manifest": {
+              "artifact_id": "semantic:sha256:bba00ac082f572ca1e400e71567bc24e8ea2809f9e144919e97b2fe4c0e9d0c3",
+              "authority": null,
+              "byte_size": 1615,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:bba00ac082f572ca1e400e71567bc24e8ea2809f9e144919e97b2fe4c0e9d0c3"
+              },
+              "kind": "gy.constraint_problem",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_problem",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:8b3bde876638b9607096c1fc231936a14f51ad648e6dd24e7d538d8382750a69",
+            "payload": {
+              "constraint_projection": "gy.constraint_problem",
+              "parent_refs": [],
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "source_payload": {
+                "authority_profile": {
+                  "authority_refs": [],
+                  "mandate": "Phase-2 validator mandate.",
+                  "requested_authority_level": "research",
+                  "requester_authority": "research"
+                },
+                "candidate_lever_space": {
+                  "allowed_operator_kinds": [
+                    "credit_access"
+                  ],
+                  "candidate_levers": [
+                    {
+                      "instrument": "credit support",
+                      "lever_id": "credit_access",
+                      "operator_kind": "credit_access",
+                      "target_slot": "credit_access"
+                    }
+                  ]
+                },
+                "constraints": [],
+                "design_problem_id": "design_problem_phase2_credit",
+                "domain": "social",
+                "evidence_acquisition_needs": {
+                  "needs": []
+                },
+                "ir_problem_frame_ref": null,
+                "jurisdiction_time": {
+                  "as_of": "2026-05-12",
+                  "data_time": "2024-2026",
+                  "policy_time": "2026-05-15",
+                  "region": "UA",
+                  "time_semantics": null,
+                  "valid_time": "2026-05-15"
+                },
+                "model_spec_ref": null,
+                "nl_provenance": {
+                  "raw_request": "Estimate a causal policy effect.",
+                  "source_context": {
+                    "run_id": "run-phase2-validator"
+                  },
+                  "source_surface": "phase2.validator"
+                },
+                "objectives": [
+                  {
+                    "description": "Estimate the causal effect.",
+                    "direction": "maximize",
+                    "metric_id": "firm_survival",
+                    "objective_id": "estimate_effect"
+                  }
+                ],
+                "outcome_of_interest": {
+                  "direction": "maximize",
+                  "estimand": "P(firm_survival | do(credit_access))",
+                  "metric_id": "firm_survival",
+                  "target_variable": "firm_survival"
+                },
+                "policy_request_frame_ref": null,
+                "problem_statement": "Estimate a causal policy effect.",
+                "runtime_hints": {
+                  "force_counterexample": "missing_bounds",
+                  "verification_required": false
+                },
+                "schema_version": "policyos.runtime.design_problem.v1",
+                "stakeholders": [
+                  {
+                    "name": "wartime MSMEs",
+                    "role": "beneficiary",
+                    "stakeholder_id": "wartime_msmes"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "closure_count": 2,
+        "independent_closure_count": 2,
+        "projection_policy": {
+          "method_evidence_timing": "existing _method_evidence_semantics after actual replay verification; no cost authority",
+          "observed_fields": [
+            "ArtifactManifest.created_at",
+            "constraint_request.generated_at",
+            "constraint_store.generated_at",
+            "obligation_graph.generated_at",
+            "obligation_graph.candidate_ledger[].observed_at",
+            "obligation_graph.deferred_or_rejected[].observed_at"
+          ],
+          "raw_custody_evidence": "complete_deciding_command_output",
+          "semantic_digests_are_cas_addresses": false
+        },
+        "request": {
+          "basis": null,
+          "design_problem": {
+            "authority_profile": {
+              "authority_refs": [],
+              "mandate": "Phase-2 validator mandate.",
+              "requested_authority_level": "research",
+              "requester_authority": "research"
+            },
+            "candidate_lever_space": {
+              "allowed_operator_kinds": [
+                "credit_access"
+              ],
+              "candidate_levers": [
+                {
+                  "instrument": "credit support",
+                  "lever_id": "credit_access",
+                  "operator_kind": "credit_access",
+                  "target_slot": "credit_access"
+                }
+              ]
+            },
+            "constraints": [],
+            "design_problem_id": "design_problem_phase2_credit",
+            "domain": "social",
+            "evidence_acquisition_needs": {
+              "needs": []
+            },
+            "ir_problem_frame_ref": null,
+            "jurisdiction_time": {
+              "as_of": "2026-05-12",
+              "data_time": "2024-2026",
+              "policy_time": "2026-05-15",
+              "region": "UA",
+              "time_semantics": null,
+              "valid_time": "2026-05-15"
+            },
+            "model_spec_ref": null,
+            "nl_provenance": {
+              "raw_request": "Estimate a causal policy effect.",
+              "source_context": {
+                "run_id": "run-phase2-validator"
+              },
+              "source_surface": "phase2.validator"
+            },
+            "objectives": [
+              {
+                "description": "Estimate the causal effect.",
+                "direction": "maximize",
+                "metric_id": "firm_survival",
+                "objective_id": "estimate_effect"
+              }
+            ],
+            "outcome_of_interest": {
+              "direction": "maximize",
+              "estimand": "P(firm_survival | do(credit_access))",
+              "metric_id": "firm_survival",
+              "target_variable": "firm_survival"
+            },
+            "policy_request_frame_ref": null,
+            "problem_statement": "Estimate a causal policy effect.",
+            "runtime_hints": {
+              "force_counterexample": "missing_bounds",
+              "verification_required": false
+            },
+            "schema_version": "policyos.runtime.design_problem.v1",
+            "stakeholders": [
+              {
+                "name": "wartime MSMEs",
+                "role": "beneficiary",
+                "stakeholder_id": "wartime_msmes"
+              }
+            ]
+          },
+          "generated_at": "observed:current_constraint_evaluation",
+          "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+        },
+        "roots": [
+          {
+            "content_semantic_digest": "semantic:sha256:74335b930b54526b6bf5e5149b1be566a52e4b9a445b3534735a64c4ff013ec0",
+            "manifest": {
+              "artifact_id": "semantic:sha256:74335b930b54526b6bf5e5149b1be566a52e4b9a445b3534735a64c4ff013ec0",
+              "authority": null,
+              "byte_size": 985,
+              "canon": {
+                "ensure_ascii": false,
+                "exclude_none": false,
+                "forbid_floats": false,
+                "forbid_nan_inf": true,
+                "max_depth": 128,
+                "name": "polisyos.canon.json",
+                "separators": [
+                  ",",
+                  ":"
+                ],
+                "sort_keys": true,
+                "version": "0.2.0"
+              },
+              "env": null,
+              "governance": null,
+              "inputs": [
+                {
+                  "artifact_id": "semantic:sha256:bba00ac082f572ca1e400e71567bc24e8ea2809f9e144919e97b2fe4c0e9d0c3",
+                  "role": "design_problem"
+                }
+              ],
+              "integrity": {
+                "optional": null,
+                "sha256": "semantic:sha256:74335b930b54526b6bf5e5149b1be566a52e4b9a445b3534735a64c4ff013ec0"
+              },
+              "kind": "gy.constraint_store",
+              "media_type": "application/json",
+              "producer": {
+                "component": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor",
+                "git": null,
+                "version": "policyos.gy.phase2.foundry.v3"
+              },
+              "same_input_closure": null,
+              "schema": {
+                "name": "policyos.gy.constraint_store",
+                "version": "1.0"
+              },
+              "tenant_context": null,
+              "warnings": []
+            },
+            "manifest_semantic_digest": "semantic:sha256:f2a5840ad855d2146cc9d2dd339e2fb6b103a402833cfc61babd16efc7324ada",
+            "payload": {
+              "authority_boundary": {
+                "authoritative_for": [
+                  "requirement_preflight_refusal"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "participation_legitimacy",
+                  "method_validity",
+                  "production_decision",
+                  "publication_authority"
+                ]
+              },
+              "decision": {
+                "blocking_constraint_ids": [
+                  "constraint_requirement_basis_missing"
+                ],
+                "blocks_promotion": true,
+                "downgrades_authority": true,
+                "limiting_constraint_ids": [],
+                "warning_constraint_ids": []
+              },
+              "design_problem_hash": "sha256:f50f69e7f6ef5ff68cead032243720df043cd7031c7b76031f18d2cd590d0e62",
+              "evaluation_phase": "requirement_preflight",
+              "generated_at": "observed:current_constraint_evaluation",
+              "method_consumption_hash": null,
+              "method_report_ref": null,
+              "missing_basis": [
+                "constraint_requirement_basis_missing"
+              ],
+              "parent_refs": [
+                {
+                  "artifact_id": "semantic:sha256:bba00ac082f572ca1e400e71567bc24e8ea2809f9e144919e97b2fe4c0e9d0c3",
+                  "role": "design_problem"
+                }
+              ],
+              "population": null,
+              "schema_version": "policyos.gy.phase2.foundry.v3",
+              "snapshot": null,
+              "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+            }
+          }
+        ]
+      },
+      "decisive_properties": {
+        "authority_is_measurement": false,
+        "consumption_receipt_present": false,
+        "consumption_record_present": false,
+        "measurement_rooted": false,
+        "measurement_roots_present": false,
+        "operation_invocations_present": false
+      },
+      "open_production_findings": [],
+      "request": {
+        "authority_profile": {
+          "authority_refs": [],
+          "mandate": "Phase-2 validator mandate.",
+          "requested_authority_level": "research",
+          "requester_authority": "research"
+        },
+        "candidate_lever_space": {
+          "allowed_operator_kinds": [
+            "credit_access"
+          ],
+          "candidate_levers": [
+            {
+              "instrument": "credit support",
+              "lever_id": "credit_access",
+              "operator_kind": "credit_access",
+              "target_slot": "credit_access"
+            }
+          ]
+        },
+        "constraints": [],
+        "design_problem_id": "design_problem_phase2_credit",
+        "domain": "social",
+        "evidence_acquisition_needs": {
+          "needs": []
+        },
+        "ir_problem_frame_ref": null,
+        "jurisdiction_time": {
+          "as_of": "2026-05-12",
+          "data_time": "2024-2026",
+          "policy_time": "2026-05-15",
+          "region": "UA",
+          "time_semantics": null,
+          "valid_time": "2026-05-15"
+        },
+        "model_spec_ref": null,
+        "nl_provenance": {
+          "raw_request": "Estimate a causal policy effect.",
+          "source_context": {
+            "run_id": "run-phase2-validator"
+          },
+          "source_surface": "phase2.validator"
+        },
+        "objectives": [
+          {
+            "description": "Estimate the causal effect.",
+            "direction": "maximize",
+            "metric_id": "firm_survival",
+            "objective_id": "estimate_effect"
+          }
+        ],
+        "outcome_of_interest": {
+          "direction": "maximize",
+          "estimand": "P(firm_survival | do(credit_access))",
+          "metric_id": "firm_survival",
+          "target_variable": "firm_survival"
+        },
+        "policy_request_frame_ref": null,
+        "problem_statement": "Estimate a causal policy effect.",
+        "runtime_hints": {
+          "force_counterexample": "missing_bounds",
+          "verification_required": false
+        },
+        "schema_version": "policyos.runtime.design_problem.v1",
+        "stakeholders": [
+          {
+            "name": "wartime MSMEs",
+            "role": "beneficiary",
+            "stakeholder_id": "wartime_msmes"
+          }
+        ]
+      },
+      "scenario": "deviation",
+      "synthetic_legacy_predicates": null,
+      "terminal": "search_ceiling_repair_required"
+    }
+  ],
+  "return_strangles": {
+    "caller_basis": {
+      "literal_identity_reconciliation": {
+        "ast": 743,
+        "tokenize": 743
+      },
+      "reference_projection_task": "GY-C3",
+      "references": [
+        {
+          "column": 8,
+          "function": "register_causal_methods",
+          "line": 244,
+          "path": "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.foundry.methods.catalog.causal.synthetic_control.SyntheticControlMethod"
+        },
+        {
+          "column": 36,
+          "function": "augmented_synthetic_control",
+          "line": 251,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "_fit_scm_weights"
+        },
+        {
+          "column": 36,
+          "function": "augmented_synthetic_control",
+          "line": 251,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "_fit_scm_weights"
+        },
+        {
+          "column": 27,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 442,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "SyntheticControlMethod.metadata.assumptions"
+        },
+        {
+          "column": 27,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 442,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "SyntheticControlMethod.metadata"
+        },
+        {
+          "column": 27,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 442,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "SyntheticControlMethod"
+        },
+        {
+          "column": 33,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 522,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "_fit_scm_weights"
+        },
+        {
+          "column": 33,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 522,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "_fit_scm_weights"
+        },
+        {
+          "column": 24,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 557,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "augmented_synthetic_control"
+        },
+        {
+          "column": 24,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 557,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "augmented_synthetic_control"
+        },
+        {
+          "column": 47,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 601,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "_fit_scm_weights"
+        },
+        {
+          "column": 47,
+          "function": "SyntheticControlMethod.pure_step",
+          "line": 601,
+          "path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "_fit_scm_weights"
+        },
+        {
+          "column": 23,
+          "function": "FoundryMethodOutputConsumer.__init__",
+          "line": 262,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 26,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 275,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 47,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 295,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 19,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 299,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 19,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 301,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 19,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 301,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 16,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 309,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 16,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 309,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 16,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 309,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 11,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 495,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 25,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 496,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.reconcile_method"
+        },
+        {
+          "column": 25,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 496,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.reconcile_method"
+        },
+        {
+          "column": 25,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 496,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 47,
+          "function": "FoundryMethodOutputConsumer.consume_from_state",
+          "line": 500,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 15,
+          "function": "FoundryMethodOutputConsumer.bind_constraints",
+          "line": 541,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 28,
+          "function": "FoundryMethodOutputConsumer.bind_constraints",
+          "line": 548,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 28,
+          "function": "FoundryMethodOutputConsumer.bind_constraints",
+          "line": 548,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 23,
+          "function": "FoundryMethodOutputConsumer.bind_constraints",
+          "line": 555,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 23,
+          "function": "FoundryMethodOutputConsumer.bind_constraints",
+          "line": 555,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 23,
+          "function": "FoundryMethodOutputConsumer.bind_constraints",
+          "line": 555,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 60,
+          "function": "FoundryMethodOutputConsumer.bind_constraints",
+          "line": 583,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.__init__",
+          "line": 670,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.__init__",
+          "line": 671,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.__init__",
+          "line": 672,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 15,
+          "function": "ConstraintStoreIngestor.produce",
+          "line": 710,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admit"
+        },
+        {
+          "column": 15,
+          "function": "ConstraintStoreIngestor.produce",
+          "line": 710,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admit"
+        },
+        {
+          "column": 15,
+          "function": "ConstraintStoreIngestor.produce",
+          "line": 710,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 720,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 720,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 720,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 721,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 721,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 18,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 724,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 18,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 724,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 727,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 727,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 733,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._method_contexts"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 733,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 15,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 734,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admit"
+        },
+        {
+          "column": 15,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 734,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admit"
+        },
+        {
+          "column": 15,
+          "function": "ConstraintStoreIngestor.reconcile_method",
+          "line": 734,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 739,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._current_packet"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 739,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._current_packet"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 739,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 740,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 740,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 740,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 748,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 748,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 753,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 753,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 8,
+          "function": "ConstraintStoreIngestor._admit",
+          "line": 753,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 765,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions.get"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 765,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions.get"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 765,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 765,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 767,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 12,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 767,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 41,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 775,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 41,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 775,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 19,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 776,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._current_packet"
+        },
+        {
+          "column": 19,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 776,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._current_packet"
+        },
+        {
+          "column": 19,
+          "function": "ConstraintStoreIngestor.require",
+          "line": 776,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.readback",
+          "line": 789,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions.get"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.readback",
+          "line": 789,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions.get"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.readback",
+          "line": 789,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._admissions"
+        },
+        {
+          "column": 17,
+          "function": "ConstraintStoreIngestor.readback",
+          "line": 789,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor.readback",
+          "line": 790,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor.readback",
+          "line": 790,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor.readback",
+          "line": 790,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 19,
+          "function": "ConstraintStoreIngestor._current_packet",
+          "line": 803,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._recompute"
+        },
+        {
+          "column": 19,
+          "function": "ConstraintStoreIngestor._current_packet",
+          "line": 803,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._recompute"
+        },
+        {
+          "column": 19,
+          "function": "ConstraintStoreIngestor._current_packet",
+          "line": 803,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 26,
+          "function": "ConstraintStoreIngestor._current_packet",
+          "line": 809,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 26,
+          "function": "ConstraintStoreIngestor._current_packet",
+          "line": 809,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 26,
+          "function": "ConstraintStoreIngestor._current_packet",
+          "line": 809,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 852,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 852,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 875,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store.put_json"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 875,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store.put_json"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 875,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 14,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 875,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 41,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 880,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 41,
+          "function": "ConstraintStoreIngestor._persist",
+          "line": 880,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 18,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 903,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._method_contexts.get"
+        },
+        {
+          "column": 18,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 903,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._method_contexts.get"
+        },
+        {
+          "column": 18,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 903,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._method_contexts"
+        },
+        {
+          "column": 18,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 903,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 904,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 904,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 61,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 908,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 61,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 908,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 55,
+          "function": "ConstraintStoreIngestor._verified_method_outputs.read",
+          "line": 920,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store.get_manifest"
+        },
+        {
+          "column": 55,
+          "function": "ConstraintStoreIngestor._verified_method_outputs.read",
+          "line": 920,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store.get_manifest"
+        },
+        {
+          "column": 55,
+          "function": "ConstraintStoreIngestor._verified_method_outputs.read",
+          "line": 920,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 55,
+          "function": "ConstraintStoreIngestor._verified_method_outputs.read",
+          "line": 920,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 51,
+          "function": "ConstraintStoreIngestor._verified_method_outputs.read",
+          "line": 924,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 51,
+          "function": "ConstraintStoreIngestor._verified_method_outputs.read",
+          "line": 924,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 57,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 930,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 57,
+          "function": "ConstraintStoreIngestor._verified_method_outputs",
+          "line": 930,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1026,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 11,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1026,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 22,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1034,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 22,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1034,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 22,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1034,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 47,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1040,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._verified_method_outputs"
+        },
+        {
+          "column": 47,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1040,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._verified_method_outputs"
+        },
+        {
+          "column": 47,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1040,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 33,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1050,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 33,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1050,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 33,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1050,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 30,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1064,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._store"
+        },
+        {
+          "column": 30,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1064,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 24,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1066,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 24,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1066,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 24,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1066,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 27,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1080,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 27,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1080,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 27,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1080,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 31,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1088,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 31,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1088,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 31,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1088,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 29,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1103,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 29,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1103,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 29,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1103,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 34,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1165,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 34,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1165,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 34,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1165,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 35,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1185,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 35,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1185,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 35,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1185,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 38,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1230,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 38,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1230,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 38,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1230,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 34,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1246,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 34,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1246,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 34,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1246,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 28,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1298,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 28,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1298,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 28,
+          "function": "ConstraintStoreIngestor._recompute",
+          "line": 1298,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 11,
+          "function": "evaluate_constraint_store_for_phase2",
+          "line": 1374,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 34,
+          "function": "evaluate_constraint_store_for_phase2",
+          "line": 1378,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 34,
+          "function": "evaluate_constraint_store_for_phase2",
+          "line": 1378,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 34,
+          "function": "evaluate_constraint_store_for_phase2",
+          "line": 1378,
+          "path": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "ConstraintStoreIngestor"
+        },
+        {
+          "column": 11,
+          "function": "_phase2_constraint_blockers",
+          "line": 441,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 15,
+          "function": "_phase2_constraint_blockers",
+          "line": 447,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 15,
+          "function": "_phase2_constraint_blockers",
+          "line": 447,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 14,
+          "function": "_phase2_constraint_blockers",
+          "line": 449,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 50,
+          "function": "WorkspaceLoop.__init__",
+          "line": 1508,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 27,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2038,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 27,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2038,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 31,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2039,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 31,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2039,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 31,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2039,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 34,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2045,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 30,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2049,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "_phase2_constraint_blockers"
+        },
+        {
+          "column": 30,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2049,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "_phase2_constraint_blockers"
+        },
+        {
+          "column": 12,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2050,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 42,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2203,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "_phase2_constraint_blockers"
+        },
+        {
+          "column": 42,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2203,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "_phase2_constraint_blockers"
+        },
+        {
+          "column": 24,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2204,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 47,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2274,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.reconcile_method"
+        },
+        {
+          "column": 47,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2274,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.reconcile_method"
+        },
+        {
+          "column": 47,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2274,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 50,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2280,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 34,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2284,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 46,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2287,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "_phase2_constraint_blockers"
+        },
+        {
+          "column": 46,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2287,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "_phase2_constraint_blockers"
+        },
+        {
+          "column": 28,
+          "function": "WorkspaceLoop.run_intent",
+          "line": 2288,
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 23,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 41,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 23,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 41,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 16,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 42,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 42,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 42,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 47,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 8,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 47,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 8,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 47,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 25,
+          "function": "test_phase2_method_consumption_binds_real_source_and_reconciled_constraint_refusal",
+          "line": 62,
+          "path": "tests/integration/runtime_quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 197,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 197,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 16,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 198,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 198,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 198,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 67,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 204,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 15,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 205,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.loop._phase2_constraint_blockers"
+        },
+        {
+          "column": 15,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 205,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.loop._phase2_constraint_blockers"
+        },
+        {
+          "column": 43,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 205,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 18,
+          "function": "_actual_missing_basis_constraint_case",
+          "line": 214,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 15,
+          "function": "test_phase2_consumption_projection_requires_the_actual_complete_owner_seal",
+          "line": 299,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.loop._phase2_constraint_blockers"
+        },
+        {
+          "column": 15,
+          "function": "test_phase2_consumption_projection_requires_the_actual_complete_owner_seal",
+          "line": 299,
+          "path": "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.loop._phase2_constraint_blockers"
+        },
+        {
+          "column": 11,
+          "function": "_scm_solve",
+          "line": 140,
+          "path": "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+          "role": "call",
+          "star_keyword": true,
+          "target": "polisyos.foundry.methods.catalog.causal.synthetic_control._fit_scm_weights"
+        },
+        {
+          "column": 11,
+          "function": "_scm_solve",
+          "line": 140,
+          "path": "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.foundry.methods.catalog.causal.synthetic_control._fit_scm_weights"
+        },
+        {
+          "column": 11,
+          "function": "test_canonical_synthetic_control_imports_resolve",
+          "line": 14,
+          "path": "tests/unit/foundry/methods/catalog/causal/test_synthetic_control_imports.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "package_module.SyntheticControlMethod"
+        },
+        {
+          "column": 52,
+          "function": "test_canonical_synthetic_control_imports_resolve",
+          "line": 14,
+          "path": "tests/unit/foundry/methods/catalog/causal/test_synthetic_control_imports.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "canonical_module.SyntheticControlMethod"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_markers_do_not_admit_uncorroborated_source",
+          "line": 341,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.ingest"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_markers_do_not_admit_uncorroborated_source",
+          "line": 341,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_markers_do_not_admit_uncorroborated_source",
+          "line": 341,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.ingest"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_markers_do_not_admit_uncorroborated_source",
+          "line": 341,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_empty_constraint_basis_is_not_an_admitted_empty_population",
+          "line": 356,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.ingest"
+        },
+        {
+          "column": 8,
+          "function": "test_empty_constraint_basis_is_not_an_admitted_empty_population",
+          "line": 356,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_empty_constraint_basis_is_not_an_admitted_empty_population",
+          "line": 356,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.ingest"
+        },
+        {
+          "column": 8,
+          "function": "test_empty_constraint_basis_is_not_an_admitted_empty_population",
+          "line": 356,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 383,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 383,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 13,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 384,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 384,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 384,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 34,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 387,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 34,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 387,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 34,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 387,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 15,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 392,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 15,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 392,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 22,
+          "function": "test_missing_constraint_basis_is_persisted_and_recomputed",
+          "line": 393,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 416,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 416,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 13,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 422,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 422,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 422,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 34,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 425,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 34,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 425,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.require"
+        },
+        {
+          "column": 34,
+          "function": "test_compiled_constraint_preflight_derives_whole_owner_population_without_positive_authority",
+          "line": 425,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 468,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 468,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 13,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 469,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 469,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 469,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 16,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 480,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 16,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 480,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 484,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 484,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 59,
+          "function": "test_constraint_admission_cannot_be_recreated_or_mutated",
+          "line": 484,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 493,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 493,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 13,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 494,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 494,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 13,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 494,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 510,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 510,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.evaluate_constraint_store_for_phase2"
+        },
+        {
+          "column": 59,
+          "function": "test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+          "line": 510,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_method_consumption_binds_constraint_custody_and_uses_sealed_decision",
+          "line": 517,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_method_consumption_binds_constraint_custody_and_uses_sealed_decision",
+          "line": 517,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 16,
+          "function": "test_method_consumption_binds_constraint_custody_and_uses_sealed_decision",
+          "line": 518,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "test_method_consumption_binds_constraint_custody_and_uses_sealed_decision",
+          "line": 518,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "test_method_consumption_binds_constraint_custody_and_uses_sealed_decision",
+          "line": 518,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 25,
+          "function": "test_method_consumption_binds_constraint_custody_and_uses_sealed_decision",
+          "line": 530,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "_post_method_constraints",
+          "line": 568,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "_post_method_constraints",
+          "line": 568,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 16,
+          "function": "_post_method_constraints",
+          "line": 569,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "_post_method_constraints",
+          "line": 569,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor.produce"
+        },
+        {
+          "column": 16,
+          "function": "_post_method_constraints",
+          "line": 569,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 57,
+          "function": "_post_method_constraints",
+          "line": 573,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_constraint_projection_bytes_bind_the_complete_parent_role_basis",
+          "line": 742,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_constraint_projection_bytes_bind_the_complete_parent_role_basis",
+          "line": 742,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_projection_bytes_bind_the_complete_parent_role_basis",
+          "line": 751,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_projection_bytes_bind_the_complete_parent_role_basis",
+          "line": 751,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 8,
+          "function": "test_constraint_projection_bytes_bind_the_complete_parent_role_basis",
+          "line": 751,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_every_constraint_emission_requires_actual_full_readback",
+          "line": 780,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 12,
+          "function": "test_every_constraint_emission_requires_actual_full_readback",
+          "line": 780,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 8,
+          "function": "test_every_constraint_emission_requires_actual_full_readback",
+          "line": 807,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "call",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 8,
+          "function": "test_every_constraint_emission_requires_actual_full_readback",
+          "line": 807,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor._persist"
+        },
+        {
+          "column": 8,
+          "function": "test_every_constraint_emission_requires_actual_full_readback",
+          "line": 807,
+          "path": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.runtime.quality.workspace.foundry_consumption.ConstraintStoreIngestor"
+        },
+        {
+          "column": 23,
+          "function": "_measure_current_scm_epoch",
+          "line": 2073,
+          "path": "tools/quality/validation/check_layer3_gy_phase2_artifacts.py",
+          "role": "reference",
+          "star_keyword": false,
+          "target": "polisyos.foundry.methods.catalog.causal.synthetic_control.SyntheticControlMethod"
+        }
+      ],
+      "source_basis_hash": "sha256:a3afbb34907b625a2934f707691d1b7b621ac77c119494399aa734890f7185f7",
+      "source_changed": [],
+      "source_denominator": {
+        "file_type": "all current .py",
+        "os_walk": 5601,
+        "rglob": 5601,
+        "roots": [
+          "src",
+          "tools",
+          "tests"
+        ]
+      }
+    },
+    "receipts": [
+      {
+        "default_after": "single_v2_registration_common_objective_exact_convex_gap",
+        "default_before": "raw_objective_and_optimizer_success_flag",
+        "disposition": "fenced_default_flipped",
+        "guard_ref": "_phase2_return_fence_issues; actual native route/readback/decoder controls",
+        "method_epoch": {
+          "current_method_fqn": "causal.inference.synthetic_control@2.0.0",
+          "current_signature_digest": "d0740d5a856077da03f980b5ac042c4a0c63cc694af41b372afb6d3214ad7645",
+          "numerical_call_custody": {
+            "call_expression_identity_delta": [],
+            "independent_token_call_count": 3,
+            "meaning": "complete numerical owner call population preserved from the pinned predecessor; current targets use the sole verified helper",
+            "preserved_owner_call_count": 3
+          },
+          "predicate_class": "recomputed",
+          "retired_lookup_outcome": "MethodNotFoundError",
+          "retired_method_fqn": "causal.inference.synthetic_control@1.0.0",
+          "scope": "actual current registry lookup; numerical adequacy is separately exercised by native and actual recorded-consumer controls"
+        },
+        "pattern_id": "P28",
+        "predecessor_ref": [
+          "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py@e2cf7f10f2853b7561034b8e0ba699e6bacd32ba#_fit_scm_weights"
+        ],
+        "receipt_id": "layer3-gy-c3-scm-numerical-solution-strangle",
+        "remaining_callers": [
+          "#/caller_basis/references/0",
+          "#/caller_basis/references/1",
+          "#/caller_basis/references/2",
+          "#/caller_basis/references/3",
+          "#/caller_basis/references/4",
+          "#/caller_basis/references/5",
+          "#/caller_basis/references/6",
+          "#/caller_basis/references/7",
+          "#/caller_basis/references/8",
+          "#/caller_basis/references/9",
+          "#/caller_basis/references/10",
+          "#/caller_basis/references/11",
+          "#/caller_basis/references/202",
+          "#/caller_basis/references/203",
+          "#/caller_basis/references/204",
+          "#/caller_basis/references/205",
+          "#/caller_basis/references/273"
+        ],
+        "remaining_callers_disposition": "Every enumerated SCM helper/class caller resolves the single current owner; explicit retired registry lookup refuses. No N8 authority or historical artifact is reissued here.",
+        "removed_loc": {
+          "sequence_opcodes": 32,
+          "unified_diff": 32
+        },
+        "replaced_members": [
+          {
+            "predecessor_ref": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py@e2cf7f10f2853b7561034b8e0ba699e6bacd32ba#_fit_scm_weights",
+            "removed_loc": {
+              "sequence_opcodes": 32,
+              "unified_diff": 32
+            },
+            "replacement_ref": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py@sha256:c3d87cd9d37e9e2d43fe24df9397a5cddbdb6216f650069cda69c9cd95936ccd#_fit_scm_weights"
+          }
+        ],
+        "replacement_ref": [
+          "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py@sha256:c3d87cd9d37e9e2d43fe24df9397a5cddbdb6216f650069cda69c9cd95936ccd#_fit_scm_weights"
+        ],
+        "task_id": "GY-C3",
+        "verified_by": [
+          {
+            "meaning": "retained_prior_semantic_removal_witness_not_current_runtime_authority",
+            "ref": "docs/superpowers/journals/gy-eight-gaps-evidence/c3/return/scm-solver-removal.json@sha256:947d8e2db9a4e4f02d70b2ab58ff65e2fc4286c853b25ad2ae6f9f341450fdc1"
+          }
+        ]
+      },
+      {
+        "default_after": "complete_owner_basis_cas_recomputation_and_consumed_decision",
+        "default_before": "caller_status_or_resolved_reference",
+        "disposition": "fenced_default_flipped",
+        "guard_ref": "_phase2_return_fence_issues; actual native route/readback/decoder controls",
+        "pattern_id": "P28",
+        "predecessor_ref": [
+          "src/polisyos/runtime/quality/workspace/foundry_consumption.py@e2cf7f10f2853b7561034b8e0ba699e6bacd32ba#ConstraintStoreIngestor.ingest",
+          "src/polisyos/runtime/quality/workspace/foundry_consumption.py@e2cf7f10f2853b7561034b8e0ba699e6bacd32ba#evaluate_constraint_store_for_phase2"
+        ],
+        "receipt_id": "layer3-gy-c3-constraint-owner-admission-strangle",
+        "remaining_callers": [
+          "#/caller_basis/references/12",
+          "#/caller_basis/references/13",
+          "#/caller_basis/references/14",
+          "#/caller_basis/references/15",
+          "#/caller_basis/references/16",
+          "#/caller_basis/references/17",
+          "#/caller_basis/references/18",
+          "#/caller_basis/references/19",
+          "#/caller_basis/references/20",
+          "#/caller_basis/references/21",
+          "#/caller_basis/references/22",
+          "#/caller_basis/references/23",
+          "#/caller_basis/references/24",
+          "#/caller_basis/references/25",
+          "#/caller_basis/references/26",
+          "#/caller_basis/references/27",
+          "#/caller_basis/references/28",
+          "#/caller_basis/references/29",
+          "#/caller_basis/references/30",
+          "#/caller_basis/references/31",
+          "#/caller_basis/references/32",
+          "#/caller_basis/references/33",
+          "#/caller_basis/references/34",
+          "#/caller_basis/references/35",
+          "#/caller_basis/references/36",
+          "#/caller_basis/references/37",
+          "#/caller_basis/references/38",
+          "#/caller_basis/references/39",
+          "#/caller_basis/references/40",
+          "#/caller_basis/references/41",
+          "#/caller_basis/references/42",
+          "#/caller_basis/references/43",
+          "#/caller_basis/references/44",
+          "#/caller_basis/references/45",
+          "#/caller_basis/references/46",
+          "#/caller_basis/references/47",
+          "#/caller_basis/references/48",
+          "#/caller_basis/references/49",
+          "#/caller_basis/references/50",
+          "#/caller_basis/references/51",
+          "#/caller_basis/references/52",
+          "#/caller_basis/references/53",
+          "#/caller_basis/references/54",
+          "#/caller_basis/references/55",
+          "#/caller_basis/references/56",
+          "#/caller_basis/references/57",
+          "#/caller_basis/references/58",
+          "#/caller_basis/references/59",
+          "#/caller_basis/references/60",
+          "#/caller_basis/references/61",
+          "#/caller_basis/references/62",
+          "#/caller_basis/references/63",
+          "#/caller_basis/references/64",
+          "#/caller_basis/references/65",
+          "#/caller_basis/references/66",
+          "#/caller_basis/references/67",
+          "#/caller_basis/references/68",
+          "#/caller_basis/references/69",
+          "#/caller_basis/references/70",
+          "#/caller_basis/references/71",
+          "#/caller_basis/references/72",
+          "#/caller_basis/references/73",
+          "#/caller_basis/references/74",
+          "#/caller_basis/references/75",
+          "#/caller_basis/references/76",
+          "#/caller_basis/references/77",
+          "#/caller_basis/references/78",
+          "#/caller_basis/references/79",
+          "#/caller_basis/references/80",
+          "#/caller_basis/references/81",
+          "#/caller_basis/references/82",
+          "#/caller_basis/references/83",
+          "#/caller_basis/references/84",
+          "#/caller_basis/references/85",
+          "#/caller_basis/references/86",
+          "#/caller_basis/references/87",
+          "#/caller_basis/references/88",
+          "#/caller_basis/references/89",
+          "#/caller_basis/references/90",
+          "#/caller_basis/references/91",
+          "#/caller_basis/references/92",
+          "#/caller_basis/references/93",
+          "#/caller_basis/references/94",
+          "#/caller_basis/references/95",
+          "#/caller_basis/references/96",
+          "#/caller_basis/references/97",
+          "#/caller_basis/references/98",
+          "#/caller_basis/references/99",
+          "#/caller_basis/references/100",
+          "#/caller_basis/references/101",
+          "#/caller_basis/references/102",
+          "#/caller_basis/references/103",
+          "#/caller_basis/references/104",
+          "#/caller_basis/references/105",
+          "#/caller_basis/references/106",
+          "#/caller_basis/references/107",
+          "#/caller_basis/references/108",
+          "#/caller_basis/references/109",
+          "#/caller_basis/references/110",
+          "#/caller_basis/references/111",
+          "#/caller_basis/references/112",
+          "#/caller_basis/references/113",
+          "#/caller_basis/references/114",
+          "#/caller_basis/references/115",
+          "#/caller_basis/references/116",
+          "#/caller_basis/references/117",
+          "#/caller_basis/references/118",
+          "#/caller_basis/references/119",
+          "#/caller_basis/references/120",
+          "#/caller_basis/references/121",
+          "#/caller_basis/references/122",
+          "#/caller_basis/references/123",
+          "#/caller_basis/references/124",
+          "#/caller_basis/references/125",
+          "#/caller_basis/references/126",
+          "#/caller_basis/references/127",
+          "#/caller_basis/references/128",
+          "#/caller_basis/references/129",
+          "#/caller_basis/references/130",
+          "#/caller_basis/references/131",
+          "#/caller_basis/references/132",
+          "#/caller_basis/references/133",
+          "#/caller_basis/references/134",
+          "#/caller_basis/references/135",
+          "#/caller_basis/references/136",
+          "#/caller_basis/references/137",
+          "#/caller_basis/references/138",
+          "#/caller_basis/references/139",
+          "#/caller_basis/references/140",
+          "#/caller_basis/references/141",
+          "#/caller_basis/references/142",
+          "#/caller_basis/references/143",
+          "#/caller_basis/references/144",
+          "#/caller_basis/references/145",
+          "#/caller_basis/references/146",
+          "#/caller_basis/references/147",
+          "#/caller_basis/references/148",
+          "#/caller_basis/references/149",
+          "#/caller_basis/references/150",
+          "#/caller_basis/references/151",
+          "#/caller_basis/references/152",
+          "#/caller_basis/references/153",
+          "#/caller_basis/references/154",
+          "#/caller_basis/references/155",
+          "#/caller_basis/references/156",
+          "#/caller_basis/references/157",
+          "#/caller_basis/references/158",
+          "#/caller_basis/references/159",
+          "#/caller_basis/references/160",
+          "#/caller_basis/references/161",
+          "#/caller_basis/references/162",
+          "#/caller_basis/references/163",
+          "#/caller_basis/references/164",
+          "#/caller_basis/references/165",
+          "#/caller_basis/references/166",
+          "#/caller_basis/references/167",
+          "#/caller_basis/references/168",
+          "#/caller_basis/references/169",
+          "#/caller_basis/references/170",
+          "#/caller_basis/references/171",
+          "#/caller_basis/references/172",
+          "#/caller_basis/references/173",
+          "#/caller_basis/references/174",
+          "#/caller_basis/references/175",
+          "#/caller_basis/references/176",
+          "#/caller_basis/references/177",
+          "#/caller_basis/references/178",
+          "#/caller_basis/references/179",
+          "#/caller_basis/references/180",
+          "#/caller_basis/references/181",
+          "#/caller_basis/references/182",
+          "#/caller_basis/references/183",
+          "#/caller_basis/references/184",
+          "#/caller_basis/references/185",
+          "#/caller_basis/references/186",
+          "#/caller_basis/references/187",
+          "#/caller_basis/references/188",
+          "#/caller_basis/references/189",
+          "#/caller_basis/references/190",
+          "#/caller_basis/references/191",
+          "#/caller_basis/references/192",
+          "#/caller_basis/references/193",
+          "#/caller_basis/references/194",
+          "#/caller_basis/references/195",
+          "#/caller_basis/references/196",
+          "#/caller_basis/references/197",
+          "#/caller_basis/references/198",
+          "#/caller_basis/references/199",
+          "#/caller_basis/references/200",
+          "#/caller_basis/references/201",
+          "#/caller_basis/references/206",
+          "#/caller_basis/references/207",
+          "#/caller_basis/references/208",
+          "#/caller_basis/references/209",
+          "#/caller_basis/references/210",
+          "#/caller_basis/references/211",
+          "#/caller_basis/references/212",
+          "#/caller_basis/references/213",
+          "#/caller_basis/references/214",
+          "#/caller_basis/references/215",
+          "#/caller_basis/references/216",
+          "#/caller_basis/references/217",
+          "#/caller_basis/references/218",
+          "#/caller_basis/references/219",
+          "#/caller_basis/references/220",
+          "#/caller_basis/references/221",
+          "#/caller_basis/references/222",
+          "#/caller_basis/references/223",
+          "#/caller_basis/references/224",
+          "#/caller_basis/references/225",
+          "#/caller_basis/references/226",
+          "#/caller_basis/references/227",
+          "#/caller_basis/references/228",
+          "#/caller_basis/references/229",
+          "#/caller_basis/references/230",
+          "#/caller_basis/references/231",
+          "#/caller_basis/references/232",
+          "#/caller_basis/references/233",
+          "#/caller_basis/references/234",
+          "#/caller_basis/references/235",
+          "#/caller_basis/references/236",
+          "#/caller_basis/references/237",
+          "#/caller_basis/references/238",
+          "#/caller_basis/references/239",
+          "#/caller_basis/references/240",
+          "#/caller_basis/references/241",
+          "#/caller_basis/references/242",
+          "#/caller_basis/references/243",
+          "#/caller_basis/references/244",
+          "#/caller_basis/references/245",
+          "#/caller_basis/references/246",
+          "#/caller_basis/references/247",
+          "#/caller_basis/references/248",
+          "#/caller_basis/references/249",
+          "#/caller_basis/references/250",
+          "#/caller_basis/references/251",
+          "#/caller_basis/references/252",
+          "#/caller_basis/references/253",
+          "#/caller_basis/references/254",
+          "#/caller_basis/references/255",
+          "#/caller_basis/references/256",
+          "#/caller_basis/references/257",
+          "#/caller_basis/references/258",
+          "#/caller_basis/references/259",
+          "#/caller_basis/references/260",
+          "#/caller_basis/references/261",
+          "#/caller_basis/references/262",
+          "#/caller_basis/references/263",
+          "#/caller_basis/references/264",
+          "#/caller_basis/references/265",
+          "#/caller_basis/references/266",
+          "#/caller_basis/references/267",
+          "#/caller_basis/references/268",
+          "#/caller_basis/references/269",
+          "#/caller_basis/references/270",
+          "#/caller_basis/references/271",
+          "#/caller_basis/references/272"
+        ],
+        "remaining_callers_disposition": "N8 value callers remain their unchanged owner; retired constraint ingress has no admitted caller; ordinary outcome construction/in-memory validation retains its original contract",
+        "removed_loc": {
+          "sequence_opcodes": 58,
+          "unified_diff": 58
+        },
+        "replaced_members": [
+          {
+            "predecessor_ref": "src/polisyos/runtime/quality/workspace/foundry_consumption.py@e2cf7f10f2853b7561034b8e0ba699e6bacd32ba#ConstraintStoreIngestor.ingest",
+            "removed_loc": {
+              "sequence_opcodes": 39,
+              "unified_diff": 39
+            },
+            "replacement_ref": "src/polisyos/runtime/quality/workspace/foundry_consumption.py@sha256:4339705b7fb672091766e25e11bbc35bc799d3f587d5a16893633a9b6464f8cb#ConstraintStoreIngestor.ingest"
+          },
+          {
+            "predecessor_ref": "src/polisyos/runtime/quality/workspace/foundry_consumption.py@e2cf7f10f2853b7561034b8e0ba699e6bacd32ba#evaluate_constraint_store_for_phase2",
+            "removed_loc": {
+              "sequence_opcodes": 19,
+              "unified_diff": 19
+            },
+            "replacement_ref": "src/polisyos/runtime/quality/workspace/foundry_consumption.py@sha256:4339705b7fb672091766e25e11bbc35bc799d3f587d5a16893633a9b6464f8cb#evaluate_constraint_store_for_phase2"
+          }
+        ],
+        "replacement_ref": [
+          "src/polisyos/runtime/quality/workspace/foundry_consumption.py@sha256:4339705b7fb672091766e25e11bbc35bc799d3f587d5a16893633a9b6464f8cb#ConstraintStoreIngestor.ingest",
+          "src/polisyos/runtime/quality/workspace/foundry_consumption.py@sha256:4339705b7fb672091766e25e11bbc35bc799d3f587d5a16893633a9b6464f8cb#evaluate_constraint_store_for_phase2"
+        ],
+        "task_id": "GY-C3",
+        "verified_by": [
+          {
+            "meaning": "retained_prior_semantic_removal_witness_not_current_runtime_authority",
+            "ref": "docs/superpowers/journals/gy-eight-gaps-evidence/c3/return/constraints-decision-consumption-removal.json@sha256:cfff295c264ecf269caadfcff50e7e5950056024da863bb8cc302eaff0f0b2ab"
+          },
+          {
+            "meaning": "retained_prior_semantic_removal_witness_not_current_runtime_authority",
+            "ref": "docs/superpowers/journals/gy-eight-gaps-evidence/c3/return/constraints-method-reconciliation-removal.json@sha256:02b30937dfc9b6cb18bb934ce85868fcdaf924a75e58903216931d7b1fd6ffe1"
+          },
+          {
+            "meaning": "retained_prior_semantic_removal_witness_not_current_runtime_authority",
+            "ref": "docs/superpowers/journals/gy-eight-gaps-evidence/c3/return/constraints-emission-content-removal.json@sha256:6b004b01da958dfc066ec33a0c0a3cb3256faeebc73f0c79fbd05035df5ca6f9"
+          }
+        ]
+      }
+    ],
+    "schema_version": "policyos.gy.phase2.return_strangles.v1",
+    "semantic_basis": "current actual loop/CAS proof plus independently retained actual removal outputs; static tokens alone do not establish the property"
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy_phase2.foundry_consumption_proofs.v3"
+}

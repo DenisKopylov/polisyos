@@ -1,0 +1,25 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_layer3_gy_promotion_contract",
+    "--corrupt-field-drift-check",
+    "--output-format",
+    "json"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T19:38:06.464194+00:00",
+  "elapsed_seconds": 69.018,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"issues\": [\n    {\n      \"code\": \"corrupt_field_drift_detected\"\n    },\n    {\n      \"code\": \"comparison_admission_manifest_invalid\",\n      \"error\": \"1 validation error for CanonicalPromotionReceipt\\nconfidence_ledger_projection.conditionality_clause\\n  Field required [type=missing, input_value={'authority_provenance': ..., 'within_budget': True}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\"\n    },\n    {\n      \"actual\": \"sha256:ced80f8227b4143895f5ef39c9b5e81f2d7523bc585f8751666102a2f1e46caa\",\n      \"code\": \"contract_content_hash_drift\",\n      \"expected\": \"sha256:772b22798695b1f32f5d1b801a1e3e20bae33a8ff8b57461c9b272962a3c0588\"\n    },\n    {\n      \"code\": \"contract_lane_anytime_refusal_invalid\",\n      \"error\": \"1 validation error for CanonicalPromotionReceipt\\nconfidence_ledger_projection.conditionality_clause\\n  Field required [type=missing, input_value={'authority_provenance': ..., 'within_budget': True}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\"\n    }\n  ],\n  \"status\": \"fail\",\n  \"wall_time_seconds\": 0.055801\n}\n",
+  "stderr": ""
+}

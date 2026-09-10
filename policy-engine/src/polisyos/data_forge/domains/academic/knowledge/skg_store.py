@@ -25,6 +25,7 @@ from polisyos.ir.analytics.literature import (
     EvidenceStrength,
     OpenAlexWorkText,
     validate_causal_claim_span_grounding,
+    validate_openalex_source_bound_candidate,
 )
 
 preflight_candidate_claim_vocabulary = admit_candidate_claim_vocabulary
@@ -719,6 +720,64 @@ def ingest_openalex_span_grounded_claims(
     span_support_client: Any | None = None,
     variable_canonizer: VariableCanonizer | None = None,
 ) -> OpenAlexSKGIngestReport:
+    """Retain explicit publication admission; candidate ingestion uses its own entry."""
+
+    return _ingest_openalex_claims(
+        con,
+        work=work,
+        claims=claims,
+        query_trace=query_trace,
+        span_support_client=span_support_client,
+        variable_canonizer=variable_canonizer,
+    )
+
+
+def ingest_openalex_source_bound_candidates(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    work: OpenAlexWorkText,
+    claims: Iterable[CausalClaim],
+    query_trace: Any,
+    variable_canonizer: VariableCanonizer | None = None,
+) -> OpenAlexSKGIngestReport:
+    """Admit rederived source candidates without a publication or entailment decision.
+
+    Source/claim validation runs before any database write. The shared sink keeps
+    candidate vocabulary and graph-layer semantics identical to the existing owner.
+    """
+
+    rows = list(claims)
+    try:
+        work.require_source_content()
+    except (ValueError, TypeError) as exc:
+        raise ValueError(f"openalex_candidate_source_not_admitted:{exc}") from exc
+    trace = _trace_payload(query_trace)
+    if trace["provider"] != "openalex" or not trace["query"] or trace["error"]:
+        raise ValueError("openalex_candidate_query_trace_not_admitted")
+    for claim in rows:
+        binding = validate_openalex_source_bound_candidate(work, claim, query=trace["query"])
+        if binding.status != "source_bound_candidate":
+            raise ValueError(f"openalex_candidate_source_not_admitted:{binding.reason}")
+    return _ingest_openalex_claims(
+        con,
+        work=work,
+        claims=rows,
+        query_trace=query_trace,
+        variable_canonizer=variable_canonizer,
+        candidate_query=trace["query"],
+    )
+
+
+def _ingest_openalex_claims(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    work: OpenAlexWorkText,
+    claims: Iterable[CausalClaim],
+    query_trace: Any,
+    span_support_client: Any | None = None,
+    variable_canonizer: VariableCanonizer | None = None,
+    candidate_query: str | None = None,
+) -> OpenAlexSKGIngestReport:
     """Persist validated OpenAlex claims into SKG query, claim, edge, and evidence tables."""
 
     claim_rows = list(claims)
@@ -793,9 +852,7 @@ def ingest_openalex_span_grounded_claims(
             _json_dumps(
                 {
                     "source": "openalex",
-                    "claims": [
-                        transport.model_dump(mode="json") for transport in claim_transports
-                    ],
+                    "claims": [transport.model_dump(mode="json") for transport in claim_transports],
                     "source_content_sha256": work.content_sha256,
                 }
             ),
@@ -812,15 +869,20 @@ def ingest_openalex_span_grounded_claims(
     canonizer = variable_canonizer or _default_variable_canonizer()
 
     for claim, transport in zip(claim_rows, claim_transports, strict=True):
-        if claim.publish_to_graph is not True:
-            rejected_ids.append(claim.claim_id)
-            continue
-        grounding = validate_causal_claim_span_grounding(
-            work,
-            claim,
-            span_support_client=span_support_client,
-        )
-        if grounding.status != "validated_supporting":
+        if candidate_query is None:
+            if claim.publish_to_graph is not True:
+                rejected_ids.append(claim.claim_id)
+                continue
+            grounding = validate_causal_claim_span_grounding(
+                work,
+                claim,
+                span_support_client=span_support_client,
+            )
+            admitted = grounding.status == "validated_supporting"
+        else:
+            grounding = validate_openalex_source_bound_candidate(work, claim, query=candidate_query)
+            admitted = grounding.status == "source_bound_candidate"
+        if not admitted:
             rejected_ids.append(claim.claim_id)
             continue
         span = claim.supporting_spans[0]
@@ -937,7 +999,9 @@ def ingest_openalex_span_grounded_claims(
         ingested_claim_count=ingested,
         rejected_claim_count=len(rejected_ids),
         rejected_claim_ids=tuple(rejected_ids),
-        authority_tier="design_tier_l2" if ingested else "candidate_unverified",
+        authority_tier="design_tier_l2"
+        if ingested and candidate_query is None
+        else "candidate_unverified",
     )
 
 
@@ -983,9 +1047,7 @@ def ingest_openalex_no_hit_frontier(
             trace_id,
             trace_payload["query"],
             trace_payload["provider"],
-            "provider_returned_no_hits"
-            if not trace_payload["error"]
-            else "provider_error_no_hits",
+            "provider_returned_no_hits" if not trace_payload["error"] else "provider_error_no_hits",
             version_id,
         ],
     )
@@ -1256,6 +1318,7 @@ __all__ = [
     "hash_param_id",
     "hash_transport_score_id",
     "ingest_openalex_no_hit_frontier",
+    "ingest_openalex_source_bound_candidates",
     "ingest_openalex_span_grounded_claims",
     "next_skg_version",
     "normalize_strength",

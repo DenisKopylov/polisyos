@@ -1174,6 +1174,90 @@ def test_control_service_builds_retrieval_with_injected_provider_bundle(
     service.close()
 
 
+@pytest.mark.parametrize("injected", [False, True])
+def test_control_service_preserves_real_catalog_ownership(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, injected: bool,
+) -> None:
+    import json
+    from types import SimpleNamespace
+
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.fabric.retrieval.service import RetrievalService
+
+    curated = tmp_path / "curated"
+    curated.mkdir()
+    (curated / "data_contracts.json").write_text(json.dumps({"contracts": [{
+        "metric_id": "recorded_owner_metric", "source_column": "value",
+        "jurisdiction": "UA", "granularity": "annual",
+    }]}))
+    (curated / "source_bindings.json").write_text(json.dumps({"bindings": [{
+        "metric_id": "recorded_owner_metric", "connector_id": "static_csv",
+        "dataset_id": "recorded_owner.csv", "trust": 0.9,
+    }]}))
+    canonical = catalog_api.build_production_data_contract_catalog_graph(
+        production_root=curated, graph_root=tmp_path / "canonical_catalog",
+    )
+    canonical.close()
+    hint_dir = tmp_path / "empty_curated_hints"
+    hint_dir.mkdir()
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", str(hint_dir))
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "cache"))
+    monkeypatch.setattr(
+        "polisyos.runtime.quality.substrate_registry.default_substrate_catalog_paths",
+        lambda _root: SimpleNamespace(l1_dcat_path=tmp_path / "canonical_catalog/catalog.duckdb"),
+    )
+    monkeypatch.setattr(
+        catalog_api, "default_acquisition_overlay_path", lambda _root: tmp_path / "absent_overlay.duckdb",
+    )
+    graph = None
+    retrieval = None
+    if injected:
+        graph = catalog_api.DatasetCatalogGraph(
+            tmp_path / "canonical_catalog/catalog.duckdb", tmp_path / "canonical_catalog",
+        )
+        retrieval = RetrievalService(
+            curated_dir=tmp_path / "catalog_only", cas_root=tmp_path / "cas",
+            dataset_catalog=graph,
+        )
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas", core_runs_root=tmp_path / "runs",
+        artifact_store=FileSystemCAS(tmp_path / "cas"), retrieval_service=retrieval,
+        registry_providers=resolve_control_registry_providers(),
+        policy_resolver=RuntimeExecutionPolicyResolver(
+            default_profile="dev", worker_backend="external", state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control.sqlite3"), postgres_dsn=None,
+        ),
+    )
+    selected = service._retrieval._dataset_catalog
+    assert isinstance(selected, catalog_api.DatasetCatalogGraph)
+    if injected:
+        assert selected is graph
+        assert service._retrieval is retrieval
+        assert service._retrieval_catalog is None
+    else:
+        assert selected is service._retrieval_catalog
+    # The concrete catalog resolves the declared metric; this test exercises
+    # service construction/lifetime, not the separate fetch-to-N9 falsifier.
+    response = service._retrieval.resolve(DataResolveRequest(
+        data_needs=[DataNeed(metric="recorded_owner_metric")],
+        mode="fastlane", allow_explore_fallback=False,
+    ))
+    assert response.fetch_plans
+    closed: list[bool] = []
+    close = selected.close
+
+    def observed_close() -> None:
+        closed.append(True)
+        close()
+
+    monkeypatch.setattr(selected, "close", observed_close)
+    service.close()
+    assert closed == ([] if injected else [True])
+    if injected:
+        selected.close()
+
+
 def test_control_service_accepts_injected_observability(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,

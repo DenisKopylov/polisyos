@@ -1,0 +1,25 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "--show-capture=no",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_uses_verified_snapshot_after_guard"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T17:22:01.839999+00:00",
+  "elapsed_seconds": 59.964,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________ test_foundry_emission_uses_verified_snapshot_after_guard ___________\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:249: in test_foundry_emission_uses_verified_snapshot_after_guard\n    assert payload[\"authority_boundary\"] == before[\"authority_boundary\"]\nE   AssertionError: assert {'authoritati..., ...}]}, ...} == {'authoritati..., ...}]}, ...}\nE     \nE     Omitting 9 identical items, use -vv to show\nE     Differing items:\nE     {'authoritative_for': ['estimate:ws-c3-direct-method-owner', 'production_recommendation']} != {'authoritative_for': ['estimate:ws-c3-direct-method-owner']}\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_emission_uses_verified_snapshot_after_guard\n",
+  "stderr": ""
+}

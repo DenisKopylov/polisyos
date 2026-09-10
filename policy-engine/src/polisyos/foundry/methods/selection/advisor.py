@@ -462,6 +462,275 @@ def method_accepts_input_contract(method: object, contract_id: str) -> bool:
     return False
 
 
+class InputContractMethodCandidate(BaseModel):
+    """One actual registry member classified for candidate search only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    method_fqn: str = Field(min_length=1)
+    signature_digest: str | None = None
+    callable_ref: str | None = None
+    disposition: Literal["eligible", "ineligible", "unreadable"]
+    reasons: tuple[str, ...] = ()
+
+
+class InputContractMethodSelection(BaseModel):
+    """Candidate routing, with no method-validity or causal-output authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.foundry.input_contract_method_selection.v1"] = (
+        "policyos.foundry.input_contract_method_selection.v1"
+    )
+    status: Literal["selected", "blocked"]
+    selection_scope: Literal["candidate_search_only"] = "candidate_search_only"
+    output_semantics: Literal["not_established_until_real_execution"] = (
+        "not_established_until_real_execution"
+    )
+    input_contract_id: str = Field(min_length=1)
+    required_output_slots: tuple[str, ...]
+    requested_method_fqn: str | None = None
+    selected_method_fqn: str | None = None
+    denominator_established: bool
+    registry_bridge_errors: tuple[tuple[str, str], ...] = ()
+    registry_discovery_errors: tuple[str, ...] = ()
+    registry_bootstrap_error: str | None = None
+    denominator: tuple[str, ...] = ()
+    candidates: tuple[InputContractMethodCandidate, ...] = ()
+    ranked_method_fqns: tuple[str, ...] = ()
+    catalog_content_hash: str | None = None
+    context_content_hash: str
+    blockers: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _reconcile_candidate_population(self) -> InputContractMethodSelection:
+        if self.denominator != tuple(sorted(set(self.denominator))):
+            raise ValueError("input_contract_method_denominator_not_canonical")
+        if self.denominator_established and tuple(
+            row.method_fqn for row in self.candidates
+        ) != self.denominator:
+            raise ValueError("input_contract_method_candidate_population_mismatch")
+        eligible = {row.method_fqn for row in self.candidates if row.disposition == "eligible"}
+        if len(self.ranked_method_fqns) != len(set(self.ranked_method_fqns)) or not set(
+            self.ranked_method_fqns
+        ).issubset(eligible):
+            raise ValueError("input_contract_method_rank_population_mismatch")
+        if self.status == "selected":
+            if (
+                self.blockers
+                or self.registry_bridge_errors
+                or self.registry_discovery_errors
+                or self.registry_bootstrap_error is not None
+                or not self.denominator_established
+                or any(row.disposition == "unreadable" for row in self.candidates)
+                or self.selected_method_fqn not in self.ranked_method_fqns
+            ):
+                raise ValueError("input_contract_method_selected_without_basis")
+        elif self.selected_method_fqn is not None or not self.blockers:
+            raise ValueError("input_contract_method_refusal_without_blocker")
+        return self
+
+
+def select_method_for_input_contract(
+    *,
+    contract_id: str,
+    required_output_slots: Sequence[str],
+    selection_context: Mapping[str, Any],
+    requested_method_fqn: str | None = None,
+    registry: MethodRegistry | None = None,
+    criteria: MethodSelectionCriteria | None = None,
+) -> InputContractMethodSelection:
+    """Rank actual executable contract-compatible candidates over the full registry.
+
+    Slot declarations constrain search; only the real execution consumer can
+    validate emitted output semantics. This function issues no accuracy,
+    calibration, causal-validity, or N8 value-selection authority.
+    """
+
+    outputs = tuple(sorted(set(required_output_slots)))
+    if not contract_id.strip() or not outputs or any(not slot.strip() for slot in outputs):
+        raise ValueError("input_contract_method_search_contract_invalid")
+    effective_criteria = criteria or MethodSelectionCriteria()
+    context_hash = _method_selection_receipt_content_hash({
+        "input_contract_id": contract_id,
+        "required_output_slots": outputs,
+        "requested_method_fqn": requested_method_fqn,
+        "criteria": asdict(effective_criteria),
+        "selection_context": dict(selection_context),
+    })
+    denominator: tuple[str, ...] = ()
+    rows: list[InputContractMethodCandidate] = []
+    catalog_hash = None
+    ranked_fqns: tuple[str, ...] = ()
+    bootstrap_report = None
+    bridge_errors: tuple[tuple[str, str], ...] = ()
+    discovery_errors: tuple[str, ...] = ()
+    bootstrap_error: str | None = None
+
+    def refusal(*codes: str, established: bool = False) -> InputContractMethodSelection:
+        return InputContractMethodSelection(
+            status="blocked", input_contract_id=contract_id,
+            required_output_slots=outputs, requested_method_fqn=requested_method_fqn,
+            denominator_established=established and bootstrap_error is None,
+            denominator=denominator,
+            registry_bridge_errors=bridge_errors,
+            registry_discovery_errors=discovery_errors,
+            registry_bootstrap_error=bootstrap_error,
+            candidates=tuple(rows), catalog_content_hash=catalog_hash,
+            ranked_method_fqns=ranked_fqns,
+            context_content_hash=context_hash,
+            blockers=tuple(dict.fromkeys((*codes, *([bootstrap_error] if bootstrap_error else [])))),
+        )
+
+    reg = registry if registry is not None else MethodRegistry.get_instance()
+    try:
+        from polisyos.foundry.extensions import FoundryExtensionRegistryReport
+        from polisyos.foundry.methods import ensure_all_methods_registered
+
+        bootstrap_report = ensure_all_methods_registered(reg)
+        if not isinstance(bootstrap_report, FoundryExtensionRegistryReport):
+            raise TypeError("foundry_registry_bootstrap_report_unreadable")
+        bridge_errors = tuple((error.component_id, error.message) for error in bootstrap_report.errors)
+        discovery_errors = tuple(bootstrap_report.discovery_errors)
+        if not bootstrap_report.success:
+            bootstrap_error = "input_contract_method_registry_intake_incomplete"
+    except Exception as exc:
+        bootstrap_error = f"input_contract_method_registry_unavailable:{type(exc).__name__}:{exc}"
+    # A failed intake is not a zero population: retain all currently registered
+    # member classifications, but never call that partial set the denominator.
+    with reg.snapshot_scope() as registry_snapshot:
+        snapshot_fqns = tuple(registry_snapshot)
+        signatures = reg.list_all()
+        denominator = tuple(signature.fqn for signature in signatures)
+        if denominator != snapshot_fqns or len(set(denominator)) != len(signatures):
+            denominator = snapshot_fqns
+            return refusal("input_contract_method_registry_denominator_mismatch")
+        if not denominator:
+            return refusal("input_contract_method_registry_empty", established=True)
+        for signature in signatures:
+            reasons: list[str] = []
+            digest = None
+            callable_ref = None
+            try:
+                if not isinstance(signature, MethodSignature):
+                    raise TypeError("registered_signature_not_typed")
+                digest = signature.stable_digest()
+                method = reg.get(signature.fqn)
+                actual_signature = getattr(method, "signature", None)
+                if (
+                    not isinstance(actual_signature, MethodSignature)
+                    or actual_signature.fqn != signature.fqn
+                    or actual_signature.stable_digest() != digest
+                ):
+                    raise ValueError("actual_callable_signature_mismatch")
+                step = getattr(method, "pure_step", None)
+                if not callable(step):
+                    raise TypeError("actual_method_step_not_callable")
+                callable_ref = f"{step.__module__}:{step.__qualname__}"
+                # The reusable acceptance owner can fall back to executable
+                # annotations. If its answer is false, distinguish an unreadable
+                # annotation from a resolved incompatible contract.
+                accepts = method_accepts_input_contract(method, contract_id)
+                if not accepts:
+                    for attribute in ("materialize_input", "pure_step"):
+                        function = getattr(method, attribute, None)
+                        if function is not None:
+                            get_type_hints(function)
+                    reasons.append("input_contract_incompatible")
+                declared_outputs = {slot.name for slot in actual_signature.output_slots}
+                reasons.extend(
+                    f"required_output_slot_missing:{slot}"
+                    for slot in outputs if slot not in declared_outputs
+                )
+            except Exception as exc:
+                rows.append(InputContractMethodCandidate(
+                    method_fqn=signature.fqn, signature_digest=digest,
+                    callable_ref=callable_ref, disposition="unreadable",
+                    reasons=(f"{type(exc).__name__}:{exc}",),
+                ))
+                continue
+            rows.append(InputContractMethodCandidate(
+                method_fqn=signature.fqn, signature_digest=digest,
+                callable_ref=callable_ref,
+                disposition="ineligible" if reasons else "eligible",
+                reasons=tuple(reasons),
+            ))
+        if any(row.disposition == "unreadable" for row in rows):
+            return refusal("input_contract_method_member_unreadable", established=True)
+        if bootstrap_error is not None:
+            return refusal()
+        try:
+            # Reuse the actual intake's identity/content binding; another blind
+            # bootstrap could silently replace the source of the denominator.
+            catalog = build_method_catalog_snapshot(registry=reg, registry_report=bootstrap_report)
+        except Exception as exc:
+            return refusal(
+                f"input_contract_method_catalog_unavailable:{type(exc).__name__}:{exc}",
+                established=True,
+            )
+        catalog_fqns = tuple(entry.fqn for entry in catalog.entries)
+        after = reg.list_all()
+        if (
+            catalog_fqns != denominator
+            or tuple(signature.fqn for signature in after) != denominator
+            or tuple(signature.stable_digest() for signature in after)
+            != tuple(row.signature_digest for row in rows)
+        ):
+            return refusal("input_contract_method_catalog_denominator_drift", established=True)
+        catalog_hash = _method_selection_receipt_content_hash({
+            "entries": [entry.model_dump(mode="json") for entry in catalog.entries],
+        })
+        by_fqn = {entry.fqn: entry for entry in catalog.entries}
+        rows = [
+            InputContractMethodCandidate(
+                **{
+                    **row.model_dump(),
+                    "disposition": "ineligible",
+                    "reasons": (*row.reasons, "method_not_runnable", *by_fqn[row.method_fqn].disabled_reasons),
+                },
+            ) if not by_fqn[row.method_fqn].runnable else row
+            for row in rows
+        ]
+        eligible = {row.method_fqn for row in rows if row.disposition == "eligible"}
+        try:
+            ranked = rank_method_catalog_entries(
+                (entry for entry in catalog.entries if entry.fqn in eligible),
+                effective_criteria, limit=None,
+            )
+        except Exception as exc:
+            return refusal(
+                f"input_contract_method_advisor_unavailable:{type(exc).__name__}:{exc}",
+                established=True,
+            )
+        ranked_fqns = tuple(entry.fqn for entry in ranked)
+        # Advisor preferences may reject otherwise compatible entries. Preserve
+        # each identity and classify that rejection instead of losing the member.
+        rows = [
+            InputContractMethodCandidate(**{
+                **row.model_dump(), "disposition": "ineligible",
+                "reasons": (*row.reasons, "advisor_criteria_rejected"),
+            }) if row.disposition == "eligible" and row.method_fqn not in ranked_fqns else row
+            for row in rows
+        ]
+        if requested_method_fqn is not None:
+            if requested_method_fqn not in denominator:
+                return refusal("input_contract_method_requested_unregistered", established=True)
+            if requested_method_fqn not in ranked_fqns:
+                return refusal("input_contract_method_requested_incompatible", established=True)
+            selected = requested_method_fqn
+        elif ranked_fqns:
+            selected = ranked_fqns[0]
+        else:
+            return refusal("input_contract_method_no_eligible_candidate", established=True)
+        return InputContractMethodSelection(
+            status="selected", input_contract_id=contract_id,
+            required_output_slots=outputs, requested_method_fqn=requested_method_fqn,
+            selected_method_fqn=selected, denominator_established=True,
+            denominator=denominator, candidates=tuple(rows), ranked_method_fqns=ranked_fqns,
+            catalog_content_hash=catalog_hash, context_content_hash=context_hash,
+        )
+
+
 def _validated_route_constraint(
     constraint: MethodRouteConstraint | None,
     registry: MethodRegistry,
@@ -4035,6 +4304,9 @@ __all__ = [
     "MethodSelectionAlternative",
     "MethodSelectionReceipt",
     "MethodRouteConstraint",
+    "InputContractMethodCandidate",
+    "InputContractMethodSelection",
+    "select_method_for_input_contract",
     "method_accepts_input_contract",
     "MethodSelectionCriteria",
     "advise_methods",

@@ -19,6 +19,7 @@ import contextlib
 import hashlib
 import importlib.util
 import json
+import re
 import sys
 import tomllib
 from collections.abc import Sequence
@@ -86,7 +87,9 @@ GY_LIFECYCLE_ALLOWED_CLASSIFICATIONS = {
     "surface_out_of_scope",
 }
 GY_OUTPUT_ROOT_EXTENSIONS = {
+    ".blob",
     ".json",
+    ".jsonl",
     ".md",
     ".toml",
 }
@@ -1033,6 +1036,9 @@ def _is_gy_marker_value(value: str) -> bool:
 
 
 def _is_lifecycle_marker_value(value: str, schema_prefixes: Sequence[str]) -> bool:
+    if tuple(schema_prefixes) == GY_SCHEMA_PREFIXES and _has_task_scoped_gy_namespace(value):
+        # Discovery must survive removal of the entire family's registration.
+        return True
     return any(value.startswith(prefix) for prefix in schema_prefixes)
 
 
@@ -1261,6 +1267,8 @@ def _is_bounded_family_lifecycle_schema_prefix(prefix: str) -> bool:
     segments = prefix.split(".")
     if len(segments) < FAMILY_LIFECYCLE_SCHEMA_PREFIX_MIN_SEGMENTS:
         return False
+    if _has_task_scoped_gy_namespace(prefix):
+        return True
     namespace = tuple(segments[: len(FAMILY_LIFECYCLE_SCHEMA_PREFIX_NAMESPACE)])
     if namespace != FAMILY_LIFECYCLE_SCHEMA_PREFIX_NAMESPACE:
         return False
@@ -1269,6 +1277,20 @@ def _is_bounded_family_lifecycle_schema_prefix(prefix: str) -> bool:
         layer3_segment.startswith(FAMILY_LIFECYCLE_SCHEMA_PREFIX_LAYER3_FLOOR)
         and layer3_segment != FAMILY_LIFECYCLE_SCHEMA_PREFIX_LAYER3_FLOOR
     )
+
+
+def _has_task_scoped_gy_namespace(value: str) -> bool:
+    """Recognize the existing GY producer grammar without a registry dependency."""
+    segments = value.split(".")
+    if segments[:3] == ["policyos", "layer3", "gy"]:
+        return len(segments) >= 4 and re.fullmatch(r"[a-z][a-z0-9]*", segments[3]) is not None
+    if len(segments) < 3 or segments[0] != "policyos":
+        return False
+    if re.fullmatch(r"gy_[a-z][a-z0-9]*", segments[1]):
+        return True
+    return segments[1] == "policy_design_case" and re.fullmatch(
+        r"gy_[a-z][a-z0-9]*", segments[2]
+    ) is not None
 
 
 def _validate_source_integrity(
@@ -1387,7 +1409,10 @@ def _lifecycle_facts(
         "gy_lifecycle_duplicate_claim_count": lifecycle_report["duplicate_claim_count"],
         "policy_design_case_inventory_artifact_count": len(pdc_artifacts),
         "policy_design_case_inventory_gy_entries": len(pdc_gy_entries),
-        "policy_design_case_inventory_registered_in_generated_artifacts": False,
+        "policy_design_case_inventory_registered_in_generated_artifacts": any(
+            "architecture/policy_design_case/inventory.json" in (family.get("outputs") or [])
+            for family in families
+        ),
         "public_surface_generated_artifact_family_count": len(public_generated_families),
         "gy_public_surface_family_registered": any(
             str(family.get("id") or "") in gy_family_ids
@@ -1410,7 +1435,7 @@ def validate(
     violations.extend(lifecycle_report["issues"])
     facts = _lifecycle_facts(repo_root, lifecycle_report)
 
-    if audit.get("schema_version") != "layer3_gy_generated_public_lifecycle_audit.v1":
+    if audit.get("schema_version") != "layer3_gy_generated_public_lifecycle_audit.v2":
         violations.append({"code": "bad_schema_version", "detail": audit.get("schema_version")})
 
     methodology = audit.get("methodology")
@@ -1564,7 +1589,9 @@ def validate(
         })
 
     pdc_row = rows.get("policy_design_case_inventory", {})
-    if pdc_row.get("registered") is not False:
+    if pdc_row.get("registered") is not facts[
+        "policy_design_case_inventory_registered_in_generated_artifacts"
+    ]:
         violations.append({"code": "pdc_inventory_registration_greenwash", "detail": pdc_row})
     if pdc_row.get("contains_gy_entries") is not True:
         violations.append({"code": "pdc_inventory_gy_entry_missing", "detail": pdc_row})

@@ -7,10 +7,15 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.run.context import RunContext
-from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeOutcome,
+    NodeOutputDisposition,
+    OutputAwareNodeOutcome,
+)
 from polisyos.scientist.orchestration.engine.runner import serialization as serialization_module
 from polisyos.scientist.orchestration.engine.runner.serialization import (
     DeserializationError,
@@ -268,3 +273,79 @@ class TestSafeSerialisation:
         raw_json = serialize_state(state)
         restored = deserialize_state(raw_json)
         assert restored.run_id == "legacy-v0"
+
+
+def _output_aware_transport_outcome(store: FileSystemCAS) -> OutputAwareNodeOutcome:
+    """Real CAS-backed output ledger for wire transport; no admission is asserted."""
+    from polisyos.core.artifacts import PutOptions
+
+    ref = store.put_json(
+        {"measured_transport_value": 7},
+        PutOptions(kind="test.output_transport", media_type="application/json"),
+    )
+    return OutputAwareNodeOutcome(
+        status="ok",
+        state=ExperimentState(run_id="output-aware-wire", artifacts_index={"transport_ref": ref}),
+        artifacts=[ref],
+        output_dispositions=(
+            NodeOutputDisposition(
+                output_key="transport_ref", disposition="produced", artifact_ref=ref
+            ),
+        ),
+        supporting_artifacts={"actual_source": ref},
+    )
+
+
+def test_output_aware_public_deserializer_preserves_complete_outcome(tmp_path: Path) -> None:
+    outcome = _output_aware_transport_outcome(FileSystemCAS(tmp_path))
+    restored = deserialize_outcome(serialize_outcome(outcome))
+    assert type(restored) is OutputAwareNodeOutcome
+    assert restored.model_dump(mode="json") == outcome.model_dump(mode="json")
+
+
+@pytest.mark.parametrize("mutation", ["absent", "null", "malformed"])
+@pytest.mark.parametrize(
+    "presence_field",
+    sorted(
+        OutputAwareNodeOutcome.model_fields.keys()
+        - NodeOutcome.model_fields.keys()
+        - {"output_dispositions"}
+    ),
+)
+def test_output_aware_reader_refuses_incomplete_subtype(
+    tmp_path: Path, mutation: str, presence_field: str
+) -> None:
+    outcome = _output_aware_transport_outcome(FileSystemCAS(tmp_path))
+    payload = outcome.model_dump(mode="python")
+    # Leave each actual subtype indicator separately, then damage the required
+    # ledger. A retained discriminator or supporting record forbids downgrade.
+    extensions = OutputAwareNodeOutcome.model_fields.keys() - NodeOutcome.model_fields.keys()
+    for key in extensions - {presence_field, "output_dispositions"}:
+        del payload[key]
+    if mutation == "absent":
+        del payload["output_dispositions"]
+    elif mutation == "null":
+        payload["output_dispositions"] = None
+    else:
+        payload["output_dispositions"] = [{"output_key": "transport_ref"}]
+    with pytest.raises(DeserializationError):
+        deserialize_outcome(serialization_module._dumps(payload))
+
+
+def test_output_aware_decoder_preserves_ordinary_wire_and_live_identity(tmp_path: Path) -> None:
+    from polisyos.scientist.orchestration.engine import decode_node_outcome
+
+    ordinary = NodeOutcome(status="ok", state=ExperimentState(run_id="ordinary-wire"))
+    expected = {
+        "status": "ok",
+        "state": ordinary.state.model_dump(),
+        "artifacts": [],
+        "events": [],
+        "error": None,
+        "skip_blocker": None,
+    }
+    assert serialize_outcome(ordinary) == serialization_module._dumps(expected)
+    assert type(deserialize_outcome(serialize_outcome(ordinary))) is NodeOutcome
+    assert decode_node_outcome(ordinary) is ordinary
+    aware = _output_aware_transport_outcome(FileSystemCAS(tmp_path))
+    assert decode_node_outcome(aware) is aware

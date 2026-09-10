@@ -25,6 +25,12 @@ TARGET = ROOT / (
 )
 
 
+def declared_outputs() -> list[str]:
+    """Return the committed census emitted by this wrapper's writer."""
+
+    return [TARGET.relative_to(ROOT).as_posix()]
+
+
 def _build_compact(raw: dict[str, Any]) -> dict[str, Any]:
     numeric: dict[str, dict[str, object]] = {}
     bindings: dict[str, dict[str, object]] = {}

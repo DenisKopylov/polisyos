@@ -1,0 +1,83 @@
+{
+  "case_id": "ua-msme-affordable-loans-2022",
+  "owner": "team-runtime-quality",
+  "proof_source": "production_http_route_recomputed",
+  "replay_proof": {
+    "canonicalizer_ref": "tools.quality.validation.gy_evidence_canon.canonical_evidence_hash",
+    "case_id": "ua-msme-affordable-loans-2022",
+    "input_hashes": {
+      "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab"
+    },
+    "level_proofs": [
+      {
+        "input_hash": "sha256:1026fda734654f5c6e58801cef665981ab18b50f9ccbcfa86c0e21abc0aafe31",
+        "level": "A",
+        "output_hash": "sha256:74165596cbd726ea6cf80eff18000ef61b89d660f9699c6d8bec40d318ee3631",
+        "producer_roots": [
+          {
+            "artifact_id": "request-ua-msme-affordable-loans-2022",
+            "artifact_type": "ProductionCaseIntake",
+            "content_hash": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+            "schema_ref": "policyos.gy.production_case_intake.v1",
+            "uri": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+            "version": "v1"
+          }
+        ],
+        "replay_kind": "deterministic_operation",
+        "status": "verified"
+      },
+      {
+        "input_hash": "sha256:17205f663f58b8b307869fff744baabc4b1aa0e1ecc852235f94291c30515fad",
+        "level": "B",
+        "output_hash": "sha256:58d2d37bfe62a98eb44a0e5e9eab7701d1104dd9c10dcd392b40afc1ccc27c69",
+        "producer_roots": [
+          {
+            "artifact_id": "request-ua-msme-affordable-loans-2022",
+            "artifact_type": "ProductionCaseIntake",
+            "content_hash": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+            "schema_ref": "policyos.gy.production_case_intake.v1",
+            "uri": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+            "version": "v1"
+          }
+        ],
+        "replay_kind": "decision_provenance_trace",
+        "status": "verified"
+      },
+      {
+        "input_hash": "sha256:72ae93f34418abafbb99ea0e87c9a5b1799b8b830684e6f9b0968f57c630f7b6",
+        "level": "C",
+        "output_hash": "sha256:c9c65187fc4a2883b5c5233775f5156e0ec9372ebda00b135618a74b900312e8",
+        "producer_roots": [
+          {
+            "artifact_id": "request-ua-msme-affordable-loans-2022",
+            "artifact_type": "ProductionCaseIntake",
+            "content_hash": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+            "schema_ref": "policyos.gy.production_case_intake.v1",
+            "uri": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+            "version": "v1"
+          }
+        ],
+        "replay_kind": "rewalkable_audit_trail",
+        "status": "verified"
+      }
+    ],
+    "output_hash": "sha256:c9c65187fc4a2883b5c5233775f5156e0ec9372ebda00b135618a74b900312e8",
+    "producer_roots": [
+      {
+        "artifact_id": "request-ua-msme-affordable-loans-2022",
+        "artifact_type": "ProductionCaseIntake",
+        "content_hash": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+        "schema_ref": "policyos.gy.production_case_intake.v1",
+        "uri": "sha256:5f1292d7ed4ee492d3709ca30169c5fe044168038cec0af5ab5329492b771aab",
+        "version": "v1"
+      }
+    ],
+    "replay_levels": [
+      "A",
+      "B",
+      "C"
+    ],
+    "schema_version": "policyos.runtime.outcome_replay_proof.v1"
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy.outcome_replay_artifact.v2"
+}

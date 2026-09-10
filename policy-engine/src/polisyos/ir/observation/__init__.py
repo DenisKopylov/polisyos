@@ -22,6 +22,7 @@ __all__ = [
     "MULTIPLEX_NETWORK_TARGET",
     "NETWORK_ANALYSIS_TARGET",
     "NETWORK_DATA_TARGET",
+    "OBSERVATION_METHOD_INPUT_KIND",
     "PANEL_ECONOMETRIC_TARGET",
     "PANEL_OBSERVATIONAL_TARGET",
     "PROXY_MEASUREMENT_TARGET",
@@ -112,6 +113,7 @@ __all__ = [
     "ObservationFamily",
     "ObservationFamilyPolicy",
     "ObservationFamilyPolicyRegistry",
+    "ObservationMethodInputEnvelope",
     "ObservationPanel",
     "ObservationRecord",
     "ObservationToContractManifest",
@@ -181,6 +183,12 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "OBSERVATION_METHOD_INPUT_KIND": (
+        "polisyos.ir.observation.bundles", "OBSERVATION_METHOD_INPUT_KIND",
+    ),
+    "ObservationMethodInputEnvelope": (
+        "polisyos.ir.observation.bundles", "ObservationMethodInputEnvelope",
+    ),
     "ObservationFamily": ("polisyos.ir.observation.contracts", "ObservationFamily"),
     "EntityScope": ("polisyos.ir.observation.contracts", "EntityScope"),
     "IdentificationMode": ("polisyos.ir.observation.contracts", "IdentificationMode"),

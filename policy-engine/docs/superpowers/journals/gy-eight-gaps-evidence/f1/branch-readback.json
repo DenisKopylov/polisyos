@@ -1,0 +1,9 @@
+{
+  "branch": "refs/heads/codex/gy-eight-gaps",
+  "commit": "89fcb5851ca57a0581579d21950337c2413928a5",
+  "complete_changed_path_denominator": 55,
+  "independent_numstat_count": 55,
+  "branch_bytes_match_working_tree": true,
+  "mismatches": [],
+  "tracked_tree_clean": true
+}

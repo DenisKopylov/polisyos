@@ -1,0 +1,31 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_real_method_report_is_reconciled_before_constraint_consumption_without_reexecution",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_method_manifest_drift_cannot_be_reinterpreted_during_constraint_admission",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_workspace_phase2_transports_verified_staged_input_owner_refs",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_staged_input_refusal_retains_completed_selection_in_typed_terminal"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T09:10:50.034878+00:00",
+  "elapsed_seconds": 83.083,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": ".....                                                                    [100%]\n==================================== PASSES ====================================\n_ test_real_method_report_is_reconciled_before_constraint_consumption_without_reexecution _\n_ test_method_manifest_drift_cannot_be_reinterpreted_during_constraint_admission _\n______ test_workspace_phase2_transports_verified_staged_input_owner_refs _______\n___ test_staged_input_refusal_retains_completed_selection_in_typed_terminal ____\n=========================== short test summary info ============================\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_real_method_report_is_reconciled_before_constraint_consumption_without_reexecution\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_method_manifest_drift_cannot_be_reinterpreted_during_constraint_admission\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_workspace_phase2_transports_verified_staged_input_owner_refs\nPASSED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_staged_input_refusal_retains_completed_selection_in_typed_terminal\n",
+  "stderr": ""
+}

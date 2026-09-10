@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T10:35:42.132756+00:00",
+  "elapsed_seconds": 45.095,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "....................                                                     [100%]\n==================================== PASSES ====================================\n___________ test_synthetic_control_perfect_donor_match_att_estimate ____________\n___________ test_synthetic_control_fails_with_multiple_treated_units ___________\n_________ test_augmented_synthetic_control_mode_returns_augmented_flag _________\n_____________ test_scm_current_registration_refuses_retired_epoch ______________\n=========================== short test summary info ============================\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_synthetic_control_perfect_donor_match_att_estimate\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_synthetic_control_fails_with_multiple_treated_units\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_augmented_synthetic_control_mode_returns_augmented_flag\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_closes_recorded_unit_conditioning\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_preserves_exact_match_across_declared_unit_changes[0]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_preserves_exact_match_across_declared_unit_changes[10]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_preserves_exact_match_across_declared_unit_changes[20]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_preserves_exact_match_across_declared_unit_changes[30]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_preserves_relative_covariate_objective_weight[0]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_preserves_relative_covariate_objective_weight[20]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_incomplete_requested_covariate_objective[False-False]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_incomplete_requested_covariate_objective[False-True]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_incomplete_requested_covariate_objective[True-False]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_unverified_optimizer_outputs[claimed_weights0-optimality]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_unverified_optimizer_outputs[claimed_weights1-simplex]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_unverified_optimizer_outputs[claimed_weights2-simplex]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_unverified_optimizer_outputs[claimed_weights3-vector]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_refuses_unverified_optimizer_outputs[claimed_weights4-]\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_solver_checks_solution_even_when_optimizer_status_disagrees\nPASSED tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py::test_scm_current_registration_refuses_retired_epoch\n",
+  "stderr": ""
+}

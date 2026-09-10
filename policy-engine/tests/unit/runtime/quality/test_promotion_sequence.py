@@ -9,6 +9,7 @@ import subprocess
 import sys
 import zlib
 from collections.abc import Callable
+from contextlib import suppress
 from copy import deepcopy
 from datetime import UTC, datetime
 from functools import lru_cache
@@ -25,6 +26,7 @@ import polisyos.runtime.quality.confidence_ledger as confidence_ledger_module
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.c4_persisted_profiles import c4_profile
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
@@ -70,7 +72,10 @@ from polisyos.runtime.quality.credal_reference import (
     CredalReferenceEdge,
     replace_reference_edge,
 )
-from polisyos.runtime.quality.data_forge_binding import MeasurementRootProducer
+from polisyos.runtime.quality.data_forge_binding import (
+    MeasurementRootProducer,
+    build_fabric_measurement_requirement,
+)
 from polisyos.runtime.quality.generation_cycle import (
     CandidateSummary,
     PromotionPortObservation,
@@ -498,7 +503,7 @@ def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> No
 def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
     receipt = _run(_promotion_input())
 
-    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v7"
     payload = _legacy_v4_history_payload(receipt)
     parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
 
@@ -509,6 +514,59 @@ def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
     assert validate_canonical_promotion_receipt(payload) == (
         {"code": "legacy_obligation_scope_v1_authority_not_admitted"},
     )
+
+
+def test_frozen_v6_capture_preserves_history_and_refuses_current_admission() -> None:
+    from polisyos.pdc import build_gy_comparison_projection_plan_from_manifest
+    from tools.quality.validation.check_layer3_gy_promotion_contract import _comparison_content_hash
+
+    path = (
+        REPO_ROOT / "tests/repo_quality/tools/fixtures/layer3_gy_promotion_contract_credal_v1.json"
+    )
+    raw = path.read_bytes()
+    frozen = json.loads(raw)
+    old_rule = promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE
+    registry = (
+        promotion_sequence_module.canonical_promotion_verification_comparison_owner_rule_registry()
+    )
+    manifest = frozen["comparison_admission_manifest"]
+    plan = build_gy_comparison_projection_plan_from_manifest(
+        frozen,
+        manifest=manifest,
+        owner_rule_registry=registry,
+    )
+    assert _comparison_content_hash(frozen, plan) == frozen["comparison_content_hash"]
+    from_manifest = {entry["json_pointer"] for entry in manifest if entry["owner_rule"] == old_rule}
+    discovered = {}
+    pending = [("", frozen)]
+    while pending:
+        pointer, value = pending.pop()
+        if isinstance(value, dict):
+            if (
+                value.get("schema_version")
+                == "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+            ):
+                discovered[pointer] = value
+            pending.extend((f"{pointer}/{key}", child) for key, child in value.items())
+        elif isinstance(value, list):
+            pending.extend((f"{pointer}/{index}", child) for index, child in enumerate(value))
+    assert set(discovered) == from_manifest
+    assert discovered
+    for pointer, payload in discovered.items():
+        parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+        assert parsed.model_dump(mode="json") == payload
+        assert type(parsed) is promotion_sequence_module._LegacyCanonicalPromotionReceiptV6
+        assert validate_canonical_promotion_receipt(payload) == (
+            {"code": "legacy_obligation_scope_v3_authority_not_admitted"},
+        )
+        with pytest.raises(ValueError):
+            CanonicalPromotionReceipt.model_validate(payload)
+        with pytest.raises(ValueError, match="legacy_obligation_scope_v3"):
+            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(payload)
+        projection = registry[old_rule].projector(payload)
+        assert projection["schema_version"] == payload["schema_version"]
+        print(f"v6-history {pointer} preserved; current-admission refused")
+    assert path.read_bytes() == raw
 
 
 def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() -> None:
@@ -556,6 +614,7 @@ def test_promotion_comparison_owner_registry_covers_every_receipt_epoch() -> Non
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_RULE,
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_RULE,
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE,
         promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     )
 
@@ -678,7 +737,7 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
 
     expected_scope_hash = gy_content_hash(
         {
-            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3",
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v4",
             "promotion_rule_version": promotion_input.schema_version,
             "design_problem_id": promotion_input.design_problem_binding.design_problem_id,
             "problem_content_hash": (promotion_input.design_problem_binding.problem_content_hash),
@@ -1625,7 +1684,7 @@ def test_invented_measurement_marker_does_not_supply_authority() -> None:
     )
     measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
     assert measurement.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
-    assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_catalog")
+    assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_fabric_fetch")
     assert "evidence_not_established" in measurement.detail
 
 
@@ -1815,16 +1874,524 @@ def test_empty_independence_graph_cannot_establish_promotion_evidence(
     assert "no_support_evidence" in row.detail
 
 
-def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> None:
+def test_n9_measurement_refuses_catalog_metadata_without_fabric_custody(tmp_path: Path) -> None:
+    """A catalog-only envelope cannot establish the current measurement obligation."""
+
     store = FileSystemCAS(tmp_path / "cas")
     catalog = build_slice0_fixture_catalog_graph(tmp_path)
-    manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
     envelope = MeasurementRootProducer(artifact_store=store).produce_from_catalog(
-        manifest,
-        catalog,
+        load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement"), catalog
     )
     promotion_input = _promotion_input()
-    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(store=store)
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=store,
+        measurement_catalog=catalog,
+    )
+    roots = ()
+    with suppress(ValueError):
+        roots = (
+            repository.persist_measurement_root(promotion_input=promotion_input, envelope=envelope),
+        )
+    current = promotion_input.model_copy(update={"producer_root_refs": roots})
+    receipt = run_canonical_promotion_sequence(
+        current,
+        confidence_ledger_session=_ledger_session(binding=current.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+    assert measurement.status != PromotionObligationStatus.SATISFIED
+    assert receipt.consumer_promotable is False
+
+
+@pytest.fixture
+def fabric_measurement_owner(tmp_path: Path):
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_worldbank_fetch_owner
+
+    with build_worldbank_fetch_owner(tmp_path) as owner:
+        owner.problem = _d1_worldbank_problem(owner)
+        yield owner
+
+
+@pytest.fixture
+def controlled_measurement_owner(tmp_path: Path):
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_real_fetch_owner
+
+    with build_real_fetch_owner(tmp_path) as owner:
+        yield owner
+
+
+def _d1_worldbank_problem(owner):
+    """Declare the recorded fixture's actual scope without scientific promotion."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
+
+    raw_rows = [row for page in owner.http_responses.values() for row in page[1]]
+    countries = sorted({row["countryiso3code"] for row in raw_rows})
+    years = sorted({str(row["date"]) for row in raw_rows})
+    assert countries == sorted(set(owner.frame["country_code"]))
+    assert years == sorted({str(year) for year in owner.frame["year"]})
+    assert len(raw_rows) == len(owner.frame)
+    context = _problem(f"gy_d1_worldbank_{uuid4().hex}")
+    payload = context.model_dump(mode="json")
+    statement = (
+        f"Read annual GDP in current US dollars for {', '.join(countries)} "
+        f"during {', '.join(years)}; this controlled fixture confers no policy authority."
+    )
+    payload.update(
+        {
+            "problem_statement": statement,
+            "domain": "national_accounts",
+            "nl_provenance": {
+                "raw_request": statement,
+                "source_surface": "gy_d1_recorded_http_fixture",
+            },
+            "jurisdiction_time": {
+                "region": ";".join(countries),
+                "valid_time": ";".join(years),
+                "as_of": "2024-01-01",
+                "policy_time": ";".join(years),
+                "data_time": ";".join(years),
+            },
+            "stakeholders": [
+                {
+                    "stakeholder_id": country.lower(),
+                    "name": country,
+                    "role": "recorded_observation_population",
+                }
+                for country in countries
+            ],
+            "objectives": [
+                {
+                    "objective_id": "gdp",
+                    "description": "Read recorded annual GDP",
+                    "metric_id": "gdp",
+                    "direction": "maintain_range",
+                }
+            ],
+            "outcome_of_interest": {
+                "target_variable": "gdp",
+                "metric_id": "gdp",
+                "estimand": "recorded_annual_current_usd",
+                "direction": "maintain_range",
+            },
+            "evidence_acquisition_needs": {
+                "needs": [
+                    {
+                        "need_id": "gdp_source",
+                        "question": "Do the returned rows agree with the registered WDI source?",
+                        "required_for": "measurement_custody",
+                        "status": "required",
+                    }
+                ]
+            },
+        }
+    )
+    return type(context).model_validate(payload)
+
+
+def _fabric_measurement_envelope(owner, *, include_requirement=True):
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+
+    resolved = owner.service.resolve(
+        DataResolveRequest(data_needs=[DataNeed(metric=owner.plan.metric_id)], mode="fastlane")
+    )
+    executed = owner.service.execute_fetch_plans(
+        list(resolved.fetch_plans), persist_payload=True
+    ).previews[0]
+    assert executed.fetch_receipt_ref is not None
+    if not hasattr(owner, "problem"):
+        from tests.unit.runtime.quality.test_generation_cycle import _problem
+
+        owner.problem = _problem(f"gy_d1_measurement_{uuid4().hex}")
+    requirement = (
+        build_fabric_measurement_requirement(
+            catalog=owner.graph,
+            catalog_binding=owner.graph.bind_fetch_target(
+                metric_id=owner.plan.metric_id,
+                connector_id=executed.metric.connector_id,
+                request_dataset_id=executed.metric.dataset_id,
+                profile_id=owner.plan.profile_id,
+                filters=owner.plan.filters,
+            ),
+            design_problem=owner.problem,
+        )
+        if include_requirement
+        else None
+    )
+    return MeasurementRootProducer(artifact_store=owner.store).produce_from_fabric_fetch(
+        fetch_receipt_ref=executed.fetch_receipt_ref,
+        catalog=owner.graph,
+        providers=owner.providers,
+        design_problem=owner.problem,
+        source_requirement=requirement,
+    )
+
+
+def test_n9_measurement_refuses_all_null_observations(fabric_measurement_owner):
+    owner = fabric_measurement_owner
+    complete_rows = [row for page in owner.http_responses.values() for row in page[1]]
+    assert len(complete_rows) == len(owner.frame)
+    for row in complete_rows:
+        row["value"] = None
+    _assert_invalid_recorded_observations_refused(owner, "all-null values")
+
+
+def test_n9_measurement_refuses_out_of_contract_observations(fabric_measurement_owner):
+    from polisyos.fabric.connectors.sources._contracts.world_bank_contracts import (
+        WDI_GENERIC_CONTRACT,
+    )
+
+    owner = fabric_measurement_owner
+    temporal = next(
+        field
+        for field in WDI_GENERIC_CONTRACT.schema.fields
+        if field.name == WDI_GENERIC_CONTRACT.schema.time_dimension
+    )
+    source_path = next(
+        mapping.source_path
+        for mapping in WDI_GENERIC_CONTRACT.field_mappings
+        if mapping.target_field == temporal.name
+    )
+    minimum, _maximum = temporal.bounds
+    assert minimum is not None
+    complete_rows = [row for page in owner.http_responses.values() for row in page[1]]
+    assert len(complete_rows) == len(owner.frame)
+    for row in complete_rows:
+        assert row["value"] is not None
+        row[source_path] = str(int(minimum) - 1)
+    _assert_invalid_recorded_observations_refused(
+        owner, "complete values outside declared temporal bounds"
+    )
+
+
+def _assert_invalid_recorded_observations_refused(owner, condition):
+    from polisyos.fabric.retrieval.custody import FabricFetchCustodyError
+    from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootBindingError
+
+    initial = _promotion_input(
+        design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem)
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=owner.store,
+        measurement_catalog=owner.graph,
+        measurement_providers=owner.providers,
+    )
+    try:
+        envelope = _fabric_measurement_envelope(owner)
+        bridge = repository.persist_measurement_root(promotion_input=initial, envelope=envelope)
+        supplied = initial.model_copy(update={"producer_root_refs": (bridge,)})
+    except (FabricFetchCustodyError, FabricMeasurementRootBindingError) as exc:
+        print(f"Recorded source ({condition}) refused by owner: {exc.code}")
+        supplied = initial
+    receipt = run_canonical_promotion_sequence(
+        supplied,
+        confidence_ledger_session=_ledger_session(binding=supplied.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+    assert measurement.status != PromotionObligationStatus.SATISFIED
+    print(
+        f"Recorded source ({condition}) retains catalog and schema markers; MEASUREMENT={measurement.status.value}"
+    )
+
+
+@pytest.mark.parametrize("mutation", ["phase", "profile", "problem", "time", "authority_role"])
+def test_n9_measurement_recomputes_full_authority_identity(
+    fabric_measurement_owner,
+    monkeypatch,
+    mutation,
+):
+    writer_owner = importlib.import_module("polisyos.runtime.http.services.control.artifacts")
+
+    owner = fabric_measurement_owner
+    real_write = writer_owner.write_authority_artifact
+
+    def write_wrong_identity(store, payload, opts, **kwargs):
+        if opts.kind == "policyos.gy.measurement_root_payload":
+            if mutation == "phase":
+                kwargs["phase"] = "GY-F2"
+            elif mutation == "profile":
+                kwargs["effective_execution_profile"] = "gy_slice0"
+            elif mutation == "problem":
+                kwargs["run_id"] = "run-unrelated-problem"
+                kwargs["same_input_closure"] = {
+                    **kwargs["same_input_closure"],
+                    "run_id": kwargs["run_id"],
+                }
+            elif mutation == "time":
+                kwargs["generated_at"] = kwargs["as_of_time"] = "2020-01-01T00:00:00Z"
+            else:
+                kwargs["authority_role"] = "projection_only"
+        return real_write(store, payload, opts, **kwargs)
+
+    monkeypatch.setattr(writer_owner, "write_authority_artifact", write_wrong_identity)
+    envelope = _fabric_measurement_envelope(owner)
+    initial = _promotion_input(
+        design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem)
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=owner.store,
+        measurement_catalog=owner.graph,
+        measurement_providers=owner.providers,
+    )
+    with pytest.raises(ValueError, match="authority identity mismatch"):
+        repository.persist_measurement_root(promotion_input=initial, envelope=envelope)
+    receipt = run_canonical_promotion_sequence(
+        initial,
+        confidence_ledger_session=_ledger_session(binding=initial.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    assert (
+        _obligation(receipt, PromotionObligationClass.MEASUREMENT).status
+        != PromotionObligationStatus.SATISFIED
+    )
+    print(f"Valid CAS with changed {mutation} and intact root/source markers: current N9 refused.")
+
+
+@pytest.mark.parametrize("mutation", ["naive", "non_utc", "future"])
+def test_measurement_verification_time_cannot_claim_invalid_custody(
+    fabric_measurement_owner, mutation
+):
+    from datetime import timedelta, timezone
+
+    from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    payload = binding_owner.FabricMeasurementRootPayload.model_validate(
+        canon.from_canonical_bytes(
+            owner.store.get_bytes(core_artifacts.ArtifactID(envelope.payload_ref))
+        )
+    )
+    values = payload.model_dump(mode="python")
+    if mutation == "naive":
+        values["source_agreement_checked_at"] = payload.source_agreement_checked_at.replace(
+            tzinfo=None
+        )
+    elif mutation == "non_utc":
+        values["source_agreement_checked_at"] = payload.source_agreement_checked_at.astimezone(
+            timezone(timedelta(hours=2))
+        )
+    else:
+        values["source_agreement_checked_at"] = payload.source_agreement_checked_at + timedelta(
+            days=1
+        )
+    if mutation != "future":
+        with pytest.raises(ValueError, match="verification_time_requires_utc"):
+            binding_owner.FabricMeasurementRootPayload.model_validate(values)
+        return
+    future = binding_owner.FabricMeasurementRootPayload.model_validate(values)
+    source_id = MeasurementRootProducer(artifact_store=owner.store)._persist_payload(
+        future.model_dump(mode="json"),
+        fabric_fetch_ref=future.fetch_receipt_ref,
+        source_checked_at=future.source_agreement_checked_at,
+    )
+    with pytest.raises(ValueError, match="verification_time_in_future"):
+        binding_owner.resolve_fabric_measurement_root(
+            store=owner.store,
+            source_artifact_id=source_id,
+            catalog=owner.graph,
+            providers=owner.providers,
+        )
+
+
+def test_fabric_measurement_repeated_verification_emits_honest_event_identity(
+    fabric_measurement_owner,
+):
+    from time import sleep
+
+    from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+    owner = fabric_measurement_owner
+    first = _fabric_measurement_envelope(owner)
+    first_payload = binding_owner.FabricMeasurementRootPayload.model_validate(
+        canon.from_canonical_bytes(
+            owner.store.get_bytes(core_artifacts.ArtifactID(first.payload_ref))
+        )
+    )
+    # Cross the existing second-resolution authority timestamp boundary while
+    # retaining the exact original fetch receipt, source bytes, and problem.
+    sleep(1.01)
+    second = MeasurementRootProducer(artifact_store=owner.store).produce_from_fabric_fetch(
+        fetch_receipt_ref=first_payload.fetch_receipt_ref,
+        catalog=owner.graph,
+        providers=owner.providers,
+        design_problem=first_payload.design_problem,
+        source_requirement=first_payload.source_requirement,
+    )
+    second_payload = binding_owner.FabricMeasurementRootPayload.model_validate(
+        canon.from_canonical_bytes(
+            owner.store.get_bytes(core_artifacts.ArtifactID(second.payload_ref))
+        )
+    )
+    assert first.payload_ref != second.payload_ref
+    assert first_payload.source_agreement_checked_at < second_payload.source_agreement_checked_at
+    assert first_payload.model_dump(
+        exclude={"source_agreement_checked_at"}
+    ) == second_payload.model_dump(exclude={"source_agreement_checked_at"})
+    for envelope in (first, second):
+        assert (
+            binding_owner.resolve_fabric_measurement_root(
+                store=owner.store,
+                source_artifact_id=envelope.payload_ref,
+                catalog=owner.graph,
+                providers=owner.providers,
+            )
+            == envelope
+        )
+    print(
+        "Two current-source checks: unchanged full fetch/requirement/problem; distinct immutable verification identities."
+    )
+
+
+def test_fabric_measurement_root_cannot_bypass_existing_source_admission(fabric_measurement_owner):
+    with pytest.raises(ValueError, match="measurement_root_source_requirement"):
+        _fabric_measurement_envelope(fabric_measurement_owner, include_requirement=False)
+
+
+def test_fabric_measurement_root_refuses_unapproved_registered_connector(tmp_path):
+    from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+
+    with (
+        build_recorded_file_fetch_owner(tmp_path) as owner,
+        pytest.raises(ValueError, match="measurement_root_connector_not_admitted"),
+    ):
+        _fabric_measurement_envelope(owner)
+
+
+@pytest.mark.parametrize("mutation", ["requirement", "problem"])
+def test_n9_measurement_rechecks_source_requirement_and_problem(fabric_measurement_owner, mutation):
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    initial = _promotion_input(
+        design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem)
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=owner.store,
+        measurement_catalog=owner.graph,
+        measurement_providers=owner.providers,
+    )
+    bridge = repository.persist_measurement_root(promotion_input=initial, envelope=envelope)
+    if mutation == "problem":
+        unrelated = _promotion_input()
+        with pytest.raises(ValueError, match="measurement_root_design_problem_binding_mismatch"):
+            repository.persist_measurement_root(promotion_input=unrelated, envelope=envelope)
+        result = repository.resolve(
+            promotion_input=unrelated, evidence_kind="measurement_root", bridge_ref=bridge
+        )
+        assert result.status == "not_established"
+    else:
+        from polisyos.runtime.quality import data_forge_binding as binding_owner
+
+        payload = binding_owner.FabricMeasurementRootPayload.model_validate(
+            canon.from_canonical_bytes(
+                owner.store.get_bytes(core_artifacts.ArtifactID(envelope.payload_ref))
+            )
+        )
+        fabricated = payload.source_requirement.model_dump(mode="json")
+        fabricated["metadata"]["gy_source_contract"]["facet_values"]["license"] = "invented-license"
+        with pytest.raises(ValueError, match="measurement_root_source_requirement_mismatch"):
+            MeasurementRootProducer(artifact_store=owner.store).produce_from_fabric_fetch(
+                fetch_receipt_ref=payload.fetch_receipt_ref,
+                catalog=owner.graph,
+                providers=owner.providers,
+                design_problem=owner.problem,
+                source_requirement=type(payload.source_requirement).model_validate(fabricated),
+            )
+
+
+@pytest.mark.parametrize(
+    "mutation", ["catalog_removed", "source_changed", "payload_missing", "contract_changed"]
+)
+def test_n9_replays_current_measurement_source_at_admission(fabric_measurement_owner, mutation):
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    initial = _promotion_input(
+        design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem)
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=owner.store,
+        measurement_catalog=owner.graph,
+        measurement_providers=owner.providers,
+    )
+    bridge = repository.persist_measurement_root(promotion_input=initial, envelope=envelope)
+    current = initial.model_copy(update={"producer_root_refs": (bridge,)})
+    before = run_canonical_promotion_sequence(
+        current,
+        confidence_ledger_session=_ledger_session(binding=current.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    assert _obligation(before, PromotionObligationClass.MEASUREMENT).status == (
+        PromotionObligationStatus.SATISFIED
+    )
+    if mutation == "catalog_removed":
+        repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+            store=owner.store,
+            measurement_providers=owner.providers,
+        )
+    elif mutation == "source_changed":
+        final_page = owner.http_responses[max(owner.http_responses)]
+        final_page[1][-1]["value"] = -998.25
+    elif mutation == "contract_changed":
+        from polisyos.fabric.connectors.contracts import ContractRegistry
+        from polisyos.fabric.connectors.sources._contracts.world_bank_contracts import (
+            WDI_GENERIC_CONTRACT,
+        )
+
+        contracts = ContractRegistry()
+        changed = WDI_GENERIC_CONTRACT.model_copy(update={"min_completeness": 0.75})
+        assert changed.content_hash != WDI_GENERIC_CONTRACT.content_hash
+        contracts.register(changed)
+        owner.providers.registry.configure_contracts(contracts, validation_mode="warn")
+    else:
+        payload = canon.from_canonical_bytes(
+            owner.store.get_bytes(core_artifacts.ArtifactID(envelope.payload_ref))
+        )
+        source_ref = core_artifacts.ArtifactRef.model_validate(payload["payload_ref"])
+        owner.store.get_paths(source_ref.artifact_id)[0].unlink()
+    after = run_canonical_promotion_sequence(
+        current,
+        confidence_ledger_session=_ledger_session(binding=current.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    assert _obligation(after, PromotionObligationClass.MEASUREMENT).status != (
+        PromotionObligationStatus.SATISFIED
+    )
+    assert current.producer_root_refs == (bridge,)
+    assert after.consumer_promotable is False
+
+
+@pytest.mark.parametrize("mutation", ["empty", "not_observations", "has_more"])
+def test_measurement_root_refuses_unestablished_observations(
+    controlled_measurement_owner, mutation
+):
+    owner = controlled_measurement_owner
+    if mutation == "empty":
+        owner.payload["value"] = []
+    elif mutation == "not_observations":
+        owner.payload["value"] = [{"not_observations": True, "row_id": "marker-still-present"}]
+    else:
+        owner.result_updates["has_more"] = True
+    code = {
+        "empty": "measurement_root_observations_not_established",
+        "not_observations": "measurement_root_explicit_non_observations",
+        "has_more": "measurement_root_full_fetch_not_established",
+    }[mutation]
+    with pytest.raises(ValueError, match=code):
+        _fabric_measurement_envelope(owner)
+
+
+def test_real_measurement_root_resolves_and_binds_into_n9(fabric_measurement_owner) -> None:
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    promotion_input = _promotion_input(
+        design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem),
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=owner.store,
+        measurement_catalog=owner.graph,
+        measurement_providers=owner.providers,
+    )
     bridge_ref = repository.persist_measurement_root(
         promotion_input=promotion_input,
         envelope=envelope,
@@ -1847,7 +2414,7 @@ def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> Non
 
     measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
     assert measurement.status == PromotionObligationStatus.SATISFIED
-    assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_catalog")
+    assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_fabric_fetch")
     assert envelope.payload_ref in measurement.evidence_refs
     independence = next(
         item
@@ -1924,7 +2491,7 @@ def test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient() -> N
     effect = _obligation(receipt, PromotionObligationClass.EFFECT)
     out_of_scope = _obligation(receipt, PromotionObligationClass.EVAL_SAFETY)
 
-    assert receipt.schema_version.endswith(".v6")
+    assert receipt.schema_version.endswith(".v7")
     assert effect.status == PromotionObligationStatus.UNKNOWN
     assert effect.reason.value == "unknown"
     assert effect.semantic_scope == "real_semantics"
@@ -2085,7 +2652,7 @@ def test_production_n9_port_persists_and_consumes_dependent_independence_evidenc
 
 
 def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
-    tmp_path: Path,
+    fabric_measurement_owner,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
@@ -2095,16 +2662,12 @@ def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
     )
     from tests.unit.runtime.quality.test_generation_cycle import (
         _positive_epoch_admitted_batch,
-        _problem,
     )
 
-    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
-    manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
-    envelope = MeasurementRootProducer(artifact_store=runtime.store).produce_from_catalog(
-        manifest,
-        build_slice0_fixture_catalog_graph(tmp_path),
-    )
-    problem = _problem(f"n9_measurement_writer_{uuid4().hex}")
+    owner = fabric_measurement_owner
+    runtime = PromotionRuntime(store=owner.store)
+    envelope = _fabric_measurement_envelope(owner)
+    problem = owner.problem
     summary = _summary()
     admitted_batch = _positive_epoch_admitted_batch(
         runtime=runtime,
@@ -2116,6 +2679,8 @@ def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
             "measurement_root_writer_input": {"envelope": envelope}
         },
         promotion_runtime=runtime,
+        measurement_catalog=owner.graph,
+        measurement_providers=owner.providers,
         epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
     )
@@ -3640,7 +4205,7 @@ def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, 
 
     payload = deepcopy(receipt.model_dump(mode="json"))
     v4 = "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
-    v6 = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+    current_epoch = promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     payload["schema_version"] = v4
     owner = payload["owner_projection"]
     assert isinstance(owner, dict)
@@ -3656,7 +4221,7 @@ def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, 
     for boundary in boundaries:
         assert isinstance(boundary, dict)
         boundary["rule_version_refs"] = [
-            v4 if item == v6 else item for item in boundary["rule_version_refs"]
+            v4 if item == current_epoch else item for item in boundary["rule_version_refs"]
         ]
     owner["projection_hash"] = gy_content_hash(
         {key: value for key, value in owner.items() if key != "projection_hash"}

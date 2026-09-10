@@ -1,0 +1,29 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_attempts_original_requirements_through_s1_before_terminal",
+    "tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_refusal_does_not_fabricate_fixture_recall",
+    "tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_refusal_does_not_mislabel_receipt_as_workspace_components"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T13:40:39.028168+00:00",
+  "elapsed_seconds": 43.656,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "FFF                                                                      [100%]\n=================================== FAILURES ===================================\n__ test_production_attempts_original_requirements_through_s1_before_terminal ___\ntests/unit/runtime/quality/workspace/test_production_case_admission.py:102: in test_production_attempts_original_requirements_through_s1_before_terminal\n    assert [claim for kind, claim in events[:first_terminal] if kind == \"s1\"] == expected + expected\nE   AssertionError: assert [] == ['credit_acce...m_enrollment']\nE     \nE     Right contains 6 more items, first extra item: 'credit_access'\nE     Use -v to get more diff\n__________ test_production_refusal_does_not_fabricate_fixture_recall ___________\ntests/unit/runtime/quality/workspace/test_production_case_admission.py:111: in test_production_refusal_does_not_fabricate_fixture_recall\n    assert result.incompleteness_record.search_quality.recall_at_known_seeds is None\nE   AssertionError: assert 0.0 is None\nE    +  where 0.0 = SearchQualityRecord(recall_at_known_seeds=0.0, known_seeds_missed=['catalog://ilo/sme-finance/ukraine-credit-constrain...g://worldbank/global-findex/ukraine-account-credit'], 'negative_controls_passed': [], 'threshold_disposition': 'fail'}).recall_at_known_seeds\nE    +    where SearchQualityRecord(recall_at_known_seeds=0.0, known_seeds_missed=['catalog://ilo/sme-finance/ukraine-credit-constrain...g://worldbank/global-findex/ukraine-account-credit'], 'negative_controls_passed': [], 'threshold_disposition': 'fail'}) = SearchIncompletenessRecord(record_id='incomplete-ua-msme-credit-worldbank-measurement', workspace_id='ws-ua-msme-credi...was not selected for this terminal.', data_need_spec=None, costed_plan=None)], ceiling_classification='search_ceiling').search_quality\nE    +      where SearchIncompletenessRecord(record_id='incomplete-ua-msme-credit-worldbank-measurement', workspace_id='ws-ua-msme-credi...was not selected for this terminal.', data_need_spec=None, costed_plan=None)], ceiling_classification='search_ceiling') = WorkspaceSearchExitContract(exit_id='exit-ua-msme-credit-worldbank-measurement', workspace_id='ws-ua-msme-credit-world...EnvelopeVerification(latest_applicability_result=None, latest_promotion_result=None))], authority_derivation_traces=[]).incompleteness_record\n__ test_production_refusal_does_not_mislabel_receipt_as_workspace_components ___\ntests/unit/runtime/quality/workspace/test_production_case_admission.py:270: in test_production_refusal_does_not_mislabel_receipt_as_workspace_components\n    assert {name: workspace[name] for name in components} == dict.fromkeys(components)\nE   AssertionError: assert {'agenda_ref'...ent/frontier'} == {'agenda_ref'...er_ref': None}\nE     \nE     Differing items:\nE     {'artifact_graph_ref': 'gy://slice0/ua_msme_credit_worldbank_measurement/artifact-graph'} != {'artifact_graph_ref': None}\nE     {'agenda_ref': 'gy://slice0/ua_msme_credit_worldbank_measurement/agenda'} != {'agenda_ref': None}\nE     {'frontier_ref': 'gy://slice0/ua_msme_credit_worldbank_measurement/frontier'} != {'frontier_ref': None}\nE     {'constraint_store_ref': 'gy://slice0/ua_msme_credit_worldbank_measurement/constraints'} != {'constraint_store_ref': None}\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_attempts_original_requirements_through_s1_before_terminal\nFAILED tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_refusal_does_not_fabricate_fixture_recall\nFAILED tests/unit/runtime/quality/workspace/test_production_case_admission.py::test_production_refusal_does_not_mislabel_receipt_as_workspace_components\n",
+  "stderr": ""
+}

@@ -1,0 +1,30 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_loop_family_uses_honest_generated_and_source_classifications",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_outcome_validator_rejects_direct_helper_and_hand_authored_proof",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_outcome_replay_corrupt_field_detects_drift",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_outcome_validator_rejects_gx_terminal_drift"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T12:50:19.504475+00:00",
+  "elapsed_seconds": 37.126,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F...                                                                     [100%]\n=================================== FAILURES ===================================\n_ test_layer3_gy_loop_family_uses_honest_generated_and_source_classifications __\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:1586: in test_layer3_gy_loop_family_uses_honest_generated_and_source_classifications\n    assert \"human-authored\" in source[\"source_committed_rationale\"]\nE   AssertionError: assert 'human-authored' in 'Declared cases and benchmark inputs consumed by the loop producer; fixture cases cannot be promoted into its production metric population.'\n==================================== PASSES ====================================\n=========================== short test summary info ============================\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_outcome_validator_rejects_direct_helper_and_hand_authored_proof\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_outcome_replay_corrupt_field_detects_drift\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_outcome_validator_rejects_gx_terminal_drift\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_layer3_gy_loop_family_uses_honest_generated_and_source_classifications\n",
+  "stderr": ""
+}

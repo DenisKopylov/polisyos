@@ -32,7 +32,7 @@ N13B_DENIED_ROW_USES = (
 _N13B_SOURCE = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json"
 )
-_N13B_SCHEMA_VERSION = "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
+_N13B_SCHEMA_VERSION = "policyos.layer3.gy.n13b.acquisition_executor_contract.v5"
 _N13B_RULE_VERSION = "GY-plan-rev18+3.5.12-D1-D6"
 _N13B_PRODUCER = (
     "tools.quality.validation.layer3_gy_n13b_acquisition_contract."

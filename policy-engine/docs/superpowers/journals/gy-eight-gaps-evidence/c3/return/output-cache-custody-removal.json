@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c3_output_contract_removal",
+    "cache-custody"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T09:12:16.464785+00:00",
+  "elapsed_seconds": 60.913,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{'mode': 'cache-custody', 'removed_property': 'actual aware-cache emission-pair readback'}\n{'selected_native_targets': ['tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_existing_base_epoch_manifest', 'tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_loading_base_epoch_entry', 'tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_old_entry_even_with_current_outcome', 'tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_preserves_complete_outcome', 'tests/unit/scientist/orchestration/engine/test_idempotency.py::test_ordinary_cache_keeps_existing_schema_epoch']}\nFFF..                                                                    [100%]\n=================================== FAILURES ===================================\n_________ test_output_aware_cache_refuses_existing_base_epoch_manifest _________\ntests/unit/scientist/orchestration/engine/test_idempotency.py:274: in test_output_aware_cache_refuses_existing_base_epoch_manifest\n    with pytest.raises(ValueError, match=\"output_aware_cache_custody\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n___________ test_output_aware_cache_refuses_loading_base_epoch_entry ___________\ntests/unit/scientist/orchestration/engine/test_idempotency.py:291: in test_output_aware_cache_refuses_loading_base_epoch_entry\n    with pytest.raises(ValueError, match=\"output_aware_cache_custody\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_____ test_output_aware_cache_refuses_old_entry_even_with_current_outcome ______\ntests/unit/scientist/orchestration/engine/test_idempotency.py:316: in test_output_aware_cache_refuses_old_entry_even_with_current_outcome\n    with pytest.raises(ValueError, match=\"output_aware_cache_custody\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n==================================== PASSES ====================================\n=========================== short test summary info ============================\nPASSED tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_preserves_complete_outcome\nPASSED tests/unit/scientist/orchestration/engine/test_idempotency.py::test_ordinary_cache_keeps_existing_schema_epoch\nFAILED tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_existing_base_epoch_manifest\nFAILED tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_loading_base_epoch_entry\nFAILED tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_old_entry_even_with_current_outcome\n",
+  "stderr": ""
+}

@@ -4231,6 +4231,20 @@
       "target_root": "common"
     },
     {
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "source_root": "fabric",
+      "source_file": "src/polisyos/fabric/retrieval/custody.py",
+      "target_module": "polisyos.core.contracts.control",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "source_root": "fabric",
+      "source_file": "src/polisyos/fabric/retrieval/custody.py",
+      "target_module": "polisyos.ir.connectors",
+      "target_root": "ir"
+    },
+    {
       "source_module": "polisyos.fabric.retrieval.executor",
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/retrieval/executor.py",
@@ -11987,6 +12001,48 @@
       "target_root": "data_forge"
     },
     {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "target_module": "polisyos.fabric.connectors.registry",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "target_module": "polisyos.fabric.retrieval.custody",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "target_module": "polisyos.fabric.retrieval.providers",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "target_module": "polisyos.foundry.data_plane",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "target_module": "polisyos.foundry.methods",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
+      "target_module": "polisyos.ir.observation",
+      "target_root": "ir"
+    },
+    {
       "source_module": "polisyos.runtime.quality.data_state_substrate",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
@@ -12491,6 +12547,13 @@
       "target_root": "core"
     },
     {
+      "source_module": "polisyos.runtime.quality.promotion_sequence",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/promotion_sequence.py",
+      "target_module": "polisyos.fabric.retrieval.providers",
+      "target_root": "fabric"
+    },
+    {
       "source_module": "polisyos.runtime.quality.prompt_tool_ledger",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/prompt_tool_ledger.py",
@@ -12673,6 +12736,41 @@
       "target_root": "core"
     },
     {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "target_module": "polisyos.foundry.data_plane",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "target_module": "polisyos.foundry.methods",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "target_module": "polisyos.foundry.validation.method_quality",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "target_module": "polisyos.scientist.compute",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.foundry_consumption",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "target_module": "polisyos.scientist.policy_design",
+      "target_root": "scientist"
+    },
+    {
       "source_module": "polisyos.runtime.quality.workspace.loop",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/workspace/loop.py",
@@ -12750,6 +12848,13 @@
       "target_root": "scientist"
     },
     {
+      "source_module": "polisyos.runtime.quality.workspace.scientist_node_adapters",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py",
+      "target_module": "polisyos.scientist.orchestration.engine",
+      "target_root": "scientist"
+    },
+    {
       "source_module": "polisyos.runtime.quality.workspace.spine_repair_gates",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/workspace/spine_repair_gates.py",
@@ -12761,6 +12866,13 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/workspace/spine_repair_gates.py",
       "target_module": "polisyos.scientist.policy_design",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.workspace.workflow_playbook_projection",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py",
+      "target_module": "polisyos.scientist.orchestration.engine",
       "target_root": "scientist"
     },
     {
@@ -13217,6 +13329,13 @@
       "source_file": "src/polisyos/scholar/search/providers.py",
       "target_module": "polisyos.fabric.connectors",
       "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.scholar.search.providers",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/search/providers.py",
+      "target_module": "polisyos.ir.analytics.literature",
+      "target_root": "ir"
     },
     {
       "source_module": "polisyos.scholar.search.service",
@@ -21083,13 +21202,6 @@
       "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
       "target_module": "polisyos.core.canon",
       "target_root": "core"
     },
@@ -21099,6 +21211,20 @@
       "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
       "target_module": "polisyos.core.components",
       "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "target_module": "polisyos.foundry.data_plane",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "target_module": "polisyos.foundry.methods",
+      "target_root": "foundry"
     },
     {
       "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
@@ -21140,6 +21266,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
       "target_module": "polisyos.ir.analytics.uncertainty",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "target_module": "polisyos.ir.observation",
       "target_root": "ir"
     },
     {

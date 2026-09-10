@@ -1,0 +1,26 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "-rA",
+    "tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_openalex_history_partition_and_raw_integrity_are_enforced"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T06:30:08.037580+00:00",
+  "elapsed_seconds": 2.131,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "F\n=================================== FAILURES ===================================\n________ test_openalex_history_partition_and_raw_integrity_are_enforced ________\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-104/test_openalex_history_partitio0')\n\n    def test_openalex_history_partition_and_raw_integrity_are_enforced(tmp_path) -> None:\n        gate = check_layer3_gy_openalex_artifacts\n        history_id = \"policy-design-case-layer3-gy-openalex-history-artifacts\"\n        historical = (\n            \"architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json\",\n            \"architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json\",\n        )\n        for path in (gate.CONFIG_PATH, gate.GOLD_PATH, *historical):\n            target = tmp_path / path\n            target.parent.mkdir(parents=True, exist_ok=True)\n            target.write_bytes((REPO_ROOT / path).read_bytes())\n        family = (\n            f'[[family]]\\nid={json.dumps(gate.FAMILY_ID)}\\n'\n            f'outputs={json.dumps(gate.OUTPUTS)}\\n'\n            'lifecycle=\"generated_committed\"\\ncheck_command=[\"--check\"]\\n'\n            'regenerate_commands=[\"--write\"]\\n'\n        )\n        source = (\n            f'[[family]]\\nid={json.dumps(gate.SOURCE_FAMILY_ID)}\\n'\n            f'outputs={json.dumps([gate.CONFIG_PATH, gate.GOLD_PATH])}\\n'\n            'lifecycle=\"source_committed\"\\nsource_integrity_sha256={ '\n            + \", \".join(f'{json.dumps(path)}={json.dumps(gate._sha256(REPO_ROOT / path))}'\n                        for path in (gate.CONFIG_PATH, gate.GOLD_PATH))\n            + ' }\\n'\n        )\n        history = (\n            f'[[family]]\\nid={json.dumps(history_id)}\\n'\n            f'outputs={json.dumps(historical)}\\n'\n            'lifecycle=\"source_committed\"\\nsource_integrity_sha256={ '\n            + \", \".join(f'{json.dumps(path)}={json.dumps(gate._sha256(REPO_ROOT / path))}'\n                        for path in historical)\n            + ' }\\n'\n        )\n        registry = tmp_path / \"architecture/generated_artifacts.toml\"\n        baseline = family + source + history\n        registry.write_text(baseline)\n        issues = []\n        gate._validate_generated_artifacts_registration(tmp_path, issues)\n        assert issues == []\n        for path in historical:\n            target = tmp_path / path\n            original = target.read_bytes()\n            target.write_bytes(original + b\"\\n\")\n            changed = []\n            gate._validate_generated_artifacts_registration(tmp_path, changed)\n>           assert {\"code\": \"layer3_gy_openalex_history_integrity_drift\", \"path\": path} in changed\nE           AssertionError: assert {'code': 'layer3_gy_openalex_history_integrity_drift', 'path': 'architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json'} in []\n\ntests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py:174: AssertionError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py::test_openalex_history_partition_and_raw_integrity_are_enforced\n",
+  "stderr": ""
+}

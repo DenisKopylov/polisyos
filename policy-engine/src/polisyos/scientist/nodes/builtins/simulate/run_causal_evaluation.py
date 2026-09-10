@@ -3,15 +3,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from hashlib import sha256
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
+from polisyos.foundry import method_accepts_input_contract
+from polisyos.foundry.data_plane import materialize_method_contract
+from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -36,6 +42,7 @@ from polisyos.ir.analytics.hte import (
 )
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
+from polisyos.ir.observation import OBSERVATION_METHOD_INPUT_KIND, ObservationMethodInputEnvelope
 from polisyos.pdc import (
     EvalSafetyAdmissionChallenge,
     EvaluationExecutionContext,
@@ -45,7 +52,10 @@ from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.evidence.claims.projections import project_causal_effect_claims
 from polisyos.scientist.evidence.claims.validators import is_claim_spine_enabled
-from polisyos.scientist.methods.causal.validity import persist_causal_validity_bundle
+from polisyos.scientist.methods.causal.validity import (
+    is_causal_validity_enabled,
+    persist_causal_validity_bundle,
+)
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -65,7 +75,12 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
     NodeOutcome,
+    NodeOutputDisposition,
+    NodeOutputRefusal,
+    NodeOutputRule,
     NodeSpec,
+    OutputAwareNodeOutcome,
+    OutputAwareNodeSpec,
 )
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
@@ -74,7 +89,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_run_causal_evaluation@1.2.0"),
+    component_id=ComponentId.parse("scientist.node_run_causal_evaluation@2.0.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Run Causal Evaluation",
@@ -83,7 +98,26 @@ _METADATA = ComponentMetadata(
     capabilities=Capability.SCIENTIST_NODE,
 )
 
-_SPEC = NodeSpec(
+_CAUSAL_OUTPUT_KEYS = (
+    ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_CAUSAL_METHOD_RESULT_REF,
+    ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIMS_REF,
+    ARTIFACT_HTE_RESULT_REF,
+    ARTIFACT_POLICY_RECOMMENDATION_REF,
+    ARTIFACT_SENSITIVITY_RESULT_REF,
+)
+_REQUIRED_CAUSAL_OUTPUT_KEYS = frozenset(
+    {
+        ARTIFACT_CAUSAL_REPORT_REF,
+        ARTIFACT_CAUSAL_METHOD_RESULT_REF,
+        ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
+    }
+)
+
+_SPEC = OutputAwareNodeSpec(
     metadata=_METADATA,
     state_reads=[
         "run_id",
@@ -116,17 +150,17 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_POLICY_RECOMMENDATION_REF}",
         f"artifacts_index.{ARTIFACT_SENSITIVITY_RESULT_REF}",
     ],
-    produces=[
-        ARTIFACT_CAUSAL_REPORT_REF,
-        ARTIFACT_CAUSAL_ENVELOPE_REF,
-        ARTIFACT_CAUSAL_METHOD_RESULT_REF,
-        ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
-        ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
-        ARTIFACT_CLAIMS_REF,
-        ARTIFACT_HTE_RESULT_REF,
-        ARTIFACT_POLICY_RECOMMENDATION_REF,
-        ARTIFACT_SENSITIVITY_RESULT_REF,
-    ],
+    produces=list(_CAUSAL_OUTPUT_KEYS),
+    output_rules=tuple(
+        NodeOutputRule(output_key=key)
+        if key in _REQUIRED_CAUSAL_OUTPUT_KEYS
+        else NodeOutputRule(
+            output_key=key,
+            availability="owner_verified_refusal",
+            verifier_rule_ref="polisyos.scientist.causal_output.v1:" + key,
+        )
+        for key in _CAUSAL_OUTPUT_KEYS
+    ),
 )
 
 _MARKET_WIDE_TREATMENT_KEYWORDS: tuple[str, ...] = (
@@ -356,25 +390,25 @@ def _build_sensitivity_params(
 
 
 def _append_input_ref(
-    refs: list[InputRef],
+    refs: list[core_artifacts.InputRef],
     *,
     artifact_id: object | None,
     role: str,
 ) -> None:
     if artifact_id is None:
         return
-    refs.append(InputRef(artifact_id=str(artifact_id), role=role))
+    refs.append(core_artifacts.InputRef(artifact_id=str(artifact_id), role=role))
 
 
-def _to_core_artifact_ref(ref: object | None) -> ArtifactRef | None:
+def _to_core_artifact_ref(ref: object | None) -> core_artifacts.ArtifactRef | None:
     if ref is None:
         return None
-    if isinstance(ref, ArtifactRef):
+    if isinstance(ref, core_artifacts.ArtifactRef):
         return ref
     model_dump = getattr(ref, "model_dump", None)
     if callable(model_dump):
-        return ArtifactRef.model_validate(model_dump(mode="json"))
-    return ArtifactRef.model_validate(ref)
+        return core_artifacts.ArtifactRef.model_validate(model_dump(mode="json"))
+    return core_artifacts.ArtifactRef.model_validate(ref)
 
 
 def _load_observational_data(
@@ -390,7 +424,56 @@ def _load_observational_data(
 ):
     if state.observational_data_ref is None:
         raise ValueError("observational_data_ref is required for causal evaluation")
-    payload = from_canonical_bytes(ctx.store.get_bytes(state.observational_data_ref.artifact_id))
+    ref = _to_core_artifact_ref(state.observational_data_ref)
+    assert ref is not None
+    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    manifest = ctx.store.get_manifest(ref.artifact_id)
+    envelope_fields = ObservationMethodInputEnvelope.model_fields
+    schema_namespace = envelope_fields["schema_version"].default.rsplit(".", 1)[0] + "."
+    discriminator = payload.get("schema_version") if isinstance(payload, dict) else None
+    envelope_supplied = (
+        ref.kind == OBSERVATION_METHOD_INPUT_KIND
+        or manifest.kind == OBSERVATION_METHOD_INPUT_KIND
+        or (
+            isinstance(payload, dict)
+            and bool((envelope_fields.keys() - {"schema_version"}) & payload.keys())
+        )
+        or (isinstance(discriminator, str) and discriminator.startswith(schema_namespace))
+    )
+    if envelope_supplied:
+        if (
+            ref.kind != OBSERVATION_METHOD_INPUT_KIND
+            or manifest.kind != ref.kind
+            or ref.media_type != "application/json"
+            or manifest.media_type != ref.media_type
+            or not ctx.store.verify(ref.artifact_id).ok
+        ):
+            raise ValueError("observational_envelope_artifact_identity_mismatch")
+        envelope = ObservationMethodInputEnvelope.model_validate(payload)
+        registry = MethodRegistry.get_instance()
+        if registry.get_signature(method_fqn) is None:
+            ensure_causal_methods_registered()
+        if not method_accepts_input_contract(
+            registry.get(method_fqn),
+            envelope.contract_target.contract_id,
+        ):
+            raise ValueError("observational_envelope_method_contract_mismatch")
+        data = materialize_method_contract(
+            contract_target=envelope.contract_target,
+            contract_payload=envelope.contract_payload,
+        )
+        if not isinstance(
+            data,
+            (
+                PanelObservationalData,
+                RDDObservationalData,
+                HTEObservationalData,
+                GraphCausalData,
+                GraphCausalDataV1,
+            ),
+        ):
+            raise ValueError("observational_envelope_causal_contract_required")
+        return data
     if _is_rdd_method(method_fqn):
         return RDDObservationalData.model_validate(payload)
     if _is_hte_method(method_fqn):
@@ -433,6 +516,248 @@ def _infer_sutva_risk(query_treatment: str | None) -> str | None:
     return None
 
 
+def _output_identity(value: object) -> str:
+    if hasattr(value, "model_dump"):
+        value = value.model_dump(mode="json")
+    return "sha256:" + sha256(to_canonical_bytes(value, CanonSpec(forbid_floats=False))).hexdigest()
+
+
+def _load_output_contract_json(ctx: ExecutionContext, ref: core_artifacts.ArtifactRef) -> dict[str, Any]:
+    ref = core_artifacts.ArtifactRef.model_validate(ref)
+    if not ctx.store.verify(ref.artifact_id).ok:
+        raise ValueError("output_contract_cas_integrity_failed")
+    manifest = ctx.store.get_manifest(ref.artifact_id)
+    if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
+        raise ValueError("output_contract_ref_identity_mismatch")
+    payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    if not isinstance(payload, dict):
+        raise ValueError("output_contract_source_object_required")
+    return payload
+
+
+def _recompute_failed_sensitivity(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    report: CausalEffectReport,
+    data: GraphCausalData,
+    attempt_ref: core_artifacts.ArtifactRef | None,
+) -> dict[str, Any]:
+    """Re-run the actual auxiliary job; a status label is never a failure proof."""
+    if attempt_ref is None:
+        raise ValueError("sensitivity_failure_evidence_missing")
+    offered = _load_output_contract_json(ctx, attempt_ref)
+    params = dict(state.causal_method_params or state.params.get("causal_method_params") or {})
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn="causal.sensitivity.sensitivity_metrics@1.0.0",
+        method_params=_build_sensitivity_params(
+            report=report, method_params=params, state=state, data=data
+        ),
+        seed=int(state.params.get("random_seed", 0) or 0),
+    )
+    if offered.get("spec") != spec.model_dump(mode="json"):
+        raise ValueError("sensitivity_attempt_spec_mismatch")
+    with TemporaryDirectory(prefix="causal-output-readback-") as temporary:
+        replay = run_job(spec, cas_root=Path(temporary), method_state=data)
+    if offered.get("result") != replay.model_dump(mode="json"):
+        raise ValueError("sensitivity_attempt_result_not_reproduced")
+    if replay.issues:
+        return {"job_issues": replay.issues}
+    output = replay.final_state
+    if not isinstance(output, dict):
+        return {"result_shape": "not_object"}
+    if "sensitivity_result" not in output:
+        return {"result_member": "absent"}
+    if output["sensitivity_result"] is None:
+        return {"result_member": "present_null"}
+    try:
+        SensitivityResult.model_validate(output["sensitivity_result"])
+    except _CAUSAL_EVALUATION_VALIDATION_ERRORS:
+        return {"result_member": "invalid_typed_payload"}
+    raise ValueError("sensitivity_output_required_by_recomputed_job")
+
+
+def _causal_output_refusal(
+    *,
+    ctx: ExecutionContext,
+    input_state: ExperimentState,
+    outcome: NodeOutcome,
+    output_key: str,
+    supporting_artifacts: dict[str, core_artifacts.ArtifactRef],
+) -> NodeOutputRefusal:
+    """Recompute one conditional premise from this attempt's actual source objects."""
+    rule = next(row for row in _SPEC.output_rules if row.output_key == output_key)
+    if rule.availability != "owner_verified_refusal":
+        raise ValueError(f"required_output_missing:{output_key}")
+    state = outcome.state
+    result_ref = core_artifacts.ArtifactRef.model_validate(
+        state.artifacts_index[ARTIFACT_CAUSAL_METHOD_RESULT_REF]
+    )
+    evidence_ref = core_artifacts.ArtifactRef.model_validate(
+        state.artifacts_index[ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF]
+    )
+    report_ref = core_artifacts.ArtifactRef.model_validate(state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF])
+    source = _load_output_contract_json(ctx, result_ref)
+    _load_output_contract_json(ctx, evidence_ref)
+    report = CausalEffectReport.model_validate(_load_output_contract_json(ctx, report_ref))
+    sources = [result_ref, evidence_ref, report_ref]
+    reason = ""
+    presence: Literal["absent", "present_null", "value"] = "value"
+    premise: dict[str, Any]
+    member = {
+        ARTIFACT_HTE_RESULT_REF: "hte_result",
+        ARTIFACT_POLICY_RECOMMENDATION_REF: "policy_recommendation",
+    }.get(output_key)
+    if member is not None:
+        if member not in source:
+            presence = "absent"
+        elif source[member] is None:
+            presence = "present_null"
+        else:
+            raise ValueError(f"conditional_output_source_requires_value:{output_key}")
+        reason = "method_output_member_unavailable"
+        premise = {"member": member}
+    elif output_key == ARTIFACT_CAUSAL_ENVELOPE_REF:
+        if "envelope" in source and source["envelope"] is not None:
+            raise ValueError("conditional_output_source_requires_value:causal_envelope_ref")
+        if report.to_uncertainty_envelope() is not None:
+            raise ValueError("conditional_output_report_requires_envelope")
+        presence = "present_null" if "envelope" in source else "absent"
+        reason = "report_envelope_projection_unavailable"
+        premise = {
+            "report_status": report.status.value,
+            "point_estimate": report.point_estimate,
+            "confidence_interval": report.confidence_interval,
+        }
+    elif output_key == ARTIFACT_CLAIMS_REF:
+        enabled = is_claim_spine_enabled(input_state.params)
+        owner_available = isinstance(ctx, ClaimCapableExecutionContext)
+        if enabled and owner_available:
+            raise ValueError("conditional_output_claim_owner_requires_ledger")
+        reason = "claim_spine_disabled" if not enabled else "claim_ledger_owner_unavailable"
+        premise = {"effective_enabled": enabled, "claim_owner_available": owner_available}
+    else:
+        method_fqn = input_state.causal_method_fqn or str(input_state.params["causal_method_fqn"])
+        data = _load_observational_data(ctx, input_state, method_fqn)
+        sources.append(input_state.observational_data_ref)
+        if output_key == ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF:
+            if is_causal_validity_enabled(state=input_state, observational_data=data):
+                raise ValueError("conditional_output_validity_owner_requires_bundle")
+            reason = "validity_disabled_by_effective_configuration"
+            premise = {"effective_enabled": False}
+        elif output_key == ARTIFACT_SENSITIVITY_RESULT_REF:
+            base_report = CausalEffectReport.model_validate(source["report"])
+            enabled = input_state.params.get("enable_causal_sensitivity", True) is not False
+            if base_report.status != EstimationStatus.SUCCESS:
+                reason = "base_method_not_successful"
+                premise = {"base_status": base_report.status.value}
+            elif not enabled:
+                reason = "sensitivity_disabled_by_effective_configuration"
+                premise = {"effective_enabled": False}
+            else:
+                sensitivity_input = _coerce_sensitivity_input(data)
+                if sensitivity_input is None:
+                    reason = "sensitivity_input_not_supported"
+                    premise = {"input_type": type(data).__qualname__}
+                else:
+                    attempt_ref = supporting_artifacts.get("causal_sensitivity_attempt")
+                    premise = _recompute_failed_sensitivity(
+                        ctx=ctx,
+                        state=input_state,
+                        report=report,
+                        data=sensitivity_input,
+                        attempt_ref=attempt_ref,
+                    )
+                    assert attempt_ref is not None
+                    sources.append(attempt_ref)
+                    reason = "sensitivity_job_failure_reproduced"
+        else:
+            raise ValueError(f"conditional_output_verifier_unknown:{output_key}")
+    assert rule.verifier_rule_ref is not None
+    return NodeOutputRefusal(
+        node_id=str(_SPEC.metadata.component_id),
+        output_key=output_key,
+        verifier_rule_ref=rule.verifier_rule_ref,
+        reason_code=reason,
+        premise_presence=presence,
+        input_state_hash=_output_identity(input_state),
+        node_spec_hash=_output_identity(_SPEC),
+        source_refs=tuple(sources),
+        premise=premise,
+    )
+
+
+def _persist_output_refusal(ctx: ExecutionContext, refusal: NodeOutputRefusal) -> core_artifacts.ArtifactRef:
+    return ctx.store.put_json(
+        refusal.model_dump(mode="json"),
+        core_artifacts.PutOptions(
+            kind="scientist.node_output_refusal",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(name="polisyos.scientist.NodeOutputRefusal", version="1.0"),
+            producer=core_artifacts.ProducerInfo(
+                component=refusal.node_id, version="polisyos.scientist.causal_output.v1"
+            ),
+            inputs=[
+                core_artifacts.InputRef(artifact_id=ref.artifact_id, role=f"source:{index}")
+                for index, ref in enumerate(refusal.source_refs)
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def materialize_causal_output_contract(
+    *,
+    ctx: ExecutionContext,
+    input_state: ExperimentState,
+    output_state: ExperimentState,
+    produced: list[core_artifacts.ArtifactRef],
+    supporting_artifacts: dict[str, core_artifacts.ArtifactRef],
+) -> OutputAwareNodeOutcome:
+    """Complete the current causal output contract; this grants no EvalSafety authority."""
+    current = list(produced)
+    provisional = NodeOutcome(status="ok", state=output_state, artifacts=current)
+    dispositions: list[NodeOutputDisposition] = []
+    for output_key in _SPEC.produces:
+        if output_key in output_state.artifacts_index:
+            ref = core_artifacts.ArtifactRef.model_validate(output_state.artifacts_index[output_key])
+            if ref not in current:
+                raise ValueError(f"output_not_emitted_current_attempt:{output_key}")
+            dispositions.append(
+                NodeOutputDisposition(
+                    output_key=output_key,
+                    disposition="produced",
+                    artifact_ref=ref,
+                )
+            )
+        else:
+            refusal = _causal_output_refusal(
+                ctx=ctx,
+                input_state=input_state,
+                outcome=provisional,
+                output_key=output_key,
+                supporting_artifacts=supporting_artifacts,
+            )
+            refusal_ref = _persist_output_refusal(ctx, refusal)
+            current.append(refusal_ref)
+            dispositions.append(
+                NodeOutputDisposition(
+                    output_key=output_key,
+                    disposition="refused",
+                    artifact_ref=refusal_ref,
+                )
+            )
+    current.extend(supporting_artifacts.values())
+    return OutputAwareNodeOutcome(
+        status="ok",
+        state=output_state,
+        artifacts=current,
+        output_dispositions=tuple(dispositions),
+        supporting_artifacts=supporting_artifacts,
+    )
+
+
 @dataclass(frozen=True)
 class RunCausalEvaluationNode:
     """Run causal evaluation node implementation."""
@@ -440,6 +765,56 @@ class RunCausalEvaluationNode:
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
+
+    def verify_output_dispositions(
+        self,
+        *,
+        ctx: ExecutionContext,
+        input_state: ExperimentState,
+        outcome: OutputAwareNodeOutcome,
+    ) -> None:
+        """Consult current source objects, never the offered refusal's status words."""
+        rows = {row.output_key: row for row in outcome.output_dispositions}
+        if len(rows) != len(outcome.output_dispositions) or set(rows) != set(self.spec.produces):
+            raise ValueError("causal_output_disposition_population_mismatch")
+        for key, row in rows.items():
+            if row.disposition == "produced":
+                if (
+                    core_artifacts.ArtifactRef.model_validate(outcome.state.artifacts_index[key])
+                    != row.artifact_ref
+                ):
+                    raise ValueError(f"causal_output_disposition_ref_mismatch:{key}")
+                continue
+            if key in outcome.state.artifacts_index:
+                raise ValueError(f"refused_output_positive_slot_present:{key}")
+            expected = _causal_output_refusal(
+                ctx=ctx,
+                input_state=input_state,
+                outcome=outcome,
+                output_key=key,
+                supporting_artifacts=outcome.supporting_artifacts,
+            )
+            actual = NodeOutputRefusal.model_validate(
+                _load_output_contract_json(ctx, row.artifact_ref)
+            )
+            if actual != expected:
+                raise ValueError(f"causal_output_refusal_content_mismatch:{key}")
+            manifest = ctx.store.get_manifest(row.artifact_ref.artifact_id)
+            if (
+                manifest.kind != "scientist.node_output_refusal"
+                or manifest.artifact_schema
+                != core_artifacts.SchemaInfo(name="polisyos.scientist.NodeOutputRefusal", version="1.0")
+                or manifest.producer
+                != core_artifacts.ProducerInfo(
+                    component=expected.node_id, version="polisyos.scientist.causal_output.v1"
+                )
+                or manifest.inputs
+                != [
+                    core_artifacts.InputRef(artifact_id=ref.artifact_id, role=f"source:{index}")
+                    for index, ref in enumerate(expected.source_refs)
+                ]
+            ):
+                raise ValueError(f"causal_output_refusal_lineage_mismatch:{key}")
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if state.observational_data_ref is None:
@@ -567,7 +942,7 @@ class RunCausalEvaluationNode:
             report_update["metadata"] = metadata
         if report_update:
             report = report.model_copy(update=report_update)
-        input_refs: list[InputRef] = []
+        input_refs: list[core_artifacts.InputRef] = []
         if result.method_result_ref is not None:
             _append_input_ref(
                 input_refs,
@@ -677,6 +1052,7 @@ class RunCausalEvaluationNode:
             report = report.model_copy(update={"metadata": metadata})
 
         sensitivity_ref = None
+        supporting_artifacts: dict[str, core_artifacts.ArtifactRef] = {}
         sensitivity_auto: dict[str, Any] = {
             "enabled": state.params.get("enable_causal_sensitivity", True) is not False,
             "attempted": False,
@@ -722,6 +1098,21 @@ class RunCausalEvaluationNode:
                         artifact_id=sensitivity_job.method_evidence_ref.artifact_id,
                         role="causal_sensitivity_method_evidence",
                     )
+                supporting_artifacts["causal_sensitivity_attempt"] = ctx.store.put_json(
+                    {
+                        "spec": sensitivity_spec.model_dump(mode="json"),
+                        "result": sensitivity_job.model_dump(mode="json"),
+                    },
+                    core_artifacts.PutOptions(
+                        kind="scientist.causal_sensitivity_attempt",
+                        media_type="application/json",
+                        schema=core_artifacts.SchemaInfo(
+                            name="polisyos.scientist.CausalSensitivityAttempt", version="1.0"
+                        ),
+                        inputs=input_refs or None,
+                    ),
+                    canon_spec=CanonSpec(forbid_floats=False),
+                )
                 if sensitivity_job.issues:
                     sensitivity_auto["status"] = "failed"
                     sensitivity_auto["issues"] = list(sensitivity_job.issues)
@@ -908,6 +1299,9 @@ class RunCausalEvaluationNode:
         ):
             new_state.params["claim_ledger_status"] = "not_established"
             new_state.params["claim_ledger_limitation_code"] = "claim_ledger_owner_not_established"
+        # Clear the full prior output population before installing this attempt.
+        for output_key in self.spec.produces:
+            new_state.artifacts_index.pop(output_key, None)
         new_state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = report_ref
         if envelope_ref is not None:
             new_state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF] = envelope_ref
@@ -946,23 +1340,39 @@ class RunCausalEvaluationNode:
         if sensitivity_ref is not None:
             produced.append(sensitivity_ref)
 
-        return NodeOutcome(
-            status="ok",
-            state=new_state,
-            artifacts=produced,
-            events=[
-                NodeEvent(
-                    level="info",
-                    message=(
-                        f"Causal evaluation completed: method={report.method.value}, "
-                        f"status={report.status.value}, "
-                        f"refutation={report.metadata.get('refutation_auto', {}).get('status')}, "
-                        f"sensitivity={report.metadata.get('sensitivity_auto', {}).get('status')}, "
-                        f"claims={'yes' if claims_ref is not None else 'no'}, "
-                        f"validity_bundle={'yes' if validity_bundle_ref is not None else 'no'}"
-                    ),
-                )
-            ],
+        try:
+            completed = materialize_causal_output_contract(
+                ctx=ctx,
+                input_state=state,
+                output_state=new_state,
+                produced=produced,
+                supporting_artifacts=supporting_artifacts,
+            )
+        except (ValueError, TypeError, KeyError, OSError) as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                    message=f"Causal output contract could not be verified: {exc}",
+                ),
+            )
+        return completed.model_copy(
+            update={
+                "events": [
+                    NodeEvent(
+                        level="info",
+                        message=(
+                            f"Causal evaluation completed: method={report.method.value}, "
+                            f"status={report.status.value}, "
+                            f"refutation={report.metadata.get('refutation_auto', {}).get('status')}, "
+                            f"sensitivity={report.metadata.get('sensitivity_auto', {}).get('status')}, "
+                            f"claims={'yes' if claims_ref is not None else 'no'}, "
+                            f"validity_bundle={'yes' if validity_bundle_ref is not None else 'no'}"
+                        ),
+                    )
+                ]
+            }
         )
 
 

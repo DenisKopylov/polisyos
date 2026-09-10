@@ -1,0 +1,30 @@
+{
+  "snapshot": {
+    "source": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "base_sha": "43580c80b8761d4aecb34ee3300f64d389be80c8",
+    "tracked_product_paths": 11039,
+    "tracked_paths_independent_head_plus_delta": 11039,
+    "untracked_nonignored_paths": 46,
+    "copied_files_and_symlinks": 11085,
+    "enumerated_bytes": 343630209,
+    "path_and_content_sha256": "f2b7b0a8c8f0756b0fdfea7f49a5c7e14f8b9a23d4135b3385aaa0c934035a6c",
+    "source_stable_during_copy": true
+  },
+  "station": {
+    "python": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/tree/.venv/bin/python",
+    "prefix": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/tree/.venv",
+    "base_prefix": "/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14",
+    "child_python3": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/tree/.venv/bin/python3",
+    "module": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/tree/tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+    "sys_path": [
+      "",
+      "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/tree/src",
+      "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/tree",
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+      "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+      "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/probes/precommit/tree/.venv/lib/python3.14/site-packages",
+      "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages"
+    ]
+  }
+}

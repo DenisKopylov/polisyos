@@ -1,0 +1,26 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "tools.quality.validation.check_layer3_gy_n13b_acquisition_contract",
+    "--check",
+    "--catalog-path",
+    "/Users/deniskopylov/polisyos/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "--l5-path",
+    "/Users/deniskopylov/polisyos/policy-engine/production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:08:26.431765+00:00",
+  "elapsed_seconds": 129.155,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\"admitted_observation_count\": 0, \"availability_count_after\": 0, \"availability_count_before\": 0, \"availability_count_delta\": 0, \"baseline_after_sha256\": \"sha256:4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7\", \"baseline_before_sha256\": \"sha256:4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7\", \"byte_stable_passes\": 2, \"capstone_laundered_route_count\": 0, \"contract_sha256\": \"sha256:bd5d30133c16fde452dca91d7e5dca96b51bd6afe69892628980d23c2c0665de\", \"d2_connector_gap_count\": 1, \"demonstration_status\": \"typed_deeper_terminal\", \"derivation_consumer_count\": 2, \"derivation_family_count\": 2, \"derivation_recipe_id\": \"derivation-recipe:sha256:3f886f986221fce008b50414936c56051bdc7b02255b1500bdb9ef8c451b783a\", \"derivation_universality_sha256\": \"sha256:497d82ef894451f3f5ceb8c55d6cd16d67cfaf7b2a93a0222ee0fea7350645a1\", \"lifecycle_manifest_sha256\": \"sha256:e3a777cc16ef450762e043e8d3cd6cdd3ce6da7187415b3655fa7e2ef1333ce6\", \"live_attempt_count\": 5, \"local_lift_admissible_count\": 0, \"local_lift_denominator_count\": 15, \"open_residuals\": [], \"overlay_epoch_count\": 0, \"raw_response_count\": 2, \"reentry_disposition\": \"deeper_terminal_primary_carrier_characterization_failed\", \"registered_output_count\": 43, \"resumption_remaining_call_count\": 3, \"resumption_spent_call_count\": 3, \"second_materialization_cache_hit\": true, \"status\": \"ok\", \"world_growth_event_count\": 0, \"world_growth_status\": \"no_growth\"}\n",
+  "stderr": ""
+}

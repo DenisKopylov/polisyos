@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.d1_generated_readback"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T19:58:53.211624+00:00",
+  "elapsed_seconds": 0.236,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"denominator\": {\n    \"type\": \"generated files emitted by the complete four generating commands\",\n    \"command_outputs\": 6,\n    \"independent_declared_outputs\": 6\n  },\n  \"unreadable\": [],\n  \"readback\": [\n    {\n      \"path\": \"apps/runtime-dashboard/src/api/types.ts\",\n      \"before\": \"7cd8b72ec893bf098d4310e55b0670dac8eee55efd1defb3b321f1c0dbc86b7c\",\n      \"after\": \"7cd8b72ec893bf098d4310e55b0670dac8eee55efd1defb3b321f1c0dbc86b7c\",\n      \"unchanged\": true\n    },\n    {\n      \"path\": \"packages/runtime-api-client/canonicalRuntimeApiClient.js\",\n      \"before\": \"4c3d60e5014ac256b812bf7a49f8fa4d7da80d5bfd188da0a7c8925658a28e42\",\n      \"after\": \"4c3d60e5014ac256b812bf7a49f8fa4d7da80d5bfd188da0a7c8925658a28e42\",\n      \"unchanged\": true\n    },\n    {\n      \"path\": \"packages/runtime-api-client/canonicalRuntimeApiClient.ts\",\n      \"before\": \"f99de21b0b419c8985460eb52a92280e2408c579e99c94ac92815061e711f420\",\n      \"after\": \"f99de21b0b419c8985460eb52a92280e2408c579e99c94ac92815061e711f420\",\n      \"unchanged\": true\n    },\n    {\n      \"path\": \"packages/runtime-api-client/runtimeApiClient.js\",\n      \"before\": \"10ec804b98906350a8b46a9a00317217d6fa666fcffbe5331da44dc232bdb8a6\",\n      \"after\": \"10ec804b98906350a8b46a9a00317217d6fa666fcffbe5331da44dc232bdb8a6\",\n      \"unchanged\": true\n    },\n    {\n      \"path\": \"packages/runtime-api-client/runtimeApiClient.ts\",\n      \"before\": \"37dabfcb0461a08244e13c0f09732995a08c390a7f585f35499d48af696310c1\",\n      \"after\": \"37dabfcb0461a08244e13c0f09732995a08c390a7f585f35499d48af696310c1\",\n      \"unchanged\": true\n    },\n    {\n      \"path\": \"packages/runtime-api-client/types.ts\",\n      \"before\": \"2047bea488a6176c0f6bef614b429f09396bc0658152b771876668056570f9b7\",\n      \"after\": \"2047bea488a6176c0f6bef614b429f09396bc0658152b771876668056570f9b7\",\n      \"unchanged\": true\n    }\n  ],\n  \"changed_by_bytes\": [],\n  \"changed_by_git\": []\n}\n",
+  "stderr": ""
+}

@@ -458,10 +458,10 @@ def validate_acquisition_growth(root: Path) -> list[str]:
             "policyos.layer3.gy.n13a.recurring_carrier_liveness.v1"
         ),
         "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json": (
-            "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
+            "policyos.layer3.gy.n13b.acquisition_executor_contract.v5"
         ),
         "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json": (
-            "policyos.layer3.gy.n13b.lifecycle_manifest.v2"
+            "policyos.layer3.gy.n13b.lifecycle_manifest.v3"
         ),
         "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json": (
             "policyos.layer3.gy.n13b.reentry_trace.v1"

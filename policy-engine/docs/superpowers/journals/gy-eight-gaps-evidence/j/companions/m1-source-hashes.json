@@ -1,0 +1,25 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "_build.gy_gaps.j_pinned_harness",
+    "--module",
+    "_build.gy_gaps.refresh_m1_hashes"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T16:14:30.533419+00:00",
+  "elapsed_seconds": 0.06,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "Pinned the reissued M1 inventory and lifecycle audit; no other source digest changed.\n",
+  "stderr": "GY_J_HARNESS_EXECUTION {\"arguments\": [], \"complete_harness_source_delta\": {}, \"harness_source_refs\": {\"_build/gy_gaps/j_pinned_harness.py\": \"6c9c898289a7af64c6a08000f2ddf407b728452172c0aa8540836d6b87181585\", \"_build/gy_gaps/receipt.py\": \"f8fac199a34dcf74848eadd00b3e4a6ed1fbbd6395c7a1cb9fd14f6939b6fa4a\", \"_build/gy_gaps/refresh_m1_hashes.py\": \"c7b306b9ac27e470c8e61f7c2392fd0cbabae2d5b6388db9d5956c19fdfbea49\"}, \"harness_source_unchanged\": true, \"module\": \"_build.gy_gaps.refresh_m1_hashes\", \"target_disposition\": \"returned\", \"target_executed\": true, \"target_returncode\": 0}\n"
+}

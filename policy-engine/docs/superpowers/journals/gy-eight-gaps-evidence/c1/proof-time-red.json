@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:12:07.121654+00:00",
+  "elapsed_seconds": 75.862,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______ test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times ______\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-19/test_c1_proof_semantics_are_st0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c454640>\n\n    def test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times(\n        tmp_path: Path, monkeypatch: pytest.MonkeyPatch,\n    ) -> None:\n        from datetime import datetime\n    \n        from polisyos.core.artifacts import manifest\n    \n        packets = []\n        raw_refs = []\n        for hour in (1, 2):\n            class EmissionClock(datetime):\n                @classmethod\n                def now(cls, tz=None):\n                    return datetime(2026, 9, 8, hour, tzinfo=tz)\n    \n            with monkeypatch.context() as patch:\n                patch.setattr(manifest, \"datetime\", EmissionClock)\n                ctx, stable, deviation, selected, registry = _c1_live_admission_station(\n                    tmp_path / str(hour),\n                )\n            raw_refs.append(stable.adapter_admissions[0].conformance_ref)\n            packets.append(check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(\n                REPO_ROOT, stable=stable, deviation=deviation, selected=selected,\n                registry=registry, store=ctx.store,\n            ))\n        assert raw_refs[0] != raw_refs[1], \"The control must produce distinct raw custody receipts.\"\n>       assert packets[0] == packets[1], \"Run-emission time is not a changed admission property.\"\nE       AssertionError: Run-emission time is not a changed admission property.\nE       assert {'proofs': [{...rangle', ...}} == {'proofs': [{...rangle', ...}}\nE         \nE         Omitting 2 identical items, use -vv to show\nE         Differing items:\nE         {'proofs': [{'adapter_admissions': [{'admission_state': 'admitted', 'blocker': None, 'candidate': {'adapter_contract_h...hase2.legacy_node_candidate.v2', ...}], 'candidate_step_ids': ['scientist_policy_design.run_causal_evaluation'], ...}]} != {'proofs': [{'adapter_admissions': [{'admission_state': 'admitted', 'blocker': None, 'candidate': {'adapter_contract_h...hase2.legacy_node_candidate.v2', ...}], 'candidate_step_ids': ['scientist_policy_design.run_causal_evaluation'], ...}]}\nE         Use -v to get more diff\n\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:2052: AssertionError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c1_proof_semantics_are_stable_across_fresh_cas_emission_times\n",
+  "stderr": ""
+}

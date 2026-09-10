@@ -1,0 +1,22 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c1_adapter_removal",
+    "preservation"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:58:21.530531+00:00",
+  "elapsed_seconds": 37.381,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___ test_conformance_consults_preservation_on_valid_cas_with_changed_payload ___\ntests/unit/runtime/quality/test_workspace_scientist_node_adapters.py:266: in test_conformance_consults_preservation_on_valid_cas_with_changed_payload\n    assert result.passed is False\nE   AssertionError: assert True is False\nE    +  where True = AdapterConformanceResult(adapter_id='adapter-phase2-estimate-fake', passed=True, checked=['consumes_ports', 'produces_...a8ce1cf5bef5e3d01c69b902cd589be34afefd07083adc2971b0b'), kind='gy.adapter_conformance', media_type='application/json')).passed\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303\n  /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping\n    self._mark_plugins_for_rewrite(hook, disable_autoload)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py::test_conformance_consults_preservation_on_valid_cas_with_changed_payload\n",
+  "stderr": ""
+}

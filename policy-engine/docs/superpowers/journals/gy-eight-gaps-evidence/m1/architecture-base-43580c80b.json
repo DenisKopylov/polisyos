@@ -1,0 +1,23 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "tools.devx.architecture.guardrails",
+    "check"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/checkout/policy-engine",
+  "base": "43580c80b",
+  "started_utc": "2026-09-08T15:26:52.748953+00:00",
+  "elapsed_seconds": 256.909,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/checkout/policy-engine/.venv/bin:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/checkout/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/checkout/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/tmp"
+  },
+  "stdout": "Generated artifact freshness clean: runtime-api-client (5 generator-observed outputs).\nGenerated artifact freshness clean: runtime-dashboard-api-types (1 generator-observed outputs).\nGenerated artifact freshness clean: trust-claim-posture-register (1 generator-observed outputs).\nStandalone Atlas gate: architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by `uv run polisyos-tools architecture guardrails check`; run it explicitly or through architecture/atlas_surfaces/check_atlas_enforcement.py.\nArchitecture guardrail check FAILED:\n- runtime-openapi-snapshot output probe changed paths outside its assigned scratch root: isolated-source/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.blob, isolated-source/.polisyos/cas/artifacts/sha256/6d/7a/6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0.manifest.json, policy-engine/src/polisyos/runtime/http/services/acquisition_surface_projection.py, policy-engine/src/polisyos/runtime/http/services/cycle_board_sources.py, policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py, policy-engine/tests/unit/runtime/http/test_governed_projection_validation_worker.py.\n- runtime-openapi-snapshot generated output schemas/runtime_api_v1.openapi.json does not match /Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/m1/openapi-base-replay/checkout/policy-engine/schemas/runtime_api_v1.openapi.json.\n",
+  "stderr": ""
+}

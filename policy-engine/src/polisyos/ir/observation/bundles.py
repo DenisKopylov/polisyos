@@ -47,6 +47,7 @@ PROXY_MEASUREMENT_DATA_CONTRACT_ID = "foundry.causal.proxy_measurement_data.v1"
 DYNAMIC_TREATMENT_DATA_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
 PANEL_DATA_CONTRACT_ID = "foundry.econometrics.panel_data.v1"
 SURVIVAL_DATA_CONTRACT_ID = "foundry.ml.survival_data.v1"
+OBSERVATION_METHOD_INPUT_KIND = "ir.observation_method_input"
 
 
 class ContractCompatibilityTarget(KernelModel):
@@ -54,6 +55,21 @@ class ContractCompatibilityTarget(KernelModel):
 
     contract_id: str = Field(..., min_length=1, max_length=200)
     contract_fqn: str = Field(..., min_length=1, max_length=255)
+
+
+class ObservationMethodInputEnvelope(KernelModel):
+    """Carry a materialized observation DTO without claiming source authority.
+
+    The wrapper gives the observation root a distinct content identity from a
+    downstream DTO carrying the same values under its own schema and lineage.
+    Source custody and method compatibility must still be verified by owners.
+    """
+
+    schema_version: Literal["policyos.ir.observation.method_input_envelope.v1"] = (
+        "policyos.ir.observation.method_input_envelope.v1"
+    )
+    contract_target: ContractCompatibilityTarget
+    contract_payload: dict[str, Any] = Field(min_length=1)
 
 
 class BundleLineageRef(KernelModel):
@@ -753,6 +769,7 @@ __all__ = [
     "MULTIPLEX_NETWORK_TARGET",
     "NETWORK_ANALYSIS_TARGET",
     "NETWORK_DATA_TARGET",
+    "OBSERVATION_METHOD_INPUT_KIND",
     "PANEL_ECONOMETRIC_TARGET",
     "PANEL_OBSERVATIONAL_TARGET",
     "PROXY_MEASUREMENT_TARGET",
@@ -784,6 +801,7 @@ __all__ = [
     "NetworkContractBundle",
     "ObservationContractArtifact",
     "ObservationContractRoute",
+    "ObservationMethodInputEnvelope",
     "ObservationToContractManifest",
     "PanelEconometricBundleManifest",
     "ProxyChannelSpec",

@@ -1,0 +1,21 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "_build.gy_gaps.c1_admission_spec_review"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:22:22.903686+00:00",
+  "elapsed_seconds": 34.013,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "{\"admitted\": true, \"candidate_spec_hash\": \"sha256:e1f7259afc3be4bc9f3a31cf855aa57af366dc986f91f5203b0617ebe218b0ff\", \"failures\": [], \"passed\": true, \"real_conformance_ref\": \"sha256:ae11d5cea33459c640fabaaf754da494f144a3b2138a05f633821e351e5cacc0\", \"same_contract_hash\": true, \"same_spec_hash\": false, \"smoke_calls\": [\"execute\"], \"smoked_spec_hash\": \"sha256:90fb87232f6cf5f7245fad532e4246d5b431a8b47fd4b837c02bc266cb028684\", \"spec_reads_after_candidate\": 5}\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/c1_admission_spec_review.py\", line 74, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy_gaps/c1_admission_spec_review.py\", line 70, in main\n    assert admission.step is None, \"changed_full_signature_admitted\"\n           ^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: changed_full_signature_admitted\n"
+}

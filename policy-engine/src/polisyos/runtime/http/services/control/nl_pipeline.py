@@ -5037,11 +5037,7 @@ class NaturalLanguageRunMixin:
                     )
                     critic = LLMCriticAgent(llm_client=llm_client, model_name=model_name)
 
-                retrieval = RetrievalService(
-                    curated_dir=curated_dir,
-                    cas_root=Path(".polisyos/cas"),
-                    providers=self._build_retrieval_providers(),
-                )
+                retrieval_catalog = None
 
                 steps: list[dict[str, Any]] = []
                 retrieval_telemetry: dict[str, Any] = {}
@@ -5196,6 +5192,23 @@ class NaturalLanguageRunMixin:
                     )
 
                 try:
+                    from polisyos.data_forge.read_api import catalog as catalog_read_api
+                    from polisyos.runtime.quality.substrate_registry import (
+                        default_substrate_catalog_paths,
+                    )
+
+                    catalog_paths = default_substrate_catalog_paths(Path.cwd())
+                    retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+                        catalog_paths.l1_dcat_path,
+                        catalog_paths.l1_dcat_path.parent,
+                        overlay_path=catalog_read_api.default_acquisition_overlay_path(Path.cwd()),
+                    )
+                    retrieval = RetrievalService(
+                        curated_dir=curated_dir,
+                        cas_root=self._cas_root,
+                        dataset_catalog=retrieval_catalog,
+                        providers=self._build_retrieval_providers(),
+                    )
                     problem_frame = await _capture_step(
                         agent="pi_agent",
                         action="create_problem_frame",
@@ -5637,7 +5650,7 @@ class NaturalLanguageRunMixin:
                             coro=run_blocking_async(
                                 retrieval.execute_fetch_plans,
                                 list(resolve_outcome.fetch_plans),
-                                persist_payload=False,
+                                persist_payload=True,
                                 allow_fallback=True,
                             ),
                             summary="Executed fetch plans",
@@ -6103,6 +6116,8 @@ class NaturalLanguageRunMixin:
                         "_bundle": None,
                     }
                 finally:
+                    if retrieval_catalog is not None:
+                        retrieval_catalog.close()
                     await _close_llm_client(llm_client)
 
                 schema_healing = _trinity_schema_healing_notes(trinity_bundle)

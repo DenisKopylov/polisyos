@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "_build.gy_gaps.j_pinned_harness",
+    "--module",
+    "_build.gy-gaps.j.static_rederivations",
+    "--",
+    "k"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T15:03:38.904627+00:00",
+  "elapsed_seconds": 24.091,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "{\n  \"comparison\": {\n    \"baseline_artifact\": \"architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records_v2.json@8a9b92b416aaf5b2bc68fc6901fc5dbe098ced11\",\n    \"baseline_pointer\": [\n      \"ingest\",\n      \"strangle_receipt\"\n    ],\n    \"baseline_raw_sha256\": \"sha256:167ceb124628b5e690191f177cb4875e0a537e52fe906d183bef18835e2cd574\",\n    \"changed_returned_fields\": [],\n    \"exact_forbidden_reference_delta\": {\n      \"added\": [],\n      \"removed\": []\n    },\n    \"native_owner_function_sha256\": \"sha256:d7cc210e233ebab8ff5aef4e05416e90311f2134c7b0e7de81d831658ba5bb7d\",\n    \"returned_owner_projection_equal\": true\n  },\n  \"component\": \"k\",\n  \"current_revision\": \"8a9b92b416aaf5b2bc68fc6901fc5dbe098ced11\",\n  \"owner_output\": {\n    \"owner_result\": {\n      \"caller_guard_ref\": \"recompute_openalex_accuracy_strangle\",\n      \"remaining_callers\": [],\n      \"remaining_callers_disposition\": \"no_current_production_callers_of_fenced_predecessor\",\n      \"source_denominator\": {\n        \"os_walk_py\": 3065,\n        \"rglob_py\": 3065,\n        \"roots\": [\n          \"src\",\n          \"tools\"\n        ]\n      }\n    }\n  },\n  \"source_custody\": {\n    \"baseline_paths_git_tree\": 3065,\n    \"baseline_paths_tar_headers\": 3065,\n    \"baseline_revision\": \"8a9b92b416aaf5b2bc68fc6901fc5dbe098ced11\",\n    \"changed_during_execution\": [],\n    \"current_paths_git\": 3065,\n    \"current_paths_rg\": 3065,\n    \"executing_owners\": {\n      \"src/polisyos/ir/analytics/literature.py\": \"sha256:d8ad210cffcf66f1f4d02132655e6d5fb2c69c6a5b46f41444f168d748fd3597\",\n      \"tools/quality/validation/check_layer3_gy_openalex_artifacts.py\": \"sha256:6f0eae12fbcb8f2a812ebe01e4884e194a4dba6a65aad45f3abb562c97cebcd2\"\n    },\n    \"full_current_path_and_raw_hash_basis\": \"sha256:73f4dc59a0ca3f02fc5ad113e3fc381512e59b7eedf7035a2ed5228222b98190\",\n    \"no_runtime_tests_or_canonical_writes\": true,\n    \"path_delta\": {\n      \"added\": [],\n      \"removed\": []\n    },\n    \"roots\": [\n      \"src\",\n      \"tools\"\n    ],\n    \"suffix\": \".py\"\n  }\n}\n",
+  "stderr": "GY_J_HARNESS_EXECUTION {\"arguments\": [\"k\"], \"complete_harness_source_delta\": {}, \"harness_source_refs\": {\"_build/gy-gaps/j/static_rederivations.py\": \"a68624cb9a6b64c6c893f32b33fa39ba192c228d0ba6b4559dc75878e65949ec\", \"_build/gy_gaps/d1_strangle.py\": \"8d3ae801d81f8b5724fd4d914b30ddba60cd48b3f9b5459720f018166f3fb67b\", \"_build/gy_gaps/j_pinned_harness.py\": \"6c9c898289a7af64c6a08000f2ddf407b728452172c0aa8540836d6b87181585\", \"_build/gy_gaps/receipt.py\": \"f8fac199a34dcf74848eadd00b3e4a6ed1fbbd6395c7a1cb9fd14f6939b6fa4a\"}, \"harness_source_unchanged\": true, \"module\": \"_build.gy-gaps.j.static_rederivations\", \"target_disposition\": \"returned\", \"target_executed\": true, \"target_returncode\": 0}\n"
+}

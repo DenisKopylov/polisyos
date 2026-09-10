@@ -1,0 +1,32 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_refuses_new_aliased_predecessor",
+    "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_binds_all_current_source_callers",
+    "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_requires_every_replaced_reader_default",
+    "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_recomputes_deletions_and_semantic_receipt_refs",
+    "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_keeps_closed_lex_packet_bytes",
+    "tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_collection_keeps_actual_c1_when_foundry_consumption_is_missing"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T10:15:22.273077+00:00",
+  "elapsed_seconds": 233.569,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": ".........                                                                [100%]\n==================================== PASSES ====================================\n__ test_phase2_collection_keeps_actual_c1_when_foundry_consumption_is_missing __\n=========================== short test summary info ============================\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_refuses_new_aliased_predecessor[from polisyos.foundry import select_value_method_for_problem as pick\\ndef route(problem):\\n    alias = pick\\n    return alias(problem)\\n-phase2_causal_n8_predecessor_reached]\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_refuses_new_aliased_predecessor[from polisyos.runtime.quality.workspace.foundry_consumption import ConstraintStoreIngestor as Owner\\ndef route():\\n    owner = Owner()\\n    alias = owner.ingest\\n    return alias(snapshot_id='x', grammar_expansion_ref='x', artifacts=[])\\n-phase2_retired_constraint_ingress_reached]\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_refuses_new_aliased_predecessor[from polisyos.scientist.orchestration.engine import NodeOutcome as Outcome\\ndef route(payload):\\n    return Outcome(**payload)\\n-phase2_base_outcome_star_reconstruction]\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_refuses_new_aliased_predecessor[from polisyos.scientist.orchestration.engine import NodeOutcome as Outcome\\ndef route(payload):\\n    parse = Outcome.model_validate\\n    return parse(payload)\\n-phase2_unclassified_base_outcome_reconstruction]\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_binds_all_current_source_callers\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_requires_every_replaced_reader_default\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_recomputes_deletions_and_semantic_receipt_refs\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_return_strangle_keeps_closed_lex_packet_bytes\nPASSED tests/repo_quality/tools/test_layer3_gy_phase2_collection.py::test_phase2_collection_keeps_actual_c1_when_foundry_consumption_is_missing\n",
+  "stderr": ""
+}

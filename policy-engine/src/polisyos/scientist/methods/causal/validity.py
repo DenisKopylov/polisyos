@@ -87,7 +87,7 @@ def persist_causal_validity_bundle(
     """Persist a best-effort causal-validity bundle for the latest estimate."""
 
     settings = _extract_validity_settings(state=state, observational_data=observational_data)
-    if not _setting_bool(settings, "enabled", default=True):
+    if not is_causal_validity_enabled(state=state, observational_data=observational_data):
         return None
 
     bundle_inputs = list(inputs)
@@ -198,6 +198,22 @@ def persist_causal_validity_bundle(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+
+
+def is_causal_validity_enabled(
+    *,
+    state: ExperimentState,
+    observational_data: (
+        PanelObservationalData
+        | RDDObservationalData
+        | HTEObservationalData
+        | GraphCausalData
+        | GraphCausalDataV1
+    ),
+) -> bool:
+    """Resolve the same effective setting used by validity-bundle production."""
+    settings = _extract_validity_settings(state=state, observational_data=observational_data)
+    return _setting_bool(settings, "enabled", default=True)
 
 
 def _extract_validity_settings(

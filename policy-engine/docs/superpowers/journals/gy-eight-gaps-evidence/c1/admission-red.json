@@ -1,0 +1,24 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_unexecuted_nonproducing_node_is_not_an_admitted_playbook_step"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T15:48:53.066374+00:00",
+  "elapsed_seconds": 39.101,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______ test_unexecuted_nonproducing_node_is_not_an_admitted_playbook_step ______\ntests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py:33: in test_unexecuted_nonproducing_node_is_not_an_admitted_playbook_step\n    assert not isinstance(description, PlaybookStep), (\nE   AssertionError: A declared-but-unproduced output was admitted without real-input conformance.\nE   assert not True\nE    +  where True = isinstance(PlaybookStep(step_id='c1-census-counterexample.run_causal_evaluation', operation_class=<OperationClass.ESTIMATE: 'ESTI..., required_ports=['run_id', 'params.causal_variables', 'observational_data_ref'], produced_ports=['causal_report_ref']), PlaybookStep)\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py::test_unexecuted_nonproducing_node_is_not_an_admitted_playbook_step\n",
+  "stderr": ""
+}

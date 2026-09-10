@@ -1,0 +1,32 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "--show-capture=no",
+    "--tb=short",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_admission_requires_actual_gx_pass",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_asserted_pass_without_current_execution_is_refused",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_canonical_serializer_retains_actual_unicode_bytes",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_mapping_reader_refuses_present_unusable_basis",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_read_guard_rejects_invalid_json_outside_scan_list",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_read_states_distinguish_absence_and_track_complete_changes"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-09T11:45:53.739479+00:00",
+  "elapsed_seconds": 34.392,
+  "returncode": 0,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp",
+    "POLISYOS_CACHE_HOME": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/cache"
+  },
+  "stdout": "..............                                                           [100%]\n==================================== PASSES ====================================\n=========================== short test summary info ============================\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_admission_requires_actual_gx_pass[fail]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_admission_requires_actual_gx_pass[expected_red]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_admission_requires_actual_gx_pass[not_measured]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_admission_requires_actual_gx_pass[None]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_current_admission_requires_actual_gx_pass[absent]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_asserted_pass_without_current_execution_is_refused\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_canonical_serializer_retains_actual_unicode_bytes\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_mapping_reader_refuses_present_unusable_basis[{]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_mapping_reader_refuses_present_unusable_basis[null]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_mapping_reader_refuses_present_unusable_basis[[]]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_mapping_reader_refuses_present_unusable_basis[false]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_read_guard_rejects_invalid_json_outside_scan_list[other-owner.json]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_read_guard_rejects_invalid_json_outside_scan_list[nested/new-input.json]\nPASSED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_gy_l_actual_read_states_distinguish_absence_and_track_complete_changes\n",
+  "stderr": ""
+}

@@ -1,0 +1,24 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:38:32.128236+00:00",
+  "elapsed_seconds": 41.872,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n_ test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents[ir.observational_data] _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:38: in test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents\n    with pytest.raises(ValueError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n_ test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents[invented.measurement] _\ntests/unit/runtime/quality/test_workspace_foundry_consumption.py:38: in test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents\n    with pytest.raises(ValueError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: DID NOT RAISE <class 'ValueError'>\n=========================== short test summary info ============================\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents[ir.observational_data]\nFAILED tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents[invented.measurement]\n",
+  "stderr": ""
+}

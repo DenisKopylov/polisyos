@@ -204,6 +204,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "MethodSignature": ("polisyos.foundry.methods.base", "MethodSignature"),
     "MethodTiming": ("polisyos.foundry.methods.backends", "MethodTiming"),
+    "estimate_method_execution_cost_usd": (
+        "polisyos.foundry.methods.backends",
+        "estimate_method_execution_cost_usd",
+    ),
     "NodeSchedule": ("polisyos.foundry.methods.compiler.plan_optimizer", "NodeSchedule"),
     "OptimizedPlan": ("polisyos.foundry.methods.compiler.plan_optimizer", "OptimizedPlan"),
     "ParameterSpec": ("polisyos.foundry.methods.base", "ParameterSpec"),

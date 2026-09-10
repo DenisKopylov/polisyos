@@ -56,7 +56,11 @@ def _run_worker(
         pythonpath = f"{pythonpath}{os.pathsep}{existing_pythonpath}"
     environment["PYTHONPATH"] = pythonpath
     completed = subprocess.run(
-        [sys.executable, str(WORKER_PATH)],
+        [
+            sys.executable,
+            "-m",
+            "polisyos.runtime.http.services.governed_projection_validation_worker",
+        ],
         cwd=REPO_ROOT,
         env=environment,
         input=json.dumps(
@@ -304,6 +308,39 @@ def test_value_gate_worker_maps_owner_diagnostic_nonreceipt_to_not_established(
     assert diagnostic["receipt_state"] == "received"
     assert diagnostic["status"] == "not_established"
     assert diagnostic["first_case"] is None
+
+
+def test_acquisition_growth_current_epoch_reaches_content_validation() -> None:
+    assert worker_module.validate_acquisition_growth(REPO_ROOT) == []
+
+
+@pytest.mark.parametrize(
+    ("filename", "previous_schema"),
+    [
+        (
+            "layer3_gy_n13b_acquisition_executor_contract.json",
+            "policyos.layer3.gy.n13b.acquisition_executor_contract.v4",
+        ),
+        (
+            "layer3_gy_n13b_lifecycle_manifest.json",
+            "policyos.layer3.gy.n13b.lifecycle_manifest.v2",
+        ),
+    ],
+)
+def test_acquisition_growth_worker_refuses_previous_epoch_at_current_admission(
+    tmp_path: Path,
+    filename: str,
+    previous_schema: str,
+) -> None:
+    _copy_acquisition_growth_inputs(tmp_path)
+    path = tmp_path / "architecture/policy_design_case" / filename
+    payload = json.loads(path.read_bytes())
+    payload["schema_version"] = previous_schema
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    assert worker_module.validate_acquisition_growth(tmp_path) == [
+        "acquisition_growth_source_schema_mismatch"
+    ]
 
 
 def test_acquisition_growth_has_genuine_recomputing_owner_validator() -> None:

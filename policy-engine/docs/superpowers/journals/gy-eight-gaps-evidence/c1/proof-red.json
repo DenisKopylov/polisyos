@@ -1,0 +1,24 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c1_playbook_proof_binds_the_admission_the_consumer_used",
+    "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c1_playbook_proof_refuses_changed_receipt_with_markers_intact"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+  "started_utc": "2026-09-08T16:01:14.301869+00:00",
+  "elapsed_seconds": 34.057,
+  "returncode": 1,
+  "timed_out": false,
+  "environment": {
+    "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0ZX73eW:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": "-p no:cacheprovider",
+    "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp"
+  },
+  "stdout": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n_________ test_c1_playbook_proof_binds_the_admission_the_consumer_used _________\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-9/test_c1_playbook_proof_binds_t0')\n\n    def test_c1_playbook_proof_binds_the_admission_the_consumer_used(tmp_path: Path) -> None:\n        ctx, stable, deviation, selected, registry = _c1_live_admission_station(tmp_path)\n>       payload = check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n            REPO_ROOT, stable=stable, deviation=deviation, selected=selected,\n            registry=registry, store=ctx.store,\n        )\nE       AttributeError: module 'tools.quality.validation.check_layer3_gy_phase2_artifacts' has no attribute 'build_playbook_admission_proof'\n\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:1997: AttributeError\n______ test_c1_playbook_proof_refuses_changed_receipt_with_markers_intact ______\n\ntmp_path = PosixPath('/Users/deniskopylov/polisyos/.worktrees/gy-gaps/policy-engine/_build/gy-gaps/tmp/pytest-of-deniskopylov/pytest-9/test_c1_playbook_proof_refuses0')\n\n    def test_c1_playbook_proof_refuses_changed_receipt_with_markers_intact(tmp_path: Path) -> None:\n        import pytest\n    \n        ctx, stable, deviation, selected, registry = _c1_live_admission_station(tmp_path)\n        admission = stable.adapter_admissions[0]\n        changed = admission.conformance.model_copy(update={\"input_state_hash\": \"sha256:\" + \"0\" * 64})\n        stable.adapter_admissions = [admission.model_copy(update={\"conformance\": changed})]\n        with pytest.raises(AssertionError, match=\"c1_conformance_receipt_payload_mismatch\"):\n>           check_layer3_gy_phase2_artifacts.build_playbook_admission_proof(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                REPO_ROOT, stable=stable, deviation=deviation, selected=selected,\n                registry=registry, store=ctx.store,\n            )\nE           AttributeError: module 'tools.quality.validation.check_layer3_gy_phase2_artifacts' has no attribute 'build_playbook_admission_proof'\n\ntests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py:2020: AttributeError\n=========================== short test summary info ============================\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c1_playbook_proof_binds_the_admission_the_consumer_used\nFAILED tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py::test_c1_playbook_proof_refuses_changed_receipt_with_markers_intact\n",
+  "stderr": ""
+}

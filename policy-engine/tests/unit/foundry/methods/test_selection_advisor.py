@@ -2021,3 +2021,150 @@ def test_analyst_advisor_requires_strict_cross_method_consensus() -> None:
     assert result.cross_method_consensus.status == "not_enough_methods"
     assert result.cross_method_consensus.recommendation_allowed is False
     assert result.recommended == ()
+
+
+@pytest.fixture
+def contract_search_registry(monkeypatch):
+    """Actual isolated registry/catalog; only builtin bootstrap is out of scope."""
+    from polisyos.foundry.methods.base import ComputeBackend, MethodMetadata
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    def add_method(registry, name, *, report=True, contract="test.c1.panel.v1"):
+        signature = MethodSignature(
+            name=name, namespace="test.c1", version="1.0.0",
+            input_slots=frozenset({SlotSpec(
+                "data", SlotType.SCALAR, Unit("data", "json"), contract_id=contract,
+            )}),
+            output_slots=frozenset({SlotSpec(
+                "report" if report else "diagnostic", SlotType.SCALAR, Unit("report", "json"),
+            )}),
+            parameters=(), fidelity=FidelityLevel.HIGH, complexity=ComplexityClass.O_N,
+            backend=ComputeBackend.NUMPY,
+            supports_jit=False, supports_vmap=False, supports_grad=False,
+        )
+
+        def step(state: dict[str, object], params: dict[str, object]) -> dict[str, object]:
+            return {"report": state, "parameters": params}
+
+        method = type(name, (), {
+            "signature": signature, "metadata": MethodMetadata(description=name),
+            "pure_step": staticmethod(step),
+        })
+        registry.register(method)
+        return method
+
+    from polisyos.core.components import ComponentRegistry
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+
+    def bootstrap(registry):
+        # This isolated fixture has an explicitly empty extension input. The
+        # actual intake owner still binds all existing test registry members.
+        return bootstrap_foundry_method_registry(registry, components_index=ComponentRegistry())
+
+    monkeypatch.setattr("polisyos.foundry.methods.ensure_all_methods_registered", bootstrap)
+    monkeypatch.setattr("polisyos.foundry.methods.catalog.snapshot.ensure_all_methods_registered", bootstrap)
+    with registry_scope() as registry:
+        estimate = add_method(registry, "estimate")
+        diagnostic = add_method(registry, "diagnostic", report=False)
+        incompatible = add_method(registry, "incompatible", contract="test.c1.other.v1")
+        yield registry, add_method, (estimate, diagnostic, incompatible)
+
+
+def test_input_contract_selector_walks_whole_registry_and_excludes_diagnostics(contract_search_registry):
+    registry, _, methods = contract_search_registry
+    selected = advisor_module.select_method_for_input_contract(
+        contract_id="test.c1.panel.v1", required_output_slots=("report",),
+        selection_context={"purpose": "candidate-only test"}, registry=registry,
+    )
+    assert selected.status == "selected"
+    assert selected.selected_method_fqn == methods[0].signature.fqn
+    assert selected.denominator == tuple(registry.snapshot())
+    assert selected.denominator == tuple(signature.fqn for signature in registry.list_all())
+    assert tuple(row.method_fqn for row in selected.candidates) == selected.denominator
+    reasons = {row.method_fqn: row.reasons for row in selected.candidates}
+    assert "required_output_slot_missing:report" in reasons[methods[1].signature.fqn]
+    assert "input_contract_incompatible" in reasons[methods[2].signature.fqn]
+    assert selected.output_semantics == "not_established_until_real_execution"
+
+
+@pytest.mark.parametrize("requested", ["test.c1.diagnostic@1.0.0", "test.c1.incompatible@1.0.0", "test.c1.novel@1.0.0"])
+def test_input_contract_selector_refuses_requested_incompatible_or_novel(contract_search_registry, requested):
+    registry, _, _ = contract_search_registry
+    selected = advisor_module.select_method_for_input_contract(
+        contract_id="test.c1.panel.v1", required_output_slots=("report",),
+        selection_context={}, requested_method_fqn=requested, registry=registry,
+    )
+    assert selected.status == "blocked"
+    assert selected.selected_method_fqn is None
+    assert selected.denominator == tuple(registry.snapshot())
+    assert tuple(row.method_fqn for row in selected.candidates) == selected.denominator
+    assert selected.ranked_method_fqns == ("test.c1.estimate@1.0.0",)
+
+
+def test_input_contract_selector_keeps_unreadable_member_and_refuses(contract_search_registry, monkeypatch):
+    registry, _, methods = contract_search_registry
+    monkeypatch.setattr(methods[1], "pure_step", None)
+    selected = advisor_module.select_method_for_input_contract(
+        contract_id="test.c1.panel.v1", required_output_slots=("report",),
+        selection_context={}, registry=registry,
+    )
+    assert selected.status == "blocked"
+    assert selected.blockers == ("input_contract_method_member_unreadable",)
+    assert selected.denominator == tuple(registry.snapshot())
+    rows = {row.method_fqn: row for row in selected.candidates}
+    assert rows[methods[1].signature.fqn].disposition == "unreadable"
+    assert rows[methods[2].signature.fqn].disposition == "ineligible"
+
+
+def test_input_contract_selector_new_registered_entry_grows_full_population(contract_search_registry):
+    registry, add_method, _ = contract_search_registry
+    arguments = dict(contract_id="test.c1.panel.v1", required_output_slots=("report",), selection_context={}, registry=registry)
+    before = advisor_module.select_method_for_input_contract(**arguments)
+    new_method = add_method(registry, "new_recorded_route")
+    after = advisor_module.select_method_for_input_contract(**arguments)
+    assert set(after.denominator) - set(before.denominator) == {new_method.signature.fqn}
+    assert set(before.denominator) - set(after.denominator) == set()
+    assert after.denominator == tuple(signature.fqn for signature in registry.list_all())
+    assert new_method.signature.fqn in after.ranked_method_fqns
+
+
+@pytest.mark.parametrize("phase", ["component_bridge", "discovery", "both", "exception"])
+def test_input_contract_selector_retains_failed_intake_and_complete_registered_population(contract_search_registry, monkeypatch, phase):
+    from polisyos.core.components import ComponentRegistry
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.components.bridge import ComponentsBridgeError
+
+    registry, _, _ = contract_search_registry
+    arguments = dict(contract_id="test.c1.panel.v1", required_output_slots=("report",), selection_context={}, registry=registry)
+    baseline = advisor_module.select_method_for_input_contract(**arguments)
+    assert baseline.status == "selected"
+    before = {signature.fqn: signature.stable_digest() for signature in registry.list_all()}
+    report = bootstrap_foundry_method_registry(registry, components_index=ComponentRegistry())
+    if phase in {"component_bridge", "both"}:
+        report.errors.extend([
+            ComponentsBridgeError("test.unreadable.extension@1.0.0", "component.create() failed: original failure"),
+            ComponentsBridgeError("test.second.extension@1.0.0", "component metadata invalid"),
+        ])
+    if phase in {"discovery", "both"}:
+        report.discovery_errors.extend([
+            "entry_points:test.unreadable: original discovery failure",
+            "dev_scan:test.second: original discovery failure",
+        ])
+
+    def failed_intake(registry):
+        if phase == "exception":
+            raise OSError("discovery input unreadable")
+        return report
+
+    monkeypatch.setattr("polisyos.foundry.methods.ensure_all_methods_registered", failed_intake)
+    selected = advisor_module.select_method_for_input_contract(**arguments)
+    assert selected.status == "blocked"
+    assert selected.selected_method_fqn is None
+    assert selected.denominator_established is False
+    assert selected.denominator == baseline.denominator == tuple(registry.snapshot())
+    assert tuple(row.method_fqn for row in selected.candidates) == selected.denominator
+    assert {signature.fqn: signature.stable_digest() for signature in registry.list_all()} == before
+    assert selected.registry_bridge_errors == tuple((error.component_id, error.message) for error in report.errors)
+    assert selected.registry_discovery_errors == tuple(report.discovery_errors)
+    assert selected.registry_bootstrap_error is not None
+    assert selected.registry_bootstrap_error in selected.blockers

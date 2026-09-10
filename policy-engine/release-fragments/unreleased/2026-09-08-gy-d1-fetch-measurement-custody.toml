@@ -1,0 +1,16 @@
+id = "2026-09-08-gy-d1-fetch-measurement-custody"
+title = "Bind persisted Fabric fetches and N9 measurement admission to real catalog custody"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Full fetch persistence emits typed payload and receipt references. Current measurement admission resolves those bytes, repeats the real registered connector request, and validates the full current connector contract. Missing catalog or contract custody refuses admission."
+evidence = ["tests/unit/fabric/test_retrieval_fetch_custody.py", "tests/repo_quality/tools/test_gy_d1_catalog_wiring.py", "tests/unit/runtime/quality/test_promotion_sequence.py", "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py"]
+compatibility = "DataContextMetric adds optional payload_ref and fetch_receipt_ref. Fabric fetch receipt v1 and measurement root v2 establish current source custody. N9 bridge and verifier advance to v3, obligation scope to v4, current promotion input and receipt to v7, and comparison rule to v6. Existing historical receipt bytes and their owner projection rules retain their original epoch. Catalog-only roots cannot discharge current MEASUREMENT."
+change_class = "python-contract"
+surface_classification = "public_stable: typed control data-context references and Fabric persisted fetch behavior; internal: catalog custody, measurement producer, N9 verification and comparison admission"
+migration = "Supply the real catalog owner for persisted fetches. Derive the source requirement from the actual selected catalog target and design problem; pass it with the Fabric receipt to produce_from_fabric_fetch. The root binds the configured contract ID/version/behavioral hash and a fresh UTC source-agreement event. Use the existing current N9 reader with its real catalog and connector providers. Recompute current governed receipts; retain old receipts for historical replay."
+limitations = "Fresh source replay establishes current returned-content agreement, not historical transport occurrence, scientific truth, correspondence, calibration or publication authority. Changed or unavailable sources and unmet connector/source-contract prerequisites refuse admission."
+generated_client_compatibility = "unchanged"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/retrieval/README.md"]
+runbook_docs = []

@@ -1,7 +1,12 @@
-import { parsePersistenceProcessResult } from "./persistenceProcessResult";
+import {
+  parsePersistenceProcessResult,
+  repositoryPythonExecutable,
+} from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
+  chmodSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -10,7 +15,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   ATLAS_CAPTURE_IMPLEMENTATION_PATHS,
@@ -167,7 +172,7 @@ function invokeCoreAdapter(
   const dashboardRoot = process.cwd();
   const policyEngineRoot = path.resolve(dashboardRoot, "../..");
   const result = spawnSync(
-    "python3",
+    repositoryPythonExecutable(),
     [path.join(dashboardRoot, "scripts/persist_atlas_evidence.py")],
     {
       cwd: policyEngineRoot,
@@ -212,6 +217,56 @@ function readStoredManifest(
     `${digest}.manifest.json`,
   );
   return JSON.parse(readFileSync(manifestPath, "utf8")) as StoredManifest;
+}
+
+function rawPlaywrightReport() {
+  return {
+    config: { version: "1.59.1", workers: 1 },
+    suites: [
+      {
+        title: "a11y/keyboard-journeys.spec.ts",
+        file: "a11y/keyboard-journeys.spec.ts",
+        specs: [],
+        suites: [
+          {
+            title: "runtime-dashboard keyboard-only journeys",
+            file: "../src/test/a11y/keyboard-journeys.spec.ts",
+            specs: [
+              {
+                title:
+                  "opens a run and downloads the decision packet with keyboard only in at most 20 tab stops",
+                file: "../src/test/a11y/keyboard-journeys.spec.ts",
+                tests: [
+                  {
+                    expectedStatus: "passed",
+                    projectName: "chromium",
+                    status: "expected",
+                    results: [
+                      {
+                        status: "passed",
+                        duration: 15_188,
+                        errors: [],
+                        startTime: "2026-08-12T17:00:33.220Z",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    errors: [],
+    stats: {
+      startTime: "2026-08-12T17:00:12.099Z",
+      duration: 37_944.837,
+      expected: 1,
+      unexpected: 0,
+      flaky: 0,
+      skipped: 0,
+    },
+  };
 }
 
 describe("Atlas automated evidence capture", () => {
@@ -545,56 +600,52 @@ describe("Atlas automated evidence capture", () => {
     }
   });
 
+  it("captures through the public persistence bridge despite a poisoned Python PATH", () => {
+    const scratchRoot = path.resolve(
+      process.cwd(),
+      "../../_cache/python-launch-probes",
+    );
+    mkdirSync(scratchRoot, { recursive: true });
+    const scratch = mkdtempSync(path.join(scratchRoot, "capture-"));
+    const report = path.join(scratch, "report.json");
+    const marker = path.join(scratch, "ambient-python-used");
+    const poison = path.join(scratch, "python3");
+    writeFileSync(report, JSON.stringify(rawPlaywrightReport()));
+    writeFileSync(poison, '#!/bin/sh\n: > "$PYTHON_POISON_MARKER"\nexit 73\n');
+    chmodSync(poison, 0o755);
+    vi.stubEnv("PATH", `${scratch}${path.delimiter}${process.env.PATH ?? ""}`);
+    vi.stubEnv("PYTHON_POISON_MARKER", marker);
+    try {
+      const result = captureAtlasEvidence([
+        "--profile",
+        "keyboard_playwright",
+        "--report",
+        report,
+        "--revision",
+        REVISION,
+        "--command-json",
+        JSON.stringify(
+          ATLAS_AUTOMATED_RUNNER_PROFILES.keyboard_playwright.command_argv,
+        ),
+        "--cas-root",
+        path.join(scratch, "cas"),
+      ]) as { result: AtlasEvidencePersistenceResult };
+      const admitted = assertAtlasEvidencePersistenceResult(result.result);
+      expect(admitted.resolved_payload.payload.result.outcome).toBe("pass");
+      expect(admitted.resolved_payload.payload.details.raw_report_sha256).toBe(
+        createHash("sha256").update(readFileSync(report)).digest("hex"),
+      );
+      expect(existsSync(marker)).toBe(false);
+    } finally {
+      vi.unstubAllEnvs();
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
   it("normalizes the actual Playwright JSON shape instead of trusting a summary marker", () => {
     const normalized = normalizeAtlasRunnerReport(
       "keyboard_playwright",
-      {
-        config: { version: "1.59.1", workers: 1 },
-        suites: [
-          {
-            title: "a11y/keyboard-journeys.spec.ts",
-            file: "a11y/keyboard-journeys.spec.ts",
-            specs: [],
-            suites: [
-              {
-                title: "runtime-dashboard keyboard-only journeys",
-                file: "../src/test/a11y/keyboard-journeys.spec.ts",
-                specs: [
-                  {
-                    title:
-                      "opens a run and downloads the decision packet with keyboard only in at most 20 tab stops",
-                    file: "../src/test/a11y/keyboard-journeys.spec.ts",
-                    tests: [
-                      {
-                        expectedStatus: "passed",
-                        projectName: "chromium",
-                        status: "expected",
-                        results: [
-                          {
-                            status: "passed",
-                            duration: 15_188,
-                            errors: [],
-                            startTime: "2026-08-12T17:00:33.220Z",
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        errors: [],
-        stats: {
-          startTime: "2026-08-12T17:00:12.099Z",
-          duration: 37_944.837,
-          expected: 1,
-          unexpected: 0,
-          flaky: 0,
-          skipped: 0,
-        },
-      },
+      rawPlaywrightReport(),
       REVISION,
       [...ATLAS_AUTOMATED_RUNNER_PROFILES.keyboard_playwright.command_argv],
     );

@@ -145,3 +145,6 @@ policy-engine/docs/superpowers/journals/gy-builders/**/raw/
 
 # Local full gate evidence for the GY lattice lane.
 policy-engine/docs/superpowers/journals/gy-lattice/**/raw/
+
+# Measuring apparatus: complete local gate receipts, cited by path@sha.
+policy-engine/docs/superpowers/journals/apparatus/**/raw/

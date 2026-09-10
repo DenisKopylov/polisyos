@@ -1,3 +1,4 @@
+import { parsePersistenceProcessResult } from "./persistenceProcessResult";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
@@ -533,6 +534,19 @@ function runOwnerValidation(policyEngineRoot: string) {
     maxBuffer: 10 * 1024 * 1024,
     timeout: 30_000,
   });
+  let projection: unknown;
+  try {
+    projection = parsePersistenceProcessResult({
+      ...result,
+      stdout: Buffer.from(result.stdout ?? []).toString("utf8"),
+      stderr: Buffer.from(result.stderr ?? []).toString("utf8"),
+    }).value;
+  } catch (error) {
+    throw new AtlasSurfaceReadinessContractError(
+      "canonical_owner_validation_unavailable",
+      error instanceof Error ? error.message : `UNRUN: ${String(error)}`,
+    );
+  }
   if (result.error !== undefined || result.status !== 0) {
     const detail = Buffer.from(result.stderr ?? [])
       .toString("utf8")
@@ -542,7 +556,6 @@ function runOwnerValidation(policyEngineRoot: string) {
       `fixed canonical owner validation could not complete: ${detail || String(result.error ?? result.status)}`,
     );
   }
-  const projection = parseJson(result.stdout ?? new Uint8Array());
   const parsedProjection = z
     .object({
       readiness: z

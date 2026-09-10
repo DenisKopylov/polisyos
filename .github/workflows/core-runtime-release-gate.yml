@@ -428,22 +428,18 @@ jobs:
           extras: "test mutation runtime"
 
       - name: Run mutation subset
-        run: |
-          uv run mutmut run \
-            --paths-to-mutate src/polisyos/common/serialization.py \
-            --paths-to-mutate src/polisyos/core/security/authz.py \
-            --paths-to-mutate src/polisyos/runtime/http/dependencies.py \
-            --runner "python -m pytest tests/property/common/test_serialization_properties.py tests/property/runtime/http/test_access_invariants_properties.py tests/unit/runtime/http/test_runtime_api_authz.py -x -q --no-header"
-
-      - name: Export mutation results
-        run: uv run mutmut results > core-runtime-mutation-results.txt
+        run: uv run polisyos-tools testing mutation --suite core-runtime --target subset
 
       - name: Upload mutation evidence
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: core-runtime-mutation-results
-          path: policy-engine/core-runtime-mutation-results.txt
-          if-no-files-found: warn
+          path: |
+            policy-engine/_build/mutation/subset.json
+            policy-engine/_build/mutation/subset-*/run.log
+            policy-engine/_build/mutation/subset-*/export-cicd-stats.log
+          if-no-files-found: error
           retention-days: 30
 
   performance-smoke:

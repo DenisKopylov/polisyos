@@ -16,7 +16,6 @@ import subprocess
 import sys
 import tempfile
 import tomllib
-import venv
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -195,6 +194,33 @@ class GuardrailViolation:
     detail: str = ""
     source_module: str = ""
     target_module: str = ""
+
+
+@dataclass(frozen=True)
+class UnrunGeneratedCheck:
+    """A required measurement whose producer could not complete."""
+
+    family_id: str
+    phase: str
+    diagnostic: str
+
+
+class GeneratedArtifactCheckUnrunError(RuntimeError):
+    """Carry unavailable measurements separately from completed artifact findings."""
+
+    def __init__(
+        self,
+        unrun_checks: Sequence[UnrunGeneratedCheck],
+        violations: Sequence[GuardrailViolation] = (),
+    ) -> None:
+        self.unrun_checks = tuple(unrun_checks)
+        self.violations = tuple(violations)
+        super().__init__(
+            "UNRUN: "
+            + "; ".join(
+                f"{item.family_id} [{item.phase}]: {item.diagnostic}" for item in self.unrun_checks
+            )
+        )
 
 
 @dataclass(frozen=True)
@@ -1497,7 +1523,10 @@ def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
             "UV_NO_ENV_FILE": "1",
             "PYTHONPATH": os.pathsep.join((str(source_root / "src"), str(source_root))),
             "PYTHONDONTWRITEBYTECODE": "1",
-            "PATH": os.pathsep.join((str(private_environment / "bin"), environment.get("PATH", ""))),
+            "PYTHONNOUSERSITE": "1",
+            "PATH": os.pathsep.join(
+                (str(private_environment / "bin"), environment.get("PATH", ""))
+            ),
         }
     )
     return environment
@@ -1506,12 +1535,21 @@ def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
 def _prepare_isolated_probe_environment(source_root: Path, environment: dict[str, str]) -> None:
     """Provision a private interpreter before any family's output measurement."""
     private_environment = Path(environment["UV_PROJECT_ENVIRONMENT"])
-    venv.EnvBuilder(with_pip=False).create(private_environment)
+    uv_binary = shutil.which("uv", path=environment["PATH"])
+    if uv_binary is None:
+        raise FileNotFoundError("uv is required to provision the locked probe environment")
+    # uv preserves the managed interpreter's loader binding. Copying its binary
+    # with EnvBuilder can detach macOS libpython before any check starts.
+    subprocess.run(
+        [uv_binary, "venv", "--python", sys.executable, str(private_environment)],
+        cwd=source_root,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
     (source_root / ".venv").symlink_to(private_environment, target_is_directory=True)
     if (source_root / "pyproject.toml").is_file():
-        uv_binary = shutil.which("uv", path=environment["PATH"])
-        if uv_binary is None:
-            raise FileNotFoundError("uv is required to provision the locked probe environment")
         subprocess.run(
             [uv_binary, "sync", "--frozen"],
             cwd=source_root,
@@ -1565,12 +1603,37 @@ def _run_required_generated_artifact_checks(
     *,
     expected_root: Path,
 ) -> list[GuardrailViolation]:
+    violations: list[GuardrailViolation] = []
+    try:
+        return _measure_required_generated_artifacts(
+            families, expected_root=expected_root, violations=violations,
+        )
+    except GeneratedArtifactCheckUnrunError:
+        raise
+    except Exception as error:
+        # An unexpected measurement failure is still unavailable execution, never
+        # an artifact finding. Keep already observed facts without claiming closure.
+        raise GeneratedArtifactCheckUnrunError(
+            [UnrunGeneratedCheck(
+                "required_freshness_measurement", "measurement",
+                f"{type(error).__name__}: {error}",
+            )],
+            violations,
+        ) from error
+
+
+def _measure_required_generated_artifacts(
+    families: list[GeneratedArtifactFamily],
+    *,
+    expected_root: Path,
+    violations: list[GuardrailViolation],
+) -> list[GuardrailViolation]:
     required_families = [
         family for family in families if _requires_default_generated_freshness(family)
     ]
     if not required_families:
         return []
-    violations: list[GuardrailViolation] = []
+    unrun_checks: list[UnrunGeneratedCheck] = []
     declared_owners: dict[str, list[str]] = {}
     for family in families:
         for output in family.outputs:
@@ -1587,9 +1650,9 @@ def _run_required_generated_artifact_checks(
         scratch_root = Path(scratch_name)
         isolated_repo_root = scratch_root / "source"
         output_root = scratch_root / "outputs"
-        _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
-        environment = _isolated_probe_environment(isolated_repo_root)
         try:
+            _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
+            environment = _isolated_probe_environment(isolated_repo_root)
             _prepare_isolated_probe_environment(isolated_repo_root, environment)
         except (OSError, subprocess.CalledProcessError) as error:
             detail = (
@@ -1597,44 +1660,41 @@ def _run_required_generated_artifact_checks(
                 if isinstance(error, subprocess.CalledProcessError)
                 else str(error)
             )
-            return [
-                GuardrailViolation(
-                    check="generated_artifact",
-                    subject="required_freshness_environment",
-                    detail="probe_environment_preparation_failed",
-                    message=f"Required freshness environment preparation failed: {detail}",
-                )
-            ]
+            raise GeneratedArtifactCheckUnrunError(
+                [
+                    UnrunGeneratedCheck(family.family_id, "environment", detail)
+                    for family in required_families
+                ]
+            ) from error
         for family in required_families:
             family_violations: list[GuardrailViolation] = []
             probe_command = family.output_probe_command
             if probe_command is None:
-                family_violations.append(
-                    GuardrailViolation(
-                        check="generated_artifact",
-                        subject=family.family_id,
-                        detail="missing_output_probe_command",
-                        message=f"{family.family_id} has no generator-observed output probe.",
+                unrun_checks.append(
+                    UnrunGeneratedCheck(
+                        family.family_id, "generator", "No generator-observed output probe."
                     )
                 )
-                violations.extend(family_violations)
                 continue
 
             family_scratch_root = output_root / family.family_id
             rendered_command = [
-                part.replace("{output_root}", str(family_scratch_root))
-                for part in probe_command
+                part.replace("{output_root}", str(family_scratch_root)) for part in probe_command
             ]
             worktree_before = _snapshot_git_visible_worktree(REPO_ROOT)
             isolated_before = _snapshot_filesystem_tree(isolated_repo_root)
-            result = subprocess.run(
-                rendered_command,
-                cwd=isolated_repo_root,
-                env=environment,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
+            try:
+                result = subprocess.run(
+                    rendered_command,
+                    cwd=isolated_repo_root,
+                    env=environment,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            except OSError as error:
+                unrun_checks.append(UnrunGeneratedCheck(family.family_id, "generator", str(error)))
+                continue
             worktree_after = _snapshot_git_visible_worktree(REPO_ROOT)
             escaped_paths = _changed_snapshot_paths(worktree_before, worktree_after)
             isolated_after = _snapshot_filesystem_tree(isolated_repo_root)
@@ -1662,14 +1722,9 @@ def _run_required_generated_artifact_checks(
                 )
             if result.returncode != 0:
                 output = ((result.stdout or "") + (result.stderr or "")).strip()
-                family_violations.append(
-                    GuardrailViolation(
-                        check="generated_artifact",
-                        subject=family.family_id,
-                        detail="output_probe_failed",
-                        message=(
-                            f"{family.family_id} generator-observed output probe failed:\n{output}"
-                        ),
+                unrun_checks.append(
+                    UnrunGeneratedCheck(
+                        family.family_id, "generator", f"exit={result.returncode}\n{output}"
                     )
                 )
                 violations.extend(family_violations)
@@ -1776,6 +1831,8 @@ def _run_required_generated_artifact_checks(
                     f"{family.family_id} ({len(observed_outputs)} generator-observed outputs)."
                 )
 
+    if unrun_checks:
+        raise GeneratedArtifactCheckUnrunError(unrun_checks, violations)
     return violations
 
 
@@ -2015,6 +2072,7 @@ def run_sync(args: argparse.Namespace) -> int:
 
 def run_check(args: argparse.Namespace) -> int:
     violations: list[str] = []
+    unrun_checks: tuple[UnrunGeneratedCheck, ...] = ()
 
     public_policies = _parse_public_surface(args.public_manifest)
     public_generated_families = _parse_public_generated_artifact_families(args.public_manifest)
@@ -2132,14 +2190,19 @@ def run_check(args: argparse.Namespace) -> int:
         expected_root = args.generated_expected_root
         if not expected_root.is_absolute():
             expected_root = (Path.cwd() / expected_root).resolve()
-        violations.extend(
-            _apply_guardrail_exceptions(
-                _run_required_generated_artifact_checks(
-                    families,
-                    expected_root=expected_root,
-                ),
-                guardrail_exceptions,
+        try:
+            generated_violations = _run_required_generated_artifact_checks(
+                families,
+                expected_root=expected_root,
             )
+        except GeneratedArtifactCheckUnrunError as error:
+            unrun_checks = error.unrun_checks
+            generated_violations = list(error.violations)
+        violations.extend(_apply_guardrail_exceptions(generated_violations, guardrail_exceptions))
+    else:
+        print(
+            "SCOPE LIMITED: required generated-artifact freshness checks explicitly omitted "
+            "(--skip-generated-checks); no freshness verdict."
         )
     if args.all_generated_checks:
         optional_families = [
@@ -2153,13 +2216,29 @@ def run_check(args: argparse.Namespace) -> int:
         )
 
     print(STATUS_RETIREMENT_STANDALONE_NOTICE)
+    if unrun_checks:
+        print(
+            "Architecture guardrail check UNRUN: required measurements unavailable; "
+            "no complete verdict."
+        )
+        for item in unrun_checks:
+            print(f"- UNRUN {item.family_id} [{item.phase}]: {item.diagnostic}")
+        if violations:
+            print("Completed artifact findings (partial coverage):")
+            for violation in violations:
+                print(f"- {violation}")
+        return 2
     if violations:
         print("Architecture guardrail check FAILED:")
         for violation in violations:
             print(f"- {violation}")
         return 1
 
-    print("Architecture guardrail check passed.")
+    print(
+        "Architecture guardrail check passed (freshness explicitly omitted)."
+        if args.skip_generated_checks
+        else "Architecture guardrail check passed."
+    )
     return 0
 
 

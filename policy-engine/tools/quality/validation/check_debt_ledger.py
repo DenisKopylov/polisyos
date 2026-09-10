@@ -47,6 +47,7 @@ PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/pla
 PUBLISHED_DENOMINATORS = {
     "register": 249,
     "gy": 38,
+    "gy_tasks": 74,
     "atlas": 22,
     "frontend_disposition_entries": 261,
     "frontend_ds8_assignments": 217,
@@ -96,7 +97,7 @@ _ExplicitNonclosure = namedtuple(
 )
 _Snapshot = namedtuple(
     "_Snapshot",
-    "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_entries frontend_entry_statuses frontend_ds8_assignments frontend_ds8_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states",
+    "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_entries frontend_entry_statuses frontend_ds8_assignments frontend_ds8_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states gy_task_statuses",
 )
 AuditReport = namedtuple(
     "AuditReport",
@@ -407,6 +408,21 @@ _GY_TASK_ROW = re.compile(
 )
 
 
+def _gy_task_census(text: str) -> tuple[tuple[str, int], ...]:
+    """Count every row of the GY task-standing table, terminal ones included.
+
+    `_parse_gy_tasks` deliberately drops terminal rows because they are not open
+    work. The coverage table needs the opposite: the complete denominator and the
+    real distribution. These were once a hard-coded `37` and a census string frozen
+    at 2026-08-28, so every regeneration reprinted a stale count as a generated one.
+    """
+    counts: dict[str, int] = {}
+    for line in text.splitlines():
+        if (match := _GY_TASK_ROW.match(line)) is not None:
+            counts[match.group(3)] = counts.get(match.group(3), 0) + 1
+    return tuple(sorted(counts.items()))
+
+
 def _parse_gy_tasks(text: str) -> list[_WorkRow]:
     """Read the GY plan's authoritative task-standing table.
 
@@ -534,6 +550,7 @@ def _snapshot(repo_root: Path) -> _Snapshot:
     gy_rows = tuple(_parse_gy(gy_text))
     atlas_rows = tuple(_parse_atlas_debts(atlas_text))
     work = tuple(_parse_work(atlas_text, plan_ids, branches)) + tuple(_parse_gy_tasks(gy_text))
+    gy_task_statuses = _gy_task_census(gy_text)
     branch_names = {row.branch for row in debts} | {row.branch for row in work}
     branch_states = tuple(
         sorted((name, _branch_state(repo_root, name)) for name in branch_names if name)
@@ -554,6 +571,7 @@ def _snapshot(repo_root: Path) -> _Snapshot:
         irregular_branches=tuple(irregular),
         carried_closed=frozenset(carried_closed),
         branch_states=branch_states,
+        gy_task_statuses=gy_task_statuses,
     )
 
 
@@ -716,8 +734,8 @@ def render_ledger(snapshot: _Snapshot) -> str:
             "",
             "| ladder | task ids | indexed here | why |",
             "| --- | ---: | ---: | --- |",
-            f"| Atlas slice sequence | 21 | {len(snapshot.work)} | open slices only; closed ones stay in the master plan |",
-            f"| `GY-engine-subordination.md` | 37 | {sum(1 for row in snapshot.work if row.slice_id.startswith('GY-'))} | indexed from the authoritative task-standing table (§8.5), censused 2026-08-28: 26 `executed`, 0 `in_flight`, 1 `not_executable`, 10 `not_started`, 0 `ambiguous`. Only non-terminal rows are listed above. |",
+            f"| Atlas slice sequence | 21 | {sum(1 for row in snapshot.work if not row.slice_id.startswith('GY-'))} | open slices only; closed ones stay in the master plan |",
+            f"| `GY-engine-subordination.md` | {PUBLISHED_DENOMINATORS['gy_tasks']} | {sum(1 for row in snapshot.work if row.slice_id.startswith('GY-'))} | indexed from the authoritative task-standing table (§8.5), recomputed every run: {summary([status for status, count in snapshot.gy_task_statuses for _ in range(count)])}. Only non-terminal rows are listed above. |",
             "| 16 further plans (Foundry, Fabric, Scientist, UPDC, Layer2/3, …) | 213 | 0 | dormant lanes; out of the declared scope, counted so the remainder is visible |",
             "",
             "Measured 2026-08-23 across `docs/plans/active/**`: **271 task ids in 18 plans**. This ledger",
@@ -1254,6 +1272,7 @@ def audit_repository(
     observed = {
         "register": len({row.debt_id for row in snapshot.debts}),
         "gy": len(snapshot.gy),
+        "gy_tasks": sum(count for _, count in snapshot.gy_task_statuses),
         "atlas": len(snapshot.atlas_debts),
         "frontend_disposition_entries": snapshot.frontend_entries,
         "frontend_ds8_assignments": snapshot.frontend_ds8_assignments,

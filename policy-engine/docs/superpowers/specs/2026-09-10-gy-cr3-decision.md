@@ -205,3 +205,23 @@ remain refused with named missing owners; they are not supplied by these fixture
 No governed epoch or existing artifact reissue is planned. Any discovered transition
 must be declared against lane merge base `992aa493f`, not CR3's start. Incidental
 findings are handed to root for a named architect route; DEBT/LEDGER stays untouched.
+
+## Execution refinement after independent review
+
+The production replay producer is `runtime/quality/response_corpus_evaluator.py`;
+the independent conformance consumer is `tools/check_response_corpus.py`, with
+`tools/response_transition_oracle.py` owning separate raw decoding and expectations.
+No Runtime module imports the tools-owned oracle. Operation coverage is checked
+against actual factor/version/epoch changes or observation discriminators; retaining
+operation labels after removing those effects fails the checker. FCT-04 continuation
+is represented with claim-dependent permission still false. Consumer-boundary mutants
+reuse one frozen real-owner replay and independently reconcile the complete persisted
+publication set; no mutant alters the retained owner artifacts.
+
+The independently adjudicated AUD-F06 expansion correction and the complete operation
+coverage pass revised pre-delivery v1 inputs/expectations. These are construction
+changes relative to `992aa493f`, not a governed epoch reissue. Exact pre/post hashes
+and the local construction helper reference are retained in
+`../journals/gy-lattice/cr3/oracle-revision.json`. External execution, field performance
+and institutional appointment remain unestablished; these are the declared bounded
+residual, not a reason to add operational authority to the corpus.

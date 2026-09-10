@@ -1,0 +1,21 @@
+{
+  "lane_merge_base": "992aa493f",
+  "reason": "AUD-F06 AllowedTransition: protected_restart_or_expansion_has_fresh_restart_evidence; root independent adjudication before correction",
+  "pre_oracle_sha256": "498615e29fce8b3931190fcd7b646e4268588e025b92d1e1a347ed2fd232143d",
+  "pre_oracle_source_sha256": "2b6263db3f35f7690223d01668e8962a439969375ee9ae6e3c4f9e9229a0c22f",
+  "post_oracle_sha256": "582dbdf6c6c93c90bf5206a4c5da5dda63bf16b814bf335add77d7cbd3edec5f",
+  "post_oracle_source_sha256": "ef09c2751c0ac964ea7d8a62a2adeb8cd53581dfac7d6eb17e8b131588c54b5f",
+  "operation_pass": {
+    "basis": "AUD-F08 operation-level distinctions; pre-delivery v1 construction relative to 992aa493f, not governed reissue",
+    "pre_packets_sha256": "e2b39c3e33239faf518a3772c51bb50552c6b035c5dbc45b66e004686b1cbe57",
+    "pre_oracle_sha256": "582dbdf6c6c93c90bf5206a4c5da5dda63bf16b814bf335add77d7cbd3edec5f",
+    "post_packets_sha256": "abcb7d043ac895ececc7c2fe887f273d337310e81887b5dd192f802b8981adcb",
+    "post_oracle_sha256": "a87b7886a51f42f87f2deecfb1ae5faa85904e2878a29fd54af606722396e468",
+    "oracle_source_sha256": "c241a31b4d1fbe5a11ca46d9081f462681bd83a57fc56bc75188b046a816951b"
+  },
+  "construction_helper": {
+    "path": "docs/superpowers/journals/gy-lattice/cr3/raw/build_packets.py",
+    "sha256": "dec7e1c6d79a61d973e9f7d9ff32155b516e36442074036a9ac11422733329e8",
+    "scope": "pre-delivery scratch; not a production loader or future artifact writer"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "lane_merge_base": "992aa493f",
+  "tasks": [
+    "GY-CR2",
+    "GY-CR3"
+  ],
+  "task_results": {
+    "GY-CR2": "executed_candidate_custody",
+    "GY-CR3": "executed_candidate_custody_conformance"
+  },
+  "gates": {
+    "targeted": {
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/cr3/raw/final-targeted.txt@87884a89e6453f8254a3d0a7240ef8817ff1405c6392f72eb7f983578985ed68",
+      "wall_seconds": 51.0,
+      "timeout_seconds": 900
+    },
+    "corpus": {
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/cr3/raw/final-corpus.txt@93ad281d794f855f50be106b425bee0488f54efa83869d061824feeb1dfced68",
+      "wall_seconds": 42.154,
+      "timeout_seconds": 600
+    },
+    "oracle_corruption": {
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output": "docs/superpowers/journals/gy-lattice/cr3/raw/final-corrupt-oracle.txt@e00614b7ea91b209a4da8903365922316b5da2e4985dbced36d628b64fe7ca23",
+      "wall_seconds": 39.81,
+      "timeout_seconds": 60
+    },
+    "ruff": {
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "output": "docs/superpowers/journals/gy-lattice/cr3/raw/final-ruff.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  },
+  "corpus_evidence": {
+    "packet_count": 20,
+    "event_count": 42,
+    "guardrail_count": 12,
+    "guardrail_escapes": 0,
+    "high_harm_declared": 8,
+    "high_harm_preserved": 8,
+    "issue_count": 0,
+    "scope": "candidate_custody_conformance"
+  },
+  "production_call_chain": [
+    "tools.check_response_corpus -> runtime.quality.response_corpus_evaluator.replay_corpus",
+    "runtime.quality.response_corpus_evaluator -> runtime.quality.constrained_response.ConstrainedResponseRuntime",
+    "runtime.quality.constrained_response -> runtime.quality.adaptation_transition.AdaptationTransitionRuntime",
+    "runtime.quality.constrained_response.assess_response -> runtime.quality.vocabulary_crosswalk.require_canonical_movement"
+  ],
+  "refused_claims": [
+    "External execution, restarted/expanded exposure authorization, competent equivalence/restart evidence and institutional appointment remain unestablished.",
+    "Field performance, production latency thresholds, and externally appointed benchmark grade are not inferred from this corpus.",
+    "Foreign direct CR1 writers may store orphan candidates; they cannot bypass CR2 generic read/history validation."
+  ],
+  "deferred_callers": {
+    "live_monitor_receiving_integration": [
+      "GY-O1",
+      "GY-O3"
+    ],
+    "http_dashboard_surface": "Atlas DS12 custody projection (surface_out_of_scope)"
+  },
+  "review_buckets": [
+    "P37/P38 intake completeness: shared genesis/successor validation; protected X expansion rather than operation-name predicate; affected claim cannot be disabled by caller flag.",
+    "P29/P38 operation coverage: complete operation set checks actual factor/version/epoch/observation discriminators; markers alone fail."
+  ],
+  "incidental_routes": {
+    "gy-builder-mechanisms-have-no-production-caller": "Architect DEBT-REGISTER row: CR1 now has CR2 non-test caller; this lane does not close the entire four-builder row.",
+    "institutional_execution_and_restart_producers": "WP-04 through WP-08 withheld propositions and named external demanding owners; no institutional work claimed."
+  },
+  "guardrails": "Root-owned gate; no local baseline sync or inherited-failure claim."
+}

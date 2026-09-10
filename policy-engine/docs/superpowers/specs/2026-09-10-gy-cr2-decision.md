@@ -117,7 +117,7 @@ GY-VC1 validates the crosswalk; its blocking loss is a refusal.
 | Mechanism | Production caller established by this task | Remaining integration |
 | --- | --- | --- |
 | CR1 durable custody | New `runtime/quality/constrained_response.py` calls its public `submit/process/snapshot` | CR1 is now called by a non-test module; completed CR1 bytes remain untouched. |
-| CR2 factor admission/readback | New `runtime/quality/response_corpus_evaluator.py` (`GY-CR3`) invokes the same durable path; `constrained_response.py` provides an executable local worker entry point | Live DDM/monitor-trigger scheduling is deferred to named not-started tasks GY-O1 and GY-O3, because this lane supplies no institution or external executor. No completed task is reopened. |
+| CR2 factor admission/readback | New `runtime/quality/response_corpus_evaluator.py` (`GY-CR3`) invokes the same durable path; the shared executable local worker is `tools/check_response_corpus.py`, which invokes the same CR2 path | Live DDM/monitor-trigger scheduling is deferred to named not-started tasks GY-O1 and GY-O3, because this lane supplies no institution or external executor. No completed task is reopened. |
 | CR2 audit projection | CR3 evaluator consumes the persisted readback and emits conformance evidence | HTTP/dashboard integration is `surface_out_of_scope`, assigned to the Atlas DS12 successor custody projection. No action affordance is exposed. |
 
 The evaluator is a production audit module, not a test importer. Its invocation
@@ -176,3 +176,14 @@ planned. Any measured epoch impact is declared from `992aa493f` before writing;
 no existing owner/artifact is silently reissued. Root alone owns git commits,
 README/`__init__`, GY standing rows and the completion journal. DEBT/LEDGER and
 already-completed mechanisms are read-only.
+
+## Execution refinement after independent review
+
+The read boundary applies the same generic predecessor/current-state predicate to
+both genesis and successors; direct CR1 storage cannot bypass CR2 history admission.
+The exact affected claim is stream-bound, so no caller boolean disables FCT-02.
+Restart/expansion uses the actual exposure-coordinate change under AUD-F06, regardless
+of the operation name. The shared checker entry point is the executable audit worker;
+a second CR2 CLI would duplicate the same orchestration and is not built. Foreign
+direct CR1 callers may persist malformed/orphan candidate requests, but no claim is
+made that these become admissible CR2 history. The generic read boundary refuses them.

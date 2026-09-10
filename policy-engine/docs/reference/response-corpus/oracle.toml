@@ -1,0 +1,256 @@
+version = "response-oracle.v1"
+owner = "tools.response_transition_oracle"
+packet_sha256 = "abcb7d043ac895ececc7c2fe887f273d337310e81887b5dd192f802b8981adcb"
+oracle_source_sha256 = "c241a31b4d1fbe5a11ca46d9081f462681bd83a57fc56bc75188b046a816951b"
+
+[[expectations]]
+scenario_id = "quiet-immature-followup"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"observation_not_mature\",\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "d4239a30a6bdd97815a1c1e57936cf8921fe9a32f2973a98bccdf5aaae6b4bfb"
+
+[[expectations]]
+scenario_id = "quiet-immature-followup"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "62dc9cb70c5471564fd6649068fe6999f7f415fcb218b76af317764ffc83bfc8"
+
+[[expectations]]
+scenario_id = "provider-unavailable-followup"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"measurement_not_valid\",\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "7f583d8111a221b0c5b58046b473009eda2c46ff6613ba8966451b8f0435b916"
+
+[[expectations]]
+scenario_id = "provider-unavailable-followup"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "62dc9cb70c5471564fd6649068fe6999f7f415fcb218b76af317764ffc83bfc8"
+
+[[expectations]]
+scenario_id = "threshold-without-charter"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"transition_charter_missing\",\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "573ec2bf9f47c05fc235de9a4f2a1caaa392113b28c631b388dcdead6014f661"
+
+[[expectations]]
+scenario_id = "threshold-without-charter"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "62dc9cb70c5471564fd6649068fe6999f7f415fcb218b76af317764ffc83bfc8"
+
+[[expectations]]
+scenario_id = "fdr-world-write"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E2\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"world_write_not_admitted\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "7b102b9489e54f8df0396b3d2fa07530453f7937056475fa71547e6f97f1c4ae"
+
+[[expectations]]
+scenario_id = "fdr-world-write"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E2\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"posterior_learning_not_admitted\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "38677c9d848db2b3034c657ce329e8c173d7cc2bda73d5b4528571ea871bac65"
+
+[[expectations]]
+scenario_id = "unresolved-waiting-loss"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E2\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "4512e8ebc5ea879b11f7257b84442264cfd5548b42b9f250c5451766e1690681"
+
+[[expectations]]
+scenario_id = "unresolved-waiting-loss"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E2\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"protective_containment_required\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "af6286769e894f0e99f92ac846b46a63fdb6e737b163f90deff00069ef908062"
+
+[[expectations]]
+scenario_id = "high-waiting-premature-loss"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"protective_containment_required\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "bd12edae4f20933d958fb8715cee0bec6a2efbe49bc3c3f05ef6d209e638536e"
+
+[[expectations]]
+scenario_id = "high-waiting-premature-loss"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"protective_containment_required\",\"premature_action_loss_unresolved\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "7f3753609c986b8ecff3c9b8d3be6d20b4a1a77c4b103331fe4fa2fb4b1139ca"
+
+[[expectations]]
+scenario_id = "average-masks-subgroup"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "a6adc86b0f1534e6b04b220327d4d4b7495e911cd89f0c75b871c53059cc9ad8"
+
+[[expectations]]
+scenario_id = "average-masks-subgroup"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"subgroup_guardrail_block\",\"protective_containment_required\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "d524cdad245d57e74168022ffcfc816be36e6ad7adb0d5b04f05fbfcbfbca6ba"
+
+[[expectations]]
+scenario_id = "after-hours-owner-string"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"protective_containment_required\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "bd12edae4f20933d958fb8715cee0bec6a2efbe49bc3c3f05ef6d209e638536e"
+
+[[expectations]]
+scenario_id = "after-hours-owner-string"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"protective_containment_required\",\"owner_label_not_appointment\"],\"world_write_allowed\":false}"
+sha256 = "9b75578263ba40f1d6d13c9dda426bbfc3943558612a791bb75f6bff20689ca3"
+
+[[expectations]]
+scenario_id = "invalid-measurement-refresh"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"measurement_not_valid\",\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "7f583d8111a221b0c5b58046b473009eda2c46ff6613ba8966451b8f0435b916"
+
+[[expectations]]
+scenario_id = "invalid-measurement-refresh"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "62dc9cb70c5471564fd6649068fe6999f7f415fcb218b76af317764ffc83bfc8"
+
+[[expectations]]
+scenario_id = "denominator-recompute"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"denominator_changed\",\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "4348dc39e8822be11c6f2f13eea4166eb83c535c188816ab52f1c217a692f07c"
+
+[[expectations]]
+scenario_id = "denominator-recompute"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "62dc9cb70c5471564fd6649068fe6999f7f415fcb218b76af317764ffc83bfc8"
+
+[[expectations]]
+scenario_id = "epoch-recalibration"
+offset = 0
+payload = "{\"candidate_admissible\":false,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\",\"version_identity_reused\"],\"world_write_allowed\":false}"
+sha256 = "5a5cd14fa583f4aa1de526a713633e9d976fb3f98c80dceba89f9ee5585560b0"
+
+[[expectations]]
+scenario_id = "epoch-recalibration"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "62dc9cb70c5471564fd6649068fe6999f7f415fcb218b76af317764ffc83bfc8"
+
+[[expectations]]
+scenario_id = "implementation-delivery-repair"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V2\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "6b6767fd4f7b0ce481391e41b232a8912689ad3b4d4db42ff2b556f7d26b4b16"
+
+[[expectations]]
+scenario_id = "implementation-delivery-repair"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V2\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "682321f0ef17d6f3d510d5df8935777aecbdb4aa0222e6a352aae1951216ae94"
+
+[[expectations]]
+scenario_id = "scope-reversibility"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "a6adc86b0f1534e6b04b220327d4d4b7495e911cd89f0c75b871c53059cc9ad8"
+
+[[expectations]]
+scenario_id = "scope-reversibility"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X2\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"irreversible_response_review\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "07eef979337e6ab8d6fc3a56c343bff8433d2d330d63a8c5da06af5c24e4f3d9"
+
+[[expectations]]
+scenario_id = "material-partial-reissue"
+offset = 0
+payload = "{\"candidate_admissible\":false,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[\"FCT-01\"],\"protective_containment_required\":false,\"reasons\":[\"FCT-01\",\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\",\"version_identity_reused\"],\"world_write_allowed\":false}"
+sha256 = "3f06f1b86f5b24ce104e04bca06584146450d86b6f94f32823a17d47dfcc076d"
+
+[[expectations]]
+scenario_id = "material-partial-reissue"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V2\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "6b6767fd4f7b0ce481391e41b232a8912689ad3b4d4db42ff2b556f7d26b4b16"
+
+[[expectations]]
+scenario_id = "duplicate-pause"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X3\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"protective_containment_required\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "e0562e66827a0766a6977ea4f377c8399271d6837173d0205f65dc31ce1848bc"
+
+[[expectations]]
+scenario_id = "duplicate-pause"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X3\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":true,\"reasons\":[\"protective_containment_required\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "e0562e66827a0766a6977ea4f377c8399271d6837173d0205f65dc31ce1848bc"
+
+[[expectations]]
+scenario_id = "rollback-residue"
+offset = 0
+payload = "{\"candidate_admissible\":false,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[\"FCT-03\"],\"protective_containment_required\":false,\"reasons\":[\"FCT-03\",\"investigation_only\",\"institutional_signer_not_established\",\"exposure_expansion_without_restart\"],\"world_write_allowed\":false}"
+sha256 = "bbe7cdbd73667f71a0eaf73de725102514d74d5d008d8750a337d621236c6389"
+
+[[expectations]]
+scenario_id = "rollback-residue"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V4\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "30ba09c211ad6f500b7666717e9bf6d6071e7e9d958d048f0e68851eddfc360d"
+
+[[expectations]]
+scenario_id = "quiet-versus-restart-candidate"
+offset = 0
+payload = "{\"candidate_admissible\":false,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X3\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\",\"alert_disappearance_not_restart\",\"exposure_expansion_without_restart\"],\"world_write_allowed\":false}"
+sha256 = "2d17696b40bdc22266bc4098fce6055e037e8a1484ae0ef1207d8c4cd6f231c0"
+
+[[expectations]]
+scenario_id = "quiet-versus-restart-candidate"
+offset = 1
+payload = "{\"candidate_admissible\":false,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X3\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"institutional_signer_not_established\",\"restart_candidate_unverified\",\"exposure_expansion_without_restart\"],\"world_write_allowed\":false}"
+sha256 = "f01c85fd96c57f56509f788dc85605fcb572473965c8a90f7df86936d079127a"
+
+[[expectations]]
+scenario_id = "confirmed-unacceptable-termination"
+offset = 0
+payload = "{\"candidate_admissible\":false,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C1\",\"E\":\"E1\",\"V\":\"V0\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[\"FCT-02\"],\"protective_containment_required\":false,\"reasons\":[\"FCT-02\",\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "f4576249dc585bf4296a20448cc555f0d7180ab67ff491319d528af26c63ac1a"
+
+[[expectations]]
+scenario_id = "confirmed-unacceptable-termination"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C3\",\"E\":\"E4\",\"V\":\"V0\",\"X\":\"X4\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "25ddf225d3acde0e6375ce203048da35d49559f674610057136f406c88e23b33"
+
+[[expectations]]
+scenario_id = "redesign-blast-radius"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C2\",\"E\":\"E1\",\"V\":\"V3\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "f527986252ba37a4bd1f22f36d4e04ea372e3ff4934b14d9159458b51bdae25d"
+
+[[expectations]]
+scenario_id = "redesign-blast-radius"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C2\",\"E\":\"E1\",\"V\":\"V3\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"wide_blast_radius_review\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\",\"execution_receipt_unverified\"],\"world_write_allowed\":false}"
+sha256 = "729957730b5e65bfa7f09bd21313eebd33da54f1fc34ba620f33ed3bb18c9566"
+
+[[expectations]]
+scenario_id = "redesign-blast-radius"
+offset = 2
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C3\",\"E\":\"E1\",\"V\":\"V3\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":true,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"wide_blast_radius_review\",\"institutional_signer_not_established\",\"external_continuation_basis_unverified\"],\"world_write_allowed\":false}"
+sha256 = "078de42752d1f4e350ab2cd079470e1294c6b68db84915280f1af2d8bff9bc12"
+
+[[expectations]]
+scenario_id = "redesign-blast-radius"
+offset = 3
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C3\",\"E\":\"E1\",\"V\":\"V3\",\"X\":\"X1\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"wide_blast_radius_review\",\"institutional_signer_not_established\",\"external_continuation_basis_not_established\"],\"world_write_allowed\":false}"
+sha256 = "f27f66ac4165046cb247dae1f0e861a3a8d909caa9b6a28699a35de1aeb44dc4"
+
+[[expectations]]
+scenario_id = "legal-clock-late-correction"
+offset = 0
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C3\",\"E\":\"E4\",\"V\":\"V0\",\"X\":\"X4\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\"],\"world_write_allowed\":false}"
+sha256 = "25ddf225d3acde0e6375ce203048da35d49559f674610057136f406c88e23b33"
+
+[[expectations]]
+scenario_id = "legal-clock-late-correction"
+offset = 1
+payload = "{\"candidate_admissible\":true,\"claim_dependent_continuation\":false,\"conservative_posture\":\"no_authority_expansion\",\"custody_factors\":{\"C\":\"C3\",\"E\":\"E4\",\"V\":\"V0\",\"X\":\"X4\"},\"execution_authorized\":false,\"external_continuation_observed\":false,\"external_executed\":false,\"posterior_learning_allowed\":false,\"product_violations\":[],\"protective_containment_required\":false,\"reasons\":[\"investigation_only\",\"diagnosis_unresolved_for_action\",\"institutional_signer_not_established\",\"legal_review_clock_elapsed\"],\"world_write_allowed\":false}"
+sha256 = "6e64ed94d3019d8120843d1e2b578c7bef0564e1b215476665437ceaae511d19"

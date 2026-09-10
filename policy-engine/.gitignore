@@ -98,6 +98,8 @@ packages/*/node_modules/
 # Local data/table artifacts
 *.csv
 *.tsv
+# Independently sealed, versioned acquisition assurance expectations.
+!docs/reference/gy-acquisition-assurance-oracle.tsv
 *.parquet
 *.jsonl
 *.feather

@@ -203,6 +203,19 @@ Boundary notes:
   and escalation clock. Snapshot readback checks temporal availability and restart
   expiry. No institutional appointment, protected execution or restart approval
   is issued.
+- `vocabulary_crosswalk.py` owns canonical movement admission and the E/X/V/C
+  identities consumed by `constrained_response.py`. The versioned reference at
+  `docs/reference/canonical-vocabulary-crosswalk.v1.json` and its recomputing
+  `tools.quality.validation.check_canonical_vocabulary_crosswalk` checker preserve
+  candidate source identities beside the existing custody status and refuse
+  blocking semantic loss.
+- `constrained_response.py` appends constrained E/X/V/C candidate history through
+  the existing `adaptation_transition.py` custody store. Its non-test caller is
+  `response_corpus_evaluator.py`; `tools.check_response_corpus` independently
+  grades the persisted replay and sealed transition expectations. It introduces
+  no second state store or Atlas status. Live scheduling remains GY-O1/GY-O3;
+  external execution, restart authority and institutional appointments remain
+  unestablished, and DS12 owns the later dashboard projection.
 - `operator_comprehension.py` extends the existing diagnostic event log with sealed
   synthetic trials and recomputed audit results. Training and sealed examples are
   disjoint; absent eligible opportunities and failed safety cells have fixed

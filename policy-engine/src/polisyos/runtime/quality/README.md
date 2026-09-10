@@ -18,6 +18,13 @@ closeout meaning.
 
 Boundary notes:
 
+- `production_invocation.py` is a runnable internal regression instrument over all
+  tracked source, tooling and test Python files. It distinguishes calls from
+  imports and definitions, follows explicit call paths to runnable roots, and
+  reports new or regressed source mechanisms with no resolved path. Named caller
+  task deferrals stay explicit. Static paths are diagnostic evidence; they do not
+  establish runtime execution, persistence or authority. Its CLI persists and can
+  recompute an exact receipt using the lane base.
 - `production_grounding_calibration.py` persists and replays source discovery
   for the exact current N7 request and world context. The generation controller
   carries the actual N8 requirement into this path. Its relation acceptance slot

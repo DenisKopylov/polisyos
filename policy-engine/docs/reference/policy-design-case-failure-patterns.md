@@ -332,6 +332,7 @@ plans, or backlog docs.
 ## Maintenance Rules
 
 - Do not add a new enum, gate, artifact family, or public projection without checking P01, P03, P04, P05, P09, P10, and P13.
+- Before writing a mechanism, every decision document must name its non-test production caller and runnable terminus, or the named caller task and reason for deferral (P01/P02). An import, a test caller, or another uninvoked helper does not close the chain. For mechanism deltas run `python -m polisyos.runtime.quality.production_invocation --base <lane-base> --receipt <gitignored-raw-path>`; its source-derived static paths are diagnostics, while a wired claim additionally requires a real run, persisted readback and an unchanged-negative call-removal probe.
 - Do not create a new module, type, engine, gate, planner, or fixture under a slice/plan name without checking P27: confirm no canonical owner already holds the concept, and prefer extending the owner over a parallel file.
 - Do not name a new module, file, or public symbol after the plan/slice/wave that created it (P30): name it by the capability it owns. If a provenance prefix is unavoidable, the module docstring must point to the canonical owner and related modules.
 - Do not land a replacement, repair, or "subordinate the engine" change without checking P28: in the same change, delete or guard the superseded path and flip the default to the corrected one; a default-off fix or a zero-deletion replacement has not migrated.

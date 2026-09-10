@@ -134,6 +134,9 @@ policy-engine/packages/*/node_modules/
 # Local isolated implementation workspaces
 .worktrees/
 
+# GY builders: oversized local gate evidence is cited by path@sha, never committed.
+policy-engine/docs/superpowers/journals/gy-builders/**/raw/
+
 # pnpm virtual store / package-manager side effects (any checkout depth)
 .pnpm-store/
 **/.pnpm-store/

@@ -286,11 +286,19 @@ def test_epoch_staleness_examples_separate_positive_and_declared_absence() -> No
 
 
 def test_epoch_batch_success_example_is_owner_derived_and_strict() -> None:
+    from polisyos.runtime.http import openapi_contract
+
+    print(
+        "Measured: canonical typed epoch transport example registration and wire/status "
+        "agreement. Not measured: persisted epoch admission, runtime status composition, "
+        "clock/expiry behavior, or hosted CI."
+    )
     schema = export_runtime_openapi_schema()
     operation = schema["paths"]["/api/v1/control/decision-validity/epoch-batches"]["post"]
-    example = operation["responses"]["200"]["content"]["application/json"]["examples"][
-        "default"
-    ]["value"]
+    content = operation["responses"]["200"]["content"]["application/json"]
+    assert "examples" in content, "canonical epoch batch transport example is not registered"
+    example = content["examples"]["default"]["value"]
+    assert example == openapi_contract._epoch_validity_batch_example()
 
     packet = EpochValidityBatchResponse.model_validate(example)
 

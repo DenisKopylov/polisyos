@@ -619,3 +619,23 @@ The retained stdin program names `src/globals.d.ts`, `src/test/evidence/persiste
 ```sh
 node < ../../docs/superpowers/journals/instruments/coverage/raw/fixture-watchdog-typecheck.cjs >../../docs/superpowers/journals/instruments/coverage/raw/replay-fixture-watchdog-typescript.log 2>&1
 ```
+
+## Original C-CI R04 exact selected replay
+
+The completed receipt index retains this exact invocation, separately from the earlier quiet three-test producer wave.
+
+```sh
+.venv/bin/python -m pytest -v -s tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_openapi_typescript_output_matches_committed_shared_types >docs/superpowers/journals/instruments/root/raw/replay-types-original-selected.log 2>&1
+```
+
+## Epoch example owner-bridge removal negative
+
+The retained one-off probe deletes the actual registration in process, keeps the typed producer available, invokes the same original strict test, and requires its specific missing-registration assertion. It restores the registration and leaves tracked files unchanged.
+
+```sh
+env PYTHONPATH=src:. .venv/bin/python docs/superpowers/journals/instruments/invocation/raw/epoch-registration-removal-probe.py >docs/superpowers/journals/instruments/invocation/raw/replay-epoch-registration-removal.log 2>&1
+```
+
+```sh
+.venv/bin/python -m ruff check src/polisyos/runtime/http/openapi_contract.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py >docs/superpowers/journals/instruments/invocation/raw/replay-epoch-owner-bridge-ruff.log 2>&1
+```

@@ -511,3 +511,31 @@ This one-off probe executes the existing planner against the complete committed 
 ```sh
 env PYTHONPATH=src:. .venv/bin/python docs/superpowers/journals/instruments/root/raw/docs-impact-probe.py >docs/superpowers/journals/instruments/root/raw/replay-docs-impact-plan.log 2>&1
 ```
+
+## Invocation corrupted-receipt negative
+
+Prepare a separate one-field corruption only after replay generation. This preparation is not a gate verdict.
+
+```sh
+python3 - <<'PY'
+from pathlib import Path
+import json
+root = Path('docs/superpowers/journals/instruments/invocation/raw')
+payload = json.loads((root / 'replay-production-invocation-final.json').read_text())
+payload['denominator']['source_files'] += 1
+(root / 'replay-production-invocation-corrupted.json').write_text(json.dumps(payload, indent=2) + '\n')
+print('Separate source_files corruption prepared; admission not measured by this step.')
+PY
+```
+
+The following sole gate invocation must return 2 and print UNRUN/receipt drift; it does not admit any pre-existing output receipt.
+
+```sh
+.venv/bin/polisyos-tools validation check-production-invocation --repo-root . --base cc74d6581 --receipt docs/superpowers/journals/instruments/invocation/raw/replay-production-invocation-negative-output.json --check docs/superpowers/journals/instruments/invocation/raw/replay-production-invocation-corrupted.json >docs/superpowers/journals/instruments/root/raw/replay-invocation-negative.log 2>&1
+```
+
+## Original epoch example wire-contract node
+
+```sh
+.venv/bin/python -m pytest -q -s tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_epoch_validity_batch_success_example_matches_its_wire_contract >docs/superpowers/journals/instruments/root/raw/replay-epoch-example.log 2>&1
+```

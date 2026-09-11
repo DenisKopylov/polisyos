@@ -7,8 +7,8 @@ import re
 from pathlib import Path
 from typing import Any
 
-from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import extract_llm_json_object
 from polisyos.fabric.catalog.registry import DataContractRegistry
 from polisyos.scientist.agent.prompts import get_data_need_extractor_prompt
 from polisyos.scientist.agent.protocols import DataNeedExtractorAgent, DataNeedSpec, ProblemFrame

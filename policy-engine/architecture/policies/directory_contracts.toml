@@ -105,6 +105,10 @@ description = "JSON Schema, OpenAPI, manifest schema, or generated schema snapsh
 id = "test_source"
 description = "Pytest tests, test helpers, property tests, contract tests, and test-local config."
 
+[[file_kind]]
+id = "vendored_dependency"
+description = "Pinned upstream binary distribution with a local custody and removal policy; not first-party source."
+
 [[child_directory_kind]]
 id = "architecture_baseline"
 description = "Reviewed architecture baseline or generated inventory with owner and regeneration path."
@@ -386,6 +390,58 @@ policy = "local_runtime_run_state_only"
 owner = "team-runtime"
 allowed_reason = "Local run outputs may be namespace-capable on disk, but the root is runtime state and never a product import surface."
 product_import_policy = "src/polisyos product code must not import runs."
+
+[[non_product_python_root]]
+path = "architecture"
+policy = "architecture_evidence_replay_only"
+owner = "team-architecture"
+allowed_reason = "Tracked Python witnesses support architecture evidence replay; this directory is not a product package."
+product_import_policy = "src/polisyos product code must not import architecture."
+
+[[non_product_python_root]]
+path = "docs"
+policy = "documentation_evidence_replay_only"
+owner = "team-docs"
+allowed_reason = "Tracked Python witnesses accompany research and verification receipts; ignored scratch is outside the tracked denominator."
+product_import_policy = "src/polisyos product code must not import docs."
+
+[[contract]]
+path = "vendor"
+status = "active"
+role = "Pinned upstream wheel inputs required by the locked dependency station."
+owner = "team-devx"
+lifecycle_class = "vendored_dependency"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["vendored_dependency", "documentation"]
+allowed_child_directory_kinds = ["data_fixture"]
+python_import_policy = "not_importable_as_product_root"
+generated_output_policy = "No locally rebuilt replacement without the dependency custody review."
+committed_data_policy = "Pinned dependency distributions only; no policy data."
+readme_index_requirement = "Each vendored distribution directory explains source, integrity, consumer and removal condition."
+max_root_loose_files = 1
+root_loose_file_policy = "Root README only; distributions live in vendor/wheels."
+ignored_descendant_retention = "no_ignored_descendants"
+evidence_or_generated_artifact_promotion_path = "vendor/wheels/README.md and locked dependency source declarations"
+
+[[contract]]
+path = ".polisyos-tools"
+status = "local_only"
+role = "Ignored command timing observations written by tools.lib.timing."
+owner = "team-devx"
+lifecycle_class = "local_runtime_state"
+topology_category = "local_runtime_state"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output"]
+allowed_child_directory_kinds = ["local_runtime_state"]
+python_import_policy = "not_importable"
+generated_output_policy = "Local timing observations only; never a committed gate verdict."
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "No README required for ignored timing observations."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files."
+ignored_descendant_retention = "local_runtime_state"
+evidence_or_generated_artifact_promotion_path = "Reviewed command receipts under docs/superpowers/journals."
 
 [[contract]]
 path = "architecture"

@@ -159,6 +159,7 @@ not_in_nav: |
   adr/ADR-044-time-as-primitive.md
   adr/ADR-045-glyph-alphabet-limit-10.md
   adr/ADR-046-authored-text-registry.md
+  adr/ADR-048-native-value-projection-capability.md
   adr/repository-structure-0129-empty-placeholder-package-policy.md
   adr/repository-structure-0130-workspace-boundary.md
   adr/repository-structure-0131-build-cache-umbrella.md
@@ -201,6 +202,7 @@ not_in_nav: |
   compliance/A11Y_CONTRAST.md
   compliance/VPAT.md
   reference/research-track-handoff-template.md
+  reference/policy-operations-research-pipeline.md
   reference/fabric/resilience-implementation-guide.md
   reference/foundry/causal-engine-architecture.md
   reference/foundry/demography.md

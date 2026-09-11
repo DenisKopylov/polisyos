@@ -13,7 +13,7 @@ retained_for: DS2 counterpart evidence and ADR-047 history
 
 **Date:** 2026-04-29
 
-**Status:** Dated v4 evidence; superseded as a governing source by [Atlas Source-Of-Truth](./ATLAS_SOURCE_OF_TRUTH.md)
+**Status:** Dated v4 evidence; superseded as a governing source by Atlas Source-Of-Truth (repository decision record: `docs/brand/ATLAS_SOURCE_OF_TRUTH.md`, unpublished).
 
 **Historical source archive:** `/Users/deniskopylov/Downloads/PolicyOS Atlas Design System-4.zip` (non-replayable local provenance; DS2 must not use it as evidence)
 

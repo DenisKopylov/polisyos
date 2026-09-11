@@ -1,7 +1,7 @@
 # Policy-Operations Research Pipeline
 
 Owner: `team-architecture`
-Source of truth for the **stages**; the Wave-2 backlog
+Source of truth: this document for the **stages**; the Wave-2 backlog
 (`docs/research/policy-operations-and-real-world-runtime-backlog.md`) remains source of truth for the
 **tasks**, the Research Quality Bar and the Unified Deliverable Form.
 

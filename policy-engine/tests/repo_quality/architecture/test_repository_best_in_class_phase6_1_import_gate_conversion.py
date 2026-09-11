@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import tomllib
 from pathlib import Path
 
 from tools.quality.validation import architecture_report_only_contracts as contracts
-from tools.quality.validation import check_package_import_gates
-from tools.quality.validation import directory_health
+from tools.quality.validation import check_package_import_gates, directory_health
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 WORKSPACE_ROOT = REPO_ROOT.parent
@@ -134,7 +134,7 @@ def test_phase6_1_fail_closed_gate_contract_is_active_and_wired() -> None:
         header["gate_command"]
         == "uv run polisyos-tools validation check-package-import-gates --fail-closed"
     )
-    assert PHASE6_1_GATE_IDS <= set(gates)
+    assert set(gates) >= PHASE6_1_GATE_IDS
     assert header["active_source_move_report_only_blockers"] == []
     for gate_id in PHASE6_1_GATE_IDS:
         gate = gates[gate_id]
@@ -238,6 +238,7 @@ def test_phase2_1_scientist_contract_tracks_resolved_root_shims() -> None:
 
 
 def test_phase7_undocumented_top_level_namespace_root_fails(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
     (tmp_path / "rogue_namespace").mkdir()
     _write_minimal_directory_contracts(
         tmp_path,
@@ -842,7 +843,7 @@ def test_phase6_7_validation_tooling_budgets_are_declared() -> None:
     assert validation_defaults["scope"] == ["tools/quality/validation/**/*.py"]
     assert validation_defaults["warning_lines"] == 1000
     assert validation_defaults["fail_closed_lines"] == 2000
-    assert PHASE6_7_VALIDATION_BUDGET_PATHS <= set(budgets)
+    assert set(budgets) >= PHASE6_7_VALIDATION_BUDGET_PATHS
     for path in PHASE6_7_VALIDATION_BUDGET_PATHS:
         budget = budgets[path]
         assert budget["warning_lines"] == 1000, path

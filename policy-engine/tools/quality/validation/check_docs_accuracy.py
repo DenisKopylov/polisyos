@@ -63,6 +63,11 @@ GENERATED_REFERENCE_ALLOWLIST = (
     Path("docs/reference/schemas.md"),
     Path("docs/reference/ir/schema-catalog.md"),
 )
+MEASURED = "Measured: declared MkDocs nav/not_in_nav publication membership, inline Markdown " \
+    "page/directory links, literal .yml workflow references and reference-page metadata."
+OMISSION = "Not measured: prose truth, runtime behavior, external URL availability, " \
+    "unpublished document contents, reference-style links, images, asset existence, " \
+    "unresolved extensionless links, .yaml workflows, rendered site deployment, or hosted CI."
 
 
 @dataclass(frozen=True)
@@ -95,10 +100,12 @@ def collect_nav_entries(value: Any) -> list[str]:
         return results
     if isinstance(value, dict):
         results = []
-        for item in value.values():
+        for label, item in value.items():
+            if not isinstance(label, str):
+                raise ValueError("MkDocs nav labels must be strings")
             results.extend(collect_nav_entries(item))
         return results
-    return []
+    raise ValueError(f"MkDocs nav has unsupported entry type: {type(value).__name__}")
 
 
 def parse_site_url(mkdocs_path: Path) -> str | None:
@@ -121,9 +128,12 @@ def load_mkdocs_data(
     resolved_path = mkdocs_path.resolve()
     if resolved_path in seen:
         raise ValueError(f"cyclic MkDocs INHERIT chain at {mkdocs_path}")
-    data = yaml.load(mkdocs_path.read_text(encoding="utf-8"), Loader=loader_cls) or {}
+    try:
+        data = yaml.load(mkdocs_path.read_text(encoding="utf-8"), Loader=loader_cls) or {}
+    except yaml.YAMLError as exc:
+        raise ValueError(f"MkDocs YAML unavailable: {exc}") from exc
     if not isinstance(data, dict):
-        return {}
+        raise ValueError("MkDocs configuration must be a mapping")
     inherited_ref = data.get("INHERIT")
     if not inherited_ref:
         return data
@@ -145,8 +155,10 @@ def split_exclude_docs(value: Any) -> list[str]:
     if isinstance(value, str):
         return [line.strip() for line in value.splitlines() if line.strip()]
     if isinstance(value, list):
-        return [str(item).strip() for item in value if str(item).strip()]
-    return []
+        if not all(isinstance(item, str) for item in value):
+            raise ValueError("MkDocs publication patterns must contain only strings")
+        return [item.strip() for item in value if item.strip()]
+    raise ValueError("MkDocs publication patterns must be a string or list of strings")
 
 
 def is_excluded_docs_path(relative_to_docs: Path, patterns: list[str]) -> bool:
@@ -166,16 +178,7 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
     site_url = parse_site_url(mkdocs_path)
 
     if yaml is None:
-        files = tuple(sorted(path.resolve() for path in docs_root.rglob("*.md")))
-        return (
-            PublishedDocsConfig(
-                site_url=site_url,
-                published_files=files,
-                docs_root=docs_root,
-                mkdocs_path=mkdocs_path,
-            ),
-            violations,
-        )
+        raise ValueError("PyYAML unavailable: publication membership was not measured")
 
     class MkDocsLoader(yaml.SafeLoader):
         pass
@@ -196,6 +199,8 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
     nav_paths = collect_nav_entries(data.get("nav", []))
     exclude_patterns = split_exclude_docs(data.get("exclude_docs"))
     not_in_nav_paths = split_exclude_docs(data.get("not_in_nav"))
+    if not nav_paths and not not_in_nav_paths:
+        raise ValueError("MkDocs publication scope has no nav or not_in_nav entries")
     published: set[Path] = set()
 
     for nav_entry in nav_paths:
@@ -500,24 +505,32 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     repo_root = args.repo_root.resolve()
-    config, config_violations = published_docs_config(repo_root)
-    workflow_names = actual_workflow_names(repo_root)
-    published_files = set(config.published_files)
-
-    violations: list[Violation] = list(config_violations)
-    for file_path in config.published_files:
-        violations.extend(
-            scan_file(
-                file_path,
-                config=config,
-                published_files=published_files,
-                workflow_names=workflow_names,
+    print(MEASURED)
+    print(OMISSION)
+    violations: list[Violation] = []
+    try:
+        config, config_violations = published_docs_config(repo_root)
+        workflow_names = actual_workflow_names(repo_root)
+        published_files = set(config.published_files)
+        violations.extend(config_violations)
+        for file_path in config.published_files:
+            violations.extend(
+                scan_file(
+                    file_path,
+                    config=config,
+                    published_files=published_files,
+                    workflow_names=workflow_names,
+                )
             )
-        )
+    except (OSError, ValueError) as exc:
+        print(f"UNRUN: no complete docs verdict: {type(exc).__name__}: {exc}")
+        for violation in violations:
+            print(f"- partial coverage: {violation.file_path}:{violation.lineno}: {violation.message}")
+        return 2
 
     if violations:
         violations = sorted(violations, key=lambda item: _violation_sort_key(repo_root, item))
-        print("Docs accuracy report")
+        print("Docs accuracy report: FAILED")
         print(f"- violations: {len(violations)}")
         for violation in violations:
             try:
@@ -527,7 +540,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"- {relative}:{violation.lineno}: {violation.message}")
         return 1
 
-    print("Docs accuracy report")
+    print("Docs accuracy report: passed (declared scope only)")
     print("- violations: 0")
     print(f"- checked files: {len(config.published_files)}")
     print(f"- site_url: {config.site_url or 'missing'}")

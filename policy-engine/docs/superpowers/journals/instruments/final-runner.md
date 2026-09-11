@@ -539,3 +539,11 @@ The following sole gate invocation must return 2 and print UNRUN/receipt drift; 
 ```sh
 .venv/bin/python -m pytest -q -s tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_epoch_validity_batch_success_example_matches_its_wire_contract >docs/superpowers/journals/instruments/root/raw/replay-epoch-example.log 2>&1
 ```
+
+## Literal Python selector verification
+
+The retained one-off AST probe walks every literal Python test selector in this runner, including async functions and class members. It checks selector resolution and refuses directory/file-only Python selections; it does not claim test execution or parameter-case coverage.
+
+```sh
+python3 docs/superpowers/journals/instruments/root/raw/final-runner-ast-probe.py >docs/superpowers/journals/instruments/root/raw/replay-final-runner-ast-check.log 2>&1
+```

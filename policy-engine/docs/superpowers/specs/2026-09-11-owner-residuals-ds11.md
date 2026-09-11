@@ -117,12 +117,14 @@ Removal: AST-select only `_verify_entry`'s
 refusal and remove it **in memory**, preserving the source and test bytes.
 The unchanged HTTP negative must become red at its invalid-authentication
 assertion. Restore the exact function code and run that node unchanged again.
-Use a single literal pytest invocation with `--keep-duplicates` and an isolated
-raw plugin: the four nodes above are baseline, then the HTTP node under
-removal, then restored. Every item outcome and the expected overall exit 1
-are retained, with exactly the intended mutation failure separated from any
-other failure. Repeated nodes amortize import cost, not acceptance criteria.
-The plugin checks original method restoration and source hashes at exit.
+The initial decision used `--keep-duplicates`; execution showed pytest's
+fixture ordering collapses repeated references to the same Function object.
+That run proves the four baseline nodes only and is retained as such. The
+corrected isolated raw plugin generates baseline/removal/restored control
+phases through an unused fixture parameter on the unchanged HTTP test.
+One literal pytest invocation runs that exact node; every phase outcome and
+the expected overall exit 1 are retained. The plugin requires pass/fail/pass,
+original method restoration and identical source/test hashes at exit.
 If any other failure appears, it is unresolved until diagnosed, never a green.
 
 ## Pattern pass and acceptance boundary

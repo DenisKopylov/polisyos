@@ -50,15 +50,20 @@ This independently reproduces findings U15-F02, U15-F04 and U15-F06 in
 `docs/superpowers/specs/2026-09-10-uninvoked-ds15.md`. A test-created provider or a
 bypass of the closed bootstrap boundary would establish a different property.
 
-**OR-N13-04 — the destination is named but not registered as an active task.**
+**OR-N13-04 — the proposed name is absent; active successor allocation needs reconciliation.**
 U15-F06 assigns `DS15-MANDATE-INTAKE` to `team-runtime`: build the sanctioned governed
 deployment intake/selection and compose PA2 with actual DS20 permission proof and
 separately signed institutional currentness/delegation. The prior completion journal
 `docs/superpowers/journals/uninvoked/completion.md` repeats that named deferral.
 A complete walk of the **90 tracked Markdown files under `docs/plans/active/`, excluding
 DEBT-REGISTER.md and LEDGER.md because they are not evidence**, finds zero occurrences
-of `DS15-MANDATE-INTAKE`. This is not an active-plan registration. The architect must
-register that task; this lane must not invent a second ID or call the deferral discharged.
+of `DS15-MANDATE-INTAKE`. This establishes exact-name absence, not absence of an
+equivalent task under another name. Review additionally read DS15's closed slice,
+GY-PA2's guarded adapter, GY-AQ1's non-data predicates/re-entry, GY-CR1's candidate
+transitions and GY-CB1's operator-comprehension scopes; none explicitly appoints
+this sanctioned intake. The alias search is not exhaustive. The architect must
+reconcile the actual active successor and register a task only if no equivalent
+allocation exists; this lane neither invents another ID nor discharges the handoff.
 The named destination is team-runtime, not Foundry, N13b's data executor, or the closed
 DS15 surface lane. GY-PA2's active-plan standing is complete for its guarded adapter;
 its universal effect-intake residual is a different mechanism and is not absorbed here.
@@ -150,6 +155,20 @@ This proves the refusal boundary, not a completed production handshake. A real s
 acquisition-request witness may be added only to measure the current refusal using the
 unchanged production app/service; it must not inject a provider or claim successful
 worker execution. Until measured, HTTP request execution remains `not_established`.
+
+**OR-N13-05 — execution-stage probe refinement.** The original removal reached
+the test's `request=object()` placeholder and failed on `planner_report_hash`.
+That is a refusal-ordering witness, not a valid-input semantic proof. The retained
+raw companion is
+`docs/superpowers/journals/residuals/n13b/raw/test_valid_provider_refusal.py::test_valid_action_with_missing_provider_creates_no_attempt_reservation`.
+It supplies a strict `AcquisitionRouteMutationRequest` with matched report hash
+and replay pins, exercises the actual `_validated_mutation` and `_action_tuple`,
+and checks the durable lease directory after real `execute`. It resolves a
+bounded test closure and supplies no PA2/institutional authority. Baseline refusal
+and restored refusal pass; removing only `_require_authority_provider`'s refusal
+creates a real attempt-lease JSON and the unchanged negative fails specifically
+on that write. Source and witness bytes remain unchanged. This closes the bounded
+probe weakness without claiming full request/worker handshake authority.
 
 No source repair is authorized by this routing decision. If these witnesses reveal a
 new owner defect, bucket it under P40 and route it rather than changing closed code.

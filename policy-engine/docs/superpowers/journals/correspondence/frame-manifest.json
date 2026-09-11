@@ -1,0 +1,130 @@
+{
+  "declaration_kind": "prospective_defensive_consumer_application_not_calibration_certificate",
+  "declared_at": "2026-09-11T06:58:45.423779+00:00",
+  "lane_merge_base": "cc74d65813d7bb1259a0f82f6c3cc8b131661a97",
+  "standing_rule_ref": "correspondence-acceptance-standing-rule",
+  "rule_points": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "rule_revision": "2026-09-08 CORR replacements 3,4,5; 2026-09-10 W5 section 12",
+  "named_boundaries": [
+    "W5-K07",
+    "W4-K01",
+    "INT-K06",
+    "INT-K07"
+  ],
+  "source_files": {
+    "architecture/policy_design_case/corr/grounding-2026-09-08/frame.json": "sha256:252e0a45fdaa4f060f603b0e126ef9313e8b26f6f670b31124817c8f54df2fbd",
+    "architecture/policy_design_case/corr/grounding-2026-09-08/suite.json": "sha256:7d60f553b8859e470d9c845220b261dfeba25af45c9a9a09b14c2566b9fa5379",
+    "architecture/policy_design_case/corr/grounding_proof_world_input.json": "sha256:23bd39bbcee909c499ec64c9f0d40f598f17a0581686403196da9891dbfbf9ea",
+    "architecture/policy_design_case/legal_subject_lever_annotations.synthetic.json": "sha256:873ed1e4e4555844ab46e60107ad932cf7700c8ffc3f06560b16390d19dcca52",
+    "architecture/policy_design_case/legal_subject_norm_annotations.synthetic.json": "sha256:25daa106302454b10b0c1c9af6a0ff385d0c0a11dda3a244b6c97d5e42e44ff4",
+    "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report_v2.json": "sha256:e5c91f355ea43b30aa14fd17012e4d0949103581f57f43e12cdfefa0e8853c56"
+  },
+  "legal": {
+    "consumer_row": "s3-law-to-lever-correspondence-is-unverified",
+    "purpose": "LEGAL_GOVERNANCE_CORRESPONDENCE",
+    "stratum": "individually_resolving_numerically_compatible_scalar_ratio_pairs_requiring_legal_subject_identity",
+    "domain": "held Ukraine L6 production levers against versioned L3 lex_rule_thresholds",
+    "difficulty_rule": "existence, uniqueness, declarations, scope/time and numeric compatibility survive a constructed semantic-subject transposition",
+    "legal_as_of": "1998-01-01",
+    "challenge": "budget_allocation_multiplier and tax_relief_rate exchange real norm targets; independent marked-synthetic subject declarations unchanged",
+    "annotation_epoch": "2026-09-08",
+    "schema_epochs": {
+      "annotation": "policyos.foundry.legal_subject_annotations.v1",
+      "membership": "policyos.foundry.legal_subject_membership.v1",
+      "spine": "policyos.foundry.legal_subject_spine.v1",
+      "recognition": "policyos.foundry.legal_correspondence.v1",
+      "runtime_resolution": "policyos.runtime.intervention_substrate_lift.v3",
+      "audit_report": "v4"
+    },
+    "positive_semantic_authority": "not_established",
+    "appointment": "absent/unallocated",
+    "constructibility_proof": "not_established_for_authoritative_positive",
+    "calibration_denominator_ids": [],
+    "correctness_bound": null,
+    "future_bound_target": "P(confident-wrong legal-governance correspondence) among admitted bindings within this legal cell and its separately qualified epoch only",
+    "authority_status": "blocked"
+  },
+  "causal": {
+    "consumer_row": "cg2-production-relation-gold-acceptance-unspecified",
+    "purpose": "CAUSAL_INSTANTIATION",
+    "stratum_keys": [
+      "operator_family",
+      "target_type",
+      "domain",
+      "difficulty_tier"
+    ],
+    "selected_stratum": [
+      "budget_allocation_multiplier",
+      "float",
+      "fiscal_credit",
+      "cross_modal"
+    ],
+    "difficulty_rule_owner": "src/polisyos/runtime/quality/grounding_calibration.py::difficulty_tier",
+    "difficulty_selection": "hardest input-only tier present in the complete held frame; retain its previously declared family; no outcome-based reselection",
+    "complete_defensive_input_denominator": {
+      "path": "architecture/policy_design_case/corr/grounding-2026-09-08/frame.json",
+      "json_pointer": "/inputs"
+    },
+    "complete_constructed_negative_denominator": {
+      "path": "architecture/policy_design_case/corr/grounding-2026-09-08/suite.json",
+      "json_pointer": "/mismatches"
+    },
+    "epoch_scope": {
+      "proposer_model": "owner_input_projection_no_model",
+      "prompt_version": "no_prompt",
+      "atom_birth_cohort": "2026-09-08-owner-inputs",
+      "reference_epoch": "synthetic-refusal:f20a23c7e51a1afb"
+    },
+    "epoch_change_from_lane_base": false,
+    "campaign_operation": "defensive_replay_neither_recollection_nor_reuse_of_calibrated_positives",
+    "positive_production_epoch_scope": "not_established",
+    "positive_production_frame": "not_collected",
+    "appointment": "absent/unallocated",
+    "constructibility_proof": "not_established_for_authoritative_positive",
+    "calibration_denominator_ids": [],
+    "correctness_bound": null,
+    "label_status": "not_collected",
+    "future_bound_target": "P(confident-wrong) among gate-admitted causal bindings within one predeclared four-key cell and named epoch only",
+    "out_of_cell_policy": "refuse_to_candidate_band_custody",
+    "sampling_unit": "connected_component_of_shared_support_source_refs"
+  },
+  "gy_j": {
+    "consumer_row": "gy-j-positive-evidence-admission-producer-has-no-owner",
+    "architect_ruling": "metric_population_and_period, 2026-09-08",
+    "population": "canonical_producer_production_observations",
+    "period": "report_generation",
+    "fixture_in_numerator": false,
+    "positive_producer_owner": "absent/unallocated",
+    "candidate_lane": "runtime/quality; candidacy is not ownership",
+    "owner_investigation_scope": [
+      "src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+      "src/polisyos/runtime/quality/workspace/loop.py",
+      "src/polisyos/runtime/quality/graded_outcomes.py",
+      "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
+    ]
+  },
+  "claim_limits": {
+    "adjudication_budget_spent": false,
+    "abstentions_labelled": false,
+    "recall_claimed": false,
+    "completeness_claimed": false,
+    "operating_range_bound_claimed": false,
+    "signed_observations_are_calibration": false,
+    "publication_grade_is_gold": false,
+    "appointment_transfers_between_purposes": false,
+    "historical_negatives_become_unseen_calibration": false,
+    "gy_s3_status": "blocked"
+  },
+  "redeclaration_rule": {
+    "any_epoch_move": "immediately stale; no bound transfers; dated manifest with unchanged four keys and complete calibration denominator before adjudication",
+    "model_or_prompt_move": "recollection required; reuse forbidden",
+    "reference_only_move": "reuse only if repair proven to touch no member",
+    "new_birth_cohort": "cold_start; proof-grade-only or high-abstain until adequate effective_n"
+  }
+}

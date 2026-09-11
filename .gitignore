@@ -151,3 +151,6 @@ policy-engine/docs/superpowers/journals/apparatus/**/raw/
 
 # UNINVOKED: complete raw gate/census output stays local; receipts cite path@sha.
 policy-engine/docs/superpowers/journals/uninvoked/**/raw/
+
+# Correspondence consumers: full local deciding evidence, cited by path@sha.
+policy-engine/docs/superpowers/journals/correspondence/**/raw/

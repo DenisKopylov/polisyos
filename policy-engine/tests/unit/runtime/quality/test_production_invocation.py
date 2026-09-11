@@ -447,3 +447,79 @@ def test_deferred_function_bodies_stop_direct_paths_with_lexical_yield_detection
     assert _owner().audit_sources(normal, {})["mechanisms"]["pkg.owner.verify"]["status"] == (
         "static_path"
     )
+
+
+def test_conditional_expressions_share_declaration_and_call_walk_domains():
+    statements = (
+        "if any(verify() for item in [1]):\n        pass",
+        "if (lambda: verify())():\n        pass",
+        "if flag and any(verify() for item in [1]):\n        pass",
+        "if (any(verify() for item in [1]) if flag else False):\n        pass",
+        "while any(verify() for item in [1]):\n        break",
+        "match 1:\n        case _ if any(verify() for item in [1]):\n            pass",
+    )
+    for statement in statements:
+        sources = {
+            "src/pkg/owner.py": (
+                "def verify():\n    return False\n"
+                "def orphan():\n    return False\n"
+                "if __name__ == '__main__':\n    " + statement + "\n"
+            )
+        }
+        result = _owner().audit_sources(sources, {})
+        assert result["mechanisms"]["pkg.owner.verify"]["status"] == (
+            "unresolved_by_construction"
+        ), statement
+        assert result["regressions"] == ["pkg.owner.orphan"], statement
+        assert result["new_unresolved_by_construction"] == ["pkg.owner.verify"], statement
+
+    direct = {
+        "src/pkg/owner.py": (
+            "def verify():\n    return False\n"
+            "if __name__ == '__main__':\n    if verify():\n        pass\n"
+        )
+    }
+    assert _owner().audit_sources(direct, {})["mechanisms"]["pkg.owner.verify"]["status"] == (
+        "static_path"
+    )
+    for excluded in ("False", "TYPE_CHECKING"):
+        sources = {
+            "src/pkg/owner.py": (
+                "def verify():\n    return False\n"
+                f"if {excluded}:\n    if any(verify() for item in [1]):\n        pass\n"
+            )
+        }
+        result = _owner().audit_sources(sources, {})
+        assert result["mechanisms"]["pkg.owner.verify"]["status"] == "uninvoked"
+        assert result["indirect_boundaries"] == {}
+
+
+def test_internal_measurement_failure_is_unrun_without_admitting_a_stale_receipt(
+    tmp_path, monkeypatch, capsys
+):
+    owner = _owner()
+    for failure in (KeyError("missing AST scope"), RecursionError("AST depth unavailable")):
+        for prior in (False, True):
+            receipt = tmp_path / f"{type(failure).__name__}-{prior}.json"
+            if prior:
+                receipt.write_text('{"status": "passed", "prior_attempt": true}\n')
+            old_bytes = receipt.read_bytes() if prior else None
+
+            def unavailable(*_args, _failure=failure, **_kwargs):
+                raise _failure
+
+            monkeypatch.setattr(owner, "audit_repository", unavailable)
+            result = _invoke(
+                ["--repo-root", str(tmp_path), "--base", "HEAD", "--receipt", str(receipt)],
+                capsys,
+            )
+            assert result.returncode == 2
+            observed = json.loads(result.stdout)
+            assert observed["status"] == "UNRUN"
+            assert observed["complete_verdict"] is False
+            assert observed["error_type"] == type(failure).__name__
+            assert observed["receipt"] is None
+            assert "no receipt admitted for this attempt" in observed["summary"]
+            assert "Unmeasured:" in observed["summary"]
+            assert "Traceback" not in result.stdout
+            assert (receipt.read_bytes() if receipt.exists() else None) == old_bytes

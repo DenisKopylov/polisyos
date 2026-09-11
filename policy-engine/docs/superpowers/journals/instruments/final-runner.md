@@ -27,7 +27,9 @@ This is a one-off receipt replay document, not a new production instrument or pa
   tests/unit/runtime/quality/test_production_invocation.py::test_cli_discloses_partial_coverage_and_unrun \
   tests/unit/runtime/quality/test_production_invocation.py::test_unified_cli_discovers_the_production_invocation_command \
   tests/unit/runtime/quality/test_production_invocation.py::test_deferred_expression_bodies_do_not_supply_direct_invocation_paths \
-  tests/unit/runtime/quality/test_production_invocation.py::test_deferred_function_bodies_stop_direct_paths_with_lexical_yield_detection >docs/superpowers/journals/instruments/root/raw/replay-invocation-final-tests.log 2>&1
+  tests/unit/runtime/quality/test_production_invocation.py::test_deferred_function_bodies_stop_direct_paths_with_lexical_yield_detection \
+  tests/unit/runtime/quality/test_production_invocation.py::test_conditional_expressions_share_declaration_and_call_walk_domains \
+  tests/unit/runtime/quality/test_production_invocation.py::test_internal_measurement_failure_is_unrun_without_admitting_a_stale_receipt >docs/superpowers/journals/instruments/root/raw/replay-invocation-final-tests.log 2>&1
 ```
 
 ## ci-scanners-final-tests
@@ -472,4 +474,12 @@ Working directory: product root. This separate frozen environment includes the `
 
 ```sh
 .tmp/instrument-solvers-venv/bin/python -m pytest tests/unit/runtime/quality/test_grounding_risk.py::test_restart_and_missing_head_cannot_reset_spend -vv >docs/superpowers/journals/instruments/coverage/raw/replay-grounding-risk-provisioned.log 2>&1
+```
+
+## Copied generated-config corruption
+
+This retained one-off probe derives its full file set from the canonical producer, corrupts isolated copies, and invokes the existing byte-drift consumer. It never alters governed files.
+
+```sh
+env PYTHONPATH=src:. .venv/bin/python docs/superpowers/journals/instruments/root/raw/tool-config-corruption-probe.py >docs/superpowers/journals/instruments/root/raw/replay-tool-config-corruption.log 2>&1
 ```

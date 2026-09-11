@@ -159,6 +159,16 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
         scope.deferred_body = _deferred_body(node)
         return scope
 
+    def active_children(node: ast.AST) -> list[ast.AST]:
+        # Declaration and call walks must inspect the same conditional domain.
+        # In particular, predicates can themselves contain deferred scopes.
+        if isinstance(node, ast.If):
+            if isinstance(node.test, ast.Constant):
+                return node.body if node.test.value else node.orelse
+            if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
+                return []
+        return list(ast.iter_child_nodes(node))
+
     def declarations(nodes: list[ast.AST], scope: _Scope) -> None:
         for node in nodes:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
@@ -192,16 +202,10 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
                         scope.bindings[alias.asname or alias.name.split(".")[0]] = (
                             alias.name if alias.asname else alias.name.split(".")[0]
                         )
-            elif isinstance(node, ast.If):
-                if isinstance(node.test, ast.Constant):
-                    declarations(node.body if node.test.value else node.orelse, scope)
-                elif not (isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING"):
-                    declarations(node.body, scope)
-                    declarations(node.orelse, scope)
             else:
                 # Statement containers do not create lexical scopes. Derive their
                 # children from the grammar, not an enumerated list of containers.
-                declarations(list(ast.iter_child_nodes(node)), scope)
+                declarations(active_children(node), scope)
 
     for path, source in sorted(sources.items()):
         module = _module(path)
@@ -298,20 +302,13 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
             for statement in node.body:
                 walk(statement, child)
             return
-        if isinstance(node, ast.If):
-            if _entry_guard(node) and scope.parent is None:
-                root = register(node, scope, f"{scope.name}:<entry>")
-                if not scope.path.startswith("tests/"):
-                    roots.add(root.name)
-                for statement in node.body:
-                    walk(statement, root, entry=True)
-                return
-            if isinstance(node.test, ast.Constant):
-                for statement in node.body if node.test.value else node.orelse:
-                    walk(statement, scope, entry=entry)
-                return
-            if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
-                return
+        if isinstance(node, ast.If) and _entry_guard(node) and scope.parent is None:
+            root = register(node, scope, f"{scope.name}:<entry>")
+            if not scope.path.startswith("tests/"):
+                roots.add(root.name)
+            for statement in node.body:
+                walk(statement, root, entry=True)
+            return
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             value = node.value
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
@@ -354,7 +351,7 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
                     scope.unresolved_receivers.append(evidence)
             for argument in [*node.args, *(keyword.value for keyword in node.keywords)]:
                 values(argument, scope)
-        for child in ast.iter_child_nodes(node):
+        for child in active_children(node):
             walk(child, scope, entry=entry)
 
     for scope in list(scopes.values()):
@@ -587,26 +584,10 @@ def main(argv: list[str] | None = None) -> int:
         result = audit_repository(args.repo_root, args.base, deferrals=decisions)
         if args.check is not None and json.loads(args.check.read_text()) != result:
             raise ValueError("invocation_receipt_drift")
-        args.receipt.parent.mkdir(parents=True, exist_ok=True)
-        args.receipt.write_text(json.dumps(result, indent=2) + "\n")
-        if json.loads(args.receipt.read_text()) != result:
-            raise ValueError("invocation_receipt_readback_mismatch")
-    except (OSError, ValueError, SyntaxError, subprocess.CalledProcessError) as exc:
-        sys.stdout.write(
-            json.dumps(
-                {
-                    "status": "UNRUN",
-                    "complete_verdict": False,
-                    "reason": str(exc),
-                    "summary": "UNRUN: no complete verdict. " + _SUMMARY,
-                    "unmeasured": _UNMEASURED,
-                }
-            )
-            + "\n"
+        exit_code = (
+            1 if result["regressions"] else 3 if result["new_unresolved_by_construction"] else 0
         )
-        return 2
-    sys.stdout.write(
-        json.dumps(
+        completed_output = json.dumps(
             {
                 "status": (
                     "FAILED"
@@ -628,9 +609,31 @@ def main(argv: list[str] | None = None) -> int:
                 "runtime_invocation_established": False,
             }
         )
-        + "\n"
-    )
-    return 1 if result["regressions"] else 3 if result["new_unresolved_by_construction"] else 0
+        args.receipt.parent.mkdir(parents=True, exist_ok=True)
+        args.receipt.write_text(json.dumps(result, indent=2) + "\n")
+        if json.loads(args.receipt.read_text()) != result:
+            raise ValueError("invocation_receipt_readback_mismatch")
+    except Exception as exc:  # No complete measurement may escape as an ordinary finding.
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "status": "UNRUN",
+                    "complete_verdict": False,
+                    "error_type": type(exc).__name__,
+                    "reason": str(exc),
+                    "receipt": None,
+                    "summary": (
+                        "UNRUN: no complete verdict; no receipt admitted for this attempt. "
+                        + _SUMMARY
+                    ),
+                    "unmeasured": _UNMEASURED,
+                }
+            )
+            + "\n"
+        )
+        return 2
+    sys.stdout.write(completed_output + "\n")
+    return exit_code
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ const scratchRoot = path.resolve(
 const fixtures: string[] = [];
 const metrics = ["lines", "statements", "functions", "branches"] as const;
 
-function fixture(covered = 100) {
+function fixture(covered = 100, zeroPopulationPercentage?: number) {
   fs.mkdirSync(scratchRoot, { recursive: true });
   const root = fs.mkdtempSync(path.join(scratchRoot, "report-"));
   fixtures.push(root);
@@ -53,6 +53,16 @@ function fixture(covered = 100) {
     total: structuredClone(entry),
     [source]: entry,
   };
+  const zeroSource = path.join(dashboard, "src/api/hooks/empty.ts");
+  if (zeroPopulationPercentage !== undefined) {
+    fs.writeFileSync(zeroSource, "export type Empty = never;\n");
+    summary[zeroSource] = Object.fromEntries(
+      metrics.map((metric) => [
+        metric,
+        { total: 0, covered: 0, skipped: 0, pct: zeroPopulationPercentage },
+      ]),
+    );
+  }
   const summaryPath = path.join(
     root,
     "_build/apps/runtime-dashboard/coverage/coverage-summary.json",
@@ -78,7 +88,7 @@ function fixture(covered = 100) {
       output: `${result.stdout}${result.stderr}`,
     };
   };
-  return { dashboard, source, summary, summaryPath, write, run };
+  return { dashboard, source, zeroSource, summary, summaryPath, write, run };
 }
 
 afterEach(() => {
@@ -187,4 +197,87 @@ describe("coverage ratchet measurement verdict", () => {
     expect(result.status).toBe(2);
     expect(result.output).toContain("tolerance");
   });
+
+  it.each([0, 100])(
+    "accepts zero-population reporter convention %i without treating it as execution",
+    (percentage) => {
+      const report = fixture(100, percentage);
+      const result = report.run();
+      expect(result.status).toBe(0);
+      expect(result.output).toContain("2/2 configured source files reconciled");
+      expect(result.output).toContain(
+        "0/0 records carry no execution observations",
+      );
+      expect(result.output).toContain(
+        "0% and 100% are reporter representations",
+      );
+      expect(result.output).toContain("statements: 100/100 = 100.00%");
+    },
+  );
+
+  it("rejects omission of a zero-population source record", () => {
+    const report = fixture(100, 100);
+    delete report.summary[report.zeroSource];
+    report.write();
+    const result = report.run();
+    expect(result.status).toBe(2);
+    expect(result.output).toContain(
+      "unmeasured source file: src/api/hooks/empty.ts",
+    );
+    expect(result.output).not.toContain("Coverage ratchet passed");
+  });
+
+  it("rejects an arbitrary zero-population percentage", () => {
+    const report = fixture(100, 50);
+    const result = report.run();
+    expect(result.status).toBe(2);
+    expect(result.output).toContain("empty.ts.lines");
+    expect(result.output).not.toContain("Coverage ratchet passed");
+  });
+
+  it("rejects covered items in a zero-population metric", () => {
+    const report = fixture(100, 100);
+    report.summary[report.zeroSource].statements.covered = 1;
+    report.write();
+    const result = report.run();
+    expect(result.status).toBe(2);
+    expect(result.output).toContain("empty.ts.statements");
+  });
+
+  it.each([0, 100])(
+    "rejects a forged nonzero-population percentage %i",
+    (percentage) => {
+      const report = fixture(50);
+      report.summary[report.source].statements.pct = percentage;
+      report.write();
+      const result = report.run();
+      expect(result.status).toBe(2);
+      expect(result.output).toContain("useExample.ts.statements");
+    },
+  );
+
+  it.each([0, 100])(
+    "reports a zero-population aggregate as unrun for %i",
+    (percentage) => {
+      for (const metric of metrics) {
+        const report = fixture();
+        report.summary[report.source][metric] = {
+          total: 0,
+          covered: 0,
+          skipped: 0,
+          pct: percentage,
+        };
+        report.summary.total[metric] = structuredClone(
+          report.summary[report.source][metric],
+        );
+        report.write();
+        const result = report.run();
+        expect(result.status).toBe(2);
+        expect(result.output).toContain(
+          `total.${metric}: no population for an execution verdict`,
+        );
+        expect(result.output).not.toContain("Coverage ratchet passed");
+      }
+    },
+  );
 });

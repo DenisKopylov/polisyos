@@ -40,7 +40,9 @@ function validateMetric(value, label) {
     value.covered < 0 ||
     value.covered > value.total ||
     !Number.isFinite(value.pct) ||
-    value.pct !== percentage(value.total, value.covered)
+    (value.total === 0
+      ? value.pct !== 0 && value.pct !== 100
+      : value.pct !== percentage(value.total, value.covered))
   ) {
     throw new Error(
       `${label}: missing or inconsistent coverage counts/percentage`,
@@ -78,6 +80,7 @@ function measuredSummary(summary, scope) {
     throw new Error("Coverage summary is not an object");
   }
   const measured = new Set();
+  let zeroPopulationMetrics = 0;
   const totals = Object.fromEntries(
     metrics.map((metric) => [metric, { total: 0, covered: 0 }]),
   );
@@ -92,6 +95,7 @@ function measuredSummary(summary, scope) {
       omissions.push(`source record outside configured scope: ${file}`);
     for (const metric of metrics) {
       validateMetric(record?.[metric], `${file}.${metric}`);
+      if (record[metric].total === 0) zeroPopulationMetrics += 1;
       totals[metric].total += record[metric].total;
       totals[metric].covered += record[metric].covered;
     }
@@ -114,9 +118,17 @@ function measuredSummary(summary, scope) {
         `total.${metric}: aggregate counts do not reconcile with file records`,
       );
     }
+    if (aggregate.total === 0) {
+      throw new Error(
+        `total.${metric}: no population for an execution verdict`,
+      );
+    }
   }
   console.log(
     `Measured file set: ${measured.size}/${expected.size} configured source files reconciled`,
+  );
+  console.log(
+    `Zero-population source metrics: ${zeroPopulationMetrics} present 0/0 records carry no execution observations; 0% and 100% are reporter representations.`,
   );
   return summary.total;
 }

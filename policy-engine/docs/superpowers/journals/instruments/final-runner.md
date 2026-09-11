@@ -447,6 +447,15 @@ Working directory: `policy-engine/apps/runtime-dashboard`. The complete literal 
 - `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > rejects an aliased duplicate record instead of double-counting its source
 - `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > reports a missing metric as unmeasured rather than a coverage shortfall
 - `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > rejects invalid tolerance instead of silently passing a measured shortfall
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > accepts zero-population reporter convention 0 without treating it as execution
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > accepts zero-population reporter convention 100 without treating it as execution
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > rejects omission of a zero-population source record
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > rejects an arbitrary zero-population percentage
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > rejects covered items in a zero-population metric
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > rejects a forged nonzero-population percentage 0
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > rejects a forged nonzero-population percentage 100
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > reports a zero-population aggregate as unrun for 0
+- `scripts/check-coverage-ratchet.test.ts` — coverage ratchet measurement verdict > reports a zero-population aggregate as unrun for 100
 - `src/app/layout/GlobalShortcuts.test.tsx` — GlobalShortcuts component contract > navigates through registered keyboard actions and removes them on unmount
 - `src/app/layout/GlobalShortcuts.test.tsx` — GlobalShortcuts component contract > shows discoverable shortcut help while preserving ordinary typing
 - `src/app/layout/GlobalShortcuts.test.tsx` — GlobalShortcuts component contract > persists sidebar and density actions and applies theme changes
@@ -466,6 +475,41 @@ Working directory: `policy-engine/apps/runtime-dashboard`. The complete literal 
 
 ```sh
 corepack pnpm exec vitest run scripts/check-coverage-ratchet.test.ts src/app/layout/GlobalShortcuts.test.tsx src/features/runs/components/ReproduceRunButton.test.tsx src/api/hooks/useScenarioCapabilities.test.tsx --maxWorkers=1 --testTimeout=20000 --hookTimeout=20000 --reporter=verbose >../../docs/superpowers/journals/instruments/coverage/raw/replay-focused-behavior.log 2>&1
+```
+
+The final zero-population consumer wave executes the 19 ratchet nodes explicitly
+listed above, separately from the earlier full coverage result:
+
+```sh
+corepack pnpm exec vitest run scripts/check-coverage-ratchet.test.ts --project=unit --maxWorkers=1 --reporter=verbose >../../docs/superpowers/journals/instruments/coverage/raw/replay-zero-population-ratchet.log 2>&1
+```
+
+```sh
+corepack pnpm exec eslint scripts/check-coverage-ratchet.mjs scripts/check-coverage-ratchet.test.ts >../../docs/superpowers/journals/instruments/coverage/raw/replay-zero-population-eslint.log 2>&1
+```
+
+```sh
+corepack pnpm exec prettier --check scripts/check-coverage-ratchet.mjs scripts/check-coverage-ratchet.test.ts >../../docs/superpowers/journals/instruments/coverage/raw/replay-zero-population-format.log 2>&1
+```
+
+The actual report consumer remains the registered package script's existing
+command. It reads the immutable completed-wave summary from its standard output
+location and reconciles all 281 configured files:
+
+```sh
+node ./scripts/check-coverage-ratchet.mjs >../../docs/superpowers/journals/instruments/coverage/raw/replay-coverage-ratchet-admitted.log 2>&1
+```
+
+Product-root working directory for the following retained negative. Its isolated
+copy now contains the deliberately corrupted aggregate (covered count minus
+one, percentage recalculated); every file record remains intact. The original
+report is untouched. The expected result is UNRUN/2 for aggregate reconciliation,
+not an empty-source or missing-report error. The earlier clean copied control
+is separately retained in `zero-population-actual-report-positive.log`; this
+command replays the negative's current retained state.
+
+```sh
+node docs/superpowers/journals/instruments/coverage/raw/zero-population-actual-report-probe/apps/runtime-dashboard/scripts/check-coverage-ratchet.mjs >docs/superpowers/journals/instruments/coverage/raw/replay-zero-population-actual-report-corruption.log 2>&1
 ```
 
 ## Grounding restart under declared solver provisioning
@@ -666,4 +710,16 @@ Back in the product root, the complete comparison first requires both captures t
 
 ```sh
 .venv/bin/python docs/superpowers/journals/instruments/root/raw/openapi-station-binding-comparison.py >docs/superpowers/journals/instruments/root/raw/replay-openapi-station-binding-comparison.log 2>&1
+```
+
+## Final local branch readback
+
+Working directory: `/Users/deniskopylov/polisyos/.worktrees/instrument-honesty`.
+Run only after the final documentation commit. This one-off receipt reads every
+changed file back from the attached branch, verifies deleted paths and the clean
+tree, and checks protected files and the complete post-freeze mechanism delta.
+It performs no test suite, baseline update, merge or push.
+
+```sh
+policy-engine/.venv/bin/python policy-engine/docs/superpowers/journals/instruments/root/raw/final-delivery-readback.py >policy-engine/docs/superpowers/journals/instruments/root/raw/replay-final-delivery-readback.log 2>&1
 ```

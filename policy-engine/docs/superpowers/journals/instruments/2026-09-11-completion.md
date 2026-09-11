@@ -52,15 +52,30 @@ call path. No runtime invocation or persisted business evidence is inferred.
 
 ### Dashboard statement adequacy
 
-The first full Vitest run completed without producing a coverage report (exit 1, 3,191.52 seconds). Six outer fixture watchdogs expired and one PNG-name removal probe removed a non-PNG companion; these are distinct classes. The actual ratchet reports the absent report as UNRUN/2. The reviewed repair decision was committed and read back in `1e7d1cebb` before source edits; a fresh full replay remains required. The binding floor remains
-85.57%, tolerance remains zero, and coverage globs remain unchanged. New tests
-exercise shortcuts, reproduction navigation, and scenario-capability behavior
-through real UI/query boundaries. They are behavioral tests with removal
-negatives, not tests that merely execute lines. Historical ownership remains
-`not_established`: no complete earlier coverage report establishes attribution.
-The export census also found that `GlobalShortcuts`, `ReproduceRunButton`, and `useScenarioCapabilities`
-exports do not currently have production consumers; that `bridge_missing`
-limitation is separate from whether their source was exercised.
+Closed: the final full Vitest producer exits 0 in 643.40 seconds, with
+7,154 / 8,277 statements = **86.43%**, above the unchanged **85.57%** floor.
+All four unchanged metric floors pass the corrected ratchet (exit 0); tolerance
+remains zero and all 281 configured source files reconcile with the report.
+The full wave passed 409 test files and 1,826 tests, with one file and two tests
+explicitly skipped. Complete output and the original report remain under ignored
+`coverage/raw/`; no hosted CI success is inferred.
+
+The first full attempt supplied no report after six fixture watchdog expirations
+and a removal probe that selected a non-PNG companion. The retained absent-report
+ratchet correctly reports UNRUN/2. After the committed fixture repair, the final
+complete report exposed a separate zero-population reporter representation case;
+that consumer repair was specified, independently reviewed, tested red-first,
+and committed in `fb43c1deb3c13c807f86fd7ebfcbbe200dd2d1ca`. All covered source
+bytes remain identical to the successful wave, so the final consumer admission
+uses that immutable report. Both earlier incomplete verdicts remain visible.
+
+New tests exercise shortcuts, reproduction confirmation, and scenario-capability
+behavior through real UI/query boundaries, with actual behavior-removal negatives.
+Historical ownership remains `not_established`: no complete earlier coverage
+report establishes attribution. The export census also found that
+`GlobalShortcuts`, `ReproduceRunButton`, and `useScenarioCapabilities` currently
+have no discovered production consumers in its declared source denominator.
+That `bridge_missing` limitation remains separate from exercised source.
 
 ### Original CI per-item repair
 
@@ -104,7 +119,12 @@ The following are the actual output scopes, not documentary waivers.
   code outside the configured coverage globs, backend behavior, or hosted CI.”
   Missing, stale-scope, malformed and inconsistent reports are UNRUN, distinct
   from a complete below-floor FAILED result. UI removal probes fail when the
-  actual behavior is removed.
+  actual behavior is removed. The final report also prints: “Zero-population
+  source metrics: 60 present 0/0 records carry no execution observations; 0% and
+  100% are reporter representations.” Removing an empty source record remains
+  UNRUN, as do impossible counts, forged percentages and an observation-free
+  aggregate. A copied actual report with a coherent but false aggregate is
+  specifically rejected for aggregate/file-count nonreconciliation.
 - Package/import gate: “Not measured: runtime import execution, framework
   invocation, semantic correctness, dependency installation, or hosted CI. Root
   Python classification excludes untracked and ignored Python; absent local-only
@@ -210,6 +230,13 @@ Incidental destinations:
 - Grounding-relation instrument research backlog: missing solver yields UNKNOWN candidate results and a refused bind, while the certificate can default its top-level solver status to SAT and omit the unavailable reason. No authority false green was observed; solver provisioning and CAS persistence are distinct predicates.
 - Runtime owner-validator/station owners: timeouts and absent canonical inputs
   receive no complete behavior verdict; exact final dispositions follow below.
+- Scientist workflow registry/integration backlog: the extra phase2 importer
+  reaches `UnknownNodeError: scientist.node_build_literature_prior@1.0.0`.
+  Its workflow/registry composition and introducing ownership remain unresolved;
+  the original six Runtime/Fabric failure nodes have their separate positives.
+- Dashboard test-harness backlog: non-failing React `act(...)` warnings remain
+  visible in the complete full Vitest log. They do not establish a production
+  behavior failure or a coverage deficit; this slice does not change those tests.
 - Explicit nowhere: failed offline cache attempts, pre-provisioning mutation
   results, temporary test-fixture setup errors and superseded corpus-recovery
   attempts. Retained for provenance, excluded from product verdicts.
@@ -225,7 +252,7 @@ The first full registered invocation census produced no receipt: `KeyError` esca
 
 ## Original C-CI item handback
 
-The table denominator is all 70 original C-CI Markdown table IDs in `docs/superpowers/specs/2026-09-10-apparatus-station-and-ci.md@cc74d6581`: Fast, Standard, Runtime, Fabric and Canary, including original successes, skips, cancellations and aggregates. Original failed-job bytes are preserved under `root/raw/run-34196405835-failed.log`, `run-34196405796-failed.log`, `run-34196405891-failed.log`, `run-34196405795-failed.log` and `run-34196405782-failed.log`; their hashes were independently reconciled. Those historical logs establish historical findings, never current source ownership. Receipt paths in this table are relative to this journal directory.
+The table denominator is all 70 distinct original C-CI Markdown table IDs in `docs/superpowers/specs/2026-09-10-apparatus-station-and-ci.md@cc74d6581`: Fast, Standard, Runtime, Fabric and Canary, including original successes, skips, cancellations and aggregates. Repeated station-summary references are reconciled to those same IDs, not counted as new findings. Original failed-job bytes are preserved under `root/raw/run-34196405835-failed.log`, `run-34196405796-failed.log`, `run-34196405891-failed.log`, `run-34196405795-failed.log` and `run-34196405782-failed.log`; their hashes were independently reconciled. Those historical logs establish historical findings, never current source ownership. Receipt paths in this table are relative to this journal directory.
 
 | Original ID | Local disposition | Deciding evidence / remaining measurement | Named destination / boundary |
 | --- | --- | --- | --- |
@@ -255,9 +282,9 @@ The table denominator is all 70 original C-CI Markdown table IDs in `docs/superp
 | CI-F24 | Unmeasured hosted boundary: skipped | Historical ABI job never completed. Current bounded schema/client commands do not establish its full hosted verdict. | Hosted ABI workflow owner; future authorized hosted run, not this local lane. |
 | CI-F25 | Unmeasured hosted boundary: skipped | Historical dependency review has no completed verdict; push/PR event conditions remain material. | Dependency-review workflow owner; no local or hosted success inferred. |
 | CI-F26 | Derived failure, no independent repair | Historical aggregate Gate failed its dependencies. It is not another product defect and this lane does not execute a replacement hosted aggregate. | Explicit nowhere as a standalone defect; preserve dependency-derived failure and individual rows. |
-| CI-S01 | FULL_COVERAGE_PENDING | Exact file apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts must complete, including real Python-child persistence and corruption behavior. Historical class is missing jsonschema before persistence. | Dashboard evidence/Python provisioning seam. No current verdict until full-coverage output; no fabricated evidence admission. |
-| CI-S02 | FULL_COVERAGE_PENDING | Exact file apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts must complete. Its original class is executable-provenance mismatch, distinct from missing jsonschema. | Dashboard evidence provenance owner; selected executable identity and rejection of forged evidence remain the falsifier. |
-| CI-S03 | FULL_COVERAGE_PENDING | Exact file apps/runtime-dashboard/src/shared/lib/domain/workflow.test.ts must complete including source-flip negative. Original child error was missing jsonschema. | Dashboard workflow vocabulary/Python provisioning seam; separate observation from automated capture. |
+| CI-S01 | Exact original file completed in successful full wave | apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts completes in coverage/raw/full-vitest-coverage-final.log (exit 0), including the actual Core persistence/corruption and poisoned-PATH negatives. Historical class was missing jsonschema before persistence. | Dashboard evidence/Python provisioning seam; no fabricated evidence admission or hosted success inferred. |
+| CI-S02 | Exact original file completed in successful full wave | apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts completes in coverage/raw/full-vitest-coverage-final.log (exit 0), including stable provenance-mismatch negatives. Its original class is executable-provenance mismatch, distinct from missing jsonschema. | Dashboard evidence provenance owner; selected executable identity and rejection of forged evidence remain the falsifier. No hosted result inferred. |
+| CI-S03 | Exact original file completed in successful full wave | apps/runtime-dashboard/src/shared/lib/domain/workflow.test.ts completes in coverage/raw/full-vitest-coverage-final.log (exit 0), including the C22d source-flip negative. Original child error was missing jsonschema. | Dashboard workflow vocabulary/Python provisioning seam; separate observation from automated capture and no hosted result inferred. |
 | CI-S04 | Working-checkout byte contracts passed; isolated OpenAPI freshness failed | Final registered runtime contract check passes against this checkout (`root/raw/runtime-contract-r03-final.log`, exit 0). Frozen guardrails rejects the isolated OpenAPI binding bytes; the complete two-station worker comparison identifies ambient build-directory/lookup bindings. Shared-client/dashboard producers and normalizer-removal negative pass separately; no generated TypeScript byte change. | Runtime schema/client and generated-artifact architect: canonical example station decision remains open. Client behavior and hosted frontend contract execution remain unmeasured; a checkout pass is not universal freshness. |
 | CI-S05 | Repair implemented; directory-final.log exit 0 (complete declared scope) | Actual vendor role admitted in shared directory policy, independently of package-root policy. | Directory/vendoring owner; final directory finding set decides this subject and its derived coverage. |
 | CI-S06 | Repair implemented; directory-final.log exit 0 (complete declared scope) | Exact fixture role admitted for apps/runtime-dashboard/src/features/trust/components/__fixtures__. | Dashboard/architecture fixture-role owner; no threshold widening. |
@@ -340,9 +367,64 @@ The pre-R03 post-copy trust-posture validation completed: `root/raw/trust-final-
 
 Handback review found a NEW P38 selected-witness mismatch for R03: a resolvable sibling test was mistaken for the original strict node. The source table and original runtime log name `test_epoch_batch_success_example_is_owner_derived_and_strict`; complete-file AST and body inspection distinguish its `review_required` assertion from the passed wire-format sibling. All dependent R03/runner descriptions are corrected. The exact original red, subsequent owner-bridge repair, positive and registration-removal negative are recorded below. The earlier sibling receipt remains valid only for its narrower assertions. Destination: witness-selection rule P33/P38; the actual original red, rather than the documentation error, justified the source repair.
 
-The fixture repair is committed and read back in `8ab32c51ffcf9887bc96bcaefe525704b1c16d1b`. Focused replay passes six earlier failure witnesses, including the five census assertions after the formerly unfinished hook, plus the real-child timeout negative (`coverage/raw/fixture-watchdog-focused.log`, exit 0, eleven nodes). The seventh witness, the Atlas stable arm, passes with the actual Atlas producer/admission bodies (`fixture-watchdog-producers.log`, exit 0, four nodes). Those two gates together exercise all seven original witnesses. The first unavailable-case regex matched none; the corrected explicit declaration replay passes all six cases (`fixture-watchdog-unavailable.log`, exit 0). No skipped case is counted as passed. Named TypeScript roots, lint and format checks pass; the review confirms unchanged test callback bodies except the intended actual-PNG probe. The full suite remains the separate statement-adequacy deliverable.
+The fixture repair is committed and read back in `8ab32c51ffcf9887bc96bcaefe525704b1c16d1b`. Focused replay passes six earlier failure witnesses, including the five census assertions after the formerly unfinished hook, plus the real-child timeout negative (`coverage/raw/fixture-watchdog-focused.log`, exit 0, eleven nodes). The seventh witness, the Atlas stable arm, passes with the actual Atlas producer/admission bodies (`fixture-watchdog-producers.log`, exit 0, four nodes). Those two gates together exercise all seven original witnesses. The first unavailable-case regex matched none; the corrected explicit declaration replay passes all six cases (`fixture-watchdog-unavailable.log`, exit 0). No skipped case is counted as passed. Named TypeScript roots, lint and format checks pass; the review confirms unchanged test callback bodies except the intended actual-PNG probe. The subsequent successful full wave and unchanged-floor ratchet close statement adequacy, as recorded below.
 
-The whole-tree guardrails snapshot and full Vitest execution are serialized. The workflow source-flip witness uses in-memory `source_overrides`, and a complete direct/member TypeScript mutation census finds scratch-owned destinations; arbitrary aliases, embedded subprocesses and dependency side effects remain unmeasured. That bounded census does not justify a universal no-write guarantee, so guardrails runs alone under a total tracked-write freeze.
+The whole-tree guardrails snapshot and full Vitest execution were serialized. The workflow source-flip witness uses in-memory `source_overrides`, and a complete direct/member TypeScript mutation census finds scratch-owned destinations; arbitrary aliases, embedded subprocesses and dependency side effects remain unmeasured. That bounded census does not justify a universal no-write guarantee, so guardrails ran alone under a total tracked-write freeze.
+
+The final dashboard wave, `coverage/raw/full-vitest-coverage-final.log`, exits 0
+in 643.40 seconds at the source freeze `cd47224077c647845e633095b5efdc0f35c15cbe`.
+Its complete output reports 409 passed/one skipped files and 1,826 passed/two
+skipped tests. The skipped declarations are the native-receipt case in
+`confidenceLedgerRiskSpendTwin.test.tsx` and the owner-index rendering case in
+`CapabilityDiscoveryPanel.free-growth.test.tsx`; they remain unmeasured by those
+declarations. The separate native-browser project executed its own cases.
+
+The immutable report is
+`coverage/raw/full-vitest-coverage-final-summary.json@sha256:0892db8145a7351062030f3cdec4f0ab67f37f0746aff7508ec959db9d0179f2`.
+`coverage/raw/coverage-ratchet-admitted-final.log` exits 0 with these reconciled
+measurements; the source set is 281/281 and configured tolerance is zero:
+
+| Metric | Covered / total | Measured | Unchanged enforced floor |
+| --- | --- | --- | --- |
+| Statements | 7,154 / 8,277 | 86.43% | 85.57% |
+| Lines | 6,966 / 7,986 | 87.22% | 85.82% |
+| Functions | 2,148 / 2,470 | 86.96% | 85.02% |
+| Branches | 6,350 / 8,549 | 74.27% | 72.16% |
+
+The first consumer attempt on this complete report was UNRUN, retained in
+`coverage/raw/coverage-ratchet-final.log`. It correctly refused an unrecognized
+representation, but the assumed 0/0 percentage was wrong for the actual reporter
+chain. The installed Istanbul owner probe executes JSON reporting both directly
+and after HTML and reproduces 100 versus 0 for the same empty map. The refinement
+was committed/read back in `8035a21015386547fe78110fd0ffe41176dd1cbc` before its
+intended red (`zero-population-ratchet-red.log`, exit 1), then all 19 named
+ratchet cases pass (`zero-population-ratchet-green.log`, exit 0). These later
+nine added cases are not retroactively counted in the earlier full-wave total.
+The consumer accepts only 0 or 100 when both counts are zero, preserves every
+nonzero arithmetic/file-membership check, and refuses any zero aggregate as
+UNRUN. The two reviewed/tested files were committed and read back from the
+attached branch in `fb43c1deb3c13c807f86fd7ebfcbbe200dd2d1ca`.
+
+Complete denominator inspection proves both edited script paths are outside the
+covered source set. All 281 covered source files and the producer configuration,
+scope and baseline remain byte-identical to the full-wave freeze; the aggregate
+source-content digest is
+`2402b89c3350bc5e836a4cbac21a29d31658be1949c43361f0e5ee0b97e51442`.
+The actual report's copied control passes (exit 0). Changing only its aggregate
+statement covered count from 7,154 to 7,153 and consistently recalculating its
+percentage produces UNRUN/2 specifically for aggregate/file-count disagreement.
+The complete 281-file records, original report bytes and source bytes remain
+unchanged (`zero-population-final-invariance.log`, exit 0). This source and
+report evidence, plus the targeted consumer replay, justifies retaining the
+completed full run. It supplies no universal report-freshness or assertion-quality
+guarantee beyond the named wave.
+
+The canonical example-station absence is scoped to the inspected Runtime
+manifest/export/service/worker/dependency chain and two concrete reuse candidates,
+as recorded in `coverage/raw/canonical-openapi-station-inspection.md`. It is
+`absent/unallocated` in that chain, not a repository-wide absence claim. Its
+source references are eleven complete files at the frozen commit; no search
+index is used as proof that an implementation cannot exist elsewhere.
 
 ## Canonical implementation references
 
@@ -351,7 +433,8 @@ These pins identify committed owners, rather than copied source or derived file 
 - `tools/quality/validation/repository_structure_phase0.py@e9e1ba21844c57b04599d04186f461ea38105b91`
 - `src/polisyos/runtime/quality/production_invocation.py@5b5d67b644c72aee8fd08fb8595aef383e2e7d14`
 - `tools/quality/validation/check_production_invocation.py@453d21b89878a8c5154f1614b99f24268a8d0475`
-- `apps/runtime-dashboard/scripts/check-coverage-ratchet.mjs@42da749db15a5fbe5199d9c9fb174bd044460d3c`
+- `apps/runtime-dashboard/scripts/check-coverage-ratchet.mjs@fb43c1deb3c13c807f86fd7ebfcbbe200dd2d1ca`
+- `apps/runtime-dashboard/scripts/check-coverage-ratchet.test.ts@fb43c1deb3c13c807f86fd7ebfcbbe200dd2d1ca`
 - `apps/runtime-dashboard/vitest.config.ts@42da749db15a5fbe5199d9c9fb174bd044460d3c`
 - `apps/runtime-dashboard/src/test/evidence/persistenceProcessResult.ts@8ab32c51ffcf9887bc96bcaefe525704b1c16d1b`
 - `apps/runtime-dashboard/src/test/contracts/visualRegressionHarness.test.ts@8ab32c51ffcf9887bc96bcaefe525704b1c16d1b`
@@ -377,3 +460,35 @@ The final R03 working-checkout export passes the complete JSON scope probe in `r
 - `tests/unit/runtime/http/test_runtime_api_contract_hardening.py@b6e5db7b60b86ba73eeddd62e9a90f02844f825c`
 
 The final generated artifacts were committed and read back byte-for-byte in `1012ee05f03a96bb545e25cde36ac581d3ae0df7`: `schemas/runtime_api_v1.openapi.json@1012ee05f03a96bb545e25cde36ac581d3ae0df7` and `apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json@1012ee05f03a96bb545e25cde36ac581d3ae0df7`. They exactly equal their retained canonical producer bytes. `root/raw/runtime-contract-r03-final.log`, `trust-r03-final-check.log`, and `trust-r03-corrupt-field.log` all exit 0; the last succeeds because the actual validator rejects its corrupted payload digest. Those receipts supersede the earlier source-state freshness receipts without erasing them. The final package measurement is `root/raw/package-r03-final.log` (completed FAILED/1, no traceback); its complete finding-record classes and identities, supplemented by the full owner-derived edge census rather than a count comparison, support the per-item handback above.
+
+## Receipt custody and final delivery boundary
+
+The three local raw indexes are pinned by SHA-256 of their literal bytes:
+
+- `root/raw/receipt-index.json@sha256:2823fade7b02681c20d29cb271dc446df3b7675f57278aa6ef11d2ffa1df8fd6`
+- `coverage/raw/receipt-index.json@sha256:c85142cb596d0d406d3ec70d013483c348dbbf5db6953cfb8afa28333aab4255`
+- `invocation/raw/receipt-index.json@sha256:6e248660a0ad1d14878dd953278a524e3cada330d41a0f3c491231bbea5b6a3a`
+
+The complete indexed-log audit checks each index's actual array (`runs` for root
+and coverage; `receipts` for invocation), including literal-byte and separately
+labeled Git-blob identities. The earlier runs-only diagnostic did not inspect
+invocation receipts and supplies no such verdict. The CI identity audit walks
+the complete original document and reconciles repeated references to distinct
+IDs; earlier delimiter/occurrence-based attempts supply no identity-set verdict.
+These diagnostic mistakes route to explicit nowhere beyond this corrected
+evidence process; they are neither product findings nor inherited debt.
+
+The runner's Python selectors resolve through complete ASTs, including async
+functions and class members. Its 19 final ratchet nodes match actual executed
+Vitest identities. Explicit output destinations are separate replay paths;
+this says nothing about arbitrary transitive program writes. The original
+deciding logs and report stay in ignored raw storage. No raw receipt is a
+replacement for the source or its declared scope.
+
+Final delivery is guarded by `root/raw/final-delivery-readback.log`, produced
+after the last documentation commit using the companion runner's one-off
+readback program. That receipt records the actual attached branch/commit,
+cleanliness, every changed branch file read back, protected-file invariance and
+the complete mechanism delta after the deciding freeze. This journal does not
+substitute for that readback. No push, merge, hosted CI, architecture baseline
+acceptance, or governed epoch transition is claimed.

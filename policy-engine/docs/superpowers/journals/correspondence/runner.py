@@ -336,8 +336,8 @@ def _legal_fresh_drift() -> int:
 
 
 def _openapi_probe() -> int:
-    """Preserve the existing single-family isolated output probe for drift diagnosis."""
-    from contextlib import nullcontext
+    """Observe the native isolated output probe without altering its source-copy boundary."""
+    import shutil
     from unittest.mock import patch
 
     from tools.devx.architecture import guardrails as owner
@@ -347,12 +347,27 @@ def _openapi_probe() -> int:
         for row in owner._parse_generated_artifacts(owner.DEFAULT_GENERATED_MANIFEST)
         if row.family_id == "runtime-openapi-snapshot"
     )
-    probe = RAW / ("openapi-probe-" + datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ"))
-    probe.mkdir()
-    try:
-        with patch.object(
-            owner.tempfile, "TemporaryDirectory", return_value=nullcontext(str(probe))
+    candidate = RAW / (
+        "openapi-candidate-" + datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ") + ".json"
+    )
+    original_run = subprocess.run
+
+    def observe_run(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        result = original_run(*args, **kwargs)  # Native owner's unchanged argv.
+        command = args[0] if args else kwargs.get("args", ())
+        if (
+            isinstance(command, (list, tuple))
+            and result.returncode == 0
+            and "tools/ops_runners/runtime/export_runtime_openapi.py" in command
         ):
+            emitted = Path(command[command.index("--output") + 1])
+            shutil.copy2(emitted, candidate)
+        return result
+
+    try:
+        # Keep the native temporary directory, source copier, environment and argv.
+        # Observe only after the actual generator exits, before native cleanup.
+        with patch.object(owner.subprocess, "run", observe_run):
             violations = owner._measure_required_generated_artifacts(
                 [family],
                 expected_root=ROOT,
@@ -361,7 +376,9 @@ def _openapi_probe() -> int:
     except owner.GeneratedArtifactCheckUnrunError as error:
         _emit({"status": "UNRUN", "diagnostic": str(error)})
         return 2
-    candidate = probe / "outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json"
+    if not candidate.exists():
+        _emit({"status": "UNRUN", "diagnostic": "native_generator_candidate_not_captured"})
+        return 2
     expected = ROOT / "schemas/runtime_api_v1.openapi.json"
     _emit(
         {

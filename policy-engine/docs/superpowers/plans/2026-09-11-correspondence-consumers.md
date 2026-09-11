@@ -31,20 +31,20 @@ its documented direct invocation is its discovery surface.
 
 ## 1. Freeze decisions
 
-- [ ] Re-read the complete normative standing rule, W5 §12, INT-K06/K07, CGF E.4.1
+- [x] Re-read the complete normative standing rule, W5 §12, INT-K06/K07, CGF E.4.1
   re-declaration trigger and the GY-J population ruling.
-- [ ] Pin the dated defensive frames by input-file hash and complete-array selector.
+- [x] Pin the dated defensive frames by input-file hash and complete-array selector.
   Declare positive calibration denominator empty and production epochs unestablished.
-- [ ] Commit spec, plan, manifest and ignore pattern; read every blob from the branch.
+- [x] Commit spec, plan, manifest and ignore pattern; read every blob from the branch.
   Proceed directly to execution after this boundary, as authorized.
 
 ## 2. Evidence runner and red-first controls
 
-- [ ] Create `runner.py` with explicit file/node argv for every gate; raw JSON records
+- [x] Create `runner.py` with explicit file/node argv for every gate; raw JSON records
   command, branch, source state, output, code and measured elapsed time.
-- [ ] Use AST to confirm each selected native definition exists and capture exact
+- [x] Use AST to confirm each selected native definition exists and capture exact
   delivered call vocabulary. A name census does not decide semantic availability.
-- [ ] Run the original legal transposition test with `_same_subject` removed in memory:
+- [x] Run the original legal transposition test with `_same_subject` removed in memory:
   expected assertion failure. No source file changes or temporary branch switch.
 - [ ] Run the unchanged causal structural-refusal control with the critical-veto
   guard removed in memory: expected failure on the structural refusal property.
@@ -83,3 +83,28 @@ No owner-source repair is preauthorized by this plan: a newly discovered necessa
 mechanism requires a dated design amendment and named non-test caller first. A
 missing positive scientific appointment is a scoped no-number result, not a reason
 to defer the defensive acceptance work.
+
+## Execution amendment — 2026-09-11
+
+The existing historical proof-WMR bytes are unavailable at their declared CAS
+address. The spec's fallback applies: `runner.py live-declare` invokes the existing
+production builder with the canonical 16-agent/family inputs into lane-owned raw
+CAS, then the existing proof/frame/suite producers. Its input-only tier check must
+fail if the held frame no longer has the declared difficulty. Root binds the actual
+fresh context in the dated tracked manifest and commits/readbacks it before
+`causal-live-write`, `causal-live-check`, or `causal-live-drift`. The runner enforces
+that committed binding. Only the defensive reference epoch changes; no governed
+output or numerical calibration transfers.
+
+The evidence recorder's direct CLI is the non-test caller of its helpers; the
+registered production owner commands remain the actual deciding gates. Legal
+`legal-owner-drift` substitutes only the target artifact's read in process; causal
+`causal-live-drift` uses a separate raw corrupt report. Neither edits governed bytes.
+The recorder freezes HEAD and source/test/manifest hashes before starting a child.
+
+Station measurement found OR-Tools absent. The first causal native run therefore
+has no removal credit; repair the isolated dependency station, then repeat red
+before native. OR-Tools and its dependencies are aligned to `uv.lock`; no repository
+lock changes. The GY-J 900-second timeout is an incomplete harness result. Retry its
+same exact nodes at 3600 seconds; use 2400 for subsequent owner/causal gates after
+measuring the cold-import overhead. Preserve all unsuccessful receipts.

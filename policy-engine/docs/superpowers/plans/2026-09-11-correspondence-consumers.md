@@ -117,3 +117,38 @@ the base L6 bundle has no subject-spine ref and the scaffold's legal path perfor
 no CAS write. Lex and Scholar sources open read-only. These distinct chains may
 run concurrently; legal `--check` and legal corrupt-field invocation remain
 serialized with each other. Root still serializes git and tracked-file edits.
+
+## Diagnostic amendment — 2026-09-11
+
+Actual canonical legal owner check returned 1 with live behavior `pass` and sole
+`intervention_substrate_contract_drift`; canonical freshness is not passed. An
+already-red corrupt check would not establish sensitivity. Root extends only the
+lane recorder's `legal-owner-drift` command: produce a fresh raw payload through
+the actual owner, independently rerun the unchanged owner validator with its
+expected-artifact read directed to that raw payload, then repeat with one count
+corrupted in a separate raw file. The real builder remains unpatched. Credit the
+drift only if the fresh baseline passes and the corrupt control fails. Keep the
+canonical artifact unchanged and retain its complete pointer-level comparison.
+Use 3600 seconds after the measured 1479-second canonical invocation.
+
+Guardrails returned 1, with complete verdict: tracked journal/plan edits during
+its probes were observed as outside-scratch writes, plus an OpenAPI snapshot
+mismatch. This is root's resource-coordination error, not an inherited finding.
+The contended resource is **the entire Git-visible worktree during guardrails**;
+freeze every tracked file until its invocation finishes. Root adds `openapi-probe`
+as a named recorder diagnostic: invoke the existing generator-observed machinery
+for the single registered `runtime-openapi-snapshot` family and preserve its
+otherwise temporary candidate under raw for a complete JSON-pointer comparison.
+Its direct non-test caller is `runner.py openapi-probe`; it is not a product gate
+or replacement generator. No synchronization or canonical-output edit is allowed.
+After diagnostics, complete all tracked journal/plan changes, review the delta,
+then rerun the exact guardrails command with the entire watched tree frozen.
+Raw-only concurrent checks are allowed. Preserve every unsuccessful receipt and
+report any remaining mismatch without an unproved inherited attribution.
+
+Relevant patterns: P29 (fresh baseline plus actual recomputation), P38 (a global
+filesystem delta cannot attribute which writer acted), P40 (the same snapshot
+mismatch is one diagnostic class, not repeated repair rounds), P41 (no inherited
+claim without correct-base replay). The acceptance procedure and null bounds do
+not change. Incidental destinations: `team-runtime-quality / CORR legal generated
+contract freshness` and `team-runtime / runtime-openapi-snapshot artifact custody`.

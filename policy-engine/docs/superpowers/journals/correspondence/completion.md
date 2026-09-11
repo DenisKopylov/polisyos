@@ -53,7 +53,11 @@ The unmodified selected suite passed **18 actual cases** (the complete
 the subject comparison made the real transposed pair return `passed`; the
 unchanged test required `rejected`. The positive source-relative control survived.
 This distinguishes the correspondence property from existence/uniqueness checks.
-Registered owner check and corrupt-field result: **pending**.
+The registered canonical owner check returned **1**, with `behavior_status="pass"`
+and sole issue `intervention_substrate_contract_drift`. This is a complete failed
+freshness verdict, not UNRUN and not attributed as inherited. A fresh raw expected
+artifact and independently recomputed corrupt control are pending; the already-red
+canonical check alone cannot establish corruption sensitivity.
 
 **Bound:** `correctness_bound=null`. A future number would bound
 `P(confident-wrong legal-governance correspondence)` within this legal cell and
@@ -167,7 +171,11 @@ target or full suite is run.
 Git hooks were bypassed for these local commits to preserve the user's targeted
 gate constraint. The native owners and source tests remain unchanged.
 
-Receipt table and guardrail code: **pending**. Full stdout/stderr of deciding
+The first guardrail invocation returned **1**, with a complete verdict. Root's
+concurrent journal/plan writes caused the outside-scratch findings; the OpenAPI
+snapshot also differed. The revised resource rule freezes the entire Git-visible
+tree for the repeat. OpenAPI comparison and final guardrail disposition are pending.
+Receipt table: **pending**. Full stdout/stderr of deciding
 gates and removal probes remain under the explicitly gitignored `raw/` directory;
 the table will cite their paths and hashes, rather than copy recomputable artifacts.
 

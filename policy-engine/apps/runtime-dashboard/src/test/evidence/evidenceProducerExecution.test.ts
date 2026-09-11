@@ -11,9 +11,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import { measureAtlasHealthMetrics } from "./atlasHealthMetrics";
 import { buildAtlasStableReadinessNegativeControl } from "./atlasSurfaceReadinessReconciliation";
-import { repositoryPythonExecutable } from "./persistenceProcessResult";
+import {
+  evidenceFixtureWatchdog,
+  repositoryPythonExecutable,
+} from "./persistenceProcessResult";
 
-describe("evidence producer unavailable execution", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("evidence producer unavailable execution", watchdog, () => {
   it.each(
     [
       measureAtlasHealthMetrics,

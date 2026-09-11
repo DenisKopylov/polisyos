@@ -47,6 +47,8 @@ def _canonical_json(payload: dict) -> str:
 
 
 def _check_openapi_drift(*, repo_root: Path, openapi_path: Path, max_diff_lines: int) -> list[str]:
+    if not openapi_path.is_file():
+        raise FileNotFoundError(f"OpenAPI comparison input is unavailable: {openapi_path}")
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 
@@ -130,13 +132,30 @@ def main() -> int:
     _ensure_src_on_path(repo_root)
     openapi_path = args.openapi if args.openapi.is_absolute() else (repo_root / args.openapi)
 
-    violations = _check_openapi_drift(
-        repo_root=repo_root,
-        openapi_path=openapi_path,
-        max_diff_lines=args.max_diff_lines,
+    print(
+        "Measured: generated OpenAPI byte drift, declared OpenAPI hardening invariants, "
+        "and generated runtime client byte drift when requested."
     )
-    if not args.skip_client_drift:
-        violations.extend(_check_runtime_client_drift(repo_root=repo_root))
+    print(
+        "Not measured: endpoint execution, authorization behavior, client behavior, "
+        "production deployment, or hosted CI."
+    )
+    if args.skip_client_drift:
+        print("Generated runtime client freshness explicitly omitted (--skip-client-drift).")
+    violations: list[str] = []
+    try:
+        violations = _check_openapi_drift(
+            repo_root=repo_root,
+            openapi_path=openapi_path,
+            max_diff_lines=args.max_diff_lines,
+        )
+        if not args.skip_client_drift:
+            violations.extend(_check_runtime_client_drift(repo_root=repo_root))
+    except Exception as exc:  # CLI boundary: an inspection failure is not measured drift.
+        print(f"Runtime API contract check UNRUN: no complete verdict: {type(exc).__name__}: {exc}")
+        for violation in violations:
+            print(f"- partial coverage: {violation}")
+        return 2
 
     if violations:
         print("Runtime API contract check FAILED:")
@@ -144,7 +163,8 @@ def main() -> int:
             print(f"- {violation}")
         return 1
 
-    print("Runtime API contract check passed.")
+    qualifier = "client freshness explicitly omitted" if args.skip_client_drift else "declared scope only"
+    print(f"Runtime API contract check passed ({qualifier}).")
     return 0
 
 

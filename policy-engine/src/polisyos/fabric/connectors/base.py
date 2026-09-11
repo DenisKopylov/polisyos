@@ -134,27 +134,53 @@ class ConnectionConfig:
 
     def redacted(self) -> ConnectionConfig:
         """Return config with sensitive fields redacted for logging."""
+        # A sensitive mapping key is redacted as a whole by the scanner. Give
+        # each credential a sensitive value key so its original name survives.
         sanitized = scan_secret_and_pii(
             {
                 "headers": dict(self.headers),
                 "auth_method": self.auth_method,
-                "auth_credentials": dict(self.auth_credentials),
+                "fields": [{"credential": value} for value in self.auth_credentials.values()],
             },
             scope="connector request/response payloads",
             artifact_ref_or_route="connector://connection_config",
             redact=True,
             block_on_findings=False,
         ).redacted_payload
-        if not isinstance(sanitized, dict):
-            sanitized = {}
+        if not isinstance(sanitized, Mapping):
+            raise ValueError(
+                "connection config redaction UNRUN: incomplete scanner output shape; "
+                "credentials and headers have no complete redaction verdict"
+            )
         redacted_headers = sanitized.get("headers")
-        redacted_creds = sanitized.get("auth_credentials")
+        redacted_fields = sanitized.get("fields")
+        if (
+            not isinstance(redacted_headers, Mapping)
+            or set(redacted_headers) != set(self.headers)
+            or not all(isinstance(value, str) for value in redacted_headers.values())
+            or not isinstance(redacted_fields, list)
+            or len(redacted_fields) != len(self.auth_credentials)
+            or not all(
+                isinstance(field, Mapping)
+                and set(field) == {"credential"}
+                and isinstance(field["credential"], str)
+                for field in redacted_fields
+            )
+        ):
+            raise ValueError(
+                "connection config redaction UNRUN: incomplete scanner output shape; "
+                "credentials and headers have no complete redaction verdict"
+            )
+        redacted_creds = {
+            key: field["credential"]
+            for key, field in zip(self.auth_credentials, redacted_fields, strict=True)
+        }
 
         return ConnectionConfig(
             url=self.url,
-            headers=redacted_headers if isinstance(redacted_headers, Mapping) else {},
+            headers=redacted_headers,
             auth_method=self.auth_method,
-            auth_credentials=redacted_creds if isinstance(redacted_creds, Mapping) else {},
+            auth_credentials=redacted_creds,
             timeout_seconds=self.timeout_seconds,
             max_retries=self.max_retries,
             retry_delay_seconds=self.retry_delay_seconds,

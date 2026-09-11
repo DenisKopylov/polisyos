@@ -13,8 +13,13 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts as core_artifacts
+from polisyos.core.artifacts import ArtifactStore, PutOptions
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    infer_artifact_store_config,
+)
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.pdc import (
     ArtifactRef,
@@ -121,7 +126,7 @@ def _staged_source_paths(source: StagedFoundryInputSource | None) -> dict[str, P
 
 def verify_staged_foundry_input_state(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     state: ExperimentState,
     source: StagedFoundryInputSource | None,
     bound: RecordedPanelMethodInput,
@@ -139,7 +144,12 @@ def verify_staged_foundry_input_state(
     # Fresh-CAS replay derives expected manifests independently of any supplied
     # stored manifest; reusing the supplied CAS could preserve poisoned ancestry.
     with TemporaryDirectory(prefix="gy-c3-staged-readback-") as temporary:
-        replay_store = FileSystemCAS(Path(temporary) / "cas")
+        replay_store = build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(Path(temporary) / "cas"),
+            ),
+        )
         replay = load_ukraine_foundry_intake(
             replay_store, stage_manifests=paths, allowed_root=source.allowed_root,
         )
@@ -206,7 +216,7 @@ def verify_staged_foundry_input_state(
 
 def install_verified_staged_foundry_inputs(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     state: ExperimentState,
     binding: StagedFoundryInputBinding,
 ) -> ExperimentState:
@@ -251,7 +261,7 @@ class FoundryMethodOutputConsumer:
     """Consume Foundry method outputs from Scientist state into GY authority facts."""
 
     def __init__(
-        self, *, store: FileSystemCAS | None = None,
+        self, *, store: ArtifactStore | None = None,
         staged_input_source: StagedFoundryInputSource | None = None,
     ) -> None:
         self._store = store
@@ -504,7 +514,7 @@ class FoundryMethodOutputConsumer:
     def _require_verified_consumption(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         consumption: FoundryConsumptionResult,
     ) -> bytes:
         verified = self._verified_consumptions.get(id(consumption))
@@ -586,7 +596,7 @@ class FoundryMethodOutputConsumer:
     def persist_consumption(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         consumption: FoundryConsumptionResult,
     ) -> ArtifactRef:
         """Persist a consumed-method proof to CAS and return its GY artifact ref."""
@@ -666,7 +676,7 @@ class Phase2ConstraintAdmission(BaseModel):
 class ConstraintStoreIngestor:
     """Recompute requirement ceilings and persist their full scoped input population."""
 
-    def __init__(self, *, store: FileSystemCAS | None = None) -> None:
+    def __init__(self, *, store: ArtifactStore | None = None) -> None:
         self._store = store
         self._admissions: dict[int, tuple[Phase2ConstraintAdmission, bytes, bytes]] = {}
         self._method_contexts: dict[
@@ -1399,7 +1409,7 @@ def _constraint_producer() -> ProducerInfo:
 
 
 def _verified_method_input_refs(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     manifest: ArtifactManifest,
     state: ExperimentState,
     bound: RecordedPanelMethodInput,
@@ -1458,7 +1468,7 @@ def _verified_method_input_refs(
 
 def _verify_method_replay(
     *,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     method_fqn: str,
     typed_input: object,
     params: dict[str, Any],
@@ -1473,12 +1483,20 @@ def _verify_method_replay(
 
     from .scientist_node_adapters import _read_binding
 
-    replay_parent = store.root / "_recompute"
+    cas_config = infer_artifact_store_config(store)
+    if cas_config is None or cas_config.backend != "filesystem" or not cas_config.root:
+        raise ValueError("foundry_method_replay_filesystem_root_unavailable")
+    replay_parent = Path(cas_config.root) / "_recompute"
     replay_parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="foundry-method-", dir=replay_parent) as directory:
-        replay_store = FileSystemCAS(Path(directory))
+        replay_store = build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(Path(directory)),
+            ),
+        )
         execution = MethodBackend().run(
-            cas_root=replay_store.root,
+            cas_root=Path(directory),
             method_fqn=method_fqn,
             method_version=None,
             input_state=typed_input,

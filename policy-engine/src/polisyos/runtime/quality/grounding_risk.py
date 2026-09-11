@@ -16,6 +16,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.fabric import atomic_write_json, file_lock
 from polisyos.pdc import gy_content_hash
 
@@ -90,7 +91,7 @@ class GroundingRunBudget:
             raise ValueError("grounding_run_id_missing")
         self.run_id = run_id
         self._root: Path | None = None
-        self._store: artifacts.FileSystemCAS | None = None
+        self._store: artifacts.ArtifactStore | None = None
         self._synthetic = False
 
     @classmethod
@@ -114,7 +115,12 @@ class GroundingRunBudget:
         # No destruction, recovery reset, or caller-selected production root.
         try:
             owner._root.mkdir(parents=True, exist_ok=True)
-            owner._store = artifacts.FileSystemCAS(owner._root / "cas")
+            owner._store = build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(owner._root / "cas"),
+                ),
+            )
         except (OSError, ValueError):
             # An unusable persistence boundary cannot turn into a fresh balance.
             owner._store = None

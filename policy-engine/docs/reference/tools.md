@@ -76,6 +76,7 @@ Generated from `tools.registry` command metadata.
 | `connectors` | `check-contracts` | `active` | `polisyos-tools connectors check-contracts` | connectors/check_contracts | - | - | - |
 | `connectors` | `scaffold` | `active` | `polisyos-tools connectors scaffold` | CLI scaffold generator for Policy OS connectors. | - | - | - |
 | `foundry` | `generate-stubs` | `active` | `polisyos-tools foundry generate-stubs` | Generate Foundry method stubs through the canonical tools surface. | - | - | - |
+| `foundry` | `sync-dependency-profile` | `active` | `polisyos-tools foundry sync-dependency-profile` | Operate the Foundry-owned dependency profile without minting authority. | - | - | - |
 | `foundry` | `update-signature-baseline` | `active` | `polisyos-tools foundry update-signature-baseline` | Refresh the Foundry signature baseline through the canonical tools surface. | - | - | - |
 
 ### `quality`
@@ -123,10 +124,13 @@ Generated from `tools.registry` command metadata.
 | `validation` | `build-policy-design-case-wave40-readiness` | `active` | `polisyos-tools validation build-policy-design-case-wave40-readiness` | Build Policy Design Case Wave 40 readiness and bundle-inspection closeout. | - | - | - |
 | `validation` | `build-policy-evidence-capability-index` | `active` | `polisyos-tools validation build-policy-evidence-capability-index` | Build the Policy Evidence Capability Index release artifacts. | - | - | - |
 | `validation` | `build-wave5-honest-diagnostics-evidence` | `active` | `polisyos-tools validation build-wave5-honest-diagnostics-evidence` | Build runtime-backed Wave 5 Honest Diagnostics evidence reports. | - | - | - |
+| `validation` | `capture-layer3-gy-design-generation-replay` | `active` | `polisyos-tools validation capture-layer3-gy-design-generation-replay` | Capture GY-N4 design-generation replay recordings without all-or-nothing writes. | - | - | - |
 | `validation` | `check-can-i-closeout` | `active` | `polisyos-tools validation check-can-i-closeout` | Validate Can-I-Closeout compatibility for a selected evidence bundle. | - | - | - |
+| `validation` | `check-canonical-vocabulary-crosswalk` | `active` | `polisyos-tools validation check-canonical-vocabulary-crosswalk` | Recompute the VC1 reference from complete source owners and exercise its gates. | - | - | - |
 | `validation` | `check-ci-ratchets` | `active` | `polisyos-tools validation check-ci-ratchets` | Ratchet targeted CI escapes across common/core/runtime HTTP packages. | - | - | - |
 | `validation` | `check-compilation-truthfulness` | `active` | `polisyos-tools validation check-compilation-truthfulness` | Audit W11.E compilation truthfulness against adjudicated corpus annotations. | - | - | - |
 | `validation` | `check-critic-ensemble-diversity` | `active` | `polisyos-tools validation check-critic-ensemble-diversity` | Measure W11.F critic ensemble diversity over flagged failure modes. | - | - | - |
+| `validation` | `check-debt-ledger` | `active` | `polisyos-tools validation check-debt-ledger` | Reconcile the generated debt ledger with published source denominators. | - | - | - |
 | `validation` | `check-docs-accuracy` | `active` | `polisyos-tools validation check-docs-accuracy` | Validate published docs against current repository reality. | - | - | - |
 | `validation` | `check-docs-freshness-baseline` | `active` | `polisyos-tools validation check-docs-freshness-baseline` | Validate the fail-closed docs freshness baseline without running repo-wide gates. | - | - | - |
 | `validation` | `check-docs-gate` | `active` | `polisyos-tools validation check-docs-gate` | Run the Phase D6 path-aware documentation drift gate. | - | - | - |
@@ -137,7 +141,62 @@ Generated from `tools.registry` command metadata.
 | `validation` | `check-evidence-spine-handoffs` | `active` | `polisyos-tools validation check-evidence-spine-handoffs` | Check evidence-spine async/batch handoff ledgers in canary bundles. | - | - | - |
 | `validation` | `check-expert-adjudication-labels` | `active` | `polisyos-tools validation check-expert-adjudication-labels` | Validate W11.C expert adjudication labels for the outcome corpus. | - | - | - |
 | `validation` | `check-extension-examples` | `active` | `polisyos-tools validation check-extension-examples` | Install extension examples in editable mode and verify entry-point discovery. | - | - | - |
+| `validation` | `check-grounding-active-controller-contract` | `active` | `polisyos-tools validation check-grounding-active-controller-contract` | Validate the CGF GY-CG5 active grounding controller contract. | - | - | - |
+| `validation` | `check-grounding-admission-contract` | `active` | `polisyos-tools validation check-grounding-admission-contract` | Validate the CGF GY-CG3 free-grow admission contract. | - | - | - |
+| `validation` | `check-grounding-benchmark-contract` | `active` | `polisyos-tools validation check-grounding-benchmark-contract` | Validate the CGF GY-CG6 grounding benchmark scoreboard. | - | - | - |
+| `validation` | `check-grounding-bind-contract` | `active` | `polisyos-tools validation check-grounding-bind-contract` | Validate the CGF GY-CG2 conservative bind-gate contract. | - | - | - |
+| `validation` | `check-grounding-credal-reference-contract` | `active` | `polisyos-tools validation check-grounding-credal-reference-contract` | Validate the CGF grounding credal-reference contract artifact. | - | - | - |
+| `validation` | `check-grounding-phrasing-defense-contract` | `active` | `polisyos-tools validation check-grounding-phrasing-defense-contract` | Validate the CGF GY-CG4 phrasing-invariance defense contract. | - | - | - |
+| `validation` | `check-grounding-refusal-sensitivity` | `active` | `polisyos-tools validation check-grounding-refusal-sensitivity` | Declare or recompute the full L6/WMR constructed-mismatch refusal suite. | - | - | - |
+| `validation` | `check-grounding-relation-contract` | `active` | `polisyos-tools validation check-grounding-relation-contract` | Validate the CGF GY-CG1 shadow grounding-relation contract. | - | - | - |
+| `validation` | `check-gy-acquisition-assurance` | `active` | `polisyos-tools validation check-gy-acquisition-assurance` | Run the non-test GY-AS1 instrument against real AQ1 and a separate oracle. | - | - | - |
 | `validation` | `check-honest-diagnostics-proof-harness` | `active` | `polisyos-tools validation check-honest-diagnostics-proof-harness` | Prove Honest Diagnostics production invariants have executable evidence. | - | - | - |
+| `validation` | `check-layer3-artifact-surface-safety` | `active` | `polisyos-tools validation check-layer3-artifact-surface-safety` | Validate or regenerate Layer 3 artifact surface safety proof packets. | - | - | - |
+| `validation` | `check-layer3-gy-acquisition-contract` | `active` | `polisyos-tools validation check-layer3-gy-acquisition-contract` | Validate the frozen Layer 3 GY-N7 acquisition closed-loop contract. | - | - | - |
+| `validation` | `check-layer3-gy-acquisition-executor` | `active` | `polisyos-tools validation check-layer3-gy-acquisition-executor` | Recompute and verify GY-N13b acquisition-executor artifacts. | - | - | - |
+| `validation` | `check-layer3-gy-agent-workflow-event-backing-audit` | `active` | `polisyos-tools validation check-layer3-gy-agent-workflow-event-backing-audit` | Validate the GY agent workflow event-backing audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-capability-coverage-matrix` | `active` | `polisyos-tools validation check-layer3-gy-capability-coverage-matrix` | GY repo-wide capability coverage matrix check. | - | - | - |
+| `validation` | `check-layer3-gy-catalog-fetch-audit` | `active` | `polisyos-tools validation check-layer3-gy-catalog-fetch-audit` | Validate the GY catalog-binding -> fetch -> measurement-root audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-composition-artifacts` | `active` | `polisyos-tools validation check-layer3-gy-composition-artifacts` | Validate committed Layer 3 GY recursion/composition artifacts. | - | - | - |
+| `validation` | `check-layer3-gy-confidence-ledger` | `active` | `polisyos-tools validation check-layer3-gy-confidence-ledger` | Recompute and freeze the GY-N11 honest confidence ledger contract. | - | - | - |
+| `validation` | `check-layer3-gy-connector-family-truth-audit` | `active` | `polisyos-tools validation check-layer3-gy-connector-family-truth-audit` | Validate the GY connector-family truth audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-data-requirement-compiler-audit` | `active` | `polisyos-tools validation check-layer3-gy-data-requirement-compiler-audit` | Validate the GY data-requirement compiler audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-data-state-substrate-contract` | `active` | `polisyos-tools validation check-layer3-gy-data-state-substrate-contract` | Validate the Layer 3 GY data-state substrate lift contract artifact. | - | - | - |
+| `validation` | `check-layer3-gy-depth-n-universality-contract` | `active` | `polisyos-tools validation check-layer3-gy-depth-n-universality-contract` | Aggregate GY-N10 proof evidence from canonical PolicyOS owners. | - | - | - |
+| `validation` | `check-layer3-gy-design-generation-contract` | `active` | `polisyos-tools validation check-layer3-gy-design-generation-contract` | Validate the Layer 3 GY-N4 design-generation firewall contract. | - | - | - |
+| `validation` | `check-layer3-gy-design-problem-contract` | `active` | `polisyos-tools validation check-layer3-gy-design-problem-contract` | Validate the Layer 3 GY DesignProblem contract artifact. | - | - | - |
+| `validation` | `check-layer3-gy-engine-census` | `active` | `polisyos-tools validation check-layer3-gy-engine-census` | GY-0 Engine Reality Census completeness check. | - | - | - |
+| `validation` | `check-layer3-gy-epoch-chronology-contract` | `active` | `polisyos-tools validation check-layer3-gy-epoch-chronology-contract` | Behaviorally validate the GY-N12 epoch chronology integration contract. | - | - | - |
+| `validation` | `check-layer3-gy-foundry-breadth-audit` | `active` | `polisyos-tools validation check-layer3-gy-foundry-breadth-audit` | Validate the GY Foundry breadth audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-generated-public-lifecycle-audit` | `active` | `polisyos-tools validation check-layer3-gy-generated-public-lifecycle-audit` | Validate the GY generated/public lifecycle audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-generation-cycle-contract` | `active` | `polisyos-tools validation check-layer3-gy-generation-cycle-contract` | Validate the frozen Layer 3 GY-N6 generation-cycle controller contract. | - | - | - |
+| `validation` | `check-layer3-gy-generation-cycle-disposition-ledger` | `active` | `polisyos-tools validation check-layer3-gy-generation-cycle-disposition-ledger` | Validate the Layer 3 GY generation-cycle disposition ledger. | - | - | - |
+| `validation` | `check-layer3-gy-intervention-atom-binding-contract` | `active` | `polisyos-tools validation check-layer3-gy-intervention-atom-binding-contract` | Validate the Layer 3 GY InterventionAtomBinding contract artifact. | - | - | - |
+| `validation` | `check-layer3-gy-intervention-substrate-contract` | `active` | `polisyos-tools validation check-layer3-gy-intervention-substrate-contract` | Validate the Layer 3 GY L6 intervention-substrate lift contract. | - | - | - |
+| `validation` | `check-layer3-gy-joint-simulation-horizon-contract` | `active` | `polisyos-tools validation check-layer3-gy-joint-simulation-horizon-contract` | Validate the Layer 3 GY-N5 joint simulation horizon contract. | - | - | - |
+| `validation` | `check-layer3-gy-knowledge-substrate-contract` | `active` | `polisyos-tools validation check-layer3-gy-knowledge-substrate-contract` | Validate the Layer 3 GY L2/L3 knowledge-substrate lift contract. | - | - | - |
+| `validation` | `check-layer3-gy-lex-frontier-root-cause-audit` | `active` | `polisyos-tools validation check-layer3-gy-lex-frontier-root-cause-audit` | Validate the GY Lex/frontier root-cause audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-loop-artifacts` | `active` | `polisyos-tools validation check-layer3-gy-loop-artifacts` | Validate committed Layer 3 GY loop artifacts and lifecycle registration. | - | - | - |
+| `validation` | `check-layer3-gy-n10-cg1-l2-relation-census` | `active` | `polisyos-tools validation check-layer3-gy-n10-cg1-l2-relation-census` | Validate or re-derive the GY-N10 CG1-to-L2 census receipt. | - | - | - |
+| `validation` | `check-layer3-gy-n13a-acquisition-census` | `active` | `polisyos-tools validation check-layer3-gy-n13a-acquisition-census` | Recompute, freeze, and mutation-test the GY-N13a acquisition census. | - | - | - |
+| `validation` | `check-layer3-gy-n13b-acquisition-contract` | `active` | `polisyos-tools validation check-layer3-gy-n13b-acquisition-contract` | Write, rederive, and verify the frozen GY-N13b acquisition contract. | - | - | - |
+| `validation` | `check-layer3-gy-openalex-artifacts` | `active` | `polisyos-tools validation check-layer3-gy-openalex-artifacts` | Validate or regenerate GY-K OpenAlex span-grounded L2 artifacts. | - | - | - |
+| `validation` | `check-layer3-gy-p0-coverage-audit` | `active` | `polisyos-tools validation check-layer3-gy-p0-coverage-audit` | Validate the GY Task 0 P0 coverage audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-p1-substrate-authority-audit` | `active` | `polisyos-tools validation check-layer3-gy-p1-substrate-authority-audit` | Validate the GY Task 0 P1 substrate authority audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-p2-semantic-evidence-quality-audit` | `active` | `polisyos-tools validation check-layer3-gy-p2-semantic-evidence-quality-audit` | Validate the GY Task 0 P2 semantic evidence quality audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-phase2-artifacts` | `active` | `polisyos-tools validation check-layer3-gy-phase2-artifacts` | Validate or regenerate committed Layer 3 GY Phase-2 proof artifacts. | - | - | - |
+| `validation` | `check-layer3-gy-promotion-contract` | `active` | `polisyos-tools validation check-layer3-gy-promotion-contract` | Validate the frozen Layer 3 GY-N9 canonical promotion contract. | - | - | - |
+| `validation` | `check-layer3-gy-runtime-surface-audit` | `active` | `polisyos-tools validation check-layer3-gy-runtime-surface-audit` | Validate the GY runtime/API/dashboard/public-export surface audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-second-domain-pack` | `active` | `polisyos-tools validation check-layer3-gy-second-domain-pack` | Build and verify the owner-derived GY-N10a second-domain substrate pack. | - | - | - |
+| `validation` | `check-layer3-gy-source-contract-admissibility-audit` | `active` | `polisyos-tools validation check-layer3-gy-source-contract-admissibility-audit` | Validate the GY source-contract admissibility audit artifact. | - | - | - |
+| `validation` | `check-layer3-gy-substrate-package-capability-inventory` | `active` | `polisyos-tools validation check-layer3-gy-substrate-package-capability-inventory` | Validate the GY substrate package capability inventory. | - | - | - |
+| `validation` | `check-layer3-gy-value-gate-contract` | `active` | `polisyos-tools validation check-layer3-gy-value-gate-contract` | Validate the frozen Layer 3 GY-N8 value-gate contract. | - | - | - |
+| `validation` | `check-layer3-gy-value-outer-set-strangle-receipt` | `active` | `polisyos-tools validation check-layer3-gy-value-outer-set-strangle-receipt` | Validate the GY-N-V strangle receipt for S1 household value bounds. | - | - | - |
+| `validation` | `check-layer3-gy-workflow-mode-truth-audit` | `active` | `polisyos-tools validation check-layer3-gy-workflow-mode-truth-audit` | GY workflow-mode truth audit check. | - | - | - |
+| `validation` | `check-layer3-gy-world-model-record-contract` | `active` | `polisyos-tools validation check-layer3-gy-world-model-record-contract` | Validate the Layer 3 GY WorldModelRecord contract artifact. | - | - | - |
+| `validation` | `check-layer3-time-source-authority` | `active` | `polisyos-tools validation check-layer3-time-source-authority` | Validate or regenerate Layer 3 time/source and authority-candidate proofs. | - | - | - |
+| `validation` | `check-layer3-workflow-failure-authority` | `active` | `polisyos-tools validation check-layer3-workflow-failure-authority` | Validate failed-workflow authority-surface proof artifacts. | - | - | - |
+| `validation` | `check-multilingual-locale-census` | `active` | `polisyos-tools validation check-multilingual-locale-census` | Reconcile independently allocated locale parsers without asserting equivalence. | - | - | - |
 | `validation` | `check-package-import-gates` | `active` | `polisyos-tools validation check-package-import-gates` | Fail-closed Phase 6.1 package, public-surface, and import gates. | - | - | - |
 | `validation` | `check-policy-design-case-capability-ratchet` | `active` | `polisyos-tools validation check-policy-design-case-capability-ratchet` | Build and validate the Policy Design Case capability ratchet report. | - | - | - |
 | `validation` | `check-policy-design-case-cluster-ownership-map` | `active` | `polisyos-tools validation check-policy-design-case-cluster-ownership-map` | Validate the Policy Design Case cluster ownership map. | - | - | - |
@@ -169,9 +228,12 @@ Generated from `tools.registry` command metadata.
 | `validation` | `check-policy-design-case-wave40-readiness` | `active` | `polisyos-tools validation check-policy-design-case-wave40-readiness` | Validate Policy Design Case Wave 40 readiness closeout artifacts. | - | - | - |
 | `validation` | `check-policy-design-formal-invariants` | `active` | `polisyos-tools validation check-policy-design-formal-invariants` | Validate Policy Design Case formal invariant specs. | - | - | - |
 | `validation` | `check-production-data-scenario-contracts` | `active` | `polisyos-tools validation check-production-data-scenario-contracts` | Check that production-data contracts satisfy scenario source-family obligations. | - | - | - |
+| `validation` | `check-production-data-substrate-registry-contract` | `active` | `polisyos-tools validation check-production-data-substrate-registry-contract` | Validate the production-data substrate registry contract artifact. | - | - | - |
 | `validation` | `check-production-invariant-registry` | `active` | `polisyos-tools validation check-production-invariant-registry` | Validate the Production Invariant Registry against runtime reader catalogs. | - | - | - |
+| `validation` | `check-production-invocation` | `active` | `polisyos-tools validation check-production-invocation` | Check static invocation deltas and disclose unresolved framework boundaries. | - | - | - |
 | `validation` | `check-runtime-quality-schema-compatibility` | `active` | `polisyos-tools validation check-runtime-quality-schema-compatibility` | Report runtime-quality schema compatibility and legacy quarantine decisions. | - | - | - |
 | `validation` | `check-substrate-drift` | `active` | `polisyos-tools validation check-substrate-drift` | Audit Wave 0 Honest Diagnostics substrate drift guards. | - | - | - |
+| `validation` | `check-trust-claim-posture` | `active` | `polisyos-tools validation check-trust-claim-posture` | Independent tokenizer, reconciliation, and checker for DS11 claim posture. | - | - | - |
 | `validation` | `check-universal-corpus-annotations` | `active` | `polisyos-tools validation check-universal-corpus-annotations` | Validate W11.B universal outcome corpus claim/evidence annotations. | - | - | - |
 | `validation` | `check-wave4-operational-closeout` | `active` | `polisyos-tools validation check-wave4-operational-closeout` | Validate a fresh Wave 4 Honest Diagnostics operational closeout bundle. | - | - | - |
 | `validation` | `compare-honest-diagnostics-rebaseline` | `active` | `polisyos-tools validation compare-honest-diagnostics-rebaseline` | Compare Honest Diagnostics coverage rebaseline directories. | - | - | - |
@@ -181,6 +243,7 @@ Generated from `tools.registry` command metadata.
 | `validation` | `directory-health` | `active` | `polisyos-tools validation directory-health` | Build the Phase 6.2 directory-health dashboard and ratchet report. | - | - | - |
 | `validation` | `directory-hygiene-assets` | `active` | `polisyos-tools validation directory-hygiene-assets` | Report Phase 2.9 directory hygiene, asset placement, and local residue state. | - | - | - |
 | `validation` | `empty-namespace-gate` | `active` | `polisyos-tools validation empty-namespace-gate` | Fail-closed gate for Foundry methods namespace cutover. | - | - | - |
+| `validation` | `execute-gy-n12-artifact-transition` | `active` | `polisyos-tools validation execute-gy-n12-artifact-transition` | Measure and guard the bounded GY-N12 artifact transition. | - | - | - |
 | `validation` | `export-policy-evidence-capability-dcat` | `active` | `polisyos-tools validation export-policy-evidence-capability-dcat` | Export the Policy Evidence Capability Index as DCAT-compatible JSON-LD. | - | - | - |
 | `validation` | `export-policy-evidence-capability-prov` | `active` | `polisyos-tools validation export-policy-evidence-capability-prov` | Export Policy Evidence Capability Index lineage as PROV-O Turtle. | - | - | - |
 | `validation` | `fabric-best-in-class-inventory` | `active` | `polisyos-tools validation fabric-best-in-class-inventory` | Generate the Fabric best-in-class baseline inventory. | - | - | - |
@@ -194,11 +257,13 @@ Generated from `tools.registry` command metadata.
 | `validation` | `generate-adr-index` | `active` | `polisyos-tools validation generate-adr-index` | Generate ADR TOML and Markdown indexes from ``docs/adr``. | - | - | - |
 | `validation` | `generate-foundry-phase2-evidence` | `active` | `polisyos-tools validation generate-foundry-phase2-evidence` | Generate Phase 2 synthetic-world and judge evidence from enrolled JUnit reports. | - | - | - |
 | `validation` | `generate-policy-evidence-capability-cards` | `active` | `polisyos-tools validation generate-policy-evidence-capability-cards` | Generate Markdown audit cards for active evidence capabilities. | - | - | - |
+| `validation` | `gy-acquisition-assurance-oracle` | `active` | `polisyos-tools validation gy-acquisition-assurance-oracle` | Independent, confined TSV grader for the acquisition contract-testing corpus. | - | - | - |
 | `validation` | `inspect-evidence-bundles` | `active` | `polisyos-tools validation inspect-evidence-bundles` | Inspect selected serious evidence bundles for Phase 6.4 closeout. | - | - | - |
 | `validation` | `inspect-policy-evidence-capability-index` | `active` | `polisyos-tools validation inspect-policy-evidence-capability-index` | Inspect the Policy Evidence Capability Index for operator/audit review. | - | - | - |
 | `validation` | `inventory-legacy-quality-evidence` | `active` | `polisyos-tools validation inventory-legacy-quality-evidence` | Inventory and classify legacy production-quality evidence files. | - | - | - |
 | `validation` | `name-collision-gate` | `active` | `polisyos-tools validation name-collision-gate` | Fail-closed Phase 1C cross-package directory-name collision gate. | - | - | - |
 | `validation` | `production-quality-evidence-inventory` | `active` | `polisyos-tools validation production-quality-evidence-inventory` | Inventory production-quality evidence refs, fields, producers, and validators. | - | - | - |
+| `validation` | `rederive-layer3-gy-n10-cg1-l2-relation-census` | `active` | `polisyos-tools validation rederive-layer3-gy-n10-cg1-l2-relation-census` | Re-derive the read-only GY-N10 CG1-to-L2 relation census. | - | - | - |
 | `validation` | `repository-best-in-class-phase0-7-inventory` | `active` | `polisyos-tools validation repository-best-in-class-phase0-7-inventory` | Read-only Phase 0.7 inventory for repository best-in-class remediation. | - | - | - |
 | `validation` | `repository-last-mile-inventory` | `active` | `polisyos-tools validation repository-last-mile-inventory` | Read-only Phase 0.1 inventory for last-mile repository regressions. | - | - | - |
 | `validation` | `repository-last-mile-shim-callers` | `active` | `polisyos-tools validation repository-last-mile-shim-callers` | Generate Phase 0.3 caller evidence for last-mile import compatibility shims. | - | - | - |
@@ -206,6 +271,7 @@ Generated from `tools.registry` command metadata.
 | `validation` | `repository-verification-inventory` | `active` | `polisyos-tools validation repository-verification-inventory` | Generate the Repository Best-In-Class Phase 0.4 verification inventory. | - | - | - |
 | `validation` | `run-compilation-truthfulness-audit` | `active` | `polisyos-tools validation run-compilation-truthfulness-audit` | Run the W12.B compilation truthfulness audit over the universal corpus. | - | - | - |
 | `validation` | `run-domain-coverage-critic-diversity-audit` | `active` | `polisyos-tools validation run-domain-coverage-critic-diversity-audit` | Run the W12.C domain coverage and critic diversity audit. | - | - | - |
+| `validation` | `run-grounding-closeout-sweep` | `active` | `polisyos-tools validation run-grounding-closeout-sweep` | Run the N4 CGF closeout sweep through one shared grounding world. | - | - | - |
 | `validation` | `run-layer2-s14-universality-battery` | `active` | `polisyos-tools validation run-layer2-s14-universality-battery` | Run the Layer 2 S14 sealed universality assurance battery. | - | - | - |
 | `validation` | `run-policy-design-case-bundle-replay-inspection` | `active` | `polisyos-tools validation run-policy-design-case-bundle-replay-inspection` | Run the W12.E bundle, replay, and inspection phase. | - | - | - |
 | `validation` | `run-policy-design-case-cloud-one-lane-revalidation` | `active` | `polisyos-tools validation run-policy-design-case-cloud-one-lane-revalidation` | Run the W12.F cloud one-lane revalidation phase. | - | - | - |
@@ -220,14 +286,16 @@ Generated from `tools.registry` command metadata.
 | `validation` | `validate-foundry-phase0-closure` | `active` | `polisyos-tools validation validate-foundry-phase0-closure` | Emit a machine-readable closure report for Foundry Phase 0. | - | - | - |
 | `validation` | `validate-foundry-phase2-closure` | `active` | `polisyos-tools validation validate-foundry-phase2-closure` | Emit a machine-readable closure report for Foundry Phase 2. | - | - | - |
 | `validation` | `validate-phase-closure` | `active` | `polisyos-tools validation validate-phase-closure` | Emit a machine-readable closure report for the causal research phases. | - | - | - |
-| `testing` | `check-fabric-exception-baseline` | `active` | `polisyos-tools testing check-fabric-exception-baseline` | Guard against broad exception hygiene regressions in Fabric. | - | - | - |
+| `testing` | `build-review-package` | `active` | `polisyos-tools testing build-review-package` | Build deterministic, offline review packages for a Git commit range. | - | - | - |
+| `testing` | `check-fabric-exception-baseline` | `active` | `polisyos-tools testing check-fabric-exception-baseline` | Compare the legacy Fabric exception-text fingerprint with its recorded baseline. | - | - | - |
 | `testing` | `check-playwright-quarantines` | `active` | `polisyos-tools testing check-playwright-quarantines` | Validate Playwright flaky/quarantine tags against the shared quarantine registry. | - | - | - |
 | `testing` | `local-integration-stack` | `active` | `polisyos-tools testing local-integration-stack` | Run the local runtime-dashboard integration stack and smoke profile. | - | - | - |
 | `testing` | `local-prod-debug-probe` | `active` | `polisyos-tools testing local-prod-debug-probe` | Run lightweight local production-debug validation probes. | - | - | - |
-| `testing` | `mutation` | `active` | `polisyos-tools testing mutation` | Run canonical mutmut-based mutation suites for Foundry and Scientist. | - | - | - |
+| `testing` | `mutation` | `active` | `polisyos-tools testing mutation` | Run canonical mutmut suites with complete, scoped mutation evidence. | - | - | - |
 | `testing` | `repeat-pytest` | `active` | `polisyos-tools testing repeat-pytest` | Repeat one pytest invocation multiple times and fail on the first red run. | - | - | - |
 | `testing` | `report-test-economics` | `active` | `polisyos-tools testing report-test-economics` | Summarize slow suites and unstable tests from JUnit XML plus quarantine metadata. | - | - | - |
 | `testing` | `report-test-ratchets` | `active` | `polisyos-tools testing report-test-ratchets` | Report package-level mirror and property-test ratchets. | - | - | - |
+| `testing` | `run-timed-suite` | `active` | `polisyos-tools testing run-timed-suite` | Run an external verification suite while persisting one timing record. | - | - | - |
 | `testing` | `runtime-resilience-matrix` | `active` | `polisyos-tools testing runtime-resilience-matrix` | Build the deterministic runtime resilience matrix for production-quality gates. | - | - | - |
 | `ci` | `check-action-freshness` | `active` | `polisyos-tools ci check-action-freshness` | Audit pinned third-party GitHub Actions against latest upstream releases. | - | - | - |
 | `ci` | `check-fabric-schema-registry` | `active` | `polisyos-tools ci check-fabric-schema-registry` | CI wrapper for the Fabric schema governance gate. | - | - | - |
@@ -394,4 +462,4 @@ graph TD
   "workspace.python-base-mypy" --> "workspace.lint-full"
 ```
 
-_Repo root: `/Users/deniskopylov/polisyos/policy-engine`_
+_Repo root: `/Users/deniskopylov/polisyos/.worktrees/instrument-honesty/policy-engine`_

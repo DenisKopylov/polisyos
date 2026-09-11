@@ -692,3 +692,62 @@ def test_world_branch_merge_target_wins_on_conflicting_world_kind(tmp_path: Path
     assert merged_rows.iloc[0]["kind"] == "claim"
     assert len(report.resolved_conflicts) == 1
     assert report.resolved_conflicts[0].winner_value == "claim"
+
+
+def test_world_branch_merge_uses_backend_transaction_and_rolls_back_programmer_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    from polisyos.fabric.world.store import snapshots
+
+    snapshot_root = tmp_path / "rollback_snapshots"
+    with SimulationDB(db_path=str(tmp_path / "rollback_base.duckdb")) as db:
+        ensure_world_schema(db)
+        _insert_node_attr_fact(
+            db,
+            fact_id="sha256:" + "7" * 64,
+            predicate_id="world.kind",
+            object_value="claim",
+            tx_time="2026-01-01T00:00:00Z",
+            valid_time="2026-01-01T00:00:00Z",
+            segment_id="seg.base",
+        )
+        _refresh_current_world_node(db)
+        base = create_world_snapshot(db, snapshot_root=snapshot_root)
+    create_world_branch(
+        snapshot_root, branch_name="rollback_source", base_snapshot_id=base.snapshot_id
+    )
+    original_backend = SimulationDB.as_backend
+    rollback_observations = []
+
+    def observed_backend(db):
+        backend = original_backend(db)
+
+        @contextmanager
+        def transaction():
+            try:
+                with backend.transaction():
+                    yield
+            finally:
+                rollback_observations.append(
+                    db.conn.execute(
+                        "SELECT COUNT(*) FROM world.world_nodes WHERE label = 'rollback me'"
+                    ).fetchone()[0]
+                )
+
+        return SimpleNamespace(transaction=transaction)
+
+    def fail_after_write(db, **kwargs):
+        db.conn.execute("UPDATE world.world_nodes SET label = 'rollback me'")
+        raise AssertionError("merge implementation failed")
+
+    monkeypatch.setattr(SimulationDB, "as_backend", observed_backend)
+    monkeypatch.setattr(snapshots, "_refresh_merged_world_nodes", fail_after_write)
+    with pytest.raises(AssertionError, match="merge implementation failed"):
+        merge_world_branch(snapshot_root, branch_name="rollback_source")
+    assert rollback_observations == [0]
+    assert snapshots.get_world_branch(snapshot_root, "main").head_snapshot_id == base.snapshot_id
+    assert not list(snapshot_root.glob(".merge_*.duckdb"))

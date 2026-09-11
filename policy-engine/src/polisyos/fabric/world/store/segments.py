@@ -10,11 +10,13 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from pydantic import ValidationError
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.data_plane.temporal import parse_datetime_utc
+from polisyos.fabric.data_plane.temporal import TemporalValidationError, parse_datetime_utc
 from polisyos.fabric.evidence.fact_writer import write_fact_segment
 from polisyos.fabric.io.atomic import append_text_locked, atomic_write_text, file_lock
 from polisyos.fabric.world.providers import resolve_world_observability
@@ -216,7 +218,9 @@ def _coerce_mutation_kind(value: WorldMutationKind | str) -> WorldMutationKind:
         return WorldMutationKind(str(value).strip())
     except ValueError as exc:
         known = ", ".join(kind.value for kind in WorldMutationKind)
-        raise WorldSegmentError(f"unsupported world mutation kind {value!r}; expected {known}") from exc
+        raise WorldSegmentError(
+            f"unsupported world mutation kind {value!r}; expected {known}"
+        ) from exc
 
 
 def _coerce_observed_state(value: WorldObservedState | str) -> WorldObservedState:
@@ -226,7 +230,9 @@ def _coerce_observed_state(value: WorldObservedState | str) -> WorldObservedStat
         return WorldObservedState(str(value).strip())
     except ValueError as exc:
         known = ", ".join(state.value for state in WorldObservedState)
-        raise WorldSegmentError(f"unsupported world observed state {value!r}; expected {known}") from exc
+        raise WorldSegmentError(
+            f"unsupported world observed state {value!r}; expected {known}"
+        ) from exc
 
 
 def _validate_world_mutation_metadata(mutation: WorldFactMutationMetadata) -> None:
@@ -365,10 +371,7 @@ def append_world_segment_index(
                 lock_path=lock_path,
             )
             if getattr(resolved.metrics, "set_fabric_segment_count", None):
-                try:
-                    manifests = load_world_fact_manifests(fact_log_root)
-                except Exception:
-                    manifests = []
+                manifests = load_world_fact_manifests(fact_log_root)
                 tenant_id = ""
                 if isinstance(manifest.stats, dict):
                     tenant_id = str(manifest.stats.get("tenant_id", "") or "").strip()
@@ -382,7 +385,7 @@ def append_world_segment_index(
                     resolved.metrics.set_fabric_segment_count(float(count), tenant_id=tenant_id)
                 else:
                     resolved.metrics.set_fabric_segment_count(float(len(manifests)))
-    except Exception as exc:  # pragma: no cover - defensive
+    except OSError as exc:
         raise WorldSegmentError(f"failed to append world segment index: {exc}") from exc
 
 
@@ -400,7 +403,7 @@ def load_world_fact_manifests(fact_log_root: Path) -> list[FactSegmentManifest]:
                 continue
             try:
                 manifests.append(FactSegmentManifest.model_validate_json(raw))
-            except Exception as exc:
+            except ValidationError as exc:
                 logger.error(
                     "Invalid world fact manifest index entry",
                     index_path=str(index_path),
@@ -495,7 +498,7 @@ def gc_world_segments(
                         parse_datetime_utc(manifest.time_end, what="world segment time_end")
                         >= keep_since_dt
                     ) or keep
-                except Exception:
+                except TemporalValidationError:
                     keep = True
 
         if keep:

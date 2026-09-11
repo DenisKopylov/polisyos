@@ -1,4 +1,5 @@
 import {
+  evidenceFixtureWatchdog,
   parsePersistenceProcessResult,
   repositoryPythonExecutable,
 } from "./persistenceProcessResult";
@@ -269,7 +270,9 @@ function rawPlaywrightReport() {
   };
 }
 
-describe("Atlas automated evidence capture", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("Atlas automated evidence capture", watchdog, () => {
   it("freezes two declared runner profiles and rejects a new identity", () => {
     expect(Object.keys(ATLAS_AUTOMATED_RUNNER_PROFILES)).toEqual([
       "keyboard_playwright",

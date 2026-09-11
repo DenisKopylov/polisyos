@@ -45682,44 +45682,44 @@
                     "summary": "admit_epoch_validity_batch response example",
                     "value": {
                       "affected_packet_refs": [
-                        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        "sha256:2222222222222222222222222222222222222222222222222222222222222222"
                       ],
-                      "batch_id": "epoch-validity-batch-001",
+                      "batch_id": "epoch-batch-openapi-sample",
                       "claim_bridge_result_refs": [],
                       "completion_receipt": {
-                        "adjudication_denominator_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "adjudication_denominator_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
                         "affected_packet_refs": [
-                          "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          "sha256:2222222222222222222222222222222222222222222222222222222222222222"
                         ],
-                        "batch_id": "epoch-validity-batch-001",
+                        "batch_id": "epoch-batch-openapi-sample",
                         "claim_bridge_result_refs": [],
                         "completion_receipt_ref": {
-                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                          "kind": "scientist.decision_validity_epoch_batch_completion",
+                          "artifact_id": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+                          "kind": "decision_validity.epoch_batch_completion",
                           "media_type": "application/json"
                         },
-                        "dependency_denominator_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                        "requested_query_context_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "dependency_denominator_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                        "requested_query_context_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
                         "schema_version": "polisyos.decision-validity.epoch-batch-receipt.v1",
                         "state": "completed",
                         "targets": [
                           {
-                            "decision_lineage_key": "lineage_R_core_api_001",
-                            "dependency_key": "semantic_epoch:epoch-001",
-                            "packet_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                            "reason": "The admitted semantic epoch changed a decision dependency.",
-                            "status": "stale"
+                            "decision_lineage_key": "lineage-openapi-epoch-batch",
+                            "dependency_key": "law:openapi-epoch-batch",
+                            "packet_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                            "reason": "A content-bound epoch transition requires packet revalidation.",
+                            "status": "review_required"
                           }
                         ],
                         "transition_artifact_ref": {
-                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                          "kind": "runtime.semantic_epoch_transition",
-                          "media_type": "application/json"
+                          "artifact_id": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                          "kind": "chronology.epoch_transition",
+                          "media_type": "application/vnd.polisyos.chronology+json"
                         },
-                        "transition_content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "transition_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
                         "verifier_provenance_ref": {
-                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                          "kind": "runtime.epoch_transition_verifier_provenance",
+                          "artifact_id": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+                          "kind": "chronology.epoch_transition_verification_receipt",
                           "media_type": "application/json"
                         }
                       },
@@ -45730,9 +45730,9 @@
                       },
                       "state": "completed",
                       "transition": {
-                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                        "kind": "runtime.semantic_epoch_transition",
-                        "media_type": "application/json"
+                        "artifact_id": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "kind": "chronology.epoch_transition",
+                        "media_type": "application/vnd.polisyos.chronology+json"
                       }
                     }
                   }
@@ -56004,18 +56004,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:4f7caf34724a4f7ee2970d3fbdf7492891a0b23736f95788441dfa7c463c2a8d",
+                      "projection_hash": "sha256:89e123ec6ea1379bbd1ce9f77ed286b67b8cbe686638751ae6f0820b524126f2",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4f7caf34724a4f7ee2970d3fbdf7492891a0b23736f95788441dfa7c463c2a8d&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A48562e9e664421d3aa372b3a1e6f579c6aef8af133b51c9553a7b0a0ae7696a1",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A89e123ec6ea1379bbd1ce9f77ed286b67b8cbe686638751ae6f0820b524126f2&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A6f723c3d409be136b987400d216050b788ee26090b81807b14df6e74292894bf",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:4f7caf34724a4f7ee2970d3fbdf7492891a0b23736f95788441dfa7c463c2a8d",
+                        "projection_hash": "sha256:89e123ec6ea1379bbd1ce9f77ed286b67b8cbe686638751ae6f0820b524126f2",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:48562e9e664421d3aa372b3a1e6f579c6aef8af133b51c9553a7b0a0ae7696a1"
+                        "source_dependency_hash": "sha256:6f723c3d409be136b987400d216050b788ee26090b81807b14df6e74292894bf"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -56024,8 +56024,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:48562e9e664421d3aa372b3a1e6f579c6aef8af133b51c9553a7b0a0ae7696a1",
-                          "bound_dependency_count": 6416,
+                          "bound_dependency_aggregate_identity": "sha256:6f723c3d409be136b987400d216050b788ee26090b81807b14df6e74292894bf",
+                          "bound_dependency_count": 6423,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -56040,16 +56040,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:0808ec4a8dd3d47c5d5a86408befbd9d3caf35eab4bd162740af7de463fe30cf"
+                          "worker_validation_receipt_hash": "sha256:848e09e8aaa858adab89573cb659c58943a78cf73078a05c66ec2396ac815acb"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:48562e9e664421d3aa372b3a1e6f579c6aef8af133b51c9553a7b0a0ae7696a1",
+                      "source_dependency_hash": "sha256:6f723c3d409be136b987400d216050b788ee26090b81807b14df6e74292894bf",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:0808ec4a8dd3d47c5d5a86408befbd9d3caf35eab4bd162740af7de463fe30cf",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:0808ec4a8dd3d47c5d5a86408befbd9d3caf35eab4bd162740af7de463fe30cf"
+                      "worker_validation_receipt_hash": "sha256:848e09e8aaa858adab89573cb659c58943a78cf73078a05c66ec2396ac815acb",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:848e09e8aaa858adab89573cb659c58943a78cf73078a05c66ec2396ac815acb"
                     }
                   }
                 },

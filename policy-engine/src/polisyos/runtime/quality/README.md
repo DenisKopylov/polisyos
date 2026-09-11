@@ -24,7 +24,17 @@ Boundary notes:
   reports new or regressed source mechanisms with no resolved path. Named caller
   task deferrals stay explicit. Static paths are diagnostic evidence; they do not
   establish runtime execution, persistence or authority. Its CLI persists and can
-  recompute an exact receipt using the lane base.
+  recompute an exact receipt using the lane base. Discover it as
+  `polisyos-tools validation check-production-invocation --base REF --receipt PATH`.
+  Decorated or registered receivers and their known downstream paths remain
+  `unresolved_by_construction`, distinct from direct `uninvoked` diagnostics;
+  opaque receiver calls carry unresolved source sites without invented targets.
+  Direct traversal stops at coroutine, generator, and lambda bodies; even explicit
+  await/next resumption stays outside this conservative source measurement.
+  Every stdout verdict names HTTP, DI/container, event-bus, callback, and dynamic
+  receiver boundaries it did not measure. Exit 0 is a bounded clean delta,
+  1 means direct regressions, 3 means newly unresolved receivers, and 2 means
+  UNRUN with no complete verdict. Runtime dispatch is never inferred.
 - `production_grounding_calibration.py` persists and replays source discovery
   for the exact current N7 request and world context. The generation controller
   carries the actual N8 requirement into this path. Its relation acceptance slot

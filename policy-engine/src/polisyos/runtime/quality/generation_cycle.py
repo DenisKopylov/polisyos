@@ -38,6 +38,7 @@ from pydantic import (
 
 from polisyos.core import components as core_components
 from polisyos.core import contracts as core_contracts
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -2713,7 +2714,6 @@ class GenerationCycleController:
         )
 
     def _begin_source_run(self, run_id: str) -> None:
-        from polisyos.core import artifacts
         from polisyos.runtime.quality.generation_source import GenerationSourceRepository
         from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
 
@@ -2727,7 +2727,12 @@ class GenerationCycleController:
         try:
             store = (
                 self._promotion_runtime.store if self._promotion_runtime is not None
-                else artifacts.FileSystemCAS(root / ".polisyos/runtime/generation_source")
+                else build_artifact_store(
+                    ArtifactStoreConfig(
+                        backend="filesystem",
+                        root=str(root / ".polisyos/runtime/generation_source"),
+                    ),
+                )
             )
             self._source_repository = GenerationSourceRepository(store)
         except (OSError, ValueError):

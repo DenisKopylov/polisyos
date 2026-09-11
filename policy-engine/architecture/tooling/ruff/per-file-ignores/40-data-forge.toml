@@ -18,7 +18,6 @@
 "src/polisyos/data_forge/domains/academic/batch/pipeline.py" = ["ANN001"]
 "src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py" = ["E501"]
 "src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/claim_adjudication.py" = ["E501"]
 "src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py" = ["E501"]
 "src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py" = ["E501"]
 "src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py" = ["E501"]

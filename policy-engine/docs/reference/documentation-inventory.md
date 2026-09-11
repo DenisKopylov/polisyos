@@ -12,6 +12,69 @@ refresh. It now doubles as the current docs control ledger: source plans,
 documentation surfaces, fresh QA evidence, owners, and shared files that still
 require coordination.
 
+## 2026-09-11 instrument and custody impact note
+
+Scope: the local `codex/instrument-honesty` slice from `cc74d6581`. This note
+records the changed behavior and operational boundary; it is not a hosted CI
+receipt, a historical source-impact repair, or an authority promotion.
+
+- **Fabric connector configuration:** `ConnectionConfig.redacted()` in
+  `src/polisyos/fabric/connectors/base.py` submits every credential value to the
+  canonical secret scanner while preserving arbitrary credential keys and the
+  immutable input mapping. Incomplete scanner output raises an explicit redaction
+  UNRUN error instead of returning apparently empty credentials. Headers retain
+  the scanner's existing handling. URL contents and credential key names are not
+  a complete secret-redaction surface. The negative tests in
+  `tests/unit/fabric/connectors/sources/test_http_connector_base.py` exercise
+  arbitrary secret keys and malformed scanner output; the protocol consumer is
+  separately exercised in `tests/unit/fabric/connectors/test_protocol_compliance.py`.
+- **Runtime/Core custody:** runtime constructors compose the existing
+  `build_artifact_store` factory and public `ArtifactStore` contract. The factory
+  carries explicit filesystem tenant/cell ownership; unsupported backends refuse
+  scoped construction before creating a remote store. Existing CAS roots,
+  permissions, receipt kinds and ledger accounting remain governed by their
+  owners. Acquisition accepts an injected store and registry providers and
+  refuses a store whose artifact backing differs from its declared source;
+  missing injected profiles do not fall back to a process-global registry.
+  `tests/unit/core/artifacts/backends/test_config.py` exercises actual persistence,
+  reopening and wrong-scope refusal; `test_live_acquisition_executor.py` exercises
+  the real orchestrator/connector with transport intercepted.
+- **Scientist/Common ownership:** the JSON extraction implementation moved into
+  the existing `polisyos.common.serialization` owner, with all non-test importers
+  redirected. This includes discovery workers, design generation, the adversary
+  and translator. The extraction function AST bodies are unchanged, and real
+  parser/importer negatives still reject malformed output. LLM text remains a
+  candidate; the move grants no evidence or approval authority. Discovery workers'
+  public interface and Foundry method semantics are not extended by this import
+  consolidation. Package-boundary acceptance of the new import edges remains an
+  architect decision, not an incidental baseline refresh.
+- **Dashboard and schema consumers:** behavioral tests exercise shortcuts,
+  reproduction navigation and real scenario-query admission. Statement coverage
+  still uses the existing 85.57% floor and zero tolerance. The types comparison
+  now invokes the locked workspace generator and its existing recursive-type
+  normalizer; subprocess success alone cannot establish canonical byte agreement.
+  Coverage, type bytes and static invocation each print their own unmeasured
+  boundaries and do not establish deployed runtime behavior.
+
+Operational response for these changed seams: treat an unavailable scanner,
+registry, owner validator or comparison artifact as no complete verdict. Preserve
+that reason and the existing receipt bytes; do not promote a previous success or
+retry against another store/profile as if it were the requested custody scope.
+For suspected CAS migration issues, first reconcile the configured root and
+explicit tenant/cell against the actual store, then use the named persistence and
+acquisition tests above. For schema drift, run the registered
+`polisyos-tools runtime check-runtime-api-contract` and regenerate through
+`polisyos-tools runtime export-runtime-openapi` only after source inputs are
+frozen. A timeout is distinct from a completed byte diff. For import findings,
+retain the exact edges for the architect; do not run guardrails sync to clear them.
+These are local diagnosis instructions, not a completed production rehearsal.
+
+The existing path-aware documentation planner measures changed-path coverage,
+not the substance of this note or execution of its planned child gates. Original
+C-CI F19/F20/F21/F22 findings retain their historical ranges; this note addresses
+only the current slice. Deciding local evidence and explicit test selectors are
+retained in the repository's instrument completion journal and runner.
+
 ## D0 Exit Snapshot
 
 | Exit criterion                           | Status | Evidence                                                      |

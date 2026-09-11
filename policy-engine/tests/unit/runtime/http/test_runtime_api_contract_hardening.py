@@ -286,11 +286,19 @@ def test_epoch_staleness_examples_separate_positive_and_declared_absence() -> No
 
 
 def test_epoch_batch_success_example_is_owner_derived_and_strict() -> None:
+    from polisyos.runtime.http import openapi_contract
+
+    print(
+        "Measured: canonical typed epoch transport example registration and wire/status "
+        "agreement. Not measured: persisted epoch admission, runtime status composition, "
+        "clock/expiry behavior, or hosted CI."
+    )
     schema = export_runtime_openapi_schema()
     operation = schema["paths"]["/api/v1/control/decision-validity/epoch-batches"]["post"]
-    example = operation["responses"]["200"]["content"]["application/json"]["examples"][
-        "default"
-    ]["value"]
+    content = operation["responses"]["200"]["content"]["application/json"]
+    assert "examples" in content, "canonical epoch batch transport example is not registered"
+    example = content["examples"]["default"]["value"]
+    assert example == openapi_contract._epoch_validity_batch_example()
 
     packet = EpochValidityBatchResponse.model_validate(example)
 
@@ -889,9 +897,12 @@ def test_committed_runtime_client_matches_package_generation_pipeline(tmp_path: 
 def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Path) -> None:
     result = subprocess.run(
         [
-            "npx",
-            "--yes",
-            f"openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}",
+            "corepack",
+            "pnpm",
+            "--dir",
+            str(repo_root / "apps/runtime-dashboard"),
+            "exec",
+            "openapi-typescript",
             str(spec_path),
             "-o",
             str(output_path),
@@ -903,24 +914,39 @@ def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Pa
         check=False,
     )
     assert result.returncode == 0, result.stderr or result.stdout
+    normalized = subprocess.run(
+        [
+            "node",
+            str(repo_root / "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs"),
+            "--types",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert normalized.returncode == 0, normalized.stderr or normalized.stdout
+    print(
+        "Measured: schema-type bytes from the locked executable and canonical recursive-type "
+        "normalizer. Not measured: runtime client behavior, endpoint execution, or hosted CI."
+    )
 
 
 def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
     repo_root = Path(__file__).resolve().parents[4]
-    client_root = repo_root / "packages" / "runtime-api-client"
-    manifest = json.loads((client_root / "package.json").read_text(encoding="utf-8"))
-    generator = (client_root / "scripts/generate-runtime-api-client.sh").read_text(encoding="utf-8")
-    readme = (client_root / "README.md").read_text(encoding="utf-8")
-    expected_invocation = f"npx --yes openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}"
-
-    generate_command = manifest["scripts"]["generate"]
-    assert generate_command == "bash ./scripts/generate-runtime-api-client.sh"
-    assert expected_invocation in generator
-    assert "apps/runtime-dashboard" not in generator
-    assert "--prefix" not in generator
-    assert "--output-root" in generator
-    assert expected_invocation in readme
-    assert "npx --prefix apps/runtime-dashboard" not in readme
+    result = subprocess.run(
+        ["corepack", "pnpm", "--dir", str(repo_root / "apps/runtime-dashboard"),
+         "exec", "openapi-typescript", "--version"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+    assert result.stdout.strip() == f"v{OPENAPI_TYPESCRIPT_VERSION}"
+    # Actual package output ownership is exercised by the scratch-generation
+    # consumer below, rather than inferred from shell marker strings.
 
 
 def test_client_package_entrypoints_generate_only_in_scratch(tmp_path: Path) -> None:

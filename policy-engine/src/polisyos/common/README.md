@@ -11,7 +11,10 @@ migration primitives. Keep domain logic out of this package.
 
 - `src/polisyos/common/__init__.py` for the lazy facade contract.
 - `src/polisyos/common/serialization.py` for canonical JSON helpers and
-  round-trip guarantees.
+  round-trip guarantees. It also owns extraction of syntactically valid JSON
+  from LLM response text. Extraction produces a candidate value; downstream
+  schema, grounding and authority checks remain mandatory. The former
+  unregistered `common/llm_json.py` implementation is consolidated here.
 
 - `src/polisyos/common/timestamps.py` for aware-UTC parsing and formatting.
 - `src/polisyos/common/async_tools.py` for sync/async bridge utilities and the

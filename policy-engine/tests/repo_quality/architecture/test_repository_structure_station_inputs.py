@@ -96,7 +96,7 @@ def test_missing_tracked_input_is_reported_instead_of_disappearing(station: Path
 
     code, findings = _gate(station)
 
-    assert code == 1
+    assert code == 2
     assert [item["gate"] for item in findings] == ["repository_input"]
     assert "Tracked input is unavailable" in findings[0]["message"]
 
@@ -132,6 +132,123 @@ def test_required_configuration_cannot_be_supplied_by_the_station(station: Path)
 
     after = _gate(station)
 
-    assert before[0] == after[0] == 1
+    assert before[0] == after[0] == 2
     assert [item["gate"] for item in before[1]] == ["repository_input"]
     assert [item["gate"] for item in after[1]] == ["repository_input"]
+
+
+@pytest.mark.parametrize(("lines", "expected_code"), [(300, 0), (301, 1)])
+def test_pyproject_reports_physical_measurement_and_semantic_omissions(
+    station: Path, lines: int, expected_code: int
+) -> None:
+    manifest = station / "policy-engine/pyproject.toml"
+    original = manifest.read_text()
+    manifest.write_text(original + "# no configuration change\n" * (lines - 3))
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATION_SCRIPT),
+            "--repo-root",
+            str(manifest.parent),
+            "gate",
+            "--gate",
+            "pyproject_size",
+            "--json",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    report = json.loads(result.stdout)
+    assert result.returncode == expected_code, result.stderr
+    assert report["status"] == ("FAILED" if expected_code else "passed")
+    assert report["measurement"]["pyproject_physical_lines"] == lines
+    assert report["measurement"]["pyproject_max_lines"] == 300
+    assert "comments and blank lines" in report["measurement"]["measures"]
+    assert "configuration complexity" in report["measurement"]["not_measured"]
+    assert "dependency correctness" in report["measurement"]["not_measured"]
+    assert report["complete_verdict"] is True
+
+
+@pytest.mark.parametrize("mode", ["report-only", "fail-closed"])
+def test_missing_pyproject_is_unrun_even_when_report_only(station: Path, mode: str) -> None:
+    (station / "policy-engine/pyproject.toml").unlink()
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATION_SCRIPT),
+            "--repo-root",
+            str(station / "policy-engine"),
+            "gate",
+            "--gate",
+            "pyproject_size",
+            "--mode",
+            mode,
+            "--json",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    report = json.loads(result.stdout)
+    assert result.returncode == 2
+    assert report["status"] == "UNRUN"
+    assert report["complete_verdict"] is False
+    assert report["finding_coverage"] == "partial"
+    assert "pyproject.toml" in report["findings"][0]["message"]
+    assert "Traceback" not in result.stderr
+
+
+def test_registered_pyproject_command_prints_omissions_on_clean_input(station: Path) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "tools.cli",
+            "validation",
+            "repository-structure-phase0",
+            "--repo-root",
+            str(station / "policy-engine"),
+            "gate",
+            "--gate",
+            "pyproject_size",
+        ],
+        cwd=VALIDATION_SCRIPT.parents[3],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "passed" in result.stdout
+    assert "Not measured:" in result.stdout
+    assert "configuration complexity" in result.stdout
+    assert "comments and blank lines" in result.stdout
+
+
+def test_malformed_gate_policy_is_unrun_instead_of_a_traceback(station: Path) -> None:
+    policy = station / "policy-engine/architecture/exceptions/structure_remediation.toml"
+    policy.parent.mkdir(parents=True)
+    policy.write_text("[broken\n")
+    _git(station, "add", "policy-engine/architecture/exceptions/structure_remediation.toml")
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATION_SCRIPT),
+            "--repo-root",
+            str(station / "policy-engine"),
+            "gate",
+            "--gate",
+            "pyproject_size",
+            "--json",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2, result.stdout + result.stderr
+    report = json.loads(result.stdout)
+    assert report["status"] == "UNRUN"
+    assert report["finding_coverage"] == "partial"
+    assert report["complete_verdict"] is False
+    assert report["findings"][0]["gate"] == "repository_input"
+    assert "Traceback" not in result.stderr

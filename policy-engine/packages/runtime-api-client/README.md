@@ -103,9 +103,10 @@ file is a downstream compatibility surface, not a second owner.
   Replays schema types, the raw compatibility artifacts, and the public
   canonical twin in one command after exporting the OpenAPI schema.
 
-- `npx --yes openapi-typescript@7.13.0 schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts`
-  Canonical schema-type generation; the exact tool pin is owned by this shared
-  package and does not depend on a dashboard-local installation.
+  The package command resolves `openapi-typescript` through the frozen workspace
+  installation in `apps/runtime-dashboard`, then runs the canonical recursive-type
+  normalizer. Raw standalone generator output is not the committed type contract.
+  Byte agreement does not establish runtime client behavior or endpoint execution.
 
 ## Test And Verification
 

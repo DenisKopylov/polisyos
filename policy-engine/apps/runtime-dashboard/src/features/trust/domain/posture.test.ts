@@ -1,3 +1,4 @@
+import { evidenceFixtureWatchdog } from "@/test/evidence/persistenceProcessResult";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
@@ -137,7 +138,9 @@ async function loadDomain() {
   return Promise.all([import("./posture"), import("./loadPosture")]);
 }
 
-describe("trust posture artifact admission", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("trust posture artifact admission", watchdog, () => {
   it("accepts the complete committed artifact and rejects nested or version novelty", async () => {
     const [{ claimPostureRegisterSchema }] = await loadDomain();
 

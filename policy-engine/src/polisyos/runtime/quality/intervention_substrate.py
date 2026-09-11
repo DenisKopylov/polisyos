@@ -31,7 +31,8 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts  # noqa: TC001 - Pydantic resolves these fields at runtime.
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.foundry import (
     LegalCorrespondenceRequest,
     LegalCorrespondenceResult,
@@ -774,7 +775,12 @@ def resolve_law_bound_lever(
         source_ref = {}  # A supplied null is malformed, distinct from no declaration.
     store = correspondence_store
     if source_ref is not None and store is None:
-        store = artifacts.FileSystemCAS(_repo_root_for_bundle(bundle) / ".polisyos/cas")
+        store = build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(_repo_root_for_bundle(bundle) / ".polisyos/cas"),
+            ),
+        )
     request = LegalCorrespondenceRequest(
         lever_ref="knob:" + knob, lever_content_hash=gy_content_hash(bundle.knob_dictionary[knob]),
         norm_ref="lex_rule_thresholds:" + threshold.threshold_id,
@@ -1150,7 +1156,12 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
 
     subject_ref = produce_intervention_legal_subject_spine(
         repo_root, bundle, legal_store=lex_store,
-        store=artifacts.FileSystemCAS(repo_root / ".polisyos/cas"))
+        store=build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(repo_root / ".polisyos/cas"),
+            ),
+        ))
     subject_bundle = replace_intervention_substrate_bundle(bundle, update={
         "owner_authority_manifest": {**bundle.owner_authority_manifest,
                                      "legal_subject_spine_ref": subject_ref.model_dump(
@@ -1393,7 +1404,12 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
             grown_annotations[role] = LegalSubjectAnnotationSource.model_validate(raw)
         grown_spine = produce_intervention_legal_subject_spine(
             repo_root, grown, legal_store=lex_store,
-            store=artifacts.FileSystemCAS(repo_root / ".polisyos/cas"),
+            store=build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(repo_root / ".polisyos/cas"),
+                ),
+            ),
             annotations=grown_annotations)
         grown = replace_intervention_substrate_bundle(grown, update={
             "owner_authority_manifest": {**grown.owner_authority_manifest,
@@ -2054,14 +2070,18 @@ def _repo_root_for_bundle(bundle: InterventionSubstrateBundle) -> Path:
 
 @lru_cache(maxsize=4)
 def _production_composed_world_model_record(repo_root: str) -> WorldModelRecord:
-    from polisyos.core.artifacts import FileSystemCAS
     from polisyos.runtime.quality.data_state_substrate import (
         build_production_data_state_world_model_record,
     )
 
     root = Path(repo_root).resolve()
     built = build_production_data_state_world_model_record(
-        FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas"),
+        build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(root / ".tmp/gy-s-composed-wmr-cas"),
+            ),
+        ),
         repo_root=root,
         workspace_dir=root / ".tmp/gy-s-composed-wmr-world",
         agent_limit=_COMPOSED_WMR_AGENT_LIMIT,

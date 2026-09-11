@@ -23,6 +23,7 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.fabric import connectors as fabric_connectors
 from polisyos.fabric import data_plane as fabric_data_plane
@@ -33,6 +34,9 @@ epoch_contract = contracts.epoch
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from polisyos.runtime.http.services.control_registry_providers import (
+        ControlRegistryProviders,
+    )
     from polisyos.runtime.quality.semantic_epoch import (
         EpochResolutionQuery,
         EpochScopeIdentity,
@@ -43,13 +47,12 @@ if TYPE_CHECKING:
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
 ArtifactWriteOptions = artifacts.PutOptions
-FileSystemCAS = artifacts.FileSystemCAS
+ArtifactStore = artifacts.ArtifactStore
 DataSnapshot = contracts.DataSnapshot
 EvidenceBundle = contracts.EvidenceBundle
 FetchRequest = fabric_connectors.FetchRequest
 FetchResult = fabric_connectors.FetchResult
 ResultSerializer = fabric_connectors.ResultSerializer
-SourceProfileRegistry = fabric_connectors.SourceProfileRegistry
 ConnectorManifestSpec = fabric_ingestion.ConnectorManifestSpec
 DatasetFetchSpec = fabric_ingestion.DatasetFetchSpec
 JournalEventRef = fabric_data_plane.JournalEventRef
@@ -516,7 +519,7 @@ class _LiveHTTPExecutionObserver:
         journal: fabric_data_plane.AppendOnlyEvidenceJournal,
         request_ref: JournalEventRef,
         authorization: fabric_data_plane.LiveExecutionAuthorization,
-        artifact_store: FileSystemCAS,
+        artifact_store: ArtifactStore,
         expected_connector_id: str,
         expected_url: str,
         expected_params: Mapping[str, str],
@@ -708,12 +711,20 @@ def execute_live_catalog_acquisition(
     constraints: LiveCatalogExecutionConstraints,
     journal_path: Path,
     cas_root: Path,
+    artifact_store: ArtifactStore | None = None,
+    registry_providers: ControlRegistryProviders | None = None,
 ) -> LiveSourceExecutionEvidence:
     """Execute one catalog-owned variable through Fabric and return quarantine evidence.
 
     The function does not admit observations.  It creates the exact raw journal/CAS
     carrier and Fabric snapshot required by the independent passport owner.
+    An injected store must address the same backing artifacts as ``cas_root``,
+    which Fabric's ingestion owner uses for its independent writes.
     """
+
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
 
     resolved = ResolvedAcquisitionAuthority.model_validate(authority.resolve(entry_id))
     entry = resolved.entry
@@ -731,7 +742,12 @@ def execute_live_catalog_acquisition(
             "live_license_not_admissible",
             resolved.license_id,
         )
-    profile = SourceProfileRegistry.get_instance().get(registration.source_profile_id)
+    providers = (
+        registry_providers
+        if registry_providers is not None
+        else resolve_control_registry_providers()
+    )
+    profile = providers.source_profiles.get(registration.source_profile_id)
     if profile is None:
         raise LiveAcquisitionExecutionError(
             "live_source_profile_unresolved",
@@ -794,7 +810,11 @@ def execute_live_catalog_acquisition(
     )
     journal = fabric_data_plane.AppendOnlyEvidenceJournal(journal_path)
     request_ref = journal.append_request(attempt_id=attempt_id, request=request)
-    store = FileSystemCAS(cas_root)
+    store = (
+        artifact_store
+        if artifact_store is not None
+        else build_artifact_store(ArtifactStoreConfig(backend="filesystem", root=str(cas_root)))
+    )
     expected_url = (
         profile.base_url.rstrip("/")
         + f"/country/{constraints.country_code}/indicator/"
@@ -897,7 +917,7 @@ def _execute_authorized_live_acquisition(
     constraints: LiveCatalogExecutionConstraints,
     journal: fabric_data_plane.AppendOnlyEvidenceJournal,
     request_ref: JournalEventRef,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     observer: _LiveHTTPExecutionObserver,
     authorization: fabric_data_plane.LiveExecutionAuthorization,
     family_receipt: Mapping[str, Any],
@@ -1831,7 +1851,7 @@ def admit_acquisition_with_production_semantic_epoch(
     repo_root: Path,
     epoch_id: int,
     raw_evidence_ref: JournalEventRef,
-    artifact_store: FileSystemCAS,
+    artifact_store: ArtifactStore,
     authority: _CanonicalAuthority,
     overlay_path: Path,
     epoch_history_root: Path,

@@ -25,8 +25,12 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    infer_artifact_store_config,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.fabric.io import atomic
@@ -35,6 +39,7 @@ from polisyos.pdc import AuthorityBoundary
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.http.services.control_plane_store import (
         ControlOutboxRecord,
         ControlPlaneStore,
@@ -178,11 +183,15 @@ class AdaptationTransitionRuntime:
     """
 
     def __init__(
-        self, *, store: ControlPlaneStore, artifact_store: FileSystemCAS,
+        self, *, store: ControlPlaneStore, artifact_store: ArtifactStore,
         tenant_id: str, cell_id: str,
     ) -> None:
         self._store = store
         self._cas = artifact_store
+        cas_config = infer_artifact_store_config(artifact_store)
+        if cas_config is None or cas_config.backend != "filesystem" or not cas_config.root:
+            raise ValueError("candidate_custody_filesystem_root_unavailable")
+        self._cas_root = Path(cas_config.root)
         self._tenant_id = tenant_id
         self._cell_id = cell_id
         if atomic.fcntl is None:
@@ -198,8 +207,13 @@ class AdaptationTransitionRuntime:
 
         return cls(
             store=ControlPlaneStore(backend="sqlite", sqlite_path=root / "control.sqlite"),
-            artifact_store=FileSystemCAS(
-                root / "cas", tenant_id=tenant_id, cell_id=cell_id,
+            artifact_store=build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(root / "cas"),
+                ),
+                tenant_id=tenant_id,
+                cell_id=cell_id,
             ),
             tenant_id=tenant_id, cell_id=cell_id,
         )
@@ -372,7 +386,7 @@ class AdaptationTransitionRuntime:
         record = type(record).model_validate(record.model_dump(mode="json"))
         # The CAS ownership index has a per-instance lock. Serialize only its
         # put/readback across cooperating CR1 writers sharing this local CAS root.
-        lock_path = self._cas.root / "artifacts/ownership/adaptation-transition.lock"
+        lock_path = self._cas_root / "artifacts/ownership/adaptation-transition.lock"
         with atomic.file_lock(lock_path):
             reference = str(self._cas.put_json(
                 record.model_dump(mode="json"),

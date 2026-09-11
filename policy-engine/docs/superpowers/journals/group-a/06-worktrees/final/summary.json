@@ -1,0 +1,1678 @@
+{
+  "time_utc": "2026-09-11T12:45:35.389473+00:00",
+  "main": "63bdb9640e7b76b49356cba940bab6067f1be512",
+  "common_dir": "/Users/deniskopylov/polisyos/.git",
+  "porcelain_total": 77,
+  "admin_plus_main_total": 77,
+  "path_set_equal": true,
+  "metadata_stable_through_prune_dry_run": true,
+  "metadata_stable_through_off_path_scan": true,
+  "main_stable": true,
+  "linked_registration_count": 76,
+  "missing_directory_count": 53,
+  "dry_run_selected_count": 53,
+  "selected_branch_distribution": {
+    "merged_into_pinned_main": 43,
+    "detached_commit_in_main": 10
+  },
+  "selected_existing_directory_count": 0,
+  "scan": {
+    "roots": [
+      "/Users/deniskopylov",
+      "/private/tmp"
+    ],
+    "directories_visited": 199035,
+    "directory_entries_inspected": 1537005,
+    "excluded_names": [
+      ".Trash",
+      ".cache",
+      ".cargo",
+      ".git",
+      ".npm",
+      ".pnpm-store",
+      ".rustup",
+      ".venv",
+      "Library",
+      "Photos Library.photoslibrary",
+      "__pycache__",
+      "node_modules",
+      "venv"
+    ],
+    "excluded_path_count": 11241,
+    "error_count": 3,
+    "errors": [
+      {
+        "path": "/Users/deniskopylov/Documents",
+        "error": "[Errno 1] Operation not permitted: '/Users/deniskopylov/Documents'"
+      },
+      {
+        "path": "/Users/deniskopylov/Movies/TV",
+        "error": "[Errno 1] Operation not permitted: '/Users/deniskopylov/Movies/TV'"
+      },
+      {
+        "path": "/Users/deniskopylov/Music/Music",
+        "error": "[Errno 1] Operation not permitted: '/Users/deniskopylov/Music/Music'"
+      }
+    ],
+    "all_repo_git_pointers": [
+      {
+        "path": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/premerge/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/premerge",
+        "registration": "premerge"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/apparatus-base/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/apparatus-base",
+        "registration": "apparatus-base"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gy-measure/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gy-measure",
+        "registration": "gy-measure"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/owner-residuals/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/owner-residuals",
+        "registration": "owner-residuals"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gy-lattice/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gy-lattice",
+        "registration": "gy-lattice"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/atlas/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/atlas",
+        "registration": "atlas"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gy-builders/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gy-builders",
+        "registration": "gy-builders"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/correspondence-consumers/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/correspondence-consumers",
+        "registration": "correspondence-consumers"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gyphase5-lane-basecheck",
+        "registration": "gyphase5-lane-basecheck"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gy-phase5",
+        "registration": "gy-phase5"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gy/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gy",
+        "registration": "gy"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/apparatus-cold/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/apparatus-cold",
+        "registration": "apparatus-cold"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gy-corr/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gy-corr",
+        "registration": "gy-corr"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/apparatus/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/apparatus",
+        "registration": "apparatus"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gygaps-lane-base/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gygaps-lane-base",
+        "registration": "gygaps-lane-base"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/gy-gaps",
+        "registration": "gy-gaps"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/instruments2/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/instruments2",
+        "registration": "instruments2"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/integration/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/integration",
+        "registration": "integration"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/group-a-analysis/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/group-a-analysis",
+        "registration": "group-a-analysis"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/uninvoked/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/uninvoked",
+        "registration": "uninvoked"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/producers-verification/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/producers-verification",
+        "registration": "producers-verification"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/atlas-lane-base/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/atlas-lane-base",
+        "registration": "atlas-lane-base"
+      },
+      {
+        "path": "/Users/deniskopylov/polisyos/.worktrees/instrument-honesty/.git",
+        "target": "/Users/deniskopylov/polisyos/.git/worktrees/instrument-honesty",
+        "registration": "instrument-honesty"
+      }
+    ]
+  },
+  "registrations": [
+    {
+      "registration": "apparatus",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/apparatus",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/measuring-apparatus",
+      "tip": "4140a2389a232470c14f7a5c1d6dbbe83f14746c",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/apparatus",
+          "HEAD": "4140a2389a232470c14f7a5c1d6dbbe83f14746c",
+          "branch": "refs/heads/codex/measuring-apparatus"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "apparatus-base",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/apparatus-base",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": null,
+      "tip": "c49449343cbaa8dfeba9d0c7afd3de67355205a3",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/apparatus-base",
+          "HEAD": "c49449343cbaa8dfeba9d0c7afd3de67355205a3",
+          "detached": ""
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "apparatus-cold",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/apparatus-cold",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": null,
+      "tip": "272d3bbc4cf7fcefe51a76ef78869064557eeaa9",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/apparatus-cold",
+          "HEAD": "272d3bbc4cf7fcefe51a76ef78869064557eeaa9",
+          "detached": ""
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "atlas",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/atlas",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/atlas-public-surface",
+      "tip": "3816809e8af5ccfc5f6a428f91824936aa6c0c95",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/atlas",
+          "HEAD": "3816809e8af5ccfc5f6a428f91824936aa6c0c95",
+          "branch": "refs/heads/codex/atlas-public-surface"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "atlas-lane-base",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/atlas-lane-base",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/atlas-lane-base",
+      "tip": "f481538706316b0d94722fd2a3891b2067779a38",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/atlas-lane-base",
+          "HEAD": "f481538706316b0d94722fd2a3891b2067779a38",
+          "branch": "refs/heads/codex/atlas-lane-base"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "ci-repair",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/ci-repair",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/ci-bootstrap-and-glob-repair",
+      "tip": "df440069e179e80259cd9dab01f6d0687d6e8514",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/ci-repair",
+          "HEAD": "df440069e179e80259cd9dab01f6d0687d6e8514",
+          "branch": "refs/heads/codex/ci-bootstrap-and-glob-repair",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "ci-targets",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/ci-targets",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/ci-declared-targets",
+      "tip": "f1f21a474d22285b8229d7bd8a009a4048df79dd",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/ci-targets",
+          "HEAD": "f1f21a474d22285b8229d7bd8a009a4048df79dd",
+          "branch": "refs/heads/codex/ci-declared-targets",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "correspondence-consumers",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/correspondence-consumers",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/correspondence-consumers",
+      "tip": "671ca6630e7205b81920c3bd3ecbca7f896b9f3b",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/correspondence-consumers",
+          "HEAD": "671ca6630e7205b81920c3bd3ecbca7f896b9f3b",
+          "branch": "refs/heads/codex/correspondence-consumers"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "dashboard",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/dashboard",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/dashboard-debt",
+      "tip": "c0aed3270974b0327f61fc46e1a31f772cbebe43",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/dashboard",
+          "HEAD": "c0aed3270974b0327f61fc46e1a31f772cbebe43",
+          "branch": "refs/heads/codex/dashboard-debt",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-a-promotion-gate",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-a-promotion-gate",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-a-promotion-gate",
+      "tip": "964bf207a87357131a6d1dfa571bf9ed813a9a1d",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-a-promotion-gate",
+          "HEAD": "964bf207a87357131a6d1dfa571bf9ed813a9a1d",
+          "branch": "refs/heads/codex/debt-a-promotion-gate",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-a2-drift-baseline",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-a2-drift-baseline",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "fac07ffc6281e53e5a58c8a30c3b848a6b60e0e5",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-a2-drift-baseline",
+          "HEAD": "fac07ffc6281e53e5a58c8a30c3b848a6b60e0e5",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-a2-drift-detection",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-a2-drift-detection",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-group-a-drift-detection",
+      "tip": "81d059630f04685957364913e031e0a644fb589c",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-a2-drift-detection",
+          "HEAD": "81d059630f04685957364913e031e0a644fb589c",
+          "branch": "refs/heads/codex/debt-group-a-drift-detection",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-academic-producer-repairs",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-academic-producer-repairs",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-academic-producer-repairs",
+      "tip": "dcb8b0571600891837110f07934f2c7432dd1ec0",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-academic-producer-repairs",
+          "HEAD": "dcb8b0571600891837110f07934f2c7432dd1ec0",
+          "branch": "refs/heads/codex/debt-academic-producer-repairs",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-b-epoch-decision-validity",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-b-epoch-decision-validity",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-b-epoch-decision-validity",
+      "tip": "2d1840e6c543b04ce18d48e0bfde8b3e0a2d74ee",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-b-epoch-decision-validity",
+          "HEAD": "2d1840e6c543b04ce18d48e0bfde8b3e0a2d74ee",
+          "branch": "refs/heads/codex/debt-b-epoch-decision-validity",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-b-extraction-vocabulary",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-b-extraction-vocabulary",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-b-extraction-vocabulary",
+      "tip": "e0a4f4c070a8afa7af8bcb7aac97610d855f7181",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-b-extraction-vocabulary",
+          "HEAD": "e0a4f4c070a8afa7af8bcb7aac97610d855f7181",
+          "branch": "refs/heads/codex/debt-b-extraction-vocabulary",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-b2-manufactured-design",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-b2-manufactured-design",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-b2-manufactured-design",
+      "tip": "65f1fe0b1221e7e47ef9daee6ddef4394649120b",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-b2-manufactured-design",
+          "HEAD": "65f1fe0b1221e7e47ef9daee6ddef4394649120b",
+          "branch": "refs/heads/codex/debt-b2-manufactured-design",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-c-ds10-capability-discovery",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-c-ds10-capability-discovery",
+      "tip": "5710d6694fcdcbe1d329f97c48ac6175bf2cd248",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery",
+          "HEAD": "5710d6694fcdcbe1d329f97c48ac6175bf2cd248",
+          "branch": "refs/heads/codex/debt-c-ds10-capability-discovery",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-d-ds11-trust-posture",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-d-ds11-trust-posture",
+      "tip": "69de30bfcd0b95ca8a2a5321f519796470c69d02",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture",
+          "HEAD": "69de30bfcd0b95ca8a2a5321f519796470c69d02",
+          "branch": "refs/heads/codex/debt-d-ds11-trust-posture",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-e-acquisition-n13b",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-e-acquisition-n13b",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-e-acquisition-n13b",
+      "tip": "066e1978ac1c2bf82f790446dd23d8f607780122",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-e-acquisition-n13b",
+          "HEAD": "066e1978ac1c2bf82f790446dd23d8f607780122",
+          "branch": "refs/heads/codex/debt-e-acquisition-n13b",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-evidence-class-reachability",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-evidence-class-reachability",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-evidence-class-vocabulary-reachability",
+      "tip": "9bd114d672411e77a1495a45dd25b046a956d7db",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-evidence-class-reachability",
+          "HEAD": "9bd114d672411e77a1495a45dd25b046a956d7db",
+          "branch": "refs/heads/codex/debt-evidence-class-vocabulary-reachability",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-f-architecture-imports",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-f-architecture-imports",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-f-architecture-imports",
+      "tip": "f203306725f878506692185e665ad079b9290302",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-f-architecture-imports",
+          "HEAD": "f203306725f878506692185e665ad079b9290302",
+          "branch": "refs/heads/codex/debt-f-architecture-imports",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-g-atlas-residuals",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-g-atlas-residuals",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-g-atlas-residuals",
+      "tip": "4b492fcaf1a9a016f7abde4f70fc845b05c586e2",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-g-atlas-residuals",
+          "HEAD": "4b492fcaf1a9a016f7abde4f70fc845b05c586e2",
+          "branch": "refs/heads/codex/debt-g-atlas-residuals",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-historical-cohorts",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-historical-cohorts",
+      "tip": "84e228fbe363a0287730ed8d643987b647e0a640",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts",
+          "HEAD": "84e228fbe363a0287730ed8d643987b647e0a640",
+          "branch": "refs/heads/codex/debt-historical-cohorts",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-i-runtime-authorization",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-i-runtime-authorization",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-i-runtime-authorization",
+      "tip": "7e1883a2d6c5096eb97cce57124b1eb8973c7fed",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-i-runtime-authorization",
+          "HEAD": "7e1883a2d6c5096eb97cce57124b1eb8973c7fed",
+          "branch": "refs/heads/codex/debt-i-runtime-authorization",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-j-acquisition-route-binding",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-j-acquisition-route-binding",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-j-acquisition-route-binding",
+      "tip": "9121b149fcb48f8e12cb6356ba2c2afc36183f1b",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-j-acquisition-route-binding",
+          "HEAD": "9121b149fcb48f8e12cb6356ba2c2afc36183f1b",
+          "branch": "refs/heads/codex/debt-j-acquisition-route-binding",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-k-first-governed-promotion",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-k-first-governed-promotion",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-k-first-governed-promotion",
+      "tip": "56946feea9548f0a6c467024d7afeb83c9f19348",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-k-first-governed-promotion",
+          "HEAD": "56946feea9548f0a6c467024d7afeb83c9f19348",
+          "branch": "refs/heads/codex/debt-k-first-governed-promotion",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-l-research-census",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-l-research-census",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-l-research-census",
+      "tip": "8f95c8d800c26fe320812defd40ac9211856488b",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-l-research-census",
+          "HEAD": "8f95c8d800c26fe320812defd40ac9211856488b",
+          "branch": "refs/heads/codex/debt-l-research-census",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-m-promotion-corridor-repair",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-m-promotion-corridor-repair",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-m-promotion-corridor-repair",
+      "tip": "252197a7425c6e3706a246641be0284d810e03fd",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-m-promotion-corridor-repair",
+          "HEAD": "252197a7425c6e3706a246641be0284d810e03fd",
+          "branch": "refs/heads/codex/debt-m-promotion-corridor-repair",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-o-instrument-integrity",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-o-instrument-integrity",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-o-instrument-integrity",
+      "tip": "448c2b5a53e93d56f73f6272b05ecce164f87286",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-o-instrument-integrity",
+          "HEAD": "448c2b5a53e93d56f73f6272b05ecce164f87286",
+          "branch": "refs/heads/codex/debt-o-instrument-integrity",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-p-dashboard-evidence",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-p-dashboard-evidence",
+      "tip": "dfb3dd9aea9d325545c246589ffa18a9bf0b99f7",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence",
+          "HEAD": "dfb3dd9aea9d325545c246589ffa18a9bf0b99f7",
+          "branch": "refs/heads/codex/debt-p-dashboard-evidence",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-parameter-unsupplied-vs-unknown",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-parameter-unsupplied-vs-unknown",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-parameter-unsupplied-vs-unknown",
+      "tip": "2c4f085b075c9aefa86584f3c336ce9e8baa2d24",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-parameter-unsupplied-vs-unknown",
+          "HEAD": "2c4f085b075c9aefa86584f3c336ce9e8baa2d24",
+          "branch": "refs/heads/codex/debt-parameter-unsupplied-vs-unknown",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-q-remeasure-and-typing",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-q-remeasure-and-typing",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-q-remeasure-and-typing",
+      "tip": "de3c79540cdda0823d5af53146060cf85e4679d6",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-q-remeasure-and-typing",
+          "HEAD": "de3c79540cdda0823d5af53146060cf85e4679d6",
+          "branch": "refs/heads/codex/debt-q-remeasure-and-typing",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-r-unowned-producers",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-r-unowned-producers",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-r-unowned-producers",
+      "tip": "d12a541ecab3122d6eecbaec59295a6a47f083ab",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-r-unowned-producers",
+          "HEAD": "d12a541ecab3122d6eecbaec59295a6a47f083ab",
+          "branch": "refs/heads/codex/debt-r-unowned-producers",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-s-pgproof-and-def22",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-s-pgproof-and-def22",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-s-pgproof-and-def22",
+      "tip": "e90d11746e9c1a8d32e3a575f10dde429a75b208",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-s-pgproof-and-def22",
+          "HEAD": "e90d11746e9c1a8d32e3a575f10dde429a75b208",
+          "branch": "refs/heads/codex/debt-s-pgproof-and-def22",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-unknown-evidence-weight",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-unknown-evidence-weight",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-unknown-evidence-weight",
+      "tip": "69c98e7eb44b3b97de5043a3001e271618f563d6",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-unknown-evidence-weight",
+          "HEAD": "69c98e7eb44b3b97de5043a3001e271618f563d6",
+          "branch": "refs/heads/codex/debt-unknown-evidence-weight",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "debt-vocabulary-value-provenance",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/debt-vocabulary-value-provenance",
+      "tip": "c100ec4d07177d2f84cec6d0d3085240a1ee4c15",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance",
+          "HEAD": "c100ec4d07177d2f84cec6d0d3085240a1ee4c15",
+          "branch": "refs/heads/codex/debt-vocabulary-value-provenance",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "ds4-decision-grade-regeneration",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/ds4-decision-grade-regeneration",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/ds4-decision-grade-regeneration",
+      "tip": "bb6006e046ea647f72aeaaa0411d5521a84b839b",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/ds4-decision-grade-regeneration",
+          "HEAD": "bb6006e046ea647f72aeaaa0411d5521a84b839b",
+          "branch": "refs/heads/codex/ds4-decision-grade-regeneration",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "group-a-analysis",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/group-a-analysis",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/group-a-analysis",
+      "tip": "b678473507917800ec17ecf4c5f4704ff283776e",
+      "branch_disposition": "unmerged",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/group-a-analysis",
+          "HEAD": "b678473507917800ec17ecf4c5f4704ff283776e",
+          "branch": "refs/heads/codex/group-a-analysis"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gy-grade-authority",
+      "tip": "68689784a85c7bb7de4311440db2542ebdfabd73",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy",
+          "HEAD": "68689784a85c7bb7de4311440db2542ebdfabd73",
+          "branch": "refs/heads/codex/gy-grade-authority"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-builders",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-builders",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gy-builders",
+      "tip": "e1a9d11e8d75752acd42e182fde92dffb2f93468",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-builders",
+          "HEAD": "e1a9d11e8d75752acd42e182fde92dffb2f93468",
+          "branch": "refs/heads/codex/gy-builders"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-corr",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-corr",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/corr-capability",
+      "tip": "350823a3f8f0e7544dbfea059914dc3a7e87019b",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-corr",
+          "HEAD": "350823a3f8f0e7544dbfea059914dc3a7e87019b",
+          "branch": "refs/heads/codex/corr-capability"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-cr4-denominator-seam",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-cr4-denominator-seam",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/gy-cr4-denominator-seam",
+      "tip": "59aa994e6eca3da1681741cc497c73581dde488e",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-cr4-denominator-seam",
+          "HEAD": "59aa994e6eca3da1681741cc497c73581dde488e",
+          "branch": "refs/heads/codex/gy-cr4-denominator-seam",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-def22-environment-discriminant",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-def22-environment-discriminant",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/gy-def22-environment-discriminant",
+      "tip": "5241bcd46025f7dd7d04aac76e4e85bb5d819e09",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-def22-environment-discriminant",
+          "HEAD": "5241bcd46025f7dd7d04aac76e4e85bb5d819e09",
+          "branch": "refs/heads/codex/gy-def22-environment-discriminant",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-gaps",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gy-eight-gaps",
+      "tip": "71280aa83b1abfb3c61342ba75ecd637a0b0446c",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-gaps",
+          "HEAD": "71280aa83b1abfb3c61342ba75ecd637a0b0446c",
+          "branch": "refs/heads/codex/gy-eight-gaps"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-lattice",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-lattice",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gy-lattice-and-custody",
+      "tip": "035d8dae899c7825cba10c9cf857aeecf0ffcda5",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-lattice",
+          "HEAD": "035d8dae899c7825cba10c9cf857aeecf0ffcda5",
+          "branch": "refs/heads/codex/gy-lattice-and-custody"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-measure",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-measure",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gy-ambiguous-census",
+      "tip": "be0dec8fdd0e2351df4e88a373fc5b7d5ab57138",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-measure",
+          "HEAD": "be0dec8fdd0e2351df4e88a373fc5b7d5ab57138",
+          "branch": "refs/heads/codex/gy-ambiguous-census"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-phase5",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gy-phase5-execution",
+      "tip": "43ee5016f70d90b9bafa395c7d20923d79dc1e4f",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-phase5",
+          "HEAD": "43ee5016f70d90b9bafa395c7d20923d79dc1e4f",
+          "branch": "refs/heads/codex/gy-phase5-execution"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gy-pr1a-data-only-promotion",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/gy-pr1a-data-only-promotion",
+      "tip": "59f81a58385dcfc1323618df7d5f7b150811dba0",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion",
+          "HEAD": "59f81a58385dcfc1323618df7d5f7b150811dba0",
+          "branch": "refs/heads/codex/gy-pr1a-data-only-promotion",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gygaps-lane-base",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gygaps-lane-base",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gygaps-lane-base",
+      "tip": "43580c80b8761d4aecb34ee3300f64d389be80c8",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gygaps-lane-base",
+          "HEAD": "43580c80b8761d4aecb34ee3300f64d389be80c8",
+          "branch": "refs/heads/codex/gygaps-lane-base"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "gyphase5-lane-basecheck",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/gyphase5-lane-basecheck",
+      "tip": "3d572c146f9d021cb6daad64ebb7b093121ed124",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/gyphase5-lane-basecheck",
+          "HEAD": "3d572c146f9d021cb6daad64ebb7b093121ed124",
+          "branch": "refs/heads/codex/gyphase5-lane-basecheck"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instrument-honesty",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instrument-honesty",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/instrument-honesty",
+      "tip": "b44ffa8cb3ceaa1a55a74c3a50eb596fbd1c5ff2",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instrument-honesty",
+          "HEAD": "b44ffa8cb3ceaa1a55a74c3a50eb596fbd1c5ff2",
+          "branch": "refs/heads/codex/instrument-honesty"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instruments",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instruments",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/instrument-station-independence",
+      "tip": "9776fe348f7073e47ede54ccaa3b7572c6c973e8",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instruments",
+          "HEAD": "9776fe348f7073e47ede54ccaa3b7572c6c973e8",
+          "branch": "refs/heads/codex/instrument-station-independence",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instruments-base",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instruments-base",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "edc104849a9830dd5249390aa5380bd49836490c",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instruments-base",
+          "HEAD": "edc104849a9830dd5249390aa5380bd49836490c",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instruments-check-a",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instruments-check-a",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "6fa919b744c945f686a42ab746bbb3f5dbaa9b79",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instruments-check-a",
+          "HEAD": "6fa919b744c945f686a42ab746bbb3f5dbaa9b79",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instruments-check-b",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instruments-check-b",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "6fa919b744c945f686a42ab746bbb3f5dbaa9b79",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instruments-check-b",
+          "HEAD": "6fa919b744c945f686a42ab746bbb3f5dbaa9b79",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instruments2",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instruments2",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/commit-not-station",
+      "tip": "6bd3e310d2e5180569d4ceb9d1cb79f8fe623260",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instruments2",
+          "HEAD": "6bd3e310d2e5180569d4ceb9d1cb79f8fe623260",
+          "branch": "refs/heads/codex/commit-not-station"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instruments2-python3143",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instruments2-python3143",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "a8d323a2f63f1e4a02693215d1c6aead8e8802b0",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instruments2-python3143",
+          "HEAD": "a8d323a2f63f1e4a02693215d1c6aead8e8802b0",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "instruments2-python3143-final",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/instruments2-python3143-final",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "fc17e4754d41f70168ff8ad571f48e2ce9a7952f",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/instruments2-python3143-final",
+          "HEAD": "fc17e4754d41f70168ff8ad571f48e2ce9a7952f",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "integration",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/integration",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/main",
+      "tip": "63bdb9640e7b76b49356cba940bab6067f1be512",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/integration",
+          "HEAD": "63bdb9640e7b76b49356cba940bab6067f1be512",
+          "branch": "refs/heads/main"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "measuring-base",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/measuring-base",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/measuring-base",
+      "tip": "0373364448f766ecba871f3abae23a2b563e63ac",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/measuring-base",
+          "HEAD": "0373364448f766ecba871f3abae23a2b563e63ac",
+          "branch": "refs/heads/codex/measuring-base",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "measuring-instrument",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/measuring-instrument",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/measuring-instrument",
+      "tip": "10d84e5ccd988b566c11de209ac3203c1af14bce",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/measuring-instrument",
+          "HEAD": "10d84e5ccd988b566c11de209ac3203c1af14bce",
+          "branch": "refs/heads/codex/measuring-instrument",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "measuring-station-a",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/measuring-station-a",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/measuring-station-a",
+      "tip": "f69400b1f00e58d241aa68acf46c5af269d17057",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/measuring-station-a",
+          "HEAD": "f69400b1f00e58d241aa68acf46c5af269d17057",
+          "branch": "refs/heads/codex/measuring-station-a",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "measuring-station-b",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/measuring-station-b",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/measuring-station-b",
+      "tip": "f69400b1f00e58d241aa68acf46c5af269d17057",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/measuring-station-b",
+          "HEAD": "f69400b1f00e58d241aa68acf46c5af269d17057",
+          "branch": "refs/heads/codex/measuring-station-b",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "owner-residuals",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/owner-residuals",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/owner-residuals",
+      "tip": "4f9bb2a1598a841310b4b1128645bee8064c9ae9",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/owner-residuals",
+          "HEAD": "4f9bb2a1598a841310b4b1128645bee8064c9ae9",
+          "branch": "refs/heads/codex/owner-residuals"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "premerge",
+      "expected_directory": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/premerge",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": null,
+      "tip": "07c89304dc5c24e50fe7379756d2e098a490e9d1",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/premerge",
+          "HEAD": "07c89304dc5c24e50fe7379756d2e098a490e9d1",
+          "detached": ""
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "producers",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/producers",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/missing-producers",
+      "tip": "c5389feced8cfae7a6d8bc7de4532e8ee76a183c",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/producers",
+          "HEAD": "c5389feced8cfae7a6d8bc7de4532e8ee76a183c",
+          "branch": "refs/heads/codex/missing-producers",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "producers-verification",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/producers-verification",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/producers-verification",
+      "tip": "21e6f1afb3c676b0b061d27598e74f5e216b53a3",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/producers-verification",
+          "HEAD": "21e6f1afb3c676b0b061d27598e74f5e216b53a3",
+          "branch": "refs/heads/codex/producers-verification"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "research-basis-grade-carriers",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/research-basis-grade-carriers",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/research-basis-grade-carriers",
+      "tip": "e3f9805057f5bc462f60467bb0c1c4602314f354",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/research-basis-grade-carriers",
+          "HEAD": "e3f9805057f5bc462f60467bb0c1c4602314f354",
+          "branch": "refs/heads/codex/research-basis-grade-carriers",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "station-c",
+      "expected_directory": "/private/tmp/station-c",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "10d84e5ccd988b566c11de209ac3203c1af14bce",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/private/tmp/station-c",
+          "HEAD": "10d84e5ccd988b566c11de209ac3203c1af14bce",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "toolchain",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/toolchain",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/toolchain-inputs",
+      "tip": "8bded557ce848fb7397ec0c56b361415497eb5ae",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/toolchain",
+          "HEAD": "8bded557ce848fb7397ec0c56b361415497eb5ae",
+          "branch": "refs/heads/codex/toolchain-inputs",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "uninvoked",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/uninvoked",
+      "directory_exists": true,
+      "gitfile_exists": true,
+      "branch": "refs/heads/codex/uninvoked-plane",
+      "tip": "433d31cc7f11a90e7d2858dbd5c98313c8563e9d",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/uninvoked",
+          "HEAD": "433d31cc7f11a90e7d2858dbd5c98313c8563e9d",
+          "branch": "refs/heads/codex/uninvoked-plane"
+        }
+      ],
+      "dry_run_selected": false,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "verify-a",
+      "expected_directory": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/verify-a",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "f1f21a474d22285b8229d7bd8a009a4048df79dd",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/verify-a",
+          "HEAD": "f1f21a474d22285b8229d7bd8a009a4048df79dd",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "verify-b",
+      "expected_directory": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/verify-b",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "9776fe348f7073e47ede54ccaa3b7572c6c973e8",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/verify-b",
+          "HEAD": "9776fe348f7073e47ede54ccaa3b7572c6c973e8",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "verify-c",
+      "expected_directory": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/verify-c",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": null,
+      "tip": "c5389feced8cfae7a6d8bc7de4532e8ee76a183c",
+      "branch_disposition": "detached_commit_in_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/private/tmp/claude-501/-Users-deniskopylov-polisyos/fcedf361-81e2-42b9-8288-9f0dc9a080c7/scratchpad/verify-c",
+          "HEAD": "c5389feced8cfae7a6d8bc7de4532e8ee76a183c",
+          "detached": "",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "vintage",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/vintage",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/layer-vintage",
+      "tip": "a37254c055f81d5630cc5d55a003a2b59209a7cf",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/vintage",
+          "HEAD": "a37254c055f81d5630cc5d55a003a2b59209a7cf",
+          "branch": "refs/heads/codex/layer-vintage",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    },
+    {
+      "registration": "watchers",
+      "expected_directory": "/Users/deniskopylov/polisyos/.worktrees/watchers",
+      "directory_exists": false,
+      "gitfile_exists": false,
+      "branch": "refs/heads/codex/watcher-chain",
+      "tip": "3c3db5269be6edafd2dc5f482deb090a0a33a2e9",
+      "branch_disposition": "merged_into_pinned_main",
+      "locked": null,
+      "porcelain_matches": [
+        {
+          "worktree": "/Users/deniskopylov/polisyos/.worktrees/watchers",
+          "HEAD": "3c3db5269be6edafd2dc5f482deb090a0a33a2e9",
+          "branch": "refs/heads/codex/watcher-chain",
+          "prunable": "gitdir file points to non-existent location"
+        }
+      ],
+      "dry_run_selected": true,
+      "off_expected_git_pointers": []
+    }
+  ],
+  "raw_receipt": {
+    "path": "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/raw/census.json",
+    "sha256": "048b7dd75ef6e896c9cc375db1fbf2262d31485d072d7113a7faf949e34aaf30"
+  }
+}

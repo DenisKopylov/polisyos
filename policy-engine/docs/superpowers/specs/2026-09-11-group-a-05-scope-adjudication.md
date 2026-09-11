@@ -1,11 +1,5 @@
 # Group A / 05 — Scope adjudication: carrying a rule and admitting its application
 
-Research for the architect; no decision, owner allocation, implementation grant, debt
-status change, or closure determination. Source pin: `63bdb9640`. Paths below are
-repository-relative and source citations explicitly retain that pin. The Task D and
-Task Q corrections supplied by the principal are accepted premises, not reopened
-historical investigations.
-
 ## 1. Discrepancy between the row, the measurement, and the agreed history
 
 The baseline row says the ratified document owns the rule but “no typed
@@ -44,6 +38,22 @@ the current supersession producer/resolver lives in
 not the historical `scientist/governance/continuous/owner_events.py` spelling.
 
 ## 2. Measured commands, complete denominators, and the actual admission path
+
+Research for the architect; no decision, owner allocation, implementation grant,
+status change or closure determination. Source pin: `63bdb9640`. The Task D and
+Task Q corrections supplied by the principal are accepted premises, not reopened
+historical investigations.
+
+**Owner against the active plan.**
+`policy-engine/docs/plans/active/atlas-slices/DS11-trust-docs-posture.md@63bdb9640`
+names `artifact_owner: team-architecture`, `producer_lane: scientist/evidence/claims`
+and `surface_owner: team-design` in its frontmatter. Its **Explicit non-closure**
+entry for this exact debt separately assigns owner allocation to `team-architecture`.
+The plan expressly excludes creating a scope-adjudication runtime from DS11's own
+surface work. Its sentence that no typed artifact exists is stale against the
+candidate source below; the owner allocation and the candidate's existence are
+different claims. This corroborates the architecture owner without using the debt
+row as evidence or treating an Atlas/GY path fence as an inherent boundary.
 
 The reproducible instrument is
 `policy-engine/docs/superpowers/journals/group-a/05-scope/measure_scope.py`.
@@ -125,6 +135,13 @@ adjudication against that document. Its authority scope includes
 §5, §6, §9.3 and frontmatter. A ratified rule is not evidence that the premises of
 every future application are true.
 
+Its actual ordered questions are:
+
+> Does its absence make one of OUR published claims silently false? → OWN.
+> Does its output change the validity of our claims? → INTEGRATE.
+> Does it change only who answers for our claims? → OBSERVE.
+> Otherwise → OUT_OF_SCOPE.
+
 **Capability versus signature.** The principal's §9.5 ruling explicitly places an
 institutional refusal on the signed claim/promotion/custody fact and requires a
 fully built, demonstrable mechanism with a typed-empty signature slot where needed.
@@ -134,6 +151,19 @@ clock/I/O stay with the owner. The falsifier requires rejection of a consumer-ma
 artifact without the producer-owned marker. Citation: the same pinned identity
 decision, **§9 item 5** and **§9 item 6**. Nothing in this reading assigns a new owner
 or presumes a missing institution.
+
+The operative §9 item 5 words are:
+
+> an institutional absence binds the claim, never the capability. No unappointed
+> institution may defer, narrow, or leave unscoped any work. The refusal lands on
+> the signed artifact, the published promotion, the custody fact — never on the
+> mechanism that demonstrates the ability. The signature slot stays typed, empty
+> and sharply visible.
+
+Thus even the authority-act reading does not, by this clause, make building the
+mechanism wait for an institution. It changes what can be admitted as an
+authoritative result. The distinction between an executable mechanism and its
+authority-bearing output must survive either reading of “wiring.”
 
 **Plane and action.** **S0-K03** requires separating the external act, evidence
 emission, PolicyOS admission, scoped claim reaction and public projection.
@@ -174,6 +204,21 @@ persisted, plane-specific, purpose-bound ruling whose premises are established a
 whose lifecycle consequence is consumed and inspectable, including refusal for false
 premises or mismatched purposes. This names the property, not a new implementation
 contract or a declaration that it has passed.
+
+**Smallest distinguishing measurement.** Fix one function, one plane, the exact
+ratified rule version, a particular published claim and the proposed lifecycle
+effect. Resolve the purported already-admitted application and its predicate
+evidence, then trace the proposed consumer's reads, emitted artifacts and owner
+head before/after, including complete-head replay. If all authority-bearing
+content/effects resolve to an already-authorized application and the consumer
+only verifies/carries it, that is the carrying reading. If a new ruling or claim
+effect first becomes authoritative through its emission/admission, that is the
+authority-act reading; the authorization for that precise act must then be
+identified. A mismatched-purpose or false-premise counterpart distinguishes
+content integrity from factual admission. This is the measurement's required
+observable, not a new closure test: the missing scope-purpose consumer means it
+cannot presently be executed as a completed chain without implementation. No
+candidate-terminal alternative or substitute named closure test is introduced.
 
 ## 5. What remains unknown
 

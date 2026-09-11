@@ -1,9 +1,18 @@
 """Read-only worktree audit; prune is called exclusively with --dry-run."""
 from pathlib import Path
-import subprocess, json, hashlib, os, datetime
+import subprocess, json, hashlib, os, datetime, argparse
 from collections import Counter
 ROOT=Path(__file__).resolve().parents[6]
 OUT=Path(__file__).resolve().parent
+parser=argparse.ArgumentParser()
+parser.add_argument('--output-subdirectory')
+args=parser.parse_args()
+if args.output_subdirectory:
+ candidate=(OUT/args.output_subdirectory).resolve()
+ if not candidate.is_relative_to(OUT) or candidate==OUT:
+  raise ValueError('output must remain in a child of this journal directory')
+ OUT=candidate
+(OUT/'raw').mkdir(parents=True,exist_ok=True)
 CMDS=[]
 def command(*args):
  p=subprocess.run(['git',*args],cwd=ROOT,capture_output=True,text=True)
@@ -93,4 +102,4 @@ p=OUT/'raw/census.json';p.write_text(json.dumps(raw,indent=2)+'\n')
 summary['raw_receipt']={'path':str(p.relative_to(ROOT)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
 (OUT/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
 print(json.dumps(summary,indent=2))
-raise SystemExit(0 if before==after==final and summary['path_set_equal'] else 2)
+raise SystemExit(0 if before==after==final and summary['path_set_equal'] and summary['main_stable'] and dry.returncode==0 else 2)

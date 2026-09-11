@@ -1,0 +1,2232 @@
+{
+  "base": "63bdb9640e7b76b49356cba940bab6067f1be512",
+  "whole_tree_index_denominator": 12900,
+  "whole_tree_list_equals_index_excluding_analysis": true,
+  "complete_source_package_distribution": [
+    {
+      "package": "[root]",
+      "python_files": 1,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "berl",
+      "python_files": 31,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "calibration",
+      "python_files": 8,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "common",
+      "python_files": 11,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "core",
+      "python_files": 204,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 6,
+        "ast_identifier_files": 4,
+        "ast_identifier_nodes": 10
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "corpus",
+      "python_files": 5,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "data_forge",
+      "python_files": 274,
+      "estimand": {
+        "exact_case_files": 2,
+        "ast_identifier_files": 1,
+        "ast_identifier_nodes": 12
+      },
+      "normative": {
+        "exact_case_files": 34,
+        "ast_identifier_files": 22,
+        "ast_identifier_nodes": 139
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "data_requirement",
+      "python_files": 4,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 1,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "ddm",
+      "python_files": 17,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "evidence",
+      "python_files": 6,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 2,
+        "ast_identifier_files": 2,
+        "ast_identifier_nodes": 5
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "fabric",
+      "python_files": 302,
+      "estimand": {
+        "exact_case_files": 2,
+        "ast_identifier_files": 1,
+        "ast_identifier_nodes": 2
+      },
+      "normative": {
+        "exact_case_files": 2,
+        "ast_identifier_files": 1,
+        "ast_identifier_nodes": 2
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "foundry",
+      "python_files": 601,
+      "estimand": {
+        "exact_case_files": 101,
+        "ast_identifier_files": 90,
+        "ast_identifier_nodes": 1278
+      },
+      "normative": {
+        "exact_case_files": 2,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "ir",
+      "python_files": 191,
+      "estimand": {
+        "exact_case_files": 33,
+        "ast_identifier_files": 29,
+        "ast_identifier_nodes": 358
+      },
+      "normative": {
+        "exact_case_files": 5,
+        "ast_identifier_files": 4,
+        "ast_identifier_nodes": 61
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "legal_requirement",
+      "python_files": 4,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 1,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "lex",
+      "python_files": 45,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 9,
+        "ast_identifier_files": 2,
+        "ast_identifier_nodes": 44
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "method_requirement",
+      "python_files": 4,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "obligation_graph",
+      "python_files": 4,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "obligation_rules",
+      "python_files": 2,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "participation_requirement",
+      "python_files": 1,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "pdc",
+      "python_files": 8,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 2,
+        "ast_identifier_files": 2,
+        "ast_identifier_nodes": 4
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "policy_grammar",
+      "python_files": 9,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 1,
+        "ast_identifier_nodes": 3
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "runtime",
+      "python_files": 301,
+      "estimand": {
+        "exact_case_files": 19,
+        "ast_identifier_files": 12,
+        "ast_identifier_nodes": 108
+      },
+      "normative": {
+        "exact_case_files": 37,
+        "ast_identifier_files": 23,
+        "ast_identifier_nodes": 493
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "schemas",
+      "python_files": 2,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "scholar",
+      "python_files": 28,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "scholar_requirement",
+      "python_files": 3,
+      "estimand": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "normative": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    },
+    {
+      "package": "scientist",
+      "python_files": 587,
+      "estimand": {
+        "exact_case_files": 12,
+        "ast_identifier_files": 8,
+        "ast_identifier_nodes": 55
+      },
+      "normative": {
+        "exact_case_files": 31,
+        "ast_identifier_files": 20,
+        "ast_identifier_nodes": 246
+      },
+      "write_operation": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      },
+      "assurance_level": {
+        "exact_case_files": 0,
+        "ast_identifier_files": 0,
+        "ast_identifier_nodes": 0
+      }
+    }
+  ],
+  "four_terms": [
+    "estimand",
+    "normative",
+    "write_operation",
+    "assurance_level"
+  ],
+  "assurance_query_scope": "12838 readable tracked text files out of 12900; register and ledger omitted from evidence matches; 62 undecodable files remain ambiguous",
+  "assurance_matches": [
+    {
+      "path": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+      "lines": [
+        216,
+        217
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/reference/canonical-vocabulary-crosswalk.md",
+      "lines": [
+        35
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/reference/canonical-vocabulary-crosswalk.v1.json",
+      "lines": [
+        2298
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md",
+      "lines": [
+        493
+      ],
+      "truncated_matching_lines": [
+        493
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/audits/int-r1/int-r1-anchor-and-citation-verification.md",
+      "lines": [
+        187
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/audits/int-r2/int-r2-anchor-and-citation-verification.md",
+      "lines": [
+        81
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/audits/int-r2/int-r2-formal-argument-audit.md",
+      "lines": [
+        104
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/audits/int-r2/int-r2-independent-audit.md",
+      "lines": [
+        88
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/audits/int-r2/int-r2-recommended-revision.md",
+      "lines": [
+        145,
+        191
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/audits/pao-r1/pao-r1-register-row-audit-ledger.md",
+      "lines": [
+        155
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/consolidation/wave5/wave5-open-questions-and-next-research.md",
+      "lines": [
+        95
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r1/external-primary-source-ledger.md",
+      "lines": [
+        310
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r2-gap-acquisition-cases.md",
+      "lines": [
+        263,
+        447,
+        459,
+        668
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r2/amendment-ledger.md",
+      "lines": [
+        123,
+        304
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r2/external-primary-source-ledger.md",
+      "lines": [
+        102,
+        113
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r2/integration-handoff-and-finding-register.md",
+      "lines": [
+        52,
+        104,
+        163
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r2/repo-baseline-and-source-ledger.md",
+      "lines": [
+        136
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r7/external-source-and-transfer-ledger.md",
+      "lines": [
+        127
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/stage0/sources/ops-r15-original.md",
+      "lines": [
+        482
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/stage0/sources/pao-r1-original.md",
+      "lines": [
+        1651,
+        1866
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/2026-09-10-gy-lattice-completion.md",
+      "lines": [
+        182
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-10-gy-vc1-decision.md",
+      "lines": [
+        132
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py",
+      "lines": [
+        66,
+        71
+      ],
+      "truncated_matching_lines": []
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_canonical_vocabulary_crosswalk.py",
+      "lines": [
+        385
+      ],
+      "truncated_matching_lines": []
+    }
+  ],
+  "assurance_query_limit": "The input trace limits displayed lines to 1000 characters; paths are navigation receipts, not a complete consumer or exact occurrence census. No zero inferred.",
+  "selected_delivered_owner_ast_denominator": [
+    "policy-engine/src/polisyos/fabric/evidence/acquisition_assurance.py",
+    "policy-engine/src/polisyos/fabric/evidence/ceiling_relations.py",
+    "policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+    "policy-engine/src/polisyos/ir/analytics/estimand.py",
+    "policy-engine/src/polisyos/ir/analytics/normative_arbitration.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+    "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+    "policy-engine/src/polisyos/core/artifacts/ownership.py"
+  ],
+  "selected_owner_definitions": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/acquisition_assurance.py",
+      "definitions": [
+        {
+          "name": "AcquisitionObservation",
+          "kind": "ClassDef",
+          "line": 48
+        },
+        {
+          "name": "decode_case_inputs",
+          "kind": "FunctionDef",
+          "line": 75
+        },
+        {
+          "name": "_time",
+          "kind": "FunctionDef",
+          "line": 83
+        },
+        {
+          "name": "_ReferenceVerifier",
+          "kind": "ClassDef",
+          "line": 87
+        },
+        {
+          "name": "_ReferenceDemandingOwner",
+          "kind": "ClassDef",
+          "line": 115
+        },
+        {
+          "name": "_basis_members",
+          "kind": "FunctionDef",
+          "line": 209
+        },
+        {
+          "name": "_finite_boundary_holds",
+          "kind": "FunctionDef",
+          "line": 218
+        },
+        {
+          "name": "reference_terminal_knowledge",
+          "kind": "FunctionDef",
+          "line": 277
+        },
+        {
+          "name": "_MutationRuntime",
+          "kind": "ClassDef",
+          "line": 330
+        },
+        {
+          "name": "execute_case",
+          "kind": "FunctionDef",
+          "line": 360
+        },
+        {
+          "name": "run_corpus",
+          "kind": "FunctionDef",
+          "line": 458
+        },
+        {
+          "name": "observation_wire",
+          "kind": "FunctionDef",
+          "line": 468
+        },
+        {
+          "name": "data_availability_positive_control",
+          "kind": "FunctionDef",
+          "line": 473
+        },
+        {
+          "name": "wire_row",
+          "kind": "FunctionDef",
+          "line": 67
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "line": 92
+        },
+        {
+          "name": "verify",
+          "kind": "FunctionDef",
+          "line": 95
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "line": 120
+        },
+        {
+          "name": "verify",
+          "kind": "FunctionDef",
+          "line": 126
+        },
+        {
+          "name": "_event_availability",
+          "kind": "FunctionDef",
+          "line": 142
+        },
+        {
+          "name": "reenter",
+          "kind": "FunctionDef",
+          "line": 180
+        },
+        {
+          "name": "_owners_accept",
+          "kind": "FunctionDef",
+          "line": 336
+        },
+        {
+          "name": "_admit",
+          "kind": "FunctionDef",
+          "line": 341
+        },
+        {
+          "name": "_result",
+          "kind": "FunctionDef",
+          "line": 349
+        },
+        {
+          "name": "available",
+          "kind": "FunctionDef",
+          "line": 483
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/ceiling_relations.py",
+      "definitions": [
+        {
+          "name": "_StrictModel",
+          "kind": "ClassDef",
+          "line": 20
+        },
+        {
+          "name": "CeilingDimension",
+          "kind": "ClassDef",
+          "line": 24
+        },
+        {
+          "name": "PartialOrder",
+          "kind": "ClassDef",
+          "line": 37
+        },
+        {
+          "name": "CurrentInterval",
+          "kind": "ClassDef",
+          "line": 79
+        },
+        {
+          "name": "JurisdictionOrder",
+          "kind": "ClassDef",
+          "line": 97
+        },
+        {
+          "name": "TransportWitness",
+          "kind": "ClassDef",
+          "line": 103
+        },
+        {
+          "name": "CeilingVocabulary",
+          "kind": "ClassDef",
+          "line": 110
+        },
+        {
+          "name": "CeilingScope",
+          "kind": "ClassDef",
+          "line": 152
+        },
+        {
+          "name": "CeilingResult",
+          "kind": "ClassDef",
+          "line": 180
+        },
+        {
+          "name": "exact_identity_fields",
+          "kind": "FunctionDef",
+          "line": 190
+        },
+        {
+          "name": "registered_ceiling_relations",
+          "kind": "FunctionDef",
+          "line": 212
+        },
+        {
+          "name": "evaluate_ceiling",
+          "kind": "FunctionDef",
+          "line": 223
+        },
+        {
+          "name": "validate_order",
+          "kind": "FunctionDef",
+          "line": 44
+        },
+        {
+          "name": "_reachable",
+          "kind": "FunctionDef",
+          "line": 57
+        },
+        {
+          "name": "contains",
+          "kind": "FunctionDef",
+          "line": 70
+        },
+        {
+          "name": "ordered",
+          "kind": "FunctionDef",
+          "line": 86
+        },
+        {
+          "name": "current",
+          "kind": "FunctionDef",
+          "line": 92
+        },
+        {
+          "name": "validate_definitions",
+          "kind": "FunctionDef",
+          "line": 126
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "definitions": [
+        {
+          "name": "AssuranceModel",
+          "kind": "ClassDef",
+          "line": 30
+        },
+        {
+          "name": "ActionProfile",
+          "kind": "ClassDef",
+          "line": 36
+        },
+        {
+          "name": "CandidateRendition",
+          "kind": "ClassDef",
+          "line": 53
+        },
+        {
+          "name": "AssurancePacket",
+          "kind": "ClassDef",
+          "line": 63
+        },
+        {
+          "name": "CandidateAssuranceResult",
+          "kind": "ClassDef",
+          "line": 96
+        },
+        {
+          "name": "AssuranceReceipt",
+          "kind": "ClassDef",
+          "line": 169
+        },
+        {
+          "name": "RTLSourcePack",
+          "kind": "ClassDef",
+          "line": 175
+        },
+        {
+          "name": "rtl_source_pack",
+          "kind": "FunctionDef",
+          "line": 210
+        },
+        {
+          "name": "_digest",
+          "kind": "FunctionDef",
+          "line": 215
+        },
+        {
+          "name": "compare_candidate",
+          "kind": "FunctionDef",
+          "line": 221
+        },
+        {
+          "name": "_write",
+          "kind": "FunctionDef",
+          "line": 255
+        },
+        {
+          "name": "run_assurance",
+          "kind": "FunctionDef",
+          "line": 265
+        },
+        {
+          "name": "recompute_assurance_payload",
+          "kind": "FunctionDef",
+          "line": 282
+        },
+        {
+          "name": "replay_assurance_result",
+          "kind": "FunctionDef",
+          "line": 292
+        },
+        {
+          "name": "_revoked",
+          "kind": "FunctionDef",
+          "line": 299
+        },
+        {
+          "name": "read_assurance_result",
+          "kind": "FunctionDef",
+          "line": 319
+        },
+        {
+          "name": "revoke_assurance",
+          "kind": "FunctionDef",
+          "line": 354
+        },
+        {
+          "name": "CandidateSourceContent",
+          "kind": "ClassDef",
+          "line": 371
+        },
+        {
+          "name": "run_source_content",
+          "kind": "FunctionDef",
+          "line": 380
+        },
+        {
+          "name": "recompute_source_content",
+          "kind": "FunctionDef",
+          "line": 401
+        },
+        {
+          "name": "read_source_content",
+          "kind": "FunctionDef",
+          "line": 422
+        },
+        {
+          "name": "_consistent",
+          "kind": "FunctionDef",
+          "line": 44
+        },
+        {
+          "name": "_complete_denominator",
+          "kind": "FunctionDef",
+          "line": 83
+        },
+        {
+          "name": "equivalence_established",
+          "kind": "FunctionDef",
+          "line": 116
+        },
+        {
+          "name": "signer",
+          "kind": "FunctionDef",
+          "line": 121
+        },
+        {
+          "name": "qualified_holders",
+          "kind": "FunctionDef",
+          "line": 126
+        },
+        {
+          "name": "projection",
+          "kind": "FunctionDef",
+          "line": 130
+        },
+        {
+          "name": "evidence_requirements",
+          "kind": "FunctionDef",
+          "line": 182
+        },
+        {
+          "name": "ui_locale_admitted",
+          "kind": "FunctionDef",
+          "line": 200
+        },
+        {
+          "name": "source_authority_established",
+          "kind": "FunctionDef",
+          "line": 205
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+      "definitions": [
+        {
+          "name": "EstimandShape",
+          "kind": "ClassDef",
+          "line": 78
+        },
+        {
+          "name": "EstimationStrategy",
+          "kind": "ClassDef",
+          "line": 101
+        },
+        {
+          "name": "EstimatorRecommendation",
+          "kind": "ClassDef",
+          "line": 144
+        },
+        {
+          "name": "ExecutorNode",
+          "kind": "ClassDef",
+          "line": 163
+        },
+        {
+          "name": "CyclicExecutionBlock",
+          "kind": "ClassDef",
+          "line": 181
+        },
+        {
+          "name": "ExecutorGraph",
+          "kind": "ClassDef",
+          "line": 191
+        },
+        {
+          "name": "classify_estimand",
+          "kind": "FunctionDef",
+          "line": 212
+        },
+        {
+          "name": "_has_mediator_pattern",
+          "kind": "FunctionDef",
+          "line": 321
+        },
+        {
+          "name": "_has_iv_pattern",
+          "kind": "FunctionDef",
+          "line": 352
+        },
+        {
+          "name": "_has_selection_pattern",
+          "kind": "FunctionDef",
+          "line": 366
+        },
+        {
+          "name": "_extract_benchmark_covariates",
+          "kind": "FunctionDef",
+          "line": 378
+        },
+        {
+          "name": "_parse_counterfactual_assignments",
+          "kind": "FunctionDef",
+          "line": 393
+        },
+        {
+          "name": "_extract_counterfactual_executor_params",
+          "kind": "FunctionDef",
+          "line": 406
+        },
+        {
+          "name": "_has_cate_requirement",
+          "kind": "FunctionDef",
+          "line": 460
+        },
+        {
+          "name": "_collect_summation_vars",
+          "kind": "FunctionDef",
+          "line": 482
+        },
+        {
+          "name": "_parse_shift_delta_from_expr",
+          "kind": "FunctionDef",
+          "line": 497
+        },
+        {
+          "name": "_parse_incremental_delta_from_expr",
+          "kind": "FunctionDef",
+          "line": 512
+        },
+        {
+          "name": "_prefers_binary_policy_estimator",
+          "kind": "FunctionDef",
+          "line": 522
+        },
+        {
+          "name": "_extract_policy_compile_params",
+          "kind": "FunctionDef",
+          "line": 527
+        },
+        {
+          "name": "_resolve_compilation_ast",
+          "kind": "FunctionDef",
+          "line": 567
+        },
+        {
+          "name": "_requires_formula_lowering",
+          "kind": "FunctionDef",
+          "line": 605
+        },
+        {
+          "name": "_shape_from_operator_scope",
+          "kind": "FunctionDef",
+          "line": 621
+        },
+        {
+          "name": "_is_operator_ast",
+          "kind": "FunctionDef",
+          "line": 634
+        },
+        {
+          "name": "_operator_lift_scope_for_compile",
+          "kind": "FunctionDef",
+          "line": 638
+        },
+        {
+          "name": "_operator_audit_basis_probe_refs",
+          "kind": "FunctionDef",
+          "line": 651
+        },
+        {
+          "name": "_operator_recommendation",
+          "kind": "FunctionDef",
+          "line": 672
+        },
+        {
+          "name": "recommend_estimator",
+          "kind": "FunctionDef",
+          "line": 757
+        },
+        {
+          "name": "_strategy_for_proxy_coverage",
+          "kind": "FunctionDef",
+          "line": 1315
+        },
+        {
+          "name": "_apply_knowledge_base",
+          "kind": "FunctionDef",
+          "line": 1327
+        },
+        {
+          "name": "_parse_cyclic_signature",
+          "kind": "FunctionDef",
+          "line": 1391
+        },
+        {
+          "name": "compile_to_method_dag_nodes",
+          "kind": "FunctionDef",
+          "line": 1407
+        },
+        {
+          "name": "compile_estimand",
+          "kind": "FunctionDef",
+          "line": 2211
+        },
+        {
+          "name": "_maybe_inject_cross_fitting",
+          "kind": "FunctionDef",
+          "line": 2378
+        },
+        {
+          "name": "to_method_dag_dicts",
+          "kind": "FunctionDef",
+          "line": 202
+        },
+        {
+          "name": "_first_counterfactual_world",
+          "kind": "FunctionDef",
+          "line": 423
+        },
+        {
+          "name": "_infer_executor_backend",
+          "kind": "FunctionDef",
+          "line": 1428
+        },
+        {
+          "name": "_node",
+          "kind": "FunctionDef",
+          "line": 1445
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+      "definitions": [
+        {
+          "name": "DistributionDomain",
+          "kind": "ClassDef",
+          "line": 46
+        },
+        {
+          "name": "SideConditionKind",
+          "kind": "ClassDef",
+          "line": 54
+        },
+        {
+          "name": "SideCondition",
+          "kind": "ClassDef",
+          "line": 72
+        },
+        {
+          "name": "EventPredicate",
+          "kind": "ClassDef",
+          "line": 88
+        },
+        {
+          "name": "DistributionRef",
+          "kind": "ClassDef",
+          "line": 136
+        },
+        {
+          "name": "DistributionLawQuery",
+          "kind": "ClassDef",
+          "line": 178
+        },
+        {
+          "name": "DistributionLawNode",
+          "kind": "ClassDef",
+          "line": 227
+        },
+        {
+          "name": "SpaceRef",
+          "kind": "ClassDef",
+          "line": 264
+        },
+        {
+          "name": "OperatorTargetNode",
+          "kind": "ClassDef",
+          "line": 289
+        },
+        {
+          "name": "OperatorApplyNode",
+          "kind": "ClassDef",
+          "line": 330
+        },
+        {
+          "name": "SumNode",
+          "kind": "ClassDef",
+          "line": 366
+        },
+        {
+          "name": "ProductNode",
+          "kind": "ClassDef",
+          "line": 380
+        },
+        {
+          "name": "RatioNode",
+          "kind": "ClassDef",
+          "line": 392
+        },
+        {
+          "name": "NuisanceNode",
+          "kind": "ClassDef",
+          "line": 405
+        },
+        {
+          "name": "ExpectationNode",
+          "kind": "ClassDef",
+          "line": 439
+        },
+        {
+          "name": "IntegralNode",
+          "kind": "ClassDef",
+          "line": 485
+        },
+        {
+          "name": "RecoveredDistNode",
+          "kind": "ClassDef",
+          "line": 518
+        },
+        {
+          "name": "PathSpecificNode",
+          "kind": "ClassDef",
+          "line": 575
+        },
+        {
+          "name": "EdgeInterventionAssignment",
+          "kind": "ClassDef",
+          "line": 621
+        },
+        {
+          "name": "EdgeInterventionNode",
+          "kind": "ClassDef",
+          "line": 631
+        },
+        {
+          "name": "ModifiedTreatmentPolicyNode",
+          "kind": "ClassDef",
+          "line": 657
+        },
+        {
+          "name": "StochasticPolicy",
+          "kind": "ClassDef",
+          "line": 685
+        },
+        {
+          "name": "StochasticInterventionNode",
+          "kind": "ClassDef",
+          "line": 716
+        },
+        {
+          "name": "ConditionalInterventionNode",
+          "kind": "ClassDef",
+          "line": 755
+        },
+        {
+          "name": "ProxyAdjustmentNode",
+          "kind": "ClassDef",
+          "line": 790
+        },
+        {
+          "name": "CounterfactualNode",
+          "kind": "ClassDef",
+          "line": 830
+        },
+        {
+          "name": "NestedCounterfactualNode",
+          "kind": "ClassDef",
+          "line": 870
+        },
+        {
+          "name": "CrossWorldNode",
+          "kind": "ClassDef",
+          "line": 892
+        },
+        {
+          "name": "CtfInterventionNode",
+          "kind": "ClassDef",
+          "line": 908
+        },
+        {
+          "name": "EstimandAST",
+          "kind": "ClassDef",
+          "line": 957
+        },
+        {
+          "name": "_node_latex",
+          "kind": "FunctionDef",
+          "line": 1039
+        },
+        {
+          "name": "_collect_dataset_refs",
+          "kind": "FunctionDef",
+          "line": 1087
+        },
+        {
+          "name": "_collect_domains",
+          "kind": "FunctionDef",
+          "line": 1158
+        },
+        {
+          "name": "_collect_dist_refs",
+          "kind": "FunctionDef",
+          "line": 1222
+        },
+        {
+          "name": "_unique_sorted",
+          "kind": "FunctionDef",
+          "line": 1284
+        },
+        {
+          "name": "_sorted_mapping",
+          "kind": "FunctionDef",
+          "line": 1288
+        },
+        {
+          "name": "_normalize_side_condition",
+          "kind": "FunctionDef",
+          "line": 1292
+        },
+        {
+          "name": "_side_condition_sort_key",
+          "kind": "FunctionDef",
+          "line": 1296
+        },
+        {
+          "name": "_normalize_side_conditions",
+          "kind": "FunctionDef",
+          "line": 1303
+        },
+        {
+          "name": "_node_sort_key",
+          "kind": "FunctionDef",
+          "line": 1317
+        },
+        {
+          "name": "_normalize_node",
+          "kind": "FunctionDef",
+          "line": 1324
+        },
+        {
+          "name": "_collect_variable_names",
+          "kind": "FunctionDef",
+          "line": 1536
+        },
+        {
+          "name": "normalize_estimand_ast",
+          "kind": "FunctionDef",
+          "line": 1653
+        },
+        {
+          "name": "make_distribution_law_estimand",
+          "kind": "FunctionDef",
+          "line": 1678
+        },
+        {
+          "name": "make_backdoor_estimand",
+          "kind": "FunctionDef",
+          "line": 1717
+        },
+        {
+          "name": "make_frontdoor_estimand",
+          "kind": "FunctionDef",
+          "line": 1764
+        },
+        {
+          "name": "make_transport_reweight_estimand",
+          "kind": "FunctionDef",
+          "line": 1816
+        },
+        {
+          "name": "make_z_transport_estimand",
+          "kind": "FunctionDef",
+          "line": 1871
+        },
+        {
+          "name": "make_counterfactual_estimand",
+          "kind": "FunctionDef",
+          "line": 1946
+        },
+        {
+          "name": "make_recovery_estimand",
+          "kind": "FunctionDef",
+          "line": 1987
+        },
+        {
+          "name": "persist_estimand_ast",
+          "kind": "FunctionDef",
+          "line": 2046
+        },
+        {
+          "name": "load_estimand_ast",
+          "kind": "FunctionDef",
+          "line": 2068
+        },
+        {
+          "name": "_validate_predicate",
+          "kind": "FunctionDef",
+          "line": 98
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 116
+        },
+        {
+          "name": "_validate_event",
+          "kind": "FunctionDef",
+          "line": 159
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 164
+        },
+        {
+          "name": "_validate_query",
+          "kind": "FunctionDef",
+          "line": 199
+        },
+        {
+          "name": "generator_type",
+          "kind": "FunctionDef",
+          "line": 209
+        },
+        {
+          "name": "resolved_parameter_domain",
+          "kind": "FunctionDef",
+          "line": 217
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 249
+        },
+        {
+          "name": "_normalize_space_id",
+          "kind": "FunctionDef",
+          "line": 277
+        },
+        {
+          "name": "_normalize_operator_fields",
+          "kind": "FunctionDef",
+          "line": 311
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 321
+        },
+        {
+          "name": "_normalize_probe_refs",
+          "kind": "FunctionDef",
+          "line": 341
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 354
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 375
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 388
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 401
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 475
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 508
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 560
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 607
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 649
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 678
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 748
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 785
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 824
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 864
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 883
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 901
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 920
+        },
+        {
+          "name": "_infer_object_kind",
+          "kind": "FunctionDef",
+          "line": 977
+        },
+        {
+          "name": "to_latex",
+          "kind": "FunctionDef",
+          "line": 988
+        },
+        {
+          "name": "required_datasets",
+          "kind": "FunctionDef",
+          "line": 992
+        },
+        {
+          "name": "required_domains",
+          "kind": "FunctionDef",
+          "line": 998
+        },
+        {
+          "name": "collect_distribution_refs",
+          "kind": "FunctionDef",
+          "line": 1004
+        },
+        {
+          "name": "normalize",
+          "kind": "FunctionDef",
+          "line": 1010
+        },
+        {
+          "name": "canonical_payload",
+          "kind": "FunctionDef",
+          "line": 1014
+        },
+        {
+          "name": "canonical_bytes",
+          "kind": "FunctionDef",
+          "line": 1025
+        },
+        {
+          "name": "content_hash",
+          "kind": "FunctionDef",
+          "line": 1029
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/normative_arbitration.py",
+      "definitions": [
+        {
+          "name": "ArbitrationOption",
+          "kind": "ClassDef",
+          "line": 21
+        },
+        {
+          "name": "NormativeModelCompleteness",
+          "kind": "ClassDef",
+          "line": 29
+        },
+        {
+          "name": "NormativeAuditStatus",
+          "kind": "ClassDef",
+          "line": 36
+        },
+        {
+          "name": "OptionOutcomeMatrix",
+          "kind": "ClassDef",
+          "line": 44
+        },
+        {
+          "name": "StakeholderUtilitySummary",
+          "kind": "ClassDef",
+          "line": 61
+        },
+        {
+          "name": "RightsAuditEntry",
+          "kind": "ClassDef",
+          "line": 86
+        },
+        {
+          "name": "HardConstraintAuditEntry",
+          "kind": "ClassDef",
+          "line": 102
+        },
+        {
+          "name": "PolicyOutcome",
+          "kind": "ClassDef",
+          "line": 116
+        },
+        {
+          "name": "ResidualDissent",
+          "kind": "ClassDef",
+          "line": 129
+        },
+        {
+          "name": "NormativeProvenance",
+          "kind": "ClassDef",
+          "line": 139
+        },
+        {
+          "name": "TradeoffCertificate",
+          "kind": "ClassDef",
+          "line": 152
+        },
+        {
+          "name": "NormativeArbitrationResult",
+          "kind": "ClassDef",
+          "line": 167
+        },
+        {
+          "name": "persist_normative_arbitration_result",
+          "kind": "FunctionDef",
+          "line": 211
+        },
+        {
+          "name": "load_normative_arbitration_result",
+          "kind": "FunctionDef",
+          "line": 232
+        },
+        {
+          "name": "_validate_binding_values",
+          "kind": "FunctionDef",
+          "line": 54
+        },
+        {
+          "name": "_validate_numbers",
+          "kind": "FunctionDef",
+          "line": 74
+        },
+        {
+          "name": "_validate_selected_policy",
+          "kind": "FunctionDef",
+          "line": 198
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+      "definitions": [
+        {
+          "name": "_ResolvedBindingValue",
+          "kind": "ClassDef",
+          "line": 101
+        },
+        {
+          "name": "_ResolvedNormativeModel",
+          "kind": "ClassDef",
+          "line": 108
+        },
+        {
+          "name": "RunNormativeArbitrationNode",
+          "kind": "ClassDef",
+          "line": 115
+        },
+        {
+          "name": "_load_metrics",
+          "kind": "FunctionDef",
+          "line": 359
+        },
+        {
+          "name": "_load_simulation_result",
+          "kind": "FunctionDef",
+          "line": 378
+        },
+        {
+          "name": "_load_distributional",
+          "kind": "FunctionDef",
+          "line": 402
+        },
+        {
+          "name": "_load_legal_report",
+          "kind": "FunctionDef",
+          "line": 427
+        },
+        {
+          "name": "_resolve_normative_model",
+          "kind": "FunctionDef",
+          "line": 451
+        },
+        {
+          "name": "_requires_explicit_normative_frame",
+          "kind": "FunctionDef",
+          "line": 471
+        },
+        {
+          "name": "_synthesize_legacy_normative_frame",
+          "kind": "FunctionDef",
+          "line": 478
+        },
+        {
+          "name": "_stakeholder_outcome_key",
+          "kind": "FunctionDef",
+          "line": 541
+        },
+        {
+          "name": "_resolve_binding_values",
+          "kind": "FunctionDef",
+          "line": 550
+        },
+        {
+          "name": "_build_distributional_impact_map",
+          "kind": "FunctionDef",
+          "line": 600
+        },
+        {
+          "name": "_build_synthesized_impact_map",
+          "kind": "FunctionDef",
+          "line": 613
+        },
+        {
+          "name": "_metric_value",
+          "kind": "FunctionDef",
+          "line": 632
+        },
+        {
+          "name": "_uncertainty_ratio",
+          "kind": "FunctionDef",
+          "line": 639
+        },
+        {
+          "name": "_compute_stakeholder_utilities",
+          "kind": "FunctionDef",
+          "line": 680
+        },
+        {
+          "name": "_audit_rights",
+          "kind": "FunctionDef",
+          "line": 745
+        },
+        {
+          "name": "_audit_hard_constraints",
+          "kind": "FunctionDef",
+          "line": 803
+        },
+        {
+          "name": "_constraint_value",
+          "kind": "FunctionDef",
+          "line": 859
+        },
+        {
+          "name": "_evaluate_policies",
+          "kind": "FunctionDef",
+          "line": 868
+        },
+        {
+          "name": "_resolve_model_completeness",
+          "kind": "FunctionDef",
+          "line": 959
+        },
+        {
+          "name": "_build_inputs",
+          "kind": "FunctionDef",
+          "line": 977
+        },
+        {
+          "name": "_value_for_target",
+          "kind": "FunctionDef",
+          "line": 999
+        },
+        {
+          "name": "_compare",
+          "kind": "FunctionDef",
+          "line": 1010
+        },
+        {
+          "name": "_coerce_float",
+          "kind": "FunctionDef",
+          "line": 1034
+        },
+        {
+          "name": "_normalize_scalar",
+          "kind": "FunctionDef",
+          "line": 1052
+        },
+        {
+          "name": "_ref_id",
+          "kind": "FunctionDef",
+          "line": 1060
+        },
+        {
+          "name": "_dedupe_strings",
+          "kind": "FunctionDef",
+          "line": 1064
+        },
+        {
+          "name": "spec",
+          "kind": "FunctionDef",
+          "line": 119
+        },
+        {
+          "name": "execute",
+          "kind": "FunctionDef",
+          "line": 122
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "definitions": [
+        {
+          "name": "ArtifactWriteOptions",
+          "kind": "ClassDef",
+          "line": 23
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "definitions": [
+        {
+          "name": "ArtifactOwnershipError",
+          "kind": "ClassDef",
+          "line": 22
+        },
+        {
+          "name": "_utc_now",
+          "kind": "FunctionDef",
+          "line": 26
+        },
+        {
+          "name": "_normal_tenant_id",
+          "kind": "FunctionDef",
+          "line": 30
+        },
+        {
+          "name": "_normal_cell_id",
+          "kind": "FunctionDef",
+          "line": 37
+        },
+        {
+          "name": "_record_matches_owner",
+          "kind": "FunctionDef",
+          "line": 42
+        },
+        {
+          "name": "ArtifactOwnershipIndex",
+          "kind": "ClassDef",
+          "line": 54
+        },
+        {
+          "name": "_coerce_artifact_id",
+          "kind": "FunctionDef",
+          "line": 254
+        },
+        {
+          "name": "_artifacts_mapping",
+          "kind": "FunctionDef",
+          "line": 260
+        },
+        {
+          "name": "_owner_label",
+          "kind": "FunctionDef",
+          "line": 277
+        },
+        {
+          "name": "_digest_payload",
+          "kind": "FunctionDef",
+          "line": 283
+        },
+        {
+          "name": "_json_bytes",
+          "kind": "FunctionDef",
+          "line": 288
+        },
+        {
+          "name": "_load_json_file",
+          "kind": "FunctionDef",
+          "line": 292
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "line": 62
+        },
+        {
+          "name": "record_owner",
+          "kind": "FunctionDef",
+          "line": 69
+        },
+        {
+          "name": "owners_for",
+          "kind": "FunctionDef",
+          "line": 116
+        },
+        {
+          "name": "is_owned_by",
+          "kind": "FunctionDef",
+          "line": 123
+        },
+        {
+          "name": "require_owner",
+          "kind": "FunctionDef",
+          "line": 142
+        },
+        {
+          "name": "evidence",
+          "kind": "FunctionDef",
+          "line": 167
+        },
+        {
+          "name": "_load_payload",
+          "kind": "FunctionDef",
+          "line": 210
+        },
+        {
+          "name": "_write_payload",
+          "kind": "FunctionDef",
+          "line": 229
+        },
+        {
+          "name": "_signature_payload",
+          "kind": "FunctionDef",
+          "line": 239
+        }
+      ]
+    }
+  ],
+  "inputs": {
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/census.json": "cc1512b3574b1ff4c80024186dd2161dd61b2b56ceee87ef9b56dc2ee9385f2e",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/summary.json": "ae7757737d1a106d676a12ff201293e10c6ce4edbd1216c6b067de0356bac5ca",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact-case-density.json": "39d409fe7e478c25c2e653ed69a938e2db5ba09796c9d22959d55f4aac9e581c",
+    "policy-engine/docs/superpowers/journals/group-a/03-phase5/raw/trace.json": "cff0f84c01d3efa12fcd6469b152d6e37ead83abdb97242118a8181dd7453c05"
+  },
+  "exit_code": 0
+}

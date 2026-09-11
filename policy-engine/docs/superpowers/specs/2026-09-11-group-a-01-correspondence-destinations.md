@@ -145,9 +145,9 @@ into a capability or scope decision.
 `policy-engine/docs/research/policy-operations/corr-consolidation/corr-withheld-propositions.md@63bdb9640`,
 **CORR-WP08 / CORR-I1-DUAL-PURPOSE-QUALIFICATION-AND-APPOINTMENT**, withholds:
 “One dual-qualified human is available and may discharge both positive lanes.”
-`corr-routing-map.md@63bdb9640`, **CORR-RT11**, asks whether one dual-qualified
+`policy-engine/docs/research/policy-operations/corr-consolidation/corr-routing-map.md@63bdb9640`, **CORR-RT11**, asks whether one dual-qualified
 holder can fill RT09+RT10; qualification cannot appoint.
-`corr-open-questions-and-next-research.md@63bdb9640`, **CORR-NR4**, supplies two
+`policy-engine/docs/research/policy-operations/corr-consolidation/corr-open-questions-and-next-research.md@63bdb9640`, **CORR-NR4**, supplies two
 profiles: intervention identity, mechanism/operator, population, dose/intensity,
 causal abstraction; versus statutory interpretation, operative norm reconstruction,
 deontic effect, jurisdiction/scope/time, legal subject-to-lever semantics.

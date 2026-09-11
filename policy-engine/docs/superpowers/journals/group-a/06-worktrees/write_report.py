@@ -1,9 +1,17 @@
 """Render the temporal worktree measurement; does not execute Git."""
 from pathlib import Path
+import argparse
 import json
 ROOT=Path(__file__).resolve().parents[6]
 OUT=Path(__file__).resolve().parent
-d=json.loads((OUT/'summary.json').read_text());rows=d['registrations']
+parser = argparse.ArgumentParser()
+parser.add_argument('--input-subdirectory', default='final')
+args = parser.parse_args()
+receipt_dir = (OUT / args.input_subdirectory).resolve()
+if not receipt_dir.is_relative_to(OUT):
+    parser.error('input must stay within this journal directory')
+d=json.loads((receipt_dir/'summary.json').read_text());rows=d['registrations']
+receipt_relative = receipt_dir.relative_to(ROOT).as_posix()
 selected=[r for r in rows if r['dry_run_selected']];live=[r for r in rows if not r['dry_run_selected']]
 table='\n'.join('| '+r['registration']+' | '+(('`'+r['branch'].removeprefix('refs/heads/')+'` — merged') if r['branch'] else 'no attached branch; detached HEAD is an ancestor of main')+' | `'+r['tip'][:12]+'` | `'+r['expected_directory']+'` |' for r in selected)
 livetable='\n'.join('| '+r['registration']+' | `'+r['expected_directory']+'` |' for r in live)
@@ -29,9 +37,9 @@ in the receipt.
 The stale count and merged-branch count agree; the current total is five larger
 than the row's historical total. This analysis worktree is one known new member.
 The other historical-to-current additions are not inferred from that arithmetic.
-The earlier worker noticed a concurrent `integration` registration and discarded
-its exploratory snapshot. The deciding snapshot below passed before/after
-metadata equality and pinned-main equality checks.
+The retained initial snapshot at 12:04:42 UTC and the refreshed snapshot above
+have identical registration counts and classifications. The deciding refreshed
+snapshot passed before/after metadata equality and pinned-main equality checks.
 
 **No existing directory is in the dry-run removal set: 0 / 24.** The bounded
 filesystem scan found no relocated `.git` pointer for any of the 53 selected
@@ -44,7 +52,7 @@ has run.
 Run from `/Users/deniskopylov/polisyos/.worktrees/group-a-analysis`:
 
 ```sh
-python3 policy-engine/docs/superpowers/journals/group-a/06-worktrees/census.py
+python3 policy-engine/docs/superpowers/journals/group-a/06-worktrees/census.py --output-subdirectory final
 ```
 
 Exit **0**. The script executes each Git command separately, records complete
@@ -64,11 +72,14 @@ are compared as commits separately. The comparison base is main at
 The full membership is stable across enumeration, dry-run and filesystem search.
 
 Complete deciding output is
-`policy-engine/docs/superpowers/journals/group-a/06-worktrees/summary.json`.
+`{receipt_relative}/summary.json`.
 Full command output and raw administrative records are in
-`policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/census.json`,
+`{receipt_relative}/raw/census.json`,
 SHA-256 `{d['raw_receipt']['sha256']}`.
 The two enumerations reconcile all identities, not just their counts.
+The initial measurement remains separately retained at
+`policy-engine/docs/superpowers/journals/group-a/06-worktrees/summary.json` and its
+SHA-bound raw receipt; refreshing did not overwrite it.
 
 ### Exactly what the default prune dry-run selected
 

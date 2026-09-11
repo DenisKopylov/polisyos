@@ -1,0 +1,1671 @@
+{
+  "measured_utc": "2026-09-11T12:55:56.514240+00:00",
+  "base": "63bdb9640e7b76b49356cba940bab6067f1be512",
+  "branch_observed": "codex/group-a-analysis",
+  "head_before_delivery_commit": "b678473507917800ec17ecf4c5f4704ff283776e",
+  "scope": "research delivery verification; no product behavior or adjudication verdict",
+  "report_denominator": [
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-01-correspondence-destinations.md",
+      "sha256": "ca1a612ec6affc7dda788948f2b851f985f5cc950e00feb1f152ad9c15a59d46"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-02-done-when-clauses.md",
+      "sha256": "f0a241856363bd7d50c2eb8243f9446846311d4bd2df1f31b5d0b776cb53091c"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-03-phase5-findings.md",
+      "sha256": "c7b19853edf39239b0ddfdde60fcd243ecf53911bf010abcb841b043fe2a061a"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-04-ceiling-vocabularies.md",
+      "sha256": "e9b5096b9fdf4643247e8e931cd61921d9a9bf62149927b39cf65e4c1149878c"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-05-scope-adjudication.md",
+      "sha256": "791aba04f2d1d565ad5ac24403fed7e90364d4e7fac5c436d5ccae06771ea801"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-06-worktree-registrations.md",
+      "sha256": "e071c858b07e0eeca1f55d55f546e3bae740e4734a4efdbb9b2ad096f82aee2b"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "sha256": "650bf69fbcca4ad9fe57d60ea70b0646c82d2ff72bcfd7f6ef409c90faf5b6a6"
+    }
+  ],
+  "citation_denominator": [
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_graded_outcome_routing_report_v2.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs_v4.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/plans/active/DEBT-REGISTER.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/plans/active/atlas-slices/DS11-trust-docs-posture.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/plans/active/atlas-slices/DS20-server-authz-enforcement-closure.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/plans/active/atlas-slices/DS20-server-authz-enforcement.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/plans/active/atlas-slices/DS9-human-decision-integrity.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/reference/canonical-vocabulary-crosswalk.v1.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/reference/operations/infrastructure-split-compute.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/consolidation/stage0/stage0-consensus-kernel.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/consolidation/wave5/wave5-routing-map.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/corr-consolidation/corr-open-questions-and-next-research.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/corr-consolidation/corr-routing-map.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/corr-consolidation/corr-withheld-propositions.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/int-r2-gap-acquisition-cases.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/research/policy-operations/ops-r5-monitoring-diagnosis-and-adaptation.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/f1/gate-committed-corruption.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/f1/gate-execution-removal.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/canonical-check-corrupt-after-cli-custody.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/canonical-write-after-cli-custody.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/f1-current-check.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-after-cli-custody-check.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/canonical-check.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/canonical-corrupt-substance.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/red-extractor-removal.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/removal-default-extractor.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-full-source-ruff.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/frozen-source-ruff.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/decision_validity.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/scope_adjudication.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/acquisition_assurance.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/ceiling_vocabulary.json",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/network/missingness.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/consensus.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/normative_arbitration.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/container.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "ref": "b6e5db7b6^",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/evidence/claims/head_index.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/evidence/claims/owner_events.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/continuous/lifecycle_bridge.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py",
+      "ref": "63bdb9640",
+      "exit_code": 0
+    }
+  ],
+  "local_link_denominator": [
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "2026-09-11-group-a-01-correspondence-destinations.md",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "2026-09-11-group-a-02-done-when-clauses.md",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "2026-09-11-group-a-03-phase5-findings.md",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "2026-09-11-group-a-04-ceiling-vocabularies.md",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "2026-09-11-group-a-05-scope-adjudication.md",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "2026-09-11-group-a-06-worktree-registrations.md",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/README.md",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/01-correspondence/document-census.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/02-clauses/measurement.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/02-clauses/selected-receipts.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/02-clauses/evaluation.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/03-phase5/measurement.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/03-phase5/duplicates-crosscheck.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/03-phase5/openapi-scope.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/04-vocabularies/summary.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/04-vocabularies/exact-case-density.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/04-vocabularies/distribution.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/05-scope/census-receipt.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/06-worktrees/final/summary.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/06-worktrees/summary.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/delivery-verification.json",
+      "exists": true
+    },
+    {
+      "from": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
+      "target": "../journals/group-a/verify_delivery.py",
+      "exists": true
+    }
+  ],
+  "instrument_denominator": [
+    "policy-engine/docs/superpowers/journals/group-a/01-correspondence/document_census.py",
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/evaluate.py",
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/measure.py",
+    "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates_crosscheck.py",
+    "policy-engine/docs/superpowers/journals/group-a/03-phase5/measure.py",
+    "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi_scope.py",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/ast_census.py",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.py",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact_case_density.py",
+    "policy-engine/docs/superpowers/journals/group-a/05-scope/measure_scope.py",
+    "policy-engine/docs/superpowers/journals/group-a/06-worktrees/census.py",
+    "policy-engine/docs/superpowers/journals/group-a/06-worktrees/write_report.py",
+    "policy-engine/docs/superpowers/journals/group-a/verify_delivery.py"
+  ],
+  "compact_json_denominator_excluding_this_output": [
+    "policy-engine/docs/superpowers/journals/group-a/01-correspondence/document-census.json",
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/evaluation.json",
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/measurement.json",
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/selected-receipts.json",
+    "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates-crosscheck.json",
+    "policy-engine/docs/superpowers/journals/group-a/03-phase5/measurement.json",
+    "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi-scope.json",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.json",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact-case-density.json",
+    "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/summary.json",
+    "policy-engine/docs/superpowers/journals/group-a/05-scope/census-receipt.json",
+    "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/summary.json",
+    "policy-engine/docs/superpowers/journals/group-a/06-worktrees/summary.json"
+  ],
+  "retained_hash_denominator": [
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/01-correspondence/raw/denominators.json",
+      "expected": "5bf8be95e4cbe22181ff15d13a73c4752671a5cef76ccfc445314b90e3c9d867",
+      "measured": "5bf8be95e4cbe22181ff15d13a73c4752671a5cef76ccfc445314b90e3c9d867"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/evidence-inventory.json",
+      "expected": "fa10c3bd4706d2c4ef63e0b6bdb3c124808e1e360a2b96eaa4a43b951b448776",
+      "measured": "fa10c3bd4706d2c4ef63e0b6bdb3c124808e1e360a2b96eaa4a43b951b448776"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/markdown-mentions.json",
+      "expected": "0b6a1eec909f3bcf6e1918347d4e6dcf5da43f271ccf467c76a10a0312396d7c",
+      "measured": "0b6a1eec909f3bcf6e1918347d4e6dcf5da43f271ccf467c76a10a0312396d7c"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/python-consumers.json",
+      "expected": "37f065dd6589a81f6c60aa8e24f73da292247825971b378e0a0d978e80d86497",
+      "measured": "37f065dd6589a81f6c60aa8e24f73da292247825971b378e0a0d978e80d86497"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/03-phase5/raw/trace.json",
+      "expected": "cff0f84c01d3efa12fcd6469b152d6e37ead83abdb97242118a8181dd7453c05",
+      "measured": "cff0f84c01d3efa12fcd6469b152d6e37ead83abdb97242118a8181dd7453c05"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact-case-density.json",
+      "expected": "39d409fe7e478c25c2e653ed69a938e2db5ba09796c9d22959d55f4aac9e581c",
+      "measured": "39d409fe7e478c25c2e653ed69a938e2db5ba09796c9d22959d55f4aac9e581c"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/census.json",
+      "expected": "cc1512b3574b1ff4c80024186dd2161dd61b2b56ceee87ef9b56dc2ee9385f2e",
+      "measured": "cc1512b3574b1ff4c80024186dd2161dd61b2b56ceee87ef9b56dc2ee9385f2e"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/summary.json",
+      "expected": "ae7757737d1a106d676a12ff201293e10c6ce4edbd1216c6b067de0356bac5ca",
+      "measured": "ae7757737d1a106d676a12ff201293e10c6ce4edbd1216c6b067de0356bac5ca"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/05-scope/raw/ast-trace.json",
+      "expected": "fecb7dacac9d8cd8ccc692b0cbf0b9e87181a16104401bb2422f1f0d51fdc63a",
+      "measured": "fecb7dacac9d8cd8ccc692b0cbf0b9e87181a16104401bb2422f1f0d51fdc63a"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/raw/census.json",
+      "expected": "048b7dd75ef6e896c9cc375db1fbf2262d31485d072d7113a7faf949e34aaf30",
+      "measured": "048b7dd75ef6e896c9cc375db1fbf2262d31485d072d7113a7faf949e34aaf30"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/census.json",
+      "expected": "0418ec2f416b9a6c8241f24874d98e622ba796f54abc4958a72a581cab90e16a",
+      "measured": "0418ec2f416b9a6c8241f24874d98e622ba796f54abc4958a72a581cab90e16a"
+    }
+  ],
+  "checks": [
+    {
+      "check": "exact_branch_attachment",
+      "satisfied": true,
+      "evidence": "codex/group-a-analysis"
+    },
+    {
+      "check": "exact_worktree_root",
+      "satisfied": true,
+      "evidence": "/Users/deniskopylov/polisyos/.worktrees/group-a-analysis"
+    },
+    {
+      "check": "all_changes_inside_research_allowlist",
+      "satisfied": true,
+      "evidence": {
+        "changed_since_base": [
+          "policy-engine/docs/superpowers/journals/group-a/.gitignore",
+          "policy-engine/docs/superpowers/journals/group-a/01-correspondence/document-census.json",
+          "policy-engine/docs/superpowers/journals/group-a/01-correspondence/document_census.py",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/evaluate.py",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/evaluation.json",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/measure.py",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/measurement.json",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/selected-receipts.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/measure.py",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/measurement.json",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/ast_census.py",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact-case-density.json",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact_case_density.py",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/summary.json",
+          "policy-engine/docs/superpowers/journals/group-a/05-scope/README.md",
+          "policy-engine/docs/superpowers/journals/group-a/05-scope/census-receipt.json",
+          "policy-engine/docs/superpowers/journals/group-a/05-scope/measure_scope.py",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/census.py",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/summary.json",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/write_report.py",
+          "policy-engine/docs/superpowers/journals/group-a/README.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-01-correspondence-destinations.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-02-done-when-clauses.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-05-scope-adjudication.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-06-worktree-registrations.md"
+        ],
+        "nonignored_untracked": [
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates-crosscheck.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates_crosscheck.py",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi-scope.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi_scope.py",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.json",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.py",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/summary.json",
+          "policy-engine/docs/superpowers/journals/group-a/verify_delivery.py",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-03-phase5-findings.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-04-ceiling-vocabularies.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md"
+        ],
+        "outside_allowlist": []
+      }
+    },
+    {
+      "check": "exact_six_reports_plus_index",
+      "satisfied": true,
+      "evidence": [
+        "2026-09-11-group-a-01-correspondence-destinations.md",
+        "2026-09-11-group-a-02-done-when-clauses.md",
+        "2026-09-11-group-a-03-phase5-findings.md",
+        "2026-09-11-group-a-04-ceiling-vocabularies.md",
+        "2026-09-11-group-a-05-scope-adjudication.md",
+        "2026-09-11-group-a-06-worktree-registrations.md",
+        "2026-09-11-group-a-analysis-index.md"
+      ]
+    },
+    {
+      "check": "ordered_five_sections:2026-09-11-group-a-01-correspondence-destinations.md",
+      "satisfied": true,
+      "evidence": [
+        [
+          "1",
+          "Discrepancy: the recorded determination goes beyond the cited norms"
+        ],
+        [
+          "2",
+          "Measurements, complete denominators and receipts"
+        ],
+        [
+          "3",
+          "Competing readings, costs and permissions"
+        ],
+        [
+          "4",
+          "What the architect's decision would rest on"
+        ],
+        [
+          "5",
+          "What was not established"
+        ]
+      ]
+    },
+    {
+      "check": "discrepancy_before_other_prose:2026-09-11-group-a-01-correspondence-destinations.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "no_recommendations_section:2026-09-11-group-a-01-correspondence-destinations.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ordered_five_sections:2026-09-11-group-a-02-done-when-clauses.md",
+      "satisfied": true,
+      "evidence": [
+        [
+          "1",
+          "Discrepancy: a bounded exercise is not an unqualified result"
+        ],
+        [
+          "2",
+          "Measurements, denominators and receipts"
+        ],
+        [
+          "3",
+          "Competing readings, their costs and what they license"
+        ],
+        [
+          "4",
+          "What a decision would rest on"
+        ],
+        [
+          "5",
+          "What was not established"
+        ]
+      ]
+    },
+    {
+      "check": "discrepancy_before_other_prose:2026-09-11-group-a-02-done-when-clauses.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "no_recommendations_section:2026-09-11-group-a-02-done-when-clauses.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ordered_five_sections:2026-09-11-group-a-03-phase5-findings.md",
+      "satisfied": true,
+      "evidence": [
+        [
+          "1",
+          "Discrepancy: common infrastructure does not make the proofs identical"
+        ],
+        [
+          "2",
+          "Measurements, complete denominators and receipts"
+        ],
+        [
+          "3",
+          "Competing readings, costs and permissions"
+        ],
+        [
+          "4",
+          "What a decision would rest on"
+        ],
+        [
+          "5",
+          "What was not established"
+        ]
+      ]
+    },
+    {
+      "check": "discrepancy_before_other_prose:2026-09-11-group-a-03-phase5-findings.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "no_recommendations_section:2026-09-11-group-a-03-phase5-findings.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ordered_five_sections:2026-09-11-group-a-04-ceiling-vocabularies.md",
+      "satisfied": true,
+      "evidence": [
+        [
+          "1",
+          "Discrepancy: the totals reproduce; the ownership inference does not"
+        ],
+        [
+          "2",
+          "Measurements, denominators and receipts"
+        ],
+        [
+          "3",
+          "Competing readings, costs and permissions"
+        ],
+        [
+          "4",
+          "What a decision would rest on"
+        ],
+        [
+          "5",
+          "What was not established"
+        ]
+      ]
+    },
+    {
+      "check": "discrepancy_before_other_prose:2026-09-11-group-a-04-ceiling-vocabularies.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "no_recommendations_section:2026-09-11-group-a-04-ceiling-vocabularies.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ordered_five_sections:2026-09-11-group-a-05-scope-adjudication.md",
+      "satisfied": true,
+      "evidence": [
+        [
+          "1",
+          "Discrepancy between the row, the measurement, and the agreed history"
+        ],
+        [
+          "2",
+          "Measured commands, complete denominators, and the actual admission path"
+        ],
+        [
+          "3",
+          "Competing readings: what each licenses and what it costs"
+        ],
+        [
+          "4",
+          "Facts and rulings on which the architect's decision rests"
+        ],
+        [
+          "5",
+          "What remains unknown"
+        ]
+      ]
+    },
+    {
+      "check": "discrepancy_before_other_prose:2026-09-11-group-a-05-scope-adjudication.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "no_recommendations_section:2026-09-11-group-a-05-scope-adjudication.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ordered_five_sections:2026-09-11-group-a-06-worktree-registrations.md",
+      "satisfied": true,
+      "evidence": [
+        [
+          "1",
+          "Discrepancy and agreement with the recorded claim"
+        ],
+        [
+          "2",
+          "Commands, complete denominators and receipts"
+        ],
+        [
+          "3",
+          "Competing readings and their costs"
+        ],
+        [
+          "4",
+          "What an architect decision would rest on"
+        ],
+        [
+          "5",
+          "What was not established"
+        ]
+      ]
+    },
+    {
+      "check": "discrepancy_before_other_prose:2026-09-11-group-a-06-worktree-registrations.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "no_recommendations_section:2026-09-11-group-a-06-worktree-registrations.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "no_recommendations_section:2026-09-11-group-a-analysis-index.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:2026-09-11-group-a-01-correspondence-destinations.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:2026-09-11-group-a-02-done-when-clauses.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:2026-09-11-group-a-03-phase5-findings.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:2026-09-11-group-a-04-ceiling-vocabularies.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:2026-09-11-group-a-05-scope-adjudication.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:2026-09-11-group-a-06-worktree-registrations.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/README.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/01-correspondence/document-census.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/02-clauses/measurement.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/02-clauses/selected-receipts.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/02-clauses/evaluation.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/03-phase5/measurement.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/03-phase5/duplicates-crosscheck.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/03-phase5/openapi-scope.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/04-vocabularies/summary.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/04-vocabularies/exact-case-density.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/04-vocabularies/distribution.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/05-scope/census-receipt.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/06-worktrees/final/summary.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/06-worktrees/summary.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/delivery-verification.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "local_link:2026-09-11-group-a-analysis-index.md:../journals/group-a/verify_delivery.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/architecture/policy_design_case/layer3_gy_graded_outcome_routing_report_v2.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs_v4.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/plans/active/DEBT-REGISTER.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/plans/active/atlas-slices/DS11-trust-docs-posture.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/plans/active/atlas-slices/DS20-server-authz-enforcement-closure.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/plans/active/atlas-slices/DS20-server-authz-enforcement.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/plans/active/atlas-slices/DS9-human-decision-integrity.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/reference/canonical-vocabulary-crosswalk.v1.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/reference/operations/infrastructure-split-compute.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/research/policy-operations/consolidation/stage0/stage0-consensus-kernel.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/research/policy-operations/consolidation/wave5/wave5-routing-map.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/research/policy-operations/corr-consolidation/corr-open-questions-and-next-research.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/research/policy-operations/corr-consolidation/corr-routing-map.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/research/policy-operations/corr-consolidation/corr-withheld-propositions.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/research/policy-operations/int-r2-gap-acquisition-cases.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/research/policy-operations/ops-r5-monitoring-diagnosis-and-adaptation.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/f1/gate-committed-corruption.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/f1/gate-execution-removal.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/canonical-check-corrupt-after-cli-custody.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/canonical-write-after-cli-custody.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/f1-current-check.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-after-cli-custody-check.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/canonical-check.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/canonical-corrupt-substance.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/red-extractor-removal.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/removal-default-extractor.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/d1d-full-source-ruff.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/frozen-source-ruff.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/docs/system-design-decisions/withheld-propositions-register.md@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/core/artifacts/backends/config.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/core/artifacts/ownership.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/core/artifacts/write_contract.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/core/contracts/decision_validity.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/core/contracts/scope_adjudication.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/fabric/evidence/acquisition_assurance.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/fabric/evidence/ceiling_vocabulary.json@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/foundry/methods/catalog/network/missingness.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/foundry/methods/components/consensus.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/ir/analytics/estimand.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/ir/analytics/normative_arbitration.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/runtime/http/container.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/runtime/http/openapi_contract.py@b6e5db7b6^",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/runtime/http/services/control_plane_store.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/scientist/evidence/claims/head_index.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/scientist/evidence/claims/owner_events.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/scientist/governance/continuous/lifecycle_bridge.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/tests/unit/runtime/http/test_control_plane_store.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "pinned_citation:policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py@63bdb9640",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/reference/canonical-vocabulary-crosswalk.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/reference/canonical-vocabulary-crosswalk.v1.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/research/policy-operations/consolidation/wave5/wave5-open-questions-and-next-research.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/research/policy-operations/int-r2-gap-acquisition-cases.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/research/policy-operations/int-r2/integration-handoff-and-finding-register.md",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/01-correspondence/document-census.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/01-correspondence/document_census.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/02-clauses/selected-receipts.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates-crosscheck.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/03-phase5/measurement.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi-scope.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/05-scope/census-receipt.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/05-scope/measure_scope.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/raw/census.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/summary.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/group-a/06-worktrees/summary.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/gy-lattice/check_delivery.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/runtime_snapshot.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/src/",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/tools/quality/validation/check_canonical_vocabulary_crosswalk.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "named_local_path:policy-engine/tools/quality/validation/check_debt_ledger.py",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/01-correspondence/raw/denominators.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/evidence-inventory.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/markdown-mentions.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/python-consumers.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/03-phase5/raw/trace.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact-case-density.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/census.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/04-vocabularies/summary.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/05-scope/raw/ast-trace.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/raw/census.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "retained_receipt_hash:policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/census.json",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "every_raw_file_gitignored",
+      "satisfied": true,
+      "evidence": {
+        "raw_paths": [
+          "policy-engine/docs/superpowers/journals/group-a/01-correspondence/raw/command-output.json",
+          "policy-engine/docs/superpowers/journals/group-a/01-correspondence/raw/denominators.json",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/evidence-inventory.json",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/markdown-mentions.json",
+          "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/python-consumers.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/raw/command-output.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/raw/trace.json",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/census.json",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/command-output.json",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/distribution-command.txt",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/exact-case-command.txt",
+          "policy-engine/docs/superpowers/journals/group-a/05-scope/raw/ast-trace.json",
+          "policy-engine/docs/superpowers/journals/group-a/05-scope/raw/census-command.log",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/raw/census.json",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/census.json",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/command-output.json",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/final-command.txt"
+        ],
+        "not_ignored": []
+      }
+    },
+    {
+      "check": "no_raw_file_tracked",
+      "satisfied": true,
+      "evidence": []
+    },
+    {
+      "check": "all_w5_rows_reconciled",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "all_eighteen_institutional_routes",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "all_fourteen_journal_findings",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "markdown_membership_reconciled",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "all_historical_json_receipts_readable",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "all_twelve_selected_receipts",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "j_complete_production_population",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ledger_section_removal_probe",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "f1_complete_surface_classes",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "all_source_package_denominators",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "exact_density:estimand",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_files:estimand",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_nodes:estimand",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "exact_density:normative",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_files:normative",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_nodes:normative",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "exact_density:write_operation",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_files:write_operation",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_nodes:write_operation",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "exact_density:assurance_level",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_files:assurance_level",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "ast_density_nodes:assurance_level",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "complete_normative_nonzero_package_count",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "independent_duplicate_algorithms_and_source_binding",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "complete_literal_key_denominator",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "complete_text_and_tree_denominators",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "scope_tree_archive_agreement:policy-engine/",
+      "satisfied": true,
+      "evidence": {
+        "file_type": "tracked .py blobs",
+        "ls_tree_count": 6176,
+        "archive_count": 6176
+      }
+    },
+    {
+      "check": "scope_tree_archive_agreement:policy-engine/src/polisyos/",
+      "satisfied": true,
+      "evidence": {
+        "file_type": "tracked .py blobs",
+        "ls_tree_count": 2653,
+        "archive_count": 2653
+      }
+    },
+    {
+      "check": "scope_tree_archive_agreement:policy-engine/tests/",
+      "satisfied": true,
+      "evidence": {
+        "file_type": "tracked .py blobs",
+        "ls_tree_count": 2578,
+        "archive_count": 2578
+      }
+    },
+    {
+      "check": "all_current_registrations_reconciled",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "exact_prune_and_existing_directory_sets",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "every_selected_branch_or_detached_head_classified",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "temporal_snapshot_stable",
+      "satisfied": true,
+      "evidence": null
+    },
+    {
+      "check": "only_retained_prune_command_is_dry_run",
+      "satisfied": true,
+      "evidence": null
+    }
+  ],
+  "errors": [],
+  "exit_code": 0
+}

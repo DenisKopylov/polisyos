@@ -1,0 +1,146 @@
+{
+  "base": "63bdb9640",
+  "complete_selected_definition_denominator": 5,
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/decision_validity.py",
+      "definitions": [
+        {
+          "name": "DecisionValidityStatus",
+          "line": 28,
+          "assertions": [],
+          "string_values": [
+            "Enumerate lifecycle states assigned to a decision packet evaluation.",
+            "active",
+            "reissued",
+            "requires_human_review",
+            "review_required",
+            "revoked",
+            "stale",
+            "superseded",
+            "warning",
+            "withdrawn"
+          ],
+          "calls": []
+        },
+        {
+          "name": "EpochValidityBatchTarget",
+          "line": 783,
+          "assertions": [],
+          "string_values": [
+            "One owner-indexed packet selected by a verified epoch transition.",
+            "forbid"
+          ],
+          "calls": [
+            "ConfigDict",
+            "Field"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "definitions": [
+        {
+          "name": "_epoch_validity_batch_example",
+          "line": 1036,
+          "assertions": [],
+          "string_values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "A content-bound epoch transition requires packet revalidation.",
+            "application/json",
+            "application/vnd.polisyos.chronology+json",
+            "chronology.epoch_transition",
+            "chronology.epoch_transition_verification_receipt",
+            "completed",
+            "decision_validity.epoch_batch_completion",
+            "epoch-batch-openapi-sample",
+            "json",
+            "law:openapi-epoch-batch",
+            "lineage-openapi-epoch-batch",
+            "sha256:"
+          ],
+          "calls": [
+            "EpochValidityBatchReceipt",
+            "EpochValidityBatchResponse",
+            "EpochValidityBatchResponse(meta=_META_NO_SOURCE, batch_id=receipt.batch_id, state='completed', transition=transition_ref, completion_receipt=receipt, affected_packet_refs=receipt.affected_packet_refs).model_dump",
+            "EpochValidityBatchTarget",
+            "core_artifacts.ArtifactRef",
+            "str"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "definitions": [
+        {
+          "name": "test_epoch_validity_batch_success_example_matches_its_wire_contract",
+          "line": 61,
+          "assertions": [
+            "response.state == 'completed'",
+            "response.completion_receipt.batch_id == response.batch_id",
+            "response.affected_packet_refs == response.completion_receipt.affected_packet_refs"
+          ],
+          "string_values": [
+            "/api/v1/control/decision-validity/epoch-batches",
+            "200",
+            "application/json",
+            "completed",
+            "content",
+            "default",
+            "examples",
+            "paths",
+            "post",
+            "responses",
+            "value"
+          ],
+          "calls": [
+            "EpochValidityBatchResponse.model_validate",
+            "export_runtime_openapi_schema"
+          ]
+        },
+        {
+          "name": "test_epoch_batch_success_example_is_owner_derived_and_strict",
+          "line": 288,
+          "assertions": [
+            "'examples' in content",
+            "example == openapi_contract._epoch_validity_batch_example()",
+            "packet.state == 'completed'",
+            "packet.affected_packet_refs == packet.completion_receipt.affected_packet_refs",
+            "packet.transition == packet.completion_receipt.transition_artifact_ref",
+            "packet.completion_receipt.targets[0].status.value == 'review_required'"
+          ],
+          "string_values": [
+            "/api/v1/control/decision-validity/epoch-batches",
+            "200",
+            "application/json",
+            "canonical epoch batch transport example is not registered",
+            "completed",
+            "content",
+            "default",
+            "examples",
+            "paths",
+            "post",
+            "responses",
+            "review_required",
+            "value"
+          ],
+          "calls": [
+            "EpochValidityBatchResponse.model_validate",
+            "export_runtime_openapi_schema",
+            "openapi_contract._epoch_validity_batch_example",
+            "print"
+          ]
+        }
+      ]
+    }
+  ],
+  "exit_code": 0
+}

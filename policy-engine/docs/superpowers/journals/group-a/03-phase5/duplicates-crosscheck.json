@@ -1,0 +1,18 @@
+{
+  "base": "63bdb9640",
+  "method": "recursive NodeVisitor, pairwise literal equality, each file content-checked against Git blob",
+  "python_file_denominator": 6178,
+  "all_input_bytes_match_base": true,
+  "errors": [],
+  "counts": {
+    "dict_literals": 64845,
+    "key_slots": 199171,
+    "unpacks": 2601,
+    "literal": 193292,
+    "nonliteral": 3278
+  },
+  "duplicate_pairs": [],
+  "first_census_counts_agree": true,
+  "first_census_duplicates_agree": true,
+  "exit_code": 0
+}

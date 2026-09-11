@@ -77,6 +77,10 @@ the instrument at [verify_delivery.py](../journals/group-a/verify_delivery.py).
 That check concerns report structure, citation resolution, retained receipt
 integrity, denominator reconciliation and the research-only changed-path boundary.
 It does not validate product behavior or settle any of the six adjudications.
+After committing, `verify_delivery.py --readback-only` reads every delivered path
+from the branch and compares its bytes with the worktree, checks branch stability
+and cleanliness, and retains the complete output within this journal at
+`raw/branch-readback-<commit>.json` (the placeholder is replaced by the measured SHA).
 
 Pattern pass: P29/P32 for substantive evidence; P35 for complete denominators;
 P36 for finding-level attribution; P37/P38 for declaration/proxy boundaries;

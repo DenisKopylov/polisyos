@@ -1,8 +1,8 @@
 {
-  "measured_utc": "2026-09-11T12:55:56.514240+00:00",
+  "measured_utc": "2026-09-11T12:58:30.039660+00:00",
   "base": "63bdb9640e7b76b49356cba940bab6067f1be512",
   "branch_observed": "codex/group-a-analysis",
-  "head_before_delivery_commit": "b678473507917800ec17ecf4c5f4704ff283776e",
+  "head_before_delivery_commit": "cca2f97ca819b3b2a116e9b823f92826d6a3bc13",
   "scope": "research delivery verification; no product behavior or adjudication verdict",
   "report_denominator": [
     {
@@ -31,7 +31,7 @@
     },
     {
       "path": "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md",
-      "sha256": "650bf69fbcca4ad9fe57d60ea70b0646c82d2ff72bcfd7f6ef409c90faf5b6a6"
+      "sha256": "febe643fc8a733e01d6912d3572c4391cd3dfe0e439e3f29d02287114ac9151e"
     }
   ],
   "citation_denominator": [
@@ -574,9 +574,15 @@
           "policy-engine/docs/superpowers/journals/group-a/02-clauses/measure.py",
           "policy-engine/docs/superpowers/journals/group-a/02-clauses/measurement.json",
           "policy-engine/docs/superpowers/journals/group-a/02-clauses/selected-receipts.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates-crosscheck.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates_crosscheck.py",
           "policy-engine/docs/superpowers/journals/group-a/03-phase5/measure.py",
           "policy-engine/docs/superpowers/journals/group-a/03-phase5/measurement.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi-scope.json",
+          "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi_scope.py",
           "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/ast_census.py",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.json",
+          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.py",
           "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact-case-density.json",
           "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/exact_case_density.py",
           "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/summary.json",
@@ -584,27 +590,21 @@
           "policy-engine/docs/superpowers/journals/group-a/05-scope/census-receipt.json",
           "policy-engine/docs/superpowers/journals/group-a/05-scope/measure_scope.py",
           "policy-engine/docs/superpowers/journals/group-a/06-worktrees/census.py",
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/summary.json",
           "policy-engine/docs/superpowers/journals/group-a/06-worktrees/summary.json",
           "policy-engine/docs/superpowers/journals/group-a/06-worktrees/write_report.py",
           "policy-engine/docs/superpowers/journals/group-a/README.md",
+          "policy-engine/docs/superpowers/journals/group-a/delivery-verification.json",
+          "policy-engine/docs/superpowers/journals/group-a/verify_delivery.py",
           "policy-engine/docs/superpowers/specs/2026-09-11-group-a-01-correspondence-destinations.md",
           "policy-engine/docs/superpowers/specs/2026-09-11-group-a-02-done-when-clauses.md",
-          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-05-scope-adjudication.md",
-          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-06-worktree-registrations.md"
-        ],
-        "nonignored_untracked": [
-          "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates-crosscheck.json",
-          "policy-engine/docs/superpowers/journals/group-a/03-phase5/duplicates_crosscheck.py",
-          "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi-scope.json",
-          "policy-engine/docs/superpowers/journals/group-a/03-phase5/openapi_scope.py",
-          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.json",
-          "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/distribution.py",
-          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/summary.json",
-          "policy-engine/docs/superpowers/journals/group-a/verify_delivery.py",
           "policy-engine/docs/superpowers/specs/2026-09-11-group-a-03-phase5-findings.md",
           "policy-engine/docs/superpowers/specs/2026-09-11-group-a-04-ceiling-vocabularies.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-05-scope-adjudication.md",
+          "policy-engine/docs/superpowers/specs/2026-09-11-group-a-06-worktree-registrations.md",
           "policy-engine/docs/superpowers/specs/2026-09-11-group-a-analysis-index.md"
         ],
+        "nonignored_untracked": [],
         "outside_allowlist": []
       }
     },
@@ -1473,7 +1473,8 @@
           "policy-engine/docs/superpowers/journals/group-a/06-worktrees/final/raw/census.json",
           "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/census.json",
           "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/command-output.json",
-          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/final-command.txt"
+          "policy-engine/docs/superpowers/journals/group-a/06-worktrees/raw/final-command.txt",
+          "policy-engine/docs/superpowers/journals/group-a/raw/delivery-check-before-template-correction.json"
         ],
         "not_ignored": []
       }

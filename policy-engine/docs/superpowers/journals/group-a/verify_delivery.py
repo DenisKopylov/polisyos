@@ -5,6 +5,7 @@ Complete output is written beside this instrument; stdout is a compact receipt.
 """
 from __future__ import annotations
 
+import argparse
 import ast
 from collections import Counter
 from datetime import datetime, timezone
@@ -49,6 +50,30 @@ def relative(path: Path) -> str:
 
 def read_json(name: str):
     return json.loads((HERE / name).read_text())
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--readback-only", action="store_true")
+args = parser.parse_args()
+if args.readback_only:
+    branch = git("symbolic-ref", "--quiet", "--short", "HEAD").decode().strip()
+    head = git("rev-parse", "HEAD").decode().strip()
+    paths = sorted(set(git("diff", "--name-only", "-z", BASE, head).decode().split("\0")) - {""})
+    rows = []
+    for path in paths:
+        committed = git("show", f"{head}:{path}")
+        local = (ROOT / path).read_bytes()
+        rows.append({"path": path, "committed_sha256": hashlib.sha256(committed).hexdigest(), "working_sha256": hashlib.sha256(local).hexdigest(), "byte_equal": committed == local})
+    status = git("status", "--porcelain=v1").decode()
+    stable = git("rev-parse", "HEAD").decode().strip() == head and git("symbolic-ref", "--quiet", "--short", "HEAD").decode().strip() == branch
+    code = 0 if branch == "codex/group-a-analysis" and stable and not status and all(r["byte_equal"] for r in rows) else 1
+    result = {"base": BASE, "commit": head, "branch": branch, "measured_utc": datetime.now(timezone.utc).isoformat(), "complete_changed_path_denominator": rows, "branch_stable": stable, "status_porcelain": status, "exit_code": code}
+    directory = HERE / "raw"
+    directory.mkdir(exist_ok=True)
+    target = directory / f"branch-readback-{head}.json"
+    target.write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps({"commit": head, "branch": branch, "paths": len(rows), "mismatches": [r["path"] for r in rows if not r["byte_equal"]], "status_porcelain": status, "branch_stable": stable, "receipt": relative(target), "sha256": hashlib.sha256(target.read_bytes()).hexdigest(), "exit_code": code}, indent=2))
+    raise SystemExit(code)
 
 
 def allowed(path: str) -> bool:

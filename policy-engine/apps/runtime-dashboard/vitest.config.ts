@@ -2,6 +2,8 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
+import coverageScope from "./scripts/coverage-scope.json";
+
 import { preserveVitestErrorCause } from "./scripts/preserve-vitest-error-cause";
 
 const buildRoot = path.resolve(
@@ -47,28 +49,7 @@ export default defineConfig({
       provider: "v8",
       reportsDirectory: path.resolve(buildRoot, "coverage"),
       reporter: ["text", "html", "json-summary", "lcov"],
-      include: [
-        "src/api/hooks/**/*.{ts,tsx}",
-        "src/app/layout/**/*.{ts,tsx}",
-        "src/features/artifacts/routes/**/*.{ts,tsx}",
-        "src/features/auth/routes/**/*.{ts,tsx}",
-        "src/features/composer/**/*.{ts,tsx}",
-        "src/features/dashboard/routes/**/*.{ts,tsx}",
-        "src/features/evidence/**/*.{ts,tsx}",
-        "src/features/lex/routes/**/*.{ts,tsx}",
-        "src/features/platform/routes/**/*.{ts,tsx}",
-        "src/features/runs/**/*.{ts,tsx}",
-        "src/shared/components/**/*.{ts,tsx}",
-        "src/shared/ui/**/*.{ts,tsx}",
-      ],
-      exclude: [
-        "src/**/*.stories.{ts,tsx}",
-        "src/**/*.test.{ts,tsx}",
-        "src/**/*.a11y.test.{ts,tsx}",
-        "src/**/index.ts",
-        "src/**/route.tsx",
-        "src/test/**",
-      ],
+      ...coverageScope,
     },
   },
 });

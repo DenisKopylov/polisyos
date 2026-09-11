@@ -1,0 +1,24 @@
+{
+  "include": [
+    "src/api/hooks/**/*.{ts,tsx}",
+    "src/app/layout/**/*.{ts,tsx}",
+    "src/features/artifacts/routes/**/*.{ts,tsx}",
+    "src/features/auth/routes/**/*.{ts,tsx}",
+    "src/features/composer/**/*.{ts,tsx}",
+    "src/features/dashboard/routes/**/*.{ts,tsx}",
+    "src/features/evidence/**/*.{ts,tsx}",
+    "src/features/lex/routes/**/*.{ts,tsx}",
+    "src/features/platform/routes/**/*.{ts,tsx}",
+    "src/features/runs/**/*.{ts,tsx}",
+    "src/shared/components/**/*.{ts,tsx}",
+    "src/shared/ui/**/*.{ts,tsx}"
+  ],
+  "exclude": [
+    "src/**/*.stories.{ts,tsx}",
+    "src/**/*.test.{ts,tsx}",
+    "src/**/*.a11y.test.{ts,tsx}",
+    "src/**/index.ts",
+    "src/**/route.tsx",
+    "src/test/**"
+  ]
+}

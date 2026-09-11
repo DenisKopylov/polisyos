@@ -207,3 +207,43 @@ resolver. The acceptance adversary also places a nested generator inside an
 ordinary function, proving that an inner yield cannot taint the outer body's
 otherwise direct call. This is the stopping boundary for the class; further
 examples of actual dispatch/resumption remain the declared unresolved class.
+
+
+## Final-census refinement: declaration/walk domain parity
+
+The first full registered repository run failed internally with KeyError and
+produced no receipt. It is UNRUN/no complete measurement, never a finding
+comparison. A one-file direct audit retained the traceback in
+`journals/instruments/invocation/raw/conditional-declaration-traceback.log`:
+`src/polisyos/berl/adapters/_linear.py:95` uses a generator expression in an
+`if` predicate. The declaration pass omitted every `If.test`, while the call
+pass visited it and required the missing deferred scope. Object lifetime is
+not the demonstrated cause.
+
+P40 bucket: this is a NEW construction-completeness class (two traversals with
+different AST domains), distinct from the already-bounded runtime resumption
+class. Close it structurally: both traversals consume one grammar-derived
+active-child selector for statement/expression containers, with the same
+intentional literal-condition/TYPE_CHECKING pruning. Lexical scope entry remains
+owned by the existing declaration/register mechanism. Deferred conditions stay
+explicitly unresolved; this does not teach the graph how any generator resumes.
+No parser, framework resolver, package facade or production caller changes.
+
+The internal child selector is consumed only by existing `_graph`, whose
+non-test caller is `audit_repository` through the registered
+`polisyos-tools validation check-production-invocation` command. It is not a
+new command or public capability. CLI measurement inability, including internal
+exceptions while constructing/recomputing the report, must print UNRUN, a named
+exception class/reason and no complete verdict, returning 2 rather than escaping
+to the wrapper as an ordinary failed measurement. No stale success receipt may
+be presented as the result of that attempt.
+
+Falsifiers: generator and lambda expressions in conditional predicates (also
+nested/conditional-expression forms), preserving direct orphan findings in the
+same input; constant-pruned and TYPE_CHECKING branches remain excluded under the
+existing scope; ordinary direct predicate calls remain discoverable. Inject an
+internal construction exception and require UNRUN/2 with no produced receipt,
+while complete direct/unresolved diagnostics retain their distinct exits. Run
+the focused explicit tests and the original one-file witness first. Only after
+review/freeze may root repeat the expensive registered full denominator. Shared
+config, architecture, lockfiles and other lanes remain unchanged by this repair.

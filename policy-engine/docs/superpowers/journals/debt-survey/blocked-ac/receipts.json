@@ -62,5 +62,125 @@
     "seconds": 1.075,
     "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/accessibility-ast.txt",
     "sha256": "6f60dc9babf68915310f319ca4b6d669375c45dd58b6b06f9d2c4c07bb73f0c1"
+  },
+  "slots-public": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py public",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 3.092,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-public.txt",
+    "sha256": "6c1361893a3e29906aff20b11d97269dcf999e130d94ea44763cb77923a3953c"
+  },
+  "slots-epoch": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py epoch",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.827,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-epoch.txt",
+    "sha256": "63fb613532e4bd929a2389da57898f87420e85a56e3847c7b5e418a6ed7540e8"
+  },
+  "slots-claim": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py claim",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 8.267,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-claim.txt",
+    "sha256": "8d11d5c6038e137aa80350e9260c9cdc3059e4c51e01a331840dfd15e442eed1"
+  },
+  "ds5-table": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py ds5",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 0.243,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/ds5-table.txt",
+    "sha256": "330cd9e40b382f107a222225b03db4e5c4199a21266b932154d8c64b0ce03097"
+  },
+  "c13-reader": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py c13",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 1.174,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/c13-reader.txt",
+    "sha256": "e423e5c23c6467e630bc8adba2d8be5f1ea8b4c5160aa1e43a64510f7decd23d"
+  },
+  "frontend-ast": {
+    "command": "node docs/superpowers/journals/debt-survey/blocked-ac/inspect_frontend.mjs",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 7.548,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/frontend-ast.txt",
+    "sha256": "121cea5c762dbca5886d3955955a07cb38895e3c10d6ca9131dbb592285367d8"
+  },
+  "slots-promotion": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py promotion",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 9.469,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-promotion.txt",
+    "sha256": "245d4d023c4fa5aa3566fc61f1b8c59c9bff7568ca10d3696602872310a47306"
+  },
+  "atlas-scopes": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py authority",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 1.155,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/atlas-scopes.txt",
+    "sha256": "d0c5acdacc138df7c2b814100e1c63dc7162c7553ec119f597c940a95e49f477"
+  },
+  "c13-conjunction": {
+    "command": "env PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes -q",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 1,
+    "seconds": 22.564,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/c13-conjunction.txt",
+    "sha256": "92c3265c05b24c0ef8a9ac4f0fba4ce4b9ae35938b8c67e35dd61fed7264dfb7"
+  },
+  "c13-current-bindings": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py c13",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 3.07,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/c13-current-bindings.txt",
+    "sha256": "f286eb69c1f6edc7d5c6e6aaffb9134df049531bbacc4b97544357cdd81b9375"
+  },
+  "slots-mandate": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py mandate",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 5.813,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-mandate.txt",
+    "sha256": "08631ba73b9b1f3e33277b2ecba538526e66f77255c228695c8fd489b824c286"
+  },
+  "claim-http": {
+    "command": "env PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_default_http_supersession_request_preserves_unappointed_owner_limit -q",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 203.854,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/claim-http.txt",
+    "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+  },
+  "slots-promotion-v2": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py promotion",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.943,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-promotion-v2.txt",
+    "sha256": "723a047be299ef430098268dc04e9f6000a07e6630d7ad5c95ad36a68fd5c8b8"
+  },
+  "slots-a11y": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py a11y",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.65,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-a11y.txt",
+    "sha256": "262e1014f734276cdb0ae7e1682ca555888db29342d729c76bc7758c9179e5f2"
+  },
+  "slots-mandate-v2": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py mandate",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.742,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-mandate-v2.txt",
+    "sha256": "055d29d5655ed39743f3ddc36c0d2c93bf94c9524424363d141b68453925d85b"
   }
 }

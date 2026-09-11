@@ -1,6 +1,7 @@
 """Run one read-only measurement, retaining complete output and its actual exit."""
 
 import argparse
+import fcntl
 import hashlib
 import json
 from pathlib import Path
@@ -21,6 +22,8 @@ def main():
     raw.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     output = raw / (args.label + ".txt")
+    if output.exists():
+        raise RuntimeError("output label already exists; preserve it and choose a new replay label")
     with output.open("wb") as stream:
         result = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT)
     receipt = {"command": shlex.join(command), "cwd": str(Path.cwd()),
@@ -28,11 +31,13 @@ def main():
                "complete_output": str(output.relative_to(Path.cwd())),
                "sha256": hashlib.sha256(output.read_bytes()).hexdigest()}
     index = directory / "receipts.json"
-    receipts = json.loads(index.read_text()) if index.exists() else {}
-    if args.label in receipts:
-        raise RuntimeError("receipt label already exists; choose an explicitly new replay label")
-    receipts[args.label] = receipt
-    index.write_text(json.dumps(receipts, indent=2) + "\n")
+    with (raw / "receipt-index.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        receipts = json.loads(index.read_text()) if index.exists() else {}
+        if args.label in receipts:
+            raise RuntimeError("receipt label already exists; choose a new replay label")
+        receipts[args.label] = receipt
+        index.write_text(json.dumps(receipts, indent=2) + "\n")
     print(json.dumps(receipt, indent=2))
     raise SystemExit(result.returncode)
 

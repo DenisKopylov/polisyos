@@ -170,7 +170,120 @@ full-population extraction is a separate discharge property. **Unestablished:** 
 entire retained portfolio extraction, and whether these untracked bytes equal the
 historical bytes at the Git base. No historical 6,417-file total is adopted as current.
 
+## `ds18-epoch-history-independent-holder-unappointed`
+
+**Measured, narrower:** the producer has a non-test CLI consumer,
+`audit_epoch_custody`, which persists and reopens the exact request and result.
+The complete seven-item `test_epoch_custody_audit.py` replay passes (exit 0).
+Evidence: `src/polisyos/runtime/quality/epoch_custody_audit.py@fc823071a` and
+`src/polisyos/runtime/quality/chronology_custody.py@fc823071a`.
+Commands/complete outputs: `epoch-source`, `epoch-factory-body`, `epoch-custody-tests`
+in the command appendix and receipt index.
+
+**Wider:** the source production factory installs three fixed empty dependencies:
+`NoEpochAnchorAppointmentResolver`, `EmptyEpochAnchorAuthorityRegistry`, and
+`UnavailableSignedArtifactEvidenceRepository`. The resolver returns distinct
+`acceptance_owner_not_established` and `anchor_holder_not_established` outcomes.
+The CLI receipt expressly limits itself to `custody_provider_invocation_only`
+and leaves request-reference verification `not_established`. Thus observed provider
+invocation and admitted independent custody are different properties. An appointment
+arriving as data has no demonstrated production loader in this exact factory.
+**Reduction:** no identity with a predicate-policy signer or transition signer is
+established: custody independence concerns acceptance/readback, not policy truth or
+transition authorization. **Class:** epoch rows share a refusal vocabulary but not
+one authority purpose, repair or holder. Appointment intake could unblock custody;
+discharge would require independently admitted custody and exact persisted readback.
+**Unestablished:** a live positive appointment-to-factory path and external holder
+independence. The green negative tests do not establish either.
+
+## `ds15-semantic-epoch-qualification-authority`
+
+**Measured, narrower:** `admit_acquisition_with_production_semantic_epoch` is called
+by the non-test `acquisition_epoch_admission.run_admission` CLI. The complete six-item
+admission test replay passes (exit 0), including real CLI invocation, isolated owner
+stores, exact persisted negative receipt comparison, malformed inputs and receipt
+corruption. Evidence: `src/polisyos/runtime/quality/acquisition_executor.py@fc823071a`,
+`src/polisyos/runtime/quality/acquisition_epoch_admission.py@fc823071a` and
+`tests/unit/runtime/quality/test_acquisition_epoch_admission.py@fc823071a`.
+Commands: `semantic-production-body`, `epoch-source`, `semantic-admission-tests`.
+
+**Wider:** this production composition explicitly constructs both qualification
+components with `from_unallocated_policy_authority`; it has no authority parameter.
+The CLI accepts only the persisted-negative receipt type and raises
+`acquisition_epoch_activation_consumer_not_established` for the positive type.
+The built bridge therefore discharges negative production observation, not positive
+activation. Its current refusal is `policy_admission_missing`, with prepared/admitted
+boundary references but no history-append or chronology qualification.
+**Reduction, inferred:** the same predicate-policy admission may be the prerequisite
+of the DS18 and N12 policy rows; this row additionally owes acquisition-specific
+activation and persistence, so the complete debts are not established as identical.
+**Class:** a shared empty policy index can unblock several paths; each path owes its
+own exact positive and negative result proof. **Unestablished:** a production
+appointment loader and a positive CLI activation consumer; no repair is made.
+
+## `ds18-epoch-predicate-policy-signer-unappointed`
+
+**Measured:** the delivered policy-admission refusal is present in the same production
+semantic composition above, and `ArtifactEpochValidityAuthorityGate` consumes epoch
+policy receipts rather than accepting presence alone. Evidence:
+`src/polisyos/runtime/quality/epoch_validity_cascade.py@fc823071a` and the semantic
+composition cited above. Commands: `signer-body`, `epoch-source`,
+`semantic-production-body`, `semantic-admission-tests`.
+
+**Narrower:** a policy contract and refusal consumer exist; blanket missing-mechanism
+language would be false. **Wider:** admissibility of a policy receipt is separate from
+providing a signer. The exercised acquisition factory deliberately loads no positive
+policy authority. **Reduction, inferred:** candidate duplicate of
+`gy-n12-epoch-predicate-policy-authority-unappointed` on the deciding property of
+admitting an independently authorized epoch predicate policy. Exact cross-path scope
+equivalence remains unestablished; acquisition's positive adapter is an additional
+obligation. **Class:** policy authorization does not authorize transition signing,
+history custody or a current-decision lineage carrier. Appointment evidence would
+unblock receipt admission; each consumer's independently bound policy acceptance and
+refusal tests would discharge its engineering claim. **Unestablished:** appointment
+validity, policy adequacy and a production positive route. No status inference follows.
+
+## `ds18-epoch-transition-signer-unappointed`
+
+**Measured:** `NoEpochTransitionSigningAuthority.sign_transition` returns the named
+`epoch_transition_signer_not_established` nonreceipt. The return algebra also
+distinguishes signing-profile mismatch from exact-evidence unavailability. Evidence:
+`src/polisyos/runtime/quality/epoch_validity_cascade.py@fc823071a`.
+Commands: `signer-body`, `epoch-source`.
+
+**Narrower:** an explicit refusal contract exists. **Wider:** accepting a signer is not
+equivalent to producing an admitted transition. The A/C workstream measures the
+producer's separate exact-evidence refusal; this open row does not absorb that row's
+engineering obligation. **Reduction, inferred:** candidate duplicate of
+`gy-n12-epoch-transition-signing-authority-unappointed` only for the purpose-bound
+transition signing appointment. The proof must preserve any distinct scope or epoch
+population. **Class:** a signing authority can unblock signing; it cannot discharge
+the transition producer's evidence, verifier or current-decision application proofs.
+**Unestablished:** a live positive appointed signer and exact equivalence of the two
+appointment scopes. A typed negative alone does not establish engineering completion.
+
+## `DS11-SCOPE-ADJUDICATION-RECORD`
+
+**Measured, narrower:** the strict `ScopeAdjudicationCandidate` exists, so absence of
+all scope artifacts is false. The complete eight-item source contract test replay
+passes (exit 0). The artifact fixes `status=candidate_only`, both authority and closure
+effects to `none`, an empty `authoritative_for`, and six explicit prohibited uses.
+It retains separate `scope_predicate_resolver_unappointed` and
+`scope_adjudication_claim_lifecycle_consumer_unappointed` limitations. Evidence:
+`src/polisyos/core/contracts/scope_adjudication.py@fc823071a` and
+`tests/unit/core/contracts/test_scope_adjudication.py@fc823071a`.
+Commands: `scope-source`, `scope-body`, `scope-candidate-tests`.
+
+**Wider:** an authority-grade scope decision and its claim-head admission are distinct
+from candidate reasoning. A candidate constructor cannot acquire either purpose by
+appointment. **Reduction:** not identical to general claim lifecycle orchestration:
+one concerns the admitted predicate and purpose, the other the signed owner-event
+append/CAS path. **Class:** shared head machinery would enable carriage; discharging
+this row requires that this specific scope decision can be produced, admitted and
+refused for its own reasons. **Unestablished:** that authority-grade source producer,
+its production caller and a scope decision advancing the actual claim head. The
+candidate tests provide no such receipt.
+
 ## Remaining indexed rows
 
-The remaining rows are still being measured. They will each receive the same four
-questions and explicit unknowns before this workstream is considered complete.
+The remaining rows are still being measured; this checkpoint is incomplete.

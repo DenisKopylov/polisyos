@@ -136,6 +136,9 @@ def main():
             paths = [p for p in paths if p.startswith(PREFIXES) and p.endswith((".py", ".json", ".toml", ".md", ".yaml", ".yml"))]
         if args.path:
             paths = [args.path]
+        independent = sorted(p for p in git("ls-files", "--", ".").splitlines() if p in set(paths))
+        if independent != sorted(paths):
+            raise RuntimeError("pinned tree and independently enumerated current index differ")
         matches, unreadable = [], []
         for path in paths:
             try:
@@ -146,6 +149,7 @@ def main():
                 unreadable.append({"path":path,"error":str(error)})
         emit({"base":BASE,"path_count":len(paths),"enumerated_paths":paths,
               "denominator":"complete pinned Git tree filtered by declared prefixes/extensions",
+              "independent_current_index_identity_equal":True,
               "unreadable":unreadable,"query":args.query,
               "distribution":dict(sorted(Counter(x['path'] for x in matches).items())),"matches":matches})
 

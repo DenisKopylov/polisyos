@@ -1,0 +1,32 @@
+{
+  "checker_only": [
+    [
+      "ds10-c13-print-receipt-reissue",
+      "C",
+      "blocked"
+    ],
+    [
+      "ds10-capability-discovery-stable-facades",
+      "C",
+      "closed"
+    ],
+    [
+      "ds10-debt-ledger-frontend-denominator-label",
+      "C",
+      "closed"
+    ],
+    [
+      "extraction-ask-offers-six-of-ten-evidence-classes",
+      "A",
+      "ambiguous"
+    ]
+  ],
+  "independent_only": [
+    [
+      "extraction-ask-offers-six-of-ten-evidence-classes",
+      "A",
+      "folded"
+    ]
+  ],
+  "unclassified_first_cells": []
+}

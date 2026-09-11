@@ -1,0 +1,442 @@
+{
+  "base": "fc823071a",
+  "derivation_a": "imported checker._parse_register; column-offset parser",
+  "derivation_b": "independent table-block/whole-status-cell lexer",
+  "all_identity_section_sets_equal": true,
+  "live_identity_section_status_sets_equal": true,
+  "live_identity_section_status_sha256": "ff43f6e2ecb6b1391279b1be0b75afa5740f0d7273da3bd24541716195e0fc7c",
+  "status_disagreements_retained_as_ambiguous": [
+    {
+      "id": "extraction-ask-offers-six-of-ten-evidence-classes",
+      "section": "A",
+      "checker_status": "ambiguous",
+      "whole_cell_status": "folded",
+      "survey_status": "ambiguous"
+    }
+  ],
+  "published_unique_id_denominator": 258,
+  "observed_unique_id_denominator": 258,
+  "parsed_row_occurrences": 258,
+  "literal_status_debt_rows_outside_G": 207,
+  "literal_scan_gap_partition": {
+    "explicit_status_A_B_C_D_F": 207,
+    "section_G_implicit_closed": 49,
+    "section_E_implicit_folded": 2
+  },
+  "status_distribution": {
+    "ambiguous": 1,
+    "blocked": 35,
+    "closed": 186,
+    "folded": 3,
+    "foreign": 6,
+    "open": 27
+  },
+  "section_status_distribution": {
+    "A": {
+      "ambiguous": 1,
+      "blocked": 15,
+      "closed": 115,
+      "folded": 1,
+      "open": 20
+    },
+    "B": {
+      "blocked": 19,
+      "closed": 5,
+      "open": 6
+    },
+    "C": {
+      "blocked": 1,
+      "closed": 17
+    },
+    "D": {
+      "foreign": 6
+    },
+    "E": {
+      "folded": 2
+    },
+    "F": {
+      "open": 1
+    },
+    "G": {
+      "closed": 49
+    }
+  },
+  "w5_ground_truth": {
+    "section": "B",
+    "status": "blocked",
+    "unique_routes": [
+      "W5-O5-Q04",
+      "W5-O5-Q05",
+      "W5-O5-Q10",
+      "W5-R2-Q04",
+      "W5-R2-Q05",
+      "W5-R2-Q06",
+      "W5-R2-Q13",
+      "W5-R3-Q06",
+      "W5-R3-Q08",
+      "W5-R4-Q08",
+      "W5-R4-Q09",
+      "W5-R5-Q02",
+      "W5-R5-Q04",
+      "W5-R5-Q08",
+      "W5-R5-Q09",
+      "W5-R5-Q10",
+      "W5-R6-Q04",
+      "W5-R6-Q05"
+    ]
+  },
+  "irregular_branch_records_not_debts": [
+    "codex/gy-def6-e11",
+    "codex/ds17-confidence-ledger-risk-spend-plan"
+  ],
+  "unclassifiable_ids": [
+    "extraction-ask-offers-six-of-ten-evidence-classes"
+  ],
+  "nonterminal": [
+    {
+      "id": "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "DS11-EXTERNAL-A11Y-COUNTERSIGN",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "DS11-FULL-TRUST-CENTER-AND-DOCS-IA",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "DS11-GROUNDED-PERFORMANCE",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "DS11-INHERITED-C13-PRINT-RECEIPT",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "DS11-PUBLIC-SIGNATURE-POPULATION",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "DS11-SCOPE-ADJUDICATION-RECORD",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "DS20-B B3 promotion CAS",
+      "section": "D",
+      "status": "foreign"
+    },
+    {
+      "id": "DS20-B B5 PostgreSQL linearizability proofs",
+      "section": "D",
+      "status": "foreign"
+    },
+    {
+      "id": "DS20-B Helm policy mirror",
+      "section": "D",
+      "status": "foreign"
+    },
+    {
+      "id": "DS20-B-scorecard-provenance-producer-trust",
+      "section": "D",
+      "status": "foreign"
+    },
+    {
+      "id": "GY-DEF22",
+      "section": "B",
+      "status": "open"
+    },
+    {
+      "id": "GY-DEF23",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "GY-GAP2",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "GY-GAP3",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "GY-GAP5",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "GY-GAP6",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "GY-O0-NC-01",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "GY-PA1",
+      "section": "B",
+      "status": "open"
+    },
+    {
+      "id": "aiohttp Fabric connector cleanup",
+      "section": "D",
+      "status": "foreign"
+    },
+    {
+      "id": "calibration-report-fixture-blanket-fields",
+      "section": "F",
+      "status": "open"
+    },
+    {
+      "id": "cg2-production-relation-gold-acceptance-unspecified",
+      "section": "B",
+      "status": "open"
+    },
+    {
+      "id": "corr-wave-unowned-destinations",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "ds10-c13-print-receipt-reissue",
+      "section": "C",
+      "status": "blocked"
+    },
+    {
+      "id": "ds10-global-case-index-producer-allocation",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds10-public-decision-rendering",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds15-deterministic-admission-bundle-producer",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "ds15-fresh-positive-production-route",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "ds15-gy-gap6-evidence-register-closure",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "ds15-int-r2-gap-acquisition-case-union",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "ds15-mandate-intake-has-no-registered-task",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds15-numeric-voi-metric-residual-granularity",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "ds15-production-n13b-execution-handshake",
+      "section": "B",
+      "status": "open"
+    },
+    {
+      "id": "ds15-semantic-epoch-qualification-authority",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "ds15-signed-v2-delegation-mandate-owner-authority",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "ds18-epoch-history-independent-holder-unappointed",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "ds18-epoch-predicate-policy-signer-unappointed",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "ds18-epoch-transition-signer-unappointed",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "ds18-positive-transition-production-unorchestrated",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds18-positive-transition-verification-producer-missing",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds5-waist-successors-routed-to-unscoped-slices",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds8-global-case-index",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "ds8-lex-clerk-authority-repair",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds8-public-case-publication",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "ds8-signed-public-decision-surface",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "education-importer-provenance-neither-inherited-nor-excluded",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "estimand-binding-strength-terms-unregistered",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "eval-safety-promotion-authority-producer-missing",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "extraction-ask-offers-six-of-ten-evidence-classes",
+      "section": "A",
+      "status": "ambiguous"
+    },
+    {
+      "id": "first-promotion-candidate-with-complete-evidence",
+      "section": "A",
+      "status": "blocked"
+    },
+    {
+      "id": "foundry-requirements-flat-manifest-consumer-unmeasured",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "foundry-ukraine-method-contract-consumer-residual",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "gy-builder-mechanisms-have-no-production-caller",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "gy-j-positive-evidence-admission-producer-has-no-owner",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "gy-n12-epoch-current-decision-lineage-carrier-unallocated",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "gy-n12-epoch-predicate-policy-authority-unappointed",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "gy-n12-epoch-transition-signing-authority-unappointed",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "gy-n12-lex-amendment-valid-effect-carrier",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "gy-promotion-obligations-scope-insufficient",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "int-r2-ceiling-vocabulary-owners",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "merged-lanes-need-a-reissue-path-neither-lane-declared",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "pyproject-exceeds-its-declared-line-budget",
+      "section": "B",
+      "status": "open"
+    },
+    {
+      "id": "s3-law-to-lever-correspondence-is-unverified",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "s3-r12-legal-knowledge-store-selects-an-unavailable-version",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "stale-worktree-registrations-collide-with-new-lane-names",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "transitive-runner-closure-unbound",
+      "section": "B",
+      "status": "open"
+    },
+    {
+      "id": "udf-retained-source-schema-is-malformed-and-stays-ambiguous",
+      "section": "A",
+      "status": "open"
+    },
+    {
+      "id": "w5-institutional-authority-slots",
+      "section": "B",
+      "status": "blocked"
+    },
+    {
+      "id": "worktree-tooling-gap",
+      "section": "D",
+      "status": "foreign"
+    }
+  ]
+}

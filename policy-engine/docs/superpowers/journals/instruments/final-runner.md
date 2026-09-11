@@ -639,3 +639,31 @@ env PYTHONPATH=src:. .venv/bin/python docs/superpowers/journals/instruments/invo
 ```sh
 .venv/bin/python -m ruff check src/polisyos/runtime/http/openapi_contract.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py >docs/superpowers/journals/instruments/invocation/raw/replay-epoch-owner-bridge-ruff.log 2>&1
 ```
+
+## Retained OpenAPI station diagnosis
+
+These are the exact executed one-off diagnostic commands, not new product entrypoints. The first composes the registered artifact manifest's output probe with the existing guardrails copy/provision helpers. It refuses to overwrite `_cache/instruments-openapi-isolated-repro`; capture commands likewise refuse existing output directories. Their completed evidence remains under ignored raw. A further experiment requires fresh diagnostic scratch paths, not deletion of these receipts.
+
+Product-root invocation:
+
+```sh
+PYTHONPATH=src:. /usr/bin/time -p .venv/bin/python docs/superpowers/journals/instruments/root/raw/openapi-isolated-replay.py >docs/superpowers/journals/instruments/root/raw/openapi-isolated-replay.log 2>&1
+```
+
+Product-root capture forwards the actual example's worker unchanged:
+
+```sh
+PYTHONPATH=src:. /usr/bin/time -p .venv/bin/python docs/superpowers/journals/instruments/root/raw/openapi-owner-binding-capture.py docs/superpowers/journals/instruments/root/raw/openapi-primary-bindings >docs/superpowers/journals/instruments/root/raw/openapi-primary-binding-capture.log 2>&1
+```
+
+Isolated capture working directory is `/Users/deniskopylov/polisyos/.worktrees/instrument-honesty/policy-engine/_cache/instruments-openapi-isolated-repro/source`. The private interpreter already has the exact manifest's frozen runtime/ML profile from the first probe; this command does not mutate the primary environment.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. /usr/bin/time -p ../environment/bin/python /Users/deniskopylov/polisyos/.worktrees/instrument-honesty/policy-engine/docs/superpowers/journals/instruments/root/raw/openapi-owner-binding-capture.py /Users/deniskopylov/polisyos/.worktrees/instrument-honesty/policy-engine/docs/superpowers/journals/instruments/root/raw/openapi-isolated-bindings >/Users/deniskopylov/polisyos/.worktrees/instrument-honesty/policy-engine/docs/superpowers/journals/instruments/root/raw/openapi-isolated-binding-capture.log 2>&1
+```
+
+Back in the product root, the complete comparison first requires both captures to match their respective full exports and checks worker exits/tracebacks. It then compares every binding identity and every installed distribution, explicitly reporting that provisioning differs.
+
+```sh
+.venv/bin/python docs/superpowers/journals/instruments/root/raw/openapi-station-binding-comparison.py >docs/superpowers/journals/instruments/root/raw/replay-openapi-station-binding-comparison.log 2>&1
+```

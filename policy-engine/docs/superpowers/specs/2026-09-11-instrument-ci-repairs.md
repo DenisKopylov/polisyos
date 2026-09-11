@@ -294,3 +294,25 @@ The import gate still does not resolve arbitrary alias/dataflow constructions,
 external plugins, or dynamic factories; a structural pass is not a claim about
 those paths. Any new deep-import finding routes to the architect with status
 complete-pending-an-architect-decision, and no baseline sync is authorized.
+
+### R04 refinement: replay the complete TypeScript producer
+
+Current replay of both canonical package generators changes no committed bytes.
+The strict test's `_render_openapi_typescript` instead runs raw `npx` output and
+omits the existing recursive-type normalizer. Its byte comparison measures a
+different producer from the one that owns the committed artifact. This is P38,
+not evidence that regeneration repaired a stale file. Compose the existing
+locked workspace executable and
+`packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs` in
+that test helper. Its callers are the strict shared-types and deterministic
+schema tests; it is test infrastructure and must not become another production
+CLI. Replace the obsolete generator-string assertions with execution of the
+locked tool's version contract; the existing scratch-output test exercises the
+real package and dashboard commands. Update the package README's stale standalone
+npx instruction to the actual package owner. No generator, schema, lockfile or
+policy authority changes are planned. The falsifier is raw unnormalized output:
+it must differ from the committed canonical types, while the complete producer
+replay must match. Print the byte-comparison scope and omit runtime client
+behavior/endpoint execution/hosted CI explicitly. This touches a shared consumer
+test and README, so root serializes it; the dashboard coverage floor and globs
+are unaffected.

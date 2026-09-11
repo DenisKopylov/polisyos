@@ -252,6 +252,132 @@ def _live_command(gate: str, python: str) -> list[str]:
     ]
 
 
+def _json_pointer_differences(left: object, right: object, path: str = "") -> list[str]:
+    """Walk both entire JSON values and report differing pointers without copying payloads."""
+    if type(left) is not type(right):
+        return [path or "/"]
+    if isinstance(left, dict) and isinstance(right, dict):
+        differences = []
+        for key in sorted(left.keys() | right.keys()):
+            pointer = path + "/" + str(key).replace("~", "~0").replace("/", "~1")
+            if key not in left or key not in right:
+                differences.append(pointer)
+            else:
+                differences.extend(_json_pointer_differences(left[key], right[key], pointer))
+        return differences
+    if isinstance(left, list) and isinstance(right, list):
+        if len(left) != len(right):
+            return [path or "/"]
+        return [
+            pointer
+            for index, (a, b) in enumerate(zip(left, right, strict=True))
+            for pointer in _json_pointer_differences(a, b, path + "/" + str(index))
+        ]
+    return [] if left == right else [path or "/"]
+
+
+def _legal_fresh_drift() -> int:
+    """Recompute a fresh expected artifact before crediting a corrupted-artifact refusal."""
+    from unittest.mock import patch
+
+    from tools.quality.validation import check_layer3_gy_intervention_substrate_contract as owner
+
+    path = ROOT / owner.OUTPUT_PATH
+    fresh_path = RAW / "legal-fresh-expected.json"
+    fresh = owner.build_live_payload(ROOT)
+    fresh_path.write_text(json.dumps(fresh, indent=2) + "\n")
+    original = Path.read_text
+    _emit(
+        {
+            "stage": "fresh_produced",
+            "canonical_path": owner.OUTPUT_PATH,
+            "canonical_sha256": _digest(path),
+            "fresh_path": str(fresh_path.relative_to(ROOT)),
+            "fresh_sha256": _digest(fresh_path),
+            "complete_two_JSON_difference_pointers": _json_pointer_differences(
+                json.loads(original(path)), fresh
+            ),
+        }
+    )
+
+    def read_fresh(self: Path, *args: object, **kwargs: object) -> str:
+        if self.resolve() == path.resolve():
+            return original(fresh_path)
+        return original(self, *args, **kwargs)
+
+    # The builder stays untouched: validate executes the actual producer again.
+    with patch.object(Path, "read_text", read_fresh):
+        baseline = owner.validate(ROOT)
+    _emit({"stage": "fresh_expected_independent_recomputation", "report": baseline})
+    if baseline["status"] != "pass":
+        _emit({"corruption_sensitivity": "not_established_without_green_control"})
+        return 2
+    corrupt = json.loads(original(fresh_path))
+    corrupt["behavior_report"]["coverage"]["law_trace"]["traced"] += 1
+    corrupt_path = RAW / "legal-corrupt-expected.json"
+    corrupt_path.write_text(json.dumps(corrupt, indent=2) + "\n")
+
+    def read_corrupt(self: Path, *args: object, **kwargs: object) -> str:
+        if self.resolve() == path.resolve():
+            return original(corrupt_path)
+        return original(self, *args, **kwargs)
+
+    with patch.object(Path, "read_text", read_corrupt):
+        report = owner.validate(ROOT)
+    _emit(
+        {
+            "stage": "corrupt_expected_independent_recomputation",
+            "report": report,
+            "corrupt_sha256": _digest(corrupt_path),
+            "canonical_sha256_after": _digest(path),
+        }
+    )
+    return 1 if report["status"] == "fail" else 0
+
+
+def _openapi_probe() -> int:
+    """Preserve the existing single-family isolated output probe for drift diagnosis."""
+    from contextlib import nullcontext
+    from unittest.mock import patch
+
+    from tools.devx.architecture import guardrails as owner
+
+    family = next(
+        row
+        for row in owner._parse_generated_artifacts(owner.DEFAULT_GENERATED_MANIFEST)
+        if row.family_id == "runtime-openapi-snapshot"
+    )
+    probe = RAW / ("openapi-probe-" + datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ"))
+    probe.mkdir()
+    try:
+        with patch.object(
+            owner.tempfile, "TemporaryDirectory", return_value=nullcontext(str(probe))
+        ):
+            violations = owner._measure_required_generated_artifacts(
+                [family],
+                expected_root=ROOT,
+                violations=[],
+            )
+    except owner.GeneratedArtifactCheckUnrunError as error:
+        _emit({"status": "UNRUN", "diagnostic": str(error)})
+        return 2
+    candidate = probe / "outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json"
+    expected = ROOT / "schemas/runtime_api_v1.openapi.json"
+    _emit(
+        {
+            "complete_verdict": [str(item) for item in violations],
+            "expected_path": str(expected.relative_to(ROOT)),
+            "expected_sha256": _digest(expected),
+            "candidate_path": str(candidate.relative_to(ROOT)),
+            "candidate_sha256": _digest(candidate),
+            "complete_two_JSON_difference_pointers": _json_pointer_differences(
+                json.loads(expected.read_text()), json.loads(candidate.read_text())
+            ),
+        }
+    )
+    return 1 if violations else 0
+
+
 def _operation(name: str) -> int:
     """Execute a single removal control or source/predicate inspection."""
     if name == "live-declare":
@@ -293,31 +419,9 @@ def _operation(name: str) -> int:
         )
         return 0
     if name == "legal-owner-drift":
-        from unittest.mock import patch
-
-        from tools.quality.validation import (
-            check_layer3_gy_intervention_substrate_contract as owner,
-        )
-
-        path = ROOT / owner.OUTPUT_PATH
-        corrupt = json.loads(path.read_text())
-        corrupt["behavior_report"]["coverage"]["law_trace"]["traced"] += 1
-        original = Path.read_text
-
-        def read_corrupt(self: Path, *args: object, **kwargs: object) -> str:
-            if self.resolve() == path.resolve():
-                return json.dumps(corrupt)
-            return original(self, *args, **kwargs)
-
-        _emit(
-            {
-                "probe": "corrupt_persisted_law_trace_count_keep_markers",
-                "path": owner.OUTPUT_PATH,
-                "original_sha256": _digest(path),
-            }
-        )
-        with patch.object(Path, "read_text", read_corrupt):
-            return owner.main(["--repo-root", str(ROOT), "--check", "--output-format", "json"])
+        return _legal_fresh_drift()
+    if name == "openapi-probe":
+        return _openapi_probe()
     if name in {"legal-red", "causal-red"}:
         import pytest
 
@@ -436,6 +540,7 @@ def _command(gate: str) -> list[str]:
         "live-declare",
         "solver-witness",
         "legal-owner-drift",
+        "openapi-probe",
     }:
         return [python, str(Path(__file__).resolve()), "--operation", gate]
     if gate in {"causal-live-write", "causal-live-check", "causal-live-drift"}:

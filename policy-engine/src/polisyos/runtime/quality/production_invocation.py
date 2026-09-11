@@ -1,6 +1,6 @@
 """Find new or regressed uninvoked source mechanisms without claiming runtime proof.
 
-Run ``python -m polisyos.runtime.quality.production_invocation --base REF
+Run ``polisyos-tools validation check-production-invocation --base REF
 --receipt PATH`` from the product root. The complete tracked Python denominator
 is examined; imports, annotations and class construction are not method calls.
 Static paths do not establish execution, receipt persistence or authority.
@@ -21,6 +21,21 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+_UNMEASURED = [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance",
+]
+_MEASURED = (
+    "Static direct-call reachability from project scripts and non-test __main__ guards, "
+    "stopping at deferred bodies."
+)
+_SUMMARY = "Partial coverage: " + _MEASURED + " Unmeasured: " + "; ".join(_UNMEASURED) + "."
+
 
 @dataclass
 class _Scope:
@@ -33,6 +48,9 @@ class _Scope:
     calls: set[str] = field(default_factory=set)
     constructor: bool = False
     candidate: bool = False
+    deferred_body: bool = False
+    indirect: list[dict[str, Any]] = field(default_factory=list)
+    unresolved_receivers: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _module(path: str) -> str:
@@ -79,6 +97,24 @@ def _concrete(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     )
 
 
+def _deferred_body(node: ast.AST) -> bool:
+    if isinstance(node, (ast.AsyncFunctionDef, ast.Lambda, ast.GeneratorExp)):
+        return True
+    if not isinstance(node, ast.FunctionDef):
+        return False
+    pending = list(node.body)
+    while pending:
+        current = pending.pop()
+        if isinstance(current, (ast.Yield, ast.YieldFrom)):
+            return True
+        if not isinstance(
+            current,
+            (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda, ast.GeneratorExp),
+        ):
+            pending.extend(ast.iter_child_nodes(current))
+    return False
+
+
 def _entry_guard(node: ast.If) -> bool:
     test = node.test
     return (
@@ -102,16 +138,25 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
         scope = _Scope(name, parent.module, parent.path, node, parent)
         scopes[name] = scope
         declarations_by_node[id(node)] = scope
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
             args = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
             args += [a for a in (node.args.vararg, node.args.kwarg) if a is not None]
             scope.bindings.update({a.arg: None for a in args})
             if isinstance(parent.node, ast.ClassDef) and args:
                 scope.bindings[args[0].arg] = parent.name
             scope.candidate = (
-                parent.path.startswith("src/") and not node.name.startswith("_") and _concrete(node)
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and parent.path.startswith("src/")
+                and not node.name.startswith("_")
+                and _concrete(node)
             )
+        if isinstance(node, ast.GeneratorExp):
+            for generator in node.generators:
+                for target in ast.walk(generator.target):
+                    if isinstance(target, ast.Name):
+                        scope.bindings[target.id] = None
         scope.constructor = isinstance(node, ast.ClassDef)
+        scope.deferred_body = _deferred_body(node)
         return scope
 
     def declarations(nodes: list[ast.AST], scope: _Scope) -> None:
@@ -121,6 +166,15 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
                 scope.bindings[node.name] = name
                 child = register(node, scope, name)
                 declarations(node.body, child)
+                for key, value in ast.iter_fields(node):
+                    if key != "body":
+                        extras = value if isinstance(value, list) else [value]
+                        declarations([item for item in extras if isinstance(item, ast.AST)], scope)
+            elif isinstance(node, (ast.Lambda, ast.GeneratorExp)):
+                child = register(
+                    node, scope, f"{scope.name}:<deferred:{node.lineno}:{node.col_offset}>"
+                )
+                declarations(list(ast.iter_child_nodes(node)), child)
             elif isinstance(node, (ast.Import, ast.ImportFrom)):
                 if isinstance(node, ast.ImportFrom):
                     package = scope.module.split(".")[:-1]
@@ -156,6 +210,11 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
         scopes[module] = top
         declarations(parsed.body, top)
 
+    class_members: dict[str, list[_Scope]] = {}
+    for member in scopes.values():
+        if member.parent is not None and member.parent.constructor:
+            class_members.setdefault(member.parent.name, []).append(member)
+
     def canonical(name: str | None) -> str | None:
         visited = set()
         while name and name not in scopes and name not in visited:
@@ -172,9 +231,70 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
             name = replacement
         return name if name in scopes else None
 
+    def indirect(name: str, node: ast.AST, scope: _Scope, reason: str) -> None:
+        if scope.path.startswith("tests/"):
+            return
+        evidence = {
+            "path": scope.path,
+            "line": node.lineno,
+            "column": node.col_offset,
+            "scope": scope.name,
+            "reason": reason,
+            "expression": (
+                node.name
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                else ast.unparse(node)
+            ),
+        }
+        targets = [scopes[name]]
+        if scopes[name].constructor:
+            # An escaped class has unresolved method receivers, not invoked methods.
+            targets += class_members.get(name, [])
+        for target in targets:
+            if evidence not in target.indirect:
+                target.indirect.append(evidence)
+
+    def values(node: ast.AST, scope: _Scope) -> None:
+        if isinstance(node, (ast.Name, ast.Attribute)):
+            target = canonical(_resolve(node, scope))
+            if target and isinstance(
+                scopes[target].node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+            ):
+                indirect(target, node, scope, "callable_value_escape")
+                return
+        if isinstance(node, (ast.Call, ast.Lambda, ast.GeneratorExp)):
+            # Calls supply results; deferred bodies are resolved in their own scope by walk.
+            return
+        for child in ast.iter_child_nodes(node):
+            values(child, scope)
+
     def walk(node: ast.AST, scope: _Scope, *, entry: bool = False) -> None:
+        if isinstance(node, (ast.Lambda, ast.GeneratorExp)):
+            child = declarations_by_node[id(node)]
+            indirect(child.name, node, scope, "deferred_expression_body")
+            for expression in ast.iter_child_nodes(node):
+                walk(expression, child)
+            return
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             child = declarations_by_node[id(node)]
+            if child.deferred_body:
+                indirect(child.name, node, scope, "deferred_callable_body")
+            for decorator in node.decorator_list:
+                indirect(child.name, decorator, scope, "decorated_definition")
+                walk(decorator, scope)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                for default in [*node.args.defaults, *node.args.kw_defaults]:
+                    if default is not None:
+                        walk(default, scope)
+                # Plain annotations remain non-call evidence. Inspect only embedded
+                # registration expressions, including Annotated[..., Depends(provider)].
+                args = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
+                args += [a for a in (node.args.vararg, node.args.kwarg) if a is not None]
+                for annotation in [*(a.annotation for a in args), node.returns]:
+                    if annotation is not None:
+                        for expression in ast.walk(annotation):
+                            if isinstance(expression, ast.Call):
+                                walk(expression, scope)
             for statement in node.body:
                 walk(statement, child)
             return
@@ -195,6 +315,8 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             value = node.value
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if value is not None:
+                values(value, scope)
             # A concrete construction supports receiver resolution, not method execution.
             resolved = (
                 _resolve(value.func, scope)
@@ -214,6 +336,24 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
                 # __init__ is called by construction; other methods are not.
                 if scopes[callee].constructor and f"{callee}.__init__" in scopes:
                     scope.calls.add(f"{callee}.__init__")
+            elif (
+                isinstance(node.func, ast.Attribute)
+                and _resolve(node.func.value, scope) is None
+                and not scope.path.startswith("tests/")
+            ):
+                evidence = {
+                    "path": scope.path,
+                    "line": node.lineno,
+                    "column": node.col_offset,
+                    "scope": scope.name,
+                    "expression": ast.unparse(node.func),
+                    "reason": "receiver_identity_not_resolved",
+                    "target": None,
+                }
+                if evidence not in scope.unresolved_receivers:
+                    scope.unresolved_receivers.append(evidence)
+            for argument in [*node.args, *(keyword.value for keyword in node.keywords)]:
+                values(argument, scope)
         for child in ast.iter_child_nodes(node):
             walk(child, scope, entry=entry)
 
@@ -228,12 +368,18 @@ def _graph(sources: dict[str, str], entries: list[str]) -> tuple[dict[str, _Scop
     return scopes, roots
 
 
-def _paths(scopes: dict[str, _Scope], roots: set[str]) -> dict[str, str]:
+def _paths(
+    scopes: dict[str, _Scope], roots: set[str], *, include_deferred: bool = False
+) -> dict[str, str]:
     reached: dict[str, str] = {}
     queue = deque((name, name) for name in sorted(roots))
     while queue:
         name, root = queue.popleft()
-        if name in reached or scopes[name].path.startswith("tests/"):
+        if (
+            name in reached
+            or scopes[name].path.startswith("tests/")
+            or (scopes[name].deferred_body and not include_deferred)
+        ):
             continue
         reached[name] = root
         queue.extend((callee, root) for callee in sorted(scopes[name].calls))
@@ -263,12 +409,17 @@ def audit_sources(
     scopes, roots = _graph(sources, entry_points or [])
     old, old_roots = _graph(baseline, baseline_entry_points or [])
     reached, old_reached = _paths(scopes, roots), _paths(old, old_roots)
+    uncertain = _paths(
+        scopes, {name for name, scope in scopes.items() if scope.indirect}, include_deferred=True
+    )
     callers: dict[str, list[str]] = {}
     for scope in scopes.values():
         for target in scope.calls:
             callers.setdefault(target, []).append(scope.name)
     mechanisms = {}
     regressions = []
+    unresolved = []
+    new_unresolved = []
     for name, scope in sorted(scopes.items()):
         if not scope.candidate:
             continue
@@ -280,7 +431,19 @@ def audit_sources(
             or not all(isinstance(v, str) and v.strip() for v in decision.values())
         ):
             raise ValueError(f"invalid_named_deferral:{name}")
-        status = "static_path" if name in reached else "deferred" if decision else "uninvoked"
+        status = (
+            "static_path"
+            if name in reached
+            else "unresolved_by_construction"
+            if name in uncertain
+            else "deferred"
+            if decision
+            else "uninvoked"
+        )
+        if status == "unresolved_by_construction":
+            unresolved.append(name)
+            if changed or regressed:
+                new_unresolved.append(name)
         if (changed or regressed) and status == "uninvoked":
             regressions.append(name)
         mechanisms[name] = {
@@ -296,10 +459,28 @@ def audit_sources(
                 c for c in callers.get(name, []) if scopes[c].path.startswith("tests/")
             ),
             "deferral": decision,
+            "indirect_boundary_origin": uncertain.get(name),
+            "indirect_boundary_evidence": scope.indirect,
         }
     return {
         "mechanisms": mechanisms,
         "regressions": regressions,
+        "unresolved_by_construction": unresolved,
+        "new_unresolved_by_construction": new_unresolved,
+        "indirect_boundaries": {
+            name: scope.indirect for name, scope in scopes.items() if scope.indirect
+        },
+        "unresolved_receiver_calls": [
+            evidence for scope in scopes.values() for evidence in scope.unresolved_receivers
+        ],
+        "coverage": "partial",
+        "measured": _MEASURED,
+        "unmeasured": _UNMEASURED,
+        "summary": _SUMMARY,
+        "uninvoked_meaning": (
+            "No resolved direct path or recognized indirect witness in the static model; "
+            "not proof of runtime non-invocation."
+        ),
         "root_count": len(roots),
         "predicate_provenance": "recomputed",
         "runtime_invocation_established": False,
@@ -410,20 +591,46 @@ def main(argv: list[str] | None = None) -> int:
         args.receipt.write_text(json.dumps(result, indent=2) + "\n")
         if json.loads(args.receipt.read_text()) != result:
             raise ValueError("invocation_receipt_readback_mismatch")
-    except (OSError, ValueError, subprocess.CalledProcessError) as exc:
-        sys.stdout.write(json.dumps({"status": "refused", "reason": str(exc)}) + "\n")
+    except (OSError, ValueError, SyntaxError, subprocess.CalledProcessError) as exc:
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "status": "UNRUN",
+                    "complete_verdict": False,
+                    "reason": str(exc),
+                    "summary": "UNRUN: no complete verdict. " + _SUMMARY,
+                    "unmeasured": _UNMEASURED,
+                }
+            )
+            + "\n"
+        )
         return 2
     sys.stdout.write(
         json.dumps(
             {
+                "status": (
+                    "FAILED"
+                    if result["regressions"]
+                    else "UNRESOLVED"
+                    if result["new_unresolved_by_construction"]
+                    else "passed"
+                ),
+                "coverage": result["coverage"],
+                "summary": result["summary"],
+                "measured": result["measured"],
+                "unmeasured": result["unmeasured"],
+                "uninvoked_meaning": result["uninvoked_meaning"],
                 "regressions": result["regressions"],
+                "new_unresolved_by_construction": result["new_unresolved_by_construction"],
+                "unresolved_by_construction_count": len(result["unresolved_by_construction"]),
+                "unresolved_receiver_call_count": len(result["unresolved_receiver_calls"]),
                 "receipt": str(args.receipt),
                 "runtime_invocation_established": False,
             }
         )
         + "\n"
     )
-    return 1 if result["regressions"] else 0
+    return 1 if result["regressions"] else 3 if result["new_unresolved_by_construction"] else 0
 
 
 if __name__ == "__main__":

@@ -171,3 +171,39 @@ Acceptance is the CLI/receipt distinction under these negatives, preservation
 of direct-call detection, a real diagnostic run with readback, and the root
 completion journal stating the exact emitted omission sentence. No hosted CI
 claim follows from this work.
+
+## Execution refinement after Stage 1
+
+The first original subprocess CLI test exceeded its 180-second ceiling during
+recomputation while eager `runtime.quality` package imports were still running.
+That is a harness non-receipt, not a changed checker finding set. Pure AST and
+CLI-main semantic tests will load the exact canonical stdlib-only module through
+`importlib.util`; this does not stand in for packaging evidence. One separate
+real `polisyos-tools validation check-production-invocation` process supplies
+registered-command integration and a persisted/read-back repository receipt.
+No eager package facade is refactored. The completion journal retains the
+original timed-out output and the interrupted import run separately from the
+completed isolated red/green gates.
+
+A self-generated adversarial callback probe found the same deferred-dispatch
+class one level deeper: a registered lambda's body was previously traversed in
+the enclosing entry scope, incorrectly creating a direct path. The mechanism
+now gives lambdas and generator expressions separate unresolved scopes rather
+than evaluating their bodies as surrounding calls. Generator first-iterable
+evaluation is conservatively unresolved in this model; generator resumption
+and deferred lambda execution are explicitly named in every omissions list.
+This is one widening of the deferred-body class under P40, not a framework-name
+patch. The retained negative registers each deferred expression without running
+it and requires its downstream verifier to remain unresolved.
+
+Root review identified generator functions and unawaited coroutine functions as
+the second finding of this same deferred-body class. Under P40 the final
+mechanism separates execution scopes structurally: async functions, lexical
+yield/yield-from functions, lambdas, and generator expressions stop direct-path
+traversal and seed only unresolved-body traversal. Yield detection excludes
+nested lexical scopes. Explicit await/next resumption is deliberately not
+resolved; it remains named as unmeasured instead of introducing a runtime
+resolver. The acceptance adversary also places a nested generator inside an
+ordinary function, proving that an inner yield cannot taint the outer body's
+otherwise direct call. This is the stopping boundary for the class; further
+examples of actual dispatch/resumption remain the declared unresolved class.

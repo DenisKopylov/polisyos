@@ -6,8 +6,8 @@ Merge base: `cc74d65813d7bb1259a0f82f6c3cc8b131661a97`.
 Both consumers apply the acceptance procedure with **INT-K06 custody without a
 number and the required refusals**. That is the completed acceptance outcome, not
 deferred lane work or an acceptance debt. Positive certificates remain unissued;
-GY-S3 remains blocked. No product mechanism is changed. Final artifact verification
-and the exclusive guardrail replay are recorded below.
+GY-S3 remains blocked. No product mechanism is changed. Verification is complete
+with the canonical legal-artifact and OpenAPI freshness failures preserved below.
 
 ## Decision custody
 
@@ -57,9 +57,18 @@ unchanged test required `rejected`. The positive source-relative control survive
 This distinguishes the correspondence property from existence/uniqueness checks.
 The registered canonical owner check returned **1**, with `behavior_status="pass"`
 and sole issue `intervention_substrate_contract_drift`. This is a complete failed
-freshness verdict, not UNRUN and not attributed as inherited. A fresh raw expected
-artifact and independently recomputed corrupt control are pending; the already-red
-canonical check alone cannot establish corruption sensitivity.
+freshness verdict, not UNRUN and not attributed as inherited. The separate fresh
+integrity control completed: the untouched real builder independently recomputed
+the raw expected artifact and its validator returned `status="pass"`,
+`behavior_status="pass"`, `issues=[]`. A complete comparison of the two raw JSON
+objects finds only `/behavior_report/coverage/law_trace/traced: 3 → 4`; independently
+recomputing against the corrupt expectation returns `status="fail"`, live behavior
+still `pass`, and sole issue `intervention_substrate_contract_drift`. The diagnostic's
+actual code is **1**, the intended corruption refusal, with no timeout. This proves
+drift sensitivity from a genuine green fresh baseline; it does not turn the
+already-red canonical freshness check green. Canonical bytes are unchanged.
+The corrupt expectation is `raw/legal-corrupt-expected.json` at
+`sha256:c136a22ed774b5e1330367dd0c721bd0758d97ba0977fed0f6a7ddbe43261100`.
 
 Root and the legal agent compared the two complete JSON objects: the canonical
 `architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json`
@@ -131,6 +140,8 @@ budget and tax carry `synthetic_input_candidate_only`, while procurement carries
 The independently replayed report retains the writer's logical hash. A complete
 comparison of the original and corrupt report finds only `/binder_refused: 3 → 4`;
 the unchanged native checker refuses solely with `persisted_refusal_result_drift`.
+The corrupt comparator is `raw/fresh-defensive-2026-09-11/corrupt-report.json` at
+`sha256:74b0bd130a6e33d299526425b4a554c1beac3b4d1679b050badb98f41d3391a0`.
 The original report remains at
 `sha256:818e57baf4e30e324cc4ff5be29da25b42b4e3ea35f80ede1698f5e72c7873f5`,
 with `correctness_bound=null`. These are three constructed mismatches, including
@@ -208,7 +219,18 @@ The first guardrail invocation returned **1**, with a complete verdict. Root's
 concurrent journal/plan writes caused the outside-scratch findings; the OpenAPI
 snapshot also differed. The revised resource rule freezes all tracked files and
 stops **all lane writers**, including raw/CAS, for the final native replay: the
-native source copier includes ignored raw directories. Final replay is pending.
+native source copier includes ignored raw directories. Both peer streams released
+all writes before the final replay; root preserved the clean attached tree for its
+entire invocation.
+
+**Final guardrails: code 1, complete failed verdict**, 754.50 seconds with explicit
+3600-second outer timeout, source frozen at `c0125468c9ab90a9452ce80c40e9d2fbc1a163e8`.
+The entire verdict contains one finding: the generated
+`schemas/runtime_api_v1.openapi.json` does not match its canonical snapshot.
+Runtime API client, dashboard API types and trust-claim posture outputs are reported
+fresh. No outside-scratch or deep-import finding appears in this complete verdict.
+The earlier recorder-interference findings are resolved; the OpenAPI mismatch is
+not. No generated output is synchronized and no inherited attribution is claimed.
 The first OpenAPI diagnostic returned **2 / UNRUN** before generation: replacing
 native temporary storage with an in-repository destination caused recursive source
 copying. Root removed only that failed owned scratch and retained its full receipt.
@@ -223,8 +245,7 @@ synchronized; failure provenance remains `not_established` under P41.
 
 Full stdout/stderr of deciding gates and removal probes remain in the explicitly
 gitignored local `raw/` directory. The following is the complete set of timestamped
-receipt JSON files with a `gate` field at this checkpoint; the legal diagnostic
-and final guardrail replay are appended on completion. Code 1 on a removal or
+receipt JSON files with a `gate` field after the final invocation. Code 1 on a removal or
 corrupt-field probe is credited only with the specific semantic failure recorded
 above; other failures and UNRUN attempts remain visible.
 
@@ -252,10 +273,12 @@ above; other failures and UNRUN attempts remain visible.
 | `raw/20260911T075750830547Z-causal-live-check.json` @ `80a54a979051dd68fdf6e443a2d107fc882afdb21d1755d07bbc89c0a7196692` | 0 | 756.34 / 2400 |
 | `raw/20260911T080100581080Z-ruff.json` @ `55853b35c05b6c33675df215e7fd1d5787d079e699c7cd328c32c8894c3eaf14` | 0 | 0.57 / 900 |
 | `raw/20260911T080307447566Z-openapi-probe.json` @ `faa02455e87e52f9a8b46789fec3352843b04219f1711ea26fecb71af3edadf2` | 2 | 346.14 / 2400 |
+| `raw/20260911T080308639152Z-legal-owner-drift.json` @ `e305d486d82d6ee1699edd1e8005cae0fc88624c924f3d3ae5c2ce6f34659599` | 1 | 2728.88 / 3600 |
 | `raw/20260911T081035714682Z-causal-live-drift.json` @ `c4f0289f0c53ff3880b216afb89da791dd23b6b0d9b1dfc4f1c359bbb75132b4` | 1 | 1581.16 / 2400 |
 | `raw/20260911T081343911537Z-ruff.json` @ `61184dc75c1cb580ccd9d78fc8eda3e0ba4a45dc4b4d0787ccb12d301add67b0` | 1 | 0.38 / 900 |
 | `raw/20260911T081400925709Z-ruff.json` @ `f76817ff78d81706430bf51b84a7ce4be25bc5f77efeabd1ba0ffa0a926d73a5` | 0 | 0.58 / 900 |
 | `raw/20260911T081600447794Z-openapi-probe.json` @ `651535cf127617e67d1ee36f739986757f9490d14fea6e6584b393f4a111c333` | 2 | 1249.46 / 2400 |
+| `raw/20260911T085000580476Z-guardrails.json` @ `74733835bcdc5701035122219e2a49bc418431b3fa5517a3a90bb6e8329d40a7` | 1 | 754.50 / 3600 |
 <!-- receipt-table:end -->
 
 Complete final JUnit artifacts (all testcase elements, no selection from the files):
@@ -279,10 +302,11 @@ Complete final JUnit artifacts (all testcase elements, no selection from the fil
 | GY-J 900-second timeout | No product verdict; same exact nodes passed on retry (754.21 seconds); no node exclusion. `lane verification harness`, resolved. |
 | Initial runner lint findings | Corrected locally; final runner lint passes. `lane evidence recorder`, resolved. |
 | Canonical legal owner contract differs from actual live payload | Keep canonical failed freshness verdict and complete recursive comparison; no inherited attribution or sync. `team-runtime-quality / CORR legal generated-contract freshness`. |
-| Guardrail probe observed root's concurrent journal/plan edits | Root-owned resource-coordination finding; freeze all lane writers for the final native replay. `lane verification coordination`. |
-| First guardrails observed OpenAPI snapshot mismatch | Origin `not_established`; preserve canonical bytes. `team-polisyos` (registered owner/approval) and `team-runtime` (version owner) / `runtime-openapi-snapshot` artifact custody. |
+| Guardrail probe observed root's concurrent journal/plan edits | Root-owned resource-coordination finding; resolved by the exclusive final native replay, whose complete verdict has no outside-scratch finding. `lane verification coordination`. |
+| First and final guardrails observed OpenAPI snapshot mismatch | Origin `not_established`; preserve canonical bytes. `team-polisyos` (registered owner/approval) and `team-runtime` (version owner) / `runtime-openapi-snapshot` artifact custody. |
 | In-repository diagnostic isolation recursively copied its own destination | Failed owned scratch removed; full receipt retained. Native isolation now preserved without a custom copy root. `lane evidence recorder / native isolation preservation`. |
-| Corrected native OpenAPI generator's confidence-ledger-risk-spend validation exceeded 184 seconds | Diagnostic UNRUN, no candidate comparison; do not change the native timeout or claim snapshot freshness. `team-runtime / governed-projection owner validation` and `team-polisyos / runtime-openapi-snapshot`. |
+| Corrected native OpenAPI generator's confidence-ledger-risk-spend validation exceeded 184 seconds | That diagnostic remains UNRUN; the final native generator completed and found snapshot drift. No native-timeout change. `team-runtime / governed-projection owner validation` and `team-polisyos / runtime-openapi-snapshot`. |
+| Guardrails explicitly excludes standalone Atlas status-retirement enforcement | No execution or verdict claimed for that separate gate. Destination: `Atlas enforcement lane / architecture/atlas_surfaces/check_atlas_enforcement.py`. |
 | Draft evidence wording assumed uniform matched-control reasons and initially named the wrong result-array pointer | Complete report-array readback pins `/outcomes` and `/matched_controls_outside_denominator`: procurement is `open_obligation`; all three remain non-promotable. `lane evidence review / P35`, resolved before delivery without a product edit. |
 
 Independent reviews approved the frozen legal and causal declarations, actual
@@ -302,7 +326,7 @@ tracked-file edits.
 
 ## Pattern closeout
 
-Re-read the failure/repair register before closeout. P01/P02/P27 favor the
+The failure/repair register was reopened before closeout. P01/P02/P27 favor the
 already-wired producer, persisted result and consumer over a new local gate.
 P05/P15/P32/P37 preserve the positive-authority ceiling: the independent positive
 semantic basis is `not_established`, so no signature or source label can promote it.
@@ -325,4 +349,20 @@ limitations retain their named destinations. Under P41, no failure is attributed
 as inherited: unsuccessful station attempts are retained, and a passing retry
 must establish their resolution without any product-source change.
 
-Final branch readback: **pending**.
+## Local delivery and readback
+
+The complete branch delta from the stated merge base is six paths: repository
+`.gitignore`, this journal, `frame-manifest.json`, `runner.py`, the decision spec
+and the implementation plan. Product source, native tests, governed artifacts,
+DEBT-REGISTER.md and LEDGER.md are unchanged. No push, merge, rebase or stash was
+used. Raw outputs remain locally available and gitignored as declared in the
+first decision commit.
+
+`raw/delivery-branch-readback.json` is the final delivery witness, written only after
+the closing commit. It enumerates the complete six-path Git delta, reads every
+delivered blob from `codex/correspondence-consumers`, compares it with the worktree,
+checks the six manifest-pinned source artifacts, and records the attached branch,
+final commit and clean status. The guardrail verdict applies to the frozen commit
+named above. The closing delta updates only this journal and the plan after that
+invocation; product source, native tests, declarations and governed artifacts stay
+unchanged. No extra wave is claimed for this mandatory completion record.

@@ -71,12 +71,12 @@ its documented direct invocation is its discovery surface.
 
 - [x] Freeze source. Review the common frame, bound wording, exact gate outputs,
   consumer effects and every acceptance conjunct. Bucket findings per P40.
-- [ ] Run targeted runner lint, native selected tests and architecture guardrails.
+- [x] Run targeted runner lint, native selected tests and architecture guardrails.
   Code 2 is UNRUN, not pass. No deep-import baseline sync or directory-wide suite.
-- [ ] Re-open the pattern register and write one completion journal with one section
+- [x] Re-open the pattern register and write one completion journal with one section
   per consumer, point numbers, dates, suite/refusals and bound scope; GY-J disposition;
   standing-row closability; named destinations for incidental findings.
-- [ ] Commit at clean boundaries, verify attachment, re-read every delivered file
+- [x] Commit at clean boundaries, verify attachment, re-read every delivered file
   from the branch and report local commit, targeted results and honest limitations.
 
 No owner-source repair is preauthorized by this plan: a newly discovered necessary
@@ -174,3 +174,22 @@ its native 184-second timeout. Diagnostic code 2 is UNRUN, with no candidate
 snapshot and no complete comparison. Keep that limitation and the original
 snapshot mismatch distinct. Do not alter closed-task source or native timeouts.
 The already-declared exclusive final guardrail replay remains the last gate.
+
+## Closeout — 2026-09-11
+
+All planned executions and reviews are complete. The final native denominator is
+46 passing testcase elements across the three explicitly named JUnit files, with
+semantic removal failures and both fresh-baseline/corrupt-field controls verified.
+The exclusive final guardrail returned **1**, a complete verdict with only the
+OpenAPI canonical snapshot mismatch; it did not report outside-scratch or
+deep-import findings. The canonical legal owner check also remains **1** for
+artifact freshness, while live behavior and the independent fresh integrity
+baseline pass. Neither artifact is synchronized. Failed and UNRUN invocations
+remain in the single completion journal's receipt table with named destinations.
+Checked boxes record completed work, not an assertion that every gate passed.
+
+Both correspondence applications complete under INT-K06; the standing row is
+closable without editing it. GY-J stays `absent/unallocated`, its persisted
+`useful_design_rate` stays 0/1 for `report_generation`, and GY-S3 stays blocked. The closing
+commit is read back from the branch before delivery, as recorded by the journal's
+local delivery witness.

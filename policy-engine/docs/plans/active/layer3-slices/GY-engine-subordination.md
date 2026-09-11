@@ -1906,7 +1906,7 @@ with precision and recall **present-and-null** rather than absent.
 
 ### `GY-J` — `metric_population_and_period`
 **The population is the canonical producer's own** — the production-catalog observations built
-at `check_layer3_gy_loop_artifacts.py:318-322` — **and the period is the report generation.**
+at `check_layer3_gy_loop_artifacts.py`, `production_observations` at **line 1334** — **and the period is the report generation.** *(Address corrected 2026-09-11 by the independent group-A audit: the transcription cited `:318-322`, which now holds lifecycle-registry validation. The substance is unchanged and is sharper than the original wording suggests — `slice0_observations` sits at **line 1329**, five lines above the population this ruling mandates, which is exactly why the substitution this clause forbids was easy to make. The rate itself is computed at `:3790`.)*
 **A fixture may not enter that numerator.** If the intended population is wider, that is an
 explicit change to the producer carrying its own justification, never a fixture promotion. So
 J closes when a real production-catalog run reaches a partial admissible outcome on that
@@ -1918,7 +1918,7 @@ have shown 1/1.
 
 ### `GY-F1` — `surface_member_granularity`
 **The denominator is exactly the six surface classes the canonical owner lists at
-`check_layer3_workflow_failure_authority.py:29`, plus worker** — not every route, format and
+`check_layer3_workflow_failure_authority.py`, `SURFACE_NAMES` at **line 35** — `run`, `artifact`, `lineage`, `export`, `dashboard`, `public_packet` — plus worker** *(address corrected 2026-09-11; the transcription cited `:29`, which now holds `FIXTURE_TENANT_ID`. The six names and the count are unchanged.)* — not every route, format and
 audience within them. That condition is **already discharged**: all seven were measured blocked
 or refused on 2026-09-08, and F1's remaining conjunct was the `P29` canonical proof recompute,
 since discharged.

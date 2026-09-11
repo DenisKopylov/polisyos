@@ -1,0 +1,58 @@
+{
+  "architecture-guardrails": {
+    "command": "env PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 1,
+    "seconds": 458.78,
+    "complete_output": "docs/superpowers/journals/debt-survey/final/raw/architecture-guardrails.txt",
+    "sha256": "9688845c41ca5a74b116ff46bb00f2b70e87ab2efe6b1e05224ef9a5bcd798f3"
+  },
+  "cg2-case-denominator": {
+    "command": "env PYTHONPATH=src:tests:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/runtime/quality/test_production_grounding_calibration.py tests/unit/runtime/quality/test_grounding_calibration.py --collect-only -o addopts= -q",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 62.317,
+    "complete_output": "docs/superpowers/journals/debt-survey/final/raw/cg2-case-denominator.txt",
+    "sha256": "3a9b10d4dc8324dcf8942e270f54665392d04a85d22aec5f482e0aa02e4e680b"
+  },
+  "survey-audit": {
+    "command": "python3 docs/superpowers/journals/debt-survey/final/verify_survey.py",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 1,
+    "seconds": 0.172,
+    "complete_output": "docs/superpowers/journals/debt-survey/final/raw/survey-audit.txt",
+    "sha256": "8c7fc6283bc29e8d0dd4b1d335c1e77f9931cd8717850917ed732b215d97c23b"
+  },
+  "survey-audit-v2": {
+    "command": "python3 docs/superpowers/journals/debt-survey/final/verify_survey.py",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 1,
+    "seconds": 0.078,
+    "complete_output": "docs/superpowers/journals/debt-survey/final/raw/survey-audit-v2.txt",
+    "sha256": "63d0ef9a2ad41111d1d3f554b60db30f9330c1404de7e0b2d93ac9e3bcb0d759"
+  },
+  "survey-audit-v3": {
+    "command": "python3 docs/superpowers/journals/debt-survey/final/verify_survey.py",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 1,
+    "seconds": 0.076,
+    "complete_output": "docs/superpowers/journals/debt-survey/final/raw/survey-audit-v3.txt",
+    "sha256": "79aba4c59e220b9c724992119008d97765e17d22d69830b3260f26607944510a"
+  },
+  "survey-audit-v4": {
+    "command": "python3 docs/superpowers/journals/debt-survey/final/verify_survey.py",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 1.243,
+    "complete_output": "docs/superpowers/journals/debt-survey/final/raw/survey-audit-v4.txt",
+    "sha256": "34a64f318d69939128318cd55d59cc7980e9975115a4eb135723d6af7b258f1f"
+  },
+  "survey-audit-v5": {
+    "command": "python3 docs/superpowers/journals/debt-survey/final/verify_survey.py",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 1.522,
+    "complete_output": "docs/superpowers/journals/debt-survey/final/raw/survey-audit-v5.txt",
+    "sha256": "0977ba995fbc325b238c58c1691f7b749d59e528d9225d9cbdb04d460dfae0fd"
+  }
+}

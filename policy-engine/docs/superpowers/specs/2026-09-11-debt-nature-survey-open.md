@@ -434,7 +434,7 @@ Runtime 38, DataForge 36, Scientist 35, Lex 9, Core 6, IR 6, Evidence/Fabric/Fou
 2 each, DataRequirement/LegalRequirement/PolicyGrammar 1 each. `write_operation`
 and `assurance_level` each occur in 0/2,653 files. These literal file counts include
 prose. AST definitions and callers establish real `NormativeModelCompleteness` and
-`NormativeAuditStatus` in `ir/analytics/normative_arbitration.py`, plus its governance
+`NormativeAuditStatus` in `src/polisyos/ir/analytics/normative_arbitration.py@fc823071a`, plus its governance
 node/pass consumers. Therefore dispersed naming does not mean only an adjective.
 
 **Wider:** comparator, semantic authorization and registered terms are three
@@ -1116,4 +1116,3 @@ python3 docs/superpowers/journals/debt-survey/open/inspect_tree.py docs 'assuran
 ```
 
 Exit **0**; complete output `docs/superpowers/journals/debt-survey/open/raw/demand-independent.txt`; SHA-256 `722b02bc5619deeef1f9dcebeb9b1e32661888f49bba357daab5991287c83be2`.
-

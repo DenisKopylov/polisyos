@@ -1881,9 +1881,11 @@ something.
 **An attempted default trajectory that reaches a typed terminal counts as *runs*.** Requiring
 every default step to execute would make *runs* mean *succeeds*, which contradicts Decision 5's
 anytime exit and the fact that `GY-L`'s own `Done when` lists `search_ceiling_repair_required`
-as an allowed terminal. **What does not count is selection without attempted execution.** C1's
-deciding failure is unaffected by this ruling — it is the §3.5.3 conformance-before-admission
-rule, not this clause.
+as an allowed terminal. **What does not count is selection without attempted execution.** This ruling does not touch the §3.5.3 conformance-before-admission rule.
+*(Corrected 2026-09-11 by the independent audit: this paragraph previously said C1's **deciding
+failure** is unaffected. That was stale — the 2026-09-09 receipt reads **C1 pass / C3 fail**, so the
+deciding failure is no longer C1's. The ruling's scope is unchanged; only the sentence describing a
+state that had moved is removed.)*
 
 *Exercised 2026-09-09 and held:* applied without being stretched — an attempted trajectory
 reaching a typed terminal counted, and **no successful C3 ESTIMATE was inferred from it**,
@@ -1906,7 +1908,7 @@ with precision and recall **present-and-null** rather than absent.
 
 ### `GY-J` — `metric_population_and_period`
 **The population is the canonical producer's own** — the production-catalog observations built
-at `check_layer3_gy_loop_artifacts.py`, `production_observations` at **line 1334** — **and the period is the report generation.** *(Address corrected 2026-09-11 by the independent group-A audit: the transcription cited `:318-322`, which now holds lifecycle-registry validation. The substance is unchanged and is sharper than the original wording suggests — `slice0_observations` sits at **line 1329**, five lines above the population this ruling mandates, which is exactly why the substitution this clause forbids was easy to make. The rate itself is computed at `:3790`.)*
+defined by `canonical_loop_requests()` at `check_layer3_gy_loop_artifacts.py:383` and **discriminated by the request's own `catalog_mode` field** — `production_observations` selects `catalog_mode == "production"` at line 1334, `slice0_observations` selects `"slice0_fixture"` at line 1329 — **and the period is the report generation.** *(Address corrected 2026-09-11 by the independent group-A audit: the transcription cited `:318-322`, which now holds lifecycle-registry validation. The substance is unchanged and is sharper than the original wording suggests — `slice0_observations` sits at **line 1329**, five lines above the population this ruling mandates, which is exactly why the substitution this clause forbids was easy to make. The rate itself is computed at `:3790`.)*
 **A fixture may not enter that numerator.** If the intended population is wider, that is an
 explicit change to the producer carrying its own justification, never a fixture promotion. So
 J closes when a real production-catalog run reaches a partial admissible outcome on that
@@ -1921,14 +1923,31 @@ have shown 1/1.
 `check_layer3_workflow_failure_authority.py`, `SURFACE_NAMES` at **line 35** — `run`, `artifact`, `lineage`, `export`, `dashboard`, `public_packet` — plus worker** *(address corrected 2026-09-11; the transcription cited `:29`, which now holds `FIXTURE_TENANT_ID`. The six names and the count are unchanged.)* — not every route, format and
 audience within them. That condition is **already discharged**: all seven were measured blocked
 or refused on 2026-09-08, and F1's remaining conjunct was the `P29` canonical proof recompute,
-since discharged.
+**discharged on 2026-09-09** — this paragraph described only the 2026-09-08 measurement until the
+audit corrected it.
+
+**Instrument visibility, measured 2026-09-11 and worth knowing before you rely on this section.**
+`check_debt_ledger._parse_gy_tasks` matches only §8.5 table rows, so **nothing in this section reaches
+the ledger's task projection**, and `gy-lattice/check_delivery.py`'s two independent parsers stop after
+§8.5 as well. The placement was chosen for where a human reader of a row looks, and that was right; it
+was wrong about instruments, which are third parties too. The ledger's own task-census row now carries a
+pointer here, which is the generated projection a programmatic reader does see.
 
 ### Shared — `representative substrate`
 Ruled and transcribed into the gate that uses it, §3.5.5 item D, rather than repeated here.
 It splits by claim type: a named-case `Done when` has that case as its substrate; a **rate or
 coverage** claim must use the canonical producer's declared population, and the ban on vacuous
-fixture benchmarks binds only the second kind. **This is the one of the five never exercised
-under pressure** — the first rate-claim closure that reaches the gate is its test.
+fixture benchmarks binds only the second kind. **Exercise status, corrected 2026-09-11**: *never exercised* is supportable only in the narrow
+sense of **no evidenced successful rate-claim closure reaching this gate**. `GY-J`'s refusal is
+already a **negative exercise of the same population/fixture distinction** — it took the canonical
+producer's declared population and kept an available fixture out of the numerator, which is exactly
+this ruling's rate-claim branch. The retained evidence also cannot prove an absolute historical
+absence of pressure. So the open test is a **passing** rate-claim closure, not any exercise at all.
+**And one case the split does not yet cover**: a `Done when` that names a specific case **and** makes
+a general rate or coverage claim. The split as written sends those two halves to different
+substrates and says nothing about which governs, so a reviewer meeting a mixed clause must identify
+what population the published claim actually names before applying either branch. That gap is
+recorded rather than resolved.
 
 ## 9. The build tasks
 

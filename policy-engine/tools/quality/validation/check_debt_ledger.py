@@ -735,7 +735,7 @@ def render_ledger(snapshot: _Snapshot) -> str:
             "| ladder | task ids | indexed here | why |",
             "| --- | ---: | ---: | --- |",
             f"| Atlas slice sequence | 21 | {sum(1 for row in snapshot.work if not row.slice_id.startswith('GY-'))} | open slices only; closed ones stay in the master plan |",
-            f"| `GY-engine-subordination.md` | {PUBLISHED_DENOMINATORS['gy_tasks']} | {sum(1 for row in snapshot.work if row.slice_id.startswith('GY-'))} | indexed from the authoritative task-standing table (§8.5), recomputed every run: {summary([status for status, count in snapshot.gy_task_statuses for _ in range(count)])}. Only non-terminal rows are listed above. |",
+            f"| `GY-engine-subordination.md` | {PUBLISHED_DENOMINATORS['gy_tasks']} | {sum(1 for row in snapshot.work if row.slice_id.startswith('GY-'))} | indexed from the authoritative task-standing table (§8.5), recomputed every run: {summary([status for status, count in snapshot.gy_task_statuses for _ in range(count)])}. Only non-terminal rows are listed above. **This parser reads §8.5 rows only**: the ruled `Done when` wording lives in the plan's **§8.6** and never reaches this projection, so a task's emitted text is an index back to the plan and not a complete closure spec. |",
             "| 16 further plans (Foundry, Fabric, Scientist, UPDC, Layer2/3, …) | 213 | 0 | dormant lanes; out of the declared scope, counted so the remainder is visible |",
             "",
             "Measured 2026-08-23 across `docs/plans/active/**`: **271 task ids in 18 plans**. This ledger",

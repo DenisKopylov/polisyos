@@ -54,6 +54,10 @@ PUBLISHED_DENOMINATORS = {
 }
 INFORMATIONAL_FINDING_CODES = frozenset(
     {
+        # A recovered column shift is reported, not blocking: the status was read
+        # correctly. `register_status_unlocatable` stays blocking, because there the
+        # parser cannot tell what state a debt is in -- not a formatting nuisance.
+        "register_status_column_shifted",
         "closure_signal_ast_collection_disagreement",
         "closure_signal_collection_host_unknown",
         "closure_signal_count_exit_disagreement",
@@ -97,7 +101,7 @@ _ExplicitNonclosure = namedtuple(
 )
 _Snapshot = namedtuple(
     "_Snapshot",
-    "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_entries frontend_entry_statuses frontend_ds8_assignments frontend_ds8_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states gy_task_statuses",
+    "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_entries frontend_entry_statuses frontend_ds8_assignments frontend_ds8_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states gy_task_statuses shifted_status unlocatable_status",
 )
 AuditReport = namedtuple(
     "AuditReport",
@@ -154,9 +158,24 @@ def _status_token(text: str) -> str | None:
     ) or next((status for status in statuses if re.search(rf"\b{re.escape(status)}\b", text)), None)
 
 
-def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
+def _exact_status_cell(text: str) -> str | None:
+    """Status only when the WHOLE cell is one, for the column-shift recovery path.
+
+    `_status_token` falls back to a bare word-boundary search anywhere in the text,
+    which is fine for a designated short status cell and far too loose for a scan
+    across every cell: a closure-signal cell whose prose contains "open" matches.
+    This accepts a cell whose entire plain text is a status token and nothing else.
+    """
+    plain = _plain(text).strip().strip("`*").strip()
+    statuses = REGISTER_STATUSES | GY_STATUSES
+    return plain if plain in statuses else None
+
+
+def _parse_register(text: str) -> tuple[list[_DebtRow], list[str], list[str], list[str]]:
     rows: list[_DebtRow] = []
     irregular: list[str] = []
+    shifted: list[str] = []
+    unlocatable: list[str] = []
     section = ""
     heading = ""
     status_index: int | None = None
@@ -194,7 +213,26 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
                 if status_index is not None and status_index < len(cells)
                 else ""
             )
-            status = _status_token(status_cell) or "ambiguous"
+            status = _status_token(status_cell)
+            if status is None:
+                # A cell containing a literal `|` -- a code span with pipe-delimited
+                # enum values, for instance -- shifts every column after it, so the
+                # header-derived index lands on the wrong cell. Recover by locating
+                # the single status token in the row, and RECORD the recovery: the
+                # old behaviour defaulted to "ambiguous", which is itself a valid
+                # register status, making a parse failure indistinguishable from a
+                # real ambiguous row.
+                found = [
+                    token
+                    for token in (_exact_status_cell(cell) for cell in cells[1:])
+                    if token is not None
+                ]
+                if len(found) == 1:
+                    status = found[0]
+                    shifted.append(debt_id)
+                else:
+                    status = "ambiguous"
+                    unlocatable.append(debt_id)
         owner_index = {"A": 2, "B": 2, "C": 2, "D": 1}.get(section)
         owner = (
             _plain(cells[owner_index])
@@ -210,7 +248,7 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
             else None
         )
         rows.append(_DebtRow(debt_id, status, owner, section, heading, line, branch))
-    return rows, irregular
+    return rows, irregular, shifted, unlocatable
 
 
 def _bold_span(lines: list[str], start: int) -> str:
@@ -534,7 +572,7 @@ def _snapshot(repo_root: Path) -> _Snapshot:
     register_text = (repo_root / REGISTER_PATH).read_text(encoding="utf-8")
     gy_text = (repo_root / GY_PATH).read_text(encoding="utf-8")
     atlas_text = (repo_root / ATLAS_PATH).read_text(encoding="utf-8")
-    debts, irregular = _parse_register(register_text)
+    debts, irregular, shifted_status, unlocatable_status = _parse_register(register_text)
     plan_ids, branches, paths = _plan_inventory(repo_root)
     disposition = json.loads((repo_root / DISPOSITION_PATH).read_text(encoding="utf-8"))
     entries = disposition.get("entries", [])
@@ -569,6 +607,8 @@ def _snapshot(repo_root: Path) -> _Snapshot:
         ds5_rows=ds5_rows,
         ds5_planless=ds5_planless,
         irregular_branches=tuple(irregular),
+        shifted_status=tuple(shifted_status),
+        unlocatable_status=tuple(unlocatable_status),
         carried_closed=frozenset(carried_closed),
         branch_states=branch_states,
         gy_task_statuses=gy_task_statuses,
@@ -1293,6 +1333,10 @@ def audit_repository(
             row.section != "G" and row.status != "closed" for row in rows
         ):
             findings.append(Finding("closed_open_conflict", debt_id))
+    for debt_id in snapshot.shifted_status:
+        findings.append(Finding("register_status_column_shifted", debt_id))
+    for debt_id in snapshot.unlocatable_status:
+        findings.append(Finding("register_status_unlocatable", debt_id))
     closure_findings, closure_metrics = _closure_signal_findings(
         repo_root, snapshot.debts, _collection_receipts
     )

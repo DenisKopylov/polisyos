@@ -45,7 +45,7 @@ PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/pla
 # report-only rule, added as `design-normalization-matches-a-substring-before-identity`. Two
 # closures and one addition: +1.
 PUBLISHED_DENOMINATORS = {
-    "register": 258,
+    "register": 260,
     "gy": 38,
     "gy_tasks": 77,
     "atlas": 22,
@@ -213,7 +213,12 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str], list[str], li
                 if status_index is not None and status_index < len(cells)
                 else ""
             )
-            status = _status_token(status_cell)
+            # Trust the designated column only when the WHOLE cell is a status.
+            # `_status_token` searches prose, so a shifted cell whose text merely
+            # mentions a status -- "read as `ambiguous`", say -- returns confidently
+            # and wrongly, and the recovery below never runs. That is the same defect
+            # one level deeper, and the row documenting the hazard triggered it.
+            status = _exact_status_cell(status_cell)
             if status is None:
                 # A cell containing a literal `|` -- a code span with pipe-delimited
                 # enum values, for instance -- shifts every column after it, so the
@@ -231,8 +236,13 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str], list[str], li
                     status = found[0]
                     shifted.append(debt_id)
                 else:
-                    status = "ambiguous"
-                    unlocatable.append(debt_id)
+                    # Last resort: the loose prose read, reported rather than trusted.
+                    status = _status_token(status_cell)
+                    if status is None:
+                        status = "ambiguous"
+                        unlocatable.append(debt_id)
+                    else:
+                        shifted.append(debt_id)
         owner_index = {"A": 2, "B": 2, "C": 2, "D": 1}.get(section)
         owner = (
             _plain(cells[owner_index])

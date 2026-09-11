@@ -316,3 +316,137 @@ replay must match. Print the byte-comparison scope and omit runtime client
 behavior/endpoint execution/hosted CI explicitly. This touches a shared consumer
 test and README, so root serializes it; the dashboard coverage floor and globs
 are unaffected.
+
+### Frontend full-wave refinement: fixture liveness and a PNG removal probe
+
+The authorized full coverage command on frozen dashboard source at
+`a1e93d1f3beb1eee4e0c31411b7ac81d04685aa2` completed with exit 1 after
+3,191.52 seconds. Its complete output is
+`docs/superpowers/journals/instruments/coverage/raw/full-vitest-coverage.log`.
+No coverage directory or summary was produced; the actual ratchet therefore
+returns UNRUN 2 in `raw/ratchet-after-failed-full-wave.log`. This is no coverage
+ratio measurement, and no earlier report is admitted as this run's result.
+The complete failure classes are one PNG removal assertion and six outer
+fixture watchdog expirations, including a beforeAll that prevented five census
+assertions from running. This is not hosted CI evidence or inherited-red proof.
+
+| Exact failing fixture | Observed duration / outer watchdog | Class and property left unmeasured |
+| --- | --- | --- |
+| `CycleBoardConsumerCensus.test.ts`: production-census beforeAll | complete hook duration unavailable / 45 s | UNRUN full typed consumer census; five dependent assertions skipped |
+| `visualRegressionHarness.test.ts`: screenshot-reference/snapshot one-to-one | 241 ms / 20 s | FAILED removal probe selected a non-PNG companion instead of measured evidence |
+| `atlasSurfaceReadinessReconciliation.test.ts`: zero-instance stable arm | 54.735 s / 20 s | UNRUN complete real producer plus sequential admission/refusal comparisons |
+| `ds16SuccessorContainment.test.ts`: production mount graph | 22.968 s / 20 s | UNRUN full reachable mount census and malformed-mount negatives |
+| `confidenceLedgerRiskSpend.test.ts`: synchronous transport-byte ownership | 21.666 s / 20 s | UNRUN real protected-query admission and defensive-copy assertions |
+| `posture.test.ts`: capture before strict validation | 21.194 s / 20 s | UNRUN real loader, captured bytes, and cache/fallback contract |
+| `trustPostureTwin.test.ts`: every ordered public claim field/DOM drift | 77.230 s / explicit 60 s | UNRUN full committed-artifact DOM parity and every declared mutation |
+
+The measured mechanism is fixture completion plus its semantic assertions;
+these tests contain no elapsed-time performance assertion. The confidence
+ledger's step/work bounds and timeout refusal are semantic product contracts
+and remain unchanged. Neither the observed fixture times nor a passing replay
+establish production latency. The repeated outer-timeout finding is the SAME
+class at further callers (P31/P40), so compose one existing watchdog policy
+across the bounded actual fixture caller set, rather than adding deadline
+literals for the first three witnesses. Do not change global Vitest defaults,
+coverage configuration, statement floor, tolerance, product budgets, artifact
+populations, DOM mutation populations, or the source census.
+
+Owner composition: extend the existing fixture owner
+`src/test/evidence/persistenceProcessResult.ts` with
+`evidenceFixtureWatchdog`, returning suite timeout options backed by the existing
+`PERSISTENCE_TEST_TIMEOUT_MS` (240 seconds), and printing its measurement scope.
+Keep `PERSISTENCE_CHILD_TIMEOUT_MS` (180 seconds), the existing real-child UNRUN
+parser, and the selected repository interpreter unchanged. This fixture policy
+already states that its measured complete replay budget is a liveness watchdog,
+not a latency assertion. It comfortably encloses the completed body durations
+above; it does not promise that arbitrarily many sequential children can each
+consume their maximum budget. Expiration still means no complete fixture verdict.
+No automatically escalating timeout is introduced.
+
+The complete tracked `.ts`/`.tsx` denominator under dashboard `src/` and
+`scripts/` contains 1,117 paths: 1,113 source-root paths and four script-root paths.
+Tracked and on-disk membership agree. Relative to the earlier source-only census
+at the Stage 1 decision, the source member delta is exactly the three new
+behavioral test files; the four script paths were outside that earlier root.
+This is an explicit member/root comparison, not a finding-count comparison.
+AST import/call traversal over that denominator identifies these fixture
+consumers for the owner paths implicated here:
+
+- `src/test/evidence/atlasAutomatedEvidenceCapture.test.ts`: canonical capture
+  and Core persistence adapter.
+- `src/test/evidence/atlasHealthMetrics.test.ts`: real health producer and
+  persistence, including its producer beforeAll.
+- `src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts`: real stable
+  negative-control production and repeated independent admission.
+- `src/test/evidence/evidenceProducerExecution.test.ts`: both real producer
+  entry points under unavailable-execution conditions.
+- `src/features/runs/domain/confidenceLedgerRiskSpend.test.ts`: both strict
+  admission and shared protected-query suites.
+- `src/features/trust/domain/posture.test.ts`: real artifact admission/loader.
+- `src/features/trust/export/trustPostureTwin.test.ts`: full artifact DOM twin;
+  replace its witnessed 60-second outer override with the shared policy.
+- `src/features/runs/routes/CycleBoardConsumerCensus.test.ts`: full production
+  TypeScript program and resolved-symbol census beforeAll.
+- `src/features/runs/components/ds16SuccessorContainment.test.ts`: all actual
+  `mountGraphCensus` callers and sibling malformed-mount controls.
+
+Compose at suite scope so siblings inherit the same liveness contract. Bind
+health/census producer hooks explicitly to that existing budget. Preserve the
+CycleBoard's separate 45-second array-assertion budgets, the health DS18
+60-second explicit assertion budget, existing explicit persistence budgets,
+and the workflow subprocess's already composed 60/65-second child/parent
+budgets. The parser-only contract file remains under its short existing limits,
+including the real-child 50-ms timeout negative. That file does launch small
+real processes; it does not replay the canonical full Atlas producer/admission
+fixture. Direct/member calls and imports are resolved in this census, not
+arbitrary dynamic aliases, other file types, or every possible downstream
+integration suite. Those are named limits, not an exhaustive invocation claim.
+
+The non-test launcher is the existing dashboard package Vitest/coverage command
+through `vitest.config.ts`; this helper is test infrastructure used by the named
+suites, not a new production capability or path-only CLI. It should not be
+registered as a `polisyos-tools` command. Existing production callers of the
+exercised owners remain `useConfidenceLedgerRiskSpend`, the confidence ledger
+DOM twin, `TrustPosturePage`, the Atlas scripts, and the existing TypeScript
+analyzers. No production caller, generated artifact, API, backend admission,
+shared dependency/configuration, or other lane's runtime behavior changes.
+Root serializes this decision and all subsequent commits.
+
+The watchdog output must say: "Evidence fixture watchdog measures completion
+of the named suite's assertions. Not measured: production latency, paths outside
+this suite, or hosted CI. A watchdog timeout is UNRUN for the unfinished fixture,
+not a completed semantic verdict." The existing real-child timeout negative
+must still produce `PersistenceExecutionUnrunError` with `UNRUN` and
+`ETIMEDOUT`; unavailable-producer negatives must remain loud. The already-red
+full-wave outer timeouts are the negative for unfinished assertions. Focused
+replays must preserve complete assertion bodies and exercise the actual owners;
+no success may be inferred merely from the new timeout option or printed text.
+Production Atlas child sites without a declared child timeout remain a bounded
+fixture-liveness research finding, not a silent claim that every production
+process is bounded by the test policy.
+
+The visual failure is a NEW class relative to those watchdogs: a P38 probe
+removed an out-of-domain member. The complete snapshot directory is 22 PNGs
+plus `README.md`; the README was added by this lane's `c86aa6358` documentation
+change. `committedSnapshotRefs` correctly measures only PNGs, but `.slice(1)`
+removed README and left the measured set unchanged. Select the removed member
+from the actual PNG set and retain the orphan-PNG and AST dynamic-name
+negatives. Explicitly prove that added README and other non-PNG companions do
+not change the measured set. Keep all PNGs and the mandatory README. Print:
+"Visual harness measures literal executable screenshot references and committed
+PNG names. Not measured: screenshot rendering, pixel equality, or non-PNG
+companions." The existing Playwright configuration and visual suite remain the
+actual rendering owners; this contract test is their AST/name reconciler, not
+an additional CLI.
+
+Acceptance: exact seven failed fixtures (the census via its exact file and all
+five named dependent nodes), the owner timeout/unavailable-execution negatives,
+and relevant sibling fixtures pass under named targeted invocations; source
+review then freezes this delta before one complete coverage replay. The latter
+must produce a fresh complete report and the unchanged ratchet must decide its
+ratio. Any further timeout is still UNRUN, and any semantic assertion failure
+gets its actual class; neither may be erased into an omission. Pattern pass:
+P29/P32 substance, P31/P40 class repair, P35 complete denominators, P38 probe
+scope, P41 no inherited-red attribution. Residual capability labels are
+`verification_missing` where fixture execution did not complete and
+`surface_out_of_scope` for production latency/hosted execution in this lane.

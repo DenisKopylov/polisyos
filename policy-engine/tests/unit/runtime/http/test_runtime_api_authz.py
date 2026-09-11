@@ -987,6 +987,7 @@ def _build_secure_client(
     delegation_manager: DelegationTokenManager | None = None,
     trusted_delegators: frozenset[str] = frozenset(),
     service_spiffe_id: str | None = None,
+    container_overrides=None,
 ):
     registry = CellRegistry()
     cell = CellSpec(tier=CellTier.SHARED, region="us-gov-west-1", max_tenants=50)
@@ -1015,6 +1016,7 @@ def _build_secure_client(
         delegation_manager=delegation_manager,
         trusted_delegators=trusted_delegators,
         service_spiffe_id=service_spiffe_id,
+        container_overrides=container_overrides,
     )
     return TestClient(app, raise_server_exceptions=raise_server_exceptions), cell, provider
 

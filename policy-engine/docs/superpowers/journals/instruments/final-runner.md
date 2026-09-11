@@ -483,3 +483,31 @@ This retained one-off probe derives its full file set from the canonical produce
 ```sh
 env PYTHONPATH=src:. .venv/bin/python docs/superpowers/journals/instruments/root/raw/tool-config-corruption-probe.py >docs/superpowers/journals/instruments/root/raw/replay-tool-config-corruption.log 2>&1
 ```
+
+## Canonical generated surfaces
+
+Run writes into ignored replay scratch; the committed-source checks independently decide freshness. These commands consume declared generated-artifact inputs. Register prose is compiler input, not evidence about current runtime behavior.
+
+```sh
+.venv/bin/polisyos-tools runtime export-runtime-openapi --output docs/superpowers/journals/instruments/root/raw/replay-runtime_api_v1.openapi.json >docs/superpowers/journals/instruments/root/raw/replay-openapi-export.log 2>&1
+```
+
+```sh
+.venv/bin/polisyos-tools validation check-trust-claim-posture --repo-root . --write --output-root docs/superpowers/journals/instruments/root/raw/replay-trust-regenerated --json >docs/superpowers/journals/instruments/root/raw/replay-trust-regeneration.log 2>&1
+```
+
+```sh
+.venv/bin/polisyos-tools validation check-trust-claim-posture --repo-root . --check --json >docs/superpowers/journals/instruments/root/raw/replay-trust-check.log 2>&1
+```
+
+```sh
+.venv/bin/polisyos-tools validation check-trust-claim-posture --repo-root . --corrupt-field-drift-check --json >docs/superpowers/journals/instruments/root/raw/replay-trust-corrupt-field.log 2>&1
+```
+
+## Current-slice documentation impact predicates
+
+This one-off probe executes the existing planner against the complete committed slice delta. It explicitly emits every unrun child command; it does not replace the full docs workflow or establish historical range closure.
+
+```sh
+env PYTHONPATH=src:. .venv/bin/python docs/superpowers/journals/instruments/root/raw/docs-impact-probe.py >docs/superpowers/journals/instruments/root/raw/replay-docs-impact-plan.log 2>&1
+```

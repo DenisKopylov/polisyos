@@ -152,3 +152,15 @@ mismatch is one diagnostic class, not repeated repair rounds), P41 (no inherited
 claim without correct-base replay). The acceptance procedure and null bounds do
 not change. Incidental destinations: `team-runtime-quality / CORR legal generated
 contract freshness` and `team-runtime / runtime-openapi-snapshot artifact custody`.
+
+Diagnostic correction (2026-09-11): putting the native isolated-copy destination
+inside its source tree caused recursive copying and diagnostic UNRUN. The actual
+copier's denominator includes raw directories; Git ignore is not its exclusion
+rule. Bucket: second harness-interference finding, not a product defect. Widen the
+repair to preserve the **entire native isolation procedure unchanged**: the recorder
+observes the actual output-probe subprocess result and copies only its emitted
+candidate to raw before the native temporary directory is cleaned. No custom
+isolation root or copy exclusion is substituted. Remove only the failed, explicitly
+owned recursive scratch; keep its complete failed receipt. Destination:
+`lane evidence recorder / native isolation preservation`, resolved by the native
+procedure plus a real targeted run, not another custom harness.

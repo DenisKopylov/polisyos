@@ -175,6 +175,11 @@ The first guardrail invocation returned **1**, with a complete verdict. Root's
 concurrent journal/plan writes caused the outside-scratch findings; the OpenAPI
 snapshot also differed. The revised resource rule freezes the entire Git-visible
 tree for the repeat. OpenAPI comparison and final guardrail disposition are pending.
+The first OpenAPI diagnostic returned **2 / UNRUN** before generation: replacing
+native temporary storage with an in-repository destination caused recursive source
+copying. Root removed only that failed owned scratch and retained its full receipt.
+The correction preserves the native isolation unchanged and observes/copies only
+its emitted candidate. This is a recorder failure, not an OpenAPI product verdict.
 Receipt table: **pending**. Full stdout/stderr of deciding
 gates and removal probes remain under the explicitly gitignored `raw/` directory;
 the table will cite their paths and hashes, rather than copy recomputable artifacts.

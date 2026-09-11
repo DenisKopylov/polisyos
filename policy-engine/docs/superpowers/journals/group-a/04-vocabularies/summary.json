@@ -1,0 +1,760 @@
+{
+  "base": "63bdb9640e7b76b49356cba940bab6067f1be512",
+  "python_files": 6178,
+  "source_python_files": 2653,
+  "enumeration_equal": true,
+  "parse_errors": [],
+  "density": {
+    "estimand": {
+      "raw_occurrences": {
+        "files": 176,
+        "by_package_files": {
+          "data_forge": 2,
+          "fabric": 2,
+          "foundry": 105,
+          "ir": 36,
+          "runtime": 19,
+          "scientist": 12
+        },
+        "by_package_nodes": {
+          "data_forge": 13,
+          "fabric": 5,
+          "foundry": 1691,
+          "ir": 556,
+          "runtime": 187,
+          "scientist": 93
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+            "count": 154
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/consensus.py",
+            "count": 139
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+            "count": 133
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/network/missingness.py",
+            "count": 128
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/estimation.py",
+            "count": 69
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_validator.py",
+            "count": 68
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "count": 67
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/recoverability_engine.py",
+            "count": 57
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+            "count": 54
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "count": 49
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+            "count": 48
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/passes/core.py",
+            "count": 47
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+            "count": 46
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+            "count": 46
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/survey/semiparametric.py",
+            "count": 45
+          }
+        ]
+      },
+      "identifier_nodes": {
+        "files": 141,
+        "by_package_files": {
+          "data_forge": 1,
+          "fabric": 1,
+          "foundry": 90,
+          "ir": 29,
+          "runtime": 12,
+          "scientist": 8
+        },
+        "by_package_nodes": {
+          "data_forge": 12,
+          "fabric": 2,
+          "foundry": 1278,
+          "ir": 358,
+          "runtime": 108,
+          "scientist": 55
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/network/missingness.py",
+            "count": 126
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/consensus.py",
+            "count": 108
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+            "count": 101
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+            "count": 95
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/estimation.py",
+            "count": 65
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_validator.py",
+            "count": 51
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "count": 51
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+            "count": 45
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+            "count": 41
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/survey/semiparametric.py",
+            "count": 41
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/recoverability_engine.py",
+            "count": 37
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "count": 37
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+            "count": 36
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/network/analysis.py",
+            "count": 35
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+            "count": 33
+          }
+        ]
+      },
+      "string_nodes": {
+        "files": 117,
+        "by_package_files": {
+          "fabric": 2,
+          "foundry": 64,
+          "ir": 26,
+          "runtime": 16,
+          "scientist": 9
+        },
+        "by_package_nodes": {
+          "fabric": 3,
+          "foundry": 209,
+          "ir": 128,
+          "runtime": 70,
+          "scientist": 27
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/consensus.py",
+            "count": 27
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+            "count": 19
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/passes/core.py",
+            "count": 18
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+            "count": 17
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "count": 13
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "count": 12
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/abstraction.py",
+            "count": 12
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/grounding_admission.py",
+            "count": 12
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+            "count": 11
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/missing_data.py",
+            "count": 9
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+            "count": 8
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "count": 8
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/recoverability_engine.py",
+            "count": 7
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/network/analysis.py",
+            "count": 7
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+            "count": 7
+          }
+        ]
+      },
+      "docstring_nodes": {
+        "files": 55,
+        "by_package_files": {
+          "data_forge": 1,
+          "foundry": 36,
+          "ir": 14,
+          "runtime": 2,
+          "scientist": 2
+        },
+        "by_package_nodes": {
+          "data_forge": 1,
+          "foundry": 97,
+          "ir": 43,
+          "runtime": 3,
+          "scientist": 3
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+            "count": 24
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/eif_bounds.py",
+            "count": 16
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+            "count": 9
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+            "count": 6
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_validator.py",
+            "count": 6
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/recoverability_engine.py",
+            "count": 6
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/schema_resolver.py",
+            "count": 6
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/network/protocols.py",
+            "count": 4
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/consensus.py",
+            "count": 4
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "count": 4
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+            "count": 3
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/missing_data.py",
+            "count": 3
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+            "count": 3
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "count": 3
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/knowledge_base.py",
+            "count": 3
+          }
+        ]
+      }
+    },
+    "normative": {
+      "raw_occurrences": {
+        "files": 141,
+        "by_package_files": {
+          "core": 6,
+          "data_forge": 36,
+          "data_requirement": 1,
+          "evidence": 2,
+          "fabric": 2,
+          "foundry": 2,
+          "ir": 6,
+          "legal_requirement": 1,
+          "lex": 9,
+          "pdc": 2,
+          "policy_grammar": 1,
+          "runtime": 38,
+          "scientist": 35
+        },
+        "by_package_nodes": {
+          "core": 23,
+          "data_forge": 271,
+          "data_requirement": 1,
+          "evidence": 6,
+          "fabric": 4,
+          "foundry": 2,
+          "ir": 115,
+          "legal_requirement": 2,
+          "lex": 119,
+          "pdc": 6,
+          "policy_grammar": 4,
+          "runtime": 848,
+          "scientist": 431
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+            "count": 225
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "count": 120
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "count": 115
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+            "count": 108
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+            "count": 108
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+            "count": 70
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/qc.py",
+            "count": 57
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/governance/problem_frame.py",
+            "count": 49
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+            "count": 49
+          },
+          {
+            "path": "policy-engine/src/polisyos/lex/knowledge/benchmark.py",
+            "count": 45
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/normative_arbitration.py",
+            "count": 42
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+            "count": 42
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/normative_arbitration_pass.py",
+            "count": 41
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+            "count": 38
+          },
+          {
+            "path": "policy-engine/src/polisyos/lex/normpack/applicability_report.py",
+            "count": 34
+          }
+        ]
+      },
+      "identifier_nodes": {
+        "files": 81,
+        "by_package_files": {
+          "core": 4,
+          "data_forge": 22,
+          "evidence": 2,
+          "fabric": 1,
+          "ir": 4,
+          "lex": 2,
+          "pdc": 2,
+          "policy_grammar": 1,
+          "runtime": 23,
+          "scientist": 20
+        },
+        "by_package_nodes": {
+          "core": 10,
+          "data_forge": 139,
+          "evidence": 5,
+          "fabric": 2,
+          "ir": 61,
+          "lex": 44,
+          "pdc": 4,
+          "policy_grammar": 3,
+          "runtime": 493,
+          "scientist": 246
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+            "count": 167
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+            "count": 86
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "count": 85
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "count": 82
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+            "count": 56
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/qc.py",
+            "count": 50
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+            "count": 43
+          },
+          {
+            "path": "policy-engine/src/polisyos/lex/knowledge/benchmark.py",
+            "count": 38
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+            "count": 38
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/governance/problem_frame.py",
+            "count": 33
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/normative_arbitration.py",
+            "count": 26
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py",
+            "count": 22
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/legal_unit.py",
+            "count": 20
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/normative_arbitration_pass.py",
+            "count": 12
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/claim_registry.py",
+            "count": 11
+          }
+        ]
+      },
+      "string_nodes": {
+        "files": 120,
+        "by_package_files": {
+          "core": 5,
+          "data_forge": 28,
+          "data_requirement": 1,
+          "evidence": 1,
+          "fabric": 2,
+          "foundry": 1,
+          "ir": 5,
+          "legal_requirement": 1,
+          "lex": 9,
+          "pdc": 2,
+          "policy_grammar": 1,
+          "runtime": 35,
+          "scientist": 29
+        },
+        "by_package_nodes": {
+          "core": 10,
+          "data_forge": 110,
+          "data_requirement": 1,
+          "evidence": 1,
+          "fabric": 2,
+          "foundry": 1,
+          "ir": 38,
+          "legal_requirement": 2,
+          "lex": 69,
+          "pdc": 2,
+          "policy_grammar": 1,
+          "runtime": 347,
+          "scientist": 164
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+            "count": 57
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+            "count": 52
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "count": 36
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+            "count": 36
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "count": 30
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+            "count": 27
+          },
+          {
+            "path": "policy-engine/src/polisyos/lex/normpack/applicability_report.py",
+            "count": 26
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+            "count": 26
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/normative_arbitration_pass.py",
+            "count": 23
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+            "count": 19
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+            "count": 17
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/smoke.py",
+            "count": 15
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/governance/__init__.py",
+            "count": 15
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/publish.py",
+            "count": 14
+          },
+          {
+            "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+            "count": 14
+          }
+        ]
+      },
+      "docstring_nodes": {
+        "files": 25,
+        "by_package_files": {
+          "core": 2,
+          "data_forge": 5,
+          "foundry": 1,
+          "ir": 4,
+          "lex": 5,
+          "runtime": 5,
+          "scientist": 3
+        },
+        "by_package_nodes": {
+          "core": 2,
+          "data_forge": 7,
+          "foundry": 1,
+          "ir": 15,
+          "lex": 6,
+          "runtime": 6,
+          "scientist": 5
+        },
+        "top_files": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/normative_arbitration.py",
+            "count": 7
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/governance/problem_frame.py",
+            "count": 5
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/claim_bridge.py",
+            "count": 2
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/rule_classifier.py",
+            "count": 2
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/loading/norm_pack.py",
+            "count": 2
+          },
+          {
+            "path": "policy-engine/src/polisyos/lex/normpack/applicability_report.py",
+            "count": 2
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/workspace/spine_repair_gates.py",
+            "count": 2
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/normative_arbitration_pass.py",
+            "count": 2
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+            "count": 2
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/contracts/normative_arbitration.py",
+            "count": 1
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+            "count": 1
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/consistency_checker.py",
+            "count": 1
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/deterministic_spo_core.py",
+            "count": 1
+          },
+          {
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/jurisdictions/protocol.py",
+            "count": 1
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/welfare/social_weight_provenance.py",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "write_operation": {
+      "raw_occurrences": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      },
+      "identifier_nodes": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      },
+      "string_nodes": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      },
+      "docstring_nodes": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      }
+    },
+    "assurance_level": {
+      "raw_occurrences": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      },
+      "identifier_nodes": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      },
+      "string_nodes": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      },
+      "docstring_nodes": {
+        "files": 0,
+        "by_package_files": {},
+        "by_package_nodes": {},
+        "top_files": []
+      }
+    }
+  },
+  "dict_counts": {
+    "dict_literals": 64845,
+    "dict_key_slots": 199171,
+    "unpack_key_slots": 2601,
+    "literal_key_slots": 193292,
+    "nonliteral_key_slots": 3278
+  },
+  "duplicate_literal_pairs": [],
+  "repeated_nonliteral_expression_pairs": [],
+  "raw_receipt": {
+    "path": "policy-engine/docs/superpowers/journals/group-a/04-vocabularies/raw/census.json",
+    "sha256": "cc1512b3574b1ff4c80024186dd2161dd61b2b56ceee87ef9b56dc2ee9385f2e"
+  }
+}

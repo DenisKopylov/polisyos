@@ -1,0 +1,189 @@
+{
+  "source_ref": "63bdb9640e7b76b49356cba940bab6067f1be512",
+  "branch_observed": "codex/group-a-analysis",
+  "denominator_methods": [
+    "git ls-tree -r --name-only -z",
+    "git archive --format=tar; TarFile.getmembers"
+  ],
+  "denominators": {
+    "policy-engine/": {
+      "file_type": "tracked .py blobs",
+      "ls_tree_count": 6176,
+      "archive_count": 6176
+    },
+    "policy-engine/src/polisyos/": {
+      "file_type": "tracked .py blobs",
+      "ls_tree_count": 2653,
+      "archive_count": 2653
+    },
+    "policy-engine/tests/": {
+      "file_type": "tracked .py blobs",
+      "ls_tree_count": 2578,
+      "archive_count": 2578
+    }
+  },
+  "parse_errors": [],
+  "definition_hits": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/scope_adjudication.py",
+      "line": 151,
+      "name": "ScopeAdjudicationCandidate"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/scope_adjudication.py",
+      "line": 222,
+      "name": "build_scope_adjudication_candidate"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/scope_adjudication.py",
+      "line": 282,
+      "name": "verify_scope_adjudication_candidate"
+    }
+  ],
+  "direct_syntactic_call_hits": [
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 81,
+      "target": "build_scope_adjudication_candidate"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 122,
+      "target": "verify_scope_adjudication_candidate"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 173,
+      "target": "verify_scope_adjudication_candidate"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 177,
+      "target": "verify_scope_adjudication_candidate"
+    }
+  ],
+  "import_hits": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "line": 1308,
+      "module": "scope_adjudication",
+      "names": [
+        {
+          "name": "SCOPE_ADJUDICATION_AUTHORITY_PURPOSE",
+          "asname": null
+        },
+        {
+          "name": "SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION",
+          "asname": null
+        },
+        {
+          "name": "SCOPE_ADJUDICATION_PROHIBITED_USES",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationCandidate",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationPlane",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationPredicate",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationRuling",
+          "asname": null
+        },
+        {
+          "name": "ScopePredicateObservation",
+          "asname": null
+        },
+        {
+          "name": "build_scope_adjudication_candidate",
+          "asname": null
+        },
+        {
+          "name": "scope_adjudication_candidate_digest",
+          "asname": null
+        },
+        {
+          "name": "verify_scope_adjudication_candidate",
+          "asname": null
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 11,
+      "module": "polisyos.core.contracts.scope_adjudication",
+      "names": [
+        {
+          "name": "SCOPE_ADJUDICATION_PROHIBITED_USES",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationCandidate",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationPlane",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationPredicate",
+          "asname": null
+        },
+        {
+          "name": "ScopeAdjudicationRuling",
+          "asname": null
+        },
+        {
+          "name": "ScopePredicateObservation",
+          "asname": null
+        },
+        {
+          "name": "build_scope_adjudication_candidate",
+          "asname": null
+        },
+        {
+          "name": "verify_scope_adjudication_candidate",
+          "asname": null
+        }
+      ]
+    }
+  ],
+  "scope_unit_test_definitions": [
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 106,
+      "name": "test_candidate_derives_ordered_four_way_proposals_without_authority"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 125,
+      "name": "test_candidate_rejects_mixed_planes_and_content_substitution"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 155,
+      "name": "test_unestablished_predicate_is_preserved_as_a_typed_limitation"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 169,
+      "name": "test_candidate_verifier_rejects_digest_and_semantic_substitution"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_scope_adjudication.py",
+      "line": 184,
+      "name": "test_scope_candidate_is_exported_from_the_contract_facade"
+    }
+  ],
+  "trace_receipt": {
+    "path": "raw/ast-trace.json",
+    "sha256": "fecb7dacac9d8cd8ccc692b0cbf0b9e87181a16104401bb2422f1f0d51fdc63a"
+  },
+  "limitations": "AST direct syntax and import spellings; not reflective call-graph proof or dynamic execution; archive and ls-tree independently enumerate the same pinned git object, not independent source truth."
+}

@@ -1,0 +1,253 @@
+{
+  "base": "63bdb9640",
+  "w5_owner": "policy-engine/docs/research/policy-operations/consolidation/wave5/wave5-routing-map.md",
+  "w5_rows": 106,
+  "w5_unique": 106,
+  "independent_route_enumerations_equal": true,
+  "institutional_destination_selection_rule": "all 17 institutional-authority-evidence.md routes plus the separately housed appointed adjudicator/loss-owner route W5-R3-Q06; all 106 rows inspected",
+  "institutional_routes": [
+    {
+      "line": 134,
+      "route": "W5-R2-Q04",
+      "item": "domain procedures for relation classification, maximum claim language and open universal threshold",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; owner must be appointed by the human principal; add procedure-specific competence, maximum-language and no-universal-default sections.",
+      "exists": "no",
+      "consumer": "non-data relation acquisition"
+    },
+    {
+      "line": 135,
+      "route": "W5-R2-Q05",
+      "item": "social-licence representation/routing/exclusion and formal issuer",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add jurisdiction-specific representation choice and issuer-evidence section, with exclusion as the fail-closed branch.",
+      "exists": "no",
+      "consumer": "social-licence acquisition"
+    },
+    {
+      "line": 136,
+      "route": "W5-R2-Q06",
+      "item": "direct capacity evidence, commitment stages, assessor independence and longitudinal calibration",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add capacity-assurance holder section and anti-checklist-authority falsifier.",
+      "exists": "no",
+      "consumer": "capacity acquisition"
+    },
+    {
+      "line": 143,
+      "route": "W5-R2-Q13",
+      "item": "signer/provider availability",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add domain-specific availability evidence table and typed absence rule.",
+      "exists": "no",
+      "consumer": "all eight acquisition cases"
+    },
+    {
+      "line": 156,
+      "route": "W5-R3-Q06",
+      "item": "adjudicator/loss owner",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/INT-R3-operator-comprehension-study.md`; owner must be appointed; include adjudication and loss governance.",
+      "exists": "no",
+      "consumer": "operator study"
+    },
+    {
+      "line": 158,
+      "route": "W5-R3-Q08",
+      "item": "operational audit/outcome that validates simulation without making PolicyOS administrator or employer",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add typed external operational-outcome intake, competence, anti-role boundary and simulation-validation falsifier.",
+      "exists": "no",
+      "consumer": "operator study / assurance surfaces"
+    },
+    {
+      "line": 177,
+      "route": "W5-R4-Q08",
+      "item": "diagnosis oracle/adjudicator",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add independent diagnosis competence and conflict sections.",
+      "exists": "no",
+      "consumer": "S14 / GY-O1"
+    },
+    {
+      "line": 178,
+      "route": "W5-R4-Q09",
+      "item": "institutional signers for posterior/world update, reissue, override and withdrawal",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add four purpose-scoped signer/competence/expiry records and non-substitution tests. Diagnosis remains evidence, not the signature.",
+      "exists": "no",
+      "consumer": "GY-O1/O3; reissue/override/withdrawal consumers"
+    },
+    {
+      "line": 190,
+      "route": "W5-O5-Q04",
+      "item": "preauthorization families, holders and risk classes",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add appointment, scope, risk class, expiry and non-substitution evidence sections.",
+      "exists": "no",
+      "consumer": "H2 response decision"
+    },
+    {
+      "line": 191,
+      "route": "W5-O5-Q05",
+      "item": "metric steward, transition signer, override signer and after-hours substitute",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add four purpose-specific holder records and lawful-substitution rules.",
+      "exists": "no",
+      "consumer": "H2 / public claims"
+    },
+    {
+      "line": 196,
+      "route": "W5-O5-Q10",
+      "item": "late or contradictory external execution-evidence verification",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add a typed fail-closed execution-evidence contract, late/contradictory branches and verifier provenance.",
+      "exists": "no",
+      "consumer": "H2 intake"
+    },
+    {
+      "line": 206,
+      "route": "W5-R5-Q02",
+      "item": "jurisdiction/body/recognition/act-effect profile owner without a private legal engine",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add canonical profile selection, version/signature and anti-private-engine section.",
+      "exists": "no",
+      "consumer": "authority certificate"
+    },
+    {
+      "line": 208,
+      "route": "W5-R5-Q04",
+      "item": "applicability resolver",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add applicability evidence contract and no-PolicyOS-legal-self-appointment rule.",
+      "exists": "no",
+      "consumer": "INT-R5 certificate"
+    },
+    {
+      "line": 212,
+      "route": "W5-R5-Q08",
+      "item": "pilot institutions supplying appointment, meeting and conflict facts",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add availability, consent and all three evidence-family sections.",
+      "exists": "no",
+      "consumer": "bounded pilot"
+    },
+    {
+      "line": 213,
+      "route": "W5-R5-Q09",
+      "item": "adjudicators for disputed forum, recusal, emergency and cure effect",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add four purpose-specific, jurisdiction-scoped adjudication sections.",
+      "exists": "no",
+      "consumer": "authority certificate"
+    },
+    {
+      "line": 214,
+      "route": "W5-R5-Q10",
+      "item": "transaction/valuation owner supplying amount authority",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add rule-versioned amount-authority and valuation-evidence section.",
+      "exists": "no",
+      "consumer": "authority certificate"
+    },
+    {
+      "line": 225,
+      "route": "W5-R6-Q04",
+      "item": "role qualifications/appointments once real-user evidence exists",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add purpose-scoped competence/appointment evidence, real-user-evidence prerequisite and no-default-holder rule.",
+      "exists": "no",
+      "consumer": "MAEP"
+    },
+    {
+      "line": 226,
+      "route": "W5-R6-Q05",
+      "item": "jurisdiction-specific co-authentic reconciliation",
+      "destination": "`no owner exists`",
+      "edit_shape": "Proposed `docs/plans/active/institutional-authority-evidence.md`; add jurisdiction-specific divergence/reconciliation procedure.",
+      "exists": "no",
+      "consumer": "source-authority claims"
+    }
+  ],
+  "phase5_owner": "policy-engine/docs/superpowers/journals/2026-09-08-gy-phase5-completion.md",
+  "phase5_table_rows": 14,
+  "phase5_rows": [
+    {
+      "index": 1,
+      "finding": "`P5-SKG-01`: certified SKG path cannot admit current relation/calibration evidence",
+      "home": "`cg2-production-relation-gold-acceptance-unspecified`; team-architecture scientific acceptance ruling, DataForge academic/knowledge independent relation/outcome evidence and verifier"
+    },
+    {
+      "index": 2,
+      "finding": "Full reference source withheld",
+      "home": "DataForge `claim-level-evidence-axis`, `causal-claim-current-contract-vocabulary`, `cg2-calibration-observations-per-stratum`; authoritative findings **HC-F11–HC-F14**, not an appointment workaround"
+    },
+    {
+      "index": 3,
+      "finding": "`P5-S3-MAP-01` / S3-R11: real threshold is not verified law-to-lever correspondence",
+      "home": "GY-S3 / Lex mapping owner, team-architecture acceptance rule; independently content-bound mapping witness plus positive/free-growth demonstration"
+    },
+    {
+      "index": 4,
+      "finding": "PR1 complete canonical promotion and protected near-miss premise",
+      "home": "`first-promotion-candidate-with-complete-evidence`, `eval-safety-promotion-authority-producer-missing`, `GY-O0-NC-01`; genuine scientific inputs and promotion-purpose protection semantics"
+    },
+    {
+      "index": 5,
+      "finding": "**PR1 source-carrying and measurement/portfolio bridge remains unfinished**",
+      "home": "**Still inside GY-PR1**, `bridge_missing` / `producer_missing`; no global engineering impossibility claimed. N4 source preservation, pre-admission evidence stage and actual candidate/source binding remain the identified engineering seams"
+    },
+    {
+      "index": 6,
+      "finding": "Education pair current registry owner rederivation fails",
+      "home": "Existing education cycle-substrate / GY-S0 capture owner, **P41**. Exact slice-base replay is red too, but complete-input disjointness is `not_established`; neither inherited nor excluded from the final target set"
+    },
+    {
+      "index": 7,
+      "finding": "Historical credal/depth/second-domain captures",
+      "home": "Their existing recomputing owners and **P07/P08**. Prior epochs remain readable; current freshness is credited only by an actual current-owner check. No blanket restamp of executed tasks. The N9 credal-input delta is our S3 D1d companion and is handled inside this lane"
+    },
+    {
+      "index": 8,
+      "finding": "S3-R12: LegalKnowledgeStore provision API selects unavailable `version_id`",
+      "home": "**Lex knowledge-store owner / P32** source-schema compatibility; exact read-only API failure and complete SQL fallback retained. No active row established: architect may register"
+    },
+    {
+      "index": 9,
+      "finding": "S3 requirement-spec flat manifest consumer",
+      "home": "`foundry/methods/selection/requirements.py`, **P27**. Actual behavior remains `not_established`; source seam alone is not a second proven defect"
+    },
+    {
+      "index": 10,
+      "finding": "Malformed retained UDF source schema",
+      "home": "**DataForge source-contract artifact integrity / P35**; active-row map explicitly nowhere. The unreadable document stays `ambiguous`, never an empty portfolio source"
+    },
+    {
+      "index": 11,
+      "finding": "Non-filesystem signed-CAS integration",
+      "home": "**Core artifacts / runtime persistence, P01/P27**; current supported canonical filesystem adapter is explicit, alternate backend support is `not_established`. No active row established"
+    },
+    {
+      "index": 12,
+      "finding": "Live PostgreSQL concurrent head admission",
+      "home": "**ControlPlaneStore / P29** verification limitation; SQLite race executed, PostgreSQL transaction source reviewed. No live PostgreSQL receipt claimed"
+    },
+    {
+      "index": 13,
+      "finding": "Stale August/Task K prose",
+      "home": "GY-PA1/GY-GAP7, GY-PR1 and first-promotion row; architect transcription from stage-1 conjunct tables, not repair to an executed task"
+    },
+    {
+      "index": 14,
+      "finding": "Missing executable, import mode, cleanup method, early readback and root harness lint nonreceipts",
+      "home": "**Explicit nowhere: lane harness**. Corrected attempts retained with actual RC; no product or inherited-failure claim derived from them"
+    }
+  ],
+  "independent_phase5_enumerations_equal": true,
+  "tracked_markdown_denominator": 1830,
+  "markdown_enumerations_equal": true,
+  "raw": {
+    "path": "policy-engine/docs/superpowers/journals/group-a/01-correspondence/raw/denominators.json",
+    "sha256": "5bf8be95e4cbe22181ff15d13a73c4752671a5cef76ccfc445314b90e3c9d867"
+  }
+}

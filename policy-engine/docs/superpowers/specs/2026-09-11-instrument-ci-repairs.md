@@ -222,3 +222,69 @@ and audit receipts are the external surface; policy dashboard/API changes beyond
 the named existing paths are `surface_out_of_scope`. Missing hosted execution
 remains `verification_missing`. Required architecture approvals are handback
 items labelled complete-pending-an-architect-decision, not blocked and not fixed.
+
+
+## R01 addendum: complete concrete-CAS caller denominator
+
+The first repair replay left the same R01 class outside acquisition execution;
+this is not a new class or evidence that the original row closed. The deciding
+AST gate scans every Python source below `src/polisyos/runtime/`, including
+nested functions and async definitions. The first current output is
+`docs/superpowers/journals/instruments/coverage/raw/ci-owner-seams-green-first.log`.
+Widen the repair to the complete remaining AST constructor/import set, never
+rename `FileSystemCAS` into a scanner-blind alias. Root commits and reads this
+addendum before those sibling owners are changed.
+
+The existing production caller set, obtained by AST parent traversal over the
+complete runtime `*.py` set, is:
+
+| Runtime owner path (under `src/polisyos/runtime/`) | Existing non-test caller(s) | Preserved backing/options |
+| --- | --- | --- |
+| `http/services/public_decision_verification_configuration.py` | `build_public_decision_verification_service` | `root / "cas"` |
+| `quality/acquisition_epoch_admission.py` | `run_admission` | `request.cas_root` |
+| `quality/acquisition_planner.py` | `RealAcquisitionOwnerGateway._capture_skg` | `self._repo_root / ".n7-live-cas"` |
+| `quality/adaptation_transition.py` | `AdaptationTransitionRuntime.open` | `root / "cas"`; **tenant_id and cell_id** |
+| `quality/confidence_ledger.py` | `ConfidenceLedgerSession.from_repo` | `root / ".polisyos/cas"` |
+| `quality/epoch_custody_audit.py` | existing `main` command owner | `arguments.cas_root` |
+| `quality/generation_cycle.py` | `GenerationCycleController._begin_source_run` | `root / ".polisyos/runtime/generation_source"` |
+| `quality/grounding_calibration.py` | `resolve_grounding_proof_world_input`, `produce_grounding_proof_world_input` | `location` |
+| `quality/grounding_risk.py` | `GroundingRunBudget._open` | `owner._root / "cas"` |
+| `quality/intervention_substrate.py` | `resolve_law_bound_lever`, `intervention_substrate_behavior_report` (two sites), `_production_composed_world_model_record` | existing `.polisyos/cas` roots and `.tmp/gy-s-composed-wmr-cas` |
+| `quality/workspace/foundry_consumption.py` | `verify_staged_foundry_input_state`, `_verify_method_replay` | existing isolated temporary CAS roots |
+| `quality/workspace/loop.py` | `WorkspaceLoop._phase2_store` | existing `tempfile.gettempdir() / "polisyos-gy-phase2-cas"` |
+
+`quality/workspace/agent_proposal_bridge.py` has concrete import/annotations but
+no constructor; it consumes an injected store. Move all touched consumer
+annotations to the public `ArtifactStore` protocol and concrete write-option
+imports to their public write contract, while preserving actual read/write/
+verify behavior. Do not alter authority, temporary-root selection, artifact
+kinds, evidence semantics, tenant ownership, registry policy, or generated
+surfaces. The factory is a library dependency with the named callers above,
+so it should not become a new `polisyos-tools` command. The existing
+`epoch_custody_audit.main` discoverability remains separately bounded; this
+repair does not add or advertise a path-only executable.
+
+Compose `polisyos.core.artifacts.backends.config.ArtifactStoreConfig` and
+`build_artifact_store`. The existing factory lacks the tenant/cell constructor
+options required by adaptation custody. Extend that same factory with optional
+`tenant_id`/`cell_id` keyword arguments for its filesystem backend. Reject an
+explicit ownership scope on any other backend, because that factory cannot
+establish the equivalent custody there; do not silently drop those arguments.
+The production caller of this extension is `AdaptationTransitionRuntime.open`.
+No new production helper or module is needed. Other callers retain their
+existing default behavior and all other lanes see the same public factory;
+there is no dependency or configuration-file change.
+
+Falsifiers: real factory-created scoped stores must preserve same-owner reopen
+and reject a different tenant/cell over identical bytes; unsupported scoped
+backend must refuse before constructing a remote store. The new acquisition
+store injection additionally gets a different-backing negative: independent
+Fabric writes must fail reopen and emit a rejected quarantine terminal, never
+`measured_pending_passport`. Keep the two existing R01/R02 AST tests as the
+complete structural gate and name focused existing importer behavior nodes in
+the final runner. Production CAS type annotations alone do not prove custody;
+the factory and acquisition negatives do. No full runtime test suite is allowed.
+The import gate still does not resolve arbitrary alias/dataflow constructions,
+external plugins, or dynamic factories; a structural pass is not a claim about
+those paths. Any new deep-import finding routes to the architect with status
+complete-pending-an-architect-decision, and no baseline sync is authorized.

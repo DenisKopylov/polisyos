@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import collections
+import ast
 import hashlib
 import json
 from pathlib import Path
@@ -67,6 +68,8 @@ def main() -> None:
     unknowns = master.split("## 8. What could not be established", 1)[1]
     unknown_ids = re.findall(r"^\| `([^`]+)` \| (?:blocked-ac|blocked-b|open) \|", unknowns, re.M)
     assert set(unknown_ids) == set(expected) and len(unknown_ids) == 62
+    assert re.findall(r"^## ([1-8])\.", master, re.M) == list("12345678")
+    assert "Pending the indexed" not in master
     pinned_paths = set(run("git", "ls-tree", "-r", "--name-only", BASE, "--", ".").splitlines())
     citations = []
     citation_errors = []
@@ -80,6 +83,28 @@ def main() -> None:
                 run("git", "cat-file", "-e", f"{sha}:policy-engine/{path}")
             citations.append({"document": file.name, "path": path, "sha": sha})
     assert not citation_errors, citation_errors
+    collection = (JOURNAL / "final/raw/cg2-case-denominator.txt").read_text()
+    cases = [line for line in collection.splitlines() if line.startswith("tests/") and "::" in line]
+    test_paths = sorted({case.split("::")[0] for case in cases})
+    walked, visited = set(), set()
+    for path in test_paths:
+        tree = ast.parse((ROOT / path).read_text())
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):
+                walked.add(path + "::" + node.name)
+
+        class Definitions(ast.NodeVisitor):
+            def visit_FunctionDef(self, node):
+                if node.name.startswith("test_"):
+                    visited.add(path + "::" + node.name)
+                self.generic_visit(node)
+
+            visit_AsyncFunctionDef = visit_FunctionDef
+
+        Definitions().visit(tree)
+    collected_definitions = {case.split("[", 1)[0] for case in cases}
+    assert walked == visited == collected_definitions
+    assert len(cases) == len(set(cases)) == 31
     distributions = {}
     for field in ("premise_false", "appointment_effect", "engineering", "allocation", "confidence"):
         groups = {}
@@ -108,6 +133,8 @@ def main() -> None:
                       "streams": streams, "ambiguous_retained": manifest["unclassifiable_ids"],
                       "blocked_denominator": 35, "blocked_assessment_distributions": distributions,
                       "unknown_identity_agreement": True, "source_citations_verified": citations,
+                      "cg2_denominator": {"cases": cases, "source_paths": test_paths,
+                                          "ast_definition_ids": sorted(walked), "identity_equal": True},
                       "receipts_verified": receipts, "changed_paths": changed,
                       "prohibited_changes": prohibited}, indent=2))
 

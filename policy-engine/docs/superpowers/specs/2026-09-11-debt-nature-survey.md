@@ -374,4 +374,16 @@ The execution receipt is exit 1, 20 passed and 11 failed against that complete s
 
 The first architecture guardrail invocation returned **1 / FAILED**, not UNRUN. Its complete output is `docs/superpowers/journals/debt-survey/final/raw/architecture-guardrails.txt@sha256:9688845c41ca5a74b116ff46bb00f2b70e87ab2efe6b1e05224ef9a5bcd798f3`. It reported deep-import drift and generated-output mismatches; two output probes also observed concurrent survey writes outside their assigned scratch. That run is a measured contaminated attempt, not the final frozen-tree verdict. Its suggestion of `guardrails sync` is recorded as a finding; sync was not run.
 
-The final frozen-tree gate and delivery checks are recorded below after the survey freeze.
+The frozen-tree replay at survey commit `d34c5eab6` returned **1 / FAILED** in **469.424 seconds**, within the explicit **900-second** timeout selected after the 458.780-second first measurement. It did **not** return 2 / UNRUN. Exact gate command:
+
+```sh
+env PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli architecture guardrails check
+```
+
+Complete output: `docs/superpowers/journals/debt-survey/final/raw/architecture-guardrails-frozen.txt@sha256:71bb66c5c46c7d22ee1da84bb97743604c729f506ae5c7022c7120a988b31275`. The output-probe concurrent-write findings disappear. The remaining findings are deep-import baseline drift/creep, the runtime OpenAPI snapshot mismatch, and the trust-claim-posture generated-output mismatch. They are reported exactly as observed, without an inherited attribution or baseline acceptance. No `guardrails sync` or generated-artifact rewrite was performed. The command explicitly excludes the standalone Atlas status-retirement inventory check; no verdict for that separate check is implied.
+
+The final survey audit command above checks exact row/headings/assessment/unknown identities, two independent blocked-assessment aggregations, source citation existence at the cited SHA, complete retained-output hashes, ignored raw output, and the complete allowed change set. It also reconciles CG2's collected case definitions against both AST traversals, including async definitions. The initial audit parser missed a section suffix and W5's group heading; those failed development receipts are retained and were corrected before accepting the complete identity result.
+
+The failure/repair register was re-read at closeout. The final product source remains `fc823071a`; only these four survey specs and their journal instruments/receipts differ. The register, ledger, plans, source, tests and governed artifacts are unchanged. Work is preserved through ordinary commits on `codex/debt-nature-survey`; no push or other branch operation was performed.
+
+Delivery audit: **exit 0**; complete output `docs/superpowers/journals/debt-survey/final/raw/delivery-audit.txt@sha256:b0ac8ca2fd2583acedde0ce07cd85913b6c33f4272584cf9fe8cc5a240183cde`. Final denominator replay: **exit 0**, unchanged identity digest; complete output `docs/superpowers/journals/debt-survey/final/raw/denominator-replay.txt@sha256:87759f3ef32d3840f67ec64d3a4d569661c716610f30190fd38398d406a16c58`. Both exact commands are printed above and indexed with their working directory in `docs/superpowers/journals/debt-survey/final/receipts.json`. “Current” external data and Git-registration measurements mean the state at their recorded replay, not immutable data at the source commit.

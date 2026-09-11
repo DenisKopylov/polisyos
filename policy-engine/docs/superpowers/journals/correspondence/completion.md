@@ -3,9 +3,11 @@
 Date: 2026-09-11. Branch: `codex/correspondence-consumers`.
 Merge base: `cc74d65813d7bb1259a0f82f6c3cc8b131661a97`.
 
-This journal records application of the acceptance procedure, not positive
-correspondence calibration or closure of GY-S3. Final gate disposition is pending
-below until the retained invocations finish. No product mechanism is changed.
+Both consumers apply the acceptance procedure with **INT-K06 custody without a
+number and the required refusals**. That is the completed acceptance outcome, not
+deferred lane work or an acceptance debt. Positive certificates remain unissued;
+GY-S3 remains blocked. No product mechanism is changed. Final artifact verification
+and the exclusive guardrail replay are recorded below.
 
 ## Decision custody
 
@@ -39,7 +41,7 @@ amended 3, amended 4, amended 5**, explicitly including **W5-K07** and **W4-K01*
   exchanges norm targets while retaining those other predicates. The original
   owner test is named in `runner.py` as the first legal node. This historical
   known negative is reused openly; it is not an unseen calibration sample.
-- **4 — no-number custody and refusal.** Synthetic source-relative recognition
+- **4 — INT-K06 no-number custody and refusal.** Synthetic source-relative recognition
   does not establish authoritative legal subject membership. CORR-B1 remains
   `producer_missing`; the result is constrained to blocked authority. W5-K07
   forbids statute existence standing in for governing the lever. W4-K01 forbids
@@ -59,12 +61,21 @@ freshness verdict, not UNRUN and not attributed as inherited. A fresh raw expect
 artifact and independently recomputed corrupt control are pending; the already-red
 canonical check alone cannot establish corruption sensitivity.
 
+Root and the legal agent compared the two complete JSON objects: the canonical
+`architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json`
+at the lane merge base and `raw/legal-fresh-expected.json` at
+`sha256:5b5dcb3fb22c38a10fb4484ff5d6d6f1cb7031975123a53b7dfea1c770d994e0`.
+All 51 differing pointers are method-routing/selection receipts and
+strangle/source-inventory receipt fields. This locates the artifact discrepancy;
+it does not identify an introducing commit or establish inherited failure.
+
 **Bound:** `correctness_bound=null`. A future number would bound
 `P(confident-wrong legal-governance correspondence)` within this legal cell and
 its separately qualified epoch. The constructed suite establishes defensive
 refusal, not that numerical bound, legal validity, abstention accuracy, recall,
-completeness, causal correctness or an operating-range guarantee. GY-S3 remains
-blocked; the positive half is not closed by this application.
+completeness, causal correctness or an operating-range guarantee. This completes
+the rule's no-number acceptance outcome. It does not issue a positive certificate
+or unblock GY-S3.
 
 ## cg2-production-relation-gold-acceptance-unspecified
 
@@ -78,7 +89,7 @@ amended 3, amended 4, amended 5**, explicitly including **W5-K07** and **W4-K01*
   Difficulty is derived from inputs alone over the entire declared `/inputs`
   array. It is the hardest tier actually present in that held frame, not an
   invented harder population. The other four fields are epoch scope, not keys.
-  The fresh defensive re-declaration is recorded below; its execution is pending.
+  The fresh defensive re-declaration and its execution are recorded below.
 - **3 — construction and appointment.** Opposite-sign pairs are wrong by
   construction. Matched synthetic controls remain outside the denominator.
   No independently authoritative positive constructibility proof or
@@ -109,8 +120,23 @@ Against the lane merge base, only the reference epoch moves from
 `synthetic-refusal:6741c0b86c92e873`. Model, prompt and the held owner-input cohort
 remain as declared. CGF §E.4.1 therefore receives an explicit new dated defensive
 frame, with empty positive calibration denominator and no numerical reuse.
-No existing governed artifact is reissued. Native live execution/check/drift:
-**pending**.
+No existing governed artifact is reissued. Native live **writer 0 → independent
+checker 0 → corrupt-field checker 1** completed. The complete `/outcomes` array in
+`raw/fresh-defensive-2026-09-11/report.json` contains three constructed wrong pairs:
+all have `false_analog_hard_abstain`, `mismatch_detected=true` and
+`governed_authority=false`. All three matched controls are exact and non-promotable;
+budget and tax carry `synthetic_input_candidate_only`, while procurement carries
+`open_obligation`. Control outcomes are not assumed uniform.
+
+The independently replayed report retains the writer's logical hash. A complete
+comparison of the original and corrupt report finds only `/binder_refused: 3 → 4`;
+the unchanged native checker refuses solely with `persisted_refusal_result_drift`.
+The original report remains at
+`sha256:818e57baf4e30e324cc4ff5be29da25b42b4e3ea35f80ede1698f5e72c7873f5`,
+with `correctness_bound=null`. These are three constructed mismatches, including
+cases outside the selected future calibration cell. Their matched controls are
+separate and excluded from the mismatch denominator; neither group supplies a
+calibrated population.
 
 The corrected-station native suite passed **15 actual cases**, reconciled against
 all selected node arguments and the complete `raw/causal-tests.xml` testcase set.
@@ -159,11 +185,12 @@ any selected node.
 
 ## Standing-rule disposition and verification
 
-`correspondence-acceptance-standing-rule`: **pending final evidence reconciliation**.
-Its row is not edited. Closability requires both named applications above,
-prospective declarations, decisive constructed refusals and honest bound scope.
-Neither appointment nor numerical calibration is a fabricated prerequisite for
-honest INT-K06 custody. GY-S3 remains blocked independently of this procedure.
+`correspondence-acceptance-standing-rule`: **closable** on the two applications
+above. Each names its points and W5-K07/W4-K01, binds a dated decisive-property
+stratum before the lane's outcomes, exercises constructed negatives through the
+actual consumer, and states the null bound and its possible future scope. Its row
+is not edited. Neither appointment nor a manufactured number is a prerequisite
+for the completed INT-K06 acceptance outcome. GY-S3 remains blocked independently.
 
 Final runner: `runner.py`. Every selected pytest node argument and native command is explicit;
 expanded executed cases are reconciled from the complete JUnit files. No directory
@@ -171,18 +198,71 @@ target or full suite is run.
 Git hooks were bypassed for these local commits to preserve the user's targeted
 gate constraint. The native owners and source tests remain unchanged.
 
+The final selected native test denominator is **46 testcase elements across exactly
+three JUnit XML files**: legal 18, causal 15, GY-J 13. Root walked all their elements,
+reconciled the runner's explicit selected node arguments and found no failure,
+error or skip. Earlier attempts and removal probes are separate executions, not
+extra members of this final denominator. Final runner lint returned 0.
+
 The first guardrail invocation returned **1**, with a complete verdict. Root's
 concurrent journal/plan writes caused the outside-scratch findings; the OpenAPI
-snapshot also differed. The revised resource rule freezes the entire Git-visible
-tree for the repeat. OpenAPI comparison and final guardrail disposition are pending.
+snapshot also differed. The revised resource rule freezes all tracked files and
+stops **all lane writers**, including raw/CAS, for the final native replay: the
+native source copier includes ignored raw directories. Final replay is pending.
 The first OpenAPI diagnostic returned **2 / UNRUN** before generation: replacing
 native temporary storage with an in-repository destination caused recursive source
 copying. Root removed only that failed owned scratch and retained its full receipt.
 The correction preserves the native isolation unchanged and observes/copies only
-its emitted candidate. This is a recorder failure, not an OpenAPI product verdict.
-Receipt table: **pending**. Full stdout/stderr of deciding
-gates and removal probes remain under the explicitly gitignored `raw/` directory;
-the table will cite their paths and hashes, rather than copy recomputable artifacts.
+its emitted candidate. That failed first diagnostic is a recorder failure, not an
+OpenAPI product verdict. The corrected native diagnostic also returned **2 / UNRUN**:
+the actual generator exited 1 after its `confidence-ledger-risk-spend` owner worker
+timed out at 184 seconds. No candidate snapshot was emitted or compared. The outer
+recorder itself did not time out. This establishes neither the cause nor resolution
+of the earlier snapshot mismatch. No canonical output or deep-import baseline is
+synchronized; failure provenance remains `not_established` under P41.
+
+Full stdout/stderr of deciding gates and removal probes remain in the explicitly
+gitignored local `raw/` directory. The following is the complete set of timestamped
+receipt JSON files with a `gate` field at this checkpoint; the legal diagnostic
+and final guardrail replay are appended on completion. Code 1 on a removal or
+corrupt-field probe is credited only with the specific semantic failure recorded
+above; other failures and UNRUN attempts remain visible.
+
+<!-- receipt-table:start -->
+| Local receipt path @ SHA-256 | Code | Seconds / timeout |
+| --- | ---: | ---: |
+| `raw/20260911T070454749852Z-legal-red.json` @ `af961e74eae4727420a2ca5da95374ca5428cfc4bcc23a6ebecb79a04fdf5d71` | 1 | 660.93 / 900 |
+| `raw/20260911T070505192581Z-causal-red.json` @ `5ba5f4fe20f96b9610f1ace4ca8b2b30e6f0307191ff7a7ba76226468d2a453f` | 1 | 630.60 / 900 |
+| `raw/20260911T070512179270Z-gy-j-tests.json` @ `ef7d118df4a86ea7000589d8fde01bc559d2e46c08209fb833fab6d13c97165f` | 2 | 900.23 / 900 |
+| `raw/20260911T070513456830Z-gy-j-population.json` @ `e5ba50df289910b71683ab1c806abaf515b8b4d346f99db50e36621caab84116` | 0 | 1.42 / 60 |
+| `raw/20260911T070514843265Z-source-audit.json` @ `8b83e19d8aa70ec5eb903f951ea0f18fe9c4a03249c5cddda9837d95c280983e` | 0 | 6.71 / 60 |
+| `raw/20260911T070930197799Z-ruff.json` @ `58fd1c973d24440898292ef7917e162b3713942b305490a624a8dc0cd35814ca` | 1 | 0.64 / 60 |
+| `raw/20260911T071546803026Z-causal-tests.json` @ `7eee33e9973ae0043c662e9431322f35bc0873ed987ae297e647754c88f2157b` | 1 | 446.98 / 900 |
+| `raw/20260911T071624830326Z-legal-tests.json` @ `b0b79d46c0521f0b0651097c0ec8a453a7abd06e0bfd95e5c2b1006988186277` | 0 | 716.01 / 900 |
+| `raw/20260911T073005425482Z-ruff.json` @ `144bf2e611b9c70c50cd20de1e336ce4972f2179ca927e329ccbaf7385a710db` | 1 | 0.47 / 900 |
+| `raw/20260911T073050504241Z-solver-witness.json` @ `86f271263ddfeff1ee9427f5d223ac98b909cfb6d30c48a2c339db6139357b62` | 0 | 32.03 / 2400 |
+| `raw/20260911T073113914675Z-legal-owner.json` @ `1d88735ed0c3041aeca1dea8a3ad92f4d2b7d8cfe6d8e28981090fc5d506bd09` | 1 | 1479.40 / 2400 |
+| `raw/20260911T073119841376Z-gy-j-tests.json` @ `81c4352c1c8d7c4231399e57923f8cf1b4e591278c255aec5e6282df7eab943e` | 0 | 754.21 / 3600 |
+| `raw/20260911T073121530762Z-causal-red.json` @ `a956b9653ff99fbddbc0f44be6bb4d62891d3aecf531528310ff766d596e8494` | 1 | 354.96 / 2400 |
+| `raw/20260911T073153184455Z-ruff.json` @ `825153fe09da5f532c1159e81c8fbc5d347dda3e18d04edde166ea0f9b008731` | 0 | 0.80 / 900 |
+| `raw/20260911T073638602576Z-guardrails.json` @ `4f79cc0bebd18a2ea99b9eb53667c4d30fd5913ff660e0975cd82645c145edde` | 1 | 971.99 / 2400 |
+| `raw/20260911T073723123698Z-causal-tests.json` @ `889788b7fcf3a45a2554fba478f90844592e74139f4d75350d4b6fb9a3bb7eea` | 0 | 285.20 / 2400 |
+| `raw/20260911T074947150433Z-live-declare.json` @ `4afa62c07d8358e417acd047af8a19e0c4a50b992aa00353292d8b32a116ccf3` | 0 | 142.38 / 2400 |
+| `raw/20260911T075430541368Z-causal-live-write.json` @ `7c623c3d1990d9d510d9446d46231a1de3768883e971deebace1aff7898c9ed0` | 0 | 192.16 / 2400 |
+| `raw/20260911T075750830547Z-causal-live-check.json` @ `80a54a979051dd68fdf6e443a2d107fc882afdb21d1755d07bbc89c0a7196692` | 0 | 756.34 / 2400 |
+| `raw/20260911T080100581080Z-ruff.json` @ `55853b35c05b6c33675df215e7fd1d5787d079e699c7cd328c32c8894c3eaf14` | 0 | 0.57 / 900 |
+| `raw/20260911T080307447566Z-openapi-probe.json` @ `faa02455e87e52f9a8b46789fec3352843b04219f1711ea26fecb71af3edadf2` | 2 | 346.14 / 2400 |
+| `raw/20260911T081035714682Z-causal-live-drift.json` @ `c4f0289f0c53ff3880b216afb89da791dd23b6b0d9b1dfc4f1c359bbb75132b4` | 1 | 1581.16 / 2400 |
+| `raw/20260911T081343911537Z-ruff.json` @ `61184dc75c1cb580ccd9d78fc8eda3e0ba4a45dc4b4d0787ccb12d301add67b0` | 1 | 0.38 / 900 |
+| `raw/20260911T081400925709Z-ruff.json` @ `f76817ff78d81706430bf51b84a7ce4be25bc5f77efeabd1ba0ffa0a926d73a5` | 0 | 0.58 / 900 |
+| `raw/20260911T081600447794Z-openapi-probe.json` @ `651535cf127617e67d1ee36f739986757f9490d14fea6e6584b393f4a111c333` | 2 | 1249.46 / 2400 |
+<!-- receipt-table:end -->
+
+Complete final JUnit artifacts (all testcase elements, no selection from the files):
+
+- `raw/legal-tests.xml` @ `134f452aa44cc1b1085cb5f937114eb4d758357414951ecc7de79de848ae6cc5`.
+- `raw/causal-tests.xml` @ `629280b3bb80353359321af0a08d948e2f4824db816151f2f57f36ee454e8934`.
+- `raw/gy-j-tests.xml` @ `be97f956ae633d1288b0dfcf9f92dc881acb4284c620a13c52da7d2b8ad243f4`.
 
 ## Incidental findings and destinations
 
@@ -198,12 +278,21 @@ the table will cite their paths and hashes, rather than copy recomputable artifa
 | First causal native run failed before calibration due missing solver | No removal credit for that attempt; retained; the same native nodes passed after the measured solver repair. `lane verification station`, resolved. |
 | GY-J 900-second timeout | No product verdict; same exact nodes passed on retry (754.21 seconds); no node exclusion. `lane verification harness`, resolved. |
 | Initial runner lint findings | Corrected locally; final runner lint passes. `lane evidence recorder`, resolved. |
+| Canonical legal owner contract differs from actual live payload | Keep canonical failed freshness verdict and complete recursive comparison; no inherited attribution or sync. `team-runtime-quality / CORR legal generated-contract freshness`. |
+| Guardrail probe observed root's concurrent journal/plan edits | Root-owned resource-coordination finding; freeze all lane writers for the final native replay. `lane verification coordination`. |
+| First guardrails observed OpenAPI snapshot mismatch | Origin `not_established`; preserve canonical bytes. `team-polisyos` (registered owner/approval) and `team-runtime` (version owner) / `runtime-openapi-snapshot` artifact custody. |
+| In-repository diagnostic isolation recursively copied its own destination | Failed owned scratch removed; full receipt retained. Native isolation now preserved without a custom copy root. `lane evidence recorder / native isolation preservation`. |
+| Corrected native OpenAPI generator's confidence-ledger-risk-spend validation exceeded 184 seconds | Diagnostic UNRUN, no candidate comparison; do not change the native timeout or claim snapshot freshness. `team-runtime / governed-projection owner validation` and `team-polisyos / runtime-openapi-snapshot`. |
+| Draft evidence wording assumed uniform matched-control reasons and initially named the wrong result-array pointer | Complete report-array readback pins `/outcomes` and `/matched_controls_outside_denominator`: procurement is `open_obligation`; all three remain non-promotable. `lane evidence review / P35`, resolved before delivery without a product edit. |
 
 Independent reviews approved the frozen legal and causal declarations, actual
 owner reuse and runner before the guardrail wave; the GY-J disposition also
 received independent source/body review. Review bucket: no new blocking product
 class. A wording clarification about native pytest parameter expansion was made
 in this journal only, without changing or repricing the frozen runner.
+Both agents' final delta reviews also approved the completed INT-K06 acceptance,
+separate purposes, actual report denominators and exclusive final-wave resource
+rule. Final result reconciliation changes the receipt, not the source under test.
 
 The fresh causal declaration has a separate supplied CAS/workspace from the
 legal owner. AST/body inspection reconciled its actual writer paths and read-only
@@ -217,10 +306,14 @@ Re-read the failure/repair register before closeout. P01/P02/P27 favor the
 already-wired producer, persisted result and consumer over a new local gate.
 P05/P15/P32/P37 preserve the positive-authority ceiling: the independent positive
 semantic basis is `not_established`, so no signature or source label can promote it.
-For this journal's holder, native refusal outcomes and complete file/array arithmetic
-are `recomputed`; semantic authority of synthetic positives remains
-`not_established`. The input-only stratum is `recomputed` over the stated finite
-frame, not over an unstated production universe. P07/P08 keep the missing historical
+The legal agent executed the legal gates; the causal agent executed the causal
+gates; root executed GY-J, station and guardrail gates. Root independently reconciled
+the retained outputs, complete final JUnit sets and cited report arrays/arithmetic.
+Those actual computations are `recomputed` for their named executing/reconciling
+holders; delegated signatures alone supply no correctness (W4-K01). Semantic
+authority of synthetic positives remains `not_established`. The input-only stratum
+is `recomputed` over the stated finite frame, not over an unstated production
+universe. P07/P08 keep the missing historical
 source, fresh reference epoch, annotation epoch and legal effective date distinct.
 
 P29/P33/P38 require structural refusal reasons plus matched controls and actual

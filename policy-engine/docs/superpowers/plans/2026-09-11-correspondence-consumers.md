@@ -55,9 +55,9 @@ its documented direct invocation is its discovery surface.
 
 - [x] Prepare read-only held production-data access and lane-owned mutable CAS.
   Legal source/owner check and causal frame replay serialize their shared scratch.
-- [ ] Run legal registered owner `--check`; record source-relative refusal and
+- [x] Run legal registered owner `--check`; record source-relative refusal and
   blocked authority rather than calling synthetic matches legal gold.
-- [ ] Recompute the causal frame from complete owner inputs, derive the hardest
+- [x] Recompute the causal frame from complete owner inputs, derive the hardest
   held tier before any binding outcome, replay declared mismatches and persist/read
   back a lane report. Run its `--check` and a corrupt-field drift that must refuse.
 - [x] Recompute the persisted GY-J v2 report's complete population arithmetic and
@@ -134,8 +134,9 @@ Use 3600 seconds after the measured 1479-second canonical invocation.
 Guardrails returned 1, with complete verdict: tracked journal/plan edits during
 its probes were observed as outside-scratch writes, plus an OpenAPI snapshot
 mismatch. This is root's resource-coordination error, not an inherited finding.
-The contended resource is **the entire Git-visible worktree during guardrails**;
-freeze every tracked file until its invocation finishes. Root adds `openapi-probe`
+The contended resource is **the entire watched/source-copied worktree during guardrails**;
+freeze every tracked file and stop all other lane writers until its invocation finishes.
+Root adds `openapi-probe`
 as a named recorder diagnostic: invoke the existing generator-observed machinery
 for the single registered `runtime-openapi-snapshot` family and preserve its
 otherwise temporary candidate under raw for a complete JSON-pointer comparison.
@@ -143,15 +144,17 @@ Its direct non-test caller is `runner.py openapi-probe`; it is not a product gat
 or replacement generator. No synchronization or canonical-output edit is allowed.
 After diagnostics, complete all tracked journal/plan changes, review the delta,
 then rerun the exact guardrails command with the entire watched tree frozen.
-Raw-only concurrent checks are allowed. Preserve every unsuccessful receipt and
-report any remaining mismatch without an unproved inherited attribution.
+Raw/CAS writers also stop: the native source copier includes ignored raw directories.
+Read-only review may continue. Preserve every unsuccessful receipt and report any
+remaining mismatch without an unproved inherited attribution.
 
 Relevant patterns: P29 (fresh baseline plus actual recomputation), P38 (a global
 filesystem delta cannot attribute which writer acted), P40 (the same snapshot
 mismatch is one diagnostic class, not repeated repair rounds), P41 (no inherited
 claim without correct-base replay). The acceptance procedure and null bounds do
 not change. Incidental destinations: `team-runtime-quality / CORR legal generated
-contract freshness` and `team-runtime / runtime-openapi-snapshot artifact custody`.
+contract freshness` and `team-polisyos` (registered owner/approval) with
+`team-runtime` (version owner) / `runtime-openapi-snapshot` artifact custody.
 
 Diagnostic correction (2026-09-11): putting the native isolated-copy destination
 inside its source tree caused recursive copying and diagnostic UNRUN. The actual
@@ -164,3 +167,10 @@ isolation root or copy exclusion is substituted. Remove only the failed, explici
 owned recursive scratch; keep its complete failed receipt. Destination:
 `lane evidence recorder / native isolation preservation`, resolved by the native
 procedure plus a real targeted run, not another custom harness.
+
+Diagnostic outcome: the corrected recorder preserved native isolation, but the
+actual OpenAPI generator's `confidence-ledger-risk-spend` owner worker exceeded
+its native 184-second timeout. Diagnostic code 2 is UNRUN, with no candidate
+snapshot and no complete comparison. Keep that limitation and the original
+snapshot mismatch distinct. Do not alter closed-task source or native timeouts.
+The already-declared exclusive final guardrail replay remains the last gate.

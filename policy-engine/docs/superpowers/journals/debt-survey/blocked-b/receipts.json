@@ -1,0 +1,90 @@
+{
+  "delivered-builders": {
+    "command": "python3 docs/superpowers/journals/debt-survey/open/inspect_tree.py ast 'GapShapeAssessment|NonDataAcquisition|AcquisitionAssurance|AdaptationTransition|AdaptationDecision|KPIControlState|RestartEvidence|AssurancePacket|CandidateAssuranceResult|AssuranceReceipt|RTLSourcePack|CandidateSourceContent|human_comprehension|OperatorStudy|Comprehension' --source-only",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 0.737,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/delivered-builders.txt",
+    "sha256": "fbb87039e4ebb7bd8079a1235e975b686dc8549b9d08f3ed3191054a6141334d"
+  },
+  "w5": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py w5",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 4.777,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/w5.txt",
+    "sha256": "42b28802ce9ba931297e1960bce3379463d3c643f109c4f5dfbe99956d8ff61d"
+  },
+  "public": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py public",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.894,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/public.txt",
+    "sha256": "3668a9eb240c04851a432ecb056cc4a5c0bad3160c85096997a604367fb59288"
+  },
+  "w5-existing-tests": {
+    "command": "env PYTHONPATH=src:tests:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -c 'import importlib, pathlib, pytest; names=(\"polisyos.fabric.evidence.non_data_acquisition\",\"polisyos.runtime.quality.adaptation_transition\",\"polisyos.runtime.quality.operator_comprehension\",\"polisyos.lex.knowledge.multilingual_assurance\"); [(print(n, importlib.import_module(n).__file__), pathlib.Path(importlib.import_module(n).__file__).resolve().is_relative_to(pathlib.Path.cwd())) for n in names]; raise SystemExit(pytest.main([\"-q\", \"tests/unit/fabric/test_non_data_acquisition.py\", \"tests/unit/runtime/quality/test_adaptation_transition.py\", \"tests/unit/runtime/quality/test_operator_comprehension.py\", \"tests/unit/lex/knowledge/test_multilingual_assurance.py\"]))'",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 32.851,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/w5-existing-tests.txt",
+    "sha256": "a503d28d1f4a602064010ac740912650340b5529edf3eb9a1e34c5e1bde359a5"
+  },
+  "public-current": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py public",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.664,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/public-current.txt",
+    "sha256": "22511fa43be0046b0e2434dd2b2d097726a6fbf57a269da75b39d86e35557c09"
+  },
+  "epoch": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py epoch",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 3.032,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/epoch.txt",
+    "sha256": "4eb223cea81db27eea6329cfcf87f7891bf79a01bce5007d093a711c379d5c76"
+  },
+  "epoch-current": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py epoch",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 3.094,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/epoch-current.txt",
+    "sha256": "688cbd65a2d1d9c5d21fac96665272dd2d0f9924e1d254adccbe7c3dda7c6bf5"
+  },
+  "public-existing-tests": {
+    "command": "env PYTHONPATH=src:tests:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -c 'import importlib, pytest; print(importlib.import_module(\"polisyos.runtime.quality.global_case_index\").__file__); print(importlib.import_module(\"polisyos.runtime.http.routes.public_decisions\").__file__); raise SystemExit(pytest.main([\"-q\",\"tests/unit/runtime/quality/test_global_case_index.py\",\"tests/unit/runtime/http/test_public_decision_verification_routes.py\"]))'",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 93.32,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/public-existing-tests.txt",
+    "sha256": "081d5f7dc88fd6f8d6e259b16a48a707a7d5400182ea44d1d986bfc409f18494"
+  },
+  "ds15": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py ds15",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 8.902,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/ds15.txt",
+    "sha256": "d2ac98d58886557fac6f3410fce39bc2ec2de3b31b65edf579ecc0b0ee01717c"
+  },
+  "gaps": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py gaps",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 9.209,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/gaps.txt",
+    "sha256": "be438b5bb48f5cd21f49db08540eee127ddf64b9609c1e82819adfe454c47953"
+  },
+  "promotion": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-b/measure.py promotion",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 10.018,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-b/raw/promotion.txt",
+    "sha256": "6d5a4580fe8337bd06c87aa16cbe08d2feb7eb8a1faf799b63224d9949100784"
+  }
+}

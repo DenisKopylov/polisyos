@@ -162,6 +162,9 @@ function fixtureInvocationDeclaresTestExtra(command: string) {
 
 describe("visual regression harness", () => {
   it("keeps executable screenshot references and committed snapshots one-to-one", () => {
+    console.info(
+      "Visual harness measures literal executable screenshot references and committed PNG names. Not measured: screenshot rendering, pixel equality, or non-PNG companions.",
+    );
     const spec = fs.readFileSync(visualSpecPath, "utf8");
     const analysis = analyzeSnapshotCalls(spec);
     const snapshotFiles = fs.readdirSync(snapshotRoot);
@@ -174,9 +177,21 @@ describe("visual regression harness", () => {
     expect(
       committedSnapshotRefs([...snapshotFiles, "orphan-chromium-darwin.png"]),
     ).not.toEqual(analysis.references);
-    expect(committedSnapshotRefs(snapshotFiles.slice(1))).not.toEqual(
-      analysis.references,
-    );
+    const removedSnapshot = snapshotFiles.find((file) => file.endsWith(".png"));
+    expect(removedSnapshot).toBeDefined();
+    expect(
+      committedSnapshotRefs(
+        snapshotFiles.filter((file) => file !== removedSnapshot),
+      ),
+    ).not.toEqual(analysis.references);
+    expect(
+      committedSnapshotRefs([
+        ...snapshotFiles,
+        "README.md",
+        "snapshot-notes.txt",
+        "capture-metadata.json",
+      ]),
+    ).toEqual(analysis.references);
 
     const firstReference = analysis.references[0];
     expect(firstReference).toBeDefined();

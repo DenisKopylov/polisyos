@@ -18,6 +18,14 @@ export const PERSISTENCE_CHILD_TIMEOUT_MS = 180_000;
 export const PERSISTENCE_TEST_TIMEOUT_MS =
   PERSISTENCE_CHILD_TIMEOUT_MS + 60_000;
 
+/** Report the bounded fixture scope while reusing its existing liveness budget. */
+export function evidenceFixtureWatchdog(): Readonly<{ timeout: number }> {
+  console.warn(
+    "Evidence fixture watchdog measures completion of the named suite's assertions. Not measured: production latency, paths outside this suite, or hosted CI. A watchdog timeout is UNRUN for the unfinished fixture, not a completed semantic verdict.",
+  );
+  return { timeout: PERSISTENCE_TEST_TIMEOUT_MS };
+}
+
 export type PersistenceProcessResult = Readonly<{
   status: number | null;
   stderr: string;

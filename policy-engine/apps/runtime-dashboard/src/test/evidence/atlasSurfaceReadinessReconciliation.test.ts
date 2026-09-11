@@ -1,4 +1,5 @@
 import {
+  evidenceFixtureWatchdog,
   parsePersistenceProcessResult,
   PERSISTENCE_CHILD_TIMEOUT_MS,
   PERSISTENCE_TEST_TIMEOUT_MS,
@@ -248,7 +249,9 @@ function assertClaimObservationForCi(
   }
 }
 
-describe("Atlas surface-readiness per-claim reconciliation", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("Atlas surface-readiness per-claim reconciliation", watchdog, () => {
   const casRoot = mkdtempSync(path.join(tmpdir(), "atlas-readiness-cas-"));
 
   afterAll(() => {

@@ -1,3 +1,4 @@
+import { evidenceFixtureWatchdog } from "@/test/evidence/persistenceProcessResult";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -66,7 +67,9 @@ const siblingWrapperPath = path.join(
   "features/runs/components/ReadinessSiblingWrapper.tsx",
 );
 
-describe("DS16-C02 successor containment gate", () => {
+const watchdog = evidenceFixtureWatchdog();
+
+describe("DS16-C02 successor containment gate", watchdog, () => {
   it("states which reason it is passing for, and it is no longer the vacuous one", () => {
     // THE FLIP. Until C05 both panels were `contained` and this gate passed for the
     // vacuous reason — "emits nothing it did not receive" is trivially true of a panel

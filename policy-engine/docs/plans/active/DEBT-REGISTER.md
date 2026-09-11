@@ -143,6 +143,61 @@ precisely because forcing fits loses information.
 
 ## Census provenance
 
+### How the row count reconciles — measured 2026-09-11, do not re-derive
+
+A naive scan of this file finds fewer rows than the published denominator, and the gap is **not a
+defect**. Of the 258 debt ids, **207** sit in sections A/B/C/D/F and carry an explicit status
+cell; **49** are in section G and take `closed` from their section; **2** are in section E and
+take `folded` from theirs. `207 + 49 + 2 = 258`. Two further section-E entries are branch records,
+excluded by identity rather than status. An unqualified scan of every table in the document counts
+non-debt vocabulary tables as well, which is a different denominator again — that is the usual
+source of a mismatched count.
+
+Two independent derivations agreed on every `(id, section)` across all 258 and on every
+`(id, section, status)` across the live set. **Locate a status by token, never by column index**:
+a cell may contain a literal `|`, which shifts every column after it — see
+`register-cells-may-contain-pipes-and-shift-every-column`.
+
+### What the 2026-09-11 survey established about the blocked set
+
+All 35 blocked rows were examined against one question: *would an appointment arriving today
+change anything?* The partition is disjoint and sums to 35.
+
+- **19** have an implementation obstacle on the measured path that an appointment alone does not
+  remove. The institutional framing on those rows is hiding buildable work.
+- **15** turn on a different deciding variable altogether — scope, evidence currentness, data
+  population — so neither an appointment nor the labelled blocker is what decides them.
+- **1**, `w5-institutional-authority-slots`, is mixed across its 18 purposes and cannot be
+  promoted to either a universal institutional-only or engineering-only reading.
+
+**Zero of 35 were established as genuinely institutional**, meaning none met the full conjunction
+of a named source slot, a reachable non-test refusal, complete engineering for the demanded
+capability, and an appointment that could affect that existing path. **This is an evidence result
+and not a measurement that no genuinely institutional debt exists** — the survey says so itself,
+and the distinction is the difference between *we did not find one* and *there is none*.
+
+The prior audit of nine parked rows, on 2026-09-01, found *only institutional prerequisites
+remain* false for five. This survey extends that from a quarter sample to the whole set.
+
+### Prefix groupings are naming conventions, not classes
+
+Eight groupings were tested as classes — shared mechanism, shared repair, shared holder — and
+**all eight were refuted**: `ds15-*` (9 live rows, not the 7 first supplied), `gy-n12-*`, `ds8-*`,
+`GY-GAP2/3/5/6`, `DS11-*`, `ds10-*`, `ds18-positive-transition-*`, and the promotion trio of
+`first-promotion-candidate-with-complete-evidence`, `eval-safety-promotion-authority-producer-missing`
+and `gy-promotion-obligations-scope-insufficient`.
+
+**Three narrow classes survive** and share a real mechanism: the C13 receipt-currentness pair
+(`DS11-INHERITED-C13-PRINT-RECEIPT` + `ds10-c13-print-receipt-reissue`), the S2 index pair
+(`ds10-global-case-index-producer-allocation` + `ds8-global-case-index`), and the movement pair
+(`GY-GAP6` + `ds15-gy-gap6-evidence-register-closure`).
+
+**A refuted grouping is as useful as a confirmed one**, and it is recorded so the same eight are
+not proposed again. When testing a candidate class, state **what unblocks it** and **what
+discharges it** separately: three PostgreSQL rows shared a missing engine and owed three separate
+proofs, one of which had never been written.
+
+
 Three independent sources were reconciled; a verdict was recorded only where at least two agree,
 and every disagreement or silence became `ambiguous`:
 
@@ -416,6 +471,8 @@ searches both.
 | `foundry-requirements-flat-manifest-consumer-unmeasured` | **Registered under register rule 9 as `mechanism_unmeasured`, because the honest statement about it is a hypothesis and not a defect.** The Phase-5 lane found a flat-manifest consumer at `foundry/methods/selection/requirements.py` whose **actual behaviour remains `not_established`**, and said a source seam alone is not a second proven defect. That restraint is why this row is typed this way: four consecutive lanes here have refuted a mechanism sentence written from reading code, and the shape is always asserting reachability from adjacency in a file. `P27` is the pattern at risk. | `team-foundry`, selection/requirements owner | `open` | **the hypothesis is tested first** — establish by execution whether this consumer reads a flat manifest on a path a real run reaches and whether that duplicates an existing owner. If yes, a `P27` subordination with a `StrangleReceipt`; if no, the row closes as measured-and-not-a-defect. **A repair committed before the measurement closes nothing.** |
 | `udf-retained-source-schema-is-malformed-and-stays-ambiguous` | A retained UDF source schema is malformed, and the Phase-5 lane typed the unreadable document **`ambiguous` rather than letting it become an empty portfolio source** — correct, and exactly why it needs a row. `P35`: an unreadable member is `ambiguous`, never a zero, so every count over that population carries an untyped member. The lane recorded that the active-row map placed it **explicitly nowhere**; this row is that nowhere made into a somewhere. **The cost is not the one file — it is that no complete-denominator claim over portfolio sources can be made while one member cannot be read.** | `team-data-forge`, source-contract artifact integrity | `open` | the document is read successfully, repaired at source, or **declared excluded with its exclusion recorded in the denominator**. Silently counting it as an empty source is refused, and so is dropping it without a recorded exclusion. |
 | `estimand-binding-strength-terms-unregistered` | **The one genuinely owed deliverable left by `int-r2-ceiling-vocabulary-owners`.** The ceiling field needs a **registered strength ordering** for estimand binding: versioned nodes, justified order edges, and a declared incomparability where two bindings are not comparable rather than a forced total order. The owner is not in doubt — `estimand` appears across **169 tracked `src/**/*.py` files** with a definitional owner at `foundry/methods/catalog/causal/estimand_compiler.py`, and estimand identity is what the causal engine exists to establish. **What makes this a real debt** is that population, contrast, outcome, horizon, intercurrent-event and regime identity must be part of the binding's identity, or two bindings differing in any of them compare as equal. | `team-foundry`, `methods/catalog/causal` | `open` | the ordering is registered with versioned nodes and justified edges, an unknown or incomparable pair **refuses rather than defaulting to an order**, and a negative proves two bindings differing only in horizon or regime do not compare as equal. **Closing it with a total order over names is refused.** |
+| `instruments-report-absence-without-declaring-what-they-read` | **Three instruments measured in one day report *absent* where the answer lives in a document they never open, and the class matters more than any of its members.** Each is correct inside its declared input and none says what that input was, so a reader takes a bounded negative for a fact about the tree. **The three measured instances.** `check_debt_ledger._parse_gy_tasks` matches only §8.5 table rows, so the ruled `Done when` wording in the GY plan's §8.6 reaches no projection — a task row's emitted text is an index, not a closure spec. `src/polisyos/runtime/quality/production_invocation.py` derives invocation statically, so HTTP route handlers and callback receivers read as `uninvoked` because a framework calls them at runtime through registration — and those are exactly the seams most likely to carry the *built and never consulted* defect it exists to catch. `architecture/atlas_surfaces/check_atlas_enforcement.py::validate_slice_scope_obligations` keeps only documents whose YAML frontmatter is `type: slice-plan`, and the file contains **zero** references to the Atlas master plan — so the dated 2026-09-01 *Debt rows this slice must close* ownership acts are invisible to the instrument that reports allocation. **Why this is a class and not three bugs.** All three produce a **false negative on presence**, all three are silent about their own scope, and all three have already caused an architect to record an absence that was not there — `no caller`, `no owner`, `never exercised`. A fourth was repaired the same day in `_parse_register`, where a column shift defaulted to the legitimate status `ambiguous`, making a parse failure indistinguishable from a real result. | `team-architecture` for the rule; `runtime/quality`, `team-devx` and `team-design` for the three instruments | `open` | **each instrument that can report absence prints the inputs it actually read**, and a boundary it does not read is emitted as a named `unresolved_by_construction`-style class rather than silence. `production_invocation.py` already does this and is the worked example. Closing it by fixing the three instances without the standing rule is refused — a fifth instrument will be written next week. |
+| `register-cells-may-contain-pipes-and-shift-every-column` | A register row's cell may legitimately contain a literal `|` — a code span with pipe-delimited enum values, as `extraction-ask-offers-six-of-ten-evidence-classes` does — and any consumer splitting the row on `|` then reads every later column from the wrong place. The production parser was repaired 2026-09-11 to recover by locating the single whole-cell status token and to **report** the recovery as `register_status_column_shifted`, so this is no longer silent. **The hazard is not removed, only surfaced**: every future instrument that reads this register by column index inherits it, and the register is read by more than one tool. The measured consequence before the repair: one row's `folded` status was read as `ambiguous`, and the ledger reported an ambiguous row that did not exist. | `team-architecture` | `open` | either the register forbids a bare `|` inside a cell and a check enforces that, **or** every consumer is required to locate cells by token rather than by index and the requirement is written where a tool author will meet it. **A recovery in one parser is not a fix** — it is one reader defending itself against a format the others still trust. |
 
 ## B. Open, not executable
 

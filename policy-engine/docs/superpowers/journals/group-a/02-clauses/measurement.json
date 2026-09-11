@@ -1,0 +1,26 @@
+{
+  "source_ref": "63bdb9640",
+  "measured_utc": "2026-09-11T12:05:50.717743+00:00",
+  "python_path_denominator": 6178,
+  "markdown_path_denominator": 1830,
+  "python_ast_errors": [],
+  "unreadable": [],
+  "working_bytes_differ_pinned_fallback": [],
+  "pinned_missing_from_index": [],
+  "python_matching_files": 4,
+  "direct_plan_literal_files": [
+    "policy-engine/docs/superpowers/journals/gy-lattice/check_delivery.py",
+    "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/runtime_snapshot.py",
+    "policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py",
+    "policy-engine/tools/quality/validation/check_debt_ledger.py"
+  ],
+  "evidence_json_denominator": 452,
+  "evidence_walk_json_denominator": 452,
+  "evidence_walk_extra": [],
+  "evidence_walk_missing": [],
+  "evidence_parse_errors": [],
+  "recorded_command_envelopes": 436,
+  "selected_receipt_denominator": 12,
+  "selected_missing": [],
+  "gate_status": "read-only census; no product gate executed"
+}

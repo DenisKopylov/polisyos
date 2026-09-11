@@ -1,0 +1,149 @@
+{
+  "base": "63bdb9640",
+  "scope": "one complete three-request canonical population; two fixture proofs; one graded report; one plan and its actual pure parser; one canonical F1 surface tuple",
+  "canonical_requests": [
+    {
+      "fixture_id": "ua_msme_credit_worldbank_measurement",
+      "catalog_mode": "slice0_fixture"
+    },
+    {
+      "fixture_id": "tourism_local_development_ceiling_probe",
+      "catalog_mode": "slice0_fixture"
+    },
+    {
+      "fixture_id": "ua_msme_credit_worldbank_measurement",
+      "catalog_mode": "production"
+    }
+  ],
+  "production_population": {
+    "definition": "canonical_producer_production_observations",
+    "member_count": 1,
+    "members": [
+      {
+        "classification": "non_value",
+        "job_id": "21bf90ccd0aa563199d8db82f5d5ded4",
+        "population_position": 0,
+        "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement"
+      }
+    ],
+    "period": "report_generation"
+  },
+  "production_categories": [
+    {
+      "admission_state": "original_construct_evidence_admission_owner_missing",
+      "decision_grade": "unsupported",
+      "evidence_kind": null,
+      "evidence_ladder_rung": "none",
+      "fixture_id": "ua_msme_credit_worldbank_measurement",
+      "incompleteness_recorded": true,
+      "job_id": "21bf90ccd0aa563199d8db82f5d5ded4",
+      "population_position": 0,
+      "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+      "terminal_state": "a_spec_gap",
+      "useful_design_credit": false
+    }
+  ],
+  "independent_request_and_artifact_denominators_equal": true,
+  "recomputed_rate": {
+    "numerator": 0,
+    "denominator": 1,
+    "value": 0.0
+  },
+  "published_summary": {
+    "capped_decision_grade_count": 0,
+    "floor_relaxation_used_count": 0,
+    "grounded_partial_admissible_count": 0,
+    "unmeasurable_count": 0,
+    "useful_design_rate": 0.0
+  },
+  "fixture_job_intersection_with_production": [],
+  "fixture_readbacks": [
+    {
+      "request": "gy-loop-slice0_fixture-ua-msme-credit-worldbank-measurement",
+      "job_id": "4379aa2571cf5ca8b82b66db90ce9e20",
+      "surfaces": [
+        {
+          "job_id": "4379aa2571cf5ca8b82b66db90ce9e20",
+          "matched_search_exit_contract_ref": true,
+          "observed_authority_path": "workspace_loop",
+          "observed_authority_result": "verifier_stamped",
+          "observed_job_state": "completed",
+          "observed_search_exit_contract_ref": "sha256:fee6f5004c2866805a9b88526b176e4310c265193fbe4a531ad1278452eb7598",
+          "observed_terminal_kind": "grounded_partial_admissible",
+          "read_method": "ControlPlaneStore.get_job",
+          "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+          "surface": "/api/v1/control/runs"
+        }
+      ]
+    },
+    {
+      "request": "gy-loop-slice0_fixture-tourism-local-development-ceiling-probe",
+      "job_id": "721d917b7a805999b69d14943f2069f8",
+      "surfaces": [
+        {
+          "job_id": "721d917b7a805999b69d14943f2069f8",
+          "matched_search_exit_contract_ref": true,
+          "observed_authority_path": "workspace_loop",
+          "observed_authority_result": "acquisition_required",
+          "observed_job_state": "completed",
+          "observed_search_exit_contract_ref": "sha256:6f360e0f19df5c00d7a1402a7833b9af2ad7923d48748aece43d09e3e0a04039",
+          "observed_terminal_kind": "acquisition_required",
+          "read_method": "ControlPlaneStore.get_job",
+          "run_id": "run-gy-loop-proof-tourism_local_development_ceiling_probe",
+          "surface": "/api/v1/control/runs"
+        }
+      ]
+    }
+  ],
+  "fixture_test_ast": {
+    "path": "policy-engine/tests/unit/runtime/quality/test_workspace_loop.py",
+    "name": "test_slice0_groundable_fixture_exits_partial_without_design_candidate",
+    "line": 233,
+    "calls": [
+      "WorkspaceLoop().run_fixture",
+      "all",
+      "all",
+      "WorkspaceLoop"
+    ]
+  },
+  "artifact_history": {
+    "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json": "8a9b92b416aaf5b2bc68fc6901fc5dbe098ced11 2026-09-09T16:36:51+03:00",
+    "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report_v2.json": "00aadf493720eece548c9be2827057745c3c1e8d 2026-09-09T23:18:45+03:00"
+  },
+  "ledger_parser_probe": {
+    "path": "policy-engine/tools/quality/validation/check_debt_ledger.py",
+    "selected_ast_nodes": [
+      "_WorkRow",
+      "_plain",
+      "_GY_TASK_ROW",
+      "_gy_task_census",
+      "_parse_gy_tasks"
+    ],
+    "in_memory_change": "remove entire section 8.6 only",
+    "work_output_identical": true,
+    "status_census_identical": true,
+    "status_census": {
+      "blocked": 5,
+      "executed": 55,
+      "not_executed": 2,
+      "not_started": 15
+    },
+    "complete_table_rows": 77,
+    "open_rows": 7
+  },
+  "f1_surface_tuple": [
+    "run",
+    "artifact",
+    "lineage",
+    "export",
+    "dashboard",
+    "public_packet"
+  ],
+  "f1_denominator_with_worker": 7,
+  "raw_receipts": {
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/evidence-inventory.json": "fa10c3bd4706d2c4ef63e0b6bdb3c124808e1e360a2b96eaa4a43b951b448776",
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/markdown-mentions.json": "0b6a1eec909f3bcf6e1918347d4e6dcf5da43f271ccf467c76a10a0312396d7c",
+    "policy-engine/docs/superpowers/journals/group-a/02-clauses/raw/python-consumers.json": "37f065dd6589a81f6c60aa8e24f73da292247825971b378e0a0d978e80d86497"
+  },
+  "exit_code": 0
+}

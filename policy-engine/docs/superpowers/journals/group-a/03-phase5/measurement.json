@@ -1,0 +1,769 @@
+{
+  "base": "63bdb9640",
+  "tracked_path_denominator": 12900,
+  "python_denominator": 6178,
+  "index_covers_pinned_set": true,
+  "ast_errors": [],
+  "readable_text_denominator": 12838,
+  "readable_text_file_types": {
+    ".blob": 11,
+    ".cfg": 1,
+    ".cjs": 9,
+    ".css": 17,
+    ".csv": 15,
+    ".cypher": 2,
+    ".duckdb": 4,
+    ".example": 3,
+    ".html": 3,
+    ".ini": 11,
+    ".js": 5,
+    ".json": 2845,
+    ".jsonc": 1,
+    ".jsonl": 13,
+    ".lock": 1,
+    ".log": 11,
+    ".md": 1830,
+    ".mdc": 1,
+    ".mjs": 39,
+    ".patch": 2,
+    ".py": 6178,
+    ".pyi": 5,
+    ".rego": 23,
+    ".reproducible": 1,
+    ".sh": 46,
+    ".sha256": 1,
+    ".sql": 6,
+    ".svg": 18,
+    ".tf": 1,
+    ".tmpl": 7,
+    ".toml": 232,
+    ".tpl": 1,
+    ".ts": 517,
+    ".tsv": 1,
+    ".tsx": 719,
+    ".txt": 59,
+    ".typed": 2,
+    ".xml": 20,
+    ".yaml": 85,
+    ".yml": 71,
+    "[none]": 21
+  },
+  "unreadable_text_denominator": 62,
+  "direct_call_matches": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+      "line": 491,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig.from_env())"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/measure.py",
+      "line": 177,
+      "callee": "NormativeValueScheduleOwner",
+      "expression": "NormativeValueScheduleOwner(store=target)"
+    },
+    {
+      "path": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pa1/measure.py",
+      "line": 172,
+      "callee": "NormativeValueScheduleOwner",
+      "expression": "NormativeValueScheduleOwner(store=store)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "line": 80,
+      "callee": "S3ArtifactStore",
+      "expression": "S3ArtifactStore(bucket=config.bucket, prefix=config.prefix, region=config.region, local_cache_dir=cache_dir, metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "line": 94,
+      "callee": "GCSArtifactStore",
+      "expression": "GCSArtifactStore(bucket=config.bucket, prefix=config.prefix, local_cache_dir=cache_dir, metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "line": 134,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "line": 175,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(config, metrics=metrics, tracer=tracer)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "line": 117,
+      "callee": "S3ArtifactStore",
+      "expression": "S3ArtifactStore(bucket=config.bucket, prefix=config.prefix, region=config.region, metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "line": 128,
+      "callee": "GCSArtifactStore",
+      "expression": "GCSArtifactStore(bucket=config.bucket, prefix=config.prefix, metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "line": 162,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root)), metrics=metrics, tracer=tracer)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/components/_cli_store.py",
+      "line": 22,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(_normalize_root(root))))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cli.py",
+      "line": 22,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=root))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "line": 40,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(cas_root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "line": 316,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(cas_root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion_providers.py",
+      "line": 26,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/storage/tenant_cas.py",
+      "line": 62,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(self._config, metrics=metrics, tracer=tracer)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/storage/tenant_cas.py",
+      "line": 168,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(Path(root))), metrics=metrics, tracer=tracer)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "line": 241,
+      "callee": "CandidateAssuranceResult",
+      "expression": "CandidateAssuranceResult(proposition_id=packet.proposition_id, purpose=packet.purpose, contexts=packet.contexts, excluded_contexts=packet.excluded_contexts, source_digest=packet.source.digest, target_digest=packet.target.digest, packet_digest=_digest(packet.model_dump(mode='json')), comparison='refused' if reasons else 'candidate_match', reasons=tuple(sorted(reasons)), valid_until=packet.valid_until)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "line": 279,
+      "callee": "AssuranceReceipt",
+      "expression": "AssuranceReceipt(artifact_ref=ref)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py",
+      "line": 398,
+      "callee": "AssuranceReceipt",
+      "expression": "AssuranceReceipt(artifact_ref=ref)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/dependencies.py",
+      "line": 104,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(store_config, metrics=metrics, tracer=tracer)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "line": 208,
+      "callee": "NormativeValueScheduleOwner",
+      "expression": "NormativeValueScheduleOwner(store=target, trust=trust)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "line": 669,
+      "callee": "self._reservation_store.reserve_human_decision_action",
+      "expression": "self._reservation_store.reserve_human_decision_action(tenant_id=tenant_id, governed_action_key=governed_action_key, reservation_id=reservation_id, binding_sha256=binding_sha256, now=now, lease_seconds=lease_seconds, record_valid_until=record_valid_until)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "line": 1480,
+      "callee": "normative_owner_for_runtime_store",
+      "expression": "normative_owner_for_runtime_store(self._artifact_store, self._normative_authority_trust)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "line": 1625,
+      "callee": "normative_owner_for_runtime_store",
+      "expression": "normative_owner_for_runtime_store(self._artifact_store, self._normative_authority_trust)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "line": 1579,
+      "callee": "self._control_store.append_normative_evidence_head",
+      "expression": "self._control_store.append_normative_evidence_head(job_id=record.job_id, run_id=run_id, compiled_run_ref=compiled_ref, expected_prior_head_ref=submission.expected_prior_head_ref, head_ref=head_ref)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "line": 2263,
+      "callee": "self._control_store.get_normative_evidence_head",
+      "expression": "self._control_store.get_normative_evidence_head(record.job_id)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "line": 1256,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(store_config, metrics=self._metrics, tracer=self._tracer)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "line": 2284,
+      "callee": "normative_owner_for_runtime_store",
+      "expression": "normative_owner_for_runtime_store(self._artifact_store, self._normative_authority_trust)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/public_decision_verification_configuration.py",
+      "line": 70,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root / 'cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_epoch_admission.py",
+      "line": 73,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(request.cas_root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+      "line": 816,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(cas_root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+      "line": 1453,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(self._repo_root / '.n7-live-cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/adaptation_transition.py",
+      "line": 210,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root / 'cas')), tenant_id=tenant_id, cell_id=cell_id)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "line": 1238,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root / '.polisyos/cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/epoch_custody_audit.py",
+      "line": 144,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(arguments.cas_root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "line": 2730,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root / '.polisyos/runtime/generation_source')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/grounding_calibration.py",
+      "line": 126,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(location)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/grounding_calibration.py",
+      "line": 151,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(location)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/grounding_risk.py",
+      "line": 118,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(owner._root / 'cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "line": 778,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(_repo_root_for_bundle(bundle) / '.polisyos/cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "line": 2079,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root / '.tmp/gy-s-composed-wmr-cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "line": 1159,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(repo_root / '.polisyos/cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "line": 1407,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(repo_root / '.polisyos/cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "line": 147,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(Path(temporary) / 'cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "line": 1492,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(Path(directory))))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+      "line": 1619,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(Path(tempfile.gettempdir()) / 'polisyos-gy-phase2-cas')))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/drafter_factory.py",
+      "line": 46,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/eval_harness.py",
+      "line": 554,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "line": 63,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(cas_root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/preflight.py",
+      "line": 41,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(root=str(cas_root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "line": 302,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root or default_cas_root())))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py",
+      "line": 70,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(root=str(root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/actionable_side_information.py",
+      "line": 29,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(root=str(root)))"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "line": 961,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(store_config)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "line": 288,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(store_config)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+      "line": 117,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(DEFAULT_CAS_ROOT)))"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/chronology_qualification.py",
+      "line": 133,
+      "callee": "FileSystemSignedArtifactEvidenceRepository",
+      "expression": "FileSystemSignedArtifactEvidenceRepository(self.store)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 27,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 42,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 57,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local, cache_population_failure_policy='raise')"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 73,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local, write_through=True)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 86,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local, write_through=False)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 98,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 108,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "line": 118,
+      "callee": "CachingArtifactStore",
+      "expression": "CachingArtifactStore(remote=remote, local=local)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 68,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(config, tenant_id='tenant-a', cell_id='cell-a')"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 73,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(config, tenant_id='tenant-a', cell_id='cell-a')"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 88,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(cfg)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 97,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(cfg, metrics=metrics, tracer=tracer)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 77,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(config, tenant_id=tenant_id, cell_id=cell_id)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 84,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(config, tenant_id='tenant-a', cell_id='cell-a')"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 143,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(cfg)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 148,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(cfg)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 153,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(cfg)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+      "line": 164,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(cfg)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+      "line": 49,
+      "callee": "GCSArtifactStore",
+      "expression": "GCSArtifactStore(bucket='test-bucket', metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+      "line": 74,
+      "callee": "GCSArtifactStore",
+      "expression": "GCSArtifactStore(bucket='test-bucket', metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+      "line": 71,
+      "callee": "S3ArtifactStore",
+      "expression": "S3ArtifactStore(bucket='test-bucket')"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+      "line": 91,
+      "callee": "S3ArtifactStore",
+      "expression": "S3ArtifactStore(bucket='test-bucket', metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+      "line": 116,
+      "callee": "S3ArtifactStore",
+      "expression": "S3ArtifactStore(bucket='test-bucket', metrics=metrics)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+      "line": 52,
+      "callee": "FileSystemSignedArtifactEvidenceRepository",
+      "expression": "FileSystemSignedArtifactEvidenceRepository(store)"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+      "line": 76,
+      "callee": "FileSystemSignedArtifactEvidenceRepository",
+      "expression": "FileSystemSignedArtifactEvidenceRepository(store)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 92,
+      "callee": "store.reserve_human_decision_action",
+      "expression": "store.reserve_human_decision_action(tenant_id='tenant-a', governed_action_key='sha256:' + 'c' * 64, reservation_id='reservation-crashed', binding_sha256='sha256:' + 'd' * 64, now=started_at, lease_seconds=5, record_valid_until=started_at + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 103,
+      "callee": "store.reserve_human_decision_action",
+      "expression": "store.reserve_human_decision_action(tenant_id='tenant-a', governed_action_key='sha256:' + 'c' * 64, reservation_id='reservation-too-early', binding_sha256='sha256:' + 'd' * 64, now=started_at + timedelta(seconds=6), lease_seconds=5, record_valid_until=started_at + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 125,
+      "callee": "store.reserve_human_decision_action",
+      "expression": "store.reserve_human_decision_action(tenant_id='tenant-a', governed_action_key='sha256:' + 'c' * 64, reservation_id='reservation-replacement', binding_sha256='sha256:' + 'd' * 64, now=started_at + timedelta(seconds=8), lease_seconds=5, record_valid_until=started_at + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 216,
+      "callee": "store.reserve_human_decision_action",
+      "expression": "store.reserve_human_decision_action(tenant_id='tenant-a', governed_action_key='sha256:' + '1' * 64, reservation_id='reservation-expiry', binding_sha256='sha256:' + '2' * 64, now=started_at, lease_seconds=lease_seconds, record_valid_until=started_at + timedelta(seconds=valid_seconds))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 260,
+      "callee": "store.reserve_human_decision_action",
+      "expression": "store.reserve_human_decision_action(tenant_id='tenant-a', governed_action_key='sha256:' + '4' * 64, reservation_id='reservation-microsecond-boundary', binding_sha256='sha256:' + '5' * 64, now=started_at, lease_seconds=1, record_valid_until=started_at + timedelta(minutes=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 294,
+      "callee": "store.reserve_human_decision_action",
+      "expression": "store.reserve_human_decision_action(tenant_id='tenant-a', governed_action_key='sha256:' + '7' * 64, reservation_id='reservation-attached-orphan', binding_sha256='sha256:' + '8' * 64, now=started_at, lease_seconds=10, record_valid_until=started_at + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 334,
+      "callee": "writer_store.reserve_human_decision_action",
+      "expression": "writer_store.reserve_human_decision_action(tenant_id='tenant-a', governed_action_key=governed_action_key, reservation_id='reservation-paused-writer', binding_sha256=binding_sha256, now=started_at, lease_seconds=1, record_valid_until=valid_until)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 1471,
+      "callee": "stores[1].append_normative_evidence_head",
+      "expression": "stores[1].append_normative_evidence_head(job_id='job', run_id='run', compiled_run_ref=source, expected_prior_head_ref=winner, head_ref='sha256:' + '3' * 64)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 60,
+      "callee": "stores[index].reserve_human_decision_action",
+      "expression": "stores[index].reserve_human_decision_action(tenant_id='tenant-a', governed_action_key='sha256:' + 'a' * 64, reservation_id=f'reservation-{index}', binding_sha256='sha256:' + 'b' * 64, now=now, lease_seconds=30, record_valid_until=now + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 1461,
+      "callee": "stores[index].append_normative_evidence_head",
+      "expression": "stores[index].append_normative_evidence_head(job_id='job', run_id='run', compiled_run_ref=source, expected_prior_head_ref=None, head_ref='sha256:' + str(index + 1) * 64)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 1470,
+      "callee": "stores[0].get_normative_evidence_head",
+      "expression": "stores[0].get_normative_evidence_head('job')"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 1475,
+      "callee": "stores[0].get_normative_evidence_head",
+      "expression": "stores[0].get_normative_evidence_head('job')"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "line": 1478,
+      "callee": "stores[0].append_normative_evidence_head",
+      "expression": "stores[0].append_normative_evidence_head(**{'job_id': 'job', 'run_id': 'run', 'compiled_run_ref': source, 'expected_prior_head_ref': 'sha256:' + '3' * 64, 'head_ref': 'sha256:' + '4' * 64, **invalid})"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py",
+      "line": 271,
+      "callee": "service._control_store.get_normative_evidence_head",
+      "expression": "service._control_store.get_normative_evidence_head(job_id)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py",
+      "line": 230,
+      "callee": "service._control_store.get_normative_evidence_head",
+      "expression": "service._control_store.get_normative_evidence_head(before.job_id)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "line": 120,
+      "callee": "bridge.normative_owner_for_runtime_store",
+      "expression": "bridge.normative_owner_for_runtime_store(service._artifact_store, service._normative_authority_trust)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "line": 468,
+      "callee": "bridge.normative_owner_for_runtime_store",
+      "expression": "bridge.normative_owner_for_runtime_store(context.store, s8.NormativeAuthorityTrust())"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+      "line": 477,
+      "callee": "bridge.normative_owner_for_runtime_store",
+      "expression": "bridge.normative_owner_for_runtime_store(Fake(), s8.NormativeAuthorityTrust())"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "line": 239,
+      "callee": "stores[0].reserve_human_decision_action",
+      "expression": "stores[0].reserve_human_decision_action(tenant_id='tenant-postgres', governed_action_key=governed_action_key, reservation_id='postgres-generation-1', binding_sha256=binding_sha256, now=started_at, lease_seconds=1, record_valid_until=started_at + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "line": 249,
+      "callee": "stores[0].reserve_human_decision_action",
+      "expression": "stores[0].reserve_human_decision_action(tenant_id='tenant-postgres', governed_action_key=governed_action_key, reservation_id='postgres-generation-1-retry', binding_sha256=binding_sha256, now=started_at + timedelta(seconds=2), lease_seconds=1, record_valid_until=started_at + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "line": 166,
+      "callee": "store.consume_step_up_assertion",
+      "expression": "store.consume_step_up_assertion(assertion_id=assertion_id, expires_at=expires_at)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "line": 200,
+      "callee": "stores[index].reserve_human_decision_action",
+      "expression": "stores[index].reserve_human_decision_action(tenant_id='tenant-postgres', governed_action_key='sha256:' + '9' * 64, reservation_id=f'postgres-reservation-{uuid.uuid4().hex}', binding_sha256='sha256:' + '8' * 64, now=now, lease_seconds=30, record_valid_until=now + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "line": 272,
+      "callee": "stores[index].reserve_human_decision_action",
+      "expression": "stores[index].reserve_human_decision_action(tenant_id='tenant-postgres', governed_action_key=governed_action_key, reservation_id=f'postgres-generation-2-{index}', binding_sha256=binding_sha256, now=started_at + timedelta(seconds=4), lease_seconds=30, record_valid_until=started_at + timedelta(hours=1))"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py",
+      "line": 1452,
+      "callee": "store.consume_step_up_assertion",
+      "expression": "store.consume_step_up_assertion(assertion_id='concurrent-one-use-jti', expires_at=expires_at)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py",
+      "line": 706,
+      "callee": "s8.NormativeValueScheduleOwner",
+      "expression": "s8.NormativeValueScheduleOwner(store=store, trust=trust)"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py",
+      "line": 882,
+      "callee": "s8.NormativeValueScheduleOwner",
+      "expression": "s8.NormativeValueScheduleOwner(store=artifacts.FileSystemCAS(tmp_path), trust=trust)"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_eval_harness.py",
+      "line": 40,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(backend='filesystem', root=str(root)))"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+      "line": 204,
+      "callee": "build_artifact_store",
+      "expression": "build_artifact_store(ArtifactStoreConfig(root=str(root)))"
+    }
+  ],
+  "openapi_repair": [
+    {
+      "ref": "b6e5db7b6^",
+      "dict_keys": 106,
+      "duplicates": [
+        {
+          "key": "admit_epoch_validity_batch",
+          "first_line": 1643,
+          "line": 4231
+        }
+      ],
+      "admit_epoch_validity_batch": [
+        {
+          "line": 1643,
+          "value": "_epoch_validity_batch_example()"
+        },
+        {
+          "line": 4231,
+          "value": "{'meta': _META_NO_SOURCE, 'batch_id': 'epoch-validity-batch-001', 'state': 'completed', 'transition': {'artifact_id': _ARTIFACT_ID_SAMPLE, 'kind': 'runtime.semantic_epoch_transition', 'media_type': 'application/json'}, 'completion_receipt': {'schema_version': 'polisyos.decision-validity.epoch-batch-receipt.v1', 'batch_id': 'epoch-validity-batch-001', 'state': 'completed', 'transition_artifact_ref': {'artifact_id': _ARTIFACT_ID_SAMPLE, 'kind': 'runtime.semantic_epoch_transition', 'media_type': 'application/json'}, 'transition_content_hash': _ARTIFACT_ID_SAMPLE, 'requested_query_context_ref': _ARTIFACT_ID_SAMPLE, 'dependency_denominator_ref': _ARTIFACT_ID_SAMPLE, 'adjudication_denominator_ref': _ARTIFACT_ID_SAMPLE, 'verifier_provenance_ref': {'artifact_id': _ARTIFACT_ID_SAMPLE, 'kind': 'runtime.epoch_transition_verifier_provenance', 'media_type': 'application/json'}, 'completion_receipt_ref': {'artifact_id': _ARTIFACT_ID_SAMPLE, 'kind': 'scientist.decision_validity_epoch_batch_completion', 'media_type': 'application/json'}, 'affected_packet_refs': [_ARTIFACT_ID_SAMPLE], 'targets': [{'packet_ref': _ARTIFACT_ID_SAMPLE, 'decision_lineage_key': 'lineage_R_core_api_001', 'dependency_key': 'semantic_epoch:epoch-001', 'status': 'stale', 'reason': 'The admitted semantic epoch changed a decision dependency.'}], 'claim_bridge_result_refs': []}, 'affected_packet_refs': [_ARTIFACT_ID_SAMPLE], 'claim_bridge_result_refs': []}"
+        }
+      ]
+    },
+    {
+      "ref": "b6e5db7b6",
+      "dict_keys": 105,
+      "duplicates": [],
+      "admit_epoch_validity_batch": [
+        {
+          "line": 1643,
+          "value": "_epoch_validity_batch_example()"
+        }
+      ]
+    },
+    {
+      "ref": "63bdb9640",
+      "dict_keys": 105,
+      "duplicates": [],
+      "admit_epoch_validity_batch": [
+        {
+          "line": 1643,
+          "value": "_epoch_validity_batch_example()"
+        }
+      ]
+    }
+  ],
+  "raw": {
+    "path": "policy-engine/docs/superpowers/journals/group-a/03-phase5/raw/trace.json",
+    "sha256": "cff0f84c01d3efa12fcd6469b152d6e37ead83abdb97242118a8181dd7453c05"
+  }
+}

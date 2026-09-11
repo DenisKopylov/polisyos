@@ -1,0 +1,395 @@
+[
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/phase2-after-cli-custody-check.json",
+    "sha256": "5cb65fcd616de35f6bdf49864d969907dd15ef08de5e80fe4f82c32560f5e8d0",
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "tools.quality.validation.check_layer3_gy_phase2_artifacts",
+      "--repo-root",
+      ".",
+      "--check",
+      "--output-format",
+      "json"
+    ],
+    "started_utc": "2026-09-09T18:22:02.322008+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 304.605,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [
+      "c3_authority_is_measurement_unmet",
+      "c3_consumption_receipt_present_unmet",
+      "c3_consumption_record_present_unmet",
+      "c3_measurement_rooted_unmet",
+      "c3_measurement_roots_present_unmet",
+      "c3_operation_invocations_present_unmet",
+      "phase2_protected_owner_drift",
+      "phase2_protected_owner_drift"
+    ],
+    "status": "fail",
+    "task_measurements": {
+      "GY-C1": "pass",
+      "GY-C3": "fail"
+    }
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/companions/f1-current-check.json",
+    "sha256": "37e249c750523f332d3dccf124722396b18f950143cfaac2a8ac07427a9d751a",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "tools.quality.validation.check_layer3_workflow_failure_authority",
+      "--repo-root",
+      ".",
+      "--check",
+      "--output-format",
+      "json"
+    ],
+    "started_utc": "2026-09-09T14:57:40.983626+00:00",
+    "returncode": 0,
+    "elapsed_seconds": 46.579,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [],
+    "status": "pass",
+    "proofs": [
+      {
+        "scenario": "workflow_failure",
+        "surface_reads_checked": [
+          "control_worker_precompletion",
+          "run",
+          "artifact",
+          "lineage",
+          "export",
+          "dashboard",
+          "public_packet"
+        ],
+        "terminal_job_state": "failed",
+        "authority_result": "repair_required",
+        "readbacks": [
+          {
+            "surface": "run",
+            "status": "blocked",
+            "http_status": null,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "artifact",
+            "status": "blocked",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "lineage",
+            "status": "blocked",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "export",
+            "status": "blocked",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "dashboard",
+            "status": "blocked",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "public_packet",
+            "status": null,
+            "http_status": null,
+            "blocked_or_downgraded": true,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "clean_completion_probe",
+            "status": null,
+            "http_status": null,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": true
+          }
+        ]
+      },
+      {
+        "scenario": "legacy_shadow_candidate",
+        "surface_reads_checked": [
+          "control_worker_precompletion",
+          "run",
+          "artifact",
+          "lineage",
+          "export",
+          "dashboard",
+          "public_packet"
+        ],
+        "terminal_job_state": "completed",
+        "authority_result": "candidate_only",
+        "readbacks": [
+          {
+            "surface": "run",
+            "status": "candidate_only",
+            "http_status": null,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "artifact",
+            "status": "candidate_only",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "lineage",
+            "status": "candidate_only",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "export",
+            "status": "candidate_only",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "dashboard",
+            "status": "candidate_only",
+            "http_status": 409,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "public_packet",
+            "status": null,
+            "http_status": null,
+            "blocked_or_downgraded": true,
+            "blocked_clean_completion": null
+          },
+          {
+            "surface": "clean_completion_probe",
+            "status": null,
+            "http_status": null,
+            "blocked_or_downgraded": null,
+            "blocked_clean_completion": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/canonical-check.json",
+    "sha256": "c2cfeb8733c1628c89d554e233f2face18cba6a7c48862f75a4fe8aae32023fb",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "tools.quality.validation.check_layer3_gy_openalex_artifacts",
+      "--check",
+      "--repo-root",
+      ".",
+      "--output-format",
+      "json"
+    ],
+    "started_utc": "2026-09-09T07:19:40.979107+00:00",
+    "returncode": 0,
+    "elapsed_seconds": 92.371,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [],
+    "status": "pass",
+    "accuracy": {
+      "accuracy_status": "withheld_pending_adjudicator_appointment",
+      "measurement_basis": "extractor_execution_and_constructed_negatives",
+      "precision": null,
+      "recall": null,
+      "schema_version": "policyos.policy_design_case.layer3_gy.openalex_accuracy.v2",
+      "standing_rule_ref": "correspondence-acceptance-standing-rule"
+    },
+    "extractor_population": {
+      "observations": 10,
+      "predictions": 23,
+      "constructed_negatives": 23,
+      "negative_dispositions": {
+        "refused": 23
+      }
+    }
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/canonical-corrupt-substance.json",
+    "sha256": "3f17b0ad4232df0fd8ae9469ac2515c69b5fb28394a782ca45042eafbbb81108",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "_build.gy_gaps.k_current_corruption"
+    ],
+    "started_utc": "2026-09-09T07:17:16.062805+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 94.941,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [
+      "layer3_gy_openalex_accuracy_substantive_recompute_drift",
+      "layer3_gy_openalex_artifact_drift"
+    ],
+    "status": "fail"
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/removal-default-extractor.json",
+    "sha256": "80b86dabcd58b5ae328a72c849128135f51f4640d59a59770d4785a7f4186d9c",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "_build.gy-gaps.k.removal",
+      "default-extractor"
+    ],
+    "started_utc": "2026-09-09T06:56:27.966665+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 3.66,
+    "timed_out": false,
+    "stdout_json": false
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/k/red-extractor-removal.json",
+    "sha256": "5771a37c5c7f7507ab4181ec50b51e0c5500696e41852ad661cb961fe83f76ea",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "_build.gy-gaps.k.preparation",
+      "extractor-removal"
+    ],
+    "started_utc": "2026-09-09T06:25:42.510516+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 38.6,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [],
+    "status": null
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/canonical-write-after-cli-custody.json",
+    "sha256": "985d4740afd487c2c589de4e395ad96dd85361f641d1970b3a666a3b61b4f8ed",
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "tools.quality.validation.check_layer3_gy_loop_artifacts",
+      "--repo-root",
+      ".",
+      "--write",
+      "--output-format",
+      "json"
+    ],
+    "started_utc": "2026-09-09T18:35:35.115180+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 817.686,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [
+      "layer3_gy_outcome_gx_not_passed",
+      "layer3_gy_outcome_gx_report_not_passed"
+    ],
+    "status": "fail"
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/canonical-check-corrupt-after-cli-custody.json",
+    "sha256": "85c65292cced13c1efb72b6aad23e8fb3a19b73f639ab983cf0162ee0dc0f5c4",
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "tools.quality.validation.check_layer3_gy_loop_artifacts",
+      "--repo-root",
+      ".",
+      "--check",
+      "--corrupt-field-drift-check",
+      "--output-format",
+      "json"
+    ],
+    "started_utc": "2026-09-09T18:50:42.041678+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 1489.276,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [
+      "layer3_gy_outcome_gx_not_passed",
+      "layer3_gy_outcome_gx_report_not_passed",
+      "layer3_gy_outcome_gx_not_passed",
+      "layer3_gy_outcome_gx_report_not_passed",
+      "layer3_gy_graded_outcome_corrupt_field_drift_detected"
+    ],
+    "status": "fail"
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/combined-removal-wave.json",
+    "sha256": "506c936947592407056b45743ea942e95f7027165d76dc2db2fe12ec5a20ddf8",
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "_build.gy_gaps.j_removal_wave"
+    ],
+    "started_utc": "2026-09-09T15:24:58.374708+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 1782.003,
+    "timed_out": false,
+    "stdout_json": false
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/j/static-current-identity-readback.json",
+    "sha256": "f7e91236d1c327afbd88e370c118357f4e34b996ee3d16f5c3584b5aa36b94db",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "_build.gy-gaps.j.static_identity_readback"
+    ],
+    "started_utc": "2026-09-09T14:19:01.338913+00:00",
+    "returncode": 0,
+    "elapsed_seconds": 0.97,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [],
+    "status": null
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/f1/gate-execution-removal.json",
+    "sha256": "e9a37c01b7de91455f16aead89affe3efee4921ad4ed3a74aaf761ffbb322b9d",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "_build.gy-gaps.f1.removal_probe"
+    ],
+    "started_utc": "2026-09-09T06:17:22.442356+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 43.156,
+    "timed_out": false,
+    "stdout_json": false
+  },
+  {
+    "path": "policy-engine/docs/superpowers/journals/gy-eight-gaps-evidence/f1/gate-committed-corruption.json",
+    "sha256": "14d7866c5a4346ced4575201a9e951c5c472cc06428f588868d643cbadf7e66d",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "_build.gy-gaps.f1.committed_corruption_probe"
+    ],
+    "started_utc": "2026-09-09T06:18:25.552408+00:00",
+    "returncode": 1,
+    "elapsed_seconds": 49.784,
+    "timed_out": false,
+    "stdout_json": true,
+    "issue_codes": [
+      "layer3_workflow_failure_authority_drift"
+    ],
+    "status": "fail"
+  }
+]

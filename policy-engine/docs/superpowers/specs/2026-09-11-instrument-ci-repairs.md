@@ -271,8 +271,14 @@ options required by adaptation custody. Extend that same factory with optional
 explicit ownership scope on any other backend, because that factory cannot
 establish the equivalent custody there; do not silently drop those arguments.
 The production caller of this extension is `AdaptationTransitionRuntime.open`.
-No new production helper or module is needed. Other callers retain their
-existing default behavior and all other lanes see the same public factory;
+No new production helper or module is needed. Two consumers additionally
+need the filesystem root: adaptation's process lock and foundry's independent
+method replay directory. Compose the existing `infer_artifact_store_config`
+capability, requiring a filesystem backend and nonempty root before using
+`Path(config.root)`. An injected store without that configuration refuses that
+filesystem-dependent operation; it must not become a backend-neutral claim.
+Preserve the existing lock path and replay directory exactly. Other callers
+retain their existing default behavior and all other lanes see the same public factory;
 there is no dependency or configuration-file change.
 
 Falsifiers: real factory-created scoped stores must preserve same-owner reopen

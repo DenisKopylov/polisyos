@@ -160,6 +160,46 @@ UNRUN means no complete verdict and findings beside it are partial. Existing
 instrument-specific result carriers are preferred over a new CI orchestrator.
 Hosted cancelled/skipped scopes are explicitly omitted in that local receipt.
 
+### Root execution refinement: concrete existing owners
+
+CI-F12 composes `common/serialization.py`, the already-public JSON owner.
+The complete tracked `.py` census under `src/`, `tests/`, and `tools/` contains
+5,670 files with no AST parse failures and finds thirteen non-test importers
+of `common.llm_json` plus its behavioral test file (retained census:
+`instruments/root/raw/common-json-imports.json`). Move the existing extraction
+functions unchanged into serialization, switch every importer, and remove the
+unregistered implementation. `runtime.quality.design_generation` and the
+Scientist agent, policy-design and validation flows remain its non-test callers.
+This library operation must not get a separate CLI: those flows consume its
+candidate JSON and retain their own validation/authority boundaries. The
+falsifier calls extraction through the canonical owner and rejects invalid
+JSON; an AST comparison must preserve the moved function bodies. No shim or
+root-file allowance is added.
+
+CI-F07–F11 and S05–S09 compose existing directory contracts. Declare the actual
+non-product evidence roles for architecture/docs, the locked wheel-input role
+for vendor, and the ignored command-timing role for `.polisyos-tools` (writer:
+`tools.lib.timing`). Existing `local_only` + `ignored` contracts distinguish
+absent data/run mounts from missing committed source; output names every such
+omission. The Python-root denominator becomes explicitly tracked `.py` files,
+while filesystem-presence/residue checks keep their distinct scope. Missing Git
+or contracts yields UNRUN. Register the two actual dashboard fixture directories
+and supply local documentation for the complete measured set of undocumented
+high-volume subtrees. These shared changes affect every lane's directory and
+package gates, and README additions affect tracked volume; no floor or exception
+expiry changes. Documentation presence is explicitly not a substance verdict.
+
+CI-R07–R13 publishes the approved native-value ADR and the reference research
+pipeline through the existing MkDocs fragment generator. Atlas's governing
+record depends on unpublished plans/decisions; its four published references
+become explicitly identified repository-source references, preserving that
+publication boundary. The docs instrument must report unavailable YAML/scope as
+UNRUN and name prose truth/deployment as unmeasured. Shared MkDocs regeneration
+affects all lanes' published page universe; it grants no new policy authority.
+The generator also exposes obsolete Ruff overrides. Delete an override only
+when its exact source path is absent, and regenerate from its fragment; never
+transfer an exemption to a same-named but differently owned file.
+
 Source freeze -> all reviews -> expensive coverage wave once. Any new blocking
 review after freeze is batched before rerun. Changes commit at clean boundaries;
 branch attachment and branch readback are checked each time. No stash storage,

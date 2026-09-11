@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 
-import polisyos.runtime.http.routes.runs as runs_routes
 import pytest
+from opentelemetry.trace import INVALID_SPAN
+from polisyos_tests_runtime_http_conftest import build_runtime_api_env
+
+import polisyos.runtime.http.routes.runs as runs_routes
 from polisyos.core.security.cell import CellSpec, CellTier, TenantSpec
 from polisyos.core.security.registry import CellRegistry
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import RuntimeContainerOverrides
-from polisyos_tests_runtime_http_conftest import build_runtime_api_env
 
 try:
     from fastapi.testclient import TestClient
@@ -16,7 +18,22 @@ except ModuleNotFoundError:  # pragma: no cover
     TestClient = None
 
 
+class _CounterStub:
+    def __init__(self) -> None:
+        self.measurements: list[tuple[int, dict[str, str]]] = []
+
+    def add(self, value: int, attributes: dict[str, str]) -> None:
+        self.measurements.append((value, attributes))
+
+
 class _MetricsStub:
+    def __init__(self) -> None:
+        self.artifact_operations_total = _CounterStub()
+        self.artifact_cache_hits_total = _CounterStub()
+        self.artifact_cache_misses_total = _CounterStub()
+        self.artifact_io_bytes = None
+        self.artifact_io_duration_seconds = None
+
     def ensure_initialized(self) -> None:
         return None
 
@@ -25,7 +42,7 @@ class _TracerStub:
     @contextmanager
     def start_as_current_span(self, _name: str, attributes=None):
         _ = attributes
-        yield
+        yield INVALID_SPAN
 
 
 class _IdentityProviderStub:
@@ -160,6 +177,10 @@ def test_runtime_container_accepts_typed_test_overrides(tmp_path) -> None:
 
     assert app.state.runtime_container.runtime_metrics is metrics
     assert app.state.runtime_container.runtime_tracer is tracer
+    assert (
+        1,
+        {"operation": "write", "kind": "chronology.open_world_risk_verifier"},
+    ) in metrics.artifact_operations_total.measurements
 
 
 def test_runtime_security_middlewares_receive_injected_metrics_provider(tmp_path) -> None:
@@ -195,6 +216,10 @@ def test_runtime_security_middlewares_receive_injected_metrics_provider(tmp_path
     }
     assert middleware_kwargs["JWTAuthMiddleware"]["metrics"] is metrics
     assert middleware_kwargs["CellRouterMiddleware"]["metrics"] is metrics
+    assert (
+        1,
+        {"operation": "write", "kind": "chronology.open_world_risk_verifier"},
+    ) in metrics.artifact_operations_total.measurements
 
 
 def test_runtime_lifecycle_health_tracks_startup_and_shutdown(tmp_path) -> None:

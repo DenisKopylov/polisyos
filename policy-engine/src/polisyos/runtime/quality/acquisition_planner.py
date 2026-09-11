@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -1449,7 +1450,12 @@ class RealAcquisitionOwnerGateway:
         request = _source_grounding_request(record, spec)
         owner = ProductionCG2CalibrationSource(
             source=source,
-            store=artifacts.FileSystemCAS(self._repo_root / ".n7-live-cas"),
+            store=build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(self._repo_root / ".n7-live-cas"),
+                ),
+            ),
             scratch=self._repo_root / ".n7-live-cas" / "source-query-scratch",
         )
         self._skg_calibration_source = owner

@@ -35,6 +35,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.fabric import atomic_write_json
 from polisyos.pdc import PromotionObligationClass
 
@@ -1144,7 +1145,7 @@ class ConfidenceLedgerSession:
         registry: ConfidenceLedgerRegistry,
         risk_scope: ConfidenceRiskBudgetScope,
         schedule_profile_id: str | None,
-        artifact_store: artifacts.FileSystemCAS,
+        artifact_store: artifacts.ArtifactStore,
         state_root: Path,
         certificate_resolver: CertificateResolver | None,
         certificate_verifier: CertificateVerifier | None,
@@ -1171,7 +1172,7 @@ class ConfidenceLedgerSession:
         registry: ConfidenceLedgerRegistry,
         risk_scope: ConfidenceRiskBudgetScope,
         schedule_profile_id: str | None,
-        artifact_store: artifacts.FileSystemCAS,
+        artifact_store: artifacts.ArtifactStore,
         state_root: Path,
         certificate_resolver: CertificateResolver | None,
         certificate_verifier: CertificateVerifier | None,
@@ -1234,7 +1235,12 @@ class ConfidenceLedgerSession:
             registry=registry,
             risk_scope=risk_scope,
             schedule_profile_id=schedule_profile_id,
-            artifact_store=artifacts.FileSystemCAS(root / ".polisyos/cas"),
+            artifact_store=build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(root / ".polisyos/cas"),
+                ),
+            ),
             state_root=root / ".polisyos/runtime/confidence_ledger",
             certificate_resolver=None,
             certificate_verifier=None,
@@ -1251,7 +1257,7 @@ class ConfidenceLedgerSession:
         repo_root: str | Path,
         *,
         risk_scope: ConfidenceRiskBudgetScope,
-        artifact_store: artifacts.FileSystemCAS,
+        artifact_store: artifacts.ArtifactStore,
         state_root: str | Path,
         certificate_resolver: CertificateResolver | None = None,
         certificate_verifier: CertificateVerifier | None = None,

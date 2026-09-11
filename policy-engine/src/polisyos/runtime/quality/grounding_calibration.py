@@ -16,7 +16,8 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts  # noqa: TC001 - Pydantic resolves these fields at runtime.
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
     CREDAL_REFERENCE_SCHEMA_VERSION,
@@ -122,7 +123,12 @@ def resolve_grounding_proof_world_input(
         raise ValueError("proof_world_cas_locator_escapes_repo")
     if not location.is_dir():
         raise FileNotFoundError(f"grounding_proof_world_source_unavailable:{location}")
-    store = artifacts.FileSystemCAS(location)
+    store = build_artifact_store(
+        ArtifactStoreConfig(
+            backend="filesystem",
+            root=str(location),
+        ),
+    )
     # Core verifies the entire original blob/manifest identity. No fresh builder
     # can substitute an equal logical hash with a different genuine creation time.
     manifest = store.get_manifest(declaration.source_ref.artifact_id)
@@ -142,7 +148,12 @@ def produce_grounding_proof_world_input(
     location = world_cas.resolve()
     if not location.is_dir():
         raise FileNotFoundError(f"grounding_proof_world_source_unavailable:{location}")
-    store = artifacts.FileSystemCAS(location)
+    store = build_artifact_store(
+        ArtifactStoreConfig(
+            backend="filesystem",
+            root=str(location),
+        ),
+    )
     manifest = store.get_manifest(world_ref)
     world = load_world_model_record(store, world_ref)
     schema = manifest.artifact_schema

@@ -53,13 +53,23 @@ def build_artifact_store(
     *,
     metrics: MetricsRegistry | None = None,
     tracer: PolicyOSTracer | None = None,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
 ) -> ArtifactStore:
-    """Construct an ``ArtifactStore`` from declarative config."""
+    """Construct an ``ArtifactStore``, preserving supported explicit custody.
+
+    Explicit tenant/cell ownership is currently supported only by the filesystem
+    backend. Other backends refuse that scope instead of silently omitting it.
+    """
+    if config.backend != "filesystem" and (tenant_id is not None or cell_id is not None):
+        raise ValueError("Explicit artifact ownership scope requires the filesystem backend")
     if config.backend == "filesystem":
         from ..store import FileSystemCAS
 
         root = Path(config.root) if config.root else Path.cwd() / ".polisyos" / "cas"
-        return FileSystemCAS(root, metrics=metrics, tracer=tracer)
+        return FileSystemCAS(
+            root, metrics=metrics, tracer=tracer, tenant_id=tenant_id, cell_id=cell_id
+        )
 
     if config.backend == "s3":
         from .s3_store import S3ArtifactStore

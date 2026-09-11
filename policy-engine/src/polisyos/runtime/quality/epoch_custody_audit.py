@@ -18,6 +18,7 @@ from typing import Literal, TypeVar
 from pydantic import AwareDatetime, BaseModel, ConfigDict
 
 from polisyos.core import artifacts, contracts, security
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.runtime.quality.chronology_custody import (
     build_production_epoch_anchor_custody_provider,
 )
@@ -140,7 +141,12 @@ def main(argv: list[str] | None = None) -> int:
             arguments.request.read_bytes()
         )
         ref, receipt = audit_epoch_custody(
-            request=request, store=artifacts.FileSystemCAS(arguments.cas_root)
+            request=request, store=build_artifact_store(
+                ArtifactStoreConfig(
+                    backend="filesystem",
+                    root=str(arguments.cas_root),
+                ),
+            )
         )
     except (OSError, TypeError, ValueError) as exc:
         sys.stderr.write(f"epoch_custody_audit_failed: {exc}\n")

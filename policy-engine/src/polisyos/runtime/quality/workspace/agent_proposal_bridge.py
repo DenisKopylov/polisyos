@@ -8,8 +8,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from polisyos.core.artifacts import ArtifactStore, PutOptions
 from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.pdc import (
     AgentDecisionRecord,
@@ -125,7 +125,7 @@ class AgentEventBridge:
     def persist_event_bundle(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         bundle: AgentEventBundle,
     ) -> list[ArtifactRef]:
         """Persist all Ring-1 agent event records to CAS."""

@@ -8,6 +8,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.runtime.http.services.public_decision_verification import (
     PublicDecisionVerificationService,
     PublicDecisionVerificationTrustedKey,
@@ -66,7 +67,12 @@ def build_public_decision_verification_service(
             for key in config.trusted_keys
         )
     return PublicDecisionVerificationService(
-        store=artifacts.FileSystemCAS(root / "cas"),
+        store=build_artifact_store(
+            ArtifactStoreConfig(
+                backend="filesystem",
+                root=str(root / "cas"),
+            ),
+        ),
         index_root=root / "issued",
         issuer_id=issuer_id,
         signer=signer,

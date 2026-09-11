@@ -118,8 +118,10 @@ records produce `UNRUN`, exit 2, with named omissions and no complete verdict.
 Well-formed complete reports below a floor produce `FAILED`, exit 1. A complete
 report meeting all unchanged floors produces `passed`, exit 0. Existing configured
 tolerance is validated and disclosed; this lane runs at its unchanged zero value.
-Zero-total metrics retain Istanbul's 100% convention and cannot conceal an absent
-file. A missing or malformed baseline cannot become a metric failure.
+Per-file zero-population metrics admit the actual reporter's 0% and 100% forms
+as specified in the post-wave refinement below; they cannot conceal an absent
+file or supply execution observations. An observation-free aggregate is UNRUN.
+A missing or malformed baseline cannot become a metric failure.
 
 On every invocation print the measured scope and a sentence of this form:
 `Not measured: assertion quality, production invocation, source-content freshness
@@ -201,3 +203,61 @@ The root completion journal records the actual full-suite ratio/verdict, the
 exact printed omission sentence, negative receipts, explicit caller limitations,
 and incidental findings' named destinations. A full coverage pass closes this
 row only; it does not make dormant components production-wired or certify CI.
+
+## Post-wave refinement: zero-population reporter representation
+
+The complete final producer wave exits 0 (643.40 seconds), with 7,154 / 8,277
+statements = 86.43%, while the ratchet exits UNRUN/2 on a present source file's
+zero-population metric. This is a NEW producer-representation class: the initial
+consumer assumed that every 0/0 metric must print 100. It is not a measured
+floor failure. The existing successful suite/report remain evidence for their
+unchanged source; no earlier incomplete report supplies this ratio.
+
+The installed owners explain both legitimate forms. `istanbul-lib-coverage`
+3.2.2 calculates 100 for 0/0. `istanbul-lib-report` 3.0.1 caches a report node's
+summary; `istanbul-reports` 3.2.0 HTML reporting changes a lines-empty child's
+cached percentages to 0. `@vitest/coverage-v8` 4.1.5 executes the configured
+text, HTML, JSON-summary and lcov reporters against that context in order.
+Consequently the actual JSON artifact legitimately contains both 0/0,pct=0 and
+0/0,pct=100. The complete report census, installed owner source/hash evidence
+and failed ratchet output are retained in the coverage raw receipts.
+
+Extend only the existing ratchet and its existing test file. For a per-file
+metric, `total == 0` and `covered == 0` admit precisely those two reporter
+representations. Every nonzero population still requires recomputed truncated
+percentage equality. Preserve finite/integer/count bounds, exact current source
+membership and aggregate count reconciliation. An aggregate metric with no
+observations is explicitly UNRUN, rather than manufacturing an adequacy pass
+from a vacuous percentage. The CLI names that zero-population records carry no
+execution observations; accepting their representation does not certify source
+content, producer execution or behavior.
+
+Falsifiers: remove a legitimate zero-population source record while retaining
+its source file and unchanged totals; use nonzero covered with zero total;
+forge a nonzero percentage; supply an arbitrary empty percentage such as 50;
+or supply an all-empty aggregate. Each must remain UNRUN. Both admitted 0/0
+encodings must pass in a complete mixed report without changing its numerator,
+denominator or unchanged floor. Write and observe the new intended red before
+the consumer edit; run every existing and new ratchet test by explicit name,
+then admit the retained actual V8 report through the corrected registered
+consumer. A report-content corruption negative must still fail.
+
+Production caller remains dashboard `package.json::test:coverage` and its
+existing CI/workspace callers. This is a consumer extension, not a new module,
+CLI, fixture producer, or authority owner. The two mechanism paths are
+`apps/runtime-dashboard/scripts/check-coverage-ratchet.mjs` and its existing
+`.test.ts` file. No included product source, baseline, tolerance, coverage glob,
+lockfile, shared Python/architecture configuration or generated artifact changes.
+Every other lane therefore retains the same provision and source contracts;
+the only changed consumer decision is admission of the actual empty-file
+representation and explicit refusal of observation-free aggregate metrics.
+
+Before reusing the successful full report, enumerate its complete file set and
+the live include/exclude expansion and prove both mechanism paths intersect the
+measured source denominator at zero. Preserve the full source-content digest
+and original report bytes across the edit. That evidence justifies a targeted
+ratchet replay instead of another full coverage wave. P38 diagnoses the wrong
+representation predicate; P29/P33 require actual consumer negatives; P35 requires
+the complete denominator; P04 keeps absence of aggregate observations distinct
+from a measured shortfall. Acceptance is a correct complete ratchet verdict
+with all unchanged metric floors and explicit omissions still printed.

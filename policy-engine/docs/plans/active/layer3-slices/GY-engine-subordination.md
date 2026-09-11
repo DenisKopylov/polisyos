@@ -611,6 +611,19 @@ closure is measured on a representative substrate — not a fixture small enough
 metric vacuous. A committed Slice-0 `Slice0FixtureManifest` is allowed (§3.5.1); a
 2-record corpus standing in for the *benchmark substrate* of an F4/F7 closure is not.
 
+  **What *representative* means, ruled 2026-09-08 and transcribed here 2026-09-11 — it splits
+  by claim type, and that split is what removes the contradiction where this gate forbade
+  something it did not define.** A task whose `Done when` **names a specific case** — tourism,
+  ua-msme, the pinned case — has that committed case as its representative substrate, and
+  nothing further is owed; the case *is* the population, because the claim is about that case.
+  A task making a **rate or coverage** claim must use the **canonical producer's declared
+  population**, and the ban on vacuous fixture benchmarks above binds that second kind only.
+  So the question a reviewer asks is not *how large is the substrate* but *what is the claim
+  about* — and a rate claim may not silently take a named-case substrate, which is the
+  substitution this ruling exists to block. This is the one of the five `Done when` rulings
+  that has **never been exercised under pressure**; the other four were, on 2026-09-09, and
+  held. Treat the first rate-claim closure that reaches this gate as its test.
+
 **E. Name-by-function protocol (P30) — so reuse is self-evident.** New files are named for
 the capability they own (`workspace_loop.py`, not `gy_loop.py`); the owner-first grep (C)
 is by *function word*, so it only finds owners if files are function-named. The phase-0–2
@@ -1799,12 +1812,27 @@ cost. Complete evidence, falsifiers and owner routes:
 | `GY-CR5` | 8 | `executed` | `runtime/quality` + `foundry` | 2026-09-10: `docs/superpowers/journals/2026-09-10-gy-lattice-completion.md`; committed negatives in `tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py` (**the decisive negative is `test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes`**, parametrized over both intakes and five corruptions including `unappointed_signer`, asserting zero client calls at the Scientist intake and a non-existent `claim_adjudications_path` at the DataForge intake; with `test_empty_deployment_appointment_cannot_publish`, `test_valid_champion_does_not_authorize_fabricated_run_result`, `test_appointment_cannot_name_its_producer_as_evaluator`, `test_graph_rejects_raw_or_unminted_verified_rows_before_writing`, `test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refused` and `test_claim_transition_rejects_alternate_policy_without_changing_basis` — ten nodes, 22 passing cases; the architect's first citation named only the three synchronous ones because a `^def test_` grep missed four `async def` nodes, and the missed four are the decisive ones) plus `tests/unit/data_forge/domains/academic/batch/_claim_evidence.py`, all delivered at the lane base by `d421575d3`; fresh 46-case verification plus authentication, observation and current-subject removal probes; no closed production source edited. **CITATION REPAIRED 2026-09-10 by the architect.** The row first closed against `GGA-ADJ-02` / `GGA-GATE-02` / `GGA-PA1-05`, and a repo-wide search finds those three strings **only in prose** — this plan, the lane's decision and completion documents, and the 2026-09-07 grade-authority journal. They are that investigation's case labels, not test node identities, and nothing runs when a reader tries them. The substance was never in doubt: `ClaimAdjudicationVerifier` is present at the lane base across eight source files and the committed negatives above are real, so this task closed on evidence that exists. But a `Done when` requiring *a negative test proves a self-issued label is refused* must cite the test, and a label that names no node is a rumour dressed as a receipt | **A grade may not be issued by the party whose claim it grades.** The earlier representation framing remains rejected. The isolated `dependency_authority.py:3085` witness is also corrected: it is a private success payload behind a fieldless token, while `RootAccessAttestationResult` includes rejected and unestablished arms. The module-wide issuance census and real public-token intake negatives (GGA-DEF22-02) do not establish a missing unfavorable outcome there; widening its success Literal would not repair an authority escape. **The historical adjudication defect was repaired before this lane:** both Scientist and DataForge intakes share substantive evaluator authentication and observation recomputation; graph/conflict consumers also bind the complete current subject. Fresh negative and removal probes confirm the repair, and an authentic unfavorable grade is preserved through both consumers without publication. Covers `adjudication-and-champion-chain-is-forgeable` and `public-decision-verified-badge-is-client-computed` (the latter remains in the Atlas surface lane). **Census routing narrowed:** `gy-census-decisive-property-unmeasured` returns to the task-measurement lane; authenticating a runtime receipt cannot establish all of a Markdown task's Done-when conjuncts. Its exact 21-row remainder now carries explicit limits in this table. **Done when** every standing/verification label admitted by a consumer is issued by a producer that is not the claimant, an unfavorable grade is representable wherever a favorable one is, and a negative test proves a self-issued label is refused. Institutional appointments remain typed-empty. `transitive-runner-closure-unbound` stays excluded: its intake-only attestation already declares its limited purpose. No new carrier census or wrapper is implied; `GY-BG0` remains considered and declined. |
 | `GY-FA1` | 8 | `not_started` | `foundry` + `runtime` | registered 2026-09-11 by the architect, taking the **scheduling route** the `foundry-runtime-authority-capabilities-absent` row explicitly offered; measured findings in [`2026-09-10-producers-foundry-authority.md`](../../../superpowers/specs/2026-09-10-producers-foundry-authority.md) | **the four capabilities standing between a runtime observation and runtime authority**, all recorded `absent/unallocated`: `owner_enforced_runtime_subtree_cutoff`, `owner_resolved_resolution_receipt_store`, `platform_toolchain_admission`, `production_data_trust_policy`. The producers-verification lane established that the Foundry production path currently uses a **refusal** authority and that its cutoff-refusal and writer-race witnesses pass — so the boundary is real and the capabilities behind it are absent, which is the correct state and not a defect. **The decisive property is writer independence**: the source writer must not be able to alter the admitted set while keeping a green cutoff receipt, and a self-authored path list, a self-computed hash, or a second walk by the same writer does not supply it. Bound by `P05`/`P15`/`P37` — neither a candidate observation nor an institutionally supplied claim may alone carry an authority gate — and by `P38`, which separates writer-independent control from an observed path list. Registered **here rather than as a standalone plan file** because the plan's own document rule holds that non-frontend work lives in this plan; the lane proposed `FR-AUTH-01` as a separate active plan and labelled it `proposed` with acceptance outstanding, which was scrupulous but the wrong destination. Done when: each of the four has a typed contract, a real production producer with a named non-test caller, a persisted receipt read back by an exact reader, and a negative that refuses on missing, unverifiable or wrongly scoped evidence; falsifying the declared cutoff basis while keeping the declaration must fail; and removing any producer or its admission binding must turn an unchanged negative red. **No consumer may treat a recomputed runtime observation as authority in the meantime.** |
 
-**Current denominator (recomputed 2026-09-07): 74 tasks — 42 `executed`, zero
-`in_flight`, one `not_executable`, 22 `not_started`, nine `ambiguous`.**
-The exact ambiguous identity set is `GY-M1`, `GY-D1`, `GY-C1`, `GY-C3`, `GY-F1`,
-`GY-M2`, `GY-J`, `GY-L`, `GY-S3`. The former 72-row/48-executed/two-ambiguous
-paragraph described the 2026-08-30 census before Task Q's retyping and later task
-additions; it is not a current count. `GY-K`'s earlier collision was resolved by
+**The denominator is not restated here, and that is deliberate — 2026-09-11.**
+The authoritative count is the table above, and the computed one is the
+`GY-engine-subordination.md` row of the task-census table in
+[`LEDGER.md`](../LEDGER.md#task-census-coverage), recomputed on every ledger run from this
+table and verified against the published `gy_tasks` denominator in
+`tools/quality/validation/check_debt_ledger.py`. A row added here without bumping that
+denominator fails the gate.
+
+**Why the paragraph that used to sit here is gone rather than updated.** It read *74 tasks —
+42 executed, zero in_flight, one not_executable, 22 not_started, nine ambiguous*, dated
+2026-09-07, and it had itself replaced an earlier *72-row/48-executed/two-ambiguous*
+paragraph with the note that the predecessor *"is not a current count."* By 2026-09-11 the
+table held 77 rows at 55 `executed`, 15 `not_started`, 5 `blocked`, 2 `not_executed` and
+**zero** `ambiguous` — so the paragraph that warned about a stale predecessor had gone stale
+in exactly the same way, and a third hand-written count would have gone the same way again.
+**A hand-maintained number beside a computed one is a defect, not documentation.** The same
+defect was removed from the ledger's own task-census row on 2026-09-10, where a literal `37`
+and a census frozen at 2026-08-28 were reprinted on every run as if generated.
+The historical ambiguous identity set — `GY-M1`, `GY-D1`, `GY-C1`, `GY-C3`, `GY-F1`, `GY-M2`,
+`GY-J`, `GY-L`, `GY-S3` — is retained as a record of Task Q's retyping, not as a current
+status: none of those rows is `ambiguous` today. `GY-K`'s earlier collision was resolved by
 experiment, and that historical ruling remains distinct from full-conjunction
 completion evidence. The script and independently reconciled identity sets are
 recorded in the grade-authority journal.
@@ -1835,6 +1863,73 @@ What closing Phase 5 does **not** establish: the governed epoch artifact remains
 and the owner-enforced runtime cutoff, the two epoch signers and the writer-independent holder all
 remain `absent/unallocated`. Those are institutional appointments, not Phase-6 work, and Phase 6
 does not wait on them.
+## 8.6 Ruled `Done when` predicates (authoritative wording)
+
+Four task clauses named a condition **no measurement could settle as written**, and a fifth
+phrase was shared by the whole plan. They were ruled by the architect on 2026-09-08 and are
+transcribed here on 2026-09-11 so a third party can evaluate each **without asking the
+author** — which is the closure condition the register row
+`gy-done-when-clauses-that-cannot-be-evaluated-as-written` set.
+
+**These rulings live here rather than in the §8.5 rows because two of the four tasks are
+`executed`**, and a closed task is not edited even for a clarification inside its own scope.
+The rulings govern how a row is *read*; they change no row's status and **none of them
+rescues a conjunct already measured false.** Each exists so that a future green means
+something.
+
+### `GY-C1` — `trajectory_extent`
+**An attempted default trajectory that reaches a typed terminal counts as *runs*.** Requiring
+every default step to execute would make *runs* mean *succeeds*, which contradicts Decision 5's
+anytime exit and the fact that `GY-L`'s own `Done when` lists `search_ceiling_repair_required`
+as an allowed terminal. **What does not count is selection without attempted execution.** C1's
+deciding failure is unaffected by this ruling — it is the §3.5.3 conformance-before-admission
+rule, not this clause.
+
+*Exercised 2026-09-09 and held:* applied without being stretched — an attempted trajectory
+reaching a typed terminal counted, and **no successful C3 ESTIMATE was inferred from it**,
+which was the exact way the ruling could have been abused.
+
+### `GY-K` — `accuracy_evaluation_basis`
+**This is a correspondence claim and it takes the standing rule** —
+`correspondence-acceptance-standing-rule`: one-sided gold, negatives from construction, a
+pre-declared dated stratum, and **no positive accuracy rate claimed before the appointment**.
+Since 2026-09-10 that rule's non-substitution boundary is also ratified as `W5-K07`.
+
+**The immediate requirement is far weaker and fully buildable now: the instrument must measure
+the extractor.** Removing `extract_span_grounded_claims_from_openalex_work` must change the
+report, and fabricated claim and span text must be refused. That alone is this task's
+engineering half.
+
+*Exercised 2026-09-09 and held:* produced exactly the intended split — the engineering half
+built and measured, the positive number emitted as `withheld_pending_adjudicator_appointment`
+with precision and recall **present-and-null** rather than absent.
+
+### `GY-J` — `metric_population_and_period`
+**The population is the canonical producer's own** — the production-catalog observations built
+at `check_layer3_gy_loop_artifacts.py:318-322` — **and the period is the report generation.**
+**A fixture may not enter that numerator.** If the intended population is wider, that is an
+explicit change to the producer carrying its own justification, never a fixture promotion. So
+J closes when a real production-catalog run reaches a partial admissible outcome on that
+population.
+
+*Exercised 2026-09-09 and held:* the canonical run measured **0/1** on the producer's declared
+population and **no Slice-0 fixture entered the numerator**, though one was available and would
+have shown 1/1.
+
+### `GY-F1` — `surface_member_granularity`
+**The denominator is exactly the six surface classes the canonical owner lists at
+`check_layer3_workflow_failure_authority.py:29`, plus worker** — not every route, format and
+audience within them. That condition is **already discharged**: all seven were measured blocked
+or refused on 2026-09-08, and F1's remaining conjunct was the `P29` canonical proof recompute,
+since discharged.
+
+### Shared — `representative substrate`
+Ruled and transcribed into the gate that uses it, §3.5.5 item D, rather than repeated here.
+It splits by claim type: a named-case `Done when` has that case as its substrate; a **rate or
+coverage** claim must use the canonical producer's declared population, and the ban on vacuous
+fixture benchmarks binds only the second kind. **This is the one of the five never exercised
+under pressure** — the first rate-claim closure that reaches the gate is its test.
+
 ## 9. The build tasks
 
 Each task names its **posture** (`wire-existing` / `extend-existing` /

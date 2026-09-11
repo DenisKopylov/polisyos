@@ -74,7 +74,7 @@ amended 3, amended 4, amended 5**, explicitly including **W5-K07** and **W4-K01*
   Difficulty is derived from inputs alone over the entire declared `/inputs`
   array. It is the hardest tier actually present in that held frame, not an
   invented harder population. The other four fields are epoch scope, not keys.
-  The fresh defensive re-declaration and its execution are **pending** below.
+  The fresh defensive re-declaration is recorded below; its execution is pending.
 - **3 — construction and appointment.** Opposite-sign pairs are wrong by
   construction. Matched synthetic controls remain outside the denominator.
   No independently authoritative positive constructibility proof or
@@ -86,6 +86,27 @@ amended 3, amended 4, amended 5**, explicitly including **W5-K07** and **W4-K01*
 - **5 — separate qualification.** Purpose is `CAUSAL_INSTANTIATION`.
   Appointment is `absent/unallocated`. The shared acceptance procedure transfers
   neither legal qualifications nor predicates, populations or counts.
+
+The fresh defensive frame was declared at **2026-09-11T07:52:02.008167+00:00**
+and bound in `frame-manifest.json` before any suite outcome. Its complete input
+and mismatch denominators are the separately hashed `frame.json:/inputs` and
+`suite.json:/mismatches` under `raw/fresh-defensive-2026-09-11/`. Root read the
+whole context and verified all declared file hashes; no report existed then.
+The input-only walk found three held inputs, all cross-modal, and one shared
+support cluster. These are defensive inputs, not three independent calibration
+observations. The selected family/cell is unchanged.
+
+The actual new WMR ref is
+`sha256:dfd506dbd943092925c954b7dc96db87396010b6169bfb58cbbbb4a4ac6a71ac`.
+Its logical content hash equals the pinned old WMR's, but its actual creation time
+is `2026-09-11T07:51:54.100089+00:00`; no historical timestamp was manufactured.
+Against the lane merge base, only the reference epoch moves from
+`synthetic-refusal:f20a23c7e51a1afb` to
+`synthetic-refusal:6741c0b86c92e873`. Model, prompt and the held owner-input cohort
+remain as declared. CGF §E.4.1 therefore receives an explicit new dated defensive
+frame, with empty positive calibration denominator and no numerical reuse.
+No existing governed artifact is reissued. Native live execution/check/drift:
+**pending**.
 
 The corrected-station native suite passed **15 actual cases**, reconciled against
 all selected node arguments and the complete `raw/causal-tests.xml` testcase set.

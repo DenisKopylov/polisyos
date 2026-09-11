@@ -126,5 +126,44 @@
     "model_or_prompt_move": "recollection required; reuse forbidden",
     "reference_only_move": "reuse only if repair proven to touch no member",
     "new_birth_cohort": "cold_start; proof-grade-only or high-abstain until adequate effective_n"
+  },
+  "fresh_defensive_redeclaration": {
+    "declared_at": "2026-09-11T07:52:02.008167+00:00",
+    "purpose": "CAUSAL_INSTANTIATION",
+    "context": {
+      "path": "docs/superpowers/journals/correspondence/raw/fresh-defensive-2026-09-11/context.json",
+      "sha256": "sha256:3bc3276a37f026bbe75915dc83102bdc05fb6e49ad02ad7d86805d6fa60cb0fc"
+    },
+    "files": {
+      "docs/superpowers/journals/correspondence/raw/fresh-defensive-2026-09-11/frame.json": "sha256:0488d7d41ff55ec23bc7636dc31ae1b78788ada2244f223cac2a174f9441ae3b",
+      "docs/superpowers/journals/correspondence/raw/fresh-defensive-2026-09-11/suite.json": "sha256:aea7d4ec34f1eb320e6b9f21459bed91f02af02803c33031e689e975e2d6bae0",
+      "docs/superpowers/journals/correspondence/raw/fresh-defensive-2026-09-11/proof-input.json": "sha256:e4d427ddcd1d65b07ba4820ee9015fa8ca724a0044ac43b736c65a6260fd9316"
+    },
+    "complete_input_denominator": {
+      "path": "docs/superpowers/journals/correspondence/raw/fresh-defensive-2026-09-11/frame.json",
+      "json_pointer": "/inputs"
+    },
+    "complete_constructed_negative_denominator": {
+      "path": "docs/superpowers/journals/correspondence/raw/fresh-defensive-2026-09-11/suite.json",
+      "json_pointer": "/mismatches"
+    },
+    "source_world_ref": "sha256:dfd506dbd943092925c954b7dc96db87396010b6169bfb58cbbbb4a4ac6a71ac",
+    "epoch_scope": {
+      "proposer_model": "owner_input_projection_no_model",
+      "prompt_version": "no_prompt",
+      "atom_birth_cohort": "2026-09-08-owner-inputs",
+      "reference_epoch": "synthetic-refusal:6741c0b86c92e873"
+    },
+    "previous_reference_epoch_at_lane_merge_base": "synthetic-refusal:f20a23c7e51a1afb",
+    "epoch_delta_from_lane_merge_base": [
+      "reference_epoch"
+    ],
+    "selected_stratum_changed": false,
+    "campaign_operation": "fresh_defensive_construction_not_positive_calibration_recollection_or_reuse",
+    "historical_exact_source_replay": "source_unavailable_at_declared_CAS_address",
+    "calibration_denominator_ids": [],
+    "correctness_bound": null,
+    "adjudication_budget_spent": false,
+    "governed_artifact_reissued": false
   }
 }

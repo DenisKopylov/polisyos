@@ -40,7 +40,7 @@ GROUPS = {
     ],
     "epoch": [
         ("src/polisyos/runtime/quality/epoch_validity_cascade.py", "EpochValidityTransitionProducer|EpochDependencyDenominatorProvider|EpochPerturbationAdjudicationProvider|NoEpochTransitionSigningAuthority"),
-        ("src/polisyos/scientist/validation/decision_validity.py", "NoEpochTransitionVerifier|__init__|apply_epoch_validity_transition|_resolve_epoch_target_denominator"),
+        ("src/polisyos/scientist/validation/decision_validity.py", "NoEpochTransitionVerifier|__init__|admit_epoch_validity_batch|_resolve_epoch_target_denominator"),
         ("src/polisyos/runtime/quality/epoch_denominator_reconciliation.py", "EpochTransitionDenominatorReconciliationReader|_require_appointment"),
     ],
     "promotion": [
@@ -51,7 +51,7 @@ GROUPS = {
     "mandate": [
         ("src/polisyos/runtime/quality/agent_action_authority.py", "CurrentMandateOwnerEvidence|_resolve_current_mandate_authority|resolve_delegation_contract"),
         ("src/polisyos/runtime/http/services/acquisition_action_service.py", "AcquisitionAuthorityGatewayProvider|_require_authority_provider|__init__|request_decision|execute"),
-        ("src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py", "AgentActionDelegationContract"),
+        ("src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py", "DelegationContract"),
         ("src/polisyos/runtime/http/app.py", "create_runtime_api_app"),
         ("src/polisyos/runtime/http/container.py", "RuntimeContainerOverrides"),
     ],
@@ -88,7 +88,7 @@ def main():
             "claim": r"ClaimSupersessionAuthority|produce_claim_supersession_owner_event|build_default_claim_ledger_owner|append_verified_owner_event|owner_event_authority",
             "promotion": r"ValueGateReceipt|CanonicalN9PromotionPort|ValuePortObservation|persist_effect_obligation|persist_measurement_root|persist_effective_independence|Promotion.*Safety|Safety.*Promotion",
             "public": r"GlobalCaseIndexProducer|GlobalCaseIndexCapabilityDiscoveryProvider|build_public_decision_verification_service|promoted_record",
-            "mandate": r"mandate.*[Pp]rovider|[Dd]elegation.*[Pp]rovider|CurrentMandateOwnerEvidence|AgentActionDelegationContract",
+            "mandate": r"mandate.*[Pp]rovider|[Dd]elegation.*[Pp]rovider|CurrentMandateOwnerEvidence|DelegationContract",
             "a11y": r"[Cc]ountersign|AccessibilityDocumentBinding|accessibility_document",
         }[args.group]
         source = [r for r in inventory["records"] if r["path"].startswith("src/") and re.search(names, r["name"])]
@@ -132,7 +132,9 @@ def main():
                 current = hashlib.sha256(raw).hexdigest()
                 compared.append({"path": binding["path"], "expected": binding["sha256"], "actual": current, "matches": current == binding["sha256"]})
             assert len({r["path"] for r in compared}) == len(compared)
-            output["complete_binding_comparison"][key] = {"denominator": len(compared), "current": sum(r["matches"] for r in compared), "rows": compared}
+            output["complete_binding_comparison"][key] = {"denominator": len(compared),
+                "file_types": dict(sorted(Counter(Path(r["path"]).suffix for r in compared).items())),
+                "current": sum(r["matches"] for r in compared), "rows": compared}
         selected = [n for n in ast.walk(parsed) if isinstance(n, ast.FunctionDef) and n.name in {"_c13_independent_print_receipt", "_c13_receipt_shape_errors", "_validate_c13_print_roots"}]
         output["reader_bodies"] = [{"name": n.name, "line": n.lineno, "body": ast.get_source_segment(checker, n)} for n in selected]
     else:
@@ -144,6 +146,14 @@ def main():
             end = re.search(r"^####? ", text[heading.end():], re.M)
             sections[name] = text[heading.start(): heading.end() + end.start() if end else len(text)]
         output.update(source=f"{path}@{BASE}", frontmatter=text.split("---", 2)[1] if text.startswith("---") else "no frontmatter", sections=sections)
+        parser_path = "architecture/atlas_surfaces/check_atlas_enforcement.py"
+        parser_source = read(parser_path)
+        parser_tree = ast.parse(parser_source)
+        selected = [n for n in ast.walk(parser_tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name in {"_tracked_atlas_plan_paths", "_yaml_frontmatter", "validate_slice_scope_obligations"}]
+        output["scope_reminder_parser"] = {"source": f"{parser_path}@{BASE}", "definitions": [
+            {"name": n.name, "line": n.lineno, "body": ast.get_source_segment(parser_source, n)} for n in selected]}
+        manifest_path = "architecture/atlas_surfaces/slice-scope-obligations.json"
+        output["scope_reminder_manifest"] = {"source": f"{manifest_path}@{BASE}", "content": json.loads(read(manifest_path))}
     print(json.dumps(output, indent=2, ensure_ascii=False))
 
 

@@ -182,5 +182,53 @@
     "seconds": 2.742,
     "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-mandate-v2.txt",
     "sha256": "055d29d5655ed39743f3ddc36c0d2c93bf94c9524424363d141b68453925d85b"
+  },
+  "slots-epoch-v2": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py epoch",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.548,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-epoch-v2.txt",
+    "sha256": "26020a893ec0ed3c2c31bcf4d619eee32f66e409fff9f5e2a1ca6c13b3cd76b5"
+  },
+  "slots-mandate-v3": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py mandate",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 2.851,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/slots-mandate-v3.txt",
+    "sha256": "2a822f223188f0eebcb7a643b27bc26ef44bfdbf2dd60213665b45c544e788ad"
+  },
+  "c13-current-bindings-v2": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py c13",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 1.607,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/c13-current-bindings-v2.txt",
+    "sha256": "4dcf634fa9117c45c7e30bf7f5868548ae7eb67dacf31a22da865952e5f9b123"
+  },
+  "atlas-scopes-v2": {
+    "command": "python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py authority",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 0.566,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/atlas-scopes-v2.txt",
+    "sha256": "5616e027c65a5af36a0bff9b3a59f03bfe4a9e2d055e16464468be5c01cc6075"
+  },
+  "pv-authority": {
+    "command": "git show fc823071a7b6f2c9a573172aec3499ad6d138c0f:policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 0.021,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/pv-authority.txt",
+    "sha256": "cec0658a3df7828e19a9f2c3e20b56629f8bc8e0db32aa703d1ed215214fd7fe"
+  },
+  "assessment-consistency": {
+    "command": "python3 -c 'from collections import Counter\nimport hashlib\nimport json\nfrom pathlib import Path\nimport re\nreport_path = Path(\"docs/superpowers/specs/2026-09-11-debt-nature-survey-blocked-ac.md\")\nmanifest_path = Path(\"docs/superpowers/journals/debt-survey/denominator/reconciliation.json\")\nreceipt_path = Path(\"docs/superpowers/journals/debt-survey/blocked-ac/receipts.json\")\nsource = report_path.read_text()\nrows = json.loads(source.split(\"```json\\n\", 1)[1].split(\"\\n```\", 1)[0])\nheadings = re.findall(r\"^### [0-9]+\\. `([^`]+)`\", source, re.M)\nmanifest = json.loads(manifest_path.read_text())\nexpected = [r[\"id\"] for r in manifest[\"nonterminal\"] if r[\"status\"] == \"blocked\" and r[\"section\"] in {\"A\", \"C\"}]\nids = [r[\"id\"] for r in rows]\nassert len(ids) == len(set(ids)) == len(headings) == len(expected)\nassert set(ids) == set(headings) == set(expected)\nfields = (\"premise_false\", \"appointment_effect\", \"engineering\", \"allocation\", \"confidence\")\nfirst = {f: dict(sorted(Counter(r[f] for r in rows).items())) for f in fields}\nsecond = {f: {v: sum(r[f] == v for r in rows) for v in sorted({r[f] for r in rows})} for f in fields}\nassert first == second\nassert all(sum(v.values()) == len(rows) for v in first.values())\nreceipts = {k: v for k, v in json.loads(receipt_path.read_text()).items() if k != \"assessment-consistency\"}\nmismatches = [k for k,v in receipts.items() if hashlib.sha256(Path(v[\"complete_output\"]).read_bytes()).hexdigest() != v[\"sha256\"]]\nassert not mismatches\nprint(json.dumps({\n \"measurement\": \"assessment document consistency, not source capability verification\",\n \"report\": str(report_path), \"report_file_type\": \".md\",\n \"report_sha256\": hashlib.sha256(report_path.read_bytes()).hexdigest(),\n \"manifest\": str(manifest_path), \"manifest_file_type\": \".json\",\n \"base\": manifest[\"base\"], \"membership\": {\"count\": len(rows), \"json_equals_numbered_headings_equals_manifest\": True},\n \"aggregation\": \"Counter equals independent predicate sum; all field counts sum to membership\",\n \"distributions\": first,\n \"engineering_complete_and_changes_reachable_slot\": sum(r[\"engineering\"] == \"complete\" and r[\"appointment_effect\"] == \"changes_reachable_slot\" for r in rows),\n \"receipt_index\": str(receipt_path), \"receipt_denominator_excluding_this_record\": len(receipts),\n \"receipt_hash_mismatch_labels\": mismatches\n}, indent=2))\n'",
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/debt-nature-survey/policy-engine",
+    "exit_code": 0,
+    "seconds": 0.059,
+    "complete_output": "docs/superpowers/journals/debt-survey/blocked-ac/raw/assessment-consistency.txt",
+    "sha256": "5b053aaaf65168666063ee9da50ac7e0bbb96851f414a8f8540a56711acbd0a8"
   }
 }

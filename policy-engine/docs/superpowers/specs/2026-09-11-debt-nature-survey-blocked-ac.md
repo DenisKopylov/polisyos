@@ -37,24 +37,44 @@ The command keys below each identify one exact replayable command in that index:
 | --- | --- | --- |
 | PUBLIC | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py public` | `slots-public` |
 | CLAIM | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py claim` | `slots-claim` |
-| EPOCH | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py epoch` | `slots-epoch` |
+| EPOCH | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py epoch` | `slots-epoch-v2` |
 | PROMOTION | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py promotion` | `slots-promotion-v2` |
-| MANDATE | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py mandate` | `slots-mandate-v2` |
+| MANDATE | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py mandate` | `slots-mandate-v3` |
 | A11Y | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py a11y` | `slots-a11y` |
-| C13 | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py c13` | `c13-current-bindings` |
+| C13 | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py c13` | `c13-current-bindings-v2` |
 | WAIST | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py ds5` | `ds5-table` |
-| ATLAS | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py authority` | `atlas-scopes` |
+| ATLAS | `python3 docs/superpowers/journals/debt-survey/blocked-ac/inspect_slots.py authority` | `atlas-scopes-v2` |
+| PV | `git show fc823071a7b6f2c9a573172aec3499ad6d138c0f:policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md` | `pv-authority` |
 | TS | `node docs/superpowers/journals/debt-survey/blocked-ac/inspect_frontend.mjs` | `frontend-ast` |
 | DEMAND | Exact complete-corpus regex command in the named receipt | `demand-inventory` |
 | HTTP | Exact three-selector pytest command in the named receipt | `public-and-case-http-data` |
 | CLAIM-HTTP | Exact positive and default-negative pytest command in the named receipt | `claim-http` |
 | C13-TEST | Exact C13 conjunction pytest command in the named receipt | `c13-conjunction` |
+| ASSESSMENTS | Exact JSON/heading/reconciliation and receipt-hash command in the named receipt | `assessment-consistency` |
 
 Pattern pass: P01/P02/P03 (chain and surface), P05/P15/P32 (purpose-bound authority),
 P29/P35/P37/P38 (behavior, complete sets, predicate source and proxy divergence), P36 (warrant),
 P39/P41 (proportional receipts and provenance of failure). The existing recurring survey hazard is
-to call a implemented refusal a fillable positive appointment slot. The target is the whole
+to call an implemented refusal a fillable positive appointment slot. The target is the whole
 producer → artifact → bridge → consumer property with declared confidence and missing links.
+
+PV's `PV-K01`, `PV-K02` and `PV-K03` distinguish issuer authenticity, current authority and
+proof/content authority. They support the semantic distinction used below, not a source claim:
+the ratification's `may_not_use_for` explicitly excludes capability claims, canonical-owner
+assignment, implementation authorization, appointments and publication permission. Its final
+operational exclusions and revisit conditions were read along with its frontmatter.
+
+ATLAS contains an explicit 2026-09-01 **Debt rows this slice must close** ownership act for DS12,
+which says a separate slice plan is unnecessary. Its 2026-08-31 DS14 inherited-obligation act
+places the Clerk work in executable scope. These are documentary ownership, not runtime evidence.
+The separate `validate_slice_scope_obligations` parser reads only `type: slice-plan` YAML
+frontmatter and exact `atlas_residual_inputs`; absent target plans deliberately produce no error.
+It does not read those master-plan body acts. Its manifest is `candidate_only` with
+`closure_effect: none`, so neither that marker nor a green parser result decides whether the
+documentary owner exists. ATLAS retains the full parser bodies and manifest beside the scope acts.
+The bounded consistency pass corrected the epoch selector to the delivered
+`admit_epoch_validity_batch` and the mandate selector to `DelegationContract`; the new receipts
+retain those complete bodies. Earlier outputs remain as historical measurement attempts.
 
 ## Per-row accounts
 
@@ -62,7 +82,7 @@ producer → artifact → bridge → consumer property with declared confidence 
 
 **Measured narrower; engineering incomplete in default deployment.** CLAIM reads a real signed
 owner-event producer, resolver, append-only ledger operation and a distinct frozen
-`claim_owner_event_bridge` profile in `scientist/evidence/claims/{owner_events,head_index}.py`.
+`claim_owner_event_bridge` profile in `src/polisyos/scientist/evidence/claims/owner_events.py@fc823071a` and `src/polisyos/scientist/evidence/claims/head_index.py@fc823071a`.
 The earlier stub and incompatible-profile premises are false. `lifecycle_bridge.py` creates a
 candidate, then calls `append_verified_owner_event`; the runtime monitor route consumes it.
 CLAIM-HTTP passes the exact historical positive signal and the default-negative control using
@@ -84,7 +104,7 @@ production configuration remains `unestablished`; the dev HTTP chain is `measure
 ### 2. `DS11-EXTERNAL-A11Y-COUNTERSIGN`
 
 **Measured engineering gap behind an institutional input.** A11Y reads
-`scientist/evidence/claims/posture.py`: `AccessibilityDocumentBinding` binds an internal historical
+`src/polisyos/scientist/evidence/claims/posture.py@fc823071a`: `AccessibilityDocumentBinding` binds an internal historical
 document and explicitly requires its statement that it does not replace the third-party
 countersign. The external-certification arm of `_validate_fixed_semantic_bindings` is fixed to
 `SourceClaimState.BLOCKED`, `evidence=None`, and a denied
@@ -103,19 +123,20 @@ engineering completeness is not. No shared deciding property with print receipts
 
 ### 3. `DS11-FULL-TRUST-CENTER-AND-DOCS-IA`
 
-**Measured scope mismatch; allocation is inferred.** The retained marketing master explicitly
+**Measured scope mismatch; successor ownership is explicit.** The retained marketing master explicitly
 has `status: superseded`, `execution_authority: superseded`, and directs DS11–DS13 through the
 Atlas master. Its Phase 2.11 and 2.15 prose is an inventory, not a fourth execution authority.
 DS11's explicit non-closure preserves certifications, procurement, status, forms, sandbox,
-calculators and general docs as `surface_out_of_scope`. ATLAS/DEMAND establish a successor scope
-context, not an executing allocation for each retained route.
+calculators and general docs as `surface_out_of_scope`. ATLAS's DS12 **Debt rows this slice must
+close** names this exact row and calls it the successor allocation DS11 declared. The old
+marketing-versus-Atlas routing question is therefore answered by the active execution master.
 
-**Typed empty:** no institutional field is the blocker; this row concerns unallocated surfaces.
+**Typed empty:** no institutional field is the blocker; this row concerns retained surfaces.
 Non-test reachability of a complete retained-route population with approved owners/evidence
 contracts is `unestablished`. Existing `/trust` posture does not establish that population.
 Appointment has no role in building these surfaces. Engineering is incomplete at producer,
 route/evidence-contract and verification links; exact residual population is unmeasured here.
-**Unblocks:** an operational scope/allocation for the retained surfaces. **Discharges:** each
+**Unblocks:** the historical successor-allocation condition is already met. **Discharges:** each
 retained route meets its own owner/evidence contract. It does not reduce to publication or the
 other DS11 rows; its population and repair differ.
 
@@ -136,13 +157,14 @@ positive promotion evidence → public performance admission/projection (`produc
 its public-purpose evidence bridge. **Discharges:** content-bound performance evidence passes
 its specific test and DS12's publication admission. Shared prerequisites with the publication
 pair and first-candidate row are not whole-row reductions: performance meaning is an additional
-property.
+property. DS12's same ownership act names this exact row; unresolved engineering is not evidence
+of unresolved slice allocation.
 
 ### 5. `DS11-INHERITED-C13-PRINT-RECEIPT`
 
 **Measured same deciding object as row 6; evidence is stale again.** C13 re-hashes the complete
-admitted denominator: **11 source bindings = 6 current + 5 stale**, and **3 producer bindings =
-3 current**. C13-TEST fails at the actual current-byte conjunction on
+admitted denominator: **11 source bindings (7 `.tsx`, 2 `.ts`, 1 `.css`, 1 `.png`) = 6 current +
+5 stale**, and **3 `.py` producer bindings = 3 current**. C13-TEST fails at the actual current-byte conjunction on
 `AmbientTelemetryHud.tsx`; it is not a missing capture or collection failure. The reader first
 checks retained raw executions and then exact current bytes. The schema still limits DS18
 `source_reconciliations` to `maxItems: 1`.
@@ -176,7 +198,7 @@ full error set was not measured and no source was changed to make the receipt fi
 ### 7. `ds10-global-case-index-producer-allocation`
 
 **Measured premise false for the stated candidate-discovery chain.** PUBLIC shows
-`GlobalCaseIndexProducer` in `runtime/quality/global_case_index.py` persists and re-reads a
+`GlobalCaseIndexProducer` in `src/polisyos/runtime/quality/global_case_index.py@fc823071a` persists and re-reads a
 scope-bound S2 candidate snapshot. `GlobalCaseIndexCapabilityDiscoveryProvider.search` persists
 a content-bound owner receipt, and `control_registry_providers.py` installs the provider.
 HTTP passes the row's exact named test plus the false-persisted-binding negative: real S2
@@ -206,14 +228,16 @@ consumer cannot receive a positive record through that contract. Engineering is 
 the debt's governed property (`producer_missing`, `bridge_missing`, `surface_missing`), even if
 an institution is appointed today. **Unblocks:** a real promoted record and its positive typed
 public contract. **Discharges:** the governed decision is custody-bound and rendered through
-its own gate. It is a reduction candidate with row 13 only for **governed public-record
+its own gate. DS12's **Debt rows this slice must close** explicitly assigns this exact row;
+the remaining positive bridge is owned engineering, not an unresolved candidate allocation.
+It is a reduction candidate with row 13 only for **governed public-record
 admission**; rendering and citizen publication acceptance must not disappear in that reduction.
 
 ### 9. `ds15-mandate-intake-has-no-registered-task`
 
 **Measured mixed engineering/institutional boundary; equivalent allocation unestablished.**
 MANDATE reads the real `CurrentMandateOwnerEvidence` and CAS/signature/currentness resolver in
-`runtime/quality/agent_action_authority.py`. `AcquisitionActionService` has a typed
+`src/polisyos/runtime/quality/agent_action_authority.py@fc823071a`. `AcquisitionActionService` has a typed
 `AcquisitionAuthorityGatewayProvider | None` and refuses when absent. Container composition
 passes only `config.overrides.acquisition_authority_provider`; non-development app creation
 rejects direct `container_overrides` and demands a factory-attested deployment-security bundle.
@@ -246,7 +270,8 @@ leaves the reconciliation reader unfilled; the reader itself requires verifier p
 Missing: complete dependency/adjudication providers, a real trigger, producer-identity carrier,
 positive persistence and reconciliation wiring (`implemented_but_not_orchestrated`,
 `producer_missing`, `bridge_missing`). Appointment today changes none of those missing links.
-**Unblocks:** a reachable producer with complete owner inputs and an actual positive artifact
+Allocation remains **inferred**, from missing production composition and the DS18 non-closure,
+not proved by a zero constructor count. **Unblocks:** a reachable producer with complete owner inputs and an actual positive artifact
 terminus. **Discharges:** a real trigger persists the exact positive transition for downstream
 intake. This is not reduced to the verifier row: producer emission and independent verification
 have different deciding properties and holders.
@@ -265,7 +290,8 @@ that reader is absent. Thus absence of the reconciliation mechanism is not the r
 injections also default empty. Non-test DecisionValidity callers exist; a positive verification
 provider/caller is unestablished. Missing: positive verifier, admitted verifier provenance,
 reconciliation injection and real transition consumption (`producer_missing`, `bridge_missing`).
-Appointment alone cannot make the default verifier inspect bytes. **Unblocks:** the positive
+Appointment alone cannot make the default verifier inspect bytes. Allocation remains **inferred**;
+the constructor census establishes missing injection, not an exhaustive owner census. **Unblocks:** the positive
 verification and reconciliation chain can consume an exact transition. **Discharges:** positive
 end-to-end verification with wrong/missing/substituted evidence refused. Same dependency chain
 as row 10, but different repair and holder; prefix grouping is refuted.
@@ -284,10 +310,13 @@ families. TS finds delivered `ProjectionFreshness` and public-verification DTO v
 absence of the old group label therefore does not prove the promised contract is absent. The
 full semantic adequacy of every current issuer at those historic sites was not established.
 Engineering remains **unestablished at exact residual granularity**, with `bridge_missing` /
-`semantic_test_missing` as hypotheses rather than reasserted census facts. **Unblocks:** executing
-allocation of the as-yet-undischarged issuer obligations; **discharges:** each actual table
-property, not a plan filename. Allocation is **inferred yes for unresolved execution**, not an
-owner appointment. The six groups do not share one repair and holder; they cannot be collapsed
+`semantic_test_missing` as hypotheses rather than reasserted census facts. **Unblocks:** the
+historical planless condition is discharged; exact outstanding issuer obligations and their
+existing build ownership are not fully resolved here. **Discharges:** each actual table
+property, not a plan filename. DS12/DS14's four groups have explicit scope ownership; equivalent
+assignment of the DS15 generated-promotion-union/private-issuer property is **unestablished**,
+and cannot be inferred absent from a group-name search. Whole-row allocation is therefore
+**unestablished**, not a proved allocation defect. The six groups do not share one repair and holder; they cannot be collapsed
 into a single class solely because all use branded owner presentations.
 
 ### 13. `ds8-public-case-publication`
@@ -300,9 +329,11 @@ promotion receipt cannot become a governed public record through the delivered r
 
 **Typed empty:** that literal-empty record field. Non-test report issuance/verification is
 reachable; positive governed public-case admission remains `producer_missing`/`bridge_missing`.
-Appointment alone cannot alter a Literal or supply the promotion/design evidence. Scope
-allocation to DS12 is explicit; whether a remaining executing task owns every positive record
-link is `unestablished`, so the old candidate-not-owner label is not simply repeated.
+Appointment alone cannot alter a Literal or supply the promotion/design evidence. DS12's
+**Debt rows this slice must close** explicitly makes it the owner without a separate slice plan;
+the exact row is also in **Inherited obligations taken into scope**. Allocation is **no** for
+the recorded candidate-not-owner question. The master names the positive record half in Goal
+and Producer & bridge work; an absent standalone filename or running dispatch does not undo that act.
 **Unblocks:** positive promotion-to-public-record engineering and genuine evidence.
 **Discharges:** one custody-bound governed case is actually published and citizen-verifiable.
 Partial reduction candidate with row 8 and B's signed-public-decision surface: shared governed
@@ -322,7 +353,10 @@ present. TS walks all **32 Clerk `.ts/.tsx` files** and finds no literals of the
 `orchestration_audit`; this is exact vocabulary evidence only. The delivered run-based vocabulary
 was read before comparison. Positive G6 authority-delta/session/audit projection through Clerk
 is not established. Missing: typed endpoint/client/consumer bridge and its P15 semantic negatives
-(`bridge_missing`, `consumer_missing`, `semantic_test_missing`, inferred execution allocation).
+(`bridge_missing`, `consumer_missing`, `semantic_test_missing`). DS14's in-slice producer/bridge
+work, named Clerk strangle and explicit executable inherited scope establish ownership of that
+build. Allocation is **no** for the recorded candidate/scope question; source incompleteness is
+not evidence that this documentary allocation disappeared.
 **Unblocks:** the scoped G6→Clerk surface composition. **Discharges:** candidate-clothed choices,
 loss and denied uses survive real rendering. No reduction to public signature semantics or DS5's
 single blocker-issuer property: their consumers, repair and holder obligations differ.
@@ -340,7 +374,9 @@ and denies promotion use. Its existing production caller cannot supply the missi
 slot**. The non-test N9 obligation compiler reaches this result. Engineering is incomplete:
 promotion-purpose contract/artifact, producer, verifier, persistence and consumer admission
 (`absent/unallocated`, `producer_missing`, `bridge_missing`). Appointment alone changes no
-reachable evidence input. **Unblocks:** a purpose-correct positive/refusal mechanism with an
+reachable evidence input. Allocation is **inferred** from this explicit purpose-specific
+`absent/unallocated` arm, not from the assertion that no equivalent plan title exists.
+**Unblocks:** a purpose-correct positive/refusal mechanism with an
 admissible authority source. **Discharges:** a real protected request yields a decisive result,
 while the required pilot protection/near-miss and unchanged safety-core conditions also hold.
 B's scope-insufficiency row shares this remaining arm; GY-O0-NC-01 has additional whole-signal
@@ -372,7 +408,7 @@ cannot discharge the protected-pilot EvalSafety, near-miss or counters condition
 ## Classes, reductions and institutional counterfactual
 
 The **five DS11 rows are not one class**: signed supersession composition, external accessibility
-admission, retained-surface allocation, performance evidence and print currentness have different
+admission, retained-surface delivery, performance evidence and print currentness have different
 mechanisms, missing links and holders. The **three ds10 rows are not one class**: candidate-index
 production is demonstrated, public promoted-record admission is unavailable, and print evidence
 is stale. The **two ds18 positive-transition rows share a dependency chain but not the deciding
@@ -395,31 +431,50 @@ field, or development injection is insufficient. Where executing allocation is n
 `premise_false=yes` means at least one material asserted premise is false/narrowed at the base;
 it never means the whole row is closed. Engineering is assessed against the debt's positive
 capability; the candidate-index row explicitly has the narrower denominator above. Allocation
-means unresolved engineering execution allocation, not institution appointment. Unknowns are part
-of the result.
+means unresolved engineering build ownership, not institution appointment or whether an already
+owned task is currently dispatched. Explicit slice ownership counts even without a standalone
+filename; source absence alone does not establish an allocation absence. Unknowns are part of
+the result. Rows whose allocation inference is weaker than their source measurement use overall
+`confidence: inferred`.
 
 ```json
 [
  {"id":"DS11-CLAIM-LIFECYCLE-ORCHESTRATION","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"unestablished","reduction_peers":[],"property":"signed legal/context supersession via default Claim owner","unknowns":["sanctioned positive deployment owner intake"],"confidence":"measured"},
  {"id":"DS11-EXTERNAL-A11Y-COUNTERSIGN","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"unestablished","reduction_peers":[],"property":"admit current independently countersigned accessibility evidence","unknowns":["positive external evidence admission implementation"],"confidence":"measured"},
- {"id":"DS11-FULL-TRUST-CENTER-AND-DOCS-IA","premise_false":"yes","appointment_effect":"not_institutional","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"retained routes have scoped owners and evidence contracts","unknowns":["complete retained-route residual population","equivalent executing allocations"],"confidence":"inferred"},
- {"id":"DS11-GROUNDED-PERFORMANCE","premise_false":"unestablished","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"unestablished","reduction_peers":[],"property":"content-bound public performance evidence from governed design","unknowns":["governed receipt population","positive public-performance bridge"],"confidence":"measured"},
+ {"id":"DS11-FULL-TRUST-CENTER-AND-DOCS-IA","premise_false":"yes","appointment_effect":"not_institutional","engineering":"incomplete","allocation":"no","reduction_peers":[],"property":"retained routes have scoped owners and evidence contracts","unknowns":["complete retained-route residual population"],"confidence":"measured"},
+ {"id":"DS11-GROUNDED-PERFORMANCE","premise_false":"unestablished","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"no","reduction_peers":[],"property":"content-bound public performance evidence from governed design","unknowns":["governed receipt population","positive public-performance bridge"],"confidence":"measured"},
  {"id":"DS11-INHERITED-C13-PRINT-RECEIPT","premise_false":"yes","appointment_effect":"not_institutional","engineering":"incomplete","allocation":"no","reduction_peers":["ds10-c13-print-receipt-reissue"],"property":"same C13 receipt/current-byte conjunction and schema-admissible reconciliation","unknowns":["current browser captures","full disposition error set"],"confidence":"measured"},
  {"id":"ds10-c13-print-receipt-reissue","premise_false":"yes","appointment_effect":"not_institutional","engineering":"incomplete","allocation":"no","reduction_peers":["DS11-INHERITED-C13-PRINT-RECEIPT"],"property":"same C13 receipt/current-byte conjunction and schema-admissible reconciliation","unknowns":["current browser captures","full disposition error set"],"confidence":"measured"},
  {"id":"ds10-global-case-index-producer-allocation","premise_false":"yes","appointment_effect":"not_institutional","engineering":"complete","allocation":"no","reduction_peers":[],"property":"tenant/cell-scoped canonical S2 candidate index through default discovery","unknowns":["wider public global-case population is outside demonstrated purpose"],"confidence":"measured"},
- {"id":"ds10-public-decision-rendering","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"unestablished","reduction_peers":["ds8-public-case-publication"],"property":"partial only: governed public-record admission; rendering retained","unknowns":["positive promoted-record contract and public admission"],"confidence":"measured"},
+ {"id":"ds10-public-decision-rendering","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"no","reduction_peers":["ds8-public-case-publication"],"property":"partial only: governed public-record admission; rendering retained","unknowns":["positive promoted-record contract and public admission"],"confidence":"measured"},
  {"id":"ds15-mandate-intake-has-no-registered-task","premise_false":"unestablished","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"unestablished","reduction_peers":[],"property":"sanctioned deployment intake of signed delegation and current owner evidence","unknowns":["equivalent active successor allocation","positive deployment provider"],"confidence":"measured"},
- {"id":"ds18-positive-transition-production-unorchestrated","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"complete owner-bound positive transition emission and persistence","unknowns":["non-test dynamic producer trigger","sanctioned identity-carrier admission"],"confidence":"measured"},
- {"id":"ds18-positive-transition-verification-producer-missing","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"independent exact positive transition verification and reconciliation","unknowns":["configured positive verifier"],"confidence":"measured"},
- {"id":"ds5-waist-successors-routed-to-unscoped-slices","premise_false":"yes","appointment_effect":"not_institutional","engineering":"unestablished","allocation":"yes","reduction_peers":[],"property":"six heterogeneous owner-issued presentation contracts","unknowns":["semantic adequacy of each delivered issuer at historical sites","executing allocation for exact remaining obligations"],"confidence":"inferred"},
- {"id":"ds8-public-case-publication","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"unestablished","reduction_peers":["ds10-public-decision-rendering"],"property":"partial only: governed public-record admission; publication retained","unknowns":["executing positive record-half allocation","governed published receipt population"],"confidence":"measured"},
- {"id":"ds8-lex-clerk-authority-repair","premise_false":"yes","appointment_effect":"not_institutional","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"G6 session/audit/loss semantics consumed by Clerk","unknowns":["executing lane allocation","positive end-to-end G6 Clerk projection"],"confidence":"inferred"},
- {"id":"eval-safety-promotion-authority-producer-missing","premise_false":"no","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"protected promotion-purpose safety evidence admission","unknowns":["appointed purpose-specific authority","positive promotion contract"],"confidence":"measured"},
+ {"id":"ds18-positive-transition-production-unorchestrated","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"complete owner-bound positive transition emission and persistence","unknowns":["non-test dynamic producer trigger","sanctioned identity-carrier admission","equivalent assigned purpose-specific positive build owner"],"confidence":"inferred"},
+ {"id":"ds18-positive-transition-verification-producer-missing","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"independent exact positive transition verification and reconciliation","unknowns":["configured positive verifier","equivalent assigned purpose-specific positive build owner"],"confidence":"inferred"},
+ {"id":"ds5-waist-successors-routed-to-unscoped-slices","premise_false":"yes","appointment_effect":"not_institutional","engineering":"unestablished","allocation":"unestablished","reduction_peers":[],"property":"six heterogeneous owner-issued presentation contracts","unknowns":["semantic adequacy of each delivered issuer at historical sites","equivalent assignment of DS15 generated promotion-union/private-issuer property"],"confidence":"inferred"},
+ {"id":"ds8-public-case-publication","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"no","reduction_peers":["ds10-public-decision-rendering"],"property":"partial only: governed public-record admission; publication retained","unknowns":["governed published receipt population","positive record-half engineering"],"confidence":"measured"},
+ {"id":"ds8-lex-clerk-authority-repair","premise_false":"yes","appointment_effect":"not_institutional","engineering":"incomplete","allocation":"no","reduction_peers":[],"property":"G6 session/audit/loss semantics consumed by Clerk","unknowns":["positive end-to-end G6 Clerk projection"],"confidence":"measured"},
+ {"id":"eval-safety-promotion-authority-producer-missing","premise_false":"no","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"yes","reduction_peers":[],"property":"protected promotion-purpose safety evidence admission","unknowns":["appointed purpose-specific authority","positive promotion contract","equivalent assigned purpose-specific positive build owner"],"confidence":"inferred"},
  {"id":"first-promotion-candidate-with-complete-evidence","premise_false":"yes","appointment_effect":"none_on_blocked_capability","engineering":"incomplete","allocation":"unestablished","reduction_peers":[],"property":"authentic complete value/effect/measurement/independence candidate","unknowns":["current real receipt population","authentic upstream data adequacy"],"confidence":"measured"}
 ]
 ```
 
 ## Verification limits
+
+ASSESSMENTS reconciles all 16 JSON identities with both numbered row headings and the root's
+A/C manifest. Two independent aggregations agree for every field, each summing to 16:
+
+| Assessment field | Complete A/C distribution |
+| --- | --- |
+| `premise_false` | yes 13; no 1; unestablished 2 |
+| `appointment_effect` | none_on_blocked_capability 10; not_institutional 6 |
+| `engineering` | incomplete 14; complete 1; unestablished 1 |
+| `allocation` | yes 3 (inferred); no 8; unestablished 5 |
+| Overall confidence | measured 12; inferred 4 |
+
+The single complete engineering account is scoped S2 candidate discovery. These are report
+assessment counts, not a new census of institutional actors or deployed positive artifacts.
+The three allocation inferences concern the two positive epoch-transition rows and the
+promotion-purpose EvalSafety row; an equivalent assigned build owner remains an explicit unknown.
 
 HTTP's three named tests pass; CLAIM-HTTP's two named tests pass. C13-TEST reaches and fails
 current source-byte validation. The initial public-report replay stopped before the property on

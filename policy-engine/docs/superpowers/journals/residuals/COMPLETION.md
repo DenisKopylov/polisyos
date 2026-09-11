@@ -2,7 +2,9 @@
 
 Lane: `codex/owner-residuals` in `.worktrees/owner-residuals`.
 Merge base: `cc74d65813d7bb1259a0f82f6c3cc8b131661a97`.
-Status: final verification in progress; architecture verdict pending.
+Status: **complete-pending-an-architect-decision**. Five routing verdicts and
+bounded witnesses are delivered; architect allocation/reconciliation and appointed
+Foundry acceptance remain owed. Final guardrails: **2 = UNRUN; no complete verdict**.
 No push, history rewrite, stash storage, other branch, or governed epoch transition.
 
 Both requested names were free before the worktree was created. Root serialized
@@ -336,6 +338,8 @@ allocation exists. No full handshake is claimed from a fixture provider or GET r
 | GY-DEF22 appointed Foundry correctness acceptance is empty | architect and appointed Foundry catalog/discovery owner; adjudicate the six-claim packet, not another subagent's review |
 | Current GY pyproject/lock profile pin divergence; three acceptance nodes refuse | Foundry catalog/discovery dependency-profile registry owner and GY artifact owner; separately authorize reissue; provenance remains not_established |
 | Four positive Foundry/Runtime authority capabilities | existing GY-FA1, Foundry + Runtime; already registered, no duplicate FR-AUTH-01 |
+| OpenAPI unavailable measurement and earlier un-reconciled snapshot mismatch | runtime-openapi-snapshot family owner/approval team-polisyos; version/runtime worker owner team-runtime; restore measurement and adjudicate any refresh, no sync here |
+| Concurrent completion-journal edit during the first output probe | this lane's verification harness; corrected by freezing all tracked files through the completed replay |
 | pytest duplicate-node collapse and placeholder-sensitive removal | this lane's verification harness; preserve non-results and require actual phase outcomes / valid-input negative |
 | Python provisioning and interpreter GC cost | this lane's local harness / workspace toolchain owner; retain nonreceipts, no product repair or frozen-environment claim |
 
@@ -343,8 +347,9 @@ The initial guardrail wave returned exit 1 with two findings: its OpenAPI output
 probe observed this lane editing `COMPLETION.md` during the check, and the generated
 OpenAPI snapshot differed. The concurrent journal edit is this lane's harness
 mistake, not inherited product debt. That run is retained and cannot serve as a
-frozen-input verdict. A single corrected replay freezes **all tracked files**,
-including decisions/journal, until the command exits. No output is synced.
+frozen-input verdict. The corrected replay froze **all tracked files**,
+including decisions/journal, until command exit and returned UNRUN 2 as detailed
+below. No output was synced.
 
 ## Gates, environment, scope and delivery
 
@@ -353,10 +358,31 @@ files/nodes named in these five decisions ran. No directory-wide test, backend
 suite or CI-parity run was substituted for the requested targeted scope.
 The source checker was run directly with local `.venv/bin/python` and
 `--base cc74d65813d7bb1259a0f82f6c3cc8b131661a97 --receipt .../invocation-base.json`.
-Architecture guardrails final outcome: PENDING corrected frozen-input replay.
-The initial exit 1 (711.33 seconds) is retained as
-`census/raw/guardrails-initial.txt`; its concurrent-journal finding is ours.
-No sync is authorized or performed.
+Architecture guardrails final outcome: **exit 2 — UNRUN, no complete verdict**,
+1,915.03 seconds, within the declared 2,100-second replay limit. All tracked files
+remained frozen at `68ba6f86c9cf0acc598e53fa380f354bac7fd3d8` through command exit.
+The OpenAPI generator exited 1 because
+`governed_projections._run_owner_validation` exceeded its existing
+184-second limit for `confidence-ledger-risk-spend`; no snapshot was emitted.
+The complete traceback is retained. Runtime API client, dashboard API types and
+trust-claim-posture freshness checks completed cleanly. **No deep-import creep
+finding was reported**, and this is not a complete architecture verdict.
+
+The initial exit 1 (711.33 seconds) remains in
+`census/raw/guardrails-initial.txt`: its concurrent-journal finding is ours, and
+its OpenAPI mismatch is not resolved by a later unavailable measurement.
+A read-only snapshot collector could not capture a missing output and was stopped
+separately (143); it supplied no semantic-diff claim and did not interrupt the gate.
+A late stack-sample attempt returned 255 because its target had already completed;
+no sampled performance diagnosis is claimed. No timeout constant, generated
+snapshot, baseline or closed source was changed; no sync was run.
+
+Route OpenAPI generator availability and any subsequent snapshot reconciliation
+to `runtime-openapi-snapshot`'s registered owner/approval owner **team-polisyos**,
+with **team-runtime** as version/runtime worker owner, as declared in
+`architecture/generated_artifacts.toml`. Failure provenance remains
+`not_established`; this lane does not claim inherited drift or a product failure
+from an unavailable measurement. These are separate from the five row owners.
 
 Offline frozen Python provisioning could not obtain uncached `jaxlib==0.8.2`.
 Tests used local Python 3.14.3 with worktree `src`/tools first in `PYTHONPATH` and
@@ -400,4 +426,57 @@ initial guardrail wave. A journal-only closeout edit overlapped the OpenAPI
 output probe and was correctly detected; the corrected wave freezes all tracked
 files. No production/test change or unreported green is hidden by the replay.
 
-Raw receipt index and final branch readback: PENDING.
+## Deciding receipts and delivery
+
+Paths below are relative to this journal. Each complete log/receipt is retained
+under the first-commit `**/raw/` ignore and cited by its SHA-256. Supporting
+unchanged-negative plugins, exact reader receipts, interpreter metadata and
+interrupted-run diagnostics remain beside them. Tracked sources are referenced
+by path and revision rather than duplicated in receipts.
+
+| Complete receipt/log | SHA-256 |
+| --- | --- |
+| `census/raw/independent-ast.json` | `695588eb7d0d109a293dac953bc64a3359a2fea77a1a863ede45567a0d40063c` |
+| `census/raw/invocation-base.json` | `112499cfc606c5e40e7146ec6016f95e10d8160a51c267d6a1573cb817cc0bc0` |
+| `census/raw/invocation.txt` | `cf1959079add8f4ad5648c0e3fc7f312f68e97f681ae1ce728b54d6b86333e59` |
+| `census/raw/exceptions.json` | `a4c74b8b9f634c56bfc55f3f7837ea55098243ff76272b3de22a186db76b15ef` |
+| `census/raw/exceptions-independent.json` | `5783b42ffce0febc1b075c4b42161c2828211039133936ac0c04ac51ed8624b7` |
+| `census/raw/exception-carrier-search.json` | `afff97f6b181f94546a2390f8b7998f3c0abf35aac7ecd1817e9620b52363dbc` |
+| `exceptions/raw/verification.txt` | `cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236` |
+| `exceptions/raw/removal.txt` | `ae4f1e374355b9bbc69cc27c172dec91efa6a59df11b1faa6be50ba45c2f334f` |
+| `exceptions/raw/restored.txt` | `d3a85efea3d6f8f8143d26657ef34124c8f428b223fdac150d2afb3b7087b36b` |
+| `exceptions/raw/ruff.txt` | `82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18` |
+| `ukraine/raw/contract-denominator.json` | `214673bc4c4e70645eb6e18412f4e8fed11e8488166cc2b2154fc464ccf566de` |
+| `ukraine/raw/source-semantic-trace.json` | `3630af998a73867b1636abd02cd75e6fda85fa77f16480e3c3e7e5391130844d` |
+| `ukraine/raw/intake-boundary.log` | `6558cf3fad1ae3c37a3f86b13cf01bb4b69d9a0183f4bb822247e67b733b1390` |
+| `ukraine/raw/fqn-baseline-py3143.log` | `5d90cafe1dde4277050b9ff178ecb27b00a80f8c4f3b6229ca76a9040a8dce50` |
+| `ukraine/raw/fqn-removal-py3143.log` | `d3904ce44eafe6769d1b3020d250cbbfabb412700f3b187164a8c550ac292ca2` |
+| `ukraine/raw/fqn-clean-process-py3143.log` | `63ec8eb9a61694c6cdbb28e8bb90573d4c0f8dffd3faf4df3fcc16273d11afd5` |
+| `ds11/raw/census.json` | `5b1d68a9bce4904bbc1827da2fc5876c6f6a811ca813fe120085e4043e863c5d` |
+| `ds11/raw/verification-removal-restored.txt` | `5f977995640fc16ff3bdd7f565d8cfd7fe357c00d989d2016f25696b545dca6b` |
+| `ds11/raw/request-phase-probe.txt` | `b49fc2fe346f3cc47f0d6bc699f6f88800a9d2e9f3519fc344360bfe084672c4` |
+| `n13b/raw/census.json` | `a6815b408d3760038340301860683472e4c1d242334c88b185f6152375652daf` |
+| `n13b/raw/witnesses-removal-restored-3143.txt` | `ee84c1a185831565c716231a17cfae8d22e08c7d14be4402ed8ab257c913a3e0` |
+| `n13b/raw/negative-baseline-3143.txt` | `423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d` |
+| `n13b/raw/http-refusal-removal-restored-3143.txt` | `e55fcdecefc583e79b934de46c2be8dce6781107860d9771345fbc9378a5ecad` |
+| `n13b/raw/valid-request-removal-restored-3143.txt` | `177a92af75490b24969c861a624d5741f310150aa60fbc6f8daaf34fc47c08c0` |
+| `n13b/raw/run-metadata.json` | `244248288cc1a457455005856bf626bea01dd5684675cc8c81177f3d8cadb935` |
+| `gy-def22/raw/row-trace.json` | `49fbce8a99ed9431662b384bf570db229f44aeaed572e34a072da60525089585` |
+| `gy-def22/raw/cli-registration.json` | `049d861f8e68581548f0f022d3838fa13d07df10e6496d4faf235db995b84a6a` |
+| `gy-def22/raw/five-clause-verification.log` | `e4e85deaf2b0603218c0f20ec58057418a0bcd871e3916c23dd33708212f7723` |
+| `gy-def22/raw/diagnostic-removal.log` | `19b2c7ac81b5af3710d2ba99258def6b6ee1d1b33ef9fa7a9d51136e1c1a0633` |
+| `gy-def22/raw/pin-divergence.json` | `d2a54cd1c336a771313c5de0bf7a274ff1fa71f9bbfdbfb30ec062549b070753` |
+| `census/raw/guardrails-initial.txt` | `9389af039c7692214ee5f51c58a779acc941e1ea14e4dedc4380f40743610003` |
+| `census/raw/guardrails-initial-result.json` | `38569a3ba34f9ebcf741c11fd654eb04fda2b71b6705823f873c9e715769d1ef` |
+| `census/raw/guardrails-freeze.json` | `19983eb958a93f4c54e13776960c3d9de0efba3f675e4f719097b3dc7f5021ca` |
+| `census/raw/guardrails.txt` | `55135d85e5ac07ce33300b93d084380563eb4082be5a9c1214258be91ada06fd` |
+| `census/raw/guardrails-result.json` | `8ae50033197a1b8f4412a39ff651a883286c6371931b0b725d5698f83de04172` |
+| `census/raw/openapi-capture-result.json` | `9e928020597c65001a865da16a442dfb6168512c5d9ae0410b6e7f7e9f9e76ab` |
+| `census/raw/source-freeze.json` | `586ee07380886208973f122db2c20aa196cc8790841a0c0459b10212cd30d643` |
+| `census/raw/invocation-original-nonreceipt.json` | `9702b4ebb1c4f3ca5fcca23d2eeee5c216a10ba0f5322cba6a2cafa104ad0469` |
+
+The final tracked file set is exactly five row decisions, this single completion
+journal, its raw-output ignore, and the focused exception test. Final delivery
+checks read every changed file back from the attached branch, compare the full
+source tree to the merge base, verify raw exclusion and check clean status.
+Those checks are also performed after the final journal commit; no push follows.

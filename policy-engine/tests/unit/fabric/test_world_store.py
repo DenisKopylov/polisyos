@@ -420,9 +420,7 @@ print(json.dumps(payload, sort_keys=True))
 """
     )
     env = os.environ.copy()
-    env["PYTHONPATH"] = os.pathsep.join(
-        [str(REPO_ROOT / "src"), env.get("PYTHONPATH", "")]
-    )
+    env["PYTHONPATH"] = os.pathsep.join([str(REPO_ROOT / "src"), env.get("PYTHONPATH", "")])
     env["POLISYOS_EXPECTED_WORLD_EXPORTS"] = json.dumps(sorted(expected))
     completed = subprocess.run(
         [sys.executable, "-c", script],
@@ -461,3 +459,109 @@ def test_world_store_preserves_lazy_snapshot_surface_when_backend_exists() -> No
     for name in snapshots.__all__:
         assert name in store.__all__
         assert getattr(store, name) is getattr(snapshots, name)
+
+
+def test_world_manifest_validator_assertion_is_not_translated(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.fabric.world.store import segments
+
+    index_path = tmp_path / "world" / "_segments.jsonl"
+    index_path.parent.mkdir(parents=True)
+    index_path.write_text("{}\n")
+
+    def fail_validation(*args, **kwargs):
+        raise AssertionError("validator implementation failed")
+
+    monkeypatch.setattr(segments.FactSegmentManifest, "model_validate_json", fail_validation)
+    with pytest.raises(AssertionError, match="validator implementation failed"):
+        load_world_fact_manifests(tmp_path)
+
+
+def test_world_segment_metrics_never_publish_zero_for_unreadable_index(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from contextlib import nullcontext
+
+    from polisyos.fabric.world.store import segments
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
+
+    counts = []
+    manifest = FactSegmentManifest(
+        segment_id="segment.test",
+        path="test.parquet",
+        row_count=1,
+        sha256="0" * 64,
+    )
+    metrics = SimpleNamespace(set_fabric_segment_count=lambda *args, **kwargs: counts.append(args))
+    tracer = SimpleNamespace(start_as_current_span=lambda *args, **kwargs: nullcontext())
+    monkeypatch.setattr(
+        segments,
+        "resolve_world_observability",
+        lambda **kwargs: SimpleNamespace(
+            tracer=tracer,
+            metrics=metrics,
+        ),
+    )
+    index_path = tmp_path / "world" / "_segments.jsonl"
+    index_path.parent.mkdir(parents=True)
+    index_path.write_text("{invalid}\n")
+    with pytest.raises(WorldSegmentError, match="invalid world segment index"):
+        append_world_segment_index(manifest, fact_log_root=tmp_path)
+    assert counts == []
+    assert manifest.model_dump_json() in index_path.read_text()
+
+    def programmer_failure(*args, **kwargs):
+        raise AssertionError("index loader implementation failed")
+
+    monkeypatch.setattr(segments, "load_world_fact_manifests", programmer_failure)
+    with pytest.raises(AssertionError, match="index loader implementation failed"):
+        append_world_segment_index(manifest, fact_log_root=tmp_path)
+    assert counts == []
+
+
+def test_world_segment_gc_retains_invalid_time_but_propagates_assertions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.fabric.world.store import segments
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
+
+    manifests = [
+        FactSegmentManifest(
+            segment_id="segment.invalid",
+            path="bad.parquet",
+            row_count=1,
+            sha256="0" * 64,
+            time_end="not-a-time",
+        ),
+        FactSegmentManifest(
+            segment_id="segment.latest",
+            path="latest.parquet",
+            row_count=1,
+            sha256="0" * 64,
+            time_end="2026-01-01T00:00:00Z",
+        ),
+    ]
+    monkeypatch.setattr(segments, "load_world_fact_manifests", lambda root: manifests)
+    options = {
+        "applied_segment_ids": [item.segment_id for item in manifests],
+        "retain_since": "2026-02-01T00:00:00Z",
+        "retain_latest": 1,
+        "dry_run": True,
+    }
+    report = gc_world_segments(tmp_path, **options)
+    assert report.deleted_segment_ids == ()
+    assert "segment.invalid" in report.retained_segment_ids
+    original = segments.parse_datetime_utc
+
+    def parse_with_programmer_failure(value, *, what):
+        if what == "world segment time_end":
+            raise AssertionError("time parser implementation failed")
+        return original(value, what=what)
+
+    monkeypatch.setattr(segments, "parse_datetime_utc", parse_with_programmer_failure)
+    with pytest.raises(AssertionError, match="time parser implementation failed"):
+        gc_world_segments(tmp_path, **options)

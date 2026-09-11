@@ -116,7 +116,8 @@ def main():
         if args.mode == "denominator":
             selected = []
         emit({"base": BASE, "file_type": ".py", "prefixes": ["src/"] if args.source_only else PREFIXES,
-              "file_count": len(paths), "path_sha256": inventory["path_sha256"],
+              "file_count": len(paths), "path_sha256": hashlib.sha256("\n".join(paths).encode()).hexdigest(),
+              "full_python_denominator_sha256": inventory["path_sha256"],
               "path_enumeration": "git ls-tree equals independent os.walk",
               "node_enumeration": "ast.walk equals independent NodeVisitor, sync+async",
               "ambiguities": inventory["ambiguities"],
@@ -136,9 +137,18 @@ def main():
             paths = [p for p in paths if p.startswith(PREFIXES) and p.endswith((".py", ".json", ".toml", ".md", ".yaml", ".yml"))]
         if args.path:
             paths = [args.path]
-        independent = sorted(p for p in git("ls-files", "--", ".").splitlines() if p in set(paths))
+        if args.path:
+            independent = [args.path] if args.path in git("ls-files", "--", args.path).splitlines() else []
+        else:
+            roots = ("docs/plans/active/", "docs/reference/", "docs/research/", "docs/system-design-decisions/") if args.mode == "docs" else PREFIXES
+            extensions = (".md", ".json", ".yaml", ".yml") if args.mode == "docs" else (".py", ".json", ".toml", ".md", ".yaml", ".yml")
+            independent = sorted(str(Path(directory, name).relative_to(ROOT))
+                for prefix in roots for directory, _, names in os.walk(ROOT/prefix)
+                for name in names if name.endswith(extensions)
+                and not (args.mode == "docs" and name in {"DEBT-REGISTER.md", "LEDGER.md"}))
         if independent != sorted(paths):
-            raise RuntimeError("pinned tree and independently enumerated current index differ")
+            raise RuntimeError(json.dumps({"tree_only":sorted(set(paths)-set(independent)),
+                                           "filesystem_only":sorted(set(independent)-set(paths))}))
         matches, unreadable = [], []
         for path in paths:
             try:
@@ -149,7 +159,7 @@ def main():
                 unreadable.append({"path":path,"error":str(error)})
         emit({"base":BASE,"path_count":len(paths),"enumerated_paths":paths,
               "denominator":"complete pinned Git tree filtered by declared prefixes/extensions",
-              "independent_current_index_identity_equal":True,
+              "independent_filesystem_identity_equal":True,
               "unreadable":unreadable,"query":args.query,
               "distribution":dict(sorted(Counter(x['path'] for x in matches).items())),"matches":matches})
 

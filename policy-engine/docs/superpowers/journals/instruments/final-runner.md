@@ -534,7 +534,7 @@ The following sole gate invocation must return 2 and print UNRUN/receipt drift; 
 .venv/bin/polisyos-tools validation check-production-invocation --repo-root . --base cc74d6581 --receipt docs/superpowers/journals/instruments/invocation/raw/replay-production-invocation-negative-output.json --check docs/superpowers/journals/instruments/invocation/raw/replay-production-invocation-corrupted.json >docs/superpowers/journals/instruments/root/raw/replay-invocation-negative.log 2>&1
 ```
 
-## Original epoch example wire-contract node
+## Epoch wire-format sibling (does not close original R03)
 
 ```sh
 .venv/bin/python -m pytest -q -s tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_epoch_validity_batch_success_example_matches_its_wire_contract >docs/superpowers/journals/instruments/root/raw/replay-epoch-example.log 2>&1
@@ -546,4 +546,76 @@ The retained one-off AST probe walks every literal Python test selector in this 
 
 ```sh
 python3 docs/superpowers/journals/instruments/root/raw/final-runner-ast-probe.py >docs/superpowers/journals/instruments/root/raw/replay-final-runner-ast-check.log 2>&1
+```
+
+## Original C-CI R03 strict epoch example
+
+This is the historical failure's exact selector. It additionally asserts `review_required`; the wire-format sibling above does not.
+
+```sh
+.venv/bin/python -m pytest -q -s tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_epoch_batch_success_example_is_owner_derived_and_strict >docs/superpowers/journals/instruments/root/raw/replay-epoch-original-strict.log 2>&1
+```
+
+## Dashboard fixture watchdog and PNG-reconciliation replay
+Working directory: `policy-engine/apps/runtime-dashboard` within this worktree. The exact selected test nodes follow. The unavailable producer declaration expands over the two named functions and three named conditions; Vitest truncates the longer function name in its display, but the full source identity is retained here.
+
+### fixture-watchdog-focused
+- `src/features/runs/domain/confidenceLedgerRiskSpend.test.ts > confidence-ledger shared protected-query evaluator > owns the transport bytes synchronously and exposes only fresh copies`
+- `src/features/trust/export/trustPostureTwin.test.ts > trust posture MACHINE and DOM twins > independently decodes every ordered public claim field and rejects DOM drift`
+- `src/features/runs/routes/CycleBoardConsumerCensus.test.ts > Cycle Board production consumer census > has one acquisition-growth intake shared by the approval flow and Cycle Board`
+- `src/features/runs/routes/CycleBoardConsumerCensus.test.ts > Cycle Board production consumer census > has one page that owns the sole resolved hook call and renderer`
+- `src/features/runs/routes/CycleBoardConsumerCensus.test.ts > Cycle Board production consumer census > has one generated risk-spend intake, one page host, and one exact-byte exporter`
+- `src/features/runs/routes/CycleBoardConsumerCensus.test.ts > Cycle Board production consumer census > has one run-paper intake and one report-only emitter`
+- `src/features/runs/routes/CycleBoardConsumerCensus.test.ts > Cycle Board production consumer census > has one case-inspection intake, workspace hook and exact-byte exporter`
+- `src/features/runs/components/ds16SuccessorContainment.test.ts > DS16-C02 successor containment gate > censuses the production mount graph and refuses a minted mount prop`
+- `src/features/trust/domain/posture.test.ts > trust posture artifact admission > captures response bytes before strict validation with no cache or fallback`
+- `src/test/contracts/visualRegressionHarness.test.ts > visual regression harness > keeps executable screenshot references and committed snapshots one-to-one`
+- `src/test/evidence/persistenceProcessResult.test.ts > Atlas persistence child diagnostics > identifies a timed-out real child as an unrun measurement`
+
+```sh
+/usr/bin/time -p corepack pnpm exec vitest run src/features/runs/routes/CycleBoardConsumerCensus.test.ts src/test/contracts/visualRegressionHarness.test.ts src/features/runs/components/ds16SuccessorContainment.test.ts src/features/runs/domain/confidenceLedgerRiskSpend.test.ts src/features/trust/domain/posture.test.ts src/features/trust/export/trustPostureTwin.test.ts src/test/evidence/persistenceProcessResult.test.ts --maxWorkers=1 --testTimeout=20000 --hookTimeout=20000 --reporter=verbose '--testNamePattern=^(Cycle Board production consumer census (has one acquisition-growth intake shared by the approval flow and Cycle Board|has one page that owns the sole resolved hook call and renderer|has one generated risk-spend intake, one page host, and one exact-byte exporter|has one run-paper intake and one report-only emitter|has one case-inspection intake, workspace hook and exact-byte exporter)|visual regression harness keeps executable screenshot references and committed snapshots one-to-one|DS16-C02 successor containment gate censuses the production mount graph and refuses a minted mount prop|confidence-ledger shared protected-query evaluator owns the transport bytes synchronously and exposes only fresh copies|trust posture artifact admission captures response bytes before strict validation with no cache or fallback|trust posture MACHINE and DOM twins independently decodes every ordered public claim field and rejects DOM drift|Atlas persistence child diagnostics identifies a timed-out real child as an unrun measurement)$' >../../docs/superpowers/journals/instruments/coverage/raw/replay-fixture-watchdog-focused.log 2>&1
+```
+
+### fixture-watchdog-producers
+- `src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts > Atlas surface-readiness per-claim reconciliation > binds the claim report into the governed Core CAS audit projection`
+- `src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts > Atlas surface-readiness per-claim reconciliation > gates the zero-instance stable arm identically to implemented`
+- `src/test/evidence/atlasHealthMetrics.test.ts > Atlas health metrics > persists a content-bound descriptive snapshot while recording its missing consumer`
+- `src/test/evidence/atlasAutomatedEvidenceCapture.test.ts > Atlas automated evidence capture > executes Core put, resolve, lineage, and integrity checks and fails on corruption`
+
+The original regex below executed the four listed bodies; its attempted unavailable-case branch matched none. Those six cases are explicitly replayed by the following separate command.
+
+```sh
+/usr/bin/time -p corepack pnpm exec vitest run src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts src/test/evidence/atlasHealthMetrics.test.ts src/test/evidence/atlasAutomatedEvidenceCapture.test.ts src/test/evidence/evidenceProducerExecution.test.ts --maxWorkers=1 --testTimeout=20000 --hookTimeout=20000 --reporter=verbose '--testNamePattern=^(Atlas surface-readiness per-claim reconciliation (gates the zero-instance stable arm identically to implemented|binds the claim report into the governed Core CAS audit projection)|Atlas health metrics persists a content-bound descriptive snapshot while recording its missing consumer|Atlas automated evidence capture executes Core put, resolve, lineage, and integrity checks and fails on corruption|evidence producer unavailable execution reports UNRUN for (missing interpreter|missing dependency|invalid JSON) in (measureAtlasHealthMetrics|buildAtlasStableReadinessNegativeControl))$' >../../docs/superpowers/journals/instruments/coverage/raw/replay-fixture-watchdog-producers.log 2>&1
+```
+
+### fixture-watchdog-unavailable
+- `src/test/evidence/evidenceProducerExecution.test.ts > evidence producer unavailable execution > reports UNRUN for 'missing interpreter' in 'measureAtlasHealthMetrics'`
+- `src/test/evidence/evidenceProducerExecution.test.ts > evidence producer unavailable execution > reports UNRUN for 'missing dependency' in 'measureAtlasHealthMetrics'`
+- `src/test/evidence/evidenceProducerExecution.test.ts > evidence producer unavailable execution > reports UNRUN for 'invalid JSON' in 'measureAtlasHealthMetrics'`
+- `src/test/evidence/evidenceProducerExecution.test.ts > evidence producer unavailable execution > reports UNRUN for 'missing interpreter' in 'buildAtlasStableReadinessNegativeControl'`
+- `src/test/evidence/evidenceProducerExecution.test.ts > evidence producer unavailable execution > reports UNRUN for 'missing dependency' in 'buildAtlasStableReadinessNegativeControl'`
+- `src/test/evidence/evidenceProducerExecution.test.ts > evidence producer unavailable execution > reports UNRUN for 'invalid JSON' in 'buildAtlasStableReadinessNegativeControl'`
+
+```sh
+/usr/bin/time -p corepack pnpm exec vitest run src/test/evidence/evidenceProducerExecution.test.ts --maxWorkers=1 --testTimeout=20000 --hookTimeout=20000 --reporter=verbose '--testNamePattern=^evidence producer unavailable execution reports UNRUN for ' >../../docs/superpowers/journals/instruments/coverage/raw/replay-fixture-watchdog-unavailable.log 2>&1
+```
+
+### fixture-watchdog-eslint-final
+
+```sh
+corepack pnpm exec eslint src/test/evidence/persistenceProcessResult.ts src/test/evidence/atlasAutomatedEvidenceCapture.test.ts src/test/evidence/atlasHealthMetrics.test.ts src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts src/test/evidence/evidenceProducerExecution.test.ts src/features/runs/domain/confidenceLedgerRiskSpend.test.ts src/features/trust/domain/posture.test.ts src/features/trust/export/trustPostureTwin.test.ts src/features/runs/routes/CycleBoardConsumerCensus.test.ts src/features/runs/components/ds16SuccessorContainment.test.ts src/test/contracts/visualRegressionHarness.test.ts >../../docs/superpowers/journals/instruments/coverage/raw/replay-fixture-watchdog-eslint-final.log 2>&1
+```
+
+### fixture-watchdog-prettier-check
+
+```sh
+corepack pnpm exec prettier --check src/test/evidence/persistenceProcessResult.ts src/test/evidence/atlasAutomatedEvidenceCapture.test.ts src/test/evidence/atlasHealthMetrics.test.ts src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts src/test/evidence/evidenceProducerExecution.test.ts src/features/runs/domain/confidenceLedgerRiskSpend.test.ts src/features/trust/domain/posture.test.ts src/features/trust/export/trustPostureTwin.test.ts src/features/runs/routes/CycleBoardConsumerCensus.test.ts src/features/runs/components/ds16SuccessorContainment.test.ts src/test/contracts/visualRegressionHarness.test.ts >../../docs/superpowers/journals/instruments/coverage/raw/replay-fixture-watchdog-prettier-check.log 2>&1
+```
+
+### Explicit TypeScript fixture roots
+
+The retained stdin program names `src/globals.d.ts`, `src/test/evidence/persistenceProcessResult.ts`, and all ten test paths explicitly listed above. It uses the installed TypeScript compiler and declared Node/Vite/Vitest types over their resolved import closure; it does not execute them.
+
+```sh
+node < ../../docs/superpowers/journals/instruments/coverage/raw/fixture-watchdog-typecheck.cjs >../../docs/superpowers/journals/instruments/coverage/raw/replay-fixture-watchdog-typescript.log 2>&1
 ```

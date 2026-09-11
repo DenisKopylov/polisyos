@@ -450,3 +450,61 @@ P29/P32 substance, P31/P40 class repair, P35 complete denominators, P38 probe
 scope, P41 no inherited-red attribution. Residual capability labels are
 `verification_missing` where fixture execution did not complete and
 `surface_out_of_scope` for production latency/hosted execution in this lane.
+
+### R03 exact-witness refinement: duplicate transport-example registration
+
+The original strict selector is
+`tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_epoch_batch_success_example_is_owner_derived_and_strict`.
+The real replay now reaches and reproduces `stale != review_required` in
+`root/raw/epoch-original-strict-final.log` (exit 1). The separately passing
+wire-format sibling is not the original witness. This corrects a NEW P38
+handback-selection error; no historical ownership is inferred.
+
+A complete AST walk of every dictionary in
+`src/polisyos/runtime/http/openapi_contract.py` finds one duplicate constant
+key: `admit_epoch_validity_batch`. The initial value calls
+`_epoch_validity_batch_example()`; a later handwritten value silently replaces
+its entire payload with `stale`. The typed producer already emits
+`DecisionValidityStatus.REVIEW_REQUIRED` for its declared law-revalidation
+scenario. There is no clock or expiry in this producer. Independent source
+review confirms this cause; changing clocks or weakening the expectation would
+repair the wrong property.
+
+Delete the later handwritten entry and compose the existing typed transport
+example owner. Strengthen the exact original test to compare the emitted example
+with that owner, preserving its status and strict DTO assertions. A removal
+probe must remove the actual registration and make the same exported-example
+consumer fail; shape or a surviving success exit cannot substitute for the
+missing owner bridge. Existing Ruff F601 is selected and this file does not
+exempt it, so the generic duplicate-literal class already has a canonical
+checker. Use that existing guard rather than building another source scanner.
+Runtime-computed keys and unpacking are outside this constant-key evidence.
+
+Production caller: `create_app` -> `install_runtime_openapi_contract` ->
+`_custom_openapi` -> `augment_runtime_openapi` consumes this existing example
+map. It is part of the existing registered OpenAPI exporter and contract checker;
+no new CLI/module is required. This owner constructs a typed transport sample,
+not persisted epoch-admission evidence. Actual batch admission preserves
+verifier-admitted target statuses and composes mixed outcomes through the
+existing status lattice. Those authority, clock, custody and status-composition
+seams remain unchanged; REVIEW_REQUIRED is not imposed on all runtime epochs.
+
+Root serializes canonical OpenAPI regeneration and all commits. The schema's
+sample bytes will change for every downstream lane consuming it; clients still
+receive the same strict DTO schema and transport types. The change also moves
+source-derived provenance bindings; recompute through registered owners, never
+edit their hashes by hand. No governed epoch bump is planned: relative to the
+slice base `cc74d6581`, this corrects a documentation sample and its source
+bindings, not an admitted transition or rule version.
+
+Acceptance is the exact original strict node plus its owner-bridge negative,
+Ruff over the two named Python files, canonical schema/client freshness and
+corrupt-field checks. Finish review before the next expensive wave. Because
+these Python files intersect the complete invocation denominator, its prior
+receipt sequence is retained as evidence for its earlier source state and a new
+final generation/recomputation/corruption sequence must use fresh output names.
+The dashboard's full coverage is held until generated artifacts settle.
+Pattern pass: P05/P04 preserve authority/status, P27/P31 remove owner bypass,
+P29/P32 exercise the real exported consumer, P33/P38 select the actual witness,
+P35 complete constant-key census, P41 historical ownership not established.
+The transport sample's persisted-admission surface is explicitly out of scope.

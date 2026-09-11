@@ -287,3 +287,236 @@ candidate tests provide no such receipt.
 ## Remaining indexed rows
 
 The remaining rows are still being measured; this checkpoint is incomplete.
+
+## `DS11-PUBLIC-SIGNATURE-POPULATION`
+
+**Measured, narrower:** the actual vocabulary is
+`PublicVerificationRecordPopulationProvider`, not a guessed population-producer name.
+Its `resolve` traverses the issuance inventory and verifies reports, but its return
+type and every terminal return are `PublicSignaturePopulationNonReceipt`.
+Three existing tests pass (3/3 selected items, exit 0): empty issuance, real signed
+report inventory with no governed member, and corruption changing the nonreceipt.
+Evidence: `src/polisyos/scientist/governance/continuous/published_signature_custody.py@fc823071a`;
+commands `population-body`, `population-tests`, `scope-source`.
+
+**Wider:** this is governed-record admission, not merely rendering or signing.
+`RuntimeContainer.startup` installs this exact provider from the public report
+service; the fixed `promoted_record: Literal[None]` contract cannot carry a governed
+member. **Reduction, inferred:** it shares an upstream admitted promoted record with
+the public-decision rows, but its deciding property is complete, custody-bound
+population enumeration and maintained membership. A page can render one record and
+still fail that property. **Class:** a promoted-record producer could unblock all
+those consumers; population, publication, verification and maintenance each owe
+separate semantic tests. **Unestablished:** any actual governed member and full
+deployed worker execution. These report tests cannot supply either.
+
+## `ds15-signed-v2-delegation-mandate-owner-authority`
+
+**Measured, narrower:** the current source has `CurrentMandateOwnerEvidence` and
+the gateway's `_resolve_current_mandate_authority`, which reopens signed CAS evidence,
+checks owner, purpose, currentness, validity interval, revocation, rule version and
+signer identity. Missing owner/ref produces `current_mandate_authority_not_established`.
+Evidence: `src/polisyos/runtime/quality/agent_action_authority.py@fc823071a`;
+command `ds15-authority-source`, with that exact method as the readable source.
+The source census still finds no direct constructor call to `AgentActionAuthorityGateway`
+among the complete 2,653 source Python files; this is a bounded static result.
+
+**Wider:** the deployed action service has a real optional
+`AcquisitionAuthorityGatewayProvider`, reached by `request_decision`, `execute`
+and `handle_job`; `_require_authority_provider` refuses
+`acquisition_authority_producer_missing`. `RuntimeContainer.startup` supplies only
+the override slot. Thus consumer machinery exists, while evidence production and
+its deployment composition remain separate. **Reduction:** not the deterministic
+admission-bundle signer: delegation authorizes the mandate/current owner, whereas
+the bundle authorizes particular invocation inputs. **Class:** both reach one action
+gateway, but require distinct evidence purposes and producers. Admitted delegation
+and a provider could unblock the path; exact tenant/run/operation effects and
+revocation refusal would discharge it. **Unestablished:** real signed external
+delegation, its production provider and a live current-mandate positive run. No
+name census is promoted to a repository-wide semantic absence claim.
+
+## `ds15-production-n13b-execution-handshake`
+
+**Measured, narrower:** `WorldBankWDIAcquisitionExecutionPort` exists and is constructed
+by `build_production_world_bank_wdi_execution_port`. The actual action service
+constructs that factory when no execution override is supplied and binds its
+`handle_job` callback to the control service. Thus the historical strict-port
+`producer_missing` premise is false. Evidence:
+`src/polisyos/runtime/http/services/acquisition_surface_execution.py@fc823071a`,
+`src/polisyos/runtime/http/services/acquisition_action_service.py@fc823071a` and
+`src/polisyos/runtime/http/container.py@fc823071a`; command `ds15-authority-source`.
+The exact retained integration replay is `n13-binding-tests`; its result is recorded
+in the command appendix rather than borrowed from a prior lane.
+
+**Wider:** default execution-port installation is distinct from the still-empty
+authority provider; request authority and durable worker execution are different
+boundaries. Scope is World Bank WDI, not an arbitrary connector population.
+**Reduction:** cannot reduce to delegation or semantic qualification: those admit
+permission and epoch truth, whereas this row asks for execution and durable handoff.
+**Class:** DS15 prefix is not one repair or one holder. A qualified route/authority
+unblocks execution; an actual service-to-worker result with persisted readback and
+same-case refusal semantics discharges the handshake. **Unestablished:** a positive
+production request using real external mandate evidence and an actual external fetch.
+Test-port results are not reclassified as that production instance.
+
+## `GY-DEF22`
+
+**Measured, narrower:** the dependency-discriminant producer, Foundry resolver and
+N8/N10a/chronology readers exist. The producer is under `tools/`, so a `src/`-only
+census would miss it. Evidence:
+`tools/quality/validation/check_layer3_gy_value_gate_contract.py@fc823071a`,
+`src/polisyos/foundry/methods/catalog/dependency_profile.py@fc823071a`, and
+`tools/quality/validation/execute_gy_n12_artifact_transition.py@fc823071a`;
+command `def22-source`.
+
+**Measured counterexample to current engineering-complete standing:** the exact
+five acceptance nodes return **exit 1: 3 failed / 5, 2 passed / 5** (`def22-tests`).
+CB-I01, CB-I02 and CB-I02A stop at the N8 producer's actual Foundry resolution,
+which returns `DigestPredicateMismatch`; CB-I03 and CB-I03A pass. The diagnostic
+assertions within the second and third tests pass before their governing-byte
+comparison fails to obtain a companion. This is not five passing acceptance nodes.
+No pin or governed artifact is regenerated. **Wider:** correctness adjudication and
+the current ability to regenerate/read the bounded diagnostic are independent.
+An appointed reviewer does not remove this mismatch.
+
+**Reduction/class:** not the same debt as promotion admission or the absent positive
+Foundry authority capabilities. A diagnostic may remain non-decisive while its own
+replay is broken. Source/input pin reconciliation could unblock these three nodes;
+their intended acceptance assertions and the separate appointed-correctness receipt
+would discharge their respective claims. **Unestablished:** complete P41 input
+disjointness and exact slice-base replay, hence no inherited-red attribution;
+no claim that the mismatch was introduced by this survey or by a named earlier lane.
+
+## `foundry-ukraine-method-contract-consumer-residual`
+
+**Measured, narrower:** the producer is built. AST enumeration of `contract_specs`
+agrees on exact identity with the independent set asserted by the real owner test:
+**13/13 keys**, all enumerated below. Four targeted owner/materialization tests pass
+(4/4 items, exit 0), including full persisted input validation, corrupted stage
+refusal, FQN mismatch and deterministic roundtrip. Evidence:
+`src/polisyos/foundry/data_plane/bindings.py@fc823071a`,
+`tests/unit/foundry/data_plane/test_bindings_multiscale.py@fc823071a`,
+`tests/unit/foundry/data_plane/test_method_contract_materialization.py@fc823071a`;
+commands `ukraine-key-reconciliation`, `ukraine-tests`, `ukraine-source`.
+
+The denominator is `d1_multiplex_network`, `d1_trade_network`,
+`d1_trade_network_causal`, `d1_distress_network`, `d1_distress_network_causal`,
+`d1_public_service_network`, `d1_public_service_network_causal`,
+`d2_panel_observational`, `d2_dynamic_treatment`, `d2_microsim_survey`,
+`d2_survival`, `d2_panel_econometric`, `d3_microsim_survey`.
+
+**Wider:** `BindFoundryInputsNode` provides the observed panel selection bridge;
+other existing dynamic-treatment or survival consumers do not establish that those
+Ukraine bundle selections reach them. The producer's `consumer_missing` annotations
+are not independent absence evidence. **Reduction:** distinct from flat-manifest
+selection, which manufactures method-evidence references; this concerns execution of
+particular persisted method inputs. **Class, inferred:** shared selected-input bridge
+may provide common plumbing, but the non-panel keys have different method contracts
+and owe their own execution/negative proofs. A Scientist workflow consumer can unblock
+a selected input; correct persisted results and invalid-input refusal discharge it.
+**Unestablished:** actual production requests for the twelve non-panel keys and their
+full independent consumer enumeration. This survey does not convert one panel witness
+into thirteen execution receipts.
+
+## `int-r2-ceiling-vocabulary-owners`
+
+**Measured, narrower:** all **8/8 declared comparison relations** have a software
+owner in `src/polisyos/fabric/evidence/ceiling_vocabulary.json@fc823071a`:
+population, jurisdiction, purpose_audience, source_target_context, evidence_class,
+maintained_assumptions, maximum_claim_strength, maximum_commitment_stage.
+The separate **5/5 semantic vocabulary rulings** in
+`docs/reference/canonical-vocabulary-crosswalk.v1.json@fc823071a` have
+`semantic_owner=null` and empty `registered_terms`: relation_claim_strength,
+capacity_stages, estimand_binding_strength, legal_normative_write_operations,
+assurance_levels. Those are different denominators. Commands:
+`vocabulary-distribution`, `vocabulary-semantic-source`, `ceiling-demand`.
+
+**Measured distribution, not ownership by word count:** across all **2,653 source
+Python files**, estimand occurs in 176 files: Foundry 105, IR 36, Runtime 19,
+Scientist 12, DataForge 2, Fabric 2. Normative occurs in 141 files across **13 packages**:
+Runtime 38, DataForge 36, Scientist 35, Lex 9, Core 6, IR 6, Evidence/Fabric/Foundry/PDC
+2 each, DataRequirement/LegalRequirement/PolicyGrammar 1 each. `write_operation`
+and `assurance_level` each occur in 0/2,653 files. These literal file counts include
+prose. AST definitions and callers establish real `NormativeModelCompleteness` and
+`NormativeAuditStatus` in `ir/analytics/normative_arbitration.py`, plus its governance
+node/pass consumers. Therefore dispersed naming does not mean only an adjective.
+
+**Wider:** comparator, semantic authorization and registered terms are three
+different obligations. The complete 683-file demand corpus includes assurance-level
+requirements in the published crosswalk and INT-R2 handoff, independently of source
+name absence. **Reduction:** estimand ordering is a candidate constituent reduction
+with the separately named estimand row, not grounds to fold every vocabulary.
+**Class refuted:** the eight comparison fields are not one semantic vocabulary or
+one authoritative holder. Accepted definitions and purposes could unblock each
+comparison; unknown/incomparable refusal and purpose-specific validity would discharge
+its distinct proof. **Unestablished:** whether any existing normative owner supplies
+the exact requested ceiling relation and who can authorize/register each value.
+
+## `estimand-binding-strength-terms-unregistered`
+
+**Measured, narrower:** the delivered estimand AST, normalizer and compiler exist;
+they are not the missing ordering. The crosswalk's exact
+`estimand_binding_strength` entry has no mapped relation, no semantic owner and no
+registered terms. Evidence: `src/polisyos/ir/analytics/estimand.py@fc823071a`,
+`src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py@fc823071a` and
+the crosswalk above; commands `vocabulary-distribution`, `vocabulary-semantic-source`.
+**Wider:** structural estimand normalization cannot prove an ordering of binding
+strength that preserves population, contrast, outcome, horizon, intercurrent events
+and regime. **Reduction, inferred:** this is the estimand-specific conjunct of the
+ceiling row; shared deciding property is a registered purpose-valid partial order,
+including declared incomparability. The broader row has four other vocabulary
+subjects and distinct authorization questions. **Class:** an ordering engine could
+be shared, but justified edges and binding identity require the estimand owner.
+Registered semantics could unblock comparison; horizon/regime-only changes refusing
+false equality would discharge the specific negative property. **Unestablished:**
+equivalence of an existing delivered ordering under another vocabulary; no universal
+absence is inferred merely from the crosswalk's empty entry.
+
+## `corr-wave-unowned-destinations`
+
+**Measured, narrower:** the five routed subjects separate into two minting acts
+(CORR-B1 legal-subject identity; CORR-B2 external causal evidence), two purpose-specific
+appointments (CORR-I2/I3), and CORR-I1 qualification. The source legal comparator
+exists and explicitly does not establish legal authority; that does not decide who
+may mint its inputs. Evidence:
+`src/polisyos/foundry/validation/legal_correspondence.py@fc823071a`;
+commands `correspondence-source`, `identity-authority-boundary`, `ceiling-demand`.
+
+**Measured authority-reading correction:** the cited identity decision's frontmatter
+forbids `jurisdiction_specific_legal_conclusion` and `capability_claim` use. Its §9
+item 6 operational boundary retains minting with an appointed owner and explicitly
+uses **GY-O0 inside PolicyOS** as its worked example. It does not imply permanently
+external minting. Evidence:
+`docs/system-design-decisions/policyos-identity-and-custody-boundary.md@fc823071a`,
+§5 and §9 item 6, read through the operational conclusion. This survey applies it
+only to the claimed authority's scope, not to decide a legal conclusion.
+
+**Wider:** the deciding property for B1/B2 is the particular act's §5 classification,
+not the comparator's package owner or the phrase “not a court.” **Reduction:** B1
+enables legal correspondence and B2 may enable causal correspondence; those debts
+have additional admission/consumer proofs. I2/I3 share procedure, not competence or
+purpose. **Class refuted:** these five destinations are not one appointment or one
+repair. A supported scope/allocation act could unblock ownership; correctly sourced
+and admitted identities/evidence would discharge their consumer obligations.
+**Unestablished:** specific §5 classifications of B1/B2, valid appointer identities
+and whether any external source can meet the required semantic evidence contract.
+
+## `s3-r12-legal-knowledge-store-selects-an-unavailable-version`
+
+**Measured correction:** this is an unavailable SQL **column**, not evidence that
+a particular version value is absent. The actual
+`LegalKnowledgeStore.load_provisions_by_anchor` call against the current canonical
+read-only database raises `BinderException: Referenced column "version_id" not found`.
+`DESCRIBE` and `PRAGMA table_info` independently agree on the complete **31-column**
+`lex_provisions` schema. Evidence: `src/polisyos/lex/knowledge/store.py@fc823071a`;
+command `lex-schema`, which names the actual external database and selected anchor.
+
+**Narrower:** no missing law/version content follows from that binder error.
+**Wider, inferred from the SQL:** every nonempty document/anchor request through
+this method reaches the same invalid SELECT before row filtering. This is a method
+and deployed-schema compatibility boundary, not one bad statute. **Reduction/class:**
+not the law-to-lever correspondence debt; readable source content does not establish
+semantic correspondence. Compatible owner/schema selection could unblock retrieval;
+correct version/anchor semantics and readback would discharge it. **Unestablished:**
+the complete call-site population's dynamic exposure, other deployed database schemas,
+and these untracked database bytes at the historical Git base.

@@ -46,30 +46,30 @@ its documented direct invocation is its discovery surface.
   delivered call vocabulary. A name census does not decide semantic availability.
 - [x] Run the original legal transposition test with `_same_subject` removed in memory:
   expected assertion failure. No source file changes or temporary branch switch.
-- [ ] Run the unchanged causal structural-refusal control with the critical-veto
+- [x] Run the unchanged causal structural-refusal control with the critical-veto
   guard removed in memory: expected failure on the structural refusal property.
-- [ ] Run the original unmodified tests, including nested-content, scope, time,
+- [x] Run the original unmodified tests, including nested-content, scope, time,
   ancestry, publication-grade, signature/calibration and consumer-ceiling negatives.
 
 ## 3. Live owner surfaces and GY-J
 
-- [ ] Prepare read-only held production-data access and lane-owned mutable CAS.
+- [x] Prepare read-only held production-data access and lane-owned mutable CAS.
   Legal source/owner check and causal frame replay serialize their shared scratch.
 - [ ] Run legal registered owner `--check`; record source-relative refusal and
   blocked authority rather than calling synthetic matches legal gold.
 - [ ] Recompute the causal frame from complete owner inputs, derive the hardest
   held tier before any binding outcome, replay declared mismatches and persist/read
   back a lane report. Run its `--check` and a corrupt-field drift that must refuse.
-- [ ] Recompute the persisted GY-J v2 report's complete population arithmetic and
+- [x] Recompute the persisted GY-J v2 report's complete population arithmetic and
   run exact original-demand/S1/CAS/refusal controls. State that the fixture substrate
   is a behavioral witness, never a canonical population member or new live rate.
-- [ ] Record positive ownership `absent/unallocated` if the actual bounded route
+- [x] Record positive ownership `absent/unallocated` if the actual bounded route
   still lacks an admitted source-to-original-construct/scope producer. Do not fix it
   by setting an owner label or changing the denominator.
 
 ## 4. Review, gates, closeout
 
-- [ ] Freeze source. Review the common frame, bound wording, exact gate outputs,
+- [x] Freeze source. Review the common frame, bound wording, exact gate outputs,
   consumer effects and every acceptance conjunct. Bucket findings per P40.
 - [ ] Run targeted runner lint, native selected tests and architecture guardrails.
   Code 2 is UNRUN, not pass. No deep-import baseline sync or directory-wide suite.
@@ -108,3 +108,12 @@ before native. OR-Tools and its dependencies are aligned to `uv.lock`; no reposi
 lock changes. The GY-J 900-second timeout is an incomplete harness result. Retry its
 same exact nodes at 3600 seconds; use 2400 for subsequent owner/causal gates after
 measuring the cold-import overhead. Preserve all unsuccessful receipts.
+
+Resource refinement (2026-09-11, before fresh suite execution): independent
+AST/body review established that fresh declaration writes only its supplied raw
+`world-cas` and `world-workspace`; the legal owner uses `.tmp/gy-s-composed-wmr-*`
+and `.polisyos/cas`. Supplying the world avoids the default composed-world builder;
+the base L6 bundle has no subject-spine ref and the scaffold's legal path performs
+no CAS write. Lex and Scholar sources open read-only. These distinct chains may
+run concurrently; legal `--check` and legal corrupt-field invocation remain
+serialized with each other. Root still serializes git and tracked-file edits.

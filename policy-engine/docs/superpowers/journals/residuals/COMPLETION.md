@@ -339,7 +339,12 @@ allocation exists. No full handshake is claimed from a fixture provider or GET r
 | pytest duplicate-node collapse and placeholder-sensitive removal | this lane's verification harness; preserve non-results and require actual phase outcomes / valid-input negative |
 | Python provisioning and interpreter GC cost | this lane's local harness / workspace toolchain owner; retain nonreceipts, no product repair or frozen-environment claim |
 
-Architecture findings: PENDING.
+The initial guardrail wave returned exit 1 with two findings: its OpenAPI output
+probe observed this lane editing `COMPLETION.md` during the check, and the generated
+OpenAPI snapshot differed. The concurrent journal edit is this lane's harness
+mistake, not inherited product debt. That run is retained and cannot serve as a
+frozen-input verdict. A single corrected replay freezes **all tracked files**,
+including decisions/journal, until the command exits. No output is synced.
 
 ## Gates, environment, scope and delivery
 
@@ -348,7 +353,10 @@ files/nodes named in these five decisions ran. No directory-wide test, backend
 suite or CI-parity run was substituted for the requested targeted scope.
 The source checker was run directly with local `.venv/bin/python` and
 `--base cc74d65813d7bb1259a0f82f6c3cc8b131661a97 --receipt .../invocation-base.json`.
-Architecture guardrails outcome: PENDING. No sync is authorized or performed.
+Architecture guardrails final outcome: PENDING corrected frozen-input replay.
+The initial exit 1 (711.33 seconds) is retained as
+`census/raw/guardrails-initial.txt`; its concurrent-journal finding is ours.
+No sync is authorized or performed.
 
 Offline frozen Python provisioning could not obtain uncached `jaxlib==0.8.2`.
 Tests used local Python 3.14.3 with worktree `src`/tools first in `PYTHONPATH` and
@@ -388,6 +396,8 @@ N13b alias-discovery correction is applied above and in OR-N13-04; the first
 placeholder-sensitive probe is retained with its limit and superseded by the
 valid-input probe. These are the declared P38 discovery/probe class, not authority
 capabilities created by this lane. Production/test source was frozen before the
-single guardrail wave; closeout edits only record results and routing.
+initial guardrail wave. A journal-only closeout edit overlapped the OpenAPI
+output probe and was correctly detected; the corrected wave freezes all tracked
+files. No production/test change or unreported green is hidden by the replay.
 
 Raw receipt index and final branch readback: PENDING.

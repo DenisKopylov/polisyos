@@ -1,7 +1,10 @@
 # Measurement plane completion journal
 
-Status: Stage 2 implemented; final verification in progress. Canonical ledger green
-requires owner regeneration, and the new Common import requires an architect decision.
+Status: **complete-pending-an-architect-decision**. Both commissioned stages are
+delivered. Final guardrails have a complete FAILED verdict for one new Common
+import edge; all four generated-artifact families are current. Canonical ledger
+green requires owner regeneration of two cells in the protected artifact. Row 3
+delivers decision evidence and leaves the helper/fixture/model choice with its owner.
 
 Lane: `codex/measurement-plane`, base `307dabcb4`. Local ordinary git; no push,
 prune, guardrails sync, register or ledger edits. Root serializes git and the
@@ -534,13 +537,13 @@ or any tracked source. The complete local/isolation comparison has 6,431 local
 bindings versus 6,432 isolated bindings. The sole delta is the isolated environment's
 `libc.dylib: missing` lookup; all other dependency bindings and all other worker
 fields agree, apart from the recomputed aggregate identity. The canonical export
-is being reissued with the registered runtime/ML profile and exact probe environment
+was reissued with the registered runtime/ML profile and exact probe environment
 flags. No dependency is filtered, no missing lookup suppressed, and no freshness
 predicate weakened. The temporary-CAS-location hypothesis was falsified: schemas
 are absent from the actual dependency manifest and moving the output gives identical
 local bytes. No exporter repair is justified by that hypothesis.
 
-**MP-B8 — root workflow, corrected by registered-profile reissue; final freshness replay pending:**
+**MP-B8 — root workflow, closed by registered-profile reissue and final freshness replay:**
 respect each generated family's declared environment, not merely its script path.
 No new production debt is asserted for the one observed library lookup. Its scope
 is the exact worker receipt; it establishes neither universal OS-library absence
@@ -569,3 +572,73 @@ env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=
 
 - `execution/raw/openapi-registered-profile-write.log@6c4b545da412267b8f91e666d1b17891fa5435d9cbd31fd46b872fde811779d7`
 - `execution/raw/openapi-registered-profile-proof.json@5521b2e9a88500397f55931b2ee223b051f517071a9917db98fe487d914fdec1`
+
+## Final verification and delivery boundary
+
+The final frozen source and generated-artifact commit is
+`97420ba63bd68aad943f293c0e1b5ce5885fd9d7`. The deciding command ran alone:
+
+```sh
+uv run polisyos-tools architecture guardrails check
+```
+
+It finished naturally with **exit 1, complete FAILED**, in 645.77 seconds
+(`/usr/bin/time -p`; supervisor elapsed 645.8 seconds). All **4/4 registered
+families exercised by this gate** report freshness clean: runtime-openapi-snapshot
+(1 observed output), runtime-api-client (5), runtime-dashboard-api-types (1), and
+trust-claim-posture-register (1). The complete remaining finding set is **two
+diagnostics for one edge**: baseline drift and deep-import creep for
+`polisyos.scientist.evidence.claims.posture -> polisyos.common.markdown`.
+The full output enumerates that edge. No sync, baseline edit, facade bypass or
+exception was used. **MP2-S2-01 remains with team-architecture**; this is the
+commissioned `complete-pending-an-architect-decision` outcome, not a blocker.
+
+The gate also states that the standalone Atlas status-retirement inventory is
+outside its invocation. The separately completed paired Atlas failures and MP-B7
+above remain part of the handback; freshness green does not supersede them.
+The ledger's complete check remains 260/260 IDs, one `ledger_render_drift`
+blocking finding, and exactly the two expected shifted-status informational
+rows. Its full unit suite remains **73 passed / 76 collected, three failed**,
+all retaining the protected canonical-render requirement. No zero-blocking,
+full-backend or CI-parity claim is made.
+
+**MP-B9 — root diagnostic scratch lifecycle, closed here:** the preceding attempt
+at the same source commit returned **exit 2, UNRUN**, after 109.16 seconds because
+the isolation copy ran out of disk space. Its import findings are **partial
+coverage**, never a complete verdict. Root had retained a completed diagnostic
+copy occupying 7,096,816 KiB. Before removing it, root preserved the unique real
+worker response and index and proved its generated output byte-identical to
+`schemas/runtime_api_v1.openapi.json@97420ba63bd68aad943f293c0e1b5ce5885fd9d7`
+(SHA-256 `a48f0938b58af805d789cd07d246ec48eca96da2e638a5cfb2d8172c5958ae2b`).
+Only this task-created tree was removed:
+
+```text
+/Users/deniskopylov/polisyos/.worktrees/measurement-plane/policy-engine/_build/.tmp/measurement-openapi-isolated
+```
+
+Directory symlinks were not traversed. The complete pre-removal probe and result
+record that exact scope, the retained identities, and free disk space changing
+from 5,436,346,368 to 11,969,724,416 bytes. This was ordinary task scratch cleanup,
+with no Git registration prune. The earlier equality receipt's isolated output
+path is historical and has been removed; its canonical committed equivalent and
+unique worker/index receipts remain. No copier policy change or broader storage
+measurement is proposed. The subsequent complete gate above establishes the
+successful replay; the UNRUN log is retained rather than replaced.
+
+Complete final outputs and removal probes, relative to this journal directory:
+
+- `execution/raw/guardrails-delivery.log@845f2302c577b7ca0fffe0a87232ed32454918128b9aeceaec280523a9f84bf8`
+- `execution/raw/guardrails-delivery-receipt.json@b5cd0285ec6257c2c0696845f16f034a8fadc9f6fbf9da409fca81b31d56c25b`
+- `execution/raw/guardrails-final-profile.log@aa6dfa8f25e0d4237c1679f0ede1b4f3140c6de2fc1ee4c65283210a88e50997`
+- `execution/raw/guardrails-final-profile-receipt.json@5e961ae3463d840c1ca5288c3821d6d4ce4d4763b0f4cd4e3f2b54be5e4d4295`
+- `execution/raw/diagnostic-scratch-removal-probe.json@f7435056c69b96d1201d0f9540307b2355ddff53715718137fb40ae225662919`
+- `execution/raw/diagnostic-scratch-removal-result.json@dd769107cf21c17bb41443d2d798dfc87b36aa983ef92ec262e5de557f881236`
+
+The delivery commit changes only this journal after the measured freeze. Final
+attachment, complete changed-path/blob reconciliation, branch-byte readback and
+protected-file equality are recorded in ignored `execution/raw/delivery-readback.json`;
+that post-commit receipt names the delivered commit and cannot be embedded in the
+commit it verifies. It is a delivery witness, not another product gate. The five
+decisions, census, standing rule, implementation and negative receipts are the
+reviewable local handback. The separately enumerated 53-name prune prediction
+and its moved-directory limitation remain unchanged; the architect alone acts on it.

@@ -15018,6 +15018,13 @@
       "target_root": "core"
     },
     {
+      "source_module": "polisyos.scientist.evidence.claims.posture",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/evidence/claims/posture.py",
+      "target_module": "polisyos.common.markdown",
+      "target_root": "common"
+    },
+    {
       "source_module": "polisyos.scientist.evidence.claims.projections",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/evidence/claims/projections.py",

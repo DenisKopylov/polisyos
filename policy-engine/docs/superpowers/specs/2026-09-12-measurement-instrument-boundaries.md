@@ -85,7 +85,7 @@ interpreted. A clean exit is no verdict after incomplete execution.
 Red-first tests exercise the real report path: (1) a fact solely in GY section 8.6
 must remain explicitly outside the task-status measurement; (2) a master-plan
 ownership act alongside no slice frontmatter must not be called measured absence;
-(3) unreadable/malformed input cannot yield an empty successful measurement;
+(3) unreadable/malformed input cannot yield a complete empty measurement;
 (4) a dropped ledger row and an invalid/duplicate acknowledgement still fail;
 (5) the existing framework witness remains unresolved while removing a real direct
 caller still produces the original invocation failure. Remove the read-recording
@@ -121,8 +121,8 @@ Its production caller publishes that receipt on both successful and failed check
 The receipt separately enumerates selected slice plans, excluded documents and
 unreadable/invalid candidates. Schema/manifest loading and tracked-plan enumeration
 are declared inputs; supplied in-memory manifest values are labelled as such.
-A malformed tracked candidate is no longer silently dropped: the run fails with
-an explicit input-unresolved finding. No absence of a slice-plan acknowledgement
+A malformed tracked candidate is no longer silently dropped: the receipt reports
+an explicit unresolved input and partial plan-selection coverage. No absence of a slice-plan acknowledgement
 is allowed to settle the master plan's institutional ownership acts.
 
 The standing rule governs authoring and review across the surveyed population.
@@ -130,3 +130,23 @@ This change does not claim to retrofit every historical instrument from one gene
 tracer: imports, child processes and semantic interpretation cannot be recovered by
 recording `Path.read_text` calls. The population handback must distinguish compliant,
 partial and undisclosed members and route the remaining migration by owner.
+
+**MP1-04 — bounded malformed-frontmatter residual.** The declared Atlas plan
+admission check, replaying `_tracked_atlas_plan_paths` and `_yaml_frontmatter`,
+reads all 132 tracked Markdown plans: 24 parse as slice plans, 103 are excluded,
+and 5 have invalid YAML. `git ls-tree` at the base independently reconciles the
+132 paths with `git ls-files`; no source changed in this set. Complete output:
+`docs/superpowers/journals/measurement-plane/row1/raw/atlas-plan-admission-baseline.json`
+(SHA-256 recorded in the completion journal). This is the check's admission result,
+not evidence of absent ownership or document-body meaning.
+
+Consequently the instrument can complete validation of *admitted* acknowledgements
+while plan selection remains partial. Invalid YAML/read failures are emitted as
+`unresolved_by_construction` records, never counted as non-slice or absent. It does
+not fail an otherwise valid admitted acknowledgement because an uninterpreted
+master document has invalid YAML; it also cannot claim full allocation coverage.
+Making all plan selection fail-closed would require the document owners to repair
+the five inputs, including files this commission forbids editing. That distinct
+migration is routed to MP-B3 (team-architecture/document owners). This narrows the
+implementation contract above: an incomplete selection receipt is not a complete
+absence verdict. Original acknowledgement violations still fail unchanged.

@@ -206,3 +206,14 @@ may expose a deep-import baseline delta; report it to architecture without sync,
 with task status complete-pending-an-architect-decision when that is the only
 remaining action. The preserved malformed/contradictory input negatives must
 still withhold authority rather than infer roles from prose.
+
+
+Generated-artifact feasibility constraint: after tokenizing subject/owner/closure
+cells, the existing `check_debt_ledger --check` must still reconcile the retained
+register and ledger at 260 with zero blocking and the same two informational
+status recoveries. If corrected field interpretation changes generated ledger
+bytes, the discrepancy must be reported as a real render-drift finding; this lane
+may not update LEDGER.md or suppress that predicate. Such a result establishes an
+owner regeneration dependency, not permission to weaken the checker or silently
+retain a false owner. The final handback must separate syntax/rule delivery from
+any closure that the protected generated artifact prevents.

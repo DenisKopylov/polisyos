@@ -510,3 +510,46 @@ declares its compatible `schema-openapi-abi` example update.
 
 The next registered guardrails run tests this committed companion. Runtime
 source/tests remain the already reviewed and exercised source commit.
+
+### Final verification and handback
+
+Registered guardrails replay actual exit **0** on
+`76fc753bd111334f5d7bc17a7a32729308723cba`, using CPython3.14.0 and
+the registered runtime/ml OpenAPI generation basis. Registered ledger check
+actual exit **0** on source commit `476383d759232c062171b34f1357145a10473827`;
+its complete receipt is above. The intervening changes are the reviewed generated
+example/release companion and appended lane records, not register/ledger or Python
+source changes. Each registered command was the ONLY command in its invocation.
+No guardrails sync or baseline update was run. The guardrails output explicitly
+excludes the standalone Atlas retirement gate; no result is claimed for that
+out-of-scope gate.
+
+The final epoch/source-reader/DVS/deployment/HTTP named-file wave and scoped
+issuance/importer/composition wave returned0. The formerly timed-out CLI probes
+returned0 when run alone on3.14.0. Behavioral removal probes retained markers
+and exposed the deleted source property. The original broad NL importer wave
+remains red as described in EP-B01; its current/base reproductions do not become
+an inherited exclusion. No overall repository-suite green is claimed.
+
+- `epoch-positive-path/raw/stage2-registered-guardrails-replay-receipt.json` @ SHA-256 `e796e2ab86e71862e202e9f46df2b06f46d62f28da34fcfda851a839f3fae4f6` — Actual registered guardrails exit0 on committed companion76fc753bd; CPython3.14.0; sole command.
+- `epoch-positive-path/raw/stage2-architecture-guardrails-replay.txt` @ SHA-256 `9fa49e2a57ea7578043fb7d62548f19b0e0f0734b1ace31d1943d46686829e18` — Complete final guardrails output; registered generated families clean.
+- `epoch-positive-path/raw/stage2-companion-commit-readback.json` @ SHA-256 `5c071b231a159a392838734e29fd498bb4447f822785ab4f725ac935808d25b8` — Every changed companion blob reread from attached branch and compared with working tree.
+- `epoch-positive-path/raw/stage2-openapi-independent-review.md` @ SHA-256 `77b46fe4089bb6b18cc1a82d0e73a4db694fa0a7423c95495ddb156b810fe1be` — Complete independent review, including actual generated-client render equality.
+- `epoch-positive-path/raw/stage2-openapi-independent-review-receipt.json` @ SHA-256 `408cda69bd77c351b728fb9447837e595ff296053c526049e1cf851dde88e5ef` — Complete independent deciding evidence paths/hashes; no omitted/ambiguous member reported as zero.
+- `epoch-positive-path/raw/stage2-openapi-candidate-cleanup.json` @ SHA-256 `8a95e93beee2dc1a786516987339d85996e658400a1d71a1d786075244735568` — Exact generated output retained in committed schema; duplicate raw candidate removed after byte comparison.
+- `epoch-positive-path/raw/stage2-preserved-boundaries-closeout.txt` @ SHA-256 `95a04931261dcc7af4303b2ee25e7d3d79eebbe9380bd084a2e8ef5b7ea11caa` — Final selected consumer AST preservation, Stage1 byte prefixes, protected register/ledger bytes.
+
+Terminal status: **complete-pending-an-architect-decision on EP-D02, EP-D03
+and EP-D04**. The concrete questions and local stop links are in the appended
+Stage2 specification. EP-D01 is implemented; no separate minting right is inferred.
+The configured mechanism reaches the original production HTTP intake and existing
+Claim lifecycle owner. Institutional/native source slots remain typed and empty;
+no appointed institution or complete deployed positive capability is claimed.
+The explicit native execution-closure integration boundary and shared DVS
+availability residual are retained in the specification.
+
+Delivery is local ordinary Git on `codex/epoch-positive-path`. Base of record
+remains034f30c64. Stage1 findings and frontmatter remain byte-identical prefixes
+to7478bc522; only Stage2 sections were appended. DEBT-REGISTER.md and LEDGER.md
+are unchanged. No push was performed. This final receipt-only change is committed
+and read back from the attached branch before the final response.

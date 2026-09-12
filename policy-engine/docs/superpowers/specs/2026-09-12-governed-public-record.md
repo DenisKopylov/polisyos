@@ -229,3 +229,13 @@ type has its own schema name to avoid colliding with the shared client's existin
 its strict JSON validation is retained. OpenAPI and clients are regenerated through their
 registered owners. The complete deciding outputs, removal probes, actual gate codes and routed
 incidental findings are recorded in the [execution journal](../journals/governed-public-record.md).
+
+**GPR-I05 — supported import boundary.** The first frozen architecture check returned 1 for
+new cross-root deep imports and OpenAPI freshness. Admission types and owner are now exposed
+through the already-supported `polisyos.scientist.governance.continuous` facade. Runtime uses
+that facade and the existing Scientist root Claim-owner port. The new implementation uses
+the existing Core artifacts/canon facades. This preserves actual class/function identity and
+every admission predicate; it adds no wrapper or alternate owner. Public inventory and its
+reference document are rendered by their existing owner functions, without invoking sync or
+changing any import baseline. The release fragment declares the additive Python surface.
+Independent normalized-AST/identity review and the actual HTTP replay validate this delta.

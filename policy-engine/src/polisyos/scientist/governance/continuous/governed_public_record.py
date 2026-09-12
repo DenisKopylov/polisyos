@@ -19,12 +19,7 @@ from typing import Literal, TypeVar
 
 from pydantic import AwareDatetime, BaseModel, JsonValue
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.signing import DetachedSignature, Ed25519Verifier
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core import artifacts, canon
 from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
 from polisyos.scientist.evidence.claims.export import ClaimExportAudience
 from polisyos.scientist.evidence.claims.head_index import (
@@ -78,7 +73,7 @@ _LIMITATIONS = [
 # Every model field must be classified. New fields fail closed until the finite
 # profile is extended; the verifier walks actual objects, including every value.
 _REFERENCE_FIELDS: dict[type[BaseModel], frozenset[str]] = {
-    ArtifactRef: frozenset({"artifact_id"}),
+    artifacts.ArtifactRef: frozenset({"artifact_id"}),
     AppendOnlyClaimLedger: frozenset({"run_id", "base_ledger_ref"}),
     ClaimRecord: frozenset(
         {
@@ -115,7 +110,7 @@ _REFERENCE_FIELDS: dict[type[BaseModel], frozenset[str]] = {
     ),
 }
 _MATERIAL_FIELDS: dict[type[BaseModel], frozenset[str]] = {
-    ArtifactRef: frozenset({"kind", "media_type"}),
+    artifacts.ArtifactRef: frozenset({"kind", "media_type"}),
     AppendOnlyClaimLedger: frozenset(
         {
             "schema_version",
@@ -202,9 +197,9 @@ class _PrivateDraft(_StrictModel):
 
 
 class _ExactSignature(_StrictModel):
-    artifact_ref: ArtifactRef
-    manifest_ref: ArtifactRef
-    signature_ref: ArtifactRef
+    artifact_ref: artifacts.ArtifactRef
+    manifest_ref: artifacts.ArtifactRef
+    signature_ref: artifacts.ArtifactRef
 
 
 class _PrivateAdmission(_StrictModel):
@@ -215,7 +210,7 @@ class _PrivateAdmission(_StrictModel):
     issuer_id: str
     signing_key_id: str
     purpose: Literal["governed_public_record"] = PUBLICATION_PURPOSE
-    draft_ref: ArtifactRef
+    draft_ref: artifacts.ArtifactRef
     publication: _ExactSignature
     mandate: _ExactSignature
     verifier_epoch: str
@@ -261,7 +256,7 @@ def _source_leaves(
     leaves: dict[tuple[str | int, ...], str] = {}
 
     def walk(node: object, path: tuple[str | int, ...], reference: bool = False) -> None:
-        if isinstance(node, ArtifactID):
+        if isinstance(node, artifacts.ArtifactID):
             if not reference:
                 raise GovernedPublicRecordError("source_schema_profile_unsupported")
             leaves[path] = str(node)
@@ -288,7 +283,7 @@ def _source_leaves(
         leaves[("metadata", "created_by_node_id")] = value.metadata["created_by_node_id"]
     # Preserve the actual owner's raw JSON codec, including tagged timestamps,
     # omitted optional fields and dictionary membership. No lossy DTO dump.
-    return leaves, json.loads(to_canonical_bytes(value, CanonSpec(forbid_floats=False)))
+    return leaves, json.loads(canon.to_canonical_bytes(value, canon.CanonSpec(forbid_floats=False)))
 
 
 def _project(
@@ -339,7 +334,7 @@ class GovernedPublicRecordOwner:
     def __init__(
         self,
         *,
-        store: FileSystemCAS,
+        store: artifacts.FileSystemCAS,
         claim_owner: ClaimLedgerOwnerPort,
         index_root: Path,
         slot: PublicationSigningSlot,
@@ -355,8 +350,8 @@ class GovernedPublicRecordOwner:
     @staticmethod
     def _trust(
         keys: tuple[PublicationTrustedKey, ...],
-    ) -> tuple[Ed25519Verifier, dict[str, PublicationTrustedKey]]:
-        verifier = Ed25519Verifier(strict_identity=False)
+    ) -> tuple[artifacts.Ed25519Verifier, dict[str, PublicationTrustedKey]]:
+        verifier = artifacts.Ed25519Verifier(strict_identity=False)
         rows: dict[str, PublicationTrustedKey] = {}
         for row in keys:
             key_id = verifier.load_trusted_key_pem(row.public_key_pem, identity=row.issuer_id)
@@ -365,24 +360,24 @@ class GovernedPublicRecordOwner:
             rows[key_id] = row
         return verifier, rows
 
-    def _put(self, value: BaseModel | dict[str, object], name: str) -> ArtifactRef:
+    def _put(self, value: BaseModel | dict[str, object], name: str) -> artifacts.ArtifactRef:
         return self.store.put_bytes(
             _bytes(value),
-            ArtifactWriteOptions(
+            artifacts.ArtifactWriteOptions(
                 kind=name,
                 media_type="application/json",
-                schema=SchemaInfo(name=name, version="1"),
+                schema=artifacts.SchemaInfo(name=name, version="1"),
             ),
         )
 
-    def _read(self, ref: ArtifactRef, cls: type[_T], name: str) -> _T:
+    def _read(self, ref: artifacts.ArtifactRef, cls: type[_T], name: str) -> _T:
         self._raw(ref)
         manifest = self.store.get_manifest(ref.artifact_id)
         if (
             manifest.kind != name
             or ref.kind != name
             or ref.media_type != "application/json"
-            or manifest.artifact_schema != SchemaInfo(name=name, version="1")
+            or manifest.artifact_schema != artifacts.SchemaInfo(name=name, version="1")
         ):
             raise GovernedPublicRecordError("record_schema_invalid")
         raw = self.store.get_bytes(ref.artifact_id)
@@ -391,7 +386,7 @@ class GovernedPublicRecordOwner:
             raise GovernedPublicRecordError("record_canonical_bytes_invalid")
         return result
 
-    def _raw(self, ref: ArtifactRef) -> bytes:
+    def _raw(self, ref: artifacts.ArtifactRef) -> bytes:
         try:
             result = self.store.verify(ref.artifact_id)
             raw = self.store.get_bytes(ref.artifact_id)
@@ -417,7 +412,7 @@ class GovernedPublicRecordOwner:
                 ),
             ) from exc
 
-    def _capture(self, ref: ArtifactRef) -> _ExactSignature:
+    def _capture(self, ref: artifacts.ArtifactRef) -> _ExactSignature:
         self._raw(ref)
         blob_path, _ = self.store.get_paths(ref.artifact_id)
         signature = blob_path.with_suffix(".sig").read_bytes()
@@ -425,13 +420,13 @@ class GovernedPublicRecordOwner:
             artifact_ref=ref,
             manifest_ref=self.store.put_bytes(
                 self.store.get_manifest_bytes(ref.artifact_id),
-                ArtifactWriteOptions(
+                artifacts.ArtifactWriteOptions(
                     kind="scientist.publication.exact_manifest", media_type="application/json"
                 ),
             ),
             signature_ref=self.store.put_bytes(
                 signature,
-                ArtifactWriteOptions(
+                artifacts.ArtifactWriteOptions(
                     kind="scientist.publication.exact_signature", media_type="application/json"
                 ),
             ),
@@ -456,7 +451,7 @@ class GovernedPublicRecordOwner:
             or sig_raw != blob_path.with_suffix(".sig").read_bytes()
         ):
             raise GovernedPublicRecordError("record_exact_signature_evidence_changed")
-        signature = DetachedSignature.model_validate_json(sig_raw)
+        signature = artifacts.DetachedSignature.model_validate_json(sig_raw)
         verifier = self._mandate_verifier if mandate else self._publisher_verifier
         keys = self._mandate_keys if mandate else self._publisher_keys
         row = keys.get(signature.key_id)
@@ -506,7 +501,7 @@ class GovernedPublicRecordOwner:
         self,
         *,
         decision_id: str,
-        decision_packet_ref: ArtifactRef,
+        decision_packet_ref: artifacts.ArtifactRef,
         issued_at: datetime,
     ) -> GovernedPublicRecordDraft:
         """Persist a private exact candidate; never write a public issuance index."""
@@ -527,7 +522,7 @@ class GovernedPublicRecordOwner:
         self,
         *,
         decision_id: str,
-        decision_packet_ref: ArtifactRef,
+        decision_packet_ref: artifacts.ArtifactRef,
         issued_at: datetime,
     ) -> GovernedPublicRecordDraft:
         if issued_at.tzinfo is None:
@@ -571,7 +566,7 @@ class GovernedPublicRecordOwner:
         ).split(":")[1]
         cache_path = self.index_root / "drafts" / (key + ".json")
         if cache_path.exists():
-            ref = ArtifactRef.model_validate_json(cache_path.read_bytes())
+            ref = artifacts.ArtifactRef.model_validate_json(cache_path.read_bytes())
             draft = self._read(ref, _PrivateDraft, "scientist.publication.private_draft")
             if draft.snapshot != snapshot:
                 raise GovernedPublicRecordError("source_changed_since_preparation")
@@ -683,7 +678,7 @@ class GovernedPublicRecordOwner:
         self,
         *,
         decision_id: str,
-        decision_packet_ref: ArtifactRef,
+        decision_packet_ref: artifacts.ArtifactRef,
         issued_at: datetime,
     ) -> str:
         """Admit source, external mandate and exact publisher signature before indexing."""
@@ -704,7 +699,7 @@ class GovernedPublicRecordOwner:
         self,
         *,
         decision_id: str,
-        decision_packet_ref: ArtifactRef,
+        decision_packet_ref: artifacts.ArtifactRef,
         issued_at: datetime,
     ) -> str:
         candidate = self.prepare(

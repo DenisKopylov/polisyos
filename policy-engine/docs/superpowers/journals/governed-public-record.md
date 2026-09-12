@@ -59,3 +59,21 @@ typecheck returned 0 after the JSON wire-name repair. No generated file was hand
 The final mandatory ledger/architecture commands, codes, evidence identities and attached-branch
 delivery readback are appended after their frozen verification wave. This staging paragraph
 makes no completion or all-green claim.
+
+### Frozen implementation and import repair
+
+Implementation `3035fa1619fdc9aff36b3454ec0e098ecc5e6ea5` was read back byte-for-byte from the
+attached branch, including a complete changed-path set reconciliation. The sole-command
+registered ledger check returned **0** on that frozen implementation. Its missing performance
+identity remains informational open debt; no register or ledger was changed. The sole-command
+architecture check returned **1**, naming new deep imports and runtime OpenAPI snapshot drift.
+The imports are this lane's finding, repaired by GPR-I05; no baseline was cleared or synchronized.
+The exact facade/HTTP test files and changed-import Ruff replay returned **0** after the repair.
+
+The OpenAPI diagnostic attempt returned **1** (`DS17 OpenAPI source is not owner-admitted`).
+A subsequent direct read of the real owner service returned an available, passed source receipt.
+The failed generator overlapped the final facade test edit; that timing alone does not establish
+the failure's cause. The first diagnostic used `src/` as repository root and honestly returned
+artifact-missing; it is a corrected harness input, routed nowhere for product repair. Complete
+outputs remain retained. Final canonical regeneration and architecture replay follow source
+freeze; no DS17 owner predicate is bypassed.

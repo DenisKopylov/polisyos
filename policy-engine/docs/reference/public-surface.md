@@ -2428,7 +2428,7 @@ select_method_candidates_for_requirements
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 26 |
-| `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 76 |
+| `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
 
@@ -2477,9 +2477,20 @@ tool_contract_default_blockers
 - Facade: `lazy_facade`
 - Summary: Continuous governance and reissue loop for Scientist decision artifacts.
 
-<details><summary>Entrypoint exports (76)</summary>
+<details><summary>Entrypoint exports (87)</summary>
 
 ```text
+GovernedPublicCustodyBinding
+GovernedPublicRecord
+GovernedPublicRecordDraft
+GovernedPublicRecordError
+GovernedPublicRecordOwner
+GovernedPublicRecordProjection
+GovernedPublicRecordVerificationResponse
+PublicationMandateStatement
+PublicationSigningSlot
+PublicationTrustedKey
+publication_trust_epoch
 CONTINUOUS_GOVERNANCE_FLAG
 ENABLE_REISSUE_WORKFLOW_FLAG
 ENABLE_WITHDRAWAL_STATUS_FLAG

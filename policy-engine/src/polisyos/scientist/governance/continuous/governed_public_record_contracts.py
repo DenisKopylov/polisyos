@@ -20,8 +20,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.signing import Ed25519Signer
+from polisyos.core import artifacts
 
 PUBLICATION_PURPOSE = "governed_public_record"
 MANDATE_PURPOSE = "governed_public_record_mandate"
@@ -101,17 +100,17 @@ class PublicationTrustedKey:
 class PublicationSigningSlot:
     """Empty by default; possessing a signing key does not appoint its holder."""
 
-    signer: Ed25519Signer | None = None
+    signer: artifacts.Ed25519Signer | None = None
     issuer_id: str | None = None
     publisher_trusted_keys: tuple[PublicationTrustedKey, ...] = ()
     mandate_trusted_keys: tuple[PublicationTrustedKey, ...] = ()
-    mandate_ref: ArtifactRef | None = None
+    mandate_ref: artifacts.ArtifactRef | None = None
     verifier_epoch: str | None = None
     purpose: Literal["governed_public_record"] = PUBLICATION_PURPOSE
 
     def __post_init__(self) -> None:
         if (
-            (self.signer is not None and type(self.signer) is not Ed25519Signer)
+            (self.signer is not None and type(self.signer) is not artifacts.Ed25519Signer)
             or (
                 self.issuer_id is not None
                 and (type(self.issuer_id) is not str or not self.issuer_id.strip())
@@ -127,7 +126,7 @@ class PublicationSigningSlot:
                 type(key) is not PublicationTrustedKey
                 for key in self.publisher_trusted_keys + self.mandate_trusted_keys
             )
-            or (self.mandate_ref is not None and type(self.mandate_ref) is not ArtifactRef)
+            or (self.mandate_ref is not None and type(self.mandate_ref) is not artifacts.ArtifactRef)
         ):
             raise ValueError("publication_signing_slot_invalid")
 
@@ -147,9 +146,9 @@ class PublicationMandateStatement(_StrictModel):
     issuer_id: str = Field(min_length=1)
     signing_key_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     public_document_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    decision_packet_ref: ArtifactRef
+    decision_packet_ref: artifacts.ArtifactRef
     owner_scope_ref: str = Field(min_length=1)
-    ledger_artifact_ref: ArtifactRef
+    ledger_artifact_ref: artifacts.ArtifactRef
     authority_basis: str = Field(min_length=1)
     permitted_uses: tuple[Literal["bounded_public_custody"], ...] = ("bounded_public_custody",)
     profile: Literal["exact_owner_ledger_v1"] = PUBLICATION_PROFILE
@@ -172,7 +171,7 @@ class PublicationMandateStatement(_StrictModel):
 class GovernedPublicRecordDraft(_StrictModel):
     """Private candidate locator plus the exact bytes an institution may approve."""
 
-    candidate_ref: ArtifactRef
+    candidate_ref: artifacts.ArtifactRef
     public_document: dict[str, GovernedPublicJsonValue]
     public_document_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
@@ -270,8 +269,8 @@ class GovernedPublicCustodyBinding(_StrictModel):
     """Private owner resolution consumed by the installed custody provider."""
 
     record_id: str = Field(pattern=r"^gpr_[A-Za-z0-9_-]{32}$")
-    signature_ref: ArtifactRef
-    decision_packet_ref: ArtifactRef
+    signature_ref: artifacts.ArtifactRef
+    decision_packet_ref: artifacts.ArtifactRef
     affected_claim_ids: tuple[str, ...] = Field(min_length=1)
     published_at: AwareDatetime
     staleness_after_seconds: int = Field(gt=0)

@@ -16,8 +16,8 @@ from polisyos.runtime.http.services.public_decision_verification import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
-    from polisyos.scientist.governance.continuous.governed_public_record import (
+    from polisyos.scientist import ClaimLedgerOwnerPort
+    from polisyos.scientist.governance.continuous import (
         GovernedPublicRecordOwner,
     )
 
@@ -58,7 +58,7 @@ def _build_governed_public_record_owner(
     claim_owner: ClaimLedgerOwnerPort,
 ) -> GovernedPublicRecordOwner:
     """Load publication-only trust and evidence without manufacturing an appointment."""
-    from polisyos.scientist.governance.continuous.governed_public_record import (
+    from polisyos.scientist.governance.continuous import (
         GovernedPublicRecordOwner,
         PublicationSigningSlot,
         PublicationTrustedKey,

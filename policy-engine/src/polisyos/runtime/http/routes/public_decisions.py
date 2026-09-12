@@ -34,7 +34,7 @@ from polisyos.runtime.quality import (
     assert_public_export_official_use_limits,
     build_public_export_bundle,
 )
-from polisyos.scientist.governance.continuous.governed_public_record import (
+from polisyos.scientist.governance.continuous import (
     GovernedPublicRecordError,
     GovernedPublicRecordProjection,
     GovernedPublicRecordVerificationResponse,

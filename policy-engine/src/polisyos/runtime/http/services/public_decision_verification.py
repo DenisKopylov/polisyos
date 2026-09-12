@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from datetime import datetime
 
-    from polisyos.scientist.governance.continuous.governed_public_record import (
+    from polisyos.scientist.governance.continuous import (
         GovernedPublicRecordOwner,
         GovernedPublicRecordVerificationResponse,
     )

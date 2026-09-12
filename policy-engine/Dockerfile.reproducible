@@ -32,7 +32,7 @@ ENV JAX_ENABLE_X64=false
 ENV JAX_DISABLE_MOST_OPTIMIZATIONS=false
 ENV XLA_FLAGS="--xla_cpu_multi_thread_eigen=true --xla_force_host_platform_device_count=8"
 
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml hatch.toml uv.lock ./
 
 RUN uv sync --frozen
 
@@ -92,7 +92,7 @@ ENV XLA_PYTHON_CLIENT_ALLOCATOR=platform
 ENV NCCL_DEBUG=WARN
 ENV NCCL_P2P_DISABLE=1
 
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml hatch.toml uv.lock ./
 
 RUN uv sync --frozen && \
     uv pip install "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html

@@ -281,27 +281,4 @@ odfpy = { path = "vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl" }
 [project.entry-points."polisyos.lex_normpacks"]
 
 [project.entry-points."polisyos.runtime_middlewares"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/polisyos", "tools"]
-
-[tool.hatch.build]
-directory = "_build/dist"
-
-[tool.hatch.build.targets.sdist]
-include = [
-  "src/polisyos",
-  "benchmarks",
-  "docs",
-  "ops",
-  "schemas",
-  "tools",
-  "CHANGELOG.md",
-  "README.md",
-  "ruff.toml",
-  "mypy.ini",
-  "basedpyright.toml",
-  "pytest.ini",
-  "mutmut.cfg",
-  "pyproject.toml",
-]
+# Build configuration lives in hatch.toml.

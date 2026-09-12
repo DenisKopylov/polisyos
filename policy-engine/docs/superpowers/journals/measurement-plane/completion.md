@@ -1,6 +1,6 @@
 # Measurement plane completion journal
 
-Status: Stage 1 research in progress; no mechanism changed.
+Status: Stage 1 decisions and complete population recorded; Stage 2 begins after this commit readback.
 
 Lane: `codex/measurement-plane`, base `307dabcb4`. Local ordinary git; no push,
 prune, guardrails sync, register or ledger edits. Root serializes git and the
@@ -86,3 +86,29 @@ Incidental destinations (open until final reconciliation):
   frontmatter inputs admitted by the Atlas parse probe before requesting complete
   plan-selection coverage. This lane reports partial coverage; prohibited document
   edits are not smuggled into the instrument repair.
+
+
+## Stage transition
+
+The five decisions were committed together by `e6ffe219b` and all five full files
+were read back through attached `codex/measurement-plane`. Row2's generated-artifact
+constraint was appended in `5f8bc7485` and read back. Source remained unchanged
+through the complete instrument review. Final population: 319 owners / 498 source
+files / 1,269 tracked tools+architecture files; 16 bounded-mode input disclosures,
+290 partial, 13 none; 317 survey-found owners. The 270-candidate result is superseded.
+MP-B1's census work is complete; historical output-mode migration remains with
+team-devx and each listed source owner under the standing author/review rule.
+
+The broader ledger test file produced 8 failures over 71 AST test definitions
+(0 async), elapsed 587.20 s; complete output:
+`docs/superpowers/journals/measurement-plane/baseline/raw/debt-ledger-unit-tests.log@5936553f0ac4cef89ea4409ca648af7f4095b545f96a8622363b3bbd7b57fe71`.
+An exact-command replay is running at the original slice base in the isolated
+local clone `baseline/raw/base-ledger-replay`; it adds no worktree registration.
+No inherited-red exclusion is claimed before its result and input-intersection review.
+
+Additional destinations: **MP-B4**, Foundry calibration model owner, explicit
+schema_version `1.0` rejected by the current escaped regex while the unvalidated
+default accepts it (MP3-02). **MP-B5**, DevX ledger test owner, stale return-arity
+and historical live-state assertions, pending the exact-base replay. **MP-B2** is
+resolved to explicit nowhere: AST guards put the two nested `action` definitions
+in mutually exclusive decoder / non-decoder branches; this is not an overwrite.

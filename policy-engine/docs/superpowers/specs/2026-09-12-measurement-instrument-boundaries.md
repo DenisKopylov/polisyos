@@ -1,6 +1,6 @@
 ---
 title: Absence requires a declared measurement boundary
-status: decision-pending-population-readback
+status: stage1-decision-survey-complete
 owner: team-devx / team-architecture
 may_not_use_for:
   - capability closure outside the measured source boundary
@@ -150,3 +150,14 @@ the five inputs, including files this commission forbids editing. That distinct
 migration is routed to MP-B3 (team-architecture/document owners). This narrows the
 implementation contract above: an incomplete selection receipt is not a complete
 absence verdict. Original acknowledgement violations still fail unchanged.
+
+
+**MP1-05 — survey result admitted before repair.** The complete source-owner
+review in `docs/superpowers/journals/measurement-plane/row1/survey.md` classifies
+498/498 executable-source paths within 1,269 tracked tools/architecture files:
+319 diagnostic owners, 179 exclusions; input disclosure 16 yes in a bounded mode,
+290 partial, 13 no. Two incident owners are inside these roots, giving 317
+survey-found owners; the invocation reference is the third incident owner and
+is explicitly outside the 319-owner denominator. Root independently checked the
+union, source hashes and Python witness node bounds. Output-mode migration remains
+MP-B1; the standing rule reaches the future author independently of this census.

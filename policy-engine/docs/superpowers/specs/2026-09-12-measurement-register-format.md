@@ -241,3 +241,9 @@ also reissues its permitted source-bound JSON companion at `eed7a68e6`: all 369
 nonbinding claim records and the 148-source population are preserved while the
 changed runtime reader's identity/coordinates are rebound. Final guardrail import
 acceptance and the protected ledger regeneration remain separate owner actions.
+
+Final ledger suite at `9fa646d4b`: 73/76 items pass. The three remaining failures
+are exactly the unchanged canonical-render assertions; the measured 46-selector
+pin and shifted/struck branch negatives pass. Both source AST and complete pytest
+collection enumerate the same 76 tests. The protected ledger must be regenerated
+by its owner; these assertions were not weakened to produce a local green.

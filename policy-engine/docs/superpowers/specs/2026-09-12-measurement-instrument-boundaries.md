@@ -181,3 +181,11 @@ Atlas, file reader and trust compiler. Exact printed sentences, real caller
 negatives and complete outputs are in the completion journal. The standalone
 Atlas CLI is architecture-owned, not registered in tools/registry.py; its existing
 entrypoint is retained and the new collector remains internal.
+
+The full standalone Atlas command fails with the same complete 141-line diagnostic
+multiset at the slice base and implementation; the new scope receipt is separate.
+This is not a gate-wide inherited-red exclusion, because changed source intersects
+its inputs. MP-B7 routes the reproduced inventory work to Atlas owners. The actual
+scope receipt accounts for 132 plans plus one manifest: zero manifest-selected
+plans, 127 exclusions, five unresolved inputs. The completion journal distinguishes
+this selector from the earlier frontmatter-only census and retains both full runs.

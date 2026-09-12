@@ -413,3 +413,159 @@ classification is a different selector, not a contradictory count. A complete
 acknowledgement check coexists with `plan_selection_complete=false`. Broader
 Atlas inventory findings are under an exact-command slice-base replay; no
 inherited/disjoint-input exclusion has been claimed.
+
+## Final Atlas attribution and owner boundaries
+
+The exact standalone command completed on the slice-base clone at
+`307dabcb47bcc0e7659529344d0648cafb840a30`, after its own frozen pnpm install,
+with exit 1 in 404.79 seconds. The complete diagnostic multisets are identical:
+141/141 nonempty diagnostic lines on each run, excluding only the separately
+parsed new scope receipt and exact timing lines. Added and removed diagnostic
+sets are empty. This is a reproduction of baseline output, **not an inherited
+red exclusion**: the instrument and some source inputs overlap this lane's
+changes, so gate-wide disjointness is false. No full Atlas green or zero-impact
+claim follows. The original failure predicates remain active; the new scope
+receipt and five mirrored adversarial tests decide the bounded Row 1 repair.
+
+**MP-B7 — Atlas inventory owners / team-architecture:** the reproduced broader
+status, authority, persistence and source-fingerprint inventory findings remain
+in the complete paired outputs. This lane neither synchronizes those authority
+registers nor weakens their predicates. Their exact population is the pair of
+retained deciding outputs, not an inferred new set of missing capabilities.
+
+The final source/test companion freeze is `9fa646d4ba18579801db093f4ab9e8a195723fb3`.
+Its three changed files were read back from the attached branch with a clean tree.
+The last test correction preserves all original blocking/render assertions; its
+real OpenAPI owner reissue changes only nine hash/ref leaves inside the same
+example subtree. No endpoint or DTO contract changes. Source inputs and artifact
+bytes are frozen for the complete final ledger-unit and guardrail runs.
+
+The remaining ledger owner action, after accepting the correct tokenized reader,
+is the existing writer, followed by the existing check, each in its own invocation:
+
+```sh
+uv run python -m tools.quality.validation.check_debt_ledger --write
+```
+
+```sh
+uv run python -m tools.quality.validation.check_debt_ledger --check
+```
+
+These are a handoff, not commands executed on the protected canonical artifact by
+this lane. The correction is exactly the two generated owner cells in Row 2.
+The import-policy action remains an architect decision; no sync command was run.
+The separate prune handoff retains the exact 53-name prediction in MP4-F03 and
+its bounded moved-directory limitation; no fresh filesystem census is substituted.
+
+The failure/repair register's Maintenance Rules and operational tail were read
+again at closeout. P29/P35/P37/P38/P41 remain binding: preserved original negatives,
+complete named denominators, no runtime claim from source analysis, and no green
+from either a timeout or an excluded failing gate. Full backend verify/CI parity
+is not claimed; this handoff's complete gates and focused importer/semantic checks
+are named individually. Their pending owner decisions prevent an integration-green
+claim and do not justify repeating unrelated broad suites.
+
+- `execution/raw/atlas-live.log@3ace888dc0f1b05a9134ae9265ae1a0ed3c7f2df8eabc355ca52fc7bbd30a5fb`
+- `execution/raw/atlas-base.log@115cafb0be3d1c71acbc2ca4cf61e2904485a1729f02bca002a19e303c7d1d10`
+- `execution/raw/atlas-base-pnpm.log@e7de0a39a749bf2d051392d7e53b5f9da2bf6363d11a748ab987149db2867c03`
+- `execution/raw/atlas-base-comparison.json@028c0eaa2cba4e3c84628d26d60917215c919d8a1848b1487966a551beb0cc85`
+- `execution/raw/verification-refreeze-abort.json@90cc747d132934d078fd1ca7b95a3061612b902482580ff453ea97bb6e8386b9`
+- `execution/raw/ledger-unit-complete-receipt.json@d144385acb11c1d95339c52bcc6bdc9811b84d1964e1ca4d53b6ff1fd2da8c4d`
+- `execution/raw/guardrails-reissued-receipt.json@e651b0e0b0315270a100a3d455498568a7b77e5460e83b3573254c15f831815d`
+- `execution/raw/openapi-test-companion-write.log@0f3d9a8afa94c30bb947ea13b3027ac89e9474ccbf879dd777020121c33f6d37`
+- `execution/raw/openapi-test-companion-delta.json@4217fe4a98f97b463941c90d8f0a26621a159ecb025d73f1a0537e6bdfd70928`
+- `execution/raw/ledger-companion-ruff.log@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18`
+
+## Complete final ledger-suite and size-control verdicts
+
+The refrozen ledger suite exited 1 naturally after 882.35 seconds. Its complete
+quiet pytest output records 73 passed and three failed items out of 76, independently
+reconciled with the complete 76-node collection and the synchronous/asynchronous
+source AST. The metric assertion now passes. Every remaining failure is the
+unchanged canonical-render requirement: `test_real_census_replays_published_invariants`,
+`test_declared_informational_signal_findings_stay_out_of_blocking`, and
+`test_real_ledger_is_the_deterministic_rendering`. They must not be weakened to
+accommodate the protected artifact. No additional source regression remains in
+this complete suite verdict.
+
+The scratch supervisor falsely labelled that completed run incomplete because
+repository quiet options suppress its expected numeric summary line. The actual
+natural process exit, complete failure blocks, terminal named FAILED nodes,
+100% progress and independent full collection establish a complete FAILED verdict.
+`ledger-unit-final-adjudication.json` supersedes only that harness interpretation;
+it changes neither the retained output nor the three failures. This is another
+worked example of P38 (a report-format proxy is not process completion), routed
+to this journal, with no new production verifier introduced.
+
+The prior size-control receipt compared the actual 307-line base with 284 lines.
+Closeout also executed the precise 301 boundary through the registered CLI over
+a real Git-indexed fixture: the 284-line manifest plus 17 comments, with no budget
+or exception change. It returned exit 1, complete FAILED, 301/300, and one original
+`pyproject_size_gate` finding. The isolated fixture lives in ignored scratch and
+adds no shared worktree registration. Replay:
+
+```sh
+.venv/bin/python -B -m tools.cli validation repository-structure-phase0 --repo-root docs/superpowers/journals/measurement-plane/execution/raw/size-301-control gate --gate pyproject_size --json
+```
+
+The declared ceiling enforces a physical-size policy the project chose; no evidence
+here establishes that 300 lines predicts maintainability. Ownership clarity and
+preserved effective configuration are the relevant demonstrated properties of
+this move. Complexity and resolver/build cost remain separate analysis, not a new gate.
+
+- `execution/raw/ledger-unit-refrozen.log@396b43fe246c609f2588bcd7fd1b931924671d21e0bbe7af5259f6ca629cafb4`
+- `execution/raw/ledger-unit-final-adjudication.json@8e45a4552a217ef12770bd7eac0fb5b1e983d0b6e3a7435b982ada9ce712e443`
+- `execution/raw/ledger-final-collection.log@51aa35e0e263fa0f26253a44443fbc00b9da11193fd8b1073b898ff4756dad85`
+- `execution/raw/size-301-negative.log@6aa0a8b95d0cd8b3584905ac07a9114942868d0ac100ec25124d09f6b8915ec4`
+- `execution/raw/retained-output-integrity.json@846ccd2db9969dd273fc8fcc60602780a946504e6220990bbae311f3a3d5ae43`
+
+## OpenAPI reissue environment correction
+
+The complete refrozen guardrail returned exit 1 in 729.21 seconds: the expected
+new Common edge (baseline and creep diagnostics), plus persistent OpenAPI drift;
+trust, runtime-client and dashboard-type freshness are clean. Root's earlier
+`uv run --no-sync` export omitted the declared `--extra runtime --extra ml`
+regeneration environment in `architecture/generated_artifacts.toml@9fa646d4b`,
+family `runtime-openapi-snapshot`. A successful producer exit alone did not prove
+it had used the registered input basis. This was root's workflow error.
+
+Root captured the real isolated worker responses without modifying their contents
+or any tracked source. The complete local/isolation comparison has 6,431 local
+bindings versus 6,432 isolated bindings. The sole delta is the isolated environment's
+`libc.dylib: missing` lookup; all other dependency bindings and all other worker
+fields agree, apart from the recomputed aggregate identity. The canonical export
+is being reissued with the registered runtime/ML profile and exact probe environment
+flags. No dependency is filtered, no missing lookup suppressed, and no freshness
+predicate weakened. The temporary-CAS-location hypothesis was falsified: schemas
+are absent from the actual dependency manifest and moving the output gives identical
+local bytes. No exporter repair is justified by that hypothesis.
+
+**MP-B8 — root workflow, corrected by registered-profile reissue; final freshness replay pending:**
+respect each generated family's declared environment, not merely its script path.
+No new production debt is asserted for the one observed library lookup. Its scope
+is the exact worker receipt; it establishes neither universal OS-library absence
+nor runtime capability absence. The source-free capture harness is an ignored
+one-off diagnostic caller of the existing exporter, not a new product instrument
+or an authority-bearing report format.
+
+- `execution/raw/guardrails-refrozen.log@af93904607cf84aedabf78977672f4130f5e0e2c3aac4e22b9720d86ff5df913`
+- `execution/raw/guardrails-refrozen-receipt.json@96999310bfb689df4dde9764be287275693215c49ee1c6992452844fd0b345b8`
+- `execution/raw/openapi-ignored-output.log@00045beef072ad38098923133fddb9e9860d54b0035eb1e5f242d825ddafd047`
+- `execution/raw/openapi-ignored-output-worker-0.json@56f9e4577109683e1af0206c70057510b945b46b3864b9a6ac95fab50f027ee3`
+- `execution/raw/openapi-isolated-capture.log@dc63129f5839194e7105919d8a2e9293d6aac4cc7dd54949127af70a9c07c1c4`
+- `execution/raw/openapi-isolated-worker-0.json@eed2b609b45fa31989b65d79563610fad5db3e19cf0b2ae040b601dccd00ef62`
+- `execution/raw/openapi-environment-comparison.json@4ef37eab4e815b503b63cc576fc9499b52e76cfac238170a1285c2dda4fe3e6e`
+- `execution/raw/openapi-copier-directory-differential.json@6c82b1a8d3753a789b2fc9e8529f13c7767cde8240fa4356e8db08f56b8d4445`
+
+The corrected registered-profile export completed with exit 0 and is byte-identical
+to the output from the actual isolated guardrail environment. This direct equality
+is established over the complete OpenAPI byte sequence, not a sampled field set.
+The exporter, tracker, registry, and guardrail implementation remain unchanged.
+Canonical replay (root used the output-probe environment flags as well):
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. UV_FROZEN=1 UV_NO_ENV_FILE=1 uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+```
+
+- `execution/raw/openapi-registered-profile-write.log@6c4b545da412267b8f91e666d1b17891fa5435d9cbd31fd46b872fde811779d7`
+- `execution/raw/openapi-registered-profile-proof.json@5521b2e9a88500397f55931b2ee223b051f517071a9917db98fe487d914fdec1`

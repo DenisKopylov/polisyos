@@ -140,3 +140,12 @@ confidence-ledger-risk-spend example's consulted source-dependency receipt. The
 entire delta is within that example; endpoint/DTO contracts are unchanged. This
 binding covers the changed source/test input basis, not just pyproject bytes.
 The registered freshness gate verifies the real owner-generated output.
+
+The complete physical cap enforces the declared size policy; no evidence here
+establishes that 300 lines predicts maintainability. Configuration ownership and
+preserved effective build behavior are established separately. The final OpenAPI
+companion uses its registered runtime/ML environment: a `--no-sync` shortcut had
+omitted one consulted library lookup and yielded a different source-binding receipt.
+The corrected canonical output is byte-identical to the registered isolated
+producer output. No dependency filtering, producer change, or freshness exception
+is used. Complete environment comparison and commands are in the completion journal.

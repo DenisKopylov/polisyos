@@ -134,3 +134,9 @@ existing dependency-profile owner writer regenerated its paired declarations;
 the current check passes and corrupt-field drift rejects altered bytes. No
 complexity predicate was added; the predicate analysis above remains analysis.
 Full receipts and diagnostic limitations are in the completion journal.
+
+Mandatory generated companion reissue at `eed7a68e6` also updates the OpenAPI
+confidence-ledger-risk-spend example's consulted source-dependency receipt. The
+entire delta is within that example; endpoint/DTO contracts are unchanged. This
+binding covers the changed source/test input basis, not just pyproject bytes.
+The registered freshness gate verifies the real owner-generated output.

@@ -1,6 +1,7 @@
 # Measurement plane completion journal
 
-Status: Stage 1 decisions and complete population recorded; Stage 2 begins after this commit readback.
+Status: Stage 2 implemented; final verification in progress. Canonical ledger green
+requires owner regeneration, and the new Common import requires an architect decision.
 
 Lane: `codex/measurement-plane`, base `307dabcb4`. Local ordinary git; no push,
 prune, guardrails sync, register or ledger edits. Root serializes git and the
@@ -63,8 +64,8 @@ Complete outputs (SHA-256; raw paths are intentionally gitignored):
 
 Row 1 source denominator and provisional role inventory are committed in
 `docs/superpowers/journals/measurement-plane/row1/survey.md@42c09a7a4`.
-The 270 candidate labels are not an admitted instrument total. Per-source
-semantic adjudication and input-disclosure review remain in progress before repair.
+The 270 candidate labels were provisional, not an admitted instrument total.
+The complete semantic adjudication below supersedes that research checkpoint.
 Decision readback: `docs/superpowers/specs/2026-09-12-measurement-instrument-boundaries.md@0dedbe49f`.
 
 The Atlas admission probe read 132/132 tracked Markdown plans, independently
@@ -102,9 +103,9 @@ team-devx and each listed source owner under the standing author/review rule.
 The broader ledger test file produced 8 failures over 71 AST test definitions
 (0 async), elapsed 587.20 s; complete output:
 `docs/superpowers/journals/measurement-plane/baseline/raw/debt-ledger-unit-tests.log@5936553f0ac4cef89ea4409ca648af7f4095b545f96a8622363b3bbd7b57fe71`.
-An exact-command replay is running at the original slice base in the isolated
-local clone `baseline/raw/base-ledger-replay`; it adds no worktree registration.
-No inherited-red exclusion is claimed before its result and input-intersection review.
+An exact-command replay subsequently completed at the original slice base in the
+isolated local clone `baseline/raw/base-ledger-replay`; it added no worktree
+registration. Its result and control limitation are recorded below.
 
 Additional destinations: **MP-B4**, Foundry calibration model owner, explicit
 schema_version `1.0` rejected by the current escaped regex while the unvalidated
@@ -141,7 +142,7 @@ ledger bytes remain untouched. `ledger_render_drift` must continue to fail;
 its suppression, a compatibility wrong-owner projection, or editing the forbidden
 artifact would defeat the task. Completion of Row 2's canonical green requires
 its owner to regenerate LEDGER through the existing writer after accepting this
-change. Status: implementation under verification, pending owner regeneration.
+change. Status: implementation delivered, pending owner regeneration.
 This does not stop the other four rows.
 
 Standing rule: `docs/how-to/author-measurement-instruments.md`, linked from root,
@@ -206,3 +207,180 @@ probes is also distinct from absence through the shared stat reader. File and
 directory permission negatives run against actual denied parent permissions.
 The existing nonzero semantic failures remain failures. These findings are closed
 in this lane's standing input-disclosure rule, not routed as another deferred row.
+
+## Final source delivery and bounded verdicts
+
+The mechanism is frozen at `b83bfac7891fbeed665263f3bf8313a3bd2918b3`.
+All 50 changed tracked paths at that checkpoint were read back byte-for-byte
+from attached `codex/measurement-plane`. Mandatory generated companions were
+then committed and read back at `eed7a68e6429edf0ca76bcf689ccd2033792b1a9`.
+The five Stage 1 decisions remain the architecture record; their Stage 2
+sections state the implemented disposition without rewriting the original decision.
+
+| Row | Delivered verdict and remaining owner action |
+| --- | --- |
+| 1 | Standing author/review rule plus real ledger, Atlas and trust-compiler read receipts and abort boundaries delivered. Invocation remains the unchanged reference. Historical instrument migration is MP-B1, not a claim that all 319 owners were retrofitted. |
+| 2 | All seven positional register-reading sites across four operational files now tokenize before role interpretation; the original status recovery and retained literal pipes remain. Canonical green is impossible under the no-LEDGER-edit constraint: the correct projection changes exactly two owner cells. Owner regeneration is required. |
+| 3 | Research complete; no helper, fixture or model repair selected. Strict producer rejects the three fields; generic CAS writes bypass that model; current schema and its version-regex discrepancy are separated. Foundry owner decides from MP3 findings. |
+| 4 | Registered doctor admission and prompt rule delivered with real branch/path negatives and removal probes. The 53-name administrative cleanup prediction is handed to the architect only; no prune or absolute abandonment claim. |
+| 5 | Hatch configuration moved to its native home, leaving pyproject at 284/300 physical lines. Real backend packaging, copied contexts and original size rejection preserved. Complexity-predicate proposal remains analysis. |
+
+### Population and other register readers
+
+The admitted source-module diagnostic-owner census is **319/498 executable
+source files**, inside **1,269 tracked tools/architecture files**. The 498 files
+are 455 Python, 12 TypeScript, 4 MJS and 27 shell; the other 771 tracked files
+are outside that executable-source denominator. The 319 owners partition into
+16 that disclose inputs in at least one bounded output mode, 290 partial and
+13 with no disclosure. Those 16 are not certified against the new all-format rule.
+Of the 319, two were incidentally known before this survey and **317 were found
+by the survey**. The external invocation reference is explicitly outside this
+root-bounded census. Two independent source reviews cover 248 and 250 disjoint
+paths; root reconciles their union, hashes and AST witnesses. The complete,
+enumerated population is `row1/survey.md@2bd011568e393823cffdbba0e27a80884a6adfe9`.
+
+The complete positional register-consumer set has seven sites in four files:
+ledger `_parse_register` (owner), `_owner_cells` (subject), `_active_closure_signal`
+and `_audit_repository` (explicit branch status); trust compiler
+`derive_custody_appointments`; Scientist runtime `_validate_custody_appointments`;
+browser `validateCustodyAppointments`. Besides the ledger, the files are
+`tools/quality/validation/check_trust_claim_posture.py`,
+`src/polisyos/scientist/evidence/claims/posture.py` and
+`apps/runtime-dashboard/src/features/trust/domain/posture.ts`, all at
+`b83bfac7891fbeed665263f3bf8313a3bd2918b3`. All are repository-owned. The survey
+also separates the non-positional snapshot regex, three test readers and two
+historical whole-row readers; no missing external consumer is inferred from this
+bounded source census. Exact enumerated denominators and replay commands are in
+MP2-01/MP2-02 of the register decision.
+
+### Printed nonmeasurement and negatives
+
+| Instrument / production caller | Sentence now emitted and deciding negative |
+| --- | --- |
+| Ledger audit → registered ledger CLI | `GY §8.6 Done-when rulings and prose completion obligations are not interpreted by the §8.5 task-standing projection, even though the GY file bytes were read.` A ruling only in §8.6 stays outside interpretation; a dropped ledger row still fails. Malformed disposition JSON and denied reads produce UNRUN with retained partial inputs. |
+| Atlas scope → `validate_enforcement` → existing standalone architecture CLI | `Atlas master-plan ownership acts and document-body completion rulings are not interpreted; no selected slice plan is not measured absence of an owner.` Master-only evidence remains unresolved; missing/duplicate acknowledgements still fail. Manifest denial and Git enumeration failure emit UNRUN, never a complete empty result. |
+| Shared file reader → those existing callers and trust compiler | `Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.` Real denied parent traversal on file and directory probes is unreadable, not absent. The helper is internal and has no independent command. |
+| Trust compiler → existing trust-posture check/write CLI | `schema_and_evidence_only: this is a declared schema/source and evidence-binding check; runtime execution, external evidence truth, whole-tree capability completeness and current certification remain undecided.` Outside-selector evidence stays unresolved; invalid custody and changed selected source still fail real admission/freshness checks. Both output formats and direct subprocess permission failures are exercised. |
+| Workspace doctor → registered `workspace doctor --worktree-admission` | `No wider filesystem/mount search; missing registered directories do not prove abandonment or prune safety.` The original occupied pair fails, the exact current pair resumes, and removing either branch or registered-path protection makes its negative fail. Non-atomic observation and lack of reservation remain explicit. |
+
+The unchanged invocation reference separately retains its static/runtime boundary;
+the unchanged structure gate explicitly excludes configuration complexity, dependency
+correctness, resolver cost and TOML validity. Row 5 does not edit that instrument.
+Tokenizers and runtime/browser custody consumers are internal to the named real
+callers; they do not invent new CLI verdicts or weaker authority semantics.
+
+The final focused root semantic wave passed **34/34 selected pytest items** in
+25.21 seconds, including the final generic aborted-run and real permission probes.
+Shared tokenizer/custody suites passed **60/60 new Python items**, **10/10 existing
+runtime items**, and **75/75 browser items**, with **21/21 shared literal vectors**;
+a later **38/38 CLI/custody selection** and six direct subprocess witnesses
+(three acceptance, three required rejection) cover both output formats and failure
+receipts. These are separate overlapping selections, never an invented summed
+unique-test count. Doctor's new and existing command selection passed **29/29**;
+Hatch/config/CLI selection passed **27/27**, plus **2/2** later input-completeness
+negatives. Exact commands, full outputs and hashes are in the receipt indexes below.
+
+### Generated companions and deciding gates
+
+The first complete final guardrail returned FAILED (exit 1, 920.88 seconds),
+with four finding lines: the baseline delta and creep report for one new edge
+`polisyos.scientist.evidence.claims.posture -> polisyos.common.markdown`, and two
+source-bound generated-artifact drifts. The edge is MP2-S2-01, an architect
+acceptance decision; no sync, baseline change or exception is made. The two
+mandatory artifacts were regenerated through their existing owners:
+
+```sh
+uv run --no-sync python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write --write-generated-reference
+uv run --no-sync python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+```
+
+Each command ran in its own invocation. Trust reissue preserves all nonbinding
+claim fields as a multiset across 369/369 claims and 148/148 admitted sources;
+the only changed source is the runtime posture reader. Source coordinates and
+digests rebind downstream IDs. OpenAPI's entire delta is inside one example
+subtree: confidence-ledger-risk-spend source-dependency and replay receipts;
+endpoint and DTO contracts are unchanged. These are mandatory source-identity
+companions, not manual edits to make freshness appear green. Both committed
+artifacts were read back from `eed7a68e6` before the next frozen guardrail wave.
+
+The canonical ledger deciding invocation was:
+
+```sh
+uv run python -m tools.quality.validation.check_debt_ledger --check
+```
+
+It completed with exit 1 in 1425.35 seconds, 260/260 register IDs, exactly one
+blocking finding (`ledger_render_drift`), and exactly the two expected
+`register_status_column_shifted` informational rows. It prints 379 actual explicit
+file-reader operations, not 379 independent evidence sources. Other informational
+collection/standing notices are retained unchanged in the complete output.
+The two corrected owner cells are established by `ledger-projection-drift.log`.
+No 260/zero-blocking claim is made and no protected artifact was written.
+
+The full frozen ledger unit retry reached its 1200-second supervisor bound after
+partial progress. It is **UNRUN, partial coverage, no complete verdict**, not a
+passing suite or an excluded failure. Its complete timeout output is retained;
+the next replay uses a 2400-second bound. A previous complete 75-item run found
+this lane's strikethrough regression and three canonical-render dependencies;
+the source regression was repaired and negatively verified before the retry.
+Final complete rerun results follow below when available.
+
+Replay of the unchanged invocation reference against the slice base completed
+with exit 0 (295.24 seconds), no static regressions and partial coverage:
+`runtime_invocation_established=false`. This is no runtime-invocation claim.
+
+```sh
+uv run python -m polisyos.runtime.quality.production_invocation --base 307dabcb4 --receipt docs/superpowers/journals/measurement-plane/execution/raw/invocation.json
+```
+
+### Incidental finding destinations reconciled
+
+- MP-B1: census complete; historical output-mode migration remains with team-devx,
+  team-architecture and the enumerated instrument owners under the standing rule.
+- MP-B2: explicit nowhere; mutually exclusive nested AST definitions do not overwrite.
+- MP-B3: five invalid Atlas frontmatters → their document owners / team-architecture;
+  no ownership absence inferred and no silent parse drop remains.
+- MP-B4: strict calibration schema-version regex → Foundry calibration owner;
+  separate from the blanket-field decision, no fix selected here.
+- MP-B5: stale ledger test companions and this lane's strikethrough escape → closed
+  in the lane with real semantic negatives; canonical render dependency stays Row 2.
+- MP-B6: optional full Foundry environment installation → explicit nowhere in this
+  packaging task; its diagnostic denies authority and establishes no readiness.
+- MP2-S2-01: new Common import edge → team-architecture decision, no guardrails sync.
+- MP2-S2-02: existing-owner whole-file formatting nonpass → explicit nowhere for
+  this scoped repair; no global lint/format green claimed.
+- MP2-S2-03: malformed accepted custody row skipped → closed by common token intake
+  before exact role/unique-ID validation, with original rejection preserved.
+- Aborted Git/JSON and inaccessible-directory receipt escapes: same input-completeness
+  class → closed by the standing-rule implementation and actual caller negatives.
+- Source-bound posture/OpenAPI outputs: mandatory owner reissues completed, no new debt.
+- Unit supervisor timeout: harness receipt → this journal; replay with measured margin,
+  never a product zero or an inherited-failure exclusion.
+
+### Complete receipt locations
+
+All paths below are relative to this journal directory, and hashes are SHA-256.
+The raw indexes contain exact standalone commands, exit values and links/hashes
+for complete stdout/stderr, including every red and removal probe. They intentionally
+remain on this machine under the first-commit gitignore rule.
+
+- `execution/raw/auxiliary-receipt-index.json@a3385f661297710149f6471cfcedfa1ecaa140a1f00cfa5ea674e2d417914c44`
+- `rows23/raw/row2-stage2-handoff.json@66f25f5c4fd3ade34ee50c77ca908222e7dbb6ebc59fda90d7d3e8606cb1e3b9`
+- `rows23/raw/row2-cli-replay-index.json@51c71c5c7a4627b5ff0cfd82ec4d7237d93fa4bff8ace2d313332b57d99bb5c1`
+- `rows45/raw/stage2-handoff.json@d668a7e954c8c7346b6b6f3bb88f8032b1f12afe863e3720e4366e6ff039917d`
+- `rows45/raw/doctor-branch-removal.receipt.json@e202a30d579683df296778e19332ffa2e6263bf0f402bf276e964a6554334731`
+- `rows45/raw/doctor-path-removal.receipt.json@f6c08e19b566392877be2c193c7948ffe27243969d972da03a7b857495340b1b`
+- `rows45/raw/hatch-input-completeness-handoff.json@333c38166d4ca2197c61d5cc87a37120bb6a8fb505cf717fa3a566f311a76b08`
+- `execution/raw/receipt-boundary-green.log@9f9748d932c3a5c3d10d62c465a74ee1ab2340b3fbf7a8d0f517216f667aff9c`
+- `execution/raw/final-root-ruff.log@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18`
+- `execution/raw/profile-check.log@ca593db8bd962631843e7cea6504ba298bcf05be059856ce13c5ea26be116479`
+- `execution/raw/profile-corruption.log@5b8068a4d65fc35739da1356940ac8338f781901770d9adc1666192b973fe48d`
+- `execution/raw/profile-diagnose-full-sha.log@0981746f181a3699e6cd6d3fae845bc0554dc53617c741be71b1b1ed332f38ad`
+- `execution/raw/debt-ledger-final.log@00b791c5e8625624e2487eb5734ce65ac6d88712ebc77909890381a2cdb09752`
+- `execution/raw/ledger-unit-frozen.log@ff86277d714c83d9e68f1843b788abd7c175489b3187ee9188412b181275857f`
+- `execution/raw/guardrails-final.log@35a7cc2ec35415af91e2b2bba71681558bdae93732e3f977bd8f0871bdde6fbf`
+- `execution/raw/invocation.log@46b155449a399981295de328099c15499b9a6059a23916f829d8c5631ce53bee`
+- `execution/raw/generated-reissue-analysis.json@c29dd18c277f49d910c018f69711a5e03c9d8ac47582af0c7196a01c974d60f1`
+- `execution/raw/openapi-reissue-analysis.json@3bbf3f16d8b2023881e5a7e54070b8a6949c5a6a4006fdc363909012300958aa`
+- `execution/raw/trust-write.log@d90027ab92abc5d362d81b19924b98649208b842b765fb5f2def793f223b0ef5`
+- `execution/raw/openapi-write.log@1232f7d507240cfa1c59720fbe83543db4f8654f7113a57671dcc3a7d45f2635`

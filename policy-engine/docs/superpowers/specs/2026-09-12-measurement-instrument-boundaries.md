@@ -174,3 +174,10 @@ suite remains byte-identical to the lane base. The selected 11 tests passed,
 including original missing/duplicate acknowledgement failures and an unreadable
 manifest producing CLI UNRUN with partial reads. Full wave and handback receipts
 are in the completion journal. Historical migration MP-B1 remains explicit.
+
+Final source at `b83bfac789` adds a fifth mirrored Atlas test for failed Git
+enumeration; the final root boundary selection passes 34/34 items across ledger,
+Atlas, file reader and trust compiler. Exact printed sentences, real caller
+negatives and complete outputs are in the completion journal. The standalone
+Atlas CLI is architecture-owned, not registered in tools/registry.py; its existing
+entrypoint is retained and the new collector remains internal.

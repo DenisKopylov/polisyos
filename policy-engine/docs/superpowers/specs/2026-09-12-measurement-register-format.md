@@ -234,3 +234,10 @@ the existing ledger writer is the remaining acceptance dependency. New Common
 deep-import policy acceptance, if confirmed by the final guardrail, is separately
 an architect decision; no guardrails sync is authorized. Complete evidence is
 retained in the completion journal.
+
+The complete canonical check confirms 260/260 IDs, exactly the two informational
+status recoveries and one blocking render drift. The existing trust owner writer
+also reissues its permitted source-bound JSON companion at `eed7a68e6`: all 369
+nonbinding claim records and the 148-source population are preserved while the
+changed runtime reader's identity/coordinates are rebound. Final guardrail import
+acceptance and the protected ledger regeneration remain separate owner actions.

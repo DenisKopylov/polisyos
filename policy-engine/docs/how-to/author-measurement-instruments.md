@@ -27,8 +27,11 @@ findings partial coverage. Preserve the instrument's original failure predicate.
 For Python tools, compose `tools.lib.fs.measure_file_reads` with the measured
 read functions where appropriate. Its receipt covers those explicit operations
 only; imports, Git, subprocess reads and services need their own receipts or a
-named limitation. The collector is consumed by the registered debt-ledger and
-Atlas checks; it is a library, so it has no independent command. The reference
+named limitation. The collector is consumed by the registered debt-ledger check
+and the existing architecture-owned standalone command
+`python architecture/atlas_surfaces/check_atlas_enforcement.py --check`.
+Atlas retains that existing entrypoint; duplicating its dispatch is outside this
+repair. The collector is internal to these callers and has no independent command. The reference
 for static/runtime boundaries is
 `src/polisyos/runtime/quality/production_invocation.py`.
 

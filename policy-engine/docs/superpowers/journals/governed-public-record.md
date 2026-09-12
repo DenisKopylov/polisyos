@@ -77,3 +77,11 @@ the failure's cause. The first diagnostic used `src/` as repository root and hon
 artifact-missing; it is a corrected harness input, routed nowhere for product repair. Complete
 outputs remain retained. Final canonical regeneration and architecture replay follow source
 freeze; no DS17 owner predicate is bypassed.
+
+The frozen canonical generator returned **0** after facade commit
+`e6a6e56599aedec98776ecf5f436d174ec7d26ab`. A complete recursive JSON comparison, independently
+cross-checked against the entire Git diff, locates the delta only in the DS17 example's source
+and worker dependency identities and their derived projection/replay addresses. The wire schema
+is unchanged. The emitted bytes were copied unchanged from the ignored generator output to the
+registered OpenAPI target. Both client regeneration commands returned **0** with unchanged
+client bytes. This is owner regeneration, not a hand-edited hash or bypass of DS17 validation.

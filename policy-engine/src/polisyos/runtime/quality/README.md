@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-09-10
+- Last updated: 2026-09-12
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 authority/status composition, evidence and claim binding, replay, closeout
@@ -89,30 +89,23 @@ Boundary notes:
   reader establishes only CAS integrity plus the declared commitment prefix;
   family completeness, acceptance, native authority heads and custody remain
   family-owned and are not inferred from a green proof or audit sidecar.
-- `chronology_qualification.py` is the production-internal, owner-qualified
-  composition consumer. It resolves the one appointed admission/provenance
-  container, independently reconciles native owner truth, and invokes the real
-  full-prefix builder and verifier. Cluster 2 has no production family adapter,
-  projection receipt, allocation writer, or call site: the consumer is
-  `implemented_but_not_orchestrated` and its positive proof path terminates at
-  `NativeProjectionCustodyGap`. The strict allocation history records those
-  retained labels without promoting whole-history authenticity.
-- `chronology_custody.py` is the single epoch acceptance/custody composition root. Its production
-  provider resolves acceptance and holder appointments independently and currently returns two
-  query-bound `not_established` outcomes: the acceptance owner and epoch-only independent holder
-  are both `absent/unallocated`. The generic audit cold tier supplies no chronology appointment,
-  object-version receipt, or readback challenge and therefore cannot promote whole-history
-  authenticity. The two trust-snapshot domains bind exact appointed bytes; the plan supplies no
-  authority DTO for those bytes, so their institutional meaning remains a bounded owner-carrier
-  residual rather than a locally invented contract.
-- `semantic_epoch.py` is the epoch-family producer and adapter over the common
-  full-prefix protocol. It derives sparse owner-native L5, Lex and acquisition
-  queries, preserves their complete denominators, and invokes the generic
-  qualification consumer from the production acquisition composition. No
-  predicate-policy signer is appointed, so that real call terminates at the
-  typed `policy_admission_missing` result; the invocation implements the
-  producer/consumer capability without establishing a positive epoch policy,
-  custody, projection or whole-history authenticity claim.
+- `chronology_qualification.py` independently reconciles native owner truth and
+  invokes the existing full-prefix verifier. `epoch_deployment.py` captures typed
+  per-deployment slots for policy resolution, native verification, signing-profile
+  admission, acceptance and history custody. Empty configuration preserves the
+  original refusals. `epoch_evidence_exchange.py` verifies exact signed transport;
+  signatures do not establish native predicate semantics. A privileged native
+  verifier must independently establish those semantics before qualification.
+- `chronology_custody.py` remains the single acceptance/custody composition root.
+  Its no-argument factory captures the current deployment-local resolver, registry
+  and repository. A default deployment still has neither acceptance nor holder
+  appointment. Filling independently verified appointment evidence is configuration;
+  generic audit storage cannot stand in for independent epoch custody.
+- `semantic_epoch.py` derives owner-native L5, Lex and acquisition queries and
+  preserves complete denominators. Its configured constructor accepts the captured
+  qualification collaborators; `from_unallocated_policy_authority` still emits
+  `policy_admission_missing`. The pre-N9 positive query carrier remains a separate
+  consumer boundary (EP-D03); native qualification alone cannot promote a candidate.
 - `acquisition_epoch_admission.py` is an internal operational module CLI. It resolves
   the configured canonical acquisition provision, invokes the existing complete
   semantic-epoch producer from persisted evidence refs, and reads its exact durable
@@ -136,13 +129,29 @@ Boundary notes:
   evidence remains `producer_missing`, its institutional owner remains
   `absent/unallocated`, and public export exposes only the limitation status,
   code, and vector ref—never numeric risk or raw evidence.
-- `epoch_denominator_reconciliation.py` exact-reads Runtime transition inputs,
-  Scientist impact snapshots, and appointed verifier provenance, recomputes
-  both owner denominators, and persists a sidecar only when every Scientist
-  owner row maps to exactly one Runtime target. First admission scans the
-  complete live CAS artifact denominator; replay accepts only the exact
-  write-once handle frozen by Scientist. No production reader appointment is
-  installed here.
+- `epoch_certificate_issuance.py` implements the Runtime owner behind the neutral
+  Scientist issuance port. The actual decision-packet builder prepares a complete
+  basis, persists its packet and admits canonical completion. Its frozen owner
+  index binds packet, exact executable recipe, source basis and native history.
+  No input resolver means a typed nonreceipt, never an empty admitted inventory.
+- `epoch_transition_inputs.py` reads canonical native receipt/predecessor sources,
+  the complete issuance inventory and independently admitted owner dispositions.
+  It computes exact native full-basis deltas; their event carrier remains EP-D04.
+  An empty monitor census cannot establish absence of native change.
+- `epoch_transition_origin.py` admits a canonical execution record only after exact
+  signed persistence and profile admission. Readback recomputes the transition from
+  frozen input receipts. A signed artifact copied into CAS cannot substitute for
+  origin-owner membership or cryptographic verification.
+- `epoch_transition_verification.py` wires the registered run-control epoch-batch
+  route to canonical production, origin verification, complete Scientist impact
+  enumeration and the existing strict batch owner. Missing configuration retains
+  `NoEpochTransitionVerifier`; the request cannot configure authority. Runtime
+  dispositions are projected through existing Decision Validity statuses, with
+  `reissue` retaining staleness until actual replacement evidence arrives.
+- `epoch_denominator_reconciliation.py` recomputes the distinct Runtime and Scientist
+  denominators. The configured intake produces a sidecar and invokes its unchanged
+  strict reader. First admission freezes an exact handle; replay does not rescan
+  newly registered packets. Empty deployments retain a typed unavailable reader.
 - `epoch_staleness_projection.py` is the read-only temporal-surface compiler.
   It preserves the real `policy_admission_missing` and
   `epoch_transition_signer_not_established` institutional nonreceipts, while
@@ -419,3 +428,9 @@ the same ranked consumer when its source, independent signatures, deployment rol
 scope and time are valid. Current projection recomputes persisted content and
 rechecks authority; it does not copy a historical `authorized` field. The additive
 artifacts do not change the generation, promotion or standalone S8 epochs.
+
+Stage 2 delivery boundaries and deciding evidence are recorded in
+[`2026-09-12-epoch-positive-path-stage1.md`](../../../../docs/superpowers/specs/2026-09-12-epoch-positive-path-stage1.md)
+under the appended Stage 2 sections. Historical labels in the temporal-surface
+paragraph describe its unchanged consumer; they do not establish absence of the
+new canonical owner mechanisms. No institution is appointed by these modules.

@@ -131,3 +131,9 @@ component/bootstrap compatibility checks together.
 - [Security](security/README.md)
 
 - Last updated: 2026-05-06
+
+Epoch deployment composition imports the existing
+`FileSystemSignedArtifactEvidenceRepository` through this lazy Core facade.
+The repository verifies exact persisted bytes; it does not appoint a signer or
+replace independent origin/profile admission. Exact appointment verification
+helpers are available through the existing `core.security` facade.

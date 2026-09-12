@@ -23,6 +23,7 @@ from polisyos.core.contracts.decision_validity import (
 )
 from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.core.security.identity import PolicyOSRole
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.scientist.evidence.claims import (
     AppendOnlyClaimLedger,
@@ -397,6 +398,217 @@ def test_epoch_batch_http_preserves_signature_failure_vocabulary(runtime_api_env
 
     assert response.status_code == 422
     assert response.json()["code"] == "signature_unverified"
+
+
+def test_canonical_epoch_origin_reaches_registered_http_batch_intake(
+    runtime_api_env, tmp_path
+) -> None:
+    """Actual production execution and origin readback reach the unchanged HTTP consumer."""
+
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.epoch_transition_inputs import (
+        CanonicalEpochTransitionSourceResolver,
+        EpochTransitionProductionBridge,
+    )
+    from polisyos.runtime.quality.epoch_transition_origin import FileEpochTransitionOriginOwner
+    from polisyos.runtime.quality.epoch_transition_verification import (
+        configure_epoch_decision_validity_owner,
+    )
+    from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
+    from polisyos.scientist.evidence.claims.head_index import (
+        ArtifactStoreDecisionPacketRootRepository,
+        ClaimLedgerHeadAdvanced,
+        ClaimLifecycleBridgeResultStatement,
+        FilesystemArtifactStoreClaimRootWalk,
+        PersistedClaimLedgerHead,
+        PreparedClaimLedgerInitialization,
+        _read_profiled_statement,
+        _RepositoryClaimLedgerOwner,
+    )
+    from polisyos.scientist.evidence.claims.lifecycle import ClaimLifecycleAction
+    from tests.unit.runtime.quality.test_epoch_transition_origin import _producer_fixture
+    from tests.unit.scientist.evidence.claims.test_head_index import (
+        _claim_ledger,
+        _fixture_policy,
+        _FixtureIssuanceVerifier,
+        _FixturePolicyResolver,
+        _FixtureRootIssuer,
+    )
+
+    bearer = _fixture_bearer("canonical-epoch-origin")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=True,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-canonical-epoch-origin",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+    with client:
+        control = client.app.state._control_service
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id):
+            producer, origins, profiles, history_fixture, signed, kwargs = _producer_fixture(
+                tmp_path,
+                store=control._artifact_store,
+                authority_purpose="decision_validity_epoch_transition",
+                disposition="invalidate",
+            )
+            produced = producer.produce_and_persist(**kwargs)
+            target = producer._dependency_inventory.resolve_complete_epoch_dependencies(
+                authority_purpose=kwargs["authority_purpose"],
+                requested_query_context_ref=kwargs["requested_query_context_ref"],
+            ).target_refs[0]
+            owner = control._decision_validity_service
+            store = control._artifact_store
+            # The shared HTTP fixture seeds packets under cell-a. Include those
+            # exact fixture artifacts in this client's cell so the independent
+            # Claim root walk can inspect every packet without dropping members.
+            for seed_key in ("decision_packet_artifact_id", "decision_packet_artifact_id_secondary"):
+                store.record_artifact_owner(
+                    runtime_api_env[seed_key], tenant_id=runtime_api_env["tenant_a"],
+                    cell_id=cell.cell_id, writer="tests.runtime_http.canonical_epoch_claim_head",
+                )
+            # The real Claim owner mechanism consumes exact persisted fixture
+            # issuance evidence. This configures no production institution.
+            policy = _fixture_policy(store)
+            claim_owner = _RepositoryClaimLedgerOwner(
+                store=store,
+                policy_resolver=_FixturePolicyResolver(policy),
+                root_issuer=_FixtureRootIssuer(store),
+                issuance_verifier=_FixtureIssuanceVerifier(store),
+                head_index_root=tmp_path / "claim-heads",
+                decision_packets=ArtifactStoreDecisionPacketRootRepository(
+                    store=store, verifier_provenance_ref=policy.verifier_provenance_ref
+                ),
+                independent_walk=FilesystemArtifactStoreClaimRootWalk(
+                    store=store, artifact_root=store.root
+                ),
+                completed_batches=owner,
+            )
+            base_ledger = _claim_ledger()
+            base_ledger = base_ledger.model_copy(
+                update={"claims": [base_ledger.claims[0].model_copy(
+                    update={"publishability": ClaimPublishability.PUBLISHABLE, "evidence_refs": [target]}
+                )]}
+            )
+            prepared = claim_owner.prepare_initial_ledger(
+                base_claims_ref=claim_owner.persist_candidate_ledger(ledger=base_ledger),
+                source_artifact_refs=(),
+            )
+            assert isinstance(prepared, PreparedClaimLedgerInitialization)
+            envelope = DecisionValidityEnvelope(
+                decision_lineage_key="http-canonical-epoch",
+                policy_fingerprint="http-canonical-epoch",
+                knowledge_basis=DecisionBasisSection(dependencies=[DecisionDependencyRef(
+                    kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                    key=str(target.artifact_id), artifact_id=str(target.artifact_id),
+                )]),
+            )
+            baseline = DecisionValidityEvaluation(
+                decision_lineage_key=envelope.decision_lineage_key,
+                status=DecisionValidityStatus.ACTIVE,
+                dependency_keys=envelope.dependency_keys(),
+            )
+            packet_ref = _put_json(store, {
+                "schema_version": "3.4",
+                "claim_ledger_v2_ref": str(prepared.initial_ledger_ref.artifact_id),
+                "decision_validity_envelope": envelope.model_dump(mode="json"),
+                "decision_validity_baseline": baseline.model_dump(mode="json"),
+            }, kind="scientist.decision_packet")
+            initial = claim_owner.finalize_initial_root(
+                preparation_ref=prepared.preparation_ref, decision_packet_ref=packet_ref
+            )
+            assert isinstance(initial, ClaimLedgerHeadAdvanced)
+            packet = str(packet_ref.artifact_id)
+            owner.register_decision_packet(packet_ref=packet, envelope=envelope, baseline=baseline)
+            control._epoch_claim_lifecycle_bridge = replace(
+                control._epoch_claim_lifecycle_bridge, claim_owner=claim_owner
+            )
+        # The request knows the exact signed artifact but this origin owner has
+        # never admitted it. Only execution through the production bridge can do so.
+        origins = FileEpochTransitionOriginOwner(
+            root=tmp_path / "http-execution-origins",
+            artifacts=control._artifact_store,
+            signed_artifacts=signed,
+            signing_profiles=profiles,
+        )
+        producer._origins = origins
+        configure_epoch_decision_validity_owner(
+            owner=owner,
+            origins=origins,
+            production_bridge=EpochTransitionProductionBridge(
+                source_resolver=CanonicalEpochTransitionSourceResolver(
+                    artifacts=control._artifact_store,
+                    history=history_fixture.history,
+                ),
+                producer_factory=lambda _source: producer,
+            ),
+        )
+        with (
+            tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id),
+            pytest.raises(ValueError, match="epoch_transition_origin_absent_or_ambiguous"),
+        ):
+            origins.resolve_admitted_origin_for_transition(
+                transition_artifact_ref=produced.transition_artifact_ref,
+                authority_purpose=kwargs["authority_purpose"],
+                requested_query_context_ref=kwargs["requested_query_context_ref"],
+            )
+        response = client.post(
+            "/api/v1/control/decision-validity/epoch-batches",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
+            },
+            json={
+                "transition_artifact_ref": produced.transition_artifact_ref.model_dump(mode="json"),
+                "requested_query_context_ref": kwargs["requested_query_context_ref"],
+            },
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["affected_packet_refs"] == [packet]
+        assert body["completion_receipt"]["targets"][0]["status"] == "stale"
+        assert body["claim_bridge_result_refs"], "completed batch must advance the persisted Claim head"
+        assert owner.read_current_projection(packet).status == DecisionValidityStatus.STALE
+        assert control._epoch_claim_lifecycle_bridge.completed_batches is owner
+        retained = owner.resolve_completed_epoch_batch_evidence_by_id(batch_id=body["batch_id"])
+        assert retained.receipt.transition_artifact_ref == produced.transition_artifact_ref
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id):
+            current = claim_owner.resolve_current(owner_key=prepared.owner_key)
+            assert isinstance(current, PersistedClaimLedgerHead)
+            assert current.statement.generation == initial.new_head.statement.generation + 1
+            assert current.statement.predecessor_head_ref == initial.new_head.head_ref
+            assert current.statement.root_receipt_ref == initial.new_head.statement.root_receipt_ref
+            bridge_ref = ArtifactRef.model_validate(body["claim_bridge_result_refs"][0])
+            assert current.statement.bridge_result_refs == (bridge_ref,)
+            bridge_statement = _read_profiled_statement(
+                store=store, record="claim_bridge_result", ref=bridge_ref,
+                model=ClaimLifecycleBridgeResultStatement,
+            )
+            assert bridge_statement.batch_receipt_ref == retained.batch_receipt_ref
+            assert bridge_statement.ordered_affected_claim_ids == (base_ledger.claims[0].claim_id,)
+            assert bridge_statement.next_ledger_ref == current.statement.ledger_artifact_ref
+            ledger = _load_append_only_claim_ledger(store, current.statement.ledger_artifact_ref)
+            assert ledger.events[-1].action is ClaimLifecycleAction.MARKED_STALE
+            assert ledger.events[-1].claim_id == base_ledger.claims[0].claim_id
+        profiles.signature_valid = False
+        with (
+            tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id),
+            pytest.raises(ValueError, match=r"^signature_unverified$"),
+        ):
+            owner.admit_epoch_validity_batch(
+                transition_artifact_ref=produced.transition_artifact_ref,
+                requested_query_context_ref=kwargs["requested_query_context_ref"],
+            )
 
 
 def test_generic_http_event_cannot_write_through_pending_epoch_batch(

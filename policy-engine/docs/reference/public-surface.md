@@ -87,7 +87,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 133 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 279 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 40 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 27 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 966 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -195,10 +195,10 @@ timestamps
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
+| `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 489 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
-| `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
+| `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 105 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
 #### `polisyos.core`
@@ -207,7 +207,7 @@ timestamps
 - Facade: `lazy_facade`
 - Summary: Expose the stable Core platform surface with lazy package imports.
 
-<details><summary>Entrypoint exports (133)</summary>
+<details><summary>Entrypoint exports (134)</summary>
 
 ```text
 FULL_PREFIX_EVALUATION_TABLE
@@ -238,6 +238,7 @@ ChronologyProofPersistenceResult
 Digest
 EncodedChronologyBundle
 ExpectedCommitmentPrefix
+FileSystemSignedArtifactEvidenceRepository
 FullPrefixBuildFailureCode
 FullPrefixBuildRejected
 FullPrefixBuildResult
@@ -893,12 +894,12 @@ with_trace_context
 - Facade: `lazy_facade`
 - Summary: Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs.
 
-<details><summary>Entrypoint exports (102)</summary>
+<details><summary>Entrypoint exports (105)</summary>
 
 ```text
+C3_CANONICAL_CODECS
 SECURITY_ASSURANCE_REPORT_REF_KEY
 SECURITY_REPORT_FILE
-C3_CANONICAL_CODECS
 TENANT_HEADER
 AccessScope
 AttestationDeniedError
@@ -942,8 +943,8 @@ HotTierBackend
 IdentityError
 IdentityNotAvailableError
 IdentityVerificationError
-InTotoStatement
 InMemoryAnchorReadbackChallengeRepository
+InTotoStatement
 IsolationLevel
 LocalJsonlBackend
 MFARequiredError
@@ -979,9 +980,9 @@ UserIdentityClaims
 VulnerabilityRecord
 VulnerabilitySeverity
 build_default_audit_backends_from_env
-build_security_assurance_report
 build_full_prefix_bundle
 build_retention_package
+build_security_assurance_report
 canonical_statement_bytes
 get_current_access_scope_or_none
 get_current_cell_id
@@ -998,6 +999,9 @@ semantic_content_hash
 set_current_access_scope
 tenant_scope
 validate_tenant_id
+verify_acceptance_appointment
+verify_holder_appointment
+verify_signed_evidence
 ```
 
 </details>
@@ -1020,7 +1024,7 @@ TraceSink
 
 </details>
 
-<details><summary>Supported exports (133)</summary>
+<details><summary>Supported exports (134)</summary>
 
 ```text
 FULL_PREFIX_EVALUATION_TABLE
@@ -1051,6 +1055,7 @@ ChronologyProofPersistenceResult
 Digest
 EncodedChronologyBundle
 ExpectedCommitmentPrefix
+FileSystemSignedArtifactEvidenceRepository
 FullPrefixBuildFailureCode
 FullPrefixBuildRejected
 FullPrefixBuildResult
@@ -2427,7 +2432,7 @@ select_method_candidates_for_requirements
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 26 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 39 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 76 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
@@ -2438,9 +2443,22 @@ select_method_candidates_for_requirements
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (26)</summary>
+<details><summary>Entrypoint exports (39)</summary>
 
 ```text
+decision_packet_invocation_input_refs
+require_canonical_decision_packet_invocation
+DECISION_PACKET_INVOCATION_KIND
+DecisionPacketInvocationRecord
+CanonicalDecisionPacketInvocation
+CompletedDecisionPacketExecution
+EpochCertificateIssuanceNonReceipt
+EpochCertificateIssuanceOwner
+PersistedEpochCertificateIssuancePreparation
+require_canonical_decision_packet_execution
+DecisionValidityService
+GOVERNANCE_MONITOR_EVENT_KIND
+resolve_governance_monitor_event
 BudgetState
 ClaimLedgerCurrentHeadProjection
 ClaimLedgerOwnerPort
@@ -2655,9 +2673,22 @@ verify_and_persist_replay_bundle
 
 </details>
 
-<details><summary>Supported exports (26)</summary>
+<details><summary>Supported exports (39)</summary>
 
 ```text
+decision_packet_invocation_input_refs
+require_canonical_decision_packet_invocation
+DECISION_PACKET_INVOCATION_KIND
+DecisionPacketInvocationRecord
+CanonicalDecisionPacketInvocation
+CompletedDecisionPacketExecution
+EpochCertificateIssuanceNonReceipt
+EpochCertificateIssuanceOwner
+PersistedEpochCertificateIssuancePreparation
+require_canonical_decision_packet_execution
+DecisionValidityService
+GOVERNANCE_MONITOR_EVENT_KIND
+resolve_governance_monitor_event
 BudgetState
 ClaimLedgerCurrentHeadProjection
 ClaimLedgerOwnerPort

@@ -1,8 +1,8 @@
 """Compose epoch anchor acceptance and custody without appointing an owner.
 
-The production composition root is deliberately no-argument.  It installs no
-acceptance authority and no holder; therefore it can preserve evidence for
-both predicates while returning ``not_established`` for each one.
+The production composition root is deliberately no-argument.  A scoped,
+deployment-owned evidence exchange may supply appointments and receipts; the
+empty default preserves independent ``not_established`` outcomes for both roles.
 """
 
 from __future__ import annotations
@@ -713,13 +713,26 @@ class EpochAnchorCustodyService:
 
 
 def build_production_epoch_anchor_custody_provider() -> contract.EpochAnchorCustodyProvider:
-    """Build the sole production provider with both institutional roles absent."""
+    """Build the sole provider from scoped deployment evidence or typed absence."""
+    from polisyos.runtime.quality.epoch_deployment import current_epoch_deployment
+    from polisyos.runtime.quality.epoch_evidence_exchange import (
+        EpochEvidenceExchange,
+        EpochReadbackChallengeRepository,
+    )
+
+    owner = current_epoch_deployment()
+    configured = owner is not None and owner._state().store is not None
+    exchange = EpochEvidenceExchange(owner) if configured else None
 
     return EpochAnchorCustodyService(
-        appointment_resolver=NoEpochAnchorAppointmentResolver(),
-        authority_registry=EmptyEpochAnchorAuthorityRegistry(),
-        issuance_evidence=UnavailableSignedArtifactEvidenceRepository(),
-        challenge_repository=InMemoryAnchorReadbackChallengeRepository(),
+        appointment_resolver=exchange if configured else NoEpochAnchorAppointmentResolver(),
+        authority_registry=exchange if configured else EmptyEpochAnchorAuthorityRegistry(),
+        issuance_evidence=owner._repository()
+        if configured
+        else UnavailableSignedArtifactEvidenceRepository(),
+        challenge_repository=EpochReadbackChallengeRepository(owner)
+        if configured
+        else InMemoryAnchorReadbackChallengeRepository(),
     )
 
 

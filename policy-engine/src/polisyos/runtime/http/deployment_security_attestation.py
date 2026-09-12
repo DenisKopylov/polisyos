@@ -18,6 +18,7 @@ DeploymentSecurityComponentName = Literal[
     "step_up_verifier",
     "principal_grants",
     "human_decision_custody",
+    "epoch_deployment",
 ]
 _COMPONENT_NAMES = frozenset(
     {
@@ -27,6 +28,7 @@ _COMPONENT_NAMES = frozenset(
         "step_up_verifier",
         "principal_grants",
         "human_decision_custody",
+        "epoch_deployment",
     }
 )
 

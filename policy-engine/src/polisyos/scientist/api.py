@@ -52,6 +52,9 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.registry import NodeBootstrapReport, NodeRegistry
     from polisyos.scientist.orchestration.engine.state import ExperimentState
     from polisyos.scientist.orchestration.workflows.builder import QuotaRegistry
+    from polisyos.scientist.validation.epoch_certificate_issuance import (
+        EpochCertificateIssuanceOwner,
+    )
 
 
 def _experiment_state_cls() -> type[ExperimentState]:
@@ -220,6 +223,7 @@ def run_experiment(
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> dict[str, Any]:
     """Execute the Scientist workflow selected by the initial state contract.
 
@@ -232,6 +236,8 @@ def run_experiment(
     Args:
         state: Mapping or `ExperimentState` payload to seed the run. When `None`,
             a fresh run id and empty state container are generated.
+        epoch_certificate_issuance_owner: Privileged in-process owner installed
+            by Runtime composition; never read from or serialized into state.
 
     Returns:
         Final `ExperimentState` serialized as a JSON-compatible dictionary with
@@ -307,6 +313,7 @@ def run_experiment(
                     engine_metrics_factory=engine_metrics_factory,
                     eval_safety_execution_context=eval_safety_execution_context,
                     eval_safety_verifier=eval_safety_verifier,
+                    epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
                 )
             final_state = result.state
             status = "success" if result.report.status == "ok" else "error"

@@ -131,6 +131,13 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from polisyos.scientist.validation.epoch_certificate_issuance import (
+    EpochCertificateIssuanceNonReceipt,
+    EpochCertificateIssuanceOwner,
+    PersistedEpochCertificateIssuancePreparation,
+    _capture_decision_packet_invocation,
+    _completed_decision_packet_execution,
+)
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,
     Phase5ValidationBlocked,
@@ -209,6 +216,18 @@ class BuildDecisionPacketNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        invocation_input_refs = tuple(
+            (*state.inputs.values(), *state.artifacts_index.values(), *state.reports_index.values())
+        )
+        invocation = _capture_decision_packet_invocation(
+            store=ctx.store,
+            state=state,
+            run_manifest=ctx.run.run_manifest,
+            node_spec=self.spec,
+            implementation_file=__file__,
+            implementation_code=BuildDecisionPacketNode.execute.__code__,
+            input_refs=invocation_input_refs,
+        )
         request = _build_decision_packet_request(ctx, state)
         replay_section = _build_replay_section(
             inputs_section=request.inputs_section,
@@ -617,6 +636,33 @@ class BuildDecisionPacketNode:
             build_watched_triggers=_build_watched_triggers,
             load_normative_frame_payload=_load_normative_frame_payload,
         )
+        validity_envelope.data_basis.summary["epoch_certificate_invocation_ref"] = (
+            invocation.invocation_ref.model_dump(mode="json")
+        )
+        issuance_owner = ctx.epoch_certificate_issuance_owner
+        if issuance_owner is not None and (
+            not isinstance(issuance_owner, EpochCertificateIssuanceOwner)
+            or issuance_owner.store is not ctx.store
+        ):
+            raise ValueError("epoch_certificate_issuance_owner_mismatch")
+        issuance_preparation = (
+            issuance_owner.prepare(
+                run_id=state.run_id,
+                invocation_input_refs=invocation_input_refs,
+                invocation=invocation,
+            )
+            if issuance_owner is not None
+            else EpochCertificateIssuanceNonReceipt()
+        )
+        if isinstance(issuance_preparation, PersistedEpochCertificateIssuancePreparation):
+            assert issuance_owner is not None
+            validity_envelope = issuance_owner.bind_envelope(
+                preparation=issuance_preparation, envelope=validity_envelope
+            )
+        else:
+            validity_envelope.data_basis.summary["epoch_certificate_issuance"] = (
+                issuance_preparation.model_dump(mode="json")
+            )
         validity_baseline = _build_decision_validity_baseline(
             packet_payload=packet_payload,
             envelope=validity_envelope,
@@ -856,6 +902,14 @@ class BuildDecisionPacketNode:
                 )
             claim_attachment = claim_attachment.mark_current()
         sensitivity_bundle_ref = _sensitivity_analysis_bundle_ref_from_packet(packet_payload)
+        if isinstance(issuance_preparation, PersistedEpochCertificateIssuancePreparation):
+            assert issuance_owner is not None
+            issuance_owner.finalize(
+                execution=_completed_decision_packet_execution(
+                    preparation=issuance_preparation,
+                    decision_packet_ref=packet_ref_payload,
+                )
+            )
         DecisionValidityService(ctx.store).register_decision_packet(
             packet_ref=str(packet_ref.artifact_id),
             envelope=validity_envelope,

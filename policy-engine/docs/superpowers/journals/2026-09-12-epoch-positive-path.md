@@ -219,3 +219,229 @@ Terminal остаётся **`complete-pending-an-architect-decision on EP-D01: m
 and admission evidence of epoch-transition producer identity`**. Source, tests,
 `DEBT-REGISTER.md`, `LEDGER.md` и generated artifacts не изменены. Исследовательская
 поставка не является реализацией positive production chain.
+
+## Stage 2 — продолжение после ответа EP-D01
+
+Исторические findings и terminal Stage 1 выше не переписаны. Исполнение продолжено
+от attached `7478bc5222505429722b57cbb9293bd854454aa8`; base of record остаётся
+`034f30c64a79eb2020c04c6f0b0f07c90a74a1ee`. Ответ архитектора установил provenance
+canonical execution как смысл producer identity; отдельное minting right withheld.
+Append-only execution contract закоммичен как
+`9cc6aba6621c1f534fcaaa091d925a3cb373b106` и перечитан из attached branch до source
+edits; исходный Stage 1 prefix сверён побайтно с `7478bc522`.
+
+Исправленный stop predicate относится к конкретному зависимому звену. Смешанный
+remainder не останавливает независимую инженерную работу; пустое назначение
+не блокирует mechanism и composition root. Destination исправления — EP-F06/07
+и execution contract этой lane, без редактирования register/ledger.
+
+### Зарегистрированная generation basis и среда
+
+До новых deciding gates lane `.venv` переведена на тот же interpreter, что и main:
+Python `3.14.0`, base executable
+`/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/bin/python3.14`.
+`uv sync --python <exact-base-executable> --offline --frozen --extra lint --extra test
+--extra runtime --extra ml` вернул `1`: wheel `scikit-learn==1.8.0` отсутствовал
+в локальном cache. Повтор той же provision без `--offline` вернул `0`; после него
+interpreter/version/base executable перечитаны из lane `.venv`. Dependency lock
+не менялся. Это provision, не product gate. Family `runtime-openapi-snapshot`
+по-прежнему требует зарегистрированные runtime/ml extras; успешный exit producer
+сам по себе не доказывает эту basis.
+
+| Полный output, relative to `docs/superpowers/journals/epoch-positive-path/` | SHA-256 | Результат |
+| --- | --- | --- |
+| `raw/stage2-provision.txt` | `5aa2c19842e332bee1758fffd13dd72675629133904e55c602bc8fbd092dfa71` | `1`, offline cache miss |
+| `raw/stage2-provision-online.txt` | `3092a9c0c0306c0bd76c28fac7070cc71a242f34e5119f04e7127b75670469d8` | `0`, frozen registered extras installed |
+| `raw/stage2-dvs-enumeration-red.txt` | `3606767fd521580aced223997343cf46a6868cde8f86d049e698b346ec6d71af` | `1`, intended missing complete target-to-owner reader |
+
+Последний RED — Python `3.14.0`, exact three named pytest nodes in
+`tests/unit/scientist/validation/test_decision_validity_service.py`:
+`test_epoch_impact_snapshot_for_targets_enumerates_all_owner_keys`,
+`test_epoch_impact_snapshot_for_targets_refuses_incomplete_owner_index`,
+`test_epoch_impact_snapshot_for_targets_rejects_false_artifact_profile`.
+Parametrized corruption composition — unreadable member, missing owner row,
+wrong owner filename; independent counterpart is the full packet index. Source
+implementation отсутствовала при запуске; result is the expected missing-method
+failure, not an environment timeout. Later GREEN/removal receipts follow below.
+
+### Stage 2: выполненные production links и собственные найденные дефекты
+
+Применена independent code-verification matrix: canonical emission/origin, actual
+HTTP caller, strict owner/reconciliation, исходные negatives и property removal.
+Источники требований — EP-D01, CB-D02/D04/D12 и Task 4.3/4.4, не fixture markers.
+Run-control endpoint действительно вызывает production bridge: изначально пустой
+origin-owner не может прочитать известный signed artifact; actual canonical
+execution создаёт admission, затем exact readback допускает strict batch.
+Контролируемые institutional/source inputs этой пробы не являются appointments.
+
+Первый HTTP запуск не дошёл до продукта: отсутствовал production catalog.
+Создана ignored symlink `production_data` на main read-only directory; database
+read-session открывается с `read_only=True`. Фикстура затем выявила собственный
+missing tenant ownership. Артефакты стали создаваться в настоящем tenant context.
+Отдельная startup-проба уже выявила source defect: verifier provenance был
+создан до tenant context и не читался HTTP. Исправление — реальная идемпотентная
+запись собственных canonical verifier bytes через обычный CAS writer в active
+tenant/cell, без обхода ownership для чужого evidence. Удаление этой записи вновь
+делает исходную HTTP-проверку красной.
+
+Origin и issuance admission indexes получили operation-time tenant/cell scope.
+Scope берётся из trusted access/tenant context, не из request DTO. Читается весь
+индекс выбранного scope; нечитаемые members не пропускаются. Эти находки — один
+P32/P37 class на более глубоком уровне, а не новые институциональные blockers.
+
+Обе CLI subprocess-пробы повторены отдельно. Реальные exits — `0` и `0` на
+Python 3.14.0; существующие child bounds 180s/120s в этих изолированных запусках
+не сработали. Предыдущие timeout outputs не переименованы в product failures.
+
+Все следующие root результаты произведены lane `.venv` на CPython 3.14.0 с
+зарегистрированными frozen runtime/ml extras; полный interpreter basis указан
+выше. Полные stdout/stderr сохранены, включая собственные RED и setup failures.
+Для CLI selector — точные nodes, названные выше. HTTP selector —
+`tests/unit/runtime/http/test_decision_validity_api.py::test_canonical_epoch_origin_reaches_registered_http_batch_intake`.
+Removal harness вызывает этот неизменённый node и требует фактический pytest exit1
+после удаления каждого свойства. Исходные consumer AST отдельно сверены с
+7478bc522; это проверка сохранности, а не замена behavioral negatives.
+
+| Полный output в `epoch-positive-path/raw/` | SHA-256 | Actual exit / scope |
+| --- | --- | --- |
+| `stage2-http-intake-attempt1.txt` | `fc697b90c163955c48fb3a9ee74426ca2638517adf364a7801cdb034ce23dfa0` | `1`; HTTP fixture setup: missing read-only production catalog; not a product verdict |
+| `stage2-http-intake-attempt2.txt` | `50b9ccf51ca3e9707b60348727b687e67a900a4314b45d9ee8d2933a9516f85a` | `1`; Actual HTTP refused unowned fixture artifacts; request-shape and signature-code negatives passed |
+| `stage2-http-intake-attempt3.txt` | `423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d` | `0`; Controlled canonical signed origin reaches actual registered HTTP route |
+| `stage2-startup-provenance-red.txt` | `81ed7e468002196c31a23d76c5703cb0bbf500539526e444a42d6d58b577e0a7` | `1`; Actual HTTP rejected startup provenance as unowned; own product defect |
+| `stage2-startup-provenance-green.txt` | `c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830` | `0`; HTTP startup provenance and canonical verifier targeted nodes |
+| `stage2-http-production-bridge.txt` | `9ca1fa2e8165577b11eacde04a729b3e68fdb540a05bab5536e1ea6a2ae5e2bd` | `1`; New test asserted wrong existing refusal code; no product change |
+| `stage2-http-production-bridge-2.txt` | `423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d` | `0`; Actual HTTP invokes canonical producer and newly admits previously absent origin before strict batch |
+| `stage2-http-removal-probes.txt` | `71e53a33ffeb491a763573a42764caeea8c427408d21c5f5da924c699b719f34` | `0`; Harness baseline0 and each unchanged HTTP node1 after actual producer/provenance property removal |
+| `stage2-original-intake-negatives.txt` | `06955fb47f16312e5d13266c774a2aa4648c46e423cbe6564a92e25b68e39131` | `0`; Original strict provenance/denominator/ambiguous/corrupt/frozen-binding/omitted-target/replay/crash nodes |
+| `stage2-custody-cli.txt` | `423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d` | `0`; Exact test_cli_persists_both_unappointed_roles; existing180s bound; run alone |
+| `stage2-acquisition-cli.txt` | `423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d` | `0`; Exact test_python_module_is_runnable_terminus; existing120s bound; run alone |
+| `stage2-preserved-boundaries-final.txt` | `1f8d458d0774578b96b3a63792e87255b4e6b68e790b1bf77606a82ab6a88bd3` | `0`; Selected protected AST methods + Stage1 byteprefix + protected register/ledger preservation; not runtimeproof |
+
+Incidental findings routing: tenant composition и origin/issuance admission —
+существующая `ds18-positive-transition-production-unorchestrated`; strict
+verification/reconciliation — `ds18-positive-transition-verification-producer-missing`.
+Read-only catalog setup и ошибочный expected code новой test fixture — explicit
+nowhere в product register, это исправленные harness/setup issues. Public facade
+companions следуют existing architecture public-surface owner; generated counts
+выведены из полного состава exports, не заморожены тестовой константой. Guardrails
+sync и baseline update не выполнялись.
+
+### Дополнительные review receipts и сохранённые границы
+
+Полные независимые reviews (relative paths под `epoch-positive-path/`):
+
+| Complete review | SHA-256 | Область |
+| --- | --- | --- |
+| `raw/stage2-config-review.md` | `a89038f4b3c18c8d49c654c411b2ab20b76f3f2412a5a50f32758a0a572df91f` | Configured policy/custody/native verification, retained signed-false-hash falsifier, operation attestation; полный argv и hashes deciding outputs внутри |
+| `raw/stage2-promotion-config-review.md` | `c619204ff12eb71d02bec6300a4065e004c0f672a2bbe9c81d88119c7a202931` | Actual deployment install → promotion query owner и pre-N9 gate; protected consumer predicates неизменны; removal of each composition link detected |
+| `raw/stage2-positive-verifier-review.md` | `f530f2454dd79f46926bb5715f930fd4866dedf3ae7bd11f2540a822a97ac046` | Exact producer/origin, tenant index, frozen reconciliation, full owner packet custody, bounded shared-DVS denial residual |
+
+Все перечисленные reviewer runtime gates используют CPython 3.14.0. Сам review
+не означает appointed native authority; actual configured fixtures и default
+refusals отделены в каждом receipt. Новые conditional branches проверены
+behavioral removal, не поиском field names. Нечитаемый raw на другой машине —
+unavailable evidence, не отрицательный результат и не ноль.
+
+В первом review native signed transport принял ложный predicate content hash.
+Это собственный P32/P37 escape. Repair сохранил независимую native verification
+как привилегированный типизированный slot: без её реального implementation
+`policy_owner_relation_not_established`. Тот же signed-false-hash falsifier после
+repair отказывает. Другая native semantic hash domain не угадывается по raw CAS.
+Destination — обе исходные predicate-policy rows, не назначение new authority.
+
+Оригинальный `DecisionValidityService.admit_epoch_validity_batch`,
+`NoEpochTransitionVerifier.verify`, transition `_bind_transition`,
+promotion-query validation/negative owner и `ArtifactEpochValidityAuthorityGate`
+не меняют свои deciding bodies. Composition может дойти до EP-D03 с реальным
+qualified result, но consumer всё ещё отказывает. Temporal positive-reader arms
+также сохранены. Это precise dependent links, не причина остановить producer,
+independent origin, complete impact или deployment wiring.
+
+Review обнаружил cross-tenant false impact: общий старый DVS index содержал
+недоступный packet другого tenant, а новый reader включал его в snapshot.
+Перед selection теперь exact-read/verify каждого packet; всё множество owner
+packet/dependency JSON остаётся denominator. Missing/foreign member даёт refusal.
+Существующий общий DVS owner index может отказать при foreign rows; миграция всех
+DVS consumers на tenant partitions не выполнена и не заявляется. Это bounded
+availability residual существующей verification row; ложного mixed-scope
+admission новая ветвь не даёт. Исходный RED сохранён в reviewer receipt.
+
+### Frozen source evidence and final targeted-wave findings
+
+Stage 2 строит canonical invocation origin из реального State/RunManifest/NodeSpec
+и отдельно observed source/loaded code. Независимая проверка сохранила различие
+между observation и complete admitted execution closure. Recipe вычисляется
+Runtime owner; native owner должен независимо reconcile полный code/tool/environment
+denominator. Отсутствующий source остаётся typed nonreceipt. Это bounded P37/P38
+residual CB-D12, не отдельное minting right и не отмена EP-D01.
+
+Собственная candidate-regression найдена и исправлена: обычный JSON dictionary,
+похожий на ArtifactRef, преждевременно валидировался как authority reference.
+Теперь полное наблюдение сохраняется, absent/default source возвращает nonreceipt
+до authority-grade reads; configured admission по-прежнему проверяет точные bytes.
+Настоящий random_seed и finite-float params меняют invocation/recipe и packet
+согласно execution. Удаление environment reread или native owner readback при
+сохранённых markers ловится неизменёнными negatives.
+
+HTTP witness усилен до реального Claim ledger advance: origin index первоначально
+пуст, endpoint запускает canonical producer, strict intake завершает batch,
+существующий Claim owner сохраняет successor head и MARKED_STALE event.
+Контролируемая test authority не выбирается deployment по умолчанию.
+
+Все runtime результаты ниже используют lane CPython3.14.0 и frozen runtime/ml
+extras; это не повтор Stage1 gate на3.14.3. Full output и command scope сохранены
+в referenced receipts. Scoped GREEN не объявляет broader NL wave зелёной.
+
+| Raw evidence under `epoch-positive-path/raw/` | SHA-256 | Actual meaning |
+| --- | --- | --- |
+| `issuance-closeout-receipt.json` | `37fdffe0fa5703483fb226f275510bd11b36f3f9095102b55401e63222da0f68` | Complete argv, frozen source hashes, scoped exit0; broad NL exit1 separately retained; environment/owner-readback removal actual exit1 |
+| `stage2-closure-attestation-review.md` | `4418f735a3a9e592ea24eac2be52d3f5aa27f12a72defb8dfeb013e1bee9ec06` | Captured execution-closure operation: RED1, GREEN0, removal detected, configured HTTP0 |
+| `stage2-positive-final-delta.md` | `b5ae3d5537aee6461a2fb77b161518c350a824c683ba6c18f7a6bce70894c192` | Actual HTTP canonical producer → completed batch → real Claim ledger head advance; no consumer weakening |
+| `stage2-http-removal-probes-final.txt` | `76204ade65a52818f3483477e72883d86c18c147a170d37295d6eebcce199bfc` | Harness exit0: baseline HTTP0; actual producer trigger and active-tenant provenance removal each expose unchanged test with pytest1 |
+| `stage2-http-removal-probes.py` | `b53e3dab9c8803792b16a566d437740d6caa29294877551ef2b5b9a621ed2b9d` | Complete HTTP behavioral removal harness; no marker-only acceptance |
+| `stage2-public-surface-frozen.txt` | `7736c8619e426b73b682176b69f7d5a8ce3d3de18e163c2a5f15f2455ccabf57` | Canonical public owner regenerated exact tracked composition; exit0, no diff, no guardrails sync |
+| `stage2-public-surface-final-crosscheck.json` | `1be5c0bcfed6baf2991f837760d78261f34efc9833c6dfcfa29a18e20238efb3` | Independent literal __all__ AST vs complete inventory entries for the named public modules |
+| `stage2-final-static-receipt.json` | `da39b8605e27e5611e8056e0cb5fe0c810837d24553a69ebf78f517c2edc42ed` | Complete changed Python file denominator, ruff0 and git diff --check0; Python3.14.0 |
+| `stage2-final-targeted-receipt.json` | `90d16d484bfa52f703f5f341c234f5528f5c715f01aff025dd1a717db4a724d8` | Full named-file targeted wave exit1: original mixed-document constructor test omitted newly required epoch collaborator; source authority refusal was not reached |
+
+Incidental destinations: candidate reference interpretation → existing production
+row and P37/P38; mixed-document constructor test companion → explicit nowhere in
+product register (the existing refusal stays mandatory); NL authority identity
+failure → the existing runtime authority publication owner, diagnosis/replay below.
+No register or ledger edit is implied by these destinations.
+
+### Companion repair and complete row-set reconciliation
+
+The original mixed-document negative now supplies the newly required epoch
+collaborator from the same factory instance. Its `factory-only` exception
+assertion is unchanged. No production constructor or authority consumer changed.
+The full previously red named-file command is replayed below, not replaced by
+only its green subset.
+
+- `epoch-positive-path/raw/stage2-mixed-deployment-companion-review.md` @ SHA-256 `d67d21b054b6cf361efbab6ea1b6eca9df230dc9132095d192f0404b69158bbf` — Exact original constructor negative exit0; only new collaborator argument added to its fixture.
+- `epoch-positive-path/raw/stage2-row-composition-check-exact.txt` @ SHA-256 `0d1957aa1699b483812dbcca7148354fd988c1899f556ac788ddeb753c5c4143` — exit0: commissioned IDs = appended disposition IDs = exact first-column register members.
+- `epoch-positive-path/raw/stage2-preserved-boundaries-frozen.txt` @ SHA-256 `95a04931261dcc7af4303b2ee25e7d3d79eebbe9380bd084a2e8ef5b7ea11caa` — exit0: original protected deciding AST, Stage1 byte prefixes and protected register/ledger bytes reread.
+
+The initial row cross-check exited1 because its harness matched cross-references
+in row prose as if they were first-column identities. The corrected instrument
+uses exact first-column membership, retains the full commissioned denominator,
+and reconciles all three sources. Both outputs are retained; no ambiguous match
+was reported as an absent row. Destination: explicit nowhere in the product
+register, a corrected lane evidence harness (P35/P38).
+
+### Source freeze and exact targeted replay
+
+The complete originally red named-file argv was rerun after the single mandatory
+test companion repair. Actual exit **0**, wall time 104.466s, CPython3.14.0.
+No directory-wide pytest command was used. The selector denominator is the exact
+file list in the receipt, with canonical pytest execution as its independent
+collection/execution cross-check; no constant test total is pinned.
+
+- Complete command/interpreter/result: `epoch-positive-path/raw/stage2-final-targeted-replay-receipt.json` @ SHA-256 `cd5d1f774b79f475e53eb3157c6a2278649e0c0847beb9a4d4b9468f6df31732`.
+- Complete deciding output: `epoch-positive-path/raw/stage2-final-targeted-replay.txt` @ SHA-256 `7207695f774a89cab03be766edd6e60ec4c93f6b01817bcc1ff64d2d8d4be496`.
+
+Failure/repair register reread before freeze, specifically P37/P38/P40/P41.
+The broader NL publication failure remains separately under exact slice-base
+replay; it is not erased by these passing epoch checks. No remaining source
+writer is active. Source, tests and mandatory companion documents are committed
+at this boundary; registered ledger and guardrails results follow separately.

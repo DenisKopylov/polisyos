@@ -1250,6 +1250,7 @@ class PromotionRuntime:
         completed_epoch_batches: (
             core_contracts.EpochValidityCompletedBatchEvidenceResolver | None
         ) = None,
+        semantic_epoch_service: SemanticEpochService | None = None,
     ) -> None:
         self.store = store
         self.verifier_provenance_ref = store.put_bytes(
@@ -1259,26 +1260,17 @@ class PromotionRuntime:
             ),
         )
         self.candidates = ArtifactPromotionCandidateDenominatorOwner(artifacts=store)
-        self.semantic_epoch_service = SemanticEpochService.for_unallocated_policy_query(
-            artifact_store=store
-        )
         context_verifier = ArtifactPromotionOwnerQueryContextRepository(artifacts=store)
         self.context_repository = ArtifactPromotionOwnerQueryContextRepository(
             artifacts=store,
             verifier=context_verifier,
         )
-        self.context_authority = PromotionOwnerQueryContextAuthority(
-            candidates=self.candidates,
-            epoch_queries=_PersistedNegativeEpochQueryOwner(
-                store=store,
-                provenance_ref=self.verifier_provenance_ref,
-                semantic_epoch_service=self.semantic_epoch_service,
-            ),
-            deployment_queries=_PersistedDeploymentQueryOwner(
-                store=store, provenance_ref=self.verifier_provenance_ref
-            ),
-            artifacts=store,
-            verifier_provenance_ref=self.verifier_provenance_ref,
+        self.configure_semantic_epoch_service(
+            semantic_epoch_service=(
+                semantic_epoch_service
+                if semantic_epoch_service is not None
+                else SemanticEpochService.for_unallocated_policy_query(artifact_store=store)
+            )
         )
         self.vector_repository = OpenWorldRiskVectorArtifactRepository(store=store)
         self.vector_producer = OpenWorldRiskVectorProducer(
@@ -1299,11 +1291,6 @@ class PromotionRuntime:
             store=store,
             contexts=self.context_repository,
         )
-        self.epoch_validity_gate = ArtifactEpochValidityAuthorityGate(
-            store=store,
-            contexts=self.context_repository,
-            semantic_epoch_service=self.semantic_epoch_service,
-        )
         self.epoch_n9_evidence_resolver = ArtifactEpochValidityN9EvidenceResolver(
             store=store,
             contexts=self.context_repository,
@@ -1314,6 +1301,36 @@ class PromotionRuntime:
     @property
     def resolver(self) -> OpenWorldRiskGenerationProjectionResolver:
         return self.open_world_authority.resolver
+
+    def configure_semantic_epoch_service(
+        self, *, semantic_epoch_service: SemanticEpochService
+    ) -> None:
+        """Capture the deployment query service in both consumers during assembly.
+
+        This only connects dependencies. The persisted query grammar and both
+        consumer predicates retain their existing negative-only semantics.
+        """
+        if not isinstance(semantic_epoch_service, SemanticEpochService):
+            raise TypeError("semantic_epoch_service must be a SemanticEpochService")
+        self.semantic_epoch_service = semantic_epoch_service
+        self.context_authority = PromotionOwnerQueryContextAuthority(
+            candidates=self.candidates,
+            epoch_queries=_PersistedNegativeEpochQueryOwner(
+                store=self.store,
+                provenance_ref=self.verifier_provenance_ref,
+                semantic_epoch_service=semantic_epoch_service,
+            ),
+            deployment_queries=_PersistedDeploymentQueryOwner(
+                store=self.store, provenance_ref=self.verifier_provenance_ref
+            ),
+            artifacts=self.store,
+            verifier_provenance_ref=self.verifier_provenance_ref,
+        )
+        self.epoch_validity_gate = ArtifactEpochValidityAuthorityGate(
+            store=self.store,
+            contexts=self.context_repository,
+            semantic_epoch_service=semantic_epoch_service,
+        )
 
     def resolve_verified_epoch_query(
         self,

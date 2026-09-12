@@ -416,3 +416,192 @@ denominator, and absent/stale appointment refusals. Concurrent write surfaces ar
 disjoint; Python-heavy checks and final snapshot generation are serialized after
 source freeze. Evidence belongs in the lane's gitignored `raw/`, with complete
 outputs and SHA-256 in appended journal sections. No fixed total is a stop gate.
+
+### Stage 2 decision boundaries discovered during construction
+
+**EP-D02 — same-epoch adjudication transition.** Task 4.4 in the N12
+implementation plan (`2026-08-20-gy-n12-epoch-chronology-implementation.md`,
+the same-epoch changed-adjudication/dependency-denominator requirement) includes
+a changed owner disposition with unchanged semantic epoch. The actual
+`EpochValidityTransitionArtifact._bind_transition` refuses equal previous/current
+epochs. The divergent witness is a newly admitted invalidation for an unchanged
+native epoch. This lane preserves that validator and builds the distinct-epoch
+chain. Only admission of a same-epoch transition requires a ruling; no unrelated
+appointment or composition work waits on it.
+
+**EP-D03 — qualified pre-N9 query carrier.** The exact positive native result is
+`NativeChronologyQualified`, whose query lives at
+`reconciliation.owner_context.query`. The existing
+`PersistedEpochPromotionQueryStatement._query_is_derived_from_owner_fields`
+instead reads `getattr(result, "query", None)` and refuses that result. The
+non-test `_PersistedNegativeEpochQueryOwner.resolve_for_promotion` explicitly
+requires `NativeChronologyPolicyResolutionFailed(PolicyAdmissionMissingFailure)`;
+the pre-N9 authority gate then reads `stored.query`. A real independently
+qualified result therefore cannot enter that existing carrier. The requested
+consumer-change rule applies at this exact link. Pending approval, these
+consumer predicates stay unchanged. The proposed extension would extract the
+query from the qualified reconciliation and keep exact equality, persisted proof
+readback, subject/candidate/query binding, and completed-batch verification; it
+would not accept an unverified qualified marker. The separate `current` prior
+binding refusal and superseded-successor refusal remain intact.
+
+**Execution scheduling correction.** The earlier Stage 2 statement serializing
+all Python-heavy checks was too broad. Independent targeted tests with separate
+scratch may run concurrently; native owner writes, shared generated snapshots
+and final deciding gates remain serialized. Actual import-time complete-source
+validation can take minutes; interrupting it produces a non-receipt, never a
+product failure or an intended RED.
+
+**EP-D04 — native semantic-basis change event carrier.** CB-C03A/D01/D02 require
+revalidation when the actual full native semantic basis of an issued certificate
+changes. The new `NativeEpochSemanticBasisDeltaProvider` re-reads the native
+predecessor/current receipt, reconciles full-basis dependency edges and persists
+an exact delta. The existing `AdvisoryPerturbationEvent.source_class` admits
+incident, appeal, correction, retraction, legal change and discovered bias; none
+means a native semantic-basis change. Serializing the delta as a correction would
+invent that assertion. The next link therefore returns
+`epoch_native_semantic_change_event_carrier_not_established`. The proposed
+`semantic_basis_change` arm requires a consumer ruling, with exact old/new basis
+and owner dependency binding preserved. Empty monitor inventory is never evidence
+of unchanged native semantics. Other producer, origin, verifier and composition
+work does not wait on this link.
+
+### Stage 2 implemented chain and remaining slots
+
+The real call path is the registered run-control route →
+`ControlPlaneService.admit_epoch_validity_batch` → the same container-owned
+`DecisionValidityService` → `CanonicalEpochTransitionVerifier` →
+`EpochTransitionProductionBridge` → `EpochValidityTransitionProducer` → exact
+signed repository and `FileEpochTransitionOriginOwner` readback → independent
+Scientist impact snapshot → producing reconciliation reader → unchanged strict
+batch admission → the existing completed-batch Claim lifecycle bridge. Request
+fields remain only transition/context handles. The positive route witness uses
+controlled institutional inputs; it does not appoint a deployed institution or
+claim that EP-D04's native event boundary has been passed.
+
+The decision-packet path is real production execution:
+`ControlPlaneService` legacy workflow / NL pipeline → `scientist.api.run_experiment`
+→ selected workflow/context → `BuildDecisionPacketNode` → neutral issuance port
+→ Runtime `DecisionPacketEpochIssuanceOwner`. The owner admits only a sealed
+canonical completion after packet persistence, freezes native history/basis, and
+cross-checks exact packet binding on replay. A complete independently admitted
+executable recipe/input resolver is a privileged typed deployment slot. Labels,
+request metadata and a signed declaration cannot supply its missing premise.
+
+| Slot | Construction and later configuration | Empty or invalid result |
+| --- | --- | --- |
+| Predicate-policy admission and native verifier | `EpochDeployment` captures exact policy evidence, trust and existing `PredicatePolicyOwnerProvenanceVerifier`; qualification registry is per deployment | `policy_admission_missing` / `policy_owner_relation_not_established` |
+| Transition signer/profile | Deployment captures public trust, exact signed transition and independently admitted signing profile; private signing authority is never synthesized | Original NoSigner remains; missing exact evidence refuses |
+| Independent history holder and acceptance | Scoped custody factory captures resolver, registry and repository; exact appointment/retention/readback checks remain existing consumers | Independent holder/acceptance absence remains typed |
+| Issuance recipe/native inputs | Privileged `epoch_certificate_issuance_input_resolver`, identical CAS owner in actual packet execution | Persisted typed nonreceipt, no fabricated empty denominator |
+| Complete owner adjudications/actions | Privileged `epoch_perturbation_adjudication_provider` and `epoch_owner_disposition_evidence_reader`, independently reloaded exact evidence | Missing basis/action admission refuses; native event carrier is EP-D04 |
+| Transition verification/reconciliation | Production composition installs canonical verifier and producing strict reader on the existing DVS owner | NoVerifier and typed unavailable reader remain reachable |
+
+These are configurable mechanisms, not appointments. The native semantic verifier
+has a deliberately unresolved semantic hash domain: generic signed transport
+cannot establish a predicate's content hash merely because that field was signed.
+A validly signed false-hash declaration was admitted by an early implementation;
+the same retained falsifier now refuses without an independently supplied native
+verifier. This is the same P32/P37 class one level deeper, not a separate right to
+mint or a reason to remove verification.
+
+### Stage 2 scope and denominator boundaries
+
+Origin and issuance admission indexes select the actual trusted tenant/cell scope
+at operation time, with full readback inside that scope. Unscoped local operation
+retains its own root. The verifier emits its own canonical provenance bytes under
+the active CAS ownership scope; it cannot grant access to someone else's input.
+Native history remains the explicitly configured deployment root. Existing DVS
+state tenancy is not redefined by this lane; strict packet/dependency reconciliation
+reads the complete existing owner index and never drops an inaccessible member.
+
+Runtime source readers consume the full manifest inventory exposed by their CAS
+and reconcile exact source-kind candidates against native owner history. Scientist
+impact selection reads both complete `.json` indexes (dependencies and packets)
+under the owner lock, then cross-reconciles their relations before target filtering.
+An unreadable member refuses. No source-name query, fixed total or empty monitor
+list establishes completeness. Runtime outer and Scientist impact denominators
+remain distinct, with their relation independently recomputed and frozen once.
+
+**EP-D03 includes the temporal projection carrier.** The unchanged temporal
+service refuses a qualified native result at
+`epoch_staleness_epoch_reader_not_established`, and an exact signed result at
+`epoch_staleness_transition_reader_not_established`. Wiring configured native
+query dependencies into temporal/promotion is implemented; changing these positive
+consumer arms remains withheld. Neither branch was made unreachable or replaced
+by an authority-granting fallback.
+
+**P40 residual — existing shared DVS state.** Review falsified the first new
+impact reader with two tenants sharing exact target bytes: the old global packet
+index allowed another tenant's packet into a new snapshot although CAS denied
+its read. The new reader now exact-reads and verifies every packet in its complete
+owner index before selecting targets. No inaccessible member is skipped. A shared
+legacy index can consequently refuse admission when foreign rows are present;
+it cannot issue a mixed-scope receipt. The smallest further capability is a
+migration to tenant-owned DVS indexes across the existing consumers. This lane
+preserves those consumers and records the bounded availability residual against
+`ds18-positive-transition-verification-producer-missing`; it is not a signer
+appointment and not a claim of positive multi-tenant DVS partitioning.
+
+**Recipe source correction (CB-D04/D12; Task 4.3).** An opaque recipe reference
+is not itself an unanswered architecture question. The canonical producer can
+emit its actual invocation origin and derive a recipe binding; Task 4.3 expressly
+requires no new recipe executor. This computable source work proceeds. Observed
+state, NodeSpec and implementation bytes must remain observations until a complete
+code/tool/admitted-environment closure is independently established. The existing
+Foundry profile admission purpose `n8_method_catalog_reconstruction` is not
+relabeled as epoch authority. A missing admitted closure yields its typed
+nonreceipt and never a fabricated complete recipe.
+
+### Stage 2: canonical invocation source completed
+
+`BuildDecisionPacketNode.execute` now captures the actual complete serialized
+State, RunManifest and NodeSpec before execution, with separate on-disk producer
+source and loaded code observations. The immutable invocation preserves finite
+float parameters and descriptive dictionaries; an artifact-shaped parameter is
+not authority. The absent/default resolver returns a typed nonreceipt before
+trying authority-grade source reads, so ordinary candidate production continues.
+
+The Runtime issuance owner derives `_InvocationRecipe` from that invocation and
+an independently admitted execution closure, freezes the native epoch history,
+reconciles the exact input references, and revalidates source/environment bytes
+on readback. Only the private completed execution emitted after actual packet
+persistence can finalize the owner index. The actual ControlPlane/NL → Scientist
+workflow → node path passes the same configured owner. No separate recipe
+interpreter or minting-right mechanism was built.
+
+The native execution-closure implementation remains an explicit deployment
+integration contract: it must independently reconcile the full code/tool/admitted
+environment denominator for this exact invocation. Neither two equal returned
+DTOs nor the literal `independently_reconciled` label establishes completeness.
+The configured owner port and its captured-method attestation are implemented;
+no production institution or native admission source is selected. The retained
+falsifier removes environment revalidation while leaving recipe markers and
+makes the unchanged negative fail. This is a bounded P37/P38 source-admission
+residual routed to CB-D12 and the existing production row, not a new unanswered
+EP-D01 question and not an assertion that the deployed closure is complete.
+
+### Stage 2 row disposition (append-only; Stage 1 remains historical)
+
+The denominator is exactly the commissioned row-ID table in EP-F03, independently
+matched to the same register records there. No register status is changed here.
+
+| Original row | Stage 2 disposition |
+| --- | --- |
+| `ds18-positive-transition-production-unorchestrated` | Canonical invocation/issuance, complete source readers, real producer trigger, exact signed persistence, independent origin admission and lifecycle bridge implemented. Empty native/institutional slots retain refusal; same-epoch, native-event and positive consumer links stop specifically at EP-D02/03/04. No complete deployed positive capability claimed. |
+| `ds18-positive-transition-verification-producer-missing` | Canonical verifier and producing reconciliation reader installed through captured deployment on the existing DVS owner. Strict batch consumer unchanged; completed HTTP batch advances the existing Claim ledger in the controlled positive witness. Shared legacy DVS tenancy remains the bounded availability residual above. |
+| `GY-DEF23` | EP-D01 origin predicate implemented and read back independently of signer provenance. Signing/native inputs remain configurable empty slots, not unresolved permission to build. |
+| `gy-n12-epoch-predicate-policy-authority-unappointed` | Purpose/selection-scoped policy admission, native verifier and persistence registry have captured deployment hooks; default refusal preserved. Appointment is still absent. |
+| `gy-n12-epoch-transition-signing-authority-unappointed` | Exact signing evidence/profile slot is configurable; independent producer origin is implemented separately. Appointment absent; positive pre-N9 consumer is precisely EP-D03. |
+| `ds18-epoch-predicate-policy-signer-unappointed` | Same scoped mechanism is wired to temporal/promotion composition; no blanket scope equivalence or appointment is asserted. Positive temporal reader is precisely EP-D03. |
+| `ds18-epoch-transition-signer-unappointed` | Signing slot stays typed and empty. Existing temporal no-signer refusal and positive-reader boundary remain; no signer-as-origin substitution. |
+| `ds18-epoch-history-independent-holder-unappointed` | Custody factory now accepts captured resolver/registry/repository with exact existing appointment/retention/readback checks. Independent holder is unappointed; later configuration does not require rewriting that mechanism. |
+| `ds15-semantic-epoch-qualification-authority` | EP-F08 scope finding stands; no acquisition lifecycle source changed. Shared epoch composition changes do not claim this separate row closed. |
+| `ds15-fresh-positive-production-route` | EP-F08 observation-delta/same-case re-entry variable stands; no work or closure claimed in this lane. |
+
+Consumer decisions are local stops. EP-D02 changes the equal-epoch invariant;
+EP-D03 changes qualified-query and temporal positive consumer carriers; EP-D04
+adds the native basis-change event arm. All independent construction above is
+carried through despite those pending links. The original Stage 1 frontmatter
+and findings are retained verbatim as requested; this appended disposition is
+the continuation's current state.

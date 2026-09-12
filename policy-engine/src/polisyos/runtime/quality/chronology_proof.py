@@ -894,6 +894,24 @@ class _ChronologyPersistenceRegistry:
             self._owner_provenance_verifier_factory = owner_provenance_verifier_factory
             return self._generation
 
+    def _bind_deployment(self, deployment: object, exchange: object) -> None:
+        """Bind fresh registry collaborators from a registered deployment only."""
+        from polisyos.runtime.quality.epoch_deployment import EpochDeployment
+        from polisyos.runtime.quality.epoch_evidence_exchange import EpochEvidenceExchange
+
+        if type(deployment) is not EpochDeployment or type(exchange) is not EpochEvidenceExchange:
+            raise TypeError("chronology deployment collaborators are not owner-produced")
+        state = deployment._state()
+        if state.registry is not self or state.store is None or exchange.owner is not deployment:
+            raise ValueError("chronology deployment registry binding mismatch")
+        with self._lock:
+            if self._owners or self._entries or self._store_factory is not None:
+                raise RuntimeError("chronology deployment registry is already bound")
+            self._store_factory = lambda: state.store
+            self._verifier_factory = FullPrefixVerifier
+            self._admission_index_factory = lambda: exchange
+            self._owner_provenance_verifier_factory = lambda: exchange
+
     def _clear_for_test(self) -> None:
         with self._lock:
             for owner in tuple(self._owners):

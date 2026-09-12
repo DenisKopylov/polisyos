@@ -807,6 +807,24 @@ def _verify_holder_appointment(
     return statement, verification
 
 
+def verify_acceptance_appointment(
+    appointment: contract.VerifiedAcceptanceVerifierAppointment,
+    *,
+    verifier: ArtifactVerifier,
+) -> bool:
+    """Verify exact appointment evidence with the existing complete C3 checks."""
+    return _verify_acceptance_appointment(appointment, verifier=verifier) is not None
+
+
+def verify_holder_appointment(
+    appointment: contract.VerifiedHolderVerifierAppointment,
+    *,
+    verifier: ArtifactVerifier,
+) -> bool:
+    """Verify exact holder appointment evidence with the complete C3 checks."""
+    return _verify_holder_appointment(appointment, verifier=verifier) is not None
+
+
 @dataclass(frozen=True, slots=True)
 class ExactAnchorAcceptanceReceiptVerifier:
     """Verify acceptance from exact bytes, appointment, and owner lineage."""
@@ -1602,6 +1620,8 @@ __all__ = [
     "parse_canonical_statement",
     "raw_content_hash",
     "semantic_content_hash",
+    "verify_acceptance_appointment",
+    "verify_holder_appointment",
     "verify_retention_package",
     "verify_signed_evidence",
 ]

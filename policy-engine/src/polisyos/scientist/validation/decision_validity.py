@@ -38,6 +38,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityStatus,
     DecisionValidityTransition,
     EpochDenominatorReconciliationAdmissionBinding,
+    EpochTransitionDenominatorReconciliationHandle,
     EpochTransitionDenominatorReconciliationReader,
     EpochTransitionVerificationReceipt,
     EpochTransitionVerifier,
@@ -507,6 +508,34 @@ class NoEpochTransitionVerifier:
         raise ValueError("verifier_not_configured")
 
 
+class NoEpochDenominatorReconciliationReader:
+    """Typed empty production slot; a missing reader never admits a relation."""
+
+    verifier_provenance_ref = None
+
+    def resolve_for_first_admission(
+        self,
+        *,
+        transition_artifact_ref: ArtifactRef,
+        transition_content_hash: str,
+        requested_query_context_ref: str,
+        authority_purpose: str,
+        scientist_snapshot_handle: DecisionValidityEpochImpactSnapshotHandle,
+    ) -> PersistedEpochTransitionDenominatorReconciliation:
+        """Refuse while the production reconciliation owner is absent."""
+
+        raise ValueError("epoch_denominator_reconciliation_unavailable")
+
+    def resolve_exact(
+        self,
+        *,
+        handle: EpochTransitionDenominatorReconciliationHandle,
+    ) -> PersistedEpochTransitionDenominatorReconciliation:
+        """Refuse replay without the configured exact owner reader."""
+
+        raise ValueError("epoch_denominator_reconciliation_unavailable")
+
+
 def _owner_transactional[**P, R](
     method: Callable[Concatenate[Any, P], R],
 ) -> Callable[Concatenate[Any, P], R]:
@@ -537,6 +566,8 @@ class DecisionValidityService:
         self._ttl = max(0, int(reevaluate_ttl_seconds))
         self._epoch_transition_verifier = epoch_transition_verifier or NoEpochTransitionVerifier()
         self._epoch_denominator_reconciliation_reader = epoch_denominator_reconciliation_reader
+        if epoch_transition_verifier is None and epoch_denominator_reconciliation_reader is None:
+            self._epoch_denominator_reconciliation_reader = NoEpochDenominatorReconciliationReader()
 
     def state_generation(self) -> int:
         """Return the number of persisted owner-projection records (test diagnostic)."""
@@ -1186,6 +1217,141 @@ class DecisionValidityService:
     ) -> tuple[set[tuple[str, str, str]], str]:
         projection = self._resolve_epoch_impact_projection(dependency_keys=dependency_keys)
         return set(projection.targets), projection.decision_impact_denominator_ref
+
+    @_owner_transactional
+    def resolve_epoch_admitted_impact_snapshot(
+        self,
+        *,
+        transition_artifact_ref: ArtifactRef,
+        requested_query_context_ref: str,
+    ) -> PersistedDecisionValidityEpochImpactSnapshot | None:
+        """Read the frozen first-admission basis before verifying a replay.
+
+        A completed or pending strict batch without its owner binding is corrupt
+        admission evidence, not an invitation to rescan the live dependency set.
+        """
+
+        batch_id = _epoch_batch_id(
+            transition_artifact_ref=transition_artifact_ref,
+            requested_query_context_ref=requested_query_context_ref,
+        )
+        binding = self._state.load_epoch_reconciliation_admission_binding(batch_id)
+        if binding is None:
+            if (
+                self._state.load_epoch_pending(batch_id) is not None
+                or self._state.load_epoch_receipt(batch_id) is not None
+            ):
+                raise ValueError("epoch_denominator_reconciliation_unavailable")
+            return None
+        if (
+            binding.transition_artifact_ref != transition_artifact_ref
+            or binding.requested_query_context_ref != requested_query_context_ref
+        ):
+            raise ValueError("epoch_denominator_reconciliation_admission_conflict")
+        return self.resolve_epoch_impact_snapshot(
+            handle=DecisionValidityEpochImpactSnapshotHandle(
+                snapshot_ref=binding.scientist_snapshot_ref,
+                snapshot_content_hash=binding.scientist_snapshot_content_hash,
+            )
+        )
+
+    @_owner_transactional
+    def persist_epoch_impact_snapshot_for_targets(
+        self,
+        *,
+        target_refs: tuple[ArtifactRef, ...],
+        requested_query_context_ref: str,
+    ) -> PersistedDecisionValidityEpochImpactSnapshot:
+        """Freeze all owner dependencies of exact Runtime targets.
+
+        The caller selects artifacts, never dependency keys. Both complete local
+        owner indexes are read under the registration lock and reconciled before
+        selection; an unreadable or missing member cannot become zero impact.
+        """
+
+        target_ids: set[str] = set()
+        try:
+            for ref in target_refs:
+                raw = self._store.get_bytes(ref.artifact_id)
+                manifest = self._store.get_manifest(ref.artifact_id)
+                if (
+                    not self._store.verify(ref.artifact_id).ok
+                    or manifest.artifact_id != ref.artifact_id
+                    or manifest.kind != ref.kind
+                    or manifest.media_type != ref.media_type
+                    or "sha256:" + hashlib.sha256(raw).hexdigest() != str(ref.artifact_id)
+                ):
+                    raise ValueError("target profile mismatch")
+                target_ids.add(str(ref.artifact_id))
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("dependency_denominator_unresolved") from exc
+
+        try:
+            owners: dict[str, _DecisionDependencyIndex] = {}
+            for path in sorted(self._state._dependencies.glob("*.json")):
+                owner = self._state._load_model_strict(path, _DecisionDependencyIndex)
+                if (
+                    owner is None
+                    or path != self._state._dependency_path(owner.dependency_key)
+                    or owner.dependency_key in owners
+                ):
+                    raise ValueError("dependency index address mismatch")
+                owners[owner.dependency_key] = owner
+            packets: dict[str, _DecisionPacketState] = {}
+            for path in sorted(self._state._packets.glob("*.json")):
+                packet = self._state._load_model_strict(path, _DecisionPacketState)
+                if (
+                    packet is None
+                    or path != self._state._packet_path(packet.packet_ref)
+                    or packet.packet_ref in packets
+                ):
+                    raise ValueError("packet index address mismatch")
+                packets[packet.packet_ref] = packet
+            # The existing index is shared owner state. A matching dependency
+            # artifact cannot grant access to a different tenant's packet. Read
+            # every indexed packet before selection; never drop an inaccessible
+            # member and call the remaining inventory complete.
+            for packet in packets.values():
+                packet_id = ArtifactID.model_validate(packet.packet_ref)
+                packet_raw = self._store.get_bytes(packet_id)
+                packet_manifest = self._store.get_manifest(packet_id)
+                if (
+                    not self._store.verify(packet_id).ok
+                    or packet_manifest.artifact_id != packet_id
+                    or packet_manifest.kind != "scientist.decision_packet"
+                    or packet_manifest.media_type != "application/json"
+                    or "sha256:" + hashlib.sha256(packet_raw).hexdigest() != str(packet_id)
+                ):
+                    raise ValueError("packet artifact profile mismatch")
+            expected_packets: dict[str, set[str]] = {key: set() for key in owners}
+            expected_lineages: dict[str, set[str]] = {key: set() for key in owners}
+            for packet in packets.values():
+                for key in packet.dependency_keys:
+                    if key not in owners:
+                        raise ValueError("packet dependency index missing")
+                    expected_packets[key].add(packet.packet_ref)
+                    expected_lineages[key].add(packet.decision_lineage_key)
+            for key, owner in owners.items():
+                if (
+                    set(owner.packet_refs) != expected_packets[key]
+                    or set(owner.lineage_keys) != expected_lineages[key]
+                    or len(owner.packet_refs) != len(set(owner.packet_refs))
+                    or len(owner.lineage_keys) != len(set(owner.lineage_keys))
+                ):
+                    raise ValueError("owner indexes do not reconcile")
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise RuntimeError("decision_validity_owner_state_corrupt") from exc
+        return self.persist_epoch_impact_snapshot(
+            dependency_keys=tuple(
+                sorted(
+                    key
+                    for key, owner in owners.items()
+                    if owner.dependency_kind == DecisionDependencyKind.SEMANTIC_EPOCH
+                    and owner.artifact_id in target_ids
+                )
+            ),
+            requested_query_context_ref=requested_query_context_ref,
+        )
 
     @_owner_transactional
     def persist_epoch_impact_snapshot(

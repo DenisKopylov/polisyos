@@ -225,6 +225,14 @@ _EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
         "epoch_pending_verification_binding_mismatch",
         "epoch_completed_verification_binding_mismatch",
         "decision_validity_epoch_receipt_unresolved",
+        "epoch_transition_signer_not_established",
+        "epoch_transition_exact_evidence_unavailable",
+        "epoch_transition_disposition_unresolved",
+        "epoch_denominator_reconciliation_unavailable",
+        "epoch_denominator_reconciliation_unresolved",
+        "epoch_denominator_reconciliation_ambiguous",
+        "epoch_denominator_reconciliation_admission_conflict",
+        "epoch_denominator_membership_mismatch",
     }
 )
 _MONITOR_TRIGGER_BY_SOURCE_CLASS: dict[str, DecisionTriggerType] = {
@@ -384,6 +392,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
     )
+    from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
     from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
     from polisyos.scientist import BudgetState
 
@@ -1203,7 +1212,11 @@ class ControlPlaneService(
     @staticmethod
     def build_decision_validity_owner(store: ArtifactStore) -> DecisionValidityService:
         """Build the canonical Decision Validity owner over ``store``."""
-        return DecisionValidityService(store)
+        from polisyos.runtime.quality.epoch_transition_verification import (
+            build_epoch_decision_validity_owner,
+        )
+
+        return build_epoch_decision_validity_owner(store=store)
 
     @staticmethod
     def is_decision_validity_owner(candidate: object) -> bool:
@@ -1224,6 +1237,7 @@ class ControlPlaneService(
         policy_resolver: RuntimeExecutionPolicyResolver | None = None,
         registry_providers: ControlRegistryProviders | None = None,
         decision_validity_service: DecisionValidityService | None = None,
+        epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
         evaluation_safety_persistence_service: EvaluationSafetyPersistenceService | None = None,
@@ -1335,9 +1349,20 @@ class ControlPlaneService(
             decision_validity_service, DecisionValidityService
         ):
             raise ValueError("decision_validity_owner_invalid")
-        self._decision_validity_service = decision_validity_service or DecisionValidityService(
-            self._artifact_store
+        self._decision_validity_service = (
+            decision_validity_service or self.build_decision_validity_owner(self._artifact_store)
         )
+        if epoch_certificate_issuance_owner is not None:
+            from polisyos.runtime.quality.epoch_certificate_issuance import (
+                DecisionPacketEpochIssuanceOwner,
+            )
+
+            if (
+                type(epoch_certificate_issuance_owner) is not DecisionPacketEpochIssuanceOwner
+                or epoch_certificate_issuance_owner.store is not self._artifact_store
+            ):
+                raise ValueError("epoch_certificate_issuance_owner_mismatch")
+        self._epoch_certificate_issuance_owner = epoch_certificate_issuance_owner
         if promotion_runtime is not None and not isinstance(promotion_runtime, PromotionRuntime):
             raise ValueError("promotion_runtime_owner_invalid")
         self._promotion_runtime = promotion_runtime or PromotionRuntime(
@@ -3778,6 +3803,7 @@ class ControlPlaneService(
         run_experiment(
             execution_payload,
             store=self._artifact_store,
+            epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
             eval_safety_execution_context=execution_context,
             eval_safety_verifier=(
                 self._evaluation_safety_admission_verifier

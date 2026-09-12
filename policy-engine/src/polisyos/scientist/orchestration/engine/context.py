@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
+    from polisyos.scientist.validation.epoch_certificate_issuance import (
+        EpochCertificateIssuanceOwner,
+    )
 
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.fabric import DataSnapshotRef, DataViewRequestRef
@@ -106,6 +109,10 @@ class ExecutionContext:
         kw_only=True,
     )
     eval_safety_verifier: EvalSafetyVerifierPort | None = field(
+        default=None,
+        kw_only=True,
+    )
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = field(
         default=None,
         kw_only=True,
     )

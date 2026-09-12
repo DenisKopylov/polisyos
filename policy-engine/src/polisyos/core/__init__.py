@@ -32,6 +32,9 @@ _SUBPACKAGES = (
     "security",
 )
 _LAZY_EXPORTS = {
+    "FileSystemSignedArtifactEvidenceRepository": (
+        "polisyos.core.artifacts.signed_evidence", "FileSystemSignedArtifactEvidenceRepository"
+    ),
     "SECRET_AND_PII_SCAN_SCOPES": ("polisyos.core.llm", "SECRET_AND_PII_SCAN_SCOPES"),
     "SECRET_PII_DETECTOR_VERSION": ("polisyos.core.llm", "SECRET_PII_DETECTOR_VERSION"),
     "PromptSanitizer": ("polisyos.core.llm", "PromptSanitizer"),
@@ -167,6 +170,7 @@ _LAZY_EXPORTS.update(
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.signed_evidence import FileSystemSignedArtifactEvidenceRepository
     from polisyos.core.security.full_prefix import (
         FullPrefixVerifier,
         build_full_prefix_bundle,
@@ -201,6 +205,7 @@ __all__ = [
     "Digest",
     "EncodedChronologyBundle",
     "ExpectedCommitmentPrefix",
+    "FileSystemSignedArtifactEvidenceRepository",
     "FullPrefixBuildFailureCode",
     "FullPrefixBuildRejected",
     "FullPrefixBuildResult",

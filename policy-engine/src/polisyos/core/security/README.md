@@ -20,7 +20,9 @@ routing, identity/authz, delegation, chained audit, TEE, SBOM, SLSA, and quota e
 - **Chronology anchor verification** - `chronology_anchor.py` verifies exact signed appointment,
   acceptance, retention, challenge, and readback bytes. `anchor_lineage.py` compare-and-appends
   owner heads without time-ordering incomparable branches. Neither module appoints an owner or
-  holder, and the generic audit cold tier is not treated as custody evidence.
+  holder, and the generic audit cold tier is not treated as custody evidence. The public helpers
+  `verify_signed_evidence`, `verify_acceptance_appointment` and `verify_holder_appointment` reuse
+  these exact checks for deployment composition; they never appoint their inputs.
 - **TEE and attestation** - `tee.py` and `tee_middleware.py` gate sensitive execution paths.
 - **SBOM and SLSA** - supply-chain checks and attestation clients enforce release discipline.
 - **Quota enforcement** - `quota_registry.py` and `quota_enforcer.py` keep tenant/resource usage bounded.

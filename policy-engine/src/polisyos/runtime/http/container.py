@@ -52,6 +52,7 @@ if TYPE_CHECKING:
         PublicDecisionVerificationService,
     )
     from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
+    from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
 
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
 
@@ -143,6 +144,7 @@ class RuntimeServiceContainer:
     control_registry_providers: ControlRegistryProviders
     public_decision_verification_service: PublicDecisionVerificationService
     control_service: ControlPlaneService | None = None
+    epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None
     human_decision_service: HumanDecisionService | None = None
     acquisition_action_service: AcquisitionActionService | None = None
     production_approval_resolver: ProductionApprovalPacketResolver | None = None
@@ -302,6 +304,37 @@ class RuntimeServiceContainer:
                 self.runtime_security,
                 human_decision_custody=deployment_security.human_decision_custody,
             )
+            from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
+
+            epoch_deployment = deployment_security.epoch_deployment
+            from polisyos.runtime.quality.epoch_transition_verification import (
+                build_deployed_epoch_issuance_owner,
+                configure_deployed_epoch_intake,
+            )
+
+            configure_deployed_epoch_intake(
+                owner=self.decision_validity_service, deployment=epoch_deployment,
+            )
+            self.epoch_certificate_issuance_owner = build_deployed_epoch_issuance_owner(
+                store=self.runtime_api_context.store, deployment=epoch_deployment,
+            )
+            if self.control_service is not None:
+                self.control_service._epoch_certificate_issuance_owner = (
+                    self.epoch_certificate_issuance_owner
+                )
+            with epoch_deployment.composition_scope():
+                self.epoch_anchor_custody_provider = (
+                    build_production_epoch_anchor_custody_provider()
+                )
+            self.runtime_api_context.temporal._semantic_epoch_service = (
+                SemanticEpochService.for_deployment_policy_query(
+                    artifact_store=self.runtime_api_context.store,
+                    deployment=epoch_deployment,
+                )
+            )
+            self.promotion_runtime.configure_semantic_epoch_service(
+                semantic_epoch_service=self.runtime_api_context.temporal._semantic_epoch_service
+            )
         app.state.runtime_container = self
         self._bind_legacy_state(app)
 
@@ -320,6 +353,7 @@ class RuntimeServiceContainer:
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
                     decision_validity_service=self.decision_validity_service,
+                    epoch_certificate_issuance_owner=self.epoch_certificate_issuance_owner,
                     promotion_runtime=self.promotion_runtime,
                     epoch_claim_lifecycle_bridge=self.epoch_claim_lifecycle_bridge,
                     normative_authority_trust=self.config.normative_authority_trust,

@@ -304,15 +304,26 @@ def measured_read_bytes(path: Path) -> bytes:
     return value
 
 
-def measured_is_file(path: Path) -> bool:
-    """Probe file presence while keeping access errors distinct from absence."""
+def _measured_path_kind(path: Path, *, directory: bool) -> bool:
+    operation = "is_dir" if directory else "is_file"
     try:
-        result = stat.S_ISREG(path.stat().st_mode)
+        mode = path.stat().st_mode
+        result = stat.S_ISDIR(mode) if directory else stat.S_ISREG(mode)
     except (FileNotFoundError, NotADirectoryError):
-        _record_file_read(path, "is_file", status="absent", result=False)
+        _record_file_read(path, operation, status="absent", result=False)
         return False
     except OSError as error:
-        _record_file_read(path, "is_file", status="unreadable", error=type(error).__name__)
+        _record_file_read(path, operation, status="unreadable", error=type(error).__name__)
         raise
-    _record_file_read(path, "is_file", status="present", result=result)
+    _record_file_read(path, operation, status="present", result=result)
     return result
+
+
+def measured_is_file(path: Path) -> bool:
+    """Probe file presence while keeping access errors distinct from absence."""
+    return _measured_path_kind(path, directory=False)
+
+
+def measured_is_dir(path: Path) -> bool:
+    """Probe directory presence without turning inaccessible parents into absence."""
+    return _measured_path_kind(path, directory=True)

@@ -161,3 +161,16 @@ survey-found owners; the invocation reference is the third incident owner and
 is explicitly outside the 319-owner denominator. Root independently checked the
 union, source hashes and Python witness node bounds. Output-mode migration remains
 MP-B1; the standing rule reaches the future author independently of this census.
+
+## Stage 2 implementation receipt
+
+The source was changed only after the complete Stage 1 commit `2bd011568e` was
+read back. Standing rule and author encounter points are committed at `9e17462b1`;
+ledger/Atlas explicit read collection and token-aware ledger integration at
+`170765a1d`. The reference invocation instrument remains unchanged. The four new
+Atlas receipt tests now live under the mirrored tests root in
+`tests/repo_quality/architecture/test_atlas_measurement.py`; the original Atlas
+suite remains byte-identical to the lane base. The selected 11 tests passed,
+including original missing/duplicate acknowledgement failures and an unreadable
+manifest producing CLI UNRUN with partial reads. Full wave and handback receipts
+are in the completion journal. Historical migration MP-B1 remains explicit.

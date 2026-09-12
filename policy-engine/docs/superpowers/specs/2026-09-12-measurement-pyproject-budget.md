@@ -115,3 +115,22 @@ A better maintainability analysis would distinguish canonical-home ownership, ef
 P35: all physical lines partitioned; source/config population reconciled twice with file-type denominator; AST calls separated from serialized references. P37: line count is `recomputed`; section classification/config-home choice is reviewed analysis, not self-authorizing evidence; actual relocation equivalence is `not_established` until backend/packaging tests. P38: physical size versus complexity divergence is explicit (MP5-F05), and parse success versus build equivalence has concrete falsifiers. P39: mandatory integration/reissue/test/docs companions stay outside a mechanism cap. P01/P02/P29: real packaging producer, copied artifact, installed consumer and metadata/member negative are required, not a contract-only move.
 
 The existing size instrument is implemented and reproduced. The proposed relocation is `verification_missing` and `semantic_test_missing` until root builds/readbacks it; copied-context propagation would be `bridge_missing` if omitted. A dashboard/API is `surface_out_of_scope`; the package, installed commands and existing developer gates are its surfaces. This document is a recommendation and an analysis receipt, not a delivery/closure claim.
+
+## Stage 2 disposition
+
+Native Hatch config is committed at `eb41d689f`: pyproject is 284 physical lines
+under the unchanged 300 ceiling. Docker/GCP packaging contexts carry hatch.toml;
+topology permits that canonical config. The real Hatchling 1.27.0 backend produced
+identical 3,406 wheel members excluding RECORD across both configurations; among
+7,438 native sdist members the permitted delta is hatch.toml and pyproject.toml.
+The sdist rebuild preserves the wheel. These counts describe the disclosed
+7,457-file build context used in that run, which excludes the two forbidden
+governance documents, not the entire repository. Missing/wrong config, package
+omission and entrypoint removal fail equivalence. Missing/non-file enumerated
+members now fail explicitly, with two red/green probes.
+
+The unchanged size gate passes 284/300 and rejects the 301-line control. The
+existing dependency-profile owner writer regenerated its paired declarations;
+the current check passes and corrupt-field drift rejects altered bytes. No
+complexity predicate was added; the predicate analysis above remains analysis.
+Full receipts and diagnostic limitations are in the completion journal.

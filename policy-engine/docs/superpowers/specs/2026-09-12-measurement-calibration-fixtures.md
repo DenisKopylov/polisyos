@@ -216,3 +216,13 @@ before selecting helper, fixture or model repair. The explicit-version regex
 rejection (MP3-02) is a separate Foundry model-admission finding, routed to MP-B4
 in the completion journal; generic CAS acceptance alone is routed to explicit
 nowhere as a storage defect because generic storage makes no model-validity claim.
+
+## Stage 2 disposition
+
+Research complete; owner decision remains deliberately open. No helper, fixture,
+producer model, regex, or strict-admission repair is selected. The strict-model
+rejection and actual generic CAS bypass were executed separately, with the
+unblanketed control and other fixture replays preserved under `rows23/raw/`.
+The exact source coordinates and 31-call / 28-kind family denominator above are
+the decision basis. MP-B4 routes the explicit-version regex defect to the Foundry
+calibration owner. The completion journal retains deciding command receipts.

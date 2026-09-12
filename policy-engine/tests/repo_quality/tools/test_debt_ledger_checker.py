@@ -1898,7 +1898,8 @@ def test_shifted_open_unmerged_still_checks_real_branch_ancestry(tmp_path: Path)
     checker = _checker()
     repo = _fixture(
         tmp_path,
-        a_rows="| `open-debt` | enum `one|two` | team-runtime | `open_unmerged` | branch `codex/fixture` |",
+        a_rows=("| `open-debt` | enum `one|two` | team-runtime | `open_unmerged` | branch `codex/fixture` |\n"
+                "| ~~`struck-pipe`~~ | enum `one|two` | team-runtime | `open_unmerged` | branch `codex/fixture` |"),
     )
     _git(repo, "branch", "codex/fixture")
     report = checker.audit_repository(repo)
@@ -1906,8 +1907,26 @@ def test_shifted_open_unmerged_still_checks_real_branch_ancestry(tmp_path: Path)
         finding.code == "open_unmerged_branch_merged" and "open-debt" in finding.detail
         for finding in report.blocking_findings
     )
+    assert any(
+        finding.code == "open_unmerged_branch_merged" and "struck-pipe" in finding.detail
+        for finding in report.blocking_findings
+    )
     assert [
         finding.detail
         for finding in report.informational_findings
         if finding.code == "register_status_column_shifted"
     ] == ["open-debt"]
+
+
+def test_malformed_disposition_is_unrun_with_retained_reads(tmp_path: Path, capsys) -> None:
+    checker = _checker()
+    repo = _fixture(tmp_path)
+    (repo / checker.DISPOSITION_PATH).write_text("{broken")
+    assert checker.main(["--check", "--repo-root", str(repo)]) == 2
+    output = capsys.readouterr().out
+    receipt = json.loads(next(line.removeprefix("measurement=")
+                             for line in output.splitlines() if line.startswith("measurement=")))
+    assert receipt["complete_verdict"] is False
+    assert any(item["path"] == checker.DISPOSITION_PATH.as_posix() and item["status"] == "read"
+               for item in receipt["inputs"])
+    assert "JSONDecodeError" in output and "partial coverage" in output

@@ -217,3 +217,20 @@ may not update LEDGER.md or suppress that predicate. Such a result establishes a
 owner regeneration dependency, not permission to weaken the checker or silently
 retain a false owner. The final handback must separate syntax/rule delivery from
 any closure that the protected generated artifact prevents.
+
+## Stage 2 constraint outcome
+
+Token-aware source consumers and their shared Python/TypeScript vectors are
+implemented. The original status recovery is retained and still emits the two
+known informational shifted-column rows. A synthetic real Git branch proves a
+shifted `open_unmerged` row can no longer evade the merged-branch negative.
+
+The forbidden generated-artifact constraint is decisive: the correct projection
+changes exactly two owner cells, so unchanged canonical LEDGER fails
+`ledger_render_drift`. The lane cannot deliver canonical green while preserving
+both the correct reader and the user's no-LEDGER-edit requirement. No compatibility
+wrong-owner rendering or drift exception is introduced. Owner regeneration via
+the existing ledger writer is the remaining acceptance dependency. New Common
+deep-import policy acceptance, if confirmed by the final guardrail, is separately
+an architect decision; no guardrails sync is authorized. Complete evidence is
+retained in the completion journal.

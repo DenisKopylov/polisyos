@@ -161,3 +161,48 @@ Working complete outputs (SHA-256):
 - `docs/superpowers/journals/measurement-plane/execution/raw/ledger-companions-green.log@d30295b9c8225d21d491a6956a2da70ad89108c0390f530f673e3894a389069c`
 - `docs/superpowers/journals/measurement-plane/execution/raw/ledger-projection-drift.log@f129a9ba5dba65d5a8845a944b1fd2c04fb5d43e7030f0de6aba4b25e26b1b6e`
 - `docs/superpowers/journals/measurement-plane/baseline/raw/debt-ledger-unit-base.log@c18deb2bcc9a6d2069467e8554cacbcef6ec66c17ab50414bc5d0cddd86e31f1`
+
+## Implementation review before the final wave
+
+Root's full ledger unit wave found its own regression in explicit `open_unmerged`
+standing under strikethrough. The simpler parsed-row-status predicate dropped
+that original negative. The correction composes recovered row standing with the
+tokenized explicit status cell; both reach the unchanged ancestry check. The
+original negative and a shifted-struck variant pass. No failing predicate was
+removed and no inherited-red exclusion is used for this regression.
+
+The shared-instrument boundary is now explicit in the existing trust posture
+compiler too: both output modes report actual selected reads and unresolved
+runtime, external-truth, unselected-document and delegated-reader classes.
+The runtime/browser posture consumers remain internal and retain their real
+admission/rejection callers; they do not acquire artificial standalone CLIs.
+
+The pyproject owner regeneration completed through its existing command. It
+rebinds both recorded dependency identities and the paired purpose admission;
+uv.lock bytes did not change. `regenerate-owner --check` returns current and
+`--corrupt-field-drift-check` rejects. The subsequent full-profile environment
+diagnosis is non-decisive and reports missing optional distribution installations
+in this lint/test/runtime environment, with `authority_admission=forbidden`.
+No authority or production readiness is inferred. MP-B6 routes this environment
+limitation to explicit nowhere for this task; installing that full Foundry
+profile is outside the package-config relocation. The first diagnostic used a
+short SHA and correctly rejected it; the full-SHA replay reached the environment
+predicate. Both outputs are preserved.
+
+MP-B5's stale test companions are corrected. MP2-S2-03 (malformed accepted custody
+rows silently skipped) is the same intake class and is closed by selecting
+accepted IDs before enforcing unique ID and exact cell shape; its red and green
+runs are in the Row 2 handoff. MP2-S2-02 is an explicit formatting nonpass in
+untouched regions of existing owners; no whole-file cosmetic rewrite is made.
+The new helper/tests lint and format checks pass. No global lint pass is claimed.
+
+The final read-only review bucketed two incomplete-input escapes as the same
+receipt-handler class: Atlas Git enumeration raises RuntimeError; ledger
+malformed disposition JSON raises JSONDecodeError. Both bypassed typed exception
+lists. Their red tests were observed, then both deciding runs received a generic
+aborted-run exception boundary (following the invocation reference). No complete
+verdict escapes from an aborted producer. Missing parent traversal on directory
+probes is also distinct from absence through the shared stat reader. File and
+directory permission negatives run against actual denied parent permissions.
+The existing nonzero semantic failures remain failures. These findings are closed
+in this lane's standing input-disclosure rule, not routed as another deferred row.

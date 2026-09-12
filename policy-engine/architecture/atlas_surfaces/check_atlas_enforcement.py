@@ -3347,7 +3347,8 @@ def validate_slice_scope_obligations(
                     "acknowledgements does not establish complete plan-selection coverage.",
                     "Schema-helper reads are delegated to "
                     "status_checker._schema_errors and are "
-                    "not captured here; delegated_schema_input is a declared path, not a read receipt.",
+                    "not captured here; delegated_schema_input is a declared path, "
+                    "not a read receipt.",
                 ]
             )
             if measurement is not None:
@@ -4677,38 +4678,17 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def _run_main(argv: Sequence[str] | None, scope_measurement: dict[str, Any]) -> int:
     """Run the retained-core checker and optional corruption witnesses."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--corruption-probes", action="store_true")
     parser.add_argument("--write-query-cache-policy-register", action="store_true")
     args = parser.parse_args(argv)
-    with measure_file_reads(status_checker.REPO_ROOT) as reads:
-        try:
-            errors, scan = validate_enforcement()
-        except (OSError, UnicodeError, ValueError, yaml.YAMLError) as error:
-            receipt = reads.snapshot(complete_verdict=False)
-            receipt["unresolved_by_construction"].append(
-                "Atlas plan selection and ownership are unresolved because enforcement "
-                "did not produce a complete verdict; other delegated reads are not observed."
-            )
-            print("slice_scope_measurement=" + json.dumps(receipt))
-            print(f"UNRUN: partial coverage; {type(error).__name__}: {error}")
-            return 2
-    print(
-        "slice_scope_measurement="
-        + json.dumps(
-            scan.get(
-                "sliceScopeMeasurement",
-                {
-                    "unresolved_by_construction": [
-                        "Scope receipt unavailable from enforcement producer"
-                    ],
-                },
-            )
-        )
-    )
+    errors, scan = validate_enforcement()
+    scope_measurement.update(scan.get("sliceScopeMeasurement", {
+        "unresolved_by_construction": ["Scope receipt unavailable from enforcement producer"],
+    }))
     if args.write_query_cache_policy_register:
         try:
             _write_query_cache_policy_register(scan)
@@ -4733,6 +4713,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     summary["architecture_recurrence"] = architecture_receipt
     print(json.dumps(summary, indent=2, sort_keys=True))
     return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run enforcement and retain partial read evidence for any aborted deciding run."""
+    scope: dict[str, Any] = {}
+    with measure_file_reads(status_checker.REPO_ROOT) as reads:
+        try:
+            code = _run_main(argv, scope)
+        except Exception as error:  # An aborted producer has no complete verdict.
+            scope.update(reads.snapshot(complete_verdict=False))
+            scope["unresolved_by_construction"].append(
+                "Atlas plan selection and ownership are unresolved because enforcement "
+                "did not produce a complete verdict; other delegated reads are not observed."
+            )
+            sys.stdout.write(f"UNRUN: partial coverage; {type(error).__name__}: {error}\n")
+            code = 2
+    sys.stdout.write("slice_scope_measurement=" + json.dumps(scope) + "\n")
+    return code
 
 
 if __name__ == "__main__":

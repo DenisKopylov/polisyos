@@ -132,3 +132,21 @@ class ScopeMeasurementTests(unittest.TestCase):
                 for row in receipt["inputs"]
             )
             assert "UNRUN" in output.getvalue()
+
+    def test_failed_git_enumeration_is_unrun_with_retained_manifest_read(self) -> None:
+        def scope_only() -> object:
+            checker.validate_slice_scope_obligations()
+            raise AssertionError("failed enumeration must abort")
+        output = StringIO()
+        with (patch.object(checker, "validate_enforcement", side_effect=scope_only),
+              patch.object(checker.subprocess, "run", return_value=__import__("subprocess").CompletedProcess(
+                  ["git", "ls-files"], 1, "", "enumeration failed")),
+              redirect_stdout(output)):
+            assert checker.main(["--check"]) == 2
+        receipt = json.loads(next(line.removeprefix("slice_scope_measurement=")
+                                 for line in output.getvalue().splitlines()
+                                 if line.startswith("slice_scope_measurement=")))
+        assert receipt["complete_verdict"] is False
+        assert any(item["path"].endswith(checker.SLICE_SCOPE_OBLIGATIONS_PATH.name) and item["status"] == "read"
+                   for item in receipt["inputs"])
+        assert "slice_scope_obligation_plan_enumeration_failed" in output.getvalue()

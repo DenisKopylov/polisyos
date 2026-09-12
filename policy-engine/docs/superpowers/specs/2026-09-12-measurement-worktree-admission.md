@@ -144,3 +144,14 @@ it neither deletes local branch refs nor establishes merge/abandonment status.
 The architect must reproduce the dry run immediately before that action because
 registrations and mounted/moved directories are mutable. A moved directory beyond
 the bounded search remains unresolved by construction.
+
+## Stage 2 disposition
+
+The selected existing doctor command now performs read-only admission and emits
+actual Git/filesystem operations plus named unresolved boundaries. It is committed
+at `6fd91afc8` and linked from commissioning instructions. Synthetic branch-only
+and path-only removal probes fail when either protection is removed; the original
+collision pair is rejected, this lane's exact resume pair is admitted, and normal
+doctor surface listing still runs. The complete 53-name predicted prune effect
+above remains an architect handoff; no pruning took place. No broader filesystem
+search or absolute abandonment claim has been substituted for the bounded probe.

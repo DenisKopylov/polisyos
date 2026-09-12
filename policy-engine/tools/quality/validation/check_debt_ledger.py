@@ -1396,8 +1396,16 @@ def _audit_repository(
     )
     findings.extend(closure_findings)
     branch_states = dict(snapshot.branch_states)
+    declared_status_indexes = {"A": 3, "B": 3, "C": 3, "D": 2, "F": 1, "G": 1}
     for row in snapshot.debts:
-        if row.status != "open_unmerged":
+        # Strike-through/section standing must not erase an explicit unmerged declaration.
+        cells = split_markdown_table_row(row.raw)
+        status_index = declared_status_indexes.get(row.section)
+        declared_status = (
+            _status_token(cells[status_index])
+            if status_index is not None and len(cells) > status_index else None
+        )
+        if row.status != "open_unmerged" and declared_status != "open_unmerged":
             continue
         branch = row.branch or ""
         branch_ref = (
@@ -1609,7 +1617,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.write:
                 atomic_write_text(args.repo_root / LEDGER_PATH, report.ledger_text)
                 report = audit_repository(args.repo_root, _collection_receipts=collection_receipts)
-        except (OSError, UnicodeError) as error:
+        except Exception as error:  # An aborted producer has no complete verdict.
             print("measurement=" + json.dumps(_measurement_receipt(reads, complete_verdict=False)))
             print(f"UNRUN: no complete verdict; partial coverage: {type(error).__name__}: {error}")
             return 2

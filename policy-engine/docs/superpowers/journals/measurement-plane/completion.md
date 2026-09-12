@@ -210,7 +210,7 @@ in this lane's standing input-disclosure rule, not routed as another deferred ro
 
 ## Final source delivery and bounded verdicts
 
-The mechanism is frozen at `b83bfac7891fbeed665263f3bf8313a3bd2918b3`.
+The first final source freeze was `b83bfac7891fbeed665263f3bf8313a3bd2918b3`.
 All 50 changed tracked paths at that checkpoint were read back byte-for-byte
 from attached `codex/measurement-plane`. Mandatory generated companions were
 then committed and read back at `eed7a68e6429edf0ca76bcf689ccd2033792b1a9`.
@@ -321,7 +321,8 @@ The full frozen ledger unit retry reached its 1200-second supervisor bound after
 partial progress. It is **UNRUN, partial coverage, no complete verdict**, not a
 passing suite or an excluded failure. Its complete timeout output is retained;
 the next replay uses a 2400-second bound. A previous complete 75-item run found
-this lane's strikethrough regression and three canonical-render dependencies;
+this lane's strikethrough regression, a stale 45-versus-46 selection pin, and two
+canonical-render dependencies;
 the source regression was repaired and negatively verified before the retry.
 Final complete rerun results follow below when available.
 
@@ -384,3 +385,31 @@ remain on this machine under the first-commit gitignore rule.
 - `execution/raw/openapi-reissue-analysis.json@3bbf3f16d8b2023881e5a7e54070b8a6949c5a6a4006fdc363909012300958aa`
 - `execution/raw/trust-write.log@d90027ab92abc5d362d81b19924b98649208b842b765fb5f2def793f223b0ef5`
 - `execution/raw/openapi-write.log@1232f7d507240cfa1c59720fbe83543db4f8654f7113a57671dcc3a7d45f2635`
+
+## Refreeze correction
+
+Readback of the complete canonical receipt exposed one remaining stale test
+companion: `closure_signal_pytest_selections` is 46 after token-aware parsing,
+while the test still pinned the base's 45. The prior complete unit log already
+contains that exact assertion failure; it was incorrectly grouped with render
+dependencies in the earlier working interpretation. The correction changes only
+the measured metric pin and its comment. The original no-blocking/render
+assertions remain intact and must still fail on the protected ledger drift.
+
+Root deliberately stopped the two unfinished ledger/guardrail retries before
+changing tracked files. Both are **UNRUN with partial coverage**, not complete
+verdicts. The raw supervisor JSON incorrectly labels a signalled child as complete
+because its wait returned; the authoritative abort note
+`execution/raw/verification-refreeze-abort.json` records SIGTERM and the cause.
+The next supervisor recognizes signals and requires a terminal pytest/guardrail
+verdict before claiming completion. This harness correction belongs in this
+journal, not in a product instrument or an inherited-failure exclusion.
+
+The full standalone Atlas check completed with exit 1 (400.25 seconds). Its
+bounded scope receipt contains 133 operations: one manifest and all 132 candidate
+plans, partitioned into zero selected for the manifest's target slices, 127
+excluded and five unresolved YAML inputs. The earlier 24/103/5 frontmatter-only
+classification is a different selector, not a contradictory count. A complete
+acknowledgement check coexists with `plan_selection_complete=false`. Broader
+Atlas inventory findings are under an exact-command slice-base replay; no
+inherited/disjoint-input exclusion has been claimed.

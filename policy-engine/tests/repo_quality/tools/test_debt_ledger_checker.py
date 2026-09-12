@@ -1345,7 +1345,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    # Replay of the complete register and selector census, measured on this lane's base.
+    # Replay of the complete register and selector census after token-aware field parsing.
     expected = {
         "register_ids": 260,
         "gy_ids": 38,
@@ -1363,7 +1363,7 @@ def test_real_census_replays_published_invariants() -> None:
         "explicit_nonclosure_typed_not_a_debt": 11,
         "explicit_nonclosure_resolved_history": 8,
         "explicit_nonclosure_unidentified": 0,
-        "closure_signal_pytest_selections": 45,
+        "closure_signal_pytest_selections": 46,
         "closure_signal_unsupported_runners": 1,
         "closure_signal_identities_without_commands": 5,
         "closure_signal_identity_unresolvable": 6,

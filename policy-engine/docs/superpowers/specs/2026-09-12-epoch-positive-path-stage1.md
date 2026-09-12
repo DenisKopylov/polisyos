@@ -1,6 +1,6 @@
 ---
 title: Epoch positive path — Stage 1 adjudication
-status: research complete; implementation admission pending mechanism design
+status: complete-pending-an-architect-decision on EP-D01
 owner: codex/epoch-positive-path
 created: 2026-09-12
 source_base: 034f30c64a79eb2020c04c6f0b0f07c90a74a1ee
@@ -248,3 +248,73 @@ reuse существующих signed-evidence и canonical-owner APIs без в
 положительную qualification/transition как `*_reader_not_established`.
 Назначение signer само не подключит положительный DS18 reader; это `bridge_missing`
 в существующей production row, не новая institutional obligation.
+
+## EP-D01 — решение, на котором применяется stop rule
+
+Уточняющий reuse pass после фиксации EP-F01–08 нашёл узкое нерешённое **значение
+producer identity**, а не необходимость назвать институт. Ранний вывод «достаточно
+engineering» был шире имеющихся оснований: он принимал требование поля за
+определение admission evidence (`P32/P36`).
+
+**Вопрос архитектору:** что именно утверждает `producer_identity_ref` и какое
+независимо admitted свидетельство является достаточным для этого утверждения?
+
+| Интерпретация | Что должен доказывать механизм | Различающий случай |
+| --- | --- | --- |
+| Происхождение от канонического producer | Owner-held emission/origin record связывает каноническое исполнение с точным transition, purpose, query и admitted signing profile | Канонический producer действительно выпустил transition; отдельного grant на minting нет. При доказанном происхождении этот предикат выполнен. |
+| Отдельное право producer на выпуск | Помимо origin/signature, независимо admitted role/grant разрешает этому producer выпускать epoch transitions в данной области и времени | Те же байты, подпись, происхождение и scope; grant отсутствует/отозван. Предикат не выполнен. |
+
+Ни один вариант не выбирается этой lane. Назначение конкретного института
+остаётся пустым при обоих; конфигурационный slot и проверяющий алгоритм будут
+разными из-за **разного утверждения**, а не из-за имени подписанта.
+
+Основания:
+
+- `C5-PREREQ-DV-EPOCH-ADMISSION`, design :378-385, требует producer identity,
+  signature и verifier provenance. Оно не выбирает одну из интерпретаций.
+- GY-N12 implementation plan, Task 4.4 :8677-8695, называет canonical producer,
+  container-owned signer и admitted signing/trust profile, запрещает caller-
+  supplied identity. Оно не задаёт достаточное evidence отдельного minting role.
+- `CB-D01`, `CB-H01/H02` требуют binding/provenance и реальные predicates;
+  наличие требования не создаёт authority source.
+- `SignedArtifactEvidenceRecord` (`core/contracts/chronology.py:2327-2339`)
+  содержит signing profile и signer provenance, не producer-role relation.
+- `SigningConfig` (`core/artifacts/signing.py:168-186`) устанавливает key trust и
+  signer identity. `ProducerIdentity` в `runtime/quality/authority.py:494` и
+  `attestation.py:101` описывает компонент, не admission этого полномочия.
+- Predicate-policy owner provenance и acceptance/holder appointments имеют
+  другие authority purposes. Их использование здесь без отдельного правила
+  было бы authority-by-adjacency (`P36`).
+- Точный подписанный readback в producer заканчивается отказом :1212-1220.
+  Это не правило, из которого можно восстановить недостающий positive predicate:
+  обе интерпретации согласуются с отказом при отсутствии вообще любого carrier.
+
+**Минимальная способность после решения:** один owner-controlled immutable
+источник выбранной связи producer→transition и его independent admission/readback,
+проверяющий exact artifact/purpose/query/profile/временные ограничения до выдачи
+`PersistedEpochValidityTransition` и до mutation Decision Validity. Имя/схема
+источника не фиксируются до решения. Reuse: exact repository
+`FileSystemSignedArtifactEvidenceRepository.read_exact`, canonical parsing и
+`verify_signed_evidence`; они доказывают байты/подпись, а не выбранную связь.
+
+**Falsifier будущего механизма:** сохранить точные transition bytes, валидную
+подпись и admitted key/profile, полную history и оба denominator; заменить
+только producer. Для origin-варианта заменить реальный emission proof
+самодельной записью; для grant-варианта удалить/отозвать только producer grant.
+До pending batch и lifecycle state должен быть отказ. Поля, типы и строки
+`producer_identity_ref` остаются прежними. Положительное прохождение при этой
+подмене означает, что код всё ещё проверяет signer, а не producer property.
+
+Это bounded finding по прослеженной цепочке первичных документов и source,
+не заявление об отсутствии решения во всех возможных документах/deployments.
+Архитектор может разрешить его указанием уже действующего finding и конкретного
+admission source; тогда нужен reuse, не новый контракт.
+
+**Disposition:** `complete-pending-an-architect-decision on EP-D01: meaning and
+admission evidence of epoch-transition producer identity`. Stage 2 source не
+начат по budget/stop rule commissioning. Остальные конкретные engineering gaps
+EP-F06/07 не объявлены завершёнными и не названы институционально заблокированными:
+они уже направлены в существующие DS18 rows. Нельзя закрыть их фабрикой отказов
+или объявить весь remainder одним appointment. После решения build включает
+provider/orchestration/verifier/configuration/positive projection chain, перечисленный
+в EP-F06, с неизменными исходными negatives.

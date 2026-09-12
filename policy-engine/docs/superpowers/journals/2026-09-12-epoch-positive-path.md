@@ -445,3 +445,68 @@ The broader NL publication failure remains separately under exact slice-base
 replay; it is not erased by these passing epoch checks. No remaining source
 writer is active. Source, tests and mandatory companion documents are committed
 at this boundary; registered ledger and guardrails results follow separately.
+
+### Registered gates on the attached source commit
+
+Source commit `476383d759232c062171b34f1357145a10473827` was read back
+from `codex/epoch-positive-path` before deciding gates. Both registered commands
+were each the ONLY shell command in their invocation, with complete output
+redirection. Scheduling correction to the earlier plan: they overlapped after
+source freeze because the ledger collector and isolated generation probes had
+separate scratch and no shared owner writes. This changes scheduling only.
+
+Ledger actual exit **0**. Guardrails actual exit **1**, only the registered
+OpenAPI snapshot mismatch. Live gate and OpenAPI child processes used exactly
+CPython3.14.0; the child producer was invoked with runtime/ml extras. The canonical
+OpenAPI owner then returned0 into scratch. Full parsed JSON comparison confines
+the candidate difference to the confidence-ledger-risk-spend response example
+and its consulted dependency/replay/projection bindings. It is not a route/DTO
+change. Independent complete denominator review and companion verification follow.
+
+- `epoch-positive-path/raw/stage2-source-commit-readback.json` @ SHA-256 `594ff578f62f61ca2ad1842282079d60ea55031dc6a4b24ec8e2c706e4bd4a21` — Attached source commit476383d75; every committed changed blob independently reread vs worktree; clean.
+- `epoch-positive-path/raw/stage2-registered-gates-first-receipt.json` @ SHA-256 `f8dde1e7043547e2a4285d7b009bebf2aa34725460c95e333969a556da6f6158` — Registered ledger actual0; first guardrails actual1 on OpenAPI only; canonical producer actual0; exact argv and live3.14.0 witnesses.
+- `epoch-positive-path/raw/stage2-ledger-check.txt` @ SHA-256 `45a091563ee40761ac0b415b91d8c2390ead2022a2648b7344a9017994d00a61` — Complete registered output; informational findings retain the existing row IDs printed by their owner.
+- `epoch-positive-path/raw/stage2-architecture-guardrails.txt` @ SHA-256 `06619b9b47c0da7de4ed7c947bead25b5e9dffc954eea0bc2729ed6ec1c4123c` — Complete first guardrail output; snapshot drift is not an inherited exclusion.
+- `epoch-positive-path/raw/nl-importer-adjudication.md` @ SHA-256 `f546a590c8103c786bfb2c5cb6d1f274784cd0fc4e6387439790809735d4f3b2` — Full-module current/base actual1/1; same failed-node list; changed-path intersection defeats P41 inherited exclusion.
+- `epoch-positive-path/raw/nl-adjudication-evidence-sha256.json` @ SHA-256 `139509a443f167bb074fcf894f37158c8826edd16095a3c19861d47c825ea54f` — Complete NL output/diagnostic/source-origin evidence manifest, including harness failures.
+- `epoch-positive-path/raw/nl-base-cleanup-receipt.json` @ SHA-256 `c77ad972c59e21befdc300555f595cfc4e34f7584384a7fca86717cef43890ca` — Only reconstructible base export removed; complete deciding evidence retained; symlink targets preserved.
+- `epoch-positive-path/raw/stage2-public-scratch-cleanup.json` @ SHA-256 `81a9be8458510890cf40b34171c8318d77c14b0ece3658e212443d79694b2841` — Only reconstructible canonical public-owner scratch copies removed; committed outputs and deciding evidence retained.
+
+NL finding destination is **EP-B01**, the explicit backlog entry appended to
+the Stage2 specification, owned by Runtime NL authority publication. No source
+repair or inherited exclusion is claimed for it. Ledger informational findings
+remain with their existing row IDs/rules in the complete output; no row status
+or standing is rewritten.
+
+### OpenAPI mandatory companion adjudication
+
+The registered snapshot includes the confidence-ledger owner's actually consulted
+dependency basis. Its full denominator is the completed validation worker's
+`dependency_bindings`: all observed file types, directory listings and explicitly
+missing paths under the product root. It is **not** a Python-file count. The
+independent reviewer rehashed every member, reconstructed the aggregate and
+worker receipt, and obtained exactly the canonical candidate bindings. No unreadable
+member is converted to zero. The kind/file-type/root breakdown and full membership
+are in the referenced outputs, rather than freezing the moved total in a test.
+
+Complete JSON comparison, independently repeated, confines the change to existing
+confidence-ledger-risk-spend example provenance and its dependent replay/projection
+identities. Components and non-example structure match. Real generated client
+renders match. No consumer, operation, DTO or authority/status rule changes.
+The registered owner mandates refreshing this consulted-basis companion; no
+guardrails sync or baseline update is used. Historical old-manifest causality
+was not reconstructed and no inherited exclusion is claimed.
+
+The complete consulted basis excludes lane docs, release fragments and Git HEAD;
+these final record changes do not alter its identity. The exact candidate
+`sha256:39d4bba20ad24062d8dea4599e8847bc59346b92fff4ded638b4388eaacc282b`
+was copied into `schemas/runtime_api_v1.openapi.json`; the release fragment
+declares its compatible `schema-openapi-abi` example update.
+
+- `epoch-positive-path/raw/stage2-openapi-independent-basis-review.json` @ SHA-256 `b8335ff334ee99c654ad56b66f6fee730e06b0812908a8973572873fa7de03e4` — Complete owner binding denominator independently rehashed; candidate aggregate and worker receipt exactly equal; complete JSON changes confined to existing response example.
+- `epoch-positive-path/raw/stage2-openapi-dependency-worker.json` @ SHA-256 `64ad7c24e8d56460990687c7c4b39aebe124dd3c0285c6194ce5a2302ccc997c` — Full deciding owner output with dependency_bindings; existing confidence-ledger validation, no ledger generation.
+- `epoch-positive-path/raw/stage2-openapi-dependency-worker-receipt.json` @ SHA-256 `8564a553613433e16c0ca70f88a770d871f1b5706391c9b6c8f5234c8124d6e4` — Actual worker exit0, CPython3.14.0,27.42s, exact request/argv/basis.
+- `epoch-positive-path/raw/stage2-openapi-complete-json-diff.json` @ SHA-256 `16c87cfcd5feb31ca1a3f230e776407e21088c8f86c4b10e4e7fe28186d59b27` — Root complete JSON-tree comparison, cross-checked independently by reviewer; no operation/component change.
+
+The next registered guardrails run tests this committed companion. Runtime
+source/tests remain the already reviewed and exercised source commit.

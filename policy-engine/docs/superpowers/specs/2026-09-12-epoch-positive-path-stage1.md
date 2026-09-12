@@ -605,3 +605,50 @@ adds the native basis-change event arm. All independent construction above is
 carried through despite those pending links. The original Stage 1 frontmatter
 and findings are retained verbatim as requested; this appended disposition is
 the continuation's current state.
+
+### EP-B01 — incidental backlog: repeated NL authority publication
+
+Destination: **this explicit Stage 2 backlog entry**, owned by Runtime NL authority
+publication (`_publish_runtime_quality_report` and its materialization republish).
+Trigger: a previously published byte-identical quality report is republished after
+materialization refs contain that report's own CAS ID; its expected input closure
+then differs from the frozen authority envelope, and publication timestamps can
+also differ. The unchanged strict authority consumer correctly rejects.
+
+The full NL module was replayed with identical argv and diagnostic-only wrapper
+on current source and a verified product export of slice base `034f30c64` under
+CPython3.14.0. Both returned1 with the same failed-node list. This establishes
+`base_reproduced`; it does **not** establish P41 inherited exclusion because
+changed paths intersect the imported/test denominator. The original expanded
+wave remains red. The passing scoped epoch/issuance waves are separate results.
+
+Follow-up acceptance: the publisher must preserve the exact owned publication
+identity on reuse, or emit a distinct new authority artifact for a real changed
+claim. Choose and test that producer behavior without weakening the strict
+consumer. This is outside this epoch producer/configuration slice; no repair or
+closure is claimed here. Complete evidence: `epoch-positive-path/raw/nl-importer-adjudication.md`
+and `nl-adjudication-evidence-sha256.json` (hashes in the final receipt table).
+The reconstructible base export was removed after verification; complete outputs
+and the generated migration diagnostic were retained, and linked data/venv targets
+were not removed.
+
+### Final boundary and current terminal status
+
+**complete-pending-an-architect-decision on EP-D02, EP-D03 and EP-D04**.
+
+- EP-D02: permit an equal-epoch transition when independently admitted owner
+  adjudication/dependency population changed, or retain the existing validator.
+- EP-D03: extend the qualified pre-N9 query/temporal positive carriers to consume
+  exact independently verified native/transition evidence; current predicates
+  continue refusing those unsupported positive shapes.
+- EP-D04: admit a native semantic-basis-change event arm; current code refuses
+  rather than relabeling that change as a correction.
+
+EP-D01 is implemented as exact canonical execution provenance and independent
+owner admission/readback. It is not a separate minting right. All independent
+mechanisms and composition hooks are built through the original production caller
+and runnable HTTP terminus. Institutional and native source slots remain typed
+and empty; no appointment or complete deployed positive capability is claimed.
+The native complete execution-closure contract and shared DVS availability
+residual remain explicitly bounded above, not silently counted as established.
+Stage1 findings and original frontmatter remain historical, byte-for-byte intact.

@@ -112,3 +112,52 @@ default accepts it (MP3-02). **MP-B5**, DevX ledger test owner, stale return-ari
 and historical live-state assertions, pending the exact-base replay. **MP-B2** is
 resolved to explicit nowhere: AST guards put the two nested `action` definitions
 in mutually exclusive decoder / non-decoder branches; this is not an overwrite.
+
+## Stage 2 working receipt
+
+Stage 1 was admitted at `2bd011568e393823cffdbba0e27a80884a6adfe9`; all five
+files and the complete source census were read back from the attached branch
+before source edits. Red measurement tests were preserved in `d6cea8caa`.
+The ledger read/unreadable/original-missing-row tests passed 3/3; the Atlas
+scope and disclosure selection passed 10/10. The two pipe regressions failed
+before the format change, then passed with three measurement/absence checks
+(5/5). Updated historical companion assertions passed their focused 8/8 run.
+
+The original-base local clone reproduced the same eight ledger test failures;
+it additionally failed generated rendering because its local ref namespace
+lacks this repository's branch refs. That ninth failure is a control-environment
+limitation, not inherited product debt. No disjoint-input exclusion is claimed:
+this lane changes the ledger instrument and repairs stale test companions.
+The source unchanged by the task still supplies the mutable census; expectations
+now pin 260 register IDs and the measured current selector set. The historical
+subject-scope regression is expressed with synthetic source rows, preserving
+sibling-evidence rejection after the original live row closed.
+
+**Row 2 generated-artifact constraint is now established, not hypothetical.**
+The tokenized owner projection changes exactly two owner cells in the generated
+ledger (`extraction-ask-offers-six-of-ten-evidence-classes` and
+`register-cells-may-contain-pipes-and-shift-every-column`). Canonical register and
+ledger bytes remain untouched. `ledger_render_drift` must continue to fail;
+its suppression, a compatibility wrong-owner projection, or editing the forbidden
+artifact would defeat the task. Completion of Row 2's canonical green requires
+its owner to regenerate LEDGER through the existing writer after accepting this
+change. Status: implementation under verification, pending owner regeneration.
+This does not stop the other four rows.
+
+Standing rule: `docs/how-to/author-measurement-instruments.md`, linked from root,
+tools and architecture author surfaces, binds future absence instruments by
+behavior. MP-B1 retains historical output migration; 16 disclosed bounded modes
+are not an all-format compliance claim. The file-reader collector explicitly
+excludes imports, Git/ref access, subprocess reads and services; Atlas additionally
+names delegated schema-helper reads. These are declared limits, not fake reads.
+
+Working complete outputs (SHA-256):
+- `docs/superpowers/journals/measurement-plane/execution/raw/ledger-measurement-red.log@589ee863e66312b13eaf270467ddd72a20a67dd33dc0009b19147a1ee737b66e`
+- `docs/superpowers/journals/measurement-plane/execution/raw/ledger-measurement-green.log@dd6e413df167e4ef822f091f8169d164d7da81e43eb8e40a325f0a77b618b0f3`
+- `docs/superpowers/journals/measurement-plane/execution/raw/atlas-measurement-red.log@ceb576c6180d19f623378650ce2f4a812556544fc65362548747089d2b7d0d3c`
+- `docs/superpowers/journals/measurement-plane/execution/raw/atlas-measurement-green.log@0ade57e64a67c200f40950ee0888f16cf5688c44f1c5d6e6b8255e3b36579af9`
+- `docs/superpowers/journals/measurement-plane/execution/raw/ledger-pipes-red.log@0079f1e6578db5e68e52d326c6c2ec0c58a8d8b60f410857b4c73ba66683c455`
+- `docs/superpowers/journals/measurement-plane/execution/raw/ledger-pipes-green.log@8d2b4163d41fa7f2ac8c40fcce225500f12ea26fd020028b08fb2632c5556d6a`
+- `docs/superpowers/journals/measurement-plane/execution/raw/ledger-companions-green.log@d30295b9c8225d21d491a6956a2da70ad89108c0390f530f673e3894a389069c`
+- `docs/superpowers/journals/measurement-plane/execution/raw/ledger-projection-drift.log@f129a9ba5dba65d5a8845a944b1fd2c04fb5d43e7030f0de6aba4b25e26b1b6e`
+- `docs/superpowers/journals/measurement-plane/baseline/raw/debt-ledger-unit-base.log@c18deb2bcc9a6d2069467e8554cacbcef6ec66c17ab50414bc5d0cddd86e31f1`

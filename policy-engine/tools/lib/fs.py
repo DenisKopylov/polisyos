@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import stat
 import subprocess
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -209,3 +212,107 @@ def atomic_replace_path(
         raise
 
     return backup_path
+
+
+class FileReadMeasurement:
+    """Collect explicit file-reader operations without claiming a process-wide audit."""
+
+    def __init__(self, root: Path) -> None:
+        self.root = root.resolve()
+        self._inputs: list[dict[str, Any]] = []
+
+    def record(self, path: Path, operation: str, **facts: Any) -> None:
+        """Record a completed read, failed attempt, or filesystem presence probe."""
+        try:
+            name = path.relative_to(self.root).as_posix()
+        except ValueError:
+            name = str(path)
+        self._inputs.append({"path": name, "operation": operation, **facts})
+
+    def snapshot(self, *, complete_verdict: bool = True) -> dict[str, Any]:
+        """Return actual operations and the boundary the collector cannot observe."""
+        return {
+            "complete_verdict": complete_verdict,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": list(self._inputs),
+            "unresolved_by_construction": [
+                "Python imports, Git object/ref access, subprocess reads and external services "
+                "are not observed by this explicit file-reader receipt.",
+            ],
+        }
+
+
+_ACTIVE_FILE_READS: ContextVar[FileReadMeasurement | None] = ContextVar(
+    "tool_file_read_measurement",
+    default=None,
+)
+
+
+@contextmanager
+def measure_file_reads(root: Path) -> Iterator[FileReadMeasurement]:
+    """Collect this caller's explicit reads, reusing an enclosing same-root receipt."""
+    existing = _ACTIVE_FILE_READS.get()
+    if existing is not None and existing.root == root.resolve():
+        yield existing
+        return
+    measurement = FileReadMeasurement(root)
+    token = _ACTIVE_FILE_READS.set(measurement)
+    try:
+        yield measurement
+    finally:
+        _ACTIVE_FILE_READS.reset(token)
+
+
+def _record_file_read(path: Path, operation: str, **facts: Any) -> None:
+    measurement = _ACTIVE_FILE_READS.get()
+    if measurement is not None:
+        measurement.record(path, operation, **facts)
+
+
+def measured_read_text(path: Path, *, encoding: str = "utf-8") -> str:
+    """Read text and record success or unreadability; the digest binds decoded text."""
+    try:
+        value = path.read_text(encoding=encoding)
+    except (OSError, UnicodeError) as error:
+        _record_file_read(path, "read_text", status="unreadable", error=type(error).__name__)
+        raise
+    _record_file_read(
+        path,
+        "read_text",
+        status="read",
+        encoding=encoding,
+        characters=len(value),
+        text_sha256=hashlib.sha256(value.encode("utf-8")).hexdigest(),
+    )
+    return value
+
+
+def measured_read_bytes(path: Path) -> bytes:
+    """Read bytes and record the exact content identity or failed attempt."""
+    try:
+        value = path.read_bytes()
+    except OSError as error:
+        _record_file_read(path, "read_bytes", status="unreadable", error=type(error).__name__)
+        raise
+    _record_file_read(
+        path,
+        "read_bytes",
+        status="read",
+        bytes=len(value),
+        sha256=hashlib.sha256(value).hexdigest(),
+    )
+    return value
+
+
+def measured_is_file(path: Path) -> bool:
+    """Probe file presence while keeping access errors distinct from absence."""
+    try:
+        result = stat.S_ISREG(path.stat().st_mode)
+    except (FileNotFoundError, NotADirectoryError):
+        _record_file_read(path, "is_file", status="absent", result=False)
+        return False
+    except OSError as error:
+        _record_file_read(path, "is_file", status="unreadable", error=type(error).__name__)
+        raise
+    _record_file_read(path, "is_file", status="present", result=result)
+    return result

@@ -12,6 +12,8 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common.markdown import split_markdown_table_row
+
 CLAIM_POSTURE_SCHEMA = "policyos.trust.claim_posture_register.v1"
 CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v4"
 CLAIM_POSTURE_SLICE_BASE_REF = "f935e0c2e9359bc1202ce5d36ea706de58f7aaab"
@@ -1859,7 +1861,7 @@ def _validate_custody_appointments(
         digest = "sha256:" + hashlib.sha256(source.source_content.encode("utf-8")).hexdigest()
         if source.content_digest != digest:
             raise ValueError("custody appointment digest differs from admitted source bytes")
-        cells = [cell.strip() for cell in source.source_content.strip().strip("|").split("|")]
+        cells = [cell.strip() for cell in split_markdown_table_row(source.source_content)]
         if len(cells) != 5:
             raise ValueError("custody appointment source row must contain exactly five cells")
         ids = re.findall(r"`([^`]+)`", cells[0])

@@ -18,7 +18,15 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from tools.lib.fs import atomic_write_text
+from polisyos.common.markdown import split_markdown_table_row
+from tools.lib.fs import (
+    FileReadMeasurement,
+    atomic_write_text,
+    measure_file_reads,
+    measured_is_file,
+    measured_read_bytes,
+    measured_read_text,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REGISTER_PATH = Path("docs/plans/active/DEBT-REGISTER.md")
@@ -105,7 +113,8 @@ _Snapshot = namedtuple(
 )
 AuditReport = namedtuple(
     "AuditReport",
-    "findings blocking_findings informational_findings metrics ledger_text",
+    "findings blocking_findings informational_findings metrics ledger_text measurement",
+    defaults=(None,),
 )
 _AstReceipt = namedtuple("_AstReceipt", "path_exists found collection_safe detail")
 _CollectionReceipt = namedtuple(
@@ -243,10 +252,12 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str], list[str], li
                         unlocatable.append(debt_id)
                     else:
                         shifted.append(debt_id)
+        # Keep the historical status recovery observable; use actual cells for content.
+        content_cells = split_markdown_table_row(line)
         owner_index = {"A": 2, "B": 2, "C": 2, "D": 1}.get(section)
         owner = (
-            _plain(cells[owner_index])
-            if owner_index is not None and len(cells) > owner_index
+            _plain(content_cells[owner_index])
+            if owner_index is not None and len(content_cells) > owner_index
             else "—"
         )
         branches = re.findall(r"`(codex/[^`]+)`", line)
@@ -387,7 +398,7 @@ def _plan_inventory(repo_root: Path) -> tuple[set[str], dict[str, str], list[Pat
             paths.append(path)
             found = {f"DS{item}" for item in re.findall(r"(?i)\bDS(\d+)\b", path.name)}
             ids.update(found)
-            head = "\n".join(path.read_text(encoding="utf-8").splitlines()[:30])
+            head = "\n".join(measured_read_text(path, encoding="utf-8").splitlines()[:30])
             branch = re.search(r"(?m)^branch:\s*(\S+)", head)
             status = re.search(r"(?m)^status:\s*(.+)$", head)
             for slice_id in found:
@@ -401,7 +412,7 @@ def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[_ExplicitN
     for path in paths:
         active = False
         table_active = False
-        lines = path.read_text(encoding="utf-8").splitlines()
+        lines = measured_read_text(path, encoding="utf-8").splitlines()
         relative_path = path.relative_to(repo_root).as_posix()
         for line_no, line in enumerate(lines, 1):
             if line == "## Explicit non-closure":
@@ -548,9 +559,9 @@ def _parse_work(text: str, plan_ids: set[str], branches: dict[str, str]) -> list
 
 def _ds5_metrics(repo_root: Path, plan_ids: set[str]) -> tuple[int, int]:
     path = repo_root / "docs/plans/active/atlas-slices/DS5-enforcement-waist.md"
-    if not path.is_file():
+    if not measured_is_file(path):
         return 0, 0
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = measured_read_text(path, encoding="utf-8").splitlines()
     start = next(
         (i for i, line in enumerate(lines) if line.startswith("| Direct-`Badge` debt group |")), -1
     )
@@ -579,12 +590,12 @@ def _branch_state(repo_root: Path, branch: str) -> str:
 
 
 def _snapshot(repo_root: Path) -> _Snapshot:
-    register_text = (repo_root / REGISTER_PATH).read_text(encoding="utf-8")
-    gy_text = (repo_root / GY_PATH).read_text(encoding="utf-8")
-    atlas_text = (repo_root / ATLAS_PATH).read_text(encoding="utf-8")
+    register_text = measured_read_text(repo_root / REGISTER_PATH, encoding="utf-8")
+    gy_text = measured_read_text(repo_root / GY_PATH, encoding="utf-8")
+    atlas_text = measured_read_text(repo_root / ATLAS_PATH, encoding="utf-8")
     debts, irregular, shifted_status, unlocatable_status = _parse_register(register_text)
     plan_ids, branches, paths = _plan_inventory(repo_root)
-    disposition = json.loads((repo_root / DISPOSITION_PATH).read_text(encoding="utf-8"))
+    disposition = json.loads(measured_read_text(repo_root / DISPOSITION_PATH, encoding="utf-8"))
     entries = disposition.get("entries", [])
     assignments = disposition.get("ds8_strangle_coverage", {}).get("assignments", [])
     entry_statuses = Counter(str(row.get("disposition", "untyped")) for row in entries)
@@ -652,7 +663,7 @@ def _branch_link(branch: str | None, states: dict[str, str]) -> str:
 
 def _owner_cells(row: _DebtRow, plan_ids: frozenset[str]) -> tuple[str, str]:
     raw = re.sub(r"(?i)(?:explicitly\s+)?(?:\*\*)?not(?:\*\*)?\s+`[^`]+`", "", row.raw)
-    cells = _cells(raw)
+    cells = split_markdown_table_row(raw)
     subject = cells[1] if len(cells) > 1 else ""
     label = re.search(rf"(?i)reality-bar label:\s*(?:\*\*)?`?({CAPABILITY_PATTERN})", subject)
     stated = re.search(r"(?i)\bstates:\s*([^.;]+)", subject)
@@ -853,8 +864,8 @@ _PYTEST_SELECTED_COUNT_MARKER = "DEBT_CLOSURE_SIGNAL_SELECTED_COUNT="
 
 
 def _active_closure_signal(row: _DebtRow) -> str:
-    cells = _cells(row.raw)
-    signal = cells[-1] if cells else ""
+    cells = split_markdown_table_row(row.raw)
+    signal = cells[-1].strip() if cells else ""
     superseded = signal.upper().find("**CLOSURE SIGNAL SUPERSEDED")
     return signal[superseded:] if superseded >= 0 else signal
 
@@ -967,10 +978,10 @@ def _ast_selector_receipt(repo_root: Path, selector: str) -> _AstReceipt:
             "target is outside the supported test roots or is not test_*.py",
         )
     path = repo_root / relative
-    if not path.is_file():
+    if not measured_is_file(path):
         return _AstReceipt(False, False, True, "file absent")
     try:
-        tree = ast.parse(path.read_text(encoding="utf-8"), filename=path_text)
+        tree = ast.parse(measured_read_text(path, encoding="utf-8"), filename=path_text)
     except (OSError, SyntaxError, UnicodeError) as exc:
         return _AstReceipt(True, None, True, f"AST unavailable: {type(exc).__name__}: {exc}")
     if not separator:
@@ -1074,7 +1085,7 @@ def _repository_import_roots(repo_root: Path) -> frozenset[str]:
         except OSError:
             continue
         for child in children:
-            name = child.stem if child.is_file() and child.suffix == ".py" else child.name
+            name = child.stem if measured_is_file(child) and child.suffix == ".py" else child.name
             if name.isidentifier() and (child.is_dir() or child.suffix == ".py"):
                 roots.add(name)
     return frozenset(roots)
@@ -1097,13 +1108,13 @@ def _collection_environment_issue(repo_root: Path) -> str | None:
     repo_lock = repo_root / "uv.lock"
     prefix = Path(sys.prefix).resolve()
     environment_lock = prefix.parent / "uv.lock" if prefix.name == ".venv" else None
-    if not repo_lock.is_file():
+    if not measured_is_file(repo_lock):
         return "repository uv.lock is absent"
-    if environment_lock is None or not environment_lock.is_file():
+    if environment_lock is None or not measured_is_file(environment_lock):
         return "collector environment is not bound to a project uv.lock"
     try:
-        repo_digest = hashlib.sha256(repo_lock.read_bytes()).digest()
-        environment_digest = hashlib.sha256(environment_lock.read_bytes()).digest()
+        repo_digest = hashlib.sha256(measured_read_bytes(repo_lock)).digest()
+        environment_digest = hashlib.sha256(measured_read_bytes(environment_lock)).digest()
     except OSError as exc:
         return f"collector lock identity unreadable: {exc}"
     if repo_digest != environment_digest:
@@ -1311,7 +1322,40 @@ def _closure_signal_findings(
     return findings, metrics
 
 
+def _measurement_receipt(
+    reads: FileReadMeasurement, *, complete_verdict: bool = True
+) -> dict[str, Any]:
+    receipt = reads.snapshot(complete_verdict=complete_verdict)
+    receipt["selector"] = {
+        "GY_tasks": "task-standing table row grammar; terminal/not-started tasks filtered",
+        "plans": [str(root / "**/*.md") for root in PLAN_ROOTS],
+        "other_sources": "register status/standing, Atlas overview, dispositions and cited selectors",
+    }
+    receipt["unresolved_by_construction"].extend(
+        [
+            "GY §8.6 Done-when rulings and prose completion obligations are not interpreted "
+            "by the §8.5 task-standing projection, even though the GY file bytes were read.",
+            "Atlas master-plan ownership acts are not established by slice-plan filename presence; "
+            "a missing plan is not measured absence of an appointed owner.",
+            "Filesystem-glob selection does not prove completeness of inaccessible or unselected "
+            "documents; runtime exercise and the substance of collected tests are not measured.",
+        ]
+    )
+    return receipt
+
+
 def audit_repository(
+    repo_root: Path = REPO_ROOT,
+    *,
+    _collection_receipts: dict[tuple[Path, tuple[str, ...]], _CollectionReceipt] | None = None,
+) -> AuditReport:
+    """Reconcile selected sources and expose actual reads plus interpretation limits."""
+    with measure_file_reads(repo_root) as reads:
+        report = _audit_repository(repo_root, _collection_receipts=_collection_receipts)
+        return report._replace(measurement=_measurement_receipt(reads))
+
+
+def _audit_repository(
     repo_root: Path = REPO_ROOT,
     *,
     _collection_receipts: dict[tuple[Path, tuple[str, ...]], _CollectionReceipt] | None = None,
@@ -1352,15 +1396,8 @@ def audit_repository(
     )
     findings.extend(closure_findings)
     branch_states = dict(snapshot.branch_states)
-    declared_status_indexes = {"A": 3, "B": 3, "C": 3, "D": 2, "F": 1, "G": 1}
     for row in snapshot.debts:
-        cells = _cells(row.raw)
-        status_index = declared_status_indexes.get(row.section)
-        if (
-            status_index is None
-            or len(cells) <= status_index
-            or _status_token(cells[status_index]) != "open_unmerged"
-        ):
+        if row.status != "open_unmerged":
             continue
         branch = row.branch or ""
         branch_ref = (
@@ -1405,14 +1442,16 @@ def audit_repository(
                     f"{row.debt_id}: {sorted(slices - snapshot.plan_ids)}",
                 )
             )
-    atlas_text = (repo_root / ATLAS_PATH).read_text(encoding="utf-8")
+    atlas_text = measured_read_text(repo_root / ATLAS_PATH, encoding="utf-8")
     for line_no, line in enumerate(atlas_text.splitlines(), 1):
         cells = _cells(line)
         if len(cells) == 4 and re.fullmatch(r"DS\d+", _plain(cells[0])):
             if _slice_state(cells) == "merged":
                 findings.append(Finding("merged_slice_not_closed", f"{_plain(cells[0])}:{line_no}"))
     ledger_path = repo_root / LEDGER_PATH
-    ledger_text = ledger_path.read_text(encoding="utf-8") if ledger_path.is_file() else ""
+    ledger_text = (
+        measured_read_text(ledger_path, encoding="utf-8") if measured_is_file(ledger_path) else ""
+    )
     ledger_debts = _parse_ledger_table(ledger_text, "## Table B — open debts")
     expected_debts = {row.debt_id: row for row in _projected_debts(snapshot)}
     for debt_id in sorted(expected_debts.keys() - ledger_debts.keys()):
@@ -1476,7 +1515,7 @@ def audit_repository(
         elif debt_id is not None and debt_id not in ledger_debts:
             findings.append(Finding("explicit_nonclosure_missing", f"{debt_id}: {path}:{line}"))
     for path, line in FILE_LINE_RE.findall(ledger_text):
-        if not (repo_root / path).is_file():
+        if not measured_is_file(repo_root / path):
             findings.append(Finding("ledger_file_reference_missing", f"{path}:{line}"))
     expected_text = render_ledger(snapshot)
     if ledger_text != expected_text:
@@ -1564,10 +1603,17 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     collection_receipts: dict[tuple[Path, tuple[str, ...]], _CollectionReceipt] = {}
-    report = audit_repository(args.repo_root, _collection_receipts=collection_receipts)
-    if args.write:
-        atomic_write_text(args.repo_root / LEDGER_PATH, report.ledger_text)
-        report = audit_repository(args.repo_root, _collection_receipts=collection_receipts)
+    with measure_file_reads(args.repo_root) as reads:
+        try:
+            report = audit_repository(args.repo_root, _collection_receipts=collection_receipts)
+            if args.write:
+                atomic_write_text(args.repo_root / LEDGER_PATH, report.ledger_text)
+                report = audit_repository(args.repo_root, _collection_receipts=collection_receipts)
+        except (OSError, UnicodeError) as error:
+            print("measurement=" + json.dumps(_measurement_receipt(reads, complete_verdict=False)))
+            print(f"UNRUN: no complete verdict; partial coverage: {type(error).__name__}: {error}")
+            return 2
+    print("measurement=" + json.dumps(report.measurement))
     for key, value in report.metrics.items():
         print(f"{key}={value}")
     if report.blocking_findings:

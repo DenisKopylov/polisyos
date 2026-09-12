@@ -133,3 +133,22 @@ security backlog: generic strict identity check отклоняет mismatch то
 обе identity присутствуют (`core/artifacts/signing.py:639-655`). В этой lane это
 доказывает недостаточность этого API для producer authority; оно не объявлено
 универсальной уязвимостью и unrelated signing source не исправлялся.
+
+
+## Первая guardrails wave: невалидная для clean freeze
+
+`uv run polisyos-tools architecture guardrails check` вернул **`2`**, не `0/1`.
+Инструмент явно сообщил `UNRUN`, потому что OpenAPI generator не завершился:
+`OwnerValidationTimeoutError` для `confidence-ledger-risk-spend` после `184 s`.
+Partial artifact output дополнительно приписал generator изменения journal/spec
+вне assigned scratch. Это **наши параллельные doc writes во время measurement**,
+а не установленная порча от generator. `P41`: не называется inherited.
+Destination — этот журнал, lane verification sequencing; исправление — frozen
+повтор exact guardrails command после прекращения записей. Никакого sync.
+Первый полный output сохранён как `raw/guardrails-check.txt`, SHA-256
+`2d4df1e367d68bb9b3fb4fe0835431c0d0860b8fc942df26205ecdb0adae27b1`.
+
+Реально contended resource теперь установлен: холодный Python import/owner-validation
+subprocess бюджет на общей машине. Final guardrails повторяется после завершения
+ledger и при byte-frozen документах; итоговый receipt дописывается только после
+его выхода. Первая wave не используется как clean verdict.

@@ -318,3 +318,101 @@ EP-F06/07 не объявлены завершёнными и не назван�
 или объявить весь remainder одним appointment. После решения build включает
 provider/orchestration/verifier/configuration/positive projection chain, перечисленный
 в EP-F06, с неизменными исходными negatives.
+
+## Stage 2 — commissioning decision and execution plan
+
+Stage 1 above is preserved verbatim from `7478bc522`. The base of record remains
+`034f30c64`; the following sections supersede its pending execution disposition,
+not its historical findings. User continuation answers **EP-D01**: producer identity
+asserts **canonical execution provenance**, not a separate right to issue. An
+owner-held origin/emission record binds actual canonical execution to the exact
+transition artifact, purpose, query context and independently admitted signing
+profile. Independent admission and exact readback precede the positive wrapper.
+Signer provenance never substitutes. Separate minting authority is withheld and
+is not implemented.
+
+### Stage 2 change contract
+
+- Existing production caller/terminus: registered run-control POST
+  `/decision-validity/epoch-batches` → `ControlPlaneService.admit_epoch_validity_batch`
+  → canonical producer/verification bridge → strict Decision Validity intake →
+  completed batch → existing claim lifecycle and N9 evidence consumers.
+- Preserve every refusal and strict consumer predicate. Empty deployments keep
+  typed-empty authority slots. A configured component cannot grant its own trust.
+- Build all links independent of an unanswered decision. Stop only the precise
+  consumer link whose semantics would have to change; continue other links.
+- No source-side generated sync, institutional appointment, push, or edits to
+  DEBT-REGISTER.md/LEDGER.md. The original Stage 1 findings are append-only.
+- Internal runtime composition is the intended surface; request DTOs remain
+  strict and carry only the existing transition/context handles.
+- Stage 2 tests/gates use main's exact CPython 3.14.0 executable and the frozen
+  dependency basis including `runtime` and `ml`. Gate receipts name the interpreter.
+
+### Stage 2 dependency-ordered work
+
+**Goal:** complete the buildable canonical transition chain while retaining
+institutional absence and all refusal semantics.
+**Architecture:** reuse immutable owner stores, signed exact evidence, existing
+qualification/custody protocols, non-coercive reconciliation and strict batch
+intake. One writer owns each source file. Root integrates the actual run-control
+route; no parallel endpoint or helper-only completion claim is permitted.
+**Tech stack:** typed Python/Pydantic, existing CAS/signing, local durable owner
+indices, existing Runtime/Scientist lifecycle services.
+
+1. **Owner evidence and composition slots.** `chronology_proof.py`,
+   `chronology_qualification.py`, `semantic_epoch.py`, `chronology_custody.py`,
+   focused `epoch_deployment.py`, deployment security/attestation and container
+   composition are owned by the qualification/custody executor. Preserve no-arg
+   absence constructors; configured services capture an admitted deployment-local
+   owner snapshot, never a last-app-wins global. Resolve exact appointment evidence
+   using existing consumers. A new institution can fill supported evidence slots
+   without rewriting those consumers. Native predicates cannot be fabricated.
+2. **Complete input readers and producer/origin.** The producer executor owns
+   `epoch_validity_cascade.py` producer sections, `epoch_transition_origin.py` and
+   `epoch_transition_inputs.py`. Preserve `produce_and_persist(previous_epoch_ref,
+   current_epoch_receipt_ref, requested_query_context_ref, authority_purpose)`.
+   Add owner-held origin admission/readback; independent providers derive full
+   dependency and owner-disposition receipts from canonical persisted sources.
+   No caller-selected list establishes completeness. Root provides the strict
+   Scientist owner snapshot seam; absent producer-issued epoch/recipe bindings
+   remain explicit, never silently replaced by an empty basis.
+3. **Verifier and denominator bridge.** Root owns focused verifier/composition
+   code, `epoch_denominator_reconciliation.py` and
+   `scientist/validation/decision_validity.py`. The verifier resolves the exact
+   signed transition and admitted origin, verifies profile/context/purpose, and
+   derives the existing receipt. Runtime outer digest remains distinct from
+   Scientist impact digest. Compose sidecar production with the existing exact
+   reader; freeze its binding before state writes. Preserve `NoEpochTransitionVerifier`
+   and strict legacy behavior wherever its preconditions still select it.
+4. **Production integration and strict consumers.** Root owns
+   `runtime/http/services/control/run_lifecycle.py`; container coordination is
+   serialized with the composition executor. Resolve canonical owner inputs through
+   the existing route, never accept request-supplied authority. Preserve pre-N9
+   no-policy/no-signer refusals and strict N9/claim lifecycle checks. An independent
+   reader reviews exact consumer assumptions before root edits those branches.
+5. **Verification and delivery.** Before each source slice, add a focused failing
+   behavioral check; then implement and rerun it. Retain original negatives and
+   changed-field/sibling/absence probes. Remove the actual guarded property while
+   preserving markers and require the unchanged negative to expose the removal.
+   Review deltas, freeze writers, run the final targeted set once, and run registered
+   ledger/guardrails each as the sole command in its invocation. Read each clean
+   boundary back from the attached branch after commit.
+
+### Stage 2 pattern pass and acceptance
+
+Relevant patterns: P01/P02/P03 (real producer/bridge/surface), P05/P15/P32/P37
+(authority from independently verified substance), P07/P08 (exact replay and time),
+P29/P31/P33 (structural property and behavioral removal), P34/P35/P41 (bounded
+verification and failure provenance). Found gaps are EP-F06/07: complete providers,
+origin carrier, positive verifier, production composition and exact consumer bridge.
+Initial labels remain `producer_missing`, `bridge_missing`,
+`implemented_but_not_orchestrated` until an exercised production chain closes them.
+
+Acceptance is input condition → canonical producer → exact persisted transition
+and independently admitted origin → strict receipt/reconciliation → durable batch
+and existing lifecycle/API result. Negative acceptance retains no-signature,
+no-profile, no-origin, corrupt/omitted source, wrong-purpose/query, incomplete
+denominator, and absent/stale appointment refusals. Concurrent write surfaces are
+disjoint; Python-heavy checks and final snapshot generation are serialized after
+source freeze. Evidence belongs in the lane's gitignored `raw/`, with complete
+outputs and SHA-256 in appended journal sections. No fixed total is a stop gate.

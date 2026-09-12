@@ -85,3 +85,104 @@ and worker dependency identities and their derived projection/replay addresses. 
 is unchanged. The emitted bytes were copied unchanged from the ignored generator output to the
 registered OpenAPI target. Both client regeneration commands returned **0** with unchanged
 client bytes. This is owner regeneration, not a hand-edited hash or bypass of DS17 validation.
+
+### Terminal result and acceptance boundary
+
+**complete-pending-an-architect-decision** on DS8 scope reconciliation, acceptance of the
+initial-root profile for the DS10/DS11 witnesses, and the separate grounded-performance basis.
+The configured institutional slot remains typed and empty in production by default; its absence
+has not blocked mechanism delivery. There is no claim of an actual first institutional public
+signature. The bounded admission chain is implemented and exercised through the real POST,
+CAS, anonymous GET, viewer and installed custody maintenance. Broader historical epoch admission
+remains `verification_missing` (GPR-I02); real promoted-design performance evidence remains
+`producer_missing`/`semantic_test_missing` in this lane, routed to its existing DS11 debt owner.
+
+The final architecture command returned **0** at source commit
+`98bb5e14dd86f2a0e2e55ae54ee56a1a7e30557a`. It verified generated OpenAPI, shared client, dashboard
+API types and the registered Trust artifact as fresh. Its separate Atlas-retirement-gate message
+is a disclosure of an unrun standalone instrument, not an extra pass; no such pass is claimed.
+No guardrails sync or baseline edit occurred. Source and generated output are frozen; this
+closeout adds only the journal and evidence index.
+
+The registered ledger command returned **0** at `3035fa1619fdc9aff36b3454ec0e098ecc5e6ea5`.
+The later complete explicit-input continuity replay returned **0** at the final source commit:
+every recorded content hash and presence result is unchanged. The independent Git path-set
+comparison and all actual rereads are in `raw/ledger-input-continuity.json`. This is not another
+ledger run or a claim about its unobserved Python imports; the facade/HTTP replay exercises the
+changed imports separately. No registration, closure identity, or selected test file changed
+in the facade/generated-example delta. A second broad collection wave was therefore not used.
+
+The static production-invocation command returned **3**, `UNRESOLVED`/partial: its direct-call
+model does not measure HTTP, dependency injection, deferred callbacks or runtime execution.
+Its absence result cannot be a stop rule for this route. The actual named POST and maintenance
+witnesses establish the implemented chain. No regression was reported within that instrument's
+model; its unread dispatch classes remain unresolved. Route any request to extend that static
+model to the architecture/measurement research backlog, not a second production mechanism.
+
+The constructor-scanner gate remains **1**, with provenance `not_established` under P41, even
+though the exact command also returned 1 at the slice base. The complete input denominator and
+nonempty changed-input intersection prevent an inherited-red claim. Its retained docs-probe
+finding is for architecture-owner adjudication; this lane neither clears it nor claims an
+all-green repository. This does not block the commissioned, bounded build.
+
+Ledger informational findings are routed explicitly: unresolved A11Y countersign, Trust/docs IA
+and scope-adjudication identities remain with their existing named DS11 register rows;
+`DS11-GROUNDED-PERFORMANCE` remains open as above. The unsupported Vitest selector belongs to
+`ds10-lex-pipeline-mutation-boundary` for manual owner adjudication. Pipe-containing register
+row recovery is intentional under `author-measurement-instruments.md` and requires no repair.
+GY source-standing ambiguities remain with the named GY register rows/architect reconciliation.
+No incidental finding has been converted into a register or ledger edit here.
+
+### Replay and returned codes
+
+Commands run from `policy-engine/` unless a receipt states otherwise. `raw/` below is
+`docs/superpowers/journals/governed-public-record/raw/`; every deciding output is retained in full
+and indexed by SHA-256 in [the evidence manifest](governed-public-record/evidence-manifest.md).
+Each mandatory command was the sole shell command in its invocation, with stdout/stderr captured.
+Only named files/nodes were passed to pytest; no directory-wide run occurred.
+
+| Command / exact selection | Returned code and retained output |
+| --- | --- |
+| `uv run polisyos-tools validation check-debt-ledger --check` | **0**, `raw/ledger-final.txt`, frozen implementation; explicit-read continuity later **0**, `raw/ledger-input-continuity.json`. |
+| `uv run polisyos-tools architecture guardrails check` | **0**, `raw/guardrails-closeout.txt`, final source. Earlier **1** owned import/OpenAPI drift in `raw/guardrails-final.txt`; first **2** UNRUN in `raw/guardrails-base.txt`. |
+| `uv run pytest -q --tb=short tests/repo_quality/architecture/test_public_api_facades.py tests/unit/runtime/http/test_public_export.py` | **0**, `raw/facade-http-replay.txt`. Includes both new exact registered closure identities and actual invalid-source/mandate/corruption refusals. |
+| `uv run pytest -q --tb=short tests/unit/runtime/http/test_public_export.py tests/unit/scientist/governance/continuous/test_published_signature_custody.py tests/unit/scientist/governance/continuous/test_governed_public_record_population.py` | **0**, `raw/runtime-codec-replay.txt`, after diagnostic JSON codec repair. |
+| `.venv/bin/python -m pytest tests/unit/scientist/governance/continuous/test_governed_public_record.py -q -o addopts=` | **0**, `raw/owner-final-file.txt`; exact command/wall time in `raw/owner-final-file-receipt.json`. Subsequent facade substitutions are normalized-AST equivalent and independently reviewed. |
+| Legacy integrated HTTP/report/signature/custody selections | **0**, `raw/legacy-integrated-1.txt`; the original signature property-removal sequence is also retained below. The later mixed wave `raw/runtime-final.txt` returned **1**: codec failures were repaired/replayed, constructor-scanner red retained. |
+| `uv run pytest -q --tb=short tests/repo_quality/test_claim_ledger_export_callers.py::test_all_execution_context_constructors_require_same_claim_owner_port` | **1** at base and lane, `raw/context-gate-base.txt` / `raw/context-gate-lane.txt`. Complete denominator/script in `raw/context-gate-denominator.json` / `.py`. |
+| `uv run polisyos-tools validation check-production-invocation --base 034f30c64 --receipt docs/superpowers/journals/governed-public-record/raw/production-invocation.json` | **3**, `raw/production-invocation.txt`; partial static model, no runtime-invocation verdict. |
+| Original report signature removal: `PYTHONPATH=src:. uv run python docs/superpowers/journals/governed-public-record/raw/removal_probe.py` | Test phases **0 → 1 → 0**; wrapper intentionally **1**. `raw/removal-probe.txt` retains actual reads, unchanged-source proof and full failed assertion. |
+| Historical source removal: replay `raw/historical_admission_removal_probe.py` as recorded in that script | Test phases **0 → 1 → 0**, wrapper **0**; `raw/historical-admission-removal-probe-final.txt`. |
+| Mandate signature removal: exact Python `-c` command retained in the first line of `raw/http-mandate-crypto-removal.txt` | Unchanged refusal test **1** after crypto removal (`201 != 409`); baseline **0** in `raw/http-mandate-signature-negative.txt`; final full HTTP replay **0**. Source restored in `finally`. |
+| Genuine/forged epoch witness: `raw/epoch_chain_falsifier.py` against the pre-bound reader | Actual accepted forgery retained in `raw/epoch-chain-before-bound.txt`; final owner tests refuse both genuine and forged later heads. The script is historical evidence, not an expected green on the repaired reader. |
+| `corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/features/runs/routes/PublicDecisionViewerPage.test.tsx src/features/runs/routes/PublicDecisionViewerPage.governed.test.tsx` | **0**, `raw/frontend-final-tests.txt`; ESLint **0**, `raw/frontend-eslint-final.txt`. |
+| `node docs/superpowers/journals/governed-public-record/raw/browser-check.cjs` with local Vite at port 4187 | **0**, `raw/browser-check-scoped-final.txt`; desktop/mobile/unavailable screenshots retained. Synthetic UI transport explicitly bounded; Vite intentionally stopped afterward. |
+| `corepack pnpm --filter @polisyos/runtime-dashboard run typecheck` | **0**, `raw/dashboard-typecheck-replay.txt`; initial generated-name collision **2** retained in `raw/dashboard-typecheck-final.txt`. |
+| `.venv/bin/python -m ruff check` over the changed Python paths | **0**, `raw/ruff-all-touched.txt`, then **0**, `raw/facade-ruff.txt` for the facade delta. |
+| Canonical OpenAPI generator declared in `architecture/generated_artifacts.toml` | **0**, `raw/openapi-facade-frozen.txt`; exact output comparison in `raw/openapi-facade-delta.json` and branch snapshot at final source commit. Failed earlier attempts retained. |
+| `corepack pnpm --filter @polisyos/runtime-api-client run generate` and separate `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api` | Each **0**, `raw/client-facade-generate.txt` / `raw/dashboard-facade-generate.txt`; final generated bytes unchanged. |
+| Public inventory/doc render functions and facade review | **0**, `raw/public-facade-generation.txt` / `raw/facade-review-receipt.json`; no sync call. Expected original review guard failure after root committed was retained, then comparison pinned to the preceding implementation commit. |
+
+The R5 replay remains pinned to base sources. Because the instrument refuses a base/live-byte
+mismatch, replay after implementation against a checkout still at `034f30c64`, using its `--root`
+option; do not interpret the expected mismatch in this edited lane as a new census. The existing
+clean attached integration checkout was the base used for the exact constructor-gate replay.
+R1/R2 and R5 retain their complete denominators and independent cross-checks in the Stage 1
+research documents. Their claims remain historical base claims, not post-implementation counts.
+
+Closure pattern pass: P01/P02/P03 are exercised through the runnable production chain;
+P05/P15/P32 retain exact intake and public authority limits; P29 removal probes detect the
+removed property; P35/P37/P38 bound every measurement to its actual inputs; P40 bounds historical
+epoch verification rather than climbing another repair ladder; P41 prevents a false inherited-red
+handoff. No new pattern-register rule is needed: these findings instantiate existing rules.
+
+Delivery history is append-only: Stage 1 `699ec36c2ddfc602b46f5aaae3711e54af510682`, admission
+`3035fa1619fdc9aff36b3454ec0e098ecc5e6ea5`, facade repair
+`e6a6e56599aedec98776ecf5f436d174ec7d26ab`, generated snapshot
+`98bb5e14dd86f2a0e2e55ae54ee56a1a7e30557a`. Each boundary was committed on the attached lane and
+read back from that branch. The final evidence-only commit is reported in the handoff after its
+own complete branch readback. No push, baseline sync, DEBT-REGISTER.md or LEDGER.md edit.
+
+Final preservation check re-read every Markdown decision file in the complete base-to-Stage1
+change set: each remains byte-identical or has only appended execution content. The receipt is
+`raw/stage1-preservation-readback.json`; the original decision was not rewritten to match the build.

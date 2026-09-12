@@ -35,12 +35,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
+from polisyos.scientist.evidence.claims.export import ClaimExportAudience, ClaimLedgerExport
+from polisyos.scientist.evidence.claims.lifecycle import AppendOnlyClaimLedger
 
 if TYPE_CHECKING:
-    from polisyos.scientist.evidence.claims.export import (
-        ClaimExportAudience,
-        ClaimLedgerExport,
-    )
     from polisyos.scientist.evidence.claims.models import ClaimLedger
     from polisyos.scientist.evidence.claims.owner_events import ClaimSupersessionAuthority
 
@@ -247,6 +245,7 @@ class ClaimLedgerHeadResolutionNonReceipt(_StrictFrozenModel):
         "claim_head_conflict",
         "claim_owner_event_authority_unappointed",
         "claim_owner_event_rejected",
+        "claim_historical_transition_profile_unsupported",
     ]
 
 
@@ -560,6 +559,40 @@ def project_claim_ledger_current_head(
         ):
             raise ValueError("claim_owner_pending_public_projection_bypass")
     return projection
+
+
+class PacketBoundClaimLedgerSnapshot(_StrictFrozenModel):
+    """Private source snapshot resolved by the owner under its current-head lock.
+
+    Raw ledger contents and PUBLIC eligibility remain distinct: this artifact
+    carries the full retained source, including material that cannot be public.
+    Constructing the model does not establish the owner's issuance authority.
+    """
+
+    decision_packet_ref: ArtifactRef
+    decision_packet_content_hash: Digest
+    head: PersistedClaimLedgerHead
+    ledger: AppendOnlyClaimLedger
+    public_export: ClaimLedgerExport
+    current_head_projection: ClaimLedgerCurrentHeadProjection
+
+    @model_validator(mode="after")
+    def _snapshot_views_share_one_source(self) -> PacketBoundClaimLedgerSnapshot:
+        if (
+            self.decision_packet_ref.kind != "scientist.decision_packet"
+            or self.decision_packet_ref.media_type != "application/json"
+            or self.decision_packet_content_hash != str(self.decision_packet_ref.artifact_id)
+            or self.public_export.audience is not ClaimExportAudience.PUBLIC
+            or self.ledger.run_id != self.public_export.run_id
+            or self.current_head_projection
+            != project_claim_ledger_current_head(head=self.head, claim_export=self.public_export)
+            or _raw_content_hash(
+                to_canonical_bytes(self.ledger, canon.CanonSpec(forbid_floats=False))
+            )
+            != self.head.statement.ledger_raw_cas_hash
+        ):
+            raise ValueError("claim_packet_snapshot_source_mismatch")
+        return self
 
 
 class ClaimLedgerHeadReadbackStatement(_StrictFrozenModel):
@@ -1457,12 +1490,12 @@ class _LockedClaimLedgerHeadCAS:
             fcntl.flock(lock_fd, fcntl.LOCK_UN)
             os.close(lock_fd)
 
-    def export_locked(
+    def export_locked[Export](
         self,
         *,
         owner_key: ClaimLedgerOwnerKey,
-        formatter: Callable[[PersistedClaimLedgerHead], ClaimLedgerExport],
-    ) -> ClaimLedgerExport | ClaimLedgerHeadResolutionNonReceipt:
+        formatter: Callable[[PersistedClaimLedgerHead], Export],
+    ) -> Export | ClaimLedgerHeadResolutionNonReceipt:
         """Format one head/pending snapshot under the same lock as pending writes."""
 
         self._root.mkdir(parents=True, exist_ok=True)
@@ -2337,6 +2370,22 @@ class ClaimLedgerOwnerPort(Protocol):
         """Resolve one current root-verified head."""
         ...
 
+    def resolve_current_for_packet(
+        self,
+        *,
+        decision_packet_ref: ArtifactRef,
+    ) -> PacketBoundClaimLedgerSnapshot | ClaimLedgerHeadResolutionNonReceipt:
+        """Resolve complete retained source and PUBLIC eligibility for one packet."""
+        ...
+
+    def verify_historical_packet_snapshot(
+        self,
+        *,
+        snapshot: PacketBoundClaimLedgerSnapshot,
+    ) -> AppendOnlyClaimLedger | ClaimLedgerHeadResolutionNonReceipt:
+        """Reverify immutable source and intrinsic PUBLIC eligibility, not past currentness."""
+        ...
+
     def advance_verified_batch(
         self,
         *,
@@ -2655,6 +2704,30 @@ class UnappointedClaimLedgerOwner:
         return ClaimLedgerHeadResolutionNonReceipt(
             status="not_established",
             code="claim_head_absent",
+        )
+
+    def resolve_current_for_packet(
+        self,
+        *,
+        decision_packet_ref: ArtifactRef,
+    ) -> ClaimLedgerHeadResolutionNonReceipt:
+        """Refuse packet-bound currentness without an appointed Claim owner."""
+        del decision_packet_ref
+        return ClaimLedgerHeadResolutionNonReceipt(
+            status="not_established",
+            code="claim_head_absent",
+        )
+
+    def verify_historical_packet_snapshot(
+        self,
+        *,
+        snapshot: PacketBoundClaimLedgerSnapshot,
+    ) -> ClaimLedgerHeadResolutionNonReceipt:
+        """Refuse historical Claim authority without an appointed source verifier."""
+        del snapshot
+        return ClaimLedgerHeadResolutionNonReceipt(
+            status="not_established",
+            code="claim_head_issuance_unverified",
         )
 
     def advance_verified_batch(
@@ -3549,6 +3622,154 @@ class _RepositoryClaimLedgerOwner:
             return current
         return current
 
+    def resolve_current_for_packet(
+        self,
+        *,
+        decision_packet_ref: ArtifactRef,
+    ) -> PacketBoundClaimLedgerSnapshot | ClaimLedgerHeadResolutionNonReceipt:
+        """Read exact packet-bound source and its audience view under one owner lock."""
+        from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
+        from polisyos.scientist.evidence.claims.export import _format_resolved_claim_ledger
+
+        if self.head_index_root is None or self.issuance_verifier is None:
+            return ClaimLedgerHeadResolutionNonReceipt(
+                status="not_established", code="claim_head_absent"
+            )
+        owner_key = self._resolve_owner_key_for_packet(decision_packet_ref=decision_packet_ref)
+        if isinstance(owner_key, ClaimLedgerHeadResolutionNonReceipt):
+            return owner_key
+
+        def snapshot_locked(current: PersistedClaimLedgerHead) -> PacketBoundClaimLedgerSnapshot:
+            root = _read_profiled_statement(
+                store=self.store,
+                record="claim_ledger_root",
+                ref=current.statement.root_receipt_ref,
+                model=ClaimLedgerRootStatement,
+            )
+            if not isinstance(root, ClaimLedgerRootStatement):
+                raise ValueError("claim_packet_snapshot_root_mismatch")
+            basis = _read_profiled_statement(
+                store=self.store,
+                record="claim_ledger_root_basis",
+                ref=root.basis_ref,
+                model=ClaimLedgerRootBasisStatement,
+            )
+            if (
+                not isinstance(basis, ClaimLedgerRootBasisStatement)
+                or basis.decision_packet_ref != decision_packet_ref
+                or basis.owner_key != current.statement.owner_key
+            ):
+                raise ValueError("claim_packet_snapshot_root_mismatch")
+            ledger = _load_append_only_claim_ledger(
+                self.store, current.statement.ledger_artifact_ref
+            )
+            pending = _resolve_claim_pending_projection(
+                store=self.store, current=current, completed_batches=self.completed_batches
+            )
+            public_export = _format_resolved_claim_ledger(
+                ledger, audience=ClaimExportAudience.PUBLIC, pending_projection=pending
+            )
+            return PacketBoundClaimLedgerSnapshot(
+                decision_packet_ref=decision_packet_ref,
+                decision_packet_content_hash=basis.decision_packet_content_hash,
+                head=current,
+                ledger=ledger,
+                public_export=public_export,
+                current_head_projection=project_claim_ledger_current_head(
+                    head=current, claim_export=public_export
+                ),
+            )
+
+        return self._head_cas().export_locked(owner_key=owner_key, formatter=snapshot_locked)
+
+    def verify_historical_packet_snapshot(
+        self,
+        *,
+        snapshot: PacketBoundClaimLedgerSnapshot,
+    ) -> AppendOnlyClaimLedger | ClaimLedgerHeadResolutionNonReceipt:
+        """Recompute immutable source authority independently of a publisher's snapshot.
+
+        This initial-root profile verifies the retained root/head/ledger and intrinsic Claim and
+        lifecycle visibility. It does not establish that the head was current
+        at a past time or that no pending obligations then existed. No supplied
+        PUBLIC export or currentness assertion participates in this result.
+        """
+        from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
+        from polisyos.scientist.evidence.claims.export import _format_resolved_claim_ledger
+
+        try:
+            if type(snapshot) is not PacketBoundClaimLedgerSnapshot:
+                raise ValueError("claim_historical_snapshot_type_mismatch")
+            statement = _read_profiled_statement(
+                store=self.store,
+                record="claim_ledger_head",
+                ref=snapshot.head.head_ref,
+                model=ClaimLedgerHeadStatement,
+            )
+            if statement != snapshot.head.statement:
+                raise ValueError("claim_historical_head_mismatch")
+            # Epoch bridge artifacts currently receive content joins rather
+            # than independent completed-evidence, mapping and reducer replay.
+            # This reader admits only the initial immutable root until that
+            # transition verifier exists. Existing live consumers are unchanged.
+            if (
+                statement.generation != 0
+                or statement.bridge_result_refs
+                or statement.predecessor_head_ref is not None
+            ):
+                return ClaimLedgerHeadResolutionNonReceipt(
+                    status="rejected",
+                    code="claim_historical_transition_profile_unsupported",
+                )
+            verified = self._verify_closed_head(snapshot.head)
+            if verified is not None:
+                return verified
+            root = _read_profiled_statement(
+                store=self.store,
+                record="claim_ledger_root",
+                ref=snapshot.head.statement.root_receipt_ref,
+                model=ClaimLedgerRootStatement,
+            )
+            if not isinstance(root, ClaimLedgerRootStatement):
+                raise ValueError("claim_historical_root_mismatch")
+            basis = _read_profiled_statement(
+                store=self.store,
+                record="claim_ledger_root_basis",
+                ref=root.basis_ref,
+                model=ClaimLedgerRootBasisStatement,
+            )
+            if (
+                not isinstance(basis, ClaimLedgerRootBasisStatement)
+                or basis.decision_packet_ref != snapshot.decision_packet_ref
+                or basis.decision_packet_content_hash != snapshot.decision_packet_content_hash
+                or basis.owner_key != snapshot.head.statement.owner_key
+            ):
+                raise ValueError("claim_historical_packet_mismatch")
+            ledger = _load_append_only_claim_ledger(
+                self.store, snapshot.head.statement.ledger_artifact_ref
+            )
+            if ledger != snapshot.ledger:
+                raise ValueError("claim_historical_ledger_mismatch")
+            # Evaluate only the formatter's intrinsic ledger/lifecycle rules.
+            # The neutral pending input is a counterfactual evaluation context,
+            # not evidence of historical absence. Its currentness metadata is
+            # deliberately discarded; only the native verified ledger leaves.
+            intrinsic = _format_resolved_claim_ledger(
+                ledger,
+                audience=ClaimExportAudience.PUBLIC,
+                pending_projection=ClaimBridgePendingProjection(
+                    completed_batch_denominator_established=True,
+                ),
+            )
+            if not ledger.current_claims or intrinsic.omitted_claim_ids:
+                raise ValueError("claim_historical_intrinsic_visibility_rejected")
+            return ledger
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return ClaimLedgerHeadResolutionNonReceipt(
+                status="rejected",
+                code="claim_head_content_mismatch",
+            )
+
     def advance_verified_batch(
         self,
         *,
@@ -4185,6 +4406,7 @@ __all__ = [
     "DecisionPacketRootRow",
     "DecisionPacketRootSnapshot",
     "DecisionPacketRootSnapshotStatement",
+    "PacketBoundClaimLedgerSnapshot",
     "PersistedClaimBridgePending",
     "PersistedClaimLedgerHead",
     "PersistedClaimLedgerRoot",

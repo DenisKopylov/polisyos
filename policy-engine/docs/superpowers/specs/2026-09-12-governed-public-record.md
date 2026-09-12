@@ -185,3 +185,47 @@ Append after this decision is committed and read back from the attached branch. 
 scope, deviations, tests, removal probes, gate codes and capability labels without rewriting
 this original architecture decision. A configured synthetic test signer proves mechanism
 behavior, never an actual institutional first promotion or real public population deployment.
+
+## Stage 2 addendum — implemented decision (original Stage 1 retained above)
+
+**GPR-I01 — executable chain.** The named existing authenticated POST now prepares a private
+candidate or invokes the governed owner, while its default remains report-only. The separate
+deployment slot loads explicit publisher and mandate trust. Actual source resolution, total raw
+tree transformation, exact signed mandate, public signature, retained private admission, atomic
+index and verifier readback precede a public locator. Anonymous verification and the viewer
+consume the new strict branch. Installed custody independently reconciles the controlled
+governed inventory, resolves each admission, persists the population and feeds its existing
+maintenance/lifecycle/outbox. Legacy non-null/report markers never acquire admission authority.
+Consumer changes are the explicitly decided independent owner resolution in GPR-A05, not a
+relaxation of an old refusal. Private actual-read receipts survive population scan serialization.
+
+**GPR-I02 — initial-root source bound, P40.** Independent transitive review reproduced a deeper
+member of the source-admission class: a generation-one ledger and its linked bridge result can
+be changed together while retaining a genuine initial root, and the pre-existing historical
+closure check accepts the replacement text. The newly added shared historical source reader
+therefore admits only generation zero with no predecessor or bridge refs, then replays the
+actual root/issuance/packet/ledger closure. It returns
+`claim_historical_transition_profile_unsupported` for later heads. Both a genuine epoch head
+and the constructed replacement are refused; a retained initial root remains verifiable after
+the live head advances. The public limitation names this boundary. No existing live epoch
+consumer is weakened or claimed repaired. Closing the residual requires historical completed
+epoch evidence, dependency mapping and reducer replay at this intake; the constituent helpers
+exist, but that end-to-end historical verifier does not. Route the finding to the Claim-owner
+research backlog and an architect-written row; further members are worked examples of this
+declared limitation, not another repair round. Evidence and replay are in the execution journal.
+
+**GPR-I03 — what remains a decision.** The two DS8 scope reconciliations remain with the
+architect. The distinct actual promoted-design performance producer/estimand is still
+`producer_missing`/`semantic_test_missing` for this lane's chain; the performance closure test
+was not manufactured from custody evidence and the Trust guard stays blocked. The architect
+decides whether the bounded initial-root witnesses satisfy the intended DS10 and DS11 rows;
+the lane supplies executable evidence without editing the register or ledger. No production
+institution was appointed or public signature claimed. Appointment remains configuration plus
+external evidence, never a scheduling blocker for this implemented mechanism.
+
+**GPR-I04 — configuration and generated surfaces.** See
+[configuration and retention](../../how-to/configure-governed-publication.md). The new JSON wire
+type has its own schema name to avoid colliding with the shared client's existing `JsonValue`;
+its strict JSON validation is retained. OpenAPI and clients are regenerated through their
+registered owners. The complete deciding outputs, removal probes, actual gate codes and routed
+incidental findings are recorded in the [execution journal](../journals/governed-public-record.md).

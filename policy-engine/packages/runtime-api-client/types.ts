@@ -1705,11 +1705,11 @@ export interface paths {
         put?: never;
         /**
          * Issue Public Decision Record
-         * @description Redact the persisted run packet, then issue a report about those exact bytes.
+         * @description Resolve an owned run and invoke its explicitly selected publication owner.
          *
          *     The caller selects an owned run, never supplies a document, key or authority
-         *     verdict. The existing public-export producer owns disclosure and projection
-         *     limits; its refusal is propagated before any record or public link is issued.
+         *     verdict. The selected report or governed-record producer owns disclosure and
+         *     admission limits; its refusal precedes every public link.
          */
         post: operations["issue_public_decision_record"];
         delete?: never;
@@ -9102,6 +9102,186 @@ export interface components {
             } | null;
             /** Verdict */
             verdict?: string | null;
+        };
+        GovernedPublicJsonValue: _RuntimeApiRecursiveSchema_GovernedPublicJsonValue;
+        /**
+         * GovernedPublicRecord
+         * @description Public signed subject, containing no private source or authorization refs.
+         */
+        GovernedPublicRecord: {
+            /** Decision Id */
+            decision_id: string;
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /** Issuer Id */
+            issuer_id: string;
+            /** Public Document Digest */
+            public_document_digest: string;
+            /**
+             * Publication Class
+             * @default governed_public_record
+             * @constant
+             */
+            publication_class: "governed_public_record";
+            /**
+             * Purpose
+             * @default governed_public_record
+             * @constant
+             */
+            purpose: "governed_public_record";
+            /** Record Id */
+            record_id: string;
+            /**
+             * Rule Version
+             * @default governed-public-record.v1
+             * @constant
+             */
+            rule_version: "governed-public-record.v1";
+            /**
+             * Schema Version
+             * @default polisyos.governed_public_record.v1
+             * @constant
+             */
+            schema_version: "polisyos.governed_public_record.v1";
+            /** Signing Key Id */
+            signing_key_id: string;
+        };
+        /**
+         * GovernedPublicRecordDimensions
+         * @description Independent PV-K01 components; this profile establishes only two.
+         */
+        GovernedPublicRecordDimensions: {
+            /**
+             * Current Authority
+             * @default not_established
+             * @constant
+             */
+            current_authority: "not_established";
+            /**
+             * Durable Verifiability
+             * @default not_established
+             * @constant
+             */
+            durable_verifiability: "not_established";
+            /**
+             * Issuer Issuance
+             * @default not_established
+             * @enum {string}
+             */
+            issuer_issuance: "established" | "not_established";
+            /**
+             * Projection Faithfulness
+             * @default not_established
+             * @enum {string}
+             */
+            projection_faithfulness: "established" | "not_established";
+            /**
+             * Public Evidence Obtainability
+             * @default not_established
+             * @constant
+             */
+            public_evidence_obtainability: "not_established";
+            /**
+             * Public History Establishment
+             * @default not_established
+             * @constant
+             */
+            public_history_establishment: "not_established";
+            /**
+             * Status Snapshot Selection
+             * @default not_established
+             * @constant
+             */
+            status_snapshot_selection: "not_established";
+        };
+        /**
+         * GovernedPublicRecordIssued
+         * @description Public locator for an independently admitted, retained owner snapshot.
+         */
+        GovernedPublicRecordIssued: {
+            promoted_record: components["schemas"]["GovernedPublicRecord"];
+            /** Public Path */
+            public_path: string;
+            /**
+             * Publication Class
+             * @default governed_public_record
+             * @constant
+             */
+            publication_class: "governed_public_record";
+            /** Record Id */
+            record_id: string;
+        };
+        /**
+         * GovernedPublicRecordPrepared
+         * @description Private review material for a future external institutional signature.
+         */
+        GovernedPublicRecordPrepared: {
+            candidate_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Public Document */
+            public_document: {
+                [key: string]: components["schemas"]["PublicDecisionJsonValue"];
+            };
+            /** Public Document Digest */
+            public_document_digest: string;
+            /**
+             * Publication Class
+             * @default governed_public_record_candidate
+             * @constant
+             */
+            publication_class: "governed_public_record_candidate";
+        };
+        /**
+         * GovernedPublicRecordVerificationResponse
+         * @description Distinct positive wire branch; failed verification exposes no content.
+         */
+        GovernedPublicRecordVerificationResponse: {
+            /**
+             * Cryptographic Signature
+             * @default not_established
+             * @enum {string}
+             */
+            cryptographic_signature: "valid" | "invalid" | "not_established";
+            /** Decision Id */
+            decision_id?: string | null;
+            dimensions?: components["schemas"]["GovernedPublicRecordDimensions"];
+            /** Issued At */
+            issued_at?: string | null;
+            /** Issuer Id */
+            issuer_id?: string | null;
+            promoted_record?: components["schemas"]["GovernedPublicRecord"] | null;
+            /** Public Document */
+            public_document?: {
+                [key: string]: components["schemas"]["GovernedPublicJsonValue"];
+            } | null;
+            /** Public Document Digest */
+            public_document_digest?: string | null;
+            /**
+             * Publication Class
+             * @default governed_public_record
+             * @constant
+             */
+            publication_class: "governed_public_record";
+            /**
+             * Reason Codes
+             * @default []
+             */
+            reason_codes: string[];
+            /** Record Id */
+            record_id: string;
+            /**
+             * Report Authentication
+             * @enum {string}
+             */
+            report_authentication: "verified" | "invalid" | "not_established";
+            /**
+             * Report Key Status
+             * @default not_established
+             * @enum {string}
+             */
+            report_key_status: "trusted" | "revoked" | "untrusted" | "not_established";
         };
         /**
          * GuardedProjectionId
@@ -23012,7 +23192,7 @@ export interface operations {
                      *       "report_key_status": "not_established"
                      *     }
                      */
-                    "application/json": components["schemas"]["PublicDecisionVerificationResponse"];
+                    "application/json": components["schemas"]["PublicDecisionVerificationResponse"] | components["schemas"]["GovernedPublicRecordVerificationResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -25279,7 +25459,9 @@ export interface operations {
     };
     issue_public_decision_record: {
         parameters: {
-            query?: never;
+            query?: {
+                publication_class?: "verification_report_only" | "governed_public_record" | "governed_public_record_candidate";
+            };
             header?: never;
             path: {
                 run_id: string;
@@ -25301,7 +25483,7 @@ export interface operations {
                      *       "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                      *     }
                      */
-                    "application/json": components["schemas"]["PublicDecisionVerificationIssued"];
+                    "application/json": components["schemas"]["PublicDecisionVerificationIssued"] | components["schemas"]["GovernedPublicRecordIssued"] | components["schemas"]["GovernedPublicRecordPrepared"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -26427,6 +26609,10 @@ type _RuntimeApiRecursiveSchema_BureaucraticBlock = {
             /** Title */
             title?: string | null;
         };
+
+type _RuntimeApiRecursiveSchema_GovernedPublicJsonValue = string | number | boolean | _RuntimeApiRecursiveSchema_GovernedPublicJsonValue[] | {
+            [key: string]: _RuntimeApiRecursiveSchema_GovernedPublicJsonValue;
+        } | null;
 
 type _RuntimeApiRecursiveSchema_PublicDecisionJsonValue = string | number | boolean | _RuntimeApiRecursiveSchema_PublicDecisionJsonValue[] | {
             [key: string]: _RuntimeApiRecursiveSchema_PublicDecisionJsonValue;

@@ -18041,6 +18041,358 @@
         "title": "GovernanceDebugView",
         "type": "object"
       },
+      "GovernedPublicJsonValue": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "items": {
+              "$ref": "#/components/schemas/GovernedPublicJsonValue"
+            },
+            "type": "array"
+          },
+          {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/GovernedPublicJsonValue"
+            },
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "GovernedPublicRecord": {
+        "additionalProperties": false,
+        "description": "Public signed subject, containing no private source or authorization refs.",
+        "properties": {
+          "decision_id": {
+            "minLength": 1,
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "issued_at": {
+            "format": "date-time",
+            "title": "Issued At",
+            "type": "string"
+          },
+          "issuer_id": {
+            "minLength": 1,
+            "title": "Issuer Id",
+            "type": "string"
+          },
+          "public_document_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Public Document Digest",
+            "type": "string"
+          },
+          "publication_class": {
+            "const": "governed_public_record",
+            "default": "governed_public_record",
+            "title": "Publication Class",
+            "type": "string"
+          },
+          "purpose": {
+            "const": "governed_public_record",
+            "default": "governed_public_record",
+            "title": "Purpose",
+            "type": "string"
+          },
+          "record_id": {
+            "pattern": "^gpr_[A-Za-z0-9_-]{32}$",
+            "title": "Record Id",
+            "type": "string"
+          },
+          "rule_version": {
+            "const": "governed-public-record.v1",
+            "default": "governed-public-record.v1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.governed_public_record.v1",
+            "default": "polisyos.governed_public_record.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "signing_key_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Signing Key Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_id",
+          "decision_id",
+          "issuer_id",
+          "signing_key_id",
+          "issued_at",
+          "public_document_digest"
+        ],
+        "title": "GovernedPublicRecord",
+        "type": "object"
+      },
+      "GovernedPublicRecordDimensions": {
+        "additionalProperties": false,
+        "description": "Independent PV-K01 components; this profile establishes only two.",
+        "properties": {
+          "current_authority": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Current Authority",
+            "type": "string"
+          },
+          "durable_verifiability": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Durable Verifiability",
+            "type": "string"
+          },
+          "issuer_issuance": {
+            "default": "not_established",
+            "enum": [
+              "established",
+              "not_established"
+            ],
+            "title": "Issuer Issuance",
+            "type": "string"
+          },
+          "projection_faithfulness": {
+            "default": "not_established",
+            "enum": [
+              "established",
+              "not_established"
+            ],
+            "title": "Projection Faithfulness",
+            "type": "string"
+          },
+          "public_evidence_obtainability": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Public Evidence Obtainability",
+            "type": "string"
+          },
+          "public_history_establishment": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Public History Establishment",
+            "type": "string"
+          },
+          "status_snapshot_selection": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Status Snapshot Selection",
+            "type": "string"
+          }
+        },
+        "title": "GovernedPublicRecordDimensions",
+        "type": "object"
+      },
+      "GovernedPublicRecordIssued": {
+        "additionalProperties": false,
+        "description": "Public locator for an independently admitted, retained owner snapshot.",
+        "properties": {
+          "promoted_record": {
+            "$ref": "#/components/schemas/GovernedPublicRecord"
+          },
+          "public_path": {
+            "title": "Public Path",
+            "type": "string"
+          },
+          "publication_class": {
+            "const": "governed_public_record",
+            "default": "governed_public_record",
+            "title": "Publication Class",
+            "type": "string"
+          },
+          "record_id": {
+            "title": "Record Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_id",
+          "public_path",
+          "promoted_record"
+        ],
+        "title": "GovernedPublicRecordIssued",
+        "type": "object"
+      },
+      "GovernedPublicRecordPrepared": {
+        "additionalProperties": false,
+        "description": "Private review material for a future external institutional signature.",
+        "properties": {
+          "candidate_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "public_document": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PublicDecisionJsonValue"
+            },
+            "title": "Public Document",
+            "type": "object"
+          },
+          "public_document_digest": {
+            "title": "Public Document Digest",
+            "type": "string"
+          },
+          "publication_class": {
+            "const": "governed_public_record_candidate",
+            "default": "governed_public_record_candidate",
+            "title": "Publication Class",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_ref",
+          "public_document",
+          "public_document_digest"
+        ],
+        "title": "GovernedPublicRecordPrepared",
+        "type": "object"
+      },
+      "GovernedPublicRecordVerificationResponse": {
+        "additionalProperties": false,
+        "description": "Distinct positive wire branch; failed verification exposes no content.",
+        "properties": {
+          "cryptographic_signature": {
+            "default": "not_established",
+            "enum": [
+              "valid",
+              "invalid",
+              "not_established"
+            ],
+            "title": "Cryptographic Signature",
+            "type": "string"
+          },
+          "decision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Id"
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/GovernedPublicRecordDimensions"
+          },
+          "issued_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued At"
+          },
+          "issuer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issuer Id"
+          },
+          "promoted_record": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GovernedPublicRecord"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "public_document": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/GovernedPublicJsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public Document"
+          },
+          "public_document_digest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public Document Digest"
+          },
+          "publication_class": {
+            "const": "governed_public_record",
+            "default": "governed_public_record",
+            "title": "Publication Class",
+            "type": "string"
+          },
+          "reason_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "record_id": {
+            "title": "Record Id",
+            "type": "string"
+          },
+          "report_authentication": {
+            "enum": [
+              "verified",
+              "invalid",
+              "not_established"
+            ],
+            "title": "Report Authentication",
+            "type": "string"
+          },
+          "report_key_status": {
+            "default": "not_established",
+            "enum": [
+              "trusted",
+              "revoked",
+              "untrusted",
+              "not_established"
+            ],
+            "title": "Report Key Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_id",
+          "report_authentication"
+        ],
+        "title": "GovernedPublicRecordVerificationResponse",
+        "type": "object"
+      },
       "GuardedProjectionId": {
         "description": "Source-only governed IDs that have no generic dynamic HTTP emission.",
         "enum": [
@@ -56004,18 +56356,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:91ddd6fbc4d637709b0430548d2d70c0e108f0478c9f84c50897f96a5ea4dd71",
+                      "projection_hash": "sha256:7b4255f6571cd60f13f4377abb17c4dbcf4a9f75d8ff8529e663bf59cc653026",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A91ddd6fbc4d637709b0430548d2d70c0e108f0478c9f84c50897f96a5ea4dd71&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Acf9b2d79edcbd50ae5999c359c7e84ed37116d79ced53d56e0bed3760e50b772",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A7b4255f6571cd60f13f4377abb17c4dbcf4a9f75d8ff8529e663bf59cc653026&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A510fdfefb13ffb1df28d6a605e4eef3f9a1390e528c1f04e46f809e9159e4330",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:91ddd6fbc4d637709b0430548d2d70c0e108f0478c9f84c50897f96a5ea4dd71",
+                        "projection_hash": "sha256:7b4255f6571cd60f13f4377abb17c4dbcf4a9f75d8ff8529e663bf59cc653026",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:cf9b2d79edcbd50ae5999c359c7e84ed37116d79ced53d56e0bed3760e50b772"
+                        "source_dependency_hash": "sha256:510fdfefb13ffb1df28d6a605e4eef3f9a1390e528c1f04e46f809e9159e4330"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -56024,8 +56376,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:cf9b2d79edcbd50ae5999c359c7e84ed37116d79ced53d56e0bed3760e50b772",
-                          "bound_dependency_count": 6432,
+                          "bound_dependency_aggregate_identity": "sha256:510fdfefb13ffb1df28d6a605e4eef3f9a1390e528c1f04e46f809e9159e4330",
+                          "bound_dependency_count": 6437,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -56040,16 +56392,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:5fed07c70c140eeb4447bb9aeb3dd97c53e168b5378737dc4d75add1a347f4ae"
+                          "worker_validation_receipt_hash": "sha256:1de4f10471c3dbeb881634ba91b9cccf368337ccae720852e5648e4f5e11d443"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:cf9b2d79edcbd50ae5999c359c7e84ed37116d79ced53d56e0bed3760e50b772",
+                      "source_dependency_hash": "sha256:510fdfefb13ffb1df28d6a605e4eef3f9a1390e528c1f04e46f809e9159e4330",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:5fed07c70c140eeb4447bb9aeb3dd97c53e168b5378737dc4d75add1a347f4ae",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:5fed07c70c140eeb4447bb9aeb3dd97c53e168b5378737dc4d75add1a347f4ae"
+                      "worker_validation_receipt_hash": "sha256:1de4f10471c3dbeb881634ba91b9cccf368337ccae720852e5648e4f5e11d443",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:1de4f10471c3dbeb881634ba91b9cccf368337ccae720852e5648e4f5e11d443"
                     }
                   }
                 },
@@ -62346,7 +62698,15 @@
                   "report_key_status": "not_established"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/PublicDecisionVerificationResponse"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PublicDecisionVerificationResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GovernedPublicRecordVerificationResponse"
+                    }
+                  ],
+                  "title": "Response Verify Public Decision Record"
                 }
               }
             },
@@ -72070,7 +72430,7 @@
     },
     "/api/v1/runs/{run_id}/public-verification-record": {
       "post": {
-        "description": "Redact the persisted run packet, then issue a report about those exact bytes.\n\nThe caller selects an owned run, never supplies a document, key or authority\nverdict. The existing public-export producer owns disclosure and projection\nlimits; its refusal is propagated before any record or public link is issued.",
+        "description": "Resolve an owned run and invoke its explicitly selected publication owner.\n\nThe caller selects an owned run, never supplies a document, key or authority\nverdict. The selected report or governed-record producer owns disclosure and\nadmission limits; its refusal precedes every public link.",
         "operationId": "issue_public_decision_record",
         "parameters": [
           {
@@ -72079,6 +72439,21 @@
             "required": true,
             "schema": {
               "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "publication_class",
+            "required": false,
+            "schema": {
+              "default": "verification_report_only",
+              "enum": [
+                "verification_report_only",
+                "governed_public_record",
+                "governed_public_record_candidate"
+              ],
+              "title": "Publication Class",
               "type": "string"
             }
           }
@@ -72093,7 +72468,18 @@
                   "record_id": "pvr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/PublicDecisionVerificationIssued"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PublicDecisionVerificationIssued"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GovernedPublicRecordIssued"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GovernedPublicRecordPrepared"
+                    }
+                  ],
+                  "title": "Response Issue Public Decision Record"
                 }
               }
             },

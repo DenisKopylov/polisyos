@@ -63,3 +63,15 @@ findings, never a clean base pass. All complete deciding/removal output goes in 
 tracked documents cite path@commit, raw evidence path+SHA256. No copied full tracked artifacts.
 Any absence instrument touched must report actual inputs and unread boundary classes in every
 supported output mode. No implicit zero for unreadable inputs.
+
+## Stage 2 execution addendum
+
+Stage 1 was committed as `699ec36c2ddfc602b46f5aaae3711e54af510682` and all eight decision files
+were read back from the attached commissioned branch before source edits. Steps 2–7 implement
+the original plan with the bounded initial-root refinement GPR-I02. Source and UI review found
+and repaired concrete classes before the deciding wave; execution, gate triage and delivery
+readback live in [the journal](../journals/governed-public-record.md). Mandatory companions are
+this plan, the preserved decision/addendum, the execution journal, release fragment, parent
+README, configuration guide, generated clients and semantic tests. No mechanism path cap was
+commissioned. Browser validation alone used port 4187 and synthetic frontend responses; the
+separate HTTP witnesses used real configured owner/CAS/maintenance composition.

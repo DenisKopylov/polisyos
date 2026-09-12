@@ -836,6 +836,24 @@ export type GovernanceDebugResponse =
 export type GovernanceDebugView =
   RuntimeApiComponents["schemas"]["GovernanceDebugView"];
 
+export type GovernedPublicJsonValue =
+  RuntimeApiComponents["schemas"]["GovernedPublicJsonValue"];
+
+export type GovernedPublicRecord =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecord"];
+
+export type GovernedPublicRecordDimensions =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordDimensions"];
+
+export type GovernedPublicRecordIssued =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordIssued"];
+
+export type GovernedPublicRecordPrepared =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordPrepared"];
+
+export type GovernedPublicRecordVerificationResponse =
+  RuntimeApiComponents["schemas"]["GovernedPublicRecordVerificationResponse"];
+
 export type GuardedProjectionId =
   RuntimeApiComponents["schemas"]["GuardedProjectionId"];
 
@@ -2607,18 +2625,18 @@ export class RuntimeApiClient {
 
   async verifyPublicDecisionRecord(params: {
     record_id: string;
-  }): Promise<PublicDecisionVerificationResponse> {
+  }): Promise<
+    | PublicDecisionVerificationResponse
+    | GovernedPublicRecordVerificationResponse
+  > {
     const path = `/api/v1/public-decisions/verification`;
     const query = this.buildQuery({
       record_id: params.record_id,
     });
-    return this.request<PublicDecisionVerificationResponse>(
-      "GET",
-      path,
-      query,
-      undefined,
-      undefined,
-    );
+    return this.request<
+      | PublicDecisionVerificationResponse
+      | GovernedPublicRecordVerificationResponse
+    >("GET", path, query, undefined, undefined);
   }
 
   async listRuns(params: {

@@ -15,6 +15,7 @@ before or after decision publication.
 - Pass registry and pipeline semantics: [`pass_registry.py`](pass_registry.py), [`pass_entrypoints.py`](pass_entrypoints.py), and [`pipeline.py`](pipeline.py)
 - Builtin pass implementations: [`passes/`](passes/)
 - Continuous governance lifecycle: [`continuous/`](continuous/)
+- Governed public admission: [`continuous/governed_public_record.py`](continuous/governed_public_record.py) resolves an exact Claim-owner snapshot and a separately signed institutional mandate. Its empty production appointment refuses issuance; [`continuous/published_signature_custody.py`](continuous/published_signature_custody.py) independently resolves admitted records before accepting the controlled population. Configuration and limits: [publication runbook](../../../../docs/how-to/configure-governed-publication.md).
 - Human review and oversight: [`human_review/`](human_review/)
 - Calibration and accountability surfaces: [`calibration.py`](calibration.py), [`calibration_validation.py`](calibration_validation.py), [`calibration_leaderboard.py`](calibration_leaderboard.py), [`accountability.py`](accountability.py), and [`stress_scenarios.py`](stress_scenarios.py)
 

@@ -3142,6 +3142,67 @@ export type GovernanceDebugView = {
   verdict?: string | null;
 };
 
+export type GovernedPublicJsonValue = string | number | boolean | Array<GovernedPublicJsonValue> | {
+  [key: string]: GovernedPublicJsonValue;
+} | null;
+
+export type GovernedPublicRecord = {
+  decision_id: string;
+  issued_at: string;
+  issuer_id: string;
+  public_document_digest: string;
+  publication_class?: string;
+  purpose?: string;
+  record_id: string;
+  rule_version?: string;
+  schema_version?: string;
+  signing_key_id: string;
+};
+
+export type GovernedPublicRecordDimensions = {
+  current_authority?: string;
+  durable_verifiability?: string;
+  issuer_issuance?: "established" | "not_established";
+  projection_faithfulness?: "established" | "not_established";
+  public_evidence_obtainability?: string;
+  public_history_establishment?: string;
+  status_snapshot_selection?: string;
+};
+
+export type GovernedPublicRecordIssued = {
+  promoted_record: GovernedPublicRecord;
+  public_path: string;
+  publication_class?: string;
+  record_id: string;
+};
+
+export type GovernedPublicRecordPrepared = {
+  candidate_ref: ArtifactRefOutput;
+  public_document: {
+  [key: string]: PublicDecisionJsonValue;
+};
+  public_document_digest: string;
+  publication_class?: string;
+};
+
+export type GovernedPublicRecordVerificationResponse = {
+  cryptographic_signature?: "valid" | "invalid" | "not_established";
+  decision_id?: string | null;
+  dimensions?: GovernedPublicRecordDimensions;
+  issued_at?: string | null;
+  issuer_id?: string | null;
+  promoted_record?: GovernedPublicRecord | null;
+  public_document?: {
+  [key: string]: GovernedPublicJsonValue;
+} | null;
+  public_document_digest?: string | null;
+  publication_class?: string;
+  reason_codes?: Array<string>;
+  record_id: string;
+  report_authentication: "verified" | "invalid" | "not_established";
+  report_key_status?: "trusted" | "revoked" | "untrusted" | "not_established";
+};
+
 export type GuardedProjectionId = "confidence-ledger-risk-spend";
 
 export type HTTPValidationError = {
@@ -6719,12 +6780,12 @@ export class RuntimeApiClient {
 
   async verifyPublicDecisionRecord(params: {
     record_id: string;
-  }): Promise<PublicDecisionVerificationResponse> {
+  }): Promise<PublicDecisionVerificationResponse | GovernedPublicRecordVerificationResponse> {
     const path = `/api/v1/public-decisions/verification`;
     const query = this.buildQuery({
       record_id: params.record_id,
     });
-    return this.request<PublicDecisionVerificationResponse>("GET", path, query, undefined, undefined);
+    return this.request<PublicDecisionVerificationResponse | GovernedPublicRecordVerificationResponse>("GET", path, query, undefined, undefined);
   }
 
   async listRuns(params: {

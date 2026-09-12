@@ -1841,3 +1841,51 @@ def test_debt_register_publishes_both_lifecycle_tables() -> None:
     )
     assert "### Debt lifecycle" in register
     assert "observed → registered → owned → executable → closed" in register
+
+
+def test_measurement_reports_actual_reads_and_uninterpreted_gy_ruling(
+    tmp_path: Path, capsys: object,
+) -> None:
+    checker = _checker()
+    repo = _fixture(
+        tmp_path,
+        gy="# GY\n## 8.6 Rulings\nDone when the runtime receipt proves execution.\n",
+        plans={"docs/superpowers/plans/arbitrary-new-plan.md": "# Additional plan\n"},
+        ledger=_ledger(),
+    )
+    unseen = repo / "docs/superpowers/specs/not-an-input.md"
+    unseen.parent.mkdir(parents=True)
+    unseen.write_text("This document appoints an owner.\n")
+    report = checker.audit_repository(repo)
+    receipt = report.measurement
+    reads = {row["path"] for row in receipt["inputs"] if row["operation"] == "read_text"}
+    assert checker.GY_PATH.as_posix() in reads
+    assert "docs/superpowers/plans/arbitrary-new-plan.md" in reads
+    assert "docs/superpowers/specs/not-an-input.md" not in reads
+    assert any("GY §8.6" in boundary for boundary in receipt["unresolved_by_construction"])
+    assert checker._parse_gy_tasks((repo / checker.GY_PATH).read_text()) == []
+    assert "ledger_missing_id" in {finding.code for finding in report.blocking_findings}
+    assert checker.main(["--check", "--repo-root", str(repo)]) == 1
+    output = capsys.readouterr().out
+    printed = json.loads(next(line.removeprefix("measurement=") for line in output.splitlines()
+                              if line.startswith("measurement=")))
+    assert printed["inputs"] == receipt["inputs"]
+    assert printed["unresolved_by_construction"] == receipt["unresolved_by_construction"]
+
+
+def test_measurement_read_failure_is_unrun_with_partial_inputs(
+    tmp_path: Path, capsys: object,
+) -> None:
+    checker = _checker()
+    repo = _fixture(tmp_path)
+    (repo / checker.GY_PATH).unlink()
+    assert checker.main(["--check", "--repo-root", str(repo)]) == 2
+    output = capsys.readouterr().out
+    receipt = json.loads(next(line.removeprefix("measurement=") for line in output.splitlines()
+                              if line.startswith("measurement=")))
+    assert receipt["complete_verdict"] is False
+    assert any(row["path"] == checker.GY_PATH.as_posix() and row["status"] == "unreadable"
+               for row in receipt["inputs"])
+    assert any(row["path"] == checker.REGISTER_PATH.as_posix() and row["status"] == "read"
+               for row in receipt["inputs"])
+    assert "UNRUN" in output

@@ -1,6 +1,6 @@
 ---
 title: Absence requires a declared measurement boundary
-status: research-in-progress
+status: decision-pending-population-readback
 owner: team-devx / team-architecture
 may_not_use_for:
   - capability closure outside the measured source boundary
@@ -97,3 +97,36 @@ defect: file-open/status/acknowledgement knowledge was overstated as interpretat
 or allocation. Target: bounded diagnostic plus explicit nonmeasurement. Before
 execution, report enrichment is `surface_missing` / `semantic_test_missing`.
 The population survey and its exact follow-up routing are required before repair.
+
+## Implementation contract for the committed decision
+
+Reuse `tools/lib/fs.py` for a context-local read receipt. The two production
+callers above enter a measurement context; their direct file reads and presence
+probes record path, operation and success/result as they occur. Failed attempts
+are distinct from successful reads. The context is not a filesystem audit of
+Python imports, Git, pytest children or external services, and says so explicitly.
+The same path can be read more than once; operation records are not a claim of
+unique business evidence. This extends the existing tooling helper owner rather
+than adding a new module or runtime dependency.
+
+Ledger `AuditReport.measurement` is additive with a default for existing tuple
+constructors. CLI stdout prints its JSON before findings; a read failure prints
+`UNRUN` with partial read coverage and exits 2 instead of producing a complete
+absence verdict. Original complete audits retain their 0/1 exits and all existing
+status, collection and render predicates. An unavailable optional file is recorded
+as a presence probe, not as a file whose bytes were read.
+
+Atlas keeps `list[str]` for callers and accepts an optional measurement destination.
+Its production caller publishes that receipt on both successful and failed checks.
+The receipt separately enumerates selected slice plans, excluded documents and
+unreadable/invalid candidates. Schema/manifest loading and tracked-plan enumeration
+are declared inputs; supplied in-memory manifest values are labelled as such.
+A malformed tracked candidate is no longer silently dropped: the run fails with
+an explicit input-unresolved finding. No absence of a slice-plan acknowledgement
+is allowed to settle the master plan's institutional ownership acts.
+
+The standing rule governs authoring and review across the surveyed population.
+This change does not claim to retrofit every historical instrument from one generic
+tracer: imports, child processes and semantic interpretation cannot be recovered by
+recording `Path.read_text` calls. The population handback must distinguish compliant,
+partial and undisclosed members and route the remaining migration by owner.

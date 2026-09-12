@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import tomllib
 import uuid
 from pathlib import Path
 
@@ -266,7 +267,8 @@ def test_unified_tools_entry_point_is_packaged() -> None:
     pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     assert 'polisyos-tools = "tools.cli:main"' in pyproject
     assert "click>=8.1.7" in pyproject
-    assert 'packages = ["src/polisyos", "tools"]' in pyproject
+    hatch = tomllib.loads((REPO_ROOT / "hatch.toml").read_text(encoding="utf-8"))
+    assert hatch["build"]["targets"]["wheel"]["packages"] == ["src/polisyos", "tools"]
 
 
 def test_required_tools_readmes_exist() -> None:

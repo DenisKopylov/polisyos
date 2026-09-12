@@ -27,6 +27,7 @@ archive_path = Path(sys.argv[2])
 include_paths = [
     "policy-engine/README.md",
     "policy-engine/pyproject.toml",
+    "policy-engine/hatch.toml",
     "policy-engine/uv.lock",
     "policy-engine/src",
     "policy-engine/tools",

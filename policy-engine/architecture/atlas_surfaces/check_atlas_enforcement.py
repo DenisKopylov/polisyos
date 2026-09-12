@@ -23,6 +23,8 @@ from typing import Any, Literal, NamedTuple
 
 import yaml
 
+from tools.lib.fs import measure_file_reads, measured_read_text
+
 ATLAS_DIR = Path(__file__).resolve().parent
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 DISPOSITION_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
@@ -3287,20 +3289,77 @@ def _tracked_atlas_plan_paths() -> tuple[Path, ...]:
 
 def _yaml_frontmatter(path: Path) -> Mapping[str, Any] | None:
     """Parse one complete YAML frontmatter block, if the Markdown document has one."""
-    source = path.read_text(encoding="utf-8")
+    source = measured_read_text(path, encoding="utf-8")
     match = re.match(
         r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", source, re.DOTALL
     )
     if match is None:
+        if re.match(r"\A---[ \t]*\r?\n", source):
+            raise ValueError("unterminated YAML frontmatter")
         return None
     parsed = yaml.safe_load(match.group(1))
-    return parsed if isinstance(parsed, Mapping) else None
+    if not isinstance(parsed, Mapping):
+        raise ValueError("frontmatter is not a mapping")
+    return parsed
 
 
 def validate_slice_scope_obligations(
     *,
     manifest: Mapping[str, Any] | None = None,
     plan_paths: Sequence[Path] | None = None,
+    measurement: dict[str, Any] | None = None,
+) -> list[str]:
+    """Validate admitted acknowledgements and disclose the unmeasured ownership plane."""
+    scope: dict[str, Any] = {
+        "selector": ("complete YAML frontmatter with exact type: slice-plan "
+                     "and manifest target slice"),
+        "manifest_input": "supplied_mapping"
+        if manifest is not None
+        else str(SLICE_SCOPE_OBLIGATIONS_PATH),
+        "plan_enumeration": "supplied_paths"
+        if plan_paths is not None
+        else "git ls-files docs/plans; *.md",
+        "candidate_count": None,
+        "selected_plans": [],
+        "excluded_plans": [],
+        "unresolved_inputs": [],
+        "plan_selection_complete": False,
+        "delegated_schema_input": str(SLICE_SCOPE_OBLIGATIONS_SCHEMA_PATH),
+    }
+    complete = False
+    with measure_file_reads(status_checker.REPO_ROOT) as reads:
+        try:
+            errors = _validate_slice_scope_obligations(
+                manifest=manifest,
+                plan_paths=plan_paths,
+                measurement=scope,
+            )
+            complete = True
+            return errors
+        finally:
+            receipt = reads.snapshot(complete_verdict=complete)
+            receipt.update(scope)
+            receipt["unresolved_by_construction"].extend(
+                [
+                    "Atlas master-plan ownership acts and document-body completion rulings are not "
+                    "interpreted; no selected slice plan is not measured absence of an owner.",
+                    "Invalid or unreadable frontmatter remains unresolved; validation of admitted "
+                    "acknowledgements does not establish complete plan-selection coverage.",
+                    "Schema-helper reads are delegated to "
+                    "status_checker._schema_errors and are "
+                    "not captured here; delegated_schema_input is a declared path, "
+                    "not a read receipt.",
+                ]
+            )
+            if measurement is not None:
+                measurement.update(receipt)
+
+
+def _validate_slice_scope_obligations(
+    *,
+    manifest: Mapping[str, Any] | None = None,
+    plan_paths: Sequence[Path] | None = None,
+    measurement: dict[str, Any],
 ) -> list[str]:
     """Require target slice plans to declare the manifest-owned DS8 residual inputs.
 
@@ -3308,7 +3367,9 @@ def validate_slice_scope_obligations(
     only and never treats the declaration as closure or implementation evidence.
     """
     actual_manifest = dict(
-        manifest or status_checker._load_json(SLICE_SCOPE_OBLIGATIONS_PATH)
+        manifest
+        if manifest is not None
+        else json.loads(measured_read_text(SLICE_SCOPE_OBLIGATIONS_PATH))
     )
     errors = status_checker._schema_errors(
         actual_manifest,
@@ -3322,19 +3383,52 @@ def validate_slice_scope_obligations(
     target_plans: dict[str, list[tuple[Path, Mapping[str, Any]]]] = {
         slice_id: [] for slice_id in target_slices
     }
-    for path in plan_paths if plan_paths is not None else _tracked_atlas_plan_paths():
+    candidates = tuple(plan_paths) if plan_paths is not None else _tracked_atlas_plan_paths()
+    measurement["candidate_count"] = len(candidates)
+    for path in candidates:
         try:
             frontmatter = _yaml_frontmatter(path)
-        except (OSError, yaml.YAMLError):
-            # A malformed non-slice document cannot establish that one of the
-            # target plans exists; target absence deliberately remains open.
+        except (OSError, UnicodeError, yaml.YAMLError, ValueError) as error:
+            measurement["unresolved_inputs"].append(
+                {
+                    "path": str(path),
+                    "class": "unresolved_by_construction",
+                    "reason": f"frontmatter_unreadable_or_invalid:{type(error).__name__}",
+                }
+            )
             continue
         if frontmatter is None or frontmatter.get("type") != "slice-plan":
+            measurement["excluded_plans"].append(
+                {
+                    "path": str(path),
+                    "reason": "frontmatter_type_not_slice_plan",
+                }
+            )
             continue
         slice_id = frontmatter.get("slice")
-        if slice_id in target_plans:
+        if not isinstance(slice_id, str):
+            measurement["unresolved_inputs"].append(
+                {
+                    "path": str(path),
+                    "class": "unresolved_by_construction",
+                    "reason": "slice_identity_not_a_string",
+                }
+            )
+        elif slice_id in target_plans:
+            measurement["selected_plans"].append(str(path))
             target_plans[slice_id].append((path, frontmatter))
+        else:
+            measurement["excluded_plans"].append(
+                {
+                    "path": str(path),
+                    "reason": "slice_outside_manifest_targets",
+                }
+            )
 
+    measurement["plan_selection_complete"] = not measurement["unresolved_inputs"]
+    measurement["targets_without_selected_plan"] = [
+        slice_id for slice_id, plans in target_plans.items() if not plans
+    ]
     required_set = set(required_inputs)
     for slice_id, plans in target_plans.items():
         if len(plans) > 1:
@@ -3411,7 +3505,9 @@ def validate_enforcement(
         )
     )
     if source_overrides is None:
-        scope_obligation_errors = validate_slice_scope_obligations()
+        scope_measurement: dict[str, Any] = {}
+        scope_obligation_errors = validate_slice_scope_obligations(measurement=scope_measurement)
+        scan["sliceScopeMeasurement"] = scope_measurement
         scan["sliceScopeObligationErrors"] = scope_obligation_errors
         errors.extend(scope_obligation_errors)
         errors.extend(_authz_default_allow_errors(scan))
@@ -4582,7 +4678,7 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def _run_main(argv: Sequence[str] | None, scope_measurement: dict[str, Any]) -> int:
     """Run the retained-core checker and optional corruption witnesses."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
@@ -4590,6 +4686,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--write-query-cache-policy-register", action="store_true")
     args = parser.parse_args(argv)
     errors, scan = validate_enforcement()
+    scope_measurement.update(scan.get("sliceScopeMeasurement", {
+        "unresolved_by_construction": ["Scope receipt unavailable from enforcement producer"],
+    }))
     if args.write_query_cache_policy_register:
         try:
             _write_query_cache_policy_register(scan)
@@ -4614,6 +4713,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     summary["architecture_recurrence"] = architecture_receipt
     print(json.dumps(summary, indent=2, sort_keys=True))
     return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run enforcement and retain partial read evidence for any aborted deciding run."""
+    scope: dict[str, Any] = {}
+    with measure_file_reads(status_checker.REPO_ROOT) as reads:
+        try:
+            code = _run_main(argv, scope)
+        except Exception as error:  # An aborted producer has no complete verdict.
+            scope.update(reads.snapshot(complete_verdict=False))
+            scope["unresolved_by_construction"].append(
+                "Atlas plan selection and ownership are unresolved because enforcement "
+                "did not produce a complete verdict; other delegated reads are not observed."
+            )
+            sys.stdout.write(f"UNRUN: partial coverage; {type(error).__name__}: {error}\n")
+            code = 2
+    sys.stdout.write("slice_scope_measurement=" + json.dumps(scope) + "\n")
+    return code
 
 
 if __name__ == "__main__":

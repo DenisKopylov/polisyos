@@ -22,6 +22,7 @@ from typing import Literal
 
 import yaml
 
+from polisyos.common.markdown import split_markdown_table_row
 from polisyos.scientist.evidence.claims.posture import (
     CUSTODY_APPOINTMENT_CONTRACT,
     CUSTODY_APPOINTMENT_DEBT_IDS,
@@ -63,6 +64,14 @@ from polisyos.scientist.evidence.claims.posture import (
     canonical_register_bytes,
     derive_admitted_verifiers,
     validate_posture_register,
+)
+from tools.lib.fs import (
+    FileReadMeasurement,
+    measure_file_reads,
+    measured_is_dir,
+    measured_is_file,
+    measured_read_bytes,
+    measured_read_text,
 )
 from tools.quality.validation.trust_claim_posture_sources import (
     compile_source_claim_bindings,
@@ -132,47 +141,53 @@ class CustodyAppointment:
 def derive_token_sources(repo_root: Path) -> SourceDerivation:
     """Independently derive and bind authority/denial candidates with tokenize."""
     root = repo_root.resolve()
-    source_root = (root / "src").resolve()
-    if not source_root.is_dir() or not source_root.is_relative_to(root):
-        raise ValueError("repo_root/src must be a contained directory")
-    members: list[AdmittedSourceMember] = []
-    rows: list[SourceInventoryRow] = []
-    denied_raw_members: list[AdmittedSourceMember] = []
-    denied_only_sites: list[LiteralSite] = []
-    for candidate in sorted(source_root.rglob("*.py"), key=lambda item: item.as_posix()):
-        path = candidate.resolve()
-        if not path.is_file() or not path.is_relative_to(source_root):
-            continue
-        if "__pycache__" in path.parts:
-            continue
-        raw = path.read_bytes()
-        raw.decode("utf-8")
-        member = AdmittedSourceMember(
-            path=path.relative_to(root).as_posix(),
-            content_digest="sha256:" + hashlib.sha256(raw).hexdigest(),
-        )
-        members.append(member)
-        if _DENIED_FIELD.encode() in raw:
-            denied_raw_members.append(member)
-        if _AUTHORITY_FIELD.encode() in raw:
-            rows.append(_derive_token_row(member, raw))
-        elif _DENIED_FIELD.encode() in raw:
-            denied_only_sites.extend(_derive_token_row(member, raw).forbidden_sites)
-    ordered_rows = tuple(sorted(rows, key=lambda row: row.path))
-    candidate_paths = {row.path for row in ordered_rows} | {
-        member.path for member in denied_raw_members
-    }
-    admitted = tuple(member for member in members if member.path in candidate_paths)
-    return SourceDerivation(
-        admitted_sources=admitted,
-        rows=ordered_rows,
-        receipt=_token_receipt(
-            scanned_python_count=len(admitted),
+    with measure_file_reads(root) as reads:
+        source_root = (root / "src").resolve()
+        present = measured_is_dir(source_root)
+        if not present or not source_root.is_relative_to(root):
+            raise ValueError("repo_root/src must be a contained directory")
+        members: list[AdmittedSourceMember] = []
+        rows: list[SourceInventoryRow] = []
+        denied_raw_members: list[AdmittedSourceMember] = []
+        denied_only_sites: list[LiteralSite] = []
+        candidates = sorted(source_root.rglob("*.py"), key=lambda item: item.as_posix())
+        reads.record(source_root, "rglob", status="enumerated", pattern="*.py", candidate_count=len(candidates))
+        for candidate in candidates:
+            path = candidate.resolve()
+            if not measured_is_file(path) or not path.is_relative_to(source_root):
+                reads.record(candidate, "source_selection", status="excluded", reason="non-file or outside contained src")
+                continue
+            if "__pycache__" in path.parts:
+                reads.record(candidate, "source_selection", status="excluded", reason="__pycache__")
+                continue
+            raw = measured_read_bytes(path)
+            raw.decode("utf-8")
+            member = AdmittedSourceMember(
+                path=path.relative_to(root).as_posix(),
+                content_digest="sha256:" + hashlib.sha256(raw).hexdigest(),
+            )
+            members.append(member)
+            if _DENIED_FIELD.encode() in raw:
+                denied_raw_members.append(member)
+            if _AUTHORITY_FIELD.encode() in raw:
+                rows.append(_derive_token_row(member, raw))
+            elif _DENIED_FIELD.encode() in raw:
+                denied_only_sites.extend(_derive_token_row(member, raw).forbidden_sites)
+        ordered_rows = tuple(sorted(rows, key=lambda row: row.path))
+        candidate_paths = {row.path for row in ordered_rows} | {
+            member.path for member in denied_raw_members
+        }
+        admitted = tuple(member for member in members if member.path in candidate_paths)
+        return SourceDerivation(
+            admitted_sources=admitted,
             rows=ordered_rows,
-            denied_raw_members=denied_raw_members,
-            denied_only_sites=denied_only_sites,
-        ),
-    )
+            receipt=_token_receipt(
+                scanned_python_count=len(admitted),
+                rows=ordered_rows,
+                denied_raw_members=denied_raw_members,
+                denied_only_sites=denied_only_sites,
+            ),
+        )
 
 
 def reconcile_source_derivations(
@@ -265,9 +280,9 @@ def reconcile_source_derivations(
 def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
     """Derive and content-bind the complete ratified anti-role paragraph twice."""
     path = (repo_root.resolve() / _IDENTITY_PATH).resolve()
-    if not path.is_relative_to(repo_root.resolve()) or not path.is_file():
+    if not path.is_relative_to(repo_root.resolve()) or not measured_is_file(path):
         raise ValueError("ratified identity document is missing or outside repo_root")
-    raw = path.read_bytes()
+    raw = measured_read_bytes(path)
     text = raw.decode("utf-8")
     frontmatter, body = _split_frontmatter(text)
     metadata = yaml.safe_load(frontmatter)
@@ -374,21 +389,23 @@ def derive_custody_appointments(
     """Derive the three accepted custody appointments from admitted debt rows."""
     root = repo_root.resolve()
     path = (root / _DEBT_REGISTER_PATH).resolve()
-    if not path.is_file() or not path.is_relative_to(root):
+    if not measured_is_file(path) or not path.is_relative_to(root):
         raise ValueError("custody appointment debt source is missing or outside repo_root")
-    raw = path.read_bytes()
+    raw = measured_read_bytes(path)
     required_ids = set(CUSTODY_APPOINTMENT_DEBT_IDS)
     found: dict[str, CustodyAppointment] = {}
     for line_number, raw_line in enumerate(raw.splitlines(), 1):
         line = raw_line.decode("utf-8")
         if not line.startswith("|"):
             continue
-        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
-        if len(cells) != 5:
-            continue
+        cells = [cell.strip() for cell in split_markdown_table_row(line)]
         ids = re.findall(r"`([^`]+)`", cells[0])
-        if len(ids) != 1 or ids[0] not in required_ids:
+        if not required_ids.intersection(ids):
             continue
+        if len(cells) != 5:
+            raise ValueError("custody appointment source row must contain exactly five cells")
+        if len(ids) != 1:
+            raise ValueError("custody appointment source row must name exactly one accepted ID")
         debt_id = ids[0]
         if debt_id in found:
             raise ValueError(f"custody appointment {debt_id} is duplicated")
@@ -435,9 +452,9 @@ def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBindi
     """Resolve the strict accessibility projection index against complete body bytes."""
     root = repo_root.resolve()
     path = (root / _A11Y_PATH).resolve()
-    if not path.is_file() or not path.is_relative_to(root):
+    if not measured_is_file(path) or not path.is_relative_to(root):
         raise ValueError("accessibility document is missing or outside repo_root")
-    raw = path.read_bytes()
+    raw = measured_read_bytes(path)
     text = raw.decode("utf-8")
     frontmatter, body = _split_frontmatter(text)
     loaded = yaml.safe_load(frontmatter)
@@ -509,10 +526,10 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
         Path("run-1/results.json"),
     )
     files = tuple((receipt_root / item).resolve() for item in expected)
-    if any(not item.is_file() or not item.is_relative_to(receipt_root) for item in files):
+    if any(not measured_is_file(item) or not item.is_relative_to(receipt_root) for item in files):
         raise ValueError("page-a11y receipt must contain all five admitted files")
     raw_by_name = {
-        name.as_posix(): path.read_bytes() for name, path in zip(expected, files, strict=True)
+        name.as_posix(): measured_read_bytes(path) for name, path in zip(expected, files, strict=True)
     }
     admitted = tuple(
         AdmittedSourceMember(
@@ -1176,8 +1193,8 @@ def compile_claim_posture_register(
 ) -> tuple[ClaimPostureRegisterV1, bytes]:
     """Compile, reconcile, assemble, validate, and canonically serialize live sources."""
     root = repo_root.resolve()
-    ast_result = derive_ast_sources(root)
     token_result = derive_token_sources(root)
+    ast_result = derive_ast_sources(root)
     reconciled = reconcile_source_derivations(ast_result, token_result)
     identity = derive_identity_boundary(root)
     custody_appointments = derive_custody_appointments(root)
@@ -1189,7 +1206,7 @@ def compile_claim_posture_register(
     accessibility_document = None
     accessibility_members: tuple[AdmittedSourceMember, ...] = ()
     accessibility_path = root / _A11Y_PATH
-    if accessibility_path.is_file() and accessibility_path.read_bytes().startswith(b"---\n"):
+    if measured_is_file(accessibility_path) and measured_read_bytes(accessibility_path).startswith(b"---\n"):
         accessibility_document = derive_accessibility_document(root)
         accessibility_members = (
             AdmittedSourceMember(
@@ -1199,7 +1216,8 @@ def compile_claim_posture_register(
         )
     page_receipt = None
     page_members: tuple[AdmittedSourceMember, ...] = ()
-    if (root / _PAGE_RECEIPT_PATH).is_dir():
+    page_present = measured_is_dir(root / _PAGE_RECEIPT_PATH)
+    if page_present:
         page_receipt = derive_page_a11y_receipt(root)
         page_members = page_receipt.admitted_sources
     semantic_bindings = _compile_semantic_bindings(
@@ -1262,7 +1280,7 @@ def validate_generated_family(repo_root: Path) -> GeneratedFamilyBinding:
 
     root = repo_root.resolve()
     manifest = (root / _GENERATED_MANIFEST_PATH).resolve()
-    if not manifest.is_file() or not manifest.is_relative_to(root):
+    if not measured_is_file(manifest) or not manifest.is_relative_to(root):
         raise ValueError("generated-artifact manifest is missing or outside repo_root")
     families = guardrails._parse_generated_artifacts(manifest)
     matches = [item for item in families if item.family_id == "trust-claim-posture-register"]
@@ -1384,16 +1402,16 @@ def run_generated_family_output_probe(
         )
 
     observed = tuple(
-        sorted(path.relative_to(output).as_posix() for path in output.rglob("*") if path.is_file())
+        sorted(path.relative_to(output).as_posix() for path in output.rglob("*") if measured_is_file(path))
     )
     if observed != family.outputs:
         raise ValueError("generated-family output probe differs from declared outputs")
     for relative in observed:
         expected = repo / relative
         candidate = output / relative
-        if not expected.is_file():
+        if not measured_is_file(expected):
             raise ValueError(f"generated-family committed artifact is missing: {relative}")
-        if candidate.read_bytes() != expected.read_bytes():
+        if measured_read_bytes(candidate) != measured_read_bytes(expected):
             raise ValueError(f"generated-family output differs from committed artifact: {relative}")
     return observed
 
@@ -1561,9 +1579,9 @@ def _bounded_filesystem_snapshot(root: Path) -> dict[str, str]:
             continue
         if path.is_symlink():
             snapshot[relative.as_posix()] = "link:" + os.readlink(path)
-        elif path.is_file():
+        elif measured_is_file(path):
             snapshot[relative.as_posix()] = (
-                "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+                "sha256:" + hashlib.sha256(measured_read_bytes(path)).hexdigest()
             )
     return snapshot
 
@@ -1747,7 +1765,7 @@ def _source_digest_rebinding_is_rejected(
         basis_root=repo_root,
     )
     identity = repo / _IDENTITY_PATH
-    text = identity.read_text(encoding="utf-8")
+    text = measured_read_text(identity, encoding="utf-8")
     changed = text.replace("across the whole life of a", "throughout the whole life of a", 1)
     if changed == text:
         return False
@@ -1770,7 +1788,7 @@ def _body_fact_removal_is_rejected(repo_root: Path, scratch: Path) -> bool:
     target = repo / _A11Y_PATH
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source, target)
-    text = target.read_text(encoding="utf-8")
+    text = measured_read_text(target, encoding="utf-8")
     boundary = text.find("\n---\n", 4)
     if boundary < 0:
         return False
@@ -1798,7 +1816,7 @@ def _anti_role_mutation_is_rejected(
         basis_root=repo_root,
     )
     identity = repo / _IDENTITY_PATH
-    text = identity.read_text(encoding="utf-8")
+    text = measured_read_text(identity, encoding="utf-8")
     changed = text.replace(fragment, "", 1)
     if changed == text:
         return False
@@ -2789,6 +2807,38 @@ def _report(register: ClaimPostureRegisterV1) -> dict[str, object]:
     }
 
 
+def _measurement_receipt(
+    reads: FileReadMeasurement, *, complete_verdict: bool
+) -> dict[str, object]:
+    receipt = reads.snapshot(complete_verdict=complete_verdict)
+    receipt["finding_coverage"] = (
+        "complete declared check over selected schema/source and evidence bindings"
+        if complete_verdict else "partial coverage; deciding run UNRUN"
+    )
+    receipt["source_python_read_count"] = len({
+        item["path"] for item in receipt["inputs"]
+        if item["operation"] == "read_bytes" and item["status"] == "read"
+        and item["path"].startswith("src/") and item["path"].endswith(".py")
+    })
+    receipt["selectors"] = {
+        "source": "contained src/**/*.py regular files, excluding __pycache__; case-sensitive authoritative_for/may_not_use_for byte candidates, then AST/tokenize reconciliation",
+        "custody_path": _DEBT_REGISTER_PATH.as_posix(),
+        "custody_ids": list(CUSTODY_APPOINTMENT_DEBT_IDS),
+        "custody_rows": "lines beginning | whose tokenized first cell names an accepted ID; exactly five cells and one ID required",
+        "identity": _IDENTITY_PATH.as_posix(),
+        "accessibility": _A11Y_PATH.as_posix() + " if present with frontmatter",
+        "page_receipt": _PAGE_RECEIPT_PATH.as_posix() + " if directory present; five fixed JSON members",
+    }
+    receipt["unresolved_by_construction"].extend([
+        "schema_and_evidence_only: this is a declared schema/source and evidence-binding check; runtime execution, external evidence truth, whole-tree capability completeness and current certification remain undecided.",
+        "unselected_authority_documents: documents outside the named identity/accessibility/page-receipt/custody selectors cannot establish or refute this verdict; their authority claims remain undecided.",
+        "unselected_custody_rows: the register is read as bytes, but only appointed IDs are interpreted; other rows and sections do not receive a custody verdict.",
+        "source_discovery: the current filesystem src/**/*.py selector is not a tracked whole-repository denominator; excluded paths, other languages, unsupported/dynamic semantics and inaccessible traversal remain unresolved.",
+        "delegated_reads: AST derivation reads in trust_claim_posture_sources, guardrails manifest/reference readers and shutil copies are not operation-instrumented here; successful token-walk reads bind this receipt's Python inputs, not the delegated operations.",
+    ])
+    return receipt
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the deterministic C01 no-writer check or bounded writer seam."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -2805,51 +2855,64 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--corruption-probes", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
-    register, payload = compile_claim_posture_register(
-        args.repo_root,
-        register_as_of=args.register_as_of,
-    )
-    report = _report(register)
-    if args.write:
-        target_root = (args.output_root or args.repo_root).resolve()
-        target = write_claim_posture_register(register, output_root=target_root)
-        report["declared_outputs"] = [_OUTPUT_PATH.as_posix()]
-        report["write_set"] = [target.relative_to(target_root).as_posix()]
-        if args.write_generated_reference:
-            reference = write_generated_reference(args.repo_root, output_root=target_root)
-            report["write_set"].append(reference.relative_to(target_root).as_posix())
-    elif args.check:
-        target = args.repo_root.resolve() / _OUTPUT_PATH
-        if not target.is_file() or target.read_bytes() != payload:
-            raise ValueError("DS11-GENERATED-DRIFT")
-    elif args.corrupt_field_drift_check and not run_corruption_probe(
-        "extra_field", repo_root=args.repo_root, register_as_of=args.register_as_of
-    ):
-        raise ValueError("corruption probe did not reject the artifact")
-    elif args.check_a11y_receipt:
-        derive_page_a11y_receipt(args.repo_root)
-    if args.corruption_probes:
-        if not args.check:
-            parser.error("--corruption-probes requires --check")
-        corruption = run_corruption_probes(
-            repo_root=args.repo_root,
-            register_as_of=args.register_as_of,
-        )
-        report["corruption_probes"] = corruption
-        if (
-            corruption["probe_count"] != len(_CORRUPTION_REASON_CODES)
-            or corruption["rejected_count"] != len(_CORRUPTION_REASON_CODES)
-            or corruption["scratch_escape_count"] != 0
-        ):
-            raise ValueError("DS11 corruption probe wave escaped its semantic boundary")
-    if args.write_generated_reference and not args.write:
-        parser.error("--write-generated-reference requires --write")
-    if args.json:
-        json.dump(report, sys.stdout, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        sys.stdout.write("\n")
-    else:
-        print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
+    report: dict[str, object] = {"verdict": "UNRUN"}
+    with measure_file_reads(args.repo_root) as reads:
+        try:
+            register, payload = compile_claim_posture_register(
+                args.repo_root,
+                register_as_of=args.register_as_of,
+            )
+            report = _report(register)
+            if args.write:
+                target_root = (args.output_root or args.repo_root).resolve()
+                target = write_claim_posture_register(register, output_root=target_root)
+                report["declared_outputs"] = [_OUTPUT_PATH.as_posix()]
+                report["write_set"] = [target.relative_to(target_root).as_posix()]
+                if args.write_generated_reference:
+                    reference = write_generated_reference(args.repo_root, output_root=target_root)
+                    report["write_set"].append(reference.relative_to(target_root).as_posix())
+            elif args.check:
+                target = args.repo_root.resolve() / _OUTPUT_PATH
+                if not measured_is_file(target) or measured_read_bytes(target) != payload:
+                    raise ValueError("DS11-GENERATED-DRIFT")
+            elif args.corrupt_field_drift_check and not run_corruption_probe(
+                "extra_field", repo_root=args.repo_root, register_as_of=args.register_as_of
+            ):
+                raise ValueError("corruption probe did not reject the artifact")
+            elif args.check_a11y_receipt:
+                derive_page_a11y_receipt(args.repo_root)
+            if args.corruption_probes:
+                if not args.check:
+                    parser.error("--corruption-probes requires --check")
+                corruption = run_corruption_probes(
+                    repo_root=args.repo_root,
+                    register_as_of=args.register_as_of,
+                )
+                report["corruption_probes"] = corruption
+                if (
+                    corruption["probe_count"] != len(_CORRUPTION_REASON_CODES)
+                    or corruption["rejected_count"] != len(_CORRUPTION_REASON_CODES)
+                    or corruption["scratch_escape_count"] != 0
+                ):
+                    raise ValueError("DS11 corruption probe wave escaped its semantic boundary")
+            if args.write_generated_reference and not args.write:
+                parser.error("--write-generated-reference requires --write")
+            report["verdict"] = "PASS"
+        except (OSError, ValueError, SyntaxError) as error:
+            report["verdict"] = "UNRUN"
+            report["error"] = f"{type(error).__name__}: {error}"
+            raise
+        finally:
+            report["measurement"] = _measurement_receipt(
+                reads, complete_verdict=report.get("verdict") == "PASS"
+            )
+            if args.json:
+                json.dump(report, sys.stdout, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+                sys.stdout.write("\n")
+            else:
+                print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
     return 0
+
 
 
 if __name__ == "__main__":

@@ -721,3 +721,115 @@ describe("trust posture artifact admission", watchdog, () => {
     },
   );
 });
+
+const markdownVectors = JSON.parse(
+  readFileSync(
+    resolve(
+      process.cwd(),
+      "../../tests/fixtures/common/markdown_table_rows.json",
+    ),
+    "utf8",
+  ),
+) as { custody_subjects: string[]; malformed_subjects: string[] };
+
+function custodyWithSubject(subject: string): MutableArtifact {
+  const candidate = structuredClone(artifactValue) as MutableArtifact;
+  const custody = candidate.claims.find(
+    (claim) => claim.subject === "universal_custody_commitment",
+  )!;
+  for (const [
+    index,
+    source,
+  ] of candidate.custody_appointment_sources.entries()) {
+    const binding = custody.source_bindings[index]!;
+    source.source_content = `| \`${source.debt_id}\` | ${subject} | \`${binding.owner.owner}\` | \`${source.status}\` | \`${binding.closure_signal}\` |`;
+    source.content_digest = sha256(source.source_content);
+    binding.owner.source_ref = `${source.path}#${source.debt_id}@${source.content_digest}`;
+  }
+  return recomputeDigests(candidate);
+}
+
+function rebindCustodySource(candidate: MutableArtifact): MutableArtifact {
+  const source = candidate.custody_appointment_sources[0]!;
+  source.content_digest = sha256(source.source_content);
+  const custody = candidate.claims.find(
+    (claim) => claim.subject === "universal_custody_commitment",
+  )!;
+  custody.source_bindings[0]!.owner.source_ref = `${source.path}#${source.debt_id}@${source.content_digest}`;
+  return recomputeDigests(candidate);
+}
+
+describe("custody Markdown row admission", watchdog, () => {
+  it.each(markdownVectors.custody_subjects)(
+    "preserves byte-bound source with subject %s",
+    async (subject) => {
+      const candidate = custodyWithSubject(subject);
+      const before = structuredClone(candidate);
+      expect((await loadCandidate(candidate)).status).toBe("available");
+      expect(candidate).toEqual(before);
+    },
+  );
+
+  it.each(markdownVectors.malformed_subjects)(
+    "rejects unprotected delimiters in subject %s",
+    async (subject) => {
+      expect((await loadCandidate(custodyWithSubject(subject))).status).toBe(
+        "unavailable",
+      );
+    },
+  );
+
+  it.each([
+    "digest",
+    "id",
+    "owner",
+    "status",
+    "command",
+    "empty_owner",
+    "extra_cell",
+    "duplicate_id",
+  ])("preserves the %s rejection after tokenization", async (mutation) => {
+    const candidate = custodyWithSubject("``left`|right``");
+    const source = candidate.custody_appointment_sources[0]!;
+    if (mutation === "digest") {
+      source.source_content += " ";
+      recomputeDigests(candidate);
+    } else {
+      if (mutation === "id") {
+        source.source_content = source.source_content.replace(
+          source.debt_id,
+          "NOT-APPOINTED",
+        );
+      } else if (mutation === "duplicate_id") {
+        source.source_content = source.source_content.replace(
+          `\`${source.debt_id}\``,
+          `\`${source.debt_id}\` \`${source.debt_id}\``,
+        );
+      } else if (mutation === "owner") {
+        source.source_content = source.source_content.replace(
+          "`team-scientist`",
+          "`team-fabricated`",
+        );
+      } else if (mutation === "empty_owner") {
+        source.source_content = source.source_content.replace(
+          "`team-scientist`",
+          "",
+        );
+      } else if (mutation === "status") {
+        source.source_content = source.source_content.replace(
+          `\`${source.status}\``,
+          "`unsupported`",
+        );
+      } else if (mutation === "command") {
+        source.source_content = source.source_content.replace(
+          "uv run pytest ",
+          "python forged.py ",
+        );
+      } else {
+        source.source_content += " forbidden |";
+      }
+      rebindCustodySource(candidate);
+    }
+    expect((await loadCandidate(candidate)).status).toBe("unavailable");
+  });
+});

@@ -331,6 +331,8 @@ plans, or backlog docs.
 
 ## Maintenance Rules
 
+- P35/P38 instrument rule: every absence verdict carries actual input operations, selection boundaries and named `unresolved_by_construction` classes. Follow [the author contract](../how-to/author-measurement-instruments.md); prove outside-selector evidence stays unresolved and the original failure still fails. Register cells are tokenized before column roles are assigned.
+
 - Do not add a new enum, gate, artifact family, or public projection without checking P01, P03, P04, P05, P09, P10, and P13.
 - Before writing a mechanism, every decision document must name its non-test production caller and runnable terminus, or the named caller task and reason for deferral (P01/P02). An import, a test caller, or another uninvoked helper does not close the chain. For mechanism deltas run `python -m polisyos.runtime.quality.production_invocation --base <lane-base> --receipt <gitignored-raw-path>`; its source-derived static paths are diagnostics, while a wired claim additionally requires a real run, persisted readback and an unchanged-negative call-removal probe.
 - Do not create a new module, type, engine, gate, planner, or fixture under a slice/plan name without checking P27: confirm no canonical owner already holds the concept, and prefer extending the owner over a parallel file.

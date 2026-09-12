@@ -66,6 +66,7 @@ allowed_root_loose_files = [
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
   "pyproject.toml",
+  "hatch.toml",
   "pytest.ini",
   "ruff.toml",
   "uv.lock",

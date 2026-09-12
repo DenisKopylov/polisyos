@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { splitMarkdownTableRow } from "./markdown";
+
 function isGregorianIsoDate(value: string): boolean {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value);
   if (!match) return false;
@@ -1312,11 +1314,9 @@ async function validateCustodyAppointments(
     }
     const digest = await sha256(source.source_content);
     if (source.content_digest !== digest) return false;
-    const cells = source.source_content
-      .trim()
-      .replace(/^\||\|$/gu, "")
-      .split("|")
-      .map((cell) => cell.trim());
+    const cells = splitMarkdownTableRow(source.source_content).map((cell) =>
+      cell.trim(),
+    );
     if (cells.length !== 5) return false;
     const tokens = (value: string): string[] =>
       [...value.matchAll(/`([^`]+)`/gu)].map((match) => match[1]!);

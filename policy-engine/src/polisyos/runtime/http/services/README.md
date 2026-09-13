@@ -67,6 +67,12 @@ projections. Route handlers should stay thin and delegate behavior here.
   only a strict external owner port. Recovery resumes direct re-entry from the
   persisted action head; it never repeats owner activation or treats the
   fixture badge as production authority.
+- **Distinct deferred acquisition actions** - an actual terminal quarantine can
+  precede a new, independently authorized job over the saved live evidence after
+  policy appointment. The phase-head owner verifies the prior terminal's CAS and
+  event custody before allocating the next action generation; the original terminal
+  remains immutable. Pending, positive, corrupt, or unknown-effect state cannot
+  authorize a fresh fetch or overlapping effect.
 
 ## Public API
 
@@ -116,10 +122,17 @@ projections. Route handlers should stay thin and delegate behavior here.
   consumes the control-plane phase-head sink and strict owner port without
   becoming a passport, overlay, epoch, or world writer.
 - [`acquisition_admission_bundle.py`](acquisition_admission_bundle.py) owns the deterministic,
-  acquisition-only admission producer. Its production signer slot is intentionally empty; a
+  acquisition-only admission producer. Its default production signer slot is empty; a
   configured signer persists, signs, reconciles, reads back, and maps one bundle for the existing
   agent-action gateway, while institutional delegation and current-mandate resolution remain
   gateway-owned.
+- [`acquisition_authority_configuration.py`](acquisition_authority_configuration.py)
+  defines the internal, purpose-scoped deployment selectors and separate admission
+  and decision signing slots. [`acquisition_authority_provider.py`](acquisition_authority_provider.py)
+  composes those captured inputs with the existing PA2/DS9 owners for both HTTP
+  requests and durable workers. Each use reopens exact signed delegation,
+  independent currentness, action permission, and human-decision custody; an empty
+  or mismatched slot refuses. Neither configuration nor an LLM appoints an owner.
 - [`confidence_ledger_risk_spend_contracts.py`](confidence_ledger_risk_spend_contracts.py)
   owns the four-arm transport and replay binding;
   [`confidence_ledger_risk_spend_projection.py`](confidence_ledger_risk_spend_projection.py)
@@ -155,6 +168,30 @@ OpenAPI contract tests whenever response shape or route-visible behavior
 changes.
 
 ## Operability Links
+
+The migration owner for acquisition runtime composition is `team-runtime`.
+Before enabling a route, supply its canonical owner cost-schedule row, exact
+deployment-selected route/cutoff inputs and finite re-entry budget, and the
+independently signed mandate, currentness, human-decision and epoch/GY admissions.
+Check the route and durable job projections after each closing act. A supplier
+receipt alone establishes neither GY admission nor debt-register closure.
+
+DS9 custody runs as one guarded operation while holding the durable write fence.
+A dependency timeout reports unknown acknowledgement: the original worker may
+still commit a valid signed record. Preserve the fence, read the exact reservation
+and signed record through their existing owners, and reconcile known committed or
+recovery-required state before another action. Do not clear reservations or retry
+an effect merely because its caller timed out. The same rule applies to unknown
+admission/re-entry outcomes; automatic recovery only reconstructs verified known
+results. Rollback must preserve these durable receipts and fences.
+
+The dashboard's nongenerated acquisition route adapter accepts the current strict
+negative/positive wire union. Native qualification and positive observation delta
+remain independent of action authority and publication eligibility. The canonical
+generated client is unchanged; consumers of its older strict route decoder must
+adopt the current adapter/DTO before consuming these projections. See the
+[acquisition movement release fragment](../../../../../release-fragments/unreleased/2026-09-13-acquisition-movement.toml)
+for the compatibility and rollout boundary.
 
 - [Runtime component SLO](../../../../../ops/components/runtime/slo.yaml)
 - [Runtime component runbooks](../../../../../ops/components/runtime/runbooks.md)

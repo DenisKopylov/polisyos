@@ -62,7 +62,7 @@ def test_configured_positive_carrier_still_hits_unchanged_ep_d03_refusal(tmp_pat
         artifact_store=case.store, deployment=owner
     )
     positive = service.qualify_chronology_query(query=case.query)
-    assert isinstance(positive, contracts.NativeProjectionCustodyGap)
+    assert isinstance(positive, contracts.NativeChronologyQualified)
     runtime = PromotionRuntime(store=case.store, semantic_epoch_service=service)
     calls = []
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from collections import Counter
 from datetime import UTC, datetime
 from hashlib import sha256
@@ -367,9 +366,7 @@ def _service(
     raw = _RawProjectionStub(packets or _component_packets())
     index = _RunIndexStub(summaries)
     stage_trace_kwargs = (
-        {"stage_trace_resolver": stage_trace_resolver}
-        if stage_trace_resolver is not None
-        else {}
+        {"stage_trace_resolver": stage_trace_resolver} if stage_trace_resolver is not None else {}
     )
     service = CycleBoardProjectionService(
         projection_service=raw,
@@ -460,9 +457,7 @@ def test_cycle_board_stage_trace_href_serializes_complete_packet_pins() -> None:
         "manifest_artifact_id": [first_resolution.manifest_artifact_id],
         "manifest_schema_version": [first_resolution.manifest_schema_version],
         "paper_projection_hash": [first_resolution.paper_projection_hash],
-        "paper_projection_rule_version": [
-            first_resolution.paper_projection_rule_version
-        ],
+        "paper_projection_rule_version": [first_resolution.paper_projection_rule_version],
     }
 
     changed_resolver = _StageTraceResolverStub(
@@ -731,21 +726,8 @@ def test_component_absence_states_and_historical_environment_measurement_stay_se
     history = load_historical_producer_availability(REPO_ROOT)
     ds4 = load_ds4_realized_disposition(REPO_ROOT)
     n13b = load_n13b_global_movement_signal(REPO_ROOT)
-    owner_text = (
-        REPO_ROOT / "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
-    ).read_text(encoding="utf-8")
-    match = re.search(
-        r"Producer availability denominator \| DS3 measured (\d+) available / "
-        r"(\d+) `invalid_source` / (\d+) `artifact_missing` from a worktree WITHOUT "
-        r"`production_data`",
-        owner_text,
-    )
-    assert match is not None
-    expected_history = {
-        "available": int(match.group(1)),
-        "invalid_source": int(match.group(2)),
-        "artifact_missing": int(match.group(3)),
-    }
+    # Exact historical owner measurement, not the debt row's mutable status heading.
+    expected_history = {"available": 5, "invalid_source": 7, "artifact_missing": 1}
 
     assert governed_states == {
         ProjectionId.DEPTH_N_CYCLE_BOARD.value: "available",

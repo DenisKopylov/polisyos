@@ -1,0 +1,53 @@
+id = "2026-09-13-acquisition-movement"
+title = "Compose native acquisition admission, deferred actions, and GY movement custody"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Wire existing acquisition, signed authority, native epoch, and Cycle Board owners through durable admission and separately admitted movement receipts."
+evidence = [
+  "docs/superpowers/journals/acquisition-movement/STAGE2.md",
+  "docs/superpowers/journals/acquisition-movement/MOVEMENT-STAGE2.md",
+  "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+  "tests/integration/core_runtime/test_acquisition_authority_served.py",
+  "tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+  "tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+  "tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+  "tests/unit/runtime/quality/test_acquisition_movement_positive.py",
+  "apps/runtime-dashboard/src/features/runs/api/acquisitionRouteCompatibility.test.ts",
+]
+compatibility = "Current NativeChronologyQualified positives require persisted native projection custody. Historical epoch receipts that omitted the optional projection ref retain their original read/hash semantics, but cannot substitute for current native qualification. Existing core facade names remain unchanged; the new carrier and producer modules remain internal. Older strict acquisition-route decoders require consumer changes for the current negative/positive union."
+change_class = "python-public-api; runtime-state; js-package-api"
+surface_classification = "public_stable: polisyos.core NativeChronologyQualified semantics; public_experimental: polisyos.runtime.quality qualification behavior; internal: canonical deep modules, runtime HTTP acquisition composition and dashboard route adapter"
+migration = "Migration owner: team-runtime. Before rollout, review the journal's actual gate receipts, supply the canonical WDI owner cost row and exact institutional/deployment inputs, verify typed empty-slot refusals, upgrade route consumers, and exercise durable quarantine, admitted readback and unknown-outcome recovery. Preserve existing action generations, native history, CAS/event custody and started fences during rollback; do not retry an unknown effect or delete its fence."
+api = "Existing acquisition route list/detail and Depth-N Cycle Board surfaces expose native admission and separately admitted historical movement. Native qualification does not grant action authority, publication eligibility, improved design grade, or GY register closure."
+limitations = "The canonical WDI cost row is not selected, and the default configuration has typed empty institutional mandate/signing/epoch/GY slots. Repository measurement does not establish global absence of institutional appointments. Fixture pricing is hypothetical and does not establish production readiness. Supplier completion and GY admission are separate closing acts. Dependency timeout is unknown acknowledgement, not cancellation or proof that no commit occurred. Canonical OpenAPI and generated clients are unchanged in this lane; the retained journal, not this fragment, records verification outcomes."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]
+
+[[compatibility_change]]
+id = "native-chronology-positive-custody"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.core NativeChronologyQualified"
+owner = "team-runtime"
+version_owner = "team-polisyos"
+deprecation_window = "No positive-construction fallback without actual persisted projection custody; historical epoch receipt reads remain supported."
+release_note = "Positive chronology qualification now carries verified persisted native projection custody; callers constructing positives must provide the actual owner receipt."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]
+
+[[compatibility_change]]
+id = "acquisition-route-projection-consumers"
+change_class = "js-package-api"
+impact = "breaking"
+surface = "internal: runtime-dashboard acquisition route list/detail decoder"
+owner = "team-runtime"
+version_owner = "team-frontend"
+deprecation_window = "Deploy the strict nongenerated adapter with the backend change; canonical client regeneration is outside this lane."
+release_note = "Acquisition route consumers must accept the coherent native-positive arm and retain negative-arm refusal semantics; mixed or malformed authority states remain rejected."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]

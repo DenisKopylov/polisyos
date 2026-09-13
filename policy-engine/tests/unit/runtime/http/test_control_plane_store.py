@@ -1446,12 +1446,21 @@ def test_normative_head_compare_and_append_has_one_sqlite_winner(tmp_path) -> No
     stores = tuple(ControlPlaneStore(backend="sqlite", sqlite_path=path) for _ in range(2))
     source = "sha256:" + "a" * 64
     stores[0].create_job(
-        job_id="job", kind="natural_language_run", run_id="run", pipeline_id=None,
-        requested_execution_profile=None, effective_execution_profile="dev", policy_flags={},
-        capability_manifest_ref=None, payload_ref=None, submitted_by=None,
+        job_id="job",
+        kind="natural_language_run",
+        run_id="run",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by=None,
     )
     stores[0].complete_job(
-        job_id="job", run_id="run", capability_manifest_ref=None,
+        job_id="job",
+        run_id="run",
+        capability_manifest_ref=None,
         progress={"compiled_recursive_generation_cycle_ref": source},
     )
     barrier = threading.Barrier(2)
@@ -1459,8 +1468,11 @@ def test_normative_head_compare_and_append_has_one_sqlite_winner(tmp_path) -> No
     def append(index):
         barrier.wait(timeout=10)
         return stores[index].append_normative_evidence_head(
-            job_id="job", run_id="run", compiled_run_ref=source,
-            expected_prior_head_ref=None, head_ref="sha256:" + str(index + 1) * 64,
+            job_id="job",
+            run_id="run",
+            compiled_run_ref=source,
+            expected_prior_head_ref=None,
+            head_ref="sha256:" + str(index + 1) * 64,
         )
 
     with ThreadPoolExecutor(max_workers=2) as executor:
@@ -1469,15 +1481,58 @@ def test_normative_head_compare_and_append_has_one_sqlite_winner(tmp_path) -> No
     winner = "sha256:" + str(results.index(True) + 1) * 64
     assert stores[0].get_normative_evidence_head("job")["head_ref"] == winner
     assert stores[1].append_normative_evidence_head(
-        job_id="job", run_id="run", compiled_run_ref=source,
-        expected_prior_head_ref=winner, head_ref="sha256:" + "3" * 64,
+        job_id="job",
+        run_id="run",
+        compiled_run_ref=source,
+        expected_prior_head_ref=winner,
+        head_ref="sha256:" + "3" * 64,
     )
     assert stores[0].get_normative_evidence_head("job")["previous_head_ref"] == winner
     for invalid in ({"run_id": "foreign"}, {"compiled_run_ref": "sha256:" + "f" * 64}):
         with pytest.raises(ValueError, match="normative_evidence_job"):
-            stores[0].append_normative_evidence_head(**{
-                "job_id": "job", "run_id": "run", "compiled_run_ref": source,
-                "expected_prior_head_ref": "sha256:" + "3" * 64,
-                "head_ref": "sha256:" + "4" * 64, **invalid,
-            })
+            stores[0].append_normative_evidence_head(
+                **{
+                    "job_id": "job",
+                    "run_id": "run",
+                    "compiled_run_ref": source,
+                    "expected_prior_head_ref": "sha256:" + "3" * 64,
+                    "head_ref": "sha256:" + "4" * 64,
+                    **invalid,
+                }
+            )
     assert stores[0].get_job("job").progress["compiled_recursive_generation_cycle_ref"] == source
+
+
+def test_acquisition_action_heads_enumerate_latest_per_generation_in_exact_scope(tmp_path):
+    store = _make_store(tmp_path)
+    identity = {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "run_id": "run-a",
+        "source_job_id": "source-job",
+        "route_id": "sha256:" + "a" * 64,
+    }
+
+    def append(scope, generation, expected=0, predecessor=None):
+        ref = "sha256:" + str(generation + expected) * 64
+        return store.advance_acquisition_action_head(
+            **scope,
+            action_generation=generation,
+            expected_head_generation=expected,
+            receipt_ref=ref,
+            receipt_sha256=ref,
+            durable_event_id=f"event-{expected}",
+            coarse_phase="executing" if expected else "requested",
+            receipt_phase="executing" if expected else "requested",
+            recovery_state="none",
+            job_id=f"job-{generation}",
+            predecessor_receipt_ref=predecessor,
+        )
+
+    assert store.list_acquisition_action_heads(**identity) == ()
+    first = append(identity, 1)
+    latest = append(identity, 1, expected=1, predecessor=first.receipt_ref)
+    second = append(identity, 2)
+    for field in identity:
+        append({**identity, field: "other-" + identity[field]}, 1)
+    assert store.list_acquisition_action_heads(**identity) == (latest, second)

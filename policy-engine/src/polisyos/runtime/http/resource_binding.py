@@ -262,14 +262,79 @@ def get_bound_resource_context(
     return payload
 
 
-def human_decision_create_from_bound_request(request: Request) -> Mapping[str, Any]:
-    """Return the exact pre-OPA human-decision request/header snapshot."""
-
-    context = get_bound_resource_context(
-        request,
-        expected_kind=_HUMAN_DECISION_CREATE_CONTEXT_KIND,
+def _human_decision_create_selectors(
+    *,
+    body: Mapping[str, Any],
+    exposure_session_ref: str,
+    selectors: tuple[tuple[str, str], ...],
+) -> tuple[tuple[str, str], ...]:
+    """Derive the human-mutation selector quantity at its sole binding owner."""
+    binding_fields = (
+        "source_kind",
+        "source_ref",
+        "decision_request_ref",
+        "decision_request_digest",
+        "basis_ref",
+        "basis_digest",
+        "principal_binding_ref",
+        "reviewer_separation_ref",
+        "presentation_contract_ref",
+        "action_kind",
+        "action",
+        "decision_action",
+        "decision_mode",
     )
-    if context.get("context_version") != _HUMAN_DECISION_CREATE_CONTEXT_KIND:
+    canonical_selectors = tuple(
+        sorted(
+            (
+                *selectors,
+                *(
+                    (
+                        field_name,
+                        _canonical_json(body.get(field_name))
+                        if field_name in body
+                        else _ABSENT_SELECTOR,
+                    )
+                    for field_name in binding_fields
+                ),
+                (
+                    "exposure_token_sha256",
+                    _canonical_json(
+                        "sha256:" + hashlib.sha256(exposure_session_ref.encode("utf-8")).hexdigest()
+                    ),
+                ),
+            )
+        )
+    )
+    return canonical_selectors
+
+
+def human_decision_create_from_bound_resource(
+    bound: BoundAuthorizationResource,
+    *,
+    run_id: str,
+) -> Mapping[str, Any]:
+    """Resolve and recompute the full sealed mutation selectors and header context."""
+    if (
+        type(bound) is not BoundAuthorizationResource
+        or bound.resolved_context_kind != _HUMAN_DECISION_CREATE_CONTEXT_KIND
+        or not isinstance(bound.resolved_context, bytes)
+    ):
+        raise forbidden(
+            "The human-decision authorization context is absent",
+            code="authorization_binding_context_missing",
+        )
+    try:
+        context = canon.from_canonical_bytes(bound.resolved_context)
+    except (TypeError, ValueError) as exc:
+        raise forbidden(
+            "The human-decision authorization context is invalid",
+            code="authorization_binding_context_invalid",
+        ) from exc
+    if (
+        not isinstance(context, Mapping)
+        or context.get("context_version") != _HUMAN_DECISION_CREATE_CONTEXT_KIND
+    ):
         raise forbidden(
             "The human-decision authorization context has an unsupported version",
             code="authorization_binding_context_invalid",
@@ -281,7 +346,25 @@ def human_decision_create_from_bound_request(request: Request) -> Mapping[str, A
             "The human-decision authorization context is incomplete",
             code="authorization_binding_context_invalid",
         )
+    expected = _human_decision_create_selectors(
+        body=body,
+        exposure_session_ref=exposure_session_ref,
+        selectors=(("run_id", _canonical_json(run_id)),),
+    )
+    if bound.canonical_selectors != expected:
+        raise forbidden(
+            "The human-decision selectors differ from the sealed mutation context",
+            code="authorization_binding_context_mismatch",
+        )
     return context
+
+
+def human_decision_create_from_bound_request(request: Request) -> Mapping[str, Any]:
+    """Return the exact pre-OPA human-decision request/header snapshot."""
+    bound = getattr(getattr(request, "state", object()), "authz_bound_resource", None)
+    return human_decision_create_from_bound_resource(
+        bound, run_id=_path_identifier(request, "run_id")
+    )
 
 
 def lineage_batch_from_bound_request(
@@ -775,43 +858,8 @@ def _bind_owned_existing_path(
                 "Caller-authored human-decision authority fields are forbidden",
                 code="human_decision_authority_fields_forbidden",
             )
-        binding_fields = (
-            "source_kind",
-            "source_ref",
-            "decision_request_ref",
-            "decision_request_digest",
-            "basis_ref",
-            "basis_digest",
-            "principal_binding_ref",
-            "reviewer_separation_ref",
-            "presentation_contract_ref",
-            "action_kind",
-            "action",
-            "decision_action",
-            "decision_mode",
-        )
-        selectors = tuple(
-            sorted(
-                (
-                    *selectors,
-                    *(
-                        (
-                            field_name,
-                            _canonical_json(body.get(field_name))
-                            if field_name in body
-                            else _ABSENT_SELECTOR,
-                        )
-                        for field_name in binding_fields
-                    ),
-                    (
-                        "exposure_token_sha256",
-                        _canonical_json(
-                            "sha256:"
-                            + hashlib.sha256(exposure_session_ref.encode("utf-8")).hexdigest()
-                        ),
-                    ),
-                )
-            )
+        selectors = _human_decision_create_selectors(
+            body=body, exposure_session_ref=exposure_session_ref, selectors=selectors
         )
         resolved_context_kind = _HUMAN_DECISION_CREATE_CONTEXT_KIND
         resolved_context = canon.to_canonical_bytes(
@@ -1654,6 +1702,7 @@ __all__ = [
     "bind_authorization_resource",
     "get_bound_resource_context",
     "human_decision_create_from_bound_request",
+    "human_decision_create_from_bound_resource",
     "lineage_batch_from_bound_request",
     "production_approval_inputs_from_bound_request",
     "production_approval_scorecard_from_bound_request",

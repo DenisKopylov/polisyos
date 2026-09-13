@@ -196,3 +196,54 @@ def test_cli_rejects_corrupt_persisted_receipt(admission_request, capsys, monkey
     output = capsys.readouterr()
     assert output.out == ""
     assert json.loads(output.err)["error"]
+
+
+def test_cli_preserves_legacy_negative_receipt_bytes(
+    admission_request, capsys, monkeypatch
+) -> None:
+    """Reading the original grammar does not insert a new null into its identity."""
+    from polisyos.core.contracts import chronology as chronology_contract
+    from polisyos.runtime.quality import acquisition_epoch_admission as cli
+    from polisyos.runtime.quality import acquisition_executor
+
+    request_path, store = admission_request
+    original = acquisition_executor.admit_acquisition_with_production_semantic_epoch
+    legacy_raw: list[bytes] = []
+
+    def legacy_production(**kwargs):
+        receipt = original(**kwargs)
+        statement = receipt.model_dump(
+            mode="json",
+            include=set(epoch_contract.SemanticEpochProductionReceiptStatement.model_fields),
+        )
+        statement.pop("chronology_projection_ref")
+        raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
+        ref = store.put_bytes(
+            raw,
+            artifacts.PutOptions(
+                kind="epoch.production_receipt",
+                media_type="application/vnd.polisyos.epoch-production-receipt+json",
+            ),
+        )
+        legacy_raw.append(raw)
+        return semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(
+            {
+                **statement,
+                "receipt_ref": ref,
+                "receipt_content_hash": epoch_contract.epoch_semantic_content_hash(
+                    domain="polisyos.epoch.production-receipt.v1", value=statement
+                ),
+            }
+        )
+
+    monkeypatch.setattr(
+        acquisition_executor, "admit_acquisition_with_production_semantic_epoch", legacy_production
+    )
+    assert cli.main(["--request", str(request_path)]) == 1
+    output = capsys.readouterr()
+    assert output.err == ""
+    value = json.loads(output.out)
+    assert "chronology_projection_ref" not in value
+    reread = semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(value)
+    assert reread.chronology_projection_ref is None
+    assert store.get_bytes(reread.receipt_ref.artifact_id) == legacy_raw[0]

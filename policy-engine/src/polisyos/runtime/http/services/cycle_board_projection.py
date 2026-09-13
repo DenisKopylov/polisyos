@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
+from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.adapters import RunTerminality
 from polisyos.runtime.http.services.cycle_board_contracts import (
     CYCLE_BOARD_PROJECTION_RULE_VERSION,
@@ -48,6 +49,7 @@ from polisyos.runtime.http.services.governed_projections import (
     ReplayPinMismatchError,
     SurfaceReadinessPayload,
 )
+from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -549,6 +551,7 @@ class CycleBoardProjectionService:
         clock: Callable[[], datetime] | None = None,
         n13b_global_signal: N13BGlobalMovementSignal | None = None,
         stage_trace_resolver: _StageTraceResolver | None = None,
+        movement_service: AcquisitionMovementService | None = None,
     ) -> None:
         self._projection_service = projection_service
         self._run_index = run_index
@@ -556,6 +559,12 @@ class CycleBoardProjectionService:
         self._clock = clock or (lambda: datetime.now(UTC))
         self._n13b_global_signal = n13b_global_signal
         self._stage_trace_resolver = stage_trace_resolver
+        if (
+            movement_service is not None
+            and type(movement_service) is not AcquisitionMovementService
+        ):
+            raise TypeError("Cycle Board requires the native movement consumer")
+        self._movement_service = movement_service
 
     def get(
         self,
@@ -660,6 +669,60 @@ class CycleBoardProjectionService:
         )
         legacy = _legacy_rows(packets[ProjectionId.LEGACY_PROVING_GROUND], readiness)
         rows = (*capstones, *legacy)
+        movement_sources: list[CycleBoardCompositionSource] = []
+        movement_gap = CycleBoardMovementGap()
+        if self._movement_service is not None:
+            composed_rows = []
+            for row in rows:
+                if not isinstance(row.generation_cycle_run_id, AvailableFact) or not isinstance(
+                    row.design_problem, AvailableFact
+                ):
+                    composed_rows.append(row)
+                    continue
+                movement = self._movement_service.project_row(
+                    row_id=row.row_id,
+                    run_id=row.generation_cycle_run_id.value,
+                    design_problem_ref=gy_content_hash(
+                        row.design_problem.value.model_dump(mode="json")
+                    ),
+                )
+                composed_rows.append(
+                    row.model_copy(
+                        update={
+                            "movement_records": movement.records,
+                            "movement_status": movement,
+                        }
+                    )
+                )
+                movement_sources.append(
+                    CycleBoardCompositionSource(
+                        source_id=f"native-movement:{row.row_id}",
+                        source_kind="native_movement",
+                        source_ref=movement.source_content_hash,
+                        availability=movement.status,
+                        artifact_content_hash=movement.source_content_hash,
+                        authoritative_for=("per_row_movement",)
+                        if movement.records
+                        else ("movement_admission_status",),
+                        may_not_use_for=("row_enumeration", "exhaustiveness", "register_closure"),
+                        absence_reason=movement.reason,
+                    )
+                )
+            rows = tuple(composed_rows)
+            records = tuple(record for row in rows for record in row.movement_records)
+            fully_admitted = bool(movement_sources) and all(
+                source.availability == "available" for source in movement_sources
+            )
+            movement_gap = CycleBoardMovementGap(
+                capability_state="ready" if fully_admitted else "verification_missing",
+                deficits=() if fully_admitted else ("verification_missing",),
+                execution_status="admitted"
+                if fully_admitted
+                else "partial"
+                if records
+                else "not_established",
+                movement_records=records,
+            )
         manifest = (
             *(_governed_source_entry(packets[item]) for item in _GOVERNED_COMPONENT_ORDER),
             _n13b_source_entry(n13b),
@@ -676,11 +739,12 @@ class CycleBoardProjectionService:
                 authoritative_for=("historical_environment_relative_measurement",),
             ),
             *lifecycle_entries,
+            *movement_sources,
         )
         payload = DepthNCycleBoardPayloadV2(
             rows=rows,
             coverage=CycleBoardCoverageGap(known_row_count=len(rows)),
-            movement_gap=CycleBoardMovementGap(),
+            movement_gap=movement_gap,
             realized_ds4_disposition=ds4,
             historical_producer_availability=history,
         )

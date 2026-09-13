@@ -13,12 +13,13 @@ from polisyos.runtime.http.authorization import (
     ResourceBindingSpec,
     require_action_permission,
 )
+from polisyos.runtime.http.container import get_runtime_container
 from polisyos.runtime.http.dependencies import (
     get_runtime_api_context,
     require_access_scope,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import conflict
+from polisyos.runtime.http.errors import RuntimeHTTPError, conflict
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
     ConfidenceLedgerRiskSpendPacket,
@@ -32,6 +33,7 @@ from polisyos.runtime.http.services.cycle_board_projection import (
     CycleBoardProjectionService,
     CycleBoardReplayConflictError,
 )
+from polisyos.runtime.http.services.cycle_board_sources import HistoricalProducerAvailabilityError
 from polisyos.runtime.http.services.governed_projections import (
     CHANNEL_REGISTRY,
     ChannelRegistryResponse,
@@ -78,10 +80,12 @@ def _get_projection_service() -> GovernedProjectionService:
 def _get_cycle_board_projection_service(request: Request) -> CycleBoardProjectionService:
     context = get_runtime_api_context(request)
     access_scope = require_access_scope(request)
+    container = get_runtime_container(request)
     return CycleBoardProjectionService(
         projection_service=_get_projection_service(),
         run_index=context.run_index,
         repository_root=_repository_root(),
+        movement_service=container.acquisition_movement_service if container is not None else None,
         stage_trace_resolver=RunPaperProjectionService(
             store=context.store,
             core_runs_root=context.core_runs_root,
@@ -166,6 +170,14 @@ if router is not None:
             )
         except CycleBoardReplayConflictError as exc:
             raise conflict(str(exc), code="cycle_board_replay_conflict") from exc
+        except HistoricalProducerAvailabilityError as exc:
+            raise RuntimeHTTPError(
+                status_code=503,
+                error="service_unavailable",
+                detail=str(exc),
+                code="cycle_board_historical_source_invalid",
+                extensions={"read_receipt": exc.read_receipt.model_dump(mode="json")},
+            ) from exc
         if isinstance(result, CycleBoardProjectionPacket):
             return result
         return Response(

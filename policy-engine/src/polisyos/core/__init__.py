@@ -33,7 +33,8 @@ _SUBPACKAGES = (
 )
 _LAZY_EXPORTS = {
     "FileSystemSignedArtifactEvidenceRepository": (
-        "polisyos.core.artifacts.signed_evidence", "FileSystemSignedArtifactEvidenceRepository"
+        "polisyos.core.artifacts.signed_evidence",
+        "FileSystemSignedArtifactEvidenceRepository",
     ),
     "SECRET_AND_PII_SCAN_SCOPES": ("polisyos.core.llm", "SECRET_AND_PII_SCAN_SCOPES"),
     "SECRET_PII_DETECTOR_VERSION": ("polisyos.core.llm", "SECRET_PII_DETECTOR_VERSION"),

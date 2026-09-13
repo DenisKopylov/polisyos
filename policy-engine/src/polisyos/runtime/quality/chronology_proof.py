@@ -7,7 +7,7 @@ import os
 import threading
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, NoReturn, SupportsIndex
+from typing import TYPE_CHECKING, Literal, NoReturn, SupportsIndex, get_protocol_members
 
 from pydantic import BaseModel, ConfigDict
 
@@ -296,15 +296,15 @@ class _PersistencePayload:
 
 def _payload_fingerprint(payload: _PersistencePayload) -> contract.Digest:
     mapping: dict[str, object] = {
-        "query": payload.query.model_dump(mode="json"),
-        "reconciliation": payload.reconciliation.model_dump(mode="json"),
+        "query": contract._raw_model_mapping(payload.query),
+        "reconciliation": contract._raw_model_mapping(payload.reconciliation),
         "bundle_raw_cas_hash": _raw_cas_hash(payload.bundle_bytes),
         "bundle_content_hash": contract._bundle_content_hash(payload.bundle_bytes),
-        "expected_domain": payload.expected_domain.model_dump(mode="json"),
+        "expected_domain": contract._raw_model_mapping(payload.expected_domain),
         "expected_prefix": (
             None
             if payload.expected_prefix is None
-            else payload.expected_prefix.model_dump(mode="json")
+            else contract._raw_model_mapping(payload.expected_prefix)
         ),
         "expected_bundle_content_hash": payload.expected_bundle_content_hash,
     }
@@ -334,6 +334,7 @@ class _ContinuationEntry:
 class _ChronologyPersistenceOwner:
     _registry: _ChronologyPersistenceRegistry
     _store: ArtifactStore
+    _policy_store: ArtifactStore
     _verifier: FullPrefixVerifier
     _admission_index: contract.PredicatePolicyAdmissionIndex
     _owner_provenance_verifier: contract.PredicatePolicyOwnerProvenanceVerifier
@@ -372,6 +373,92 @@ class _ChronologyPersistenceOwner:
         )
         continuation = self._registry._issue(self, payload)
         return self._registry._consume(continuation)
+
+    def project_native_result(
+        self,
+        *,
+        reconciliation: contract.NativeChronologyReconciliation,
+        proof_result: contract.FullPrefixVerified,
+        bundle_bytes: bytes,
+    ) -> contract.PersistedNativeChronologyProjection | None:
+        """Record and reload the verified native terminal before proof persistence.
+
+        This recorder preserves the family owner's result verbatim. It grants
+        no predicates, selects no policy and creates no native authority head.
+        """
+        if not self._registry._owner_is_current(self):
+            return None
+        query = reconciliation.owner_context.query
+        payload = _PersistencePayload(
+            query=query,
+            reconciliation=reconciliation,
+            bundle_bytes=bundle_bytes,
+            expected_domain=query.domain,
+            expected_prefix=None,
+            expected_bundle_content_hash=proof_result.bundle_content_hash,
+        )
+        try:
+            self._revalidate_payload(payload)
+            self._verify_owner_sources(payload)
+            self._verify_bundle_owner_binding(payload=payload, verified=proof_result)
+            statement = contract.NativeChronologyProjectionStatement(
+                schema_version="polisyos.chronology.native-projection.v1",
+                reconciliation=reconciliation,
+                proof_result=proof_result,
+            )
+            raw = contract._frame_record(
+                contract._canonical_raw_bytes(contract._raw_model_mapping(statement))
+            )
+            kind = "core.chronology.native_projection"
+            expected_ref = _expected_ref(payload=raw, kind=kind)
+            schema = SchemaInfo(name="polisyos.chronology.NativeProjection", version="1")
+            inputs = [
+                InputRef(
+                    artifact_id=reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification.verification_receipt_ref.artifact_id,
+                    role="native_owner_verification",
+                ),
+                InputRef(
+                    artifact_id=reconciliation.applicable_predicate_denominator.artifact_ref.artifact_id,
+                    role="applicable_predicate_denominator",
+                ),
+            ]
+            ref = self._store.put_bytes(
+                raw,
+                ArtifactWriteOptions(
+                    kind=kind, media_type=_MEDIA_TYPE, schema=schema, inputs=inputs, canon=_CANON
+                ),
+            )
+            manifest = self._store.get_manifest(expected_ref.artifact_id)
+            reloaded = self._store.get_bytes(expected_ref.artifact_id)
+            if (
+                ref != expected_ref
+                or reloaded != raw
+                or not self._store.verify(expected_ref.artifact_id).ok
+                or manifest
+                != _expected_manifest(
+                    payload=raw,
+                    ref=expected_ref,
+                    schema=schema,
+                    inputs=inputs,
+                    created_at=manifest.created_at,
+                )
+                or not self._registry._owner_is_current(self)
+            ):
+                return None
+            records = contract._split_framed_records(reloaded)
+            if len(records) != 1:
+                return None
+            parsed = contract.NativeChronologyProjectionStatement.model_validate(
+                core_canon.from_canonical_bytes(records[0])
+            )
+            if parsed != statement:
+                return None
+            self._verify_owner_sources(payload)
+            return contract.PersistedNativeChronologyProjection(
+                artifact_ref=ref, raw_cas_hash=_raw_cas_hash(raw), statement=parsed
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return None
 
     def _issue_for_test(
         self,
@@ -830,6 +917,7 @@ class _ChronologyPersistenceRegistry:
         self._lock = threading.RLock()
         self._generation = self._new_generation()
         self._store_factory: Callable[[], ArtifactStore] | None = None
+        self._policy_store_factory: Callable[[], ArtifactStore] | None = None
         self._verifier_factory: Callable[[], FullPrefixVerifier] | None = None
         self._admission_index_factory: (
             Callable[[], contract.PredicatePolicyAdmissionIndex] | None
@@ -865,6 +953,7 @@ class _ChronologyPersistenceRegistry:
         self._lock = threading.RLock()
         self._generation = self._new_generation()
         self._store_factory = None
+        self._policy_store_factory = None
         self._verifier_factory = None
         self._admission_index_factory = None
         self._owner_provenance_verifier_factory = None
@@ -889,6 +978,7 @@ class _ChronologyPersistenceRegistry:
             self._owners = weakref.WeakSet()
             self._generation = self._new_generation()
             self._store_factory = store_factory
+            self._policy_store_factory = store_factory
             self._verifier_factory = verifier_factory
             self._admission_index_factory = admission_index_factory
             self._owner_provenance_verifier_factory = owner_provenance_verifier_factory
@@ -907,7 +997,8 @@ class _ChronologyPersistenceRegistry:
         with self._lock:
             if self._owners or self._entries or self._store_factory is not None:
                 raise RuntimeError("chronology deployment registry is already bound")
-            self._store_factory = lambda: state.store
+            self._store_factory = deployment._runtime_artifact_store
+            self._policy_store_factory = lambda: state.store
             self._verifier_factory = FullPrefixVerifier
             self._admission_index_factory = lambda: exchange
             self._owner_provenance_verifier_factory = lambda: exchange
@@ -918,6 +1009,7 @@ class _ChronologyPersistenceRegistry:
                 owner._valid = False
             self._generation = self._new_generation()
             self._store_factory = None
+            self._policy_store_factory = None
             self._verifier_factory = None
             self._admission_index_factory = None
             self._owner_provenance_verifier_factory = None
@@ -928,21 +1020,28 @@ class _ChronologyPersistenceRegistry:
         with self._lock:
             generation = self._generation
             store_factory = self._store_factory
+            policy_store_factory = self._policy_store_factory
             verifier_factory = self._verifier_factory
             admission_index_factory = self._admission_index_factory
             owner_provenance_verifier_factory = self._owner_provenance_verifier_factory
         if (
             store_factory is None
+            or policy_store_factory is None
             or verifier_factory is None
             or admission_index_factory is None
             or owner_provenance_verifier_factory is None
         ):
             return None
         store = store_factory()
+        policy_store = policy_store_factory()
         verifier = verifier_factory()
         admission_index = admission_index_factory()
         owner_provenance_verifier = owner_provenance_verifier_factory()
-        if not isinstance(store, ArtifactStore):
+        if any(
+            not callable(getattr(candidate, member, None))
+            for candidate in (store, policy_store)
+            for member in get_protocol_members(ArtifactStore)
+        ):
             raise TypeError("appointed chronology store does not satisfy ArtifactStore")
         if not isinstance(verifier, FullPrefixVerifier):
             raise TypeError("appointed chronology verifier is not FullPrefixVerifier")
@@ -952,6 +1051,7 @@ class _ChronologyPersistenceRegistry:
             owner = object.__new__(_ChronologyPersistenceOwner)
             owner._registry = self
             owner._store = store
+            owner._policy_store = policy_store
             owner._verifier = verifier
             owner._admission_index = admission_index
             owner._owner_provenance_verifier = owner_provenance_verifier

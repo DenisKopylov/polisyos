@@ -2535,6 +2535,42 @@ class ControlPlaneStore:
         )
         return self._row_to_acquisition_action_head(row) if row is not None else None
 
+    def list_acquisition_action_heads(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+    ) -> tuple[AcquisitionActionHeadRecord, ...]:
+        """Read every current generation head in one exact route/source scope."""
+
+        rows = self._fetchall(
+            """
+            SELECT heads.tenant_id, heads.cell_id, heads.run_id, heads.source_job_id,
+                   heads.route_id, heads.action_generation, heads.head_generation,
+                   heads.receipt_ref, heads.receipt_sha256, heads.durable_event_id,
+                   heads.coarse_phase, heads.receipt_phase, heads.recovery_state,
+                   heads.job_id, heads.predecessor_receipt_ref, heads.created_at
+            FROM runtime_acquisition_action_heads AS heads
+            WHERE heads.tenant_id = ? AND heads.cell_id = ? AND heads.run_id = ?
+              AND heads.source_job_id = ? AND heads.route_id = ?
+              AND NOT EXISTS (
+                  SELECT 1 FROM runtime_acquisition_action_heads AS later
+                  WHERE later.tenant_id = heads.tenant_id
+                    AND later.cell_id = heads.cell_id AND later.run_id = heads.run_id
+                    AND later.source_job_id = heads.source_job_id
+                    AND later.route_id = heads.route_id
+                    AND later.action_generation = heads.action_generation
+                    AND later.head_generation > heads.head_generation
+              )
+            ORDER BY heads.action_generation
+            """,
+            (tenant_id, cell_id, run_id, source_job_id, route_id),
+        )
+        return tuple(self._row_to_acquisition_action_head(row) for row in rows)
+
     def advance_acquisition_action_head(
         self,
         *,
@@ -2664,9 +2700,11 @@ class ControlPlaneStore:
                 raise ValueError("normative_evidence_job_mismatch")
             execute("SELECT progress_json FROM control_job_progress WHERE job_id = ?", (job_id,))
             progress = cur.fetchone()
-            if progress is None or json.loads(str(progress[0])).get(
-                "compiled_recursive_generation_cycle_ref"
-            ) != compiled_run_ref:
+            if (
+                progress is None
+                or json.loads(str(progress[0])).get("compiled_recursive_generation_cycle_ref")
+                != compiled_run_ref
+            ):
                 raise ValueError("normative_evidence_job_source_mismatch")
             execute(
                 "SELECT payload_json FROM control_job_events "
@@ -2688,7 +2726,12 @@ class ControlPlaneStore:
             execute(
                 "INSERT INTO control_job_events (job_id, event_type, payload_json, created_at) "
                 "VALUES (?, ?, ?, ?)",
-                (job_id, "normative_evidence_admitted", json.dumps(payload, sort_keys=True), _iso(_utc_now())),
+                (
+                    job_id,
+                    "normative_evidence_admitted",
+                    json.dumps(payload, sort_keys=True),
+                    _iso(_utc_now()),
+                ),
             )
             return True
 

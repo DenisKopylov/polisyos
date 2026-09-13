@@ -14,10 +14,11 @@ import json
 import re
 import time
 from collections.abc import Mapping, Sequence
+from contextlib import ExitStack
 from dataclasses import replace
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -37,6 +38,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control_registry_providers import (
         ControlRegistryProviders,
     )
+    from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from polisyos.runtime.quality.semantic_epoch import (
         EpochResolutionQuery,
         EpochScopeIdentity,
@@ -444,6 +446,14 @@ class _PreparedSemanticEpoch(Protocol):
 class _CatalogAcquisitionOverlay(Protocol):
     """Structural Data Forge owner seam used by the runtime orchestrator."""
 
+    def read_admitted_prepared_epoch_ref(
+        self,
+        *,
+        epoch_id: int,
+        boundary_candidate_ref: ArtifactRef,
+        artifact_store: _ArtifactStore,
+    ) -> ArtifactRef | None: ...
+
     def admit_epoch(
         self,
         *,
@@ -718,8 +728,8 @@ def execute_live_catalog_acquisition(
 
     The function does not admit observations.  It creates the exact raw journal/CAS
     carrier and Fabric snapshot required by the independent passport owner.
-    An injected store must address the same backing artifacts as ``cas_root``,
-    which Fabric's ingestion owner uses for its independent writes.
+    The supplied store remains the writer for Fabric ingestion and its snapshot.
+    It must address ``cas_root`` because the connector cache also uses that root.
     """
 
     from polisyos.runtime.http.services.control_registry_providers import (
@@ -963,6 +973,15 @@ def _execute_authorized_live_acquisition(
 
     baseline_before_sha256 = resolved.baseline_content_sha256
     baseline_after_sha256: str | None = None
+
+    def _owned_ingestion_store(root: Path) -> artifacts.FileSystemCAS:
+        # ConnectorCacheStore requires the filesystem locator in addition to the
+        # ArtifactStore protocol. Keep the actual supplied decorator and custody.
+        store_root = getattr(store, "root", None)
+        if store_root is None or store_root.resolve() != root.resolve():
+            raise LiveAcquisitionExecutionError("live_artifact_store_backing_mismatch")
+        return cast("artifacts.FileSystemCAS", store)
+
     try:
         ingestion_result = run_orchestrated_ingestion(
             connector_manifest=manifest,
@@ -973,6 +992,9 @@ def _execute_authorized_live_acquisition(
             produce_snapshot=True,
             raw_result_sink=_capture_result,
             raw_http_response_observer=observer,
+            ingestion_dependencies=fabric_ingestion.resolve_ingestion_dependencies(
+                store_factory=_owned_ingestion_store,
+            ),
         )
     finally:
         try:
@@ -1713,6 +1735,8 @@ def admit_acquisition_with_semantic_epoch(
 ) -> ActivatedSemanticEpochAdmissionReceipt | PersistedSemanticEpochProductionReceipt:
     """Run the real two-phase acquisition bridge and preserve typed negatives."""
 
+    from polisyos.runtime.quality.semantic_epoch import PreparedSemanticEpoch
+
     raw_body = resolve_raw_response_body(raw_evidence_ref)
     raw_artifact_id = ArtifactID(f"sha256:{hashlib.sha256(raw_body).hexdigest()}")
     if not artifact_store.has(raw_artifact_id):
@@ -1771,10 +1795,33 @@ def admit_acquisition_with_semantic_epoch(
         ),
         statement=statement,
     )
-    prepared = epoch_service.prepare_acquisition_candidate(
-        query=epoch_query,
-        candidate_ref=candidate_ref,
+    prepared_ref = overlay.read_admitted_prepared_epoch_ref(
+        epoch_id=epoch_id,
+        boundary_candidate_ref=candidate_ref,
+        artifact_store=artifact_store,
     )
+    if prepared_ref is None:
+        prepared = epoch_service.prepare_acquisition_candidate(
+            query=epoch_query,
+            candidate_ref=candidate_ref,
+        )
+    else:
+        prepared_mapping = epoch_contract.load_verified_epoch_statement(
+            store=artifact_store, ref=prepared_ref, expected_kind="epoch.prepared"
+        )
+        prepared = PreparedSemanticEpoch.model_validate(
+            {
+                **prepared_mapping,
+                "prepared_epoch_ref": prepared_ref.model_dump(mode="json"),
+                "prepared_content_hash": epoch_contract.epoch_semantic_content_hash(
+                    domain="polisyos.epoch.prepared.v1", value=prepared_mapping
+                ),
+            }
+        )
+        if prepared.query != epoch_query or prepared.boundary_candidate_refs != (candidate_ref,):
+            raise SemanticEpochAdmissionResolutionError(
+                "basis_mismatch", "owner-held prepared epoch belongs to another request"
+            )
     passport = build_admission_passport(
         epoch_id=epoch_id,
         raw_evidence_ref=raw_evidence_ref,
@@ -1862,17 +1909,19 @@ def admit_acquisition_with_production_semantic_epoch(
     purpose_admission_cutoff_evidence_ref: ArtifactRef,
     facet_source_refs: Mapping[str, ArtifactRef],
     live_source_execution: LiveSourceExecutionEvidence | None = None,
+    epoch_deployment: EpochDeployment | None = None,
 ) -> ActivatedSemanticEpochAdmissionReceipt | PersistedSemanticEpochProductionReceipt:
     """Compose and invoke the production epoch adapter without policy self-admission.
 
     Operational paths and evidence selectors are explicit inputs.  All semantic
-    coordinate digests are independently recomputed, and the canonical empty
-    predicate-policy admission index therefore yields ``policy_admission_missing``
-    until an institutional owner is appointed.
+    coordinate digests are independently recomputed. A factory-produced
+    deployment may supply the existing native policy producer and verifier;
+    absent deployment or owner retains the unallocated refusal.
     """
 
     from polisyos.runtime.quality import chronology_qualification
     from polisyos.runtime.quality import semantic_epoch as epoch_runtime
+    from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from polisyos.runtime.quality.semantic_epoch_store import (
         FileSemanticEpochHistoryRepository,
     )
@@ -1922,7 +1971,18 @@ def admit_acquisition_with_production_semantic_epoch(
             "resolver_unavailable",
             type(exc).__name__,
         ) from exc
+    runtime_scope = ExitStack()
     try:
+        if epoch_deployment is not None:
+            if type(epoch_deployment) is not EpochDeployment:
+                raise TypeError("epoch admission requires a factory-produced deployment")
+            runtime_scope.enter_context(
+                epoch_deployment.composition_scope(
+                    runtime_artifact_store=artifact_store
+                    if epoch_deployment._state().store is not None
+                    else None
+                )
+            )
         try:
             query = epoch_runtime.build_epoch_resolution_query_from_evidence(
                 artifact_store=artifact_store,
@@ -1937,8 +1997,20 @@ def admit_acquisition_with_production_semantic_epoch(
                 "basis_mismatch",
                 type(exc).__name__,
             ) from exc
+        policy_owner = None
+        if epoch_deployment is not None:
+            if type(epoch_deployment) is not EpochDeployment:
+                raise TypeError("epoch admission requires a factory-produced deployment")
+            epoch_deployment.attestation_state()
+            policy_owner = epoch_deployment._state().chronology_policy_owner
         chronology_adapter = (
-            epoch_runtime.SemanticEpochQualificationAdapter.from_unallocated_policy_authority(
+            epoch_runtime.SemanticEpochQualificationAdapter(
+                history=history,
+                artifacts=artifact_store,
+                policy_owner=policy_owner,
+            )
+            if policy_owner is not None
+            else epoch_runtime.SemanticEpochQualificationAdapter.from_unallocated_policy_authority(
                 history=history,
                 artifacts=artifact_store,
             )
@@ -1969,7 +2041,11 @@ def admit_acquisition_with_production_semantic_epoch(
             history=history,
             artifact_store=artifact_store,
             qualification_consumer=(
-                chronology_qualification.QualificationConsumer.from_unallocated_policy_authority()
+                chronology_qualification.QualificationConsumer.from_deployment(epoch_deployment)
+                if epoch_deployment is not None and policy_owner is not None
+                else (
+                    chronology_qualification.QualificationConsumer.from_unallocated_policy_authority()
+                )
             ),
             chronology_adapter=chronology_adapter,
         )
@@ -1992,8 +2068,128 @@ def admit_acquisition_with_production_semantic_epoch(
                 type(exc).__name__,
             ) from exc
     finally:
+        runtime_scope.close()
         if lex_store is not None:
             lex_store.close()
+
+
+def resolve_activated_semantic_epoch_admission(
+    *,
+    receipt: ActivatedSemanticEpochAdmissionReceipt,
+    artifact_store: ArtifactStore,
+    overlay: data_forge_read_api.catalog.CatalogAcquisitionOverlay,
+    epoch_deployment: EpochDeployment | None = None,
+) -> data_forge_read_api.catalog.OverlayAdmissionReceipt:
+    """Read exact active owner state and replay its native qualification evidence.
+
+    The returned count comes from the catalog's reconciled physical membership.
+    Reading never activates a pending epoch; missing native verifier custody
+    cannot be replaced by a positive statement stored in CAS.
+    """
+    from polisyos.core import security
+    from polisyos.runtime.quality.chronology_qualification import QualificationConsumer
+    from polisyos.runtime.quality.semantic_epoch import SemanticEpochProductionReceipt
+
+    chronology = contracts.chronology
+
+    def read(ref: ArtifactRef, model: type[BaseModel]) -> BaseModel:
+        raw = artifact_store.get_bytes(ref.artifact_id)
+        manifest = artifact_store.get_manifest(ref.artifact_id)
+        if (
+            not artifact_store.verify(ref.artifact_id).ok
+            or f"sha256:{hashlib.sha256(raw).hexdigest()}" != str(ref.artifact_id)
+            or manifest.artifact_id != ref.artifact_id
+            or manifest.kind != ref.kind
+            or manifest.media_type != ref.media_type
+        ):
+            raise ValueError("activation evidence CAS binding differs")
+        return security.parse_canonical_statement(raw, model)
+
+    try:
+        receipt = ActivatedSemanticEpochAdmissionReceipt.model_validate(
+            receipt.model_dump(mode="python")
+        )
+        activated = overlay.read_activated_semantic_epoch_admission(
+            receipt_ref=receipt.overlay_admission_receipt_ref,
+            artifact_store=artifact_store,
+        )
+        production = read(
+            receipt.semantic_epoch_production_receipt_ref, SemanticEpochProductionReceipt
+        )
+        if (
+            not isinstance(production, SemanticEpochProductionReceipt)
+            or production.status not in {"appended", "no_change"}
+            or production.chronology_projection_ref is None
+            or epoch_deployment is None
+            or activated.semantic_epoch_stamp != receipt.semantic_epoch_stamp
+            or activated.prepared_semantic_epoch_ref != receipt.prepared_epoch_ref
+            or activated.pending_overlay_receipt_ref != receipt.pending_overlay_receipt_ref
+            or activated.semantic_epoch_production_receipt_ref
+            != receipt.semantic_epoch_production_receipt_ref
+            or production.prepared_epoch_ref != receipt.prepared_epoch_ref
+            or production.epoch_ref != receipt.semantic_epoch_stamp.epoch_ref
+            or production.requested_query_context_ref
+            != receipt.semantic_epoch_stamp.requested_query_context_ref
+            or production.admitted_boundary_evidence_ref != activated.admitted_boundary_evidence_ref
+        ):
+            raise ValueError("activation production or native owner binding differs")
+        admitted = read(
+            activated.admitted_boundary_evidence_ref,
+            epoch_contract.AdmittedAcquisitionBoundaryEvidence,
+        )
+        for field in (
+            "passport_ref",
+            "prepared_epoch_ref",
+            "pending_overlay_receipt_ref",
+            "native_membership_receipt_ref",
+            "semantic_denominator_receipt_ref",
+            "semantic_projection_verification_receipt_ref",
+            "semantic_epoch_stamp",
+        ):
+            if getattr(admitted, field) != getattr(receipt, field):
+                raise ValueError("activated admission bridge evidence differs")
+        projection = read(
+            production.chronology_projection_ref, chronology.NativeChronologyProjectionStatement
+        )
+        if not isinstance(projection, chronology.NativeChronologyProjectionStatement):
+            raise ValueError("native projection type differs")
+
+        class RecordedCandidate:
+            def reconcile_candidate(
+                self, request: contracts.chronology.NativeChronologyQuery
+            ) -> contracts.chronology.NativeChronologyCandidate:
+                candidate = (
+                    projection.reconciliation.owner_context.owner_qualified_candidate.candidate
+                )
+                if candidate.query != request:
+                    raise ValueError("recorded projection query differs")
+                return candidate
+
+        query = projection.reconciliation.owner_context.query
+        if (
+            query.domain.family != "epoch"
+            or query.domain.proof_domain != "semantic_epoch"
+            or query.requested_cutoff_ref != production.epoch_ref
+            or query.requested_query_context_ref != production.requested_query_context_ref
+        ):
+            raise ValueError("projection belongs to another semantic epoch")
+        with epoch_deployment.composition_scope(runtime_artifact_store=artifact_store):
+            qualified = QualificationConsumer.from_deployment(epoch_deployment).qualify(
+                adapter=RecordedCandidate(), request=query
+            )
+        if (
+            not isinstance(qualified, chronology.NativeChronologyQualified)
+            or qualified.projection_receipt.artifact_ref != production.chronology_projection_ref
+            or qualified.persisted_proof.artifact_ref != production.chronology_bundle_ref
+            or qualified.persisted_proof.verifier_result_ref
+            != production.chronology_verification_ref
+        ):
+            raise ValueError("native qualification replay did not reproduce production evidence")
+        return activated
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise SemanticEpochAdmissionResolutionError(
+            "basis_mismatch", "activated epoch readback: " + str(exc)
+        ) from exc
 
 
 def revalidate_admission_passport(
@@ -2389,5 +2585,6 @@ __all__ = [
     "measure_quarantined_sample",
     "persist_acquisition_quarantine",
     "require_live_catalog_constraints_within_authority_scope",
+    "resolve_activated_semantic_epoch_admission",
     "revalidate_admission_passport",
 ]

@@ -10,7 +10,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
-from pathlib import Path  # noqa: TC003 - Pydantic resolves configuration annotations at runtime.
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal, TypeVar
 from weakref import WeakKeyDictionary
 
@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.epoch_validity_cascade import (
         EpochPerturbationAdjudicationProvider,
     )
+    from polisyos.runtime.quality.semantic_epoch import EpochChronologyPolicyOwner
 
 contract = contracts.chronology
 _Model = TypeVar("_Model", bound=BaseModel)
@@ -130,11 +131,22 @@ class _EpochDeploymentState:
     issuance_input_resolver: EpochCertificateIssuanceInputResolver | None
     adjudication_provider: EpochPerturbationAdjudicationProvider | None
     disposition_reader: EpochOwnerDispositionEvidenceReader | None
+    chronology_policy_owner: EpochChronologyPolicyOwner | None
     component_operations: tuple[tuple[object, str, Callable[..., object]], ...]
+    runtime_store_affiliates: tuple[EpochDeployment, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _EpochRuntimeStoreBinding:
+    owners: tuple[tuple[EpochDeployment, _EpochDeploymentState], ...]
+    store: artifacts.ArtifactStore
 
 
 _OWNERS: WeakKeyDictionary[EpochDeployment, _EpochDeploymentState] = WeakKeyDictionary()
 _COMPOSITION: ContextVar[EpochDeployment | None] = ContextVar("epoch_deployment", default=None)
+_RUNTIME_STORE: ContextVar[tuple[_EpochRuntimeStoreBinding, ...]] = ContextVar(
+    "epoch_runtime_artifact_store", default=()
+)
 
 
 class EpochDeployment:
@@ -178,17 +190,60 @@ class EpochDeployment:
                 (id(component), method, id(getattr(captured, "__func__", captured)))
                 for component, method, captured in state.component_operations
             ],
+            "runtime_store_affiliates": [id(owner) for owner in state.runtime_store_affiliates],
         }
 
     @contextmanager
-    def composition_scope(self) -> Iterator[None]:
-        """Bind no-argument composition only for this lexical execution scope."""
-        self._state()
+    def composition_scope(
+        self, *, runtime_artifact_store: artifacts.ArtifactStore | None = None
+    ) -> Iterator[None]:
+        """Bind composition and optional runtime custody without changing policy trust."""
+        self.attestation_state()
+        binding = None
+        if runtime_artifact_store is not None:
+            root = getattr(runtime_artifact_store, "root", None)
+            owners = (self, *self._state().runtime_store_affiliates)
+            if not isinstance(root, Path):
+                raise ValueError("epoch runtime artifact backing is unresolved")
+            root = root.resolve()
+            for owner in owners:
+                owner.attestation_state()
+                configured_root = owner._state().config.evidence_cas_root
+                if configured_root is None or configured_root.resolve() != root:
+                    raise ValueError("epoch runtime artifact backing differs from deployment")
+            binding = _EpochRuntimeStoreBinding(
+                owners=tuple((owner, owner._state()) for owner in owners),
+                store=runtime_artifact_store,
+            )
         token = _COMPOSITION.set(self)
+        store_token = (
+            _RUNTIME_STORE.set((*_RUNTIME_STORE.get(), binding)) if binding is not None else None
+        )
         try:
             yield
         finally:
+            if store_token is not None:
+                _RUNTIME_STORE.reset(store_token)
             _COMPOSITION.reset(token)
+
+    def _scoped_runtime_artifact_store(self) -> artifacts.ArtifactStore | None:
+        for binding in reversed(_RUNTIME_STORE.get()):
+            for owner, state in binding.owners:
+                if owner is self:
+                    if self._state() is not state:
+                        raise ValueError("epoch runtime custody owner changed during operation")
+                    return binding.store
+        return None
+
+    def _runtime_artifact_store(self) -> artifacts.ArtifactStore | None:
+        scoped = self._scoped_runtime_artifact_store()
+        return scoped if scoped is not None else self._state().store
+
+    def _runtime_repository(self) -> FileSystemSignedArtifactEvidenceRepository:
+        store = self._runtime_artifact_store()
+        if store is None:
+            raise ValueError("epoch runtime evidence repository is not configured")
+        return FileSystemSignedArtifactEvidenceRepository(store)
 
     def _repository(self) -> FileSystemSignedArtifactEvidenceRepository:
         store = self._state().store
@@ -381,9 +436,11 @@ def build_epoch_deployment(
     config: EpochDeploymentConfig | None,
     *,
     native_policy_verifier: contract.PredicatePolicyOwnerProvenanceVerifier | None = None,
+    epoch_chronology_policy_owner: EpochChronologyPolicyOwner | None = None,
     epoch_certificate_issuance_input_resolver: EpochCertificateIssuanceInputResolver | None = None,
     epoch_perturbation_adjudication_provider: EpochPerturbationAdjudicationProvider | None = None,
     epoch_owner_disposition_evidence_reader: EpochOwnerDispositionEvidenceReader | None = None,
+    _runtime_store_affiliates: tuple[EpochDeployment, ...] = (),
 ) -> EpochDeployment:
     """Build a deployment-local owner with an optional privileged native verifier.
 
@@ -405,12 +462,20 @@ def build_epoch_deployment(
         (row.identity, row.public_key_path.read_bytes(), row.roles)
         for row in config.trusted_issuers
     )
+    for affiliate in _runtime_store_affiliates:
+        if type(affiliate) is not EpochDeployment:
+            raise TypeError("runtime store affiliate must be a factory-produced epoch owner")
+        affiliate.attestation_state()
+        if affiliate._state().config.evidence_cas_root != config.evidence_cas_root:
+            raise ValueError("epoch runtime store affiliate has a different evidence root")
     owner = object.__new__(EpochDeployment)
     native_operation = getattr(native_policy_verifier, "verify_owner_relation", None)
     if native_policy_verifier is not None and not callable(native_operation):
         raise TypeError("native policy verifier does not implement its owner contract")
     component_operations = []
     for component, method in (
+        (epoch_chronology_policy_owner, "member_predicates"),
+        (epoch_chronology_policy_owner, "query_predicates"),
         (epoch_certificate_issuance_input_resolver, "resolve_verified_inputs"),
         (epoch_certificate_issuance_input_resolver, "resolve_admitted_execution_closure"),
         (epoch_perturbation_adjudication_provider, "resolve_complete_owner_adjudications"),
@@ -434,7 +499,9 @@ def build_epoch_deployment(
         issuance_input_resolver=epoch_certificate_issuance_input_resolver,
         adjudication_provider=epoch_perturbation_adjudication_provider,
         disposition_reader=epoch_owner_disposition_evidence_reader,
+        chronology_policy_owner=epoch_chronology_policy_owner,
         component_operations=tuple(component_operations),
+        runtime_store_affiliates=_runtime_store_affiliates,
     )
     _OWNERS[owner] = state
     if state.store is not None:

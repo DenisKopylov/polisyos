@@ -22,6 +22,10 @@ from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.data_forge import read_api
 from polisyos.fabric import data_plane  # noqa: TC001 - Pydantic resolves this field at runtime.
 from polisyos.runtime.quality import acquisition_executor, semantic_epoch
+from polisyos.runtime.quality.epoch_deployment import EpochDeploymentConfig  # noqa: TC001
+from polisyos.runtime.quality.semantic_epoch_qualification import (
+    build_semantic_epoch_native_deployment,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -47,12 +51,16 @@ class AcquisitionEpochAdmissionRequest(BaseModel):
     purpose_admission_cutoff_evidence_ref: artifacts.ArtifactRef
     facet_source_refs: dict[str, artifacts.ArtifactRef]
     live_source_execution: read_api.catalog.LiveSourceExecutionEvidence | None = None
+    epoch_deployment_config: EpochDeploymentConfig | None = None
 
 
 def run_admission(
     request: AcquisitionEpochAdmissionRequest,
-) -> semantic_epoch.PersistedSemanticEpochProductionReceipt:
-    """Invoke the existing producer and admit its complete persisted negative statement.
+) -> (
+    semantic_epoch.PersistedSemanticEpochProductionReceipt
+    | acquisition_executor.ActivatedSemanticEpochAdmissionReceipt
+):
+    """Invoke the existing producer and verify its persisted activation or refusal.
 
     Args:
         request: Operational paths and existing evidence references. Canonical
@@ -63,7 +71,7 @@ def run_admission(
 
     Raises:
         ValueError: An owner input or persisted receipt cannot be verified.
-        RuntimeError: The producer returns an unsupported activation result.
+        RuntimeError: The producer returns an unsupported result.
     """
 
     authority = read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
@@ -76,6 +84,15 @@ def run_admission(
             root=str(request.cas_root),
         ),
     )
+    config = request.epoch_deployment_config
+    if config is not None and (
+        config.evidence_cas_root is None
+        or config.evidence_cas_root.resolve() != request.cas_root.resolve()
+        or config.native_epoch_history_root is None
+        or config.native_epoch_history_root.resolve() != request.epoch_history_root.resolve()
+    ):
+        raise ValueError("acquisition epoch deployment paths differ from the admission owners")
+    deployment = build_semantic_epoch_native_deployment(config)
     receipt = acquisition_executor.admit_acquisition_with_production_semantic_epoch(
         repo_root=request.repo_root,
         epoch_id=request.epoch_id,
@@ -87,32 +104,40 @@ def run_admission(
         epoch_scope_identity=request.epoch_scope_identity,
         authority_purpose=request.authority_purpose,
         valid_effect_coordinate_evidence_ref=request.valid_effect_coordinate_evidence_ref,
-        visibility_knowledge_cutoff_evidence_ref=(
-            request.visibility_knowledge_cutoff_evidence_ref
-        ),
+        visibility_knowledge_cutoff_evidence_ref=(request.visibility_knowledge_cutoff_evidence_ref),
         purpose_admission_cutoff_evidence_ref=request.purpose_admission_cutoff_evidence_ref,
         facet_source_refs=request.facet_source_refs,
         live_source_execution=request.live_source_execution,
+        epoch_deployment=deployment,
     )
+    if isinstance(receipt, acquisition_executor.ActivatedSemanticEpochAdmissionReceipt):
+        acquisition_executor.resolve_activated_semantic_epoch_admission(
+            receipt=receipt,
+            artifact_store=store,
+            overlay=read_api.catalog.CatalogAcquisitionOverlay(
+                request.baseline_path, request.overlay_path
+            ),
+            epoch_deployment=deployment,
+        )
+        return receipt
     if type(receipt) is not semantic_epoch.PersistedSemanticEpochProductionReceipt:
         raise RuntimeError("acquisition_epoch_activation_consumer_not_established")
-    statement = epoch_contract.SemanticEpochProductionReceiptStatement.model_validate(
-        epoch_contract.load_verified_epoch_statement(
-            store=store,
-            ref=receipt.receipt_ref,
-            expected_kind="epoch.production_receipt",
-            expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
-        )
+    statement = epoch_contract.load_verified_epoch_statement(
+        store=store,
+        ref=receipt.receipt_ref,
+        expected_kind="epoch.production_receipt",
+        expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
     )
+    epoch_contract.SemanticEpochProductionReceiptStatement.model_validate(statement)
     projected = receipt.model_dump(
         mode="json",
         include=set(epoch_contract.SemanticEpochProductionReceiptStatement.model_fields),
     )
-    if statement.model_dump(mode="json") != projected:
+    if statement != projected:
         raise ValueError("acquisition_epoch_production_receipt_content_mismatch")
     return semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(
         {
-            **statement.model_dump(mode="python"),
+            **statement,
             "receipt_ref": receipt.receipt_ref,
             "receipt_content_hash": receipt.receipt_content_hash,
         }
@@ -127,7 +152,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Returns:
         One for a typed negative receipt; two for invalid/unresolved input or
-        receipt evidence. Positive activation is outside this command's consumer.
+        receipt evidence. Zero requires verified owner activation.
     """
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -140,7 +165,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.stderr.write(json.dumps({"error": str(exc), "error_type": type(exc).__name__}) + "\n")
         return 2
     sys.stdout.write(receipt.model_dump_json() + "\n")
-    return 1
+    return (
+        0 if isinstance(receipt, acquisition_executor.ActivatedSemanticEpochAdmissionReceipt) else 1
+    )
 
 
 if __name__ == "__main__":

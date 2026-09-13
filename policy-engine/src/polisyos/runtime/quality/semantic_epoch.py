@@ -12,7 +12,14 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, NoReturn, Protocol, Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.core import artifacts, canon, contracts
 from polisyos.runtime.quality.chronology_qualification import (
@@ -994,6 +1001,23 @@ class EpochChronologyPolicyOwner(Protocol):
     ) -> tuple[chronology_contract.QueryPredicateDisposition, ...]: ...
 
 
+def _history_view_bytes(
+    *,
+    scope: EpochScopeIdentity,
+    authority_purpose: str,
+    entries: tuple[EpochHistoryEntry, ...],
+    head_refs: tuple[Digest, ...],
+) -> bytes:
+    statement = {
+        "schema_version": "polisyos.epoch.scope-history.v1",
+        "scope": scope.model_dump(mode="json"),
+        "authority_purpose": authority_purpose,
+        "entries": [entry.model_dump(mode="json") for entry in entries],
+        "head_refs": list(head_refs),
+    }
+    return chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
+
+
 def _persist_history_view(
     *,
     artifacts: ArtifactStore,
@@ -1002,14 +1026,12 @@ def _persist_history_view(
     entries: tuple[EpochHistoryEntry, ...],
     head_refs: tuple[Digest, ...],
 ) -> EpochScopeHistory:
-    statement = {
-        "schema_version": "polisyos.epoch.scope-history.v1",
-        "scope": scope.model_dump(mode="json"),
-        "authority_purpose": authority_purpose,
-        "entries": [entry.model_dump(mode="json") for entry in entries],
-        "head_refs": list(head_refs),
-    }
-    raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
+    raw = _history_view_bytes(
+        scope=scope,
+        authority_purpose=authority_purpose,
+        entries=entries,
+        head_refs=head_refs,
+    )
     ref = artifacts.put_bytes(
         raw,
         ArtifactWriteOptions(
@@ -1257,7 +1279,9 @@ class PersistedSemanticEpochProductionReceipt(SemanticEpochProductionReceipt):
     @model_validator(mode="after")
     def _bind_exact_statement(self) -> Self:
         statement = {
-            name: getattr(self, name) for name in SemanticEpochProductionReceipt.model_fields
+            name: getattr(self, name)
+            for name in SemanticEpochProductionReceipt.model_fields
+            if name != "chronology_projection_ref" or name in self.model_fields_set
         }
         raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
         if (
@@ -1272,6 +1296,14 @@ class PersistedSemanticEpochProductionReceipt(SemanticEpochProductionReceipt):
         ):
             raise ValueError("persisted epoch production receipt content hash differs")
         return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_exact_statement(self, handler: SerializerFunctionWrapHandler) -> object:
+        """Retain the absent projection field in pre-projection receipt grammar."""
+        payload = handler(self)
+        if "chronology_projection_ref" not in self.model_fields_set and isinstance(payload, dict):
+            payload.pop("chronology_projection_ref", None)
+        return payload
 
 
 def _persist_model(
@@ -1326,6 +1358,7 @@ def persist_semantic_epoch_production_receipt(
                     receipt.history_append_receipt_ref,
                     receipt.chronology_bundle_ref,
                     receipt.chronology_verification_ref,
+                    receipt.chronology_projection_ref,
                 )
                 if ref is not None
             ],
@@ -2020,7 +2053,9 @@ class SemanticEpochService:
             raise TypeError("semantic epoch query requires a registered deployment")
         service = object.__new__(cls)
         service._artifact_store = artifact_store
-        service._qualification_consumer = QualificationConsumer.from_deployment(deployment)
+        service._qualification_consumer = QualificationConsumer.from_deployment(
+            deployment, runtime_artifact_store=artifact_store
+        )
         service._chronology_adapter = EpochEvidenceExchange(deployment)
         service._resolution_components_established = False
         return service
@@ -2374,6 +2409,7 @@ class SemanticEpochService:
             history_append_receipt_ref=append.history_receipt_ref,
             chronology_bundle_ref=qualified.persisted_proof.artifact_ref,
             chronology_verification_ref=qualified.persisted_proof.verifier_result_ref,
+            chronology_projection_ref=qualified.projection_receipt.artifact_ref,
             requested_query_context_ref=query.requested_query_context_ref,
             failure_codes=(),
         )

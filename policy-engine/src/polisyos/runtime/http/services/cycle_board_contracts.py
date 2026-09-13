@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003 - Pydantic resolves the fact clocks
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -15,6 +15,10 @@ from polisyos.runtime.http.services.governed_projections import (
     ProjectionFreshness,
     ProjectionId,
     SurfaceReadinessPayload,
+)
+from polisyos.runtime.quality.acquisition_movement import (  # noqa: TC001 - Pydantic resolves nested DTOs.
+    MovementRecord,
+    MovementRowProjection,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 
@@ -120,7 +124,8 @@ class CycleBoardRow(_StrictModel):
     surface_readiness: ReadinessFact
     explanation_code: str
     explanation_inputs: dict[str, str]
-    movement_records: tuple[dict[str, Any], ...] = ()
+    movement_records: tuple[MovementRecord, ...] = ()
+    movement_status: MovementRowProjection | None = None
 
 
 class CycleBoardCoverageGap(_StrictModel):
@@ -147,10 +152,12 @@ class CycleBoardCoverageGap(_StrictModel):
 
 
 class CycleBoardMovementGap(_StrictModel):
-    """Render the absent per-row N13b re-entry binding without simulated motion."""
+    """Disclose admission coverage for the board's already enumerated rows."""
 
-    capability_state: Literal["absent/unallocated"] = "absent/unallocated"
-    deficits: tuple[Literal["artifact_missing", "bridge_missing"], ...] = (
+    capability_state: Literal["absent/unallocated", "verification_missing", "ready"] = (
+        "absent/unallocated"
+    )
+    deficits: tuple[Literal["artifact_missing", "bridge_missing", "verification_missing"], ...] = (
         "artifact_missing",
         "bridge_missing",
     )
@@ -159,8 +166,10 @@ class CycleBoardMovementGap(_StrictModel):
     )
     producer_route: Literal["GY-GAP6 -> GY-N13b"] = "GY-GAP6 -> GY-N13b"
     chronology_route: Literal["GY-N12"] = "GY-N12"
-    execution_status: Literal["not_established"] = "not_established"
-    movement_records: tuple[dict[str, Any], ...] = ()
+    execution_status: Literal["not_established", "partial", "admitted"] = "not_established"
+    movement_records: tuple[MovementRecord, ...] = ()
+    scope: Literal["known_board_rows_only"] = "known_board_rows_only"
+    exhaustive: Literal[False] = False
 
 
 class HistoricalDS4Disposition(_StrictModel):
@@ -175,11 +184,40 @@ class HistoricalDS4Disposition(_StrictModel):
     denominator: int = Field(ge=0)
 
 
+class HistoricalProducerAvailabilityReadReceipt(_StrictModel):
+    """Actual input read and interpretation boundary of the historical DS3 loader."""
+
+    source_ref: str
+    read_status: Literal["read", "failed"]
+    status: Literal["COMPLETE", "UNRUN"]
+    coverage: Literal["complete_selected_input", "partial"]
+    source_content_hash: str | None
+    read_error: str | None
+    table_row_denominator: int | None = Field(ge=0)
+    selected_measurement_cell_count: int | None = Field(ge=0)
+    selector: Literal["all_markdown_table_cells_with_ds3_measurement"] = (
+        "all_markdown_table_cells_with_ds3_measurement"
+    )
+    unresolved_by_construction: tuple[
+        Literal[
+            "non_table_sections_uninterpreted",
+            "other_sources_unselected",
+            "current_availability_not_measured",
+        ],
+        ...,
+    ] = (
+        "non_table_sections_uninterpreted",
+        "other_sources_unselected",
+        "current_availability_not_measured",
+    )
+
+
 class HistoricalProducerAvailability(_StrictModel):
     """Environment-relative DS3 measurement, never current producer authority."""
 
     source_ref: str
     source_content_hash: str
+    read_receipt: HistoricalProducerAvailabilityReadReceipt
     counts: dict[
         Literal["available", "invalid_source", "artifact_missing"],
         int,
@@ -198,6 +236,7 @@ class CycleBoardCompositionSource(_StrictModel):
         "historical_owner_record",
         "run_summary_lookup",
         "run_paper_projection",
+        "native_movement",
     ]
     source_ref: str | None = None
     availability: Literal[

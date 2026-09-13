@@ -253,14 +253,19 @@ class _TransitionHistoryFixture:
     current_receipt: semantic_epoch_runtime.PersistedSemanticEpochProductionReceipt
 
 
-def _transition_history_fixture(tmp_path: Path) -> _TransitionHistoryFixture:
-    store = artifacts.FileSystemCAS(tmp_path / "cas")
+def _transition_history_fixture(
+    tmp_path: Path, *, authority_purpose: str = "decision_validity",
+    store: artifacts.FileSystemCAS | None = None,
+) -> _TransitionHistoryFixture:
+    store = store if store is not None else artifacts.FileSystemCAS(tmp_path / "cas")
     history = FileSemanticEpochHistoryRepository(
         root=tmp_path / "history",
         artifacts=store,
     )
     scope = _epoch_scope()
-    previous = _epoch_manifest(scope=scope, label="previous", predecessors=())
+    previous = _epoch_manifest(
+        scope=scope, label="previous", predecessors=(), authority_purpose=authority_purpose
+    )
     previous_ref = _persist_epoch_manifest(store, previous)
     previous_entry = _epoch_history_entry(previous, previous_ref)
     previous_append = _append_epoch_manifest(
@@ -283,6 +288,7 @@ def _transition_history_fixture(tmp_path: Path) -> _TransitionHistoryFixture:
         scope=scope,
         label="current",
         predecessors=(previous.epoch_ref,),
+        authority_purpose=authority_purpose,
     )
     current_ref = _persist_epoch_manifest(store, current)
     current_entry = _epoch_history_entry(current, current_ref)

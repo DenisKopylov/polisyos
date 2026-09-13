@@ -1,7 +1,7 @@
 """Owner-qualified composition over the policy-free full-prefix protocol.
 
 This module is production-internal.  It resolves family-owner policy and
-provenance from the one process owner container, then drives the common builder
+provenance from its captured owner registry, then drives the common builder
 and verifier.  It does not create a family producer, accept an anchor, or
 promote the common commitment head into a native authority head.
 """
@@ -174,7 +174,13 @@ def _reconcile_predicates(
 class QualificationConsumer:
     """Resolve owner policy and qualify one candidate through the real verifier."""
 
-    __slots__ = ("_creator_pid", "_generation", "_owner", "_policy_authority_unallocated")
+    __slots__ = (
+        "_creator_pid",
+        "_generation",
+        "_owner",
+        "_policy_authority_unallocated",
+        "_registry",
+    )
 
     def __init__(self) -> None:
         raise TypeError("use QualificationConsumer.from_current_owner_container()")
@@ -189,6 +195,7 @@ class QualificationConsumer:
         registry = chronology_proof._PERSISTENCE_REGISTRY
         owner = registry._resolve_current_owner()
         consumer = object.__new__(cls)
+        consumer._registry = registry
         consumer._owner = owner
         consumer._generation = registry._generation
         consumer._creator_pid = os.getpid()
@@ -206,10 +213,27 @@ class QualificationConsumer:
 
         registry = chronology_proof._PERSISTENCE_REGISTRY
         consumer = object.__new__(cls)
+        consumer._registry = registry
         consumer._owner = None
         consumer._generation = registry._generation
         consumer._creator_pid = os.getpid()
         consumer._policy_authority_unallocated = True
+        return consumer
+
+    @classmethod
+    def from_deployment(cls, deployment: object) -> QualificationConsumer:
+        """Capture a registered deployment's private registry without test factories."""
+        from polisyos.runtime.quality.epoch_deployment import EpochDeployment
+
+        if type(deployment) is not EpochDeployment:
+            raise TypeError("qualification requires a factory-produced epoch deployment")
+        registry = deployment._state().registry
+        consumer = object.__new__(cls)
+        consumer._registry = registry
+        consumer._owner = registry._resolve_current_owner()
+        consumer._generation = registry._generation
+        consumer._creator_pid = os.getpid()
+        consumer._policy_authority_unallocated = consumer._owner is None
         return consumer
 
     def qualify(
@@ -219,7 +243,7 @@ class QualificationConsumer:
         request: contract.NativeChronologyQuery,
     ) -> contract.NativeChronologyQualificationResult:
         """Qualify one native candidate without taking family authority."""
-        registry = chronology_proof._PERSISTENCE_REGISTRY
+        registry = self._registry
         if self._creator_pid != os.getpid() or self._generation is not registry._generation:
             return _entry_generation_failure(request)
 

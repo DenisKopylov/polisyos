@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Self, TypeVar
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, contracts
 from polisyos.runtime.http.authorization import (
     CANONICAL_ROLE_AUTHORIZATION_SOURCE,
     DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE,
@@ -51,11 +51,23 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionTrustPolicy,
 )
 from polisyos.runtime.http.step_up import JWTStepUpAssertionVerifier
+from polisyos.runtime.quality.epoch_deployment import (
+    EpochDeployment,
+    EpochDeploymentConfig,
+    build_epoch_deployment,
+)
 
 if TYPE_CHECKING:
     from typing import Any
 
     from polisyos.runtime.http.security import UserIdentityClaims
+    from polisyos.runtime.quality.epoch_certificate_issuance import (
+        EpochCertificateIssuanceInputResolver,
+    )
+    from polisyos.runtime.quality.epoch_transition_inputs import EpochOwnerDispositionEvidenceReader
+    from polisyos.runtime.quality.epoch_validity_cascade import (
+        EpochPerturbationAdjudicationProvider,
+    )
 
 _CONFIG_PATH_ENV = "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH"
 _TRUSTED_JWT_ALGORITHMS = frozenset({"RS256", "ES256", "EdDSA"})
@@ -252,6 +264,7 @@ class DeploymentSecurityConfig(BaseModel):
     opa: OPADeploymentConfig
     service_principals: tuple[ServicePrincipalGrant, ...] = ()
     human_decision_custody: HumanDecisionCustodyConfig | None = None
+    epoch_deployment: EpochDeploymentConfig | None = None
 
     @model_validator(mode="after")
     def _validate_unique_principals(self) -> Self:
@@ -588,6 +601,7 @@ class RuntimeDeploymentSecurity:
     step_up_verifier: DeploymentJWTStepUpAssertionVerifier = field(repr=False)
     principal_grants: DeploymentPrincipalGrantResolver = field(repr=False)
     human_decision_custody: DeploymentHumanDecisionCustody = field(repr=False)
+    epoch_deployment: EpochDeployment = field(repr=False)
 
     def __init__(
         self,
@@ -599,6 +613,7 @@ class RuntimeDeploymentSecurity:
         step_up_verifier: DeploymentJWTStepUpAssertionVerifier,
         principal_grants: DeploymentPrincipalGrantResolver,
         human_decision_custody: DeploymentHumanDecisionCustody,
+        epoch_deployment: EpochDeployment,
     ) -> None:
         raise TypeError(
             "RuntimeDeploymentSecurity is factory-only; use build_deployment_security(config)"
@@ -620,6 +635,9 @@ class RuntimeDeploymentSecurity:
         if type(self.human_decision_custody) is not DeploymentHumanDecisionCustody:
             raise TypeError("human_decision_custody must come from deployment configuration")
         self.human_decision_custody.__post_init__()
+        if type(self.epoch_deployment) is not EpochDeployment:
+            raise TypeError("epoch_deployment must come from deployment configuration")
+        self.epoch_deployment.attestation_state()
 
 
 _CANONICAL_DEPLOYMENT_BEHAVIOR_ORIGINS: tuple[object, ...] = (
@@ -641,6 +659,10 @@ _CANONICAL_DEPLOYMENT_BEHAVIOR_ORIGINS: tuple[object, ...] = (
     artifacts.Ed25519Signer.build_statement,
     artifacts.Ed25519Signer.sign,
     artifacts.Ed25519Verifier.verify,
+    EpochDeployment.resolve_admitted_signing_profile,
+    EpochDeployment.verify_transition_signature,
+    EpochDeployment.resolve_exact_signed_transition,
+    EpochDeployment.attestation_state,
 )
 
 
@@ -658,6 +680,7 @@ class _DeploymentSecurityAttestation:
         DeploymentJWTStepUpAssertionVerifier,
         DeploymentPrincipalGrantResolver,
         DeploymentHumanDecisionCustody,
+        EpochDeployment,
     ]
 
 
@@ -680,6 +703,7 @@ def _deployment_components(
     DeploymentJWTStepUpAssertionVerifier,
     DeploymentPrincipalGrantResolver,
     DeploymentHumanDecisionCustody,
+    EpochDeployment,
 ]:
     return (
         runtime.identity_provider,
@@ -688,6 +712,7 @@ def _deployment_components(
         runtime.step_up_verifier,
         runtime.principal_grants,
         runtime.human_decision_custody,
+        runtime.epoch_deployment,
     )
 
 
@@ -921,6 +946,7 @@ def _deployment_authority_state_fingerprint(
         "human_decision_custody": _deployment_human_decision_custody_state(
             runtime.human_decision_custody
         ),
+        "epoch_deployment": runtime.epoch_deployment.attestation_state(),
     }
     serialized = json.dumps(
         payload,
@@ -953,6 +979,10 @@ def _deployment_behavior_origins(
         artifacts.Ed25519Signer.build_statement,
         artifacts.Ed25519Signer.sign,
         artifacts.Ed25519Verifier.verify,
+        EpochDeployment.resolve_admitted_signing_profile,
+        EpochDeployment.verify_transition_signature,
+        EpochDeployment.resolve_exact_signed_transition,
+        EpochDeployment.attestation_state,
     )
 
 
@@ -1044,7 +1074,15 @@ def require_installed_deployment_security(
     return runtime
 
 
-def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploymentSecurity:
+def build_deployment_security(
+    config: DeploymentSecurityConfig,
+    *,
+    native_epoch_policy_verifier: contracts.chronology.PredicatePolicyOwnerProvenanceVerifier
+    | None = None,
+    epoch_certificate_issuance_input_resolver: EpochCertificateIssuanceInputResolver | None = None,
+    epoch_perturbation_adjudication_provider: EpochPerturbationAdjudicationProvider | None = None,
+    epoch_owner_disposition_evidence_reader: EpochOwnerDispositionEvidenceReader | None = None,
+) -> RuntimeDeploymentSecurity:
     """Build the genuine runtime collaborators from one validated deployment contract."""
     if type(config) is not DeploymentSecurityConfig:
         raise TypeError("config must be a DeploymentSecurityConfig")
@@ -1087,6 +1125,17 @@ def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploy
         "human_decision_custody",
         _build_human_decision_custody(config.human_decision_custody),
     )
+    object.__setattr__(
+        runtime,
+        "epoch_deployment",
+        build_epoch_deployment(
+            config.epoch_deployment,
+            native_policy_verifier=native_epoch_policy_verifier,
+            epoch_certificate_issuance_input_resolver=epoch_certificate_issuance_input_resolver,
+            epoch_perturbation_adjudication_provider=epoch_perturbation_adjudication_provider,
+            epoch_owner_disposition_evidence_reader=epoch_owner_disposition_evidence_reader,
+        ),
+    )
     runtime.__post_init__()
     attestation = _DeploymentSecurityAttestation(
         config=config,
@@ -1107,6 +1156,7 @@ def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploy
             "step_up_verifier": runtime.step_up_verifier,
             "principal_grants": runtime.principal_grants,
             "human_decision_custody": runtime.human_decision_custody,
+            "epoch_deployment": runtime.epoch_deployment,
         },
     )
     return require_factory_produced_deployment_security(runtime)

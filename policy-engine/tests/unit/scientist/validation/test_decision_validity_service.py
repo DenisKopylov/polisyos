@@ -801,6 +801,96 @@ def test_epoch_impact_snapshot_persists_exact_manifest_and_readback(tmp_path) ->
             )
 
 
+def test_epoch_impact_snapshot_for_targets_enumerates_all_owner_keys(tmp_path) -> None:
+    """A verifier cannot omit a second owner key for the same Runtime target."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = DecisionValidityService(store)
+    target = _put_json(store, {"target": "selected"}, kind="runtime.epoch_target")
+    outside = _put_json(store, {"target": "outside"}, kind="runtime.epoch_target")
+    selected_packets = {
+        _register_reconciliation_packet(
+            service,
+            store,
+            dependency_key=key,
+            dependency_artifact_id=str(target.artifact_id),
+            lineage_key=f"lineage-{key}",
+        )
+        for key in ("epoch::a", "epoch::b")
+    }
+    _register_reconciliation_packet(
+        service,
+        store,
+        dependency_key="epoch::outside",
+        dependency_artifact_id=str(outside.artifact_id),
+        lineage_key="lineage-outside",
+    )
+    service._state.save_dependency(
+        _DecisionDependencyIndex(
+            dependency_key="epoch::zero-impact",
+            dependency_kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+            artifact_id=str(target.artifact_id),
+        )
+    )
+
+    persisted = service.persist_epoch_impact_snapshot_for_targets(
+        target_refs=(target,),
+        requested_query_context_ref="sha256:" + "c" * 64,
+    )
+
+    assert persisted.snapshot.requested_dependency_keys == (
+        "epoch::a",
+        "epoch::b",
+        "epoch::zero-impact",
+    )
+    assert {row.packet_ref for row in persisted.snapshot.targets} == selected_packets
+    assert service.resolve_epoch_impact_snapshot(handle=persisted.handle) == persisted
+
+
+@pytest.mark.parametrize("corruption", ["unreadable-row", "missing-row", "wrong-filename"])
+def test_epoch_impact_snapshot_for_targets_refuses_incomplete_owner_index(
+    tmp_path, corruption: str
+) -> None:
+    """A hidden or malformed owner member cannot turn a partial scan into complete evidence."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = DecisionValidityService(store)
+    target = _put_json(store, {"target": "selected"}, kind="runtime.epoch_target")
+    _register_reconciliation_packet(
+        service,
+        store,
+        dependency_key="epoch::selected",
+        dependency_artifact_id=str(target.artifact_id),
+        lineage_key="lineage-selected",
+    )
+    owner_path = service._state._dependency_path("epoch::selected")
+    if corruption == "unreadable-row":
+        (owner_path.parent / "unclassified.json").write_text("{", encoding="utf-8")
+    elif corruption == "missing-row":
+        owner_path.unlink()
+    else:
+        owner_path.rename(owner_path.parent / "wrong-owner-key.json")
+
+    with pytest.raises(RuntimeError, match="^decision_validity_owner_state_corrupt$"):
+        service.persist_epoch_impact_snapshot_for_targets(
+            target_refs=(target,),
+            requested_query_context_ref="sha256:" + "c" * 64,
+        )
+
+
+def test_epoch_impact_snapshot_for_targets_rejects_false_artifact_profile(tmp_path) -> None:
+    """Target selection resolves actual bytes and manifest instead of trusting an ID label."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = DecisionValidityService(store)
+    target = _put_json(store, {"target": "selected"}, kind="runtime.epoch_target")
+    with pytest.raises(ValueError, match="^dependency_denominator_unresolved$"):
+        service.persist_epoch_impact_snapshot_for_targets(
+            target_refs=(target.model_copy(update={"kind": "wrong.target"}),),
+            requested_query_context_ref="sha256:" + "c" * 64,
+        )
+
+
 def test_epoch_impact_snapshot_resolver_normalizes_backend_key_error(tmp_path) -> None:
     """A backend lookup miss remains inside the snapshot resolver error boundary."""
 
@@ -934,9 +1024,12 @@ def test_strict_snapshot_refuses_nullable_owner_but_legacy_digest_is_unchanged(t
             "lineage_keys": ["lineage-nullable"],
         }
     ]
-    expected_digest = "sha256:" + hashlib.sha256(
-        json.dumps(expected_rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
+    expected_digest = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(expected_rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+    )
 
     targets, digest = service._resolve_epoch_target_denominator(
         dependency_keys=("epoch::nullable",)
@@ -1194,9 +1287,10 @@ def test_no_reconciliation_reader_preserves_legacy_admission_and_lazy_state(tmp_
     restarted = DecisionValidityService(store)
 
     assert receipt.schema_version == "polisyos.decision-validity.epoch-batch-receipt.v1"
-    assert receipt.dependency_denominator_ref == service._resolve_epoch_target_denominator(
-        dependency_keys=("epoch::owner-fixture",)
-    )[1]
+    assert (
+        receipt.dependency_denominator_ref
+        == service._resolve_epoch_target_denominator(dependency_keys=("epoch::owner-fixture",))[1]
+    )
     assert service._state.list_epoch_pending() == ()
     assert service._state.list_epoch_reconciliation_admission_bindings() == ()
     assert not binding_dir.exists()
@@ -1205,10 +1299,7 @@ def test_no_reconciliation_reader_preserves_legacy_admission_and_lazy_state(tmp_
         != "scientist.decision_validity_epoch_impact_snapshot"
         for artifact_id in store.iter_artifact_ids()
     )
-    assert (
-        service.read_current_projection(packet_rows[0][0]).status
-        == DecisionValidityStatus.STALE
-    )
+    assert service.read_current_projection(packet_rows[0][0]).status == DecisionValidityStatus.STALE
     with pytest.raises(ValueError, match="verifier_not_configured"):
         restarted.admit_epoch_validity_batch(
             transition_artifact_ref=transition,
@@ -2547,13 +2638,8 @@ def test_epoch_reconciliation_valid_alternative_sidecar_conflicts_with_frozen_bi
             transition_artifact_ref=fixture.transition_ref,
             requested_query_context_ref=fixture.query_ref,
         )
-    assert (
-        _before_epoch_owner_state(service, (*fixture.packet_refs, late_packet_ref))
-        == before
-    )
-    assert service._state.list_epoch_reconciliation_admission_bindings()[0].handle == (
-        first.handle
-    )
+    assert _before_epoch_owner_state(service, (*fixture.packet_refs, late_packet_ref)) == before
+    assert service._state.list_epoch_reconciliation_admission_bindings()[0].handle == (first.handle)
 
 
 def test_epoch_batch_omitted_target_fails_closed(tmp_path) -> None:

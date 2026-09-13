@@ -14,6 +14,19 @@ import importlib
 from typing import Any
 
 __all__ = [
+    "decision_packet_invocation_input_refs",
+    "require_canonical_decision_packet_invocation",
+    "DECISION_PACKET_INVOCATION_KIND",
+    "DecisionPacketInvocationRecord",
+    "CanonicalDecisionPacketInvocation",
+    "CompletedDecisionPacketExecution",
+    "EpochCertificateIssuanceNonReceipt",
+    "EpochCertificateIssuanceOwner",
+    "PersistedEpochCertificateIssuancePreparation",
+    "require_canonical_decision_packet_execution",
+    "DecisionValidityService",
+    "GOVERNANCE_MONITOR_EVENT_KIND",
+    "resolve_governance_monitor_event",
     "BudgetState",
     "ClaimLedgerCurrentHeadProjection",
     "ClaimLedgerOwnerPort",
@@ -43,6 +56,58 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "decision_packet_invocation_input_refs": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "decision_packet_invocation_input_refs",
+    ),
+    "require_canonical_decision_packet_invocation": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "require_canonical_decision_packet_invocation",
+    ),
+    "DECISION_PACKET_INVOCATION_KIND": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "DECISION_PACKET_INVOCATION_KIND",
+    ),
+    "DecisionPacketInvocationRecord": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "DecisionPacketInvocationRecord",
+    ),
+    "CanonicalDecisionPacketInvocation": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "CanonicalDecisionPacketInvocation",
+    ),
+    "CompletedDecisionPacketExecution": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "CompletedDecisionPacketExecution",
+    ),
+    "EpochCertificateIssuanceNonReceipt": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "EpochCertificateIssuanceNonReceipt",
+    ),
+    "EpochCertificateIssuanceOwner": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "EpochCertificateIssuanceOwner",
+    ),
+    "PersistedEpochCertificateIssuancePreparation": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "PersistedEpochCertificateIssuancePreparation",
+    ),
+    "require_canonical_decision_packet_execution": (
+        "polisyos.scientist.validation.epoch_certificate_issuance",
+        "require_canonical_decision_packet_execution",
+    ),
+    "DecisionValidityService": (
+        "polisyos.scientist.validation.decision_validity",
+        "DecisionValidityService",
+    ),
+    "GOVERNANCE_MONITOR_EVENT_KIND": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "GOVERNANCE_MONITOR_EVENT_KIND",
+    ),
+    "resolve_governance_monitor_event": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "resolve_governance_monitor_event",
+    ),
     "BudgetState": ("polisyos.scientist.orchestration.engine.budget", "BudgetState"),
     "ClaimLedgerCurrentHeadProjection": (
         "polisyos.scientist.evidence.claims.head_index",

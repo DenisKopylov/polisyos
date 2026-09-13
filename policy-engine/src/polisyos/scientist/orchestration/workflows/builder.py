@@ -81,6 +81,9 @@ if TYPE_CHECKING:
     )
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
     from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.validation.epoch_certificate_issuance import (
+        EpochCertificateIssuanceOwner,
+    )
 
     class QuotaEnforcer(Protocol):
         def check_run_start(self) -> None: ...
@@ -284,6 +287,7 @@ def build_execution_context(
     depth: int = 0,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> ClaimCapableExecutionContext:
     """Create the engine execution context shared by all nodes in one run.
 
@@ -301,6 +305,7 @@ def build_execution_context(
         audit: Optional audit sink.
         memory: Optional memory backend.
         depth: Sub-workflow nesting depth for trace/debug metadata.
+        epoch_certificate_issuance_owner: Trusted in-process epoch issuance owner.
 
     Returns:
         Fully initialized `ExecutionContext` with a started `RunContext`.
@@ -341,6 +346,7 @@ def build_execution_context(
         lex=lex,
         eval_safety_execution_context=eval_safety_execution_context,
         eval_safety_verifier=eval_safety_verifier,
+        epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         memory=memory,
         claim_ledger_owner=build_default_claim_ledger_owner(store=store),
     )
@@ -534,6 +540,7 @@ def run_selected_workflow(
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> WorkflowExecutionResult:
     """Dispatch to the builtin workflow runner chosen by `resolve_workflow_id()`.
 
@@ -573,6 +580,7 @@ def run_selected_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
     if workflow_id == "scientist_discovery":
         return run_discovery_workflow(
@@ -592,6 +600,7 @@ def run_selected_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
     if workflow_id == "scientist_policy_verified":
         return run_policy_verified_workflow(
@@ -611,6 +620,7 @@ def run_selected_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
     if workflow_id == "scientist_causal_full":
         return run_causal_full_workflow(
@@ -630,6 +640,7 @@ def run_selected_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
     return run_default_workflow(
         initial_state,
@@ -649,6 +660,7 @@ def run_selected_workflow(
         engine_metrics_factory=engine_metrics_factory,
         eval_safety_execution_context=eval_safety_execution_context,
         eval_safety_verifier=eval_safety_verifier,
+        epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
     )
 
 
@@ -671,6 +683,7 @@ def run_policy_design_workflow(
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the `scientist_policy_design` DAG with search and translation stages."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -730,6 +743,7 @@ def run_policy_design_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -768,6 +782,7 @@ def run_discovery_workflow(
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the discovery-only DAG and persist prior-knowledge artifacts."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -806,6 +821,7 @@ def run_discovery_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -845,6 +861,7 @@ def run_default_workflow(
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the baseline simulation/governance DAG."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -891,6 +908,7 @@ def run_default_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -950,6 +968,7 @@ def run_policy_verified_workflow(
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the verified-policy DAG that omits hierarchical champion search."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -1006,6 +1025,7 @@ def run_policy_verified_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -1044,6 +1064,7 @@ def run_causal_full_workflow(
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+    epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the full causal DAG with graph reconciliation and transport checks."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -1090,6 +1111,7 @@ def run_causal_full_workflow(
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
         _propagate_runtime_run_metadata(ctx, state)
 

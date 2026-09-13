@@ -2001,6 +2001,30 @@ class SemanticEpochService:
         service._resolution_components_established = False
         return service
 
+    @classmethod
+    def for_deployment_policy_query(
+        cls,
+        *,
+        artifact_store: ArtifactStore,
+        deployment: object,
+    ) -> SemanticEpochService:
+        """Bind configured native evidence to the unchanged qualification consumer.
+
+        The query exchange supplies existing native DTOs; it does not appoint
+        boundary/facet owners or resolve new semantic epoch production inputs.
+        """
+        from polisyos.runtime.quality.epoch_deployment import EpochDeployment
+        from polisyos.runtime.quality.epoch_evidence_exchange import EpochEvidenceExchange
+
+        if type(deployment) is not EpochDeployment:
+            raise TypeError("semantic epoch query requires a registered deployment")
+        service = object.__new__(cls)
+        service._artifact_store = artifact_store
+        service._qualification_consumer = QualificationConsumer.from_deployment(deployment)
+        service._chronology_adapter = EpochEvidenceExchange(deployment)
+        service._resolution_components_established = False
+        return service
+
     def qualify_chronology_query(
         self,
         *,

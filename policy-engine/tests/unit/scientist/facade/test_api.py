@@ -172,6 +172,7 @@ class TestRunExperiment:
         engine_metrics_factory = MagicMock(return_value=object())
         eval_safety_execution_context = object()
         eval_safety_verifier = object()
+        epoch_certificate_issuance_owner = object()
 
         from polisyos.scientist.api import run_experiment
 
@@ -185,6 +186,7 @@ class TestRunExperiment:
             engine_metrics_factory=engine_metrics_factory,
             eval_safety_execution_context=eval_safety_execution_context,
             eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
 
         assert result["run_id"] == "R_provider"
@@ -198,6 +200,8 @@ class TestRunExperiment:
         assert kwargs["engine_metrics_factory"] is engine_metrics_factory
         assert kwargs["eval_safety_execution_context"] is eval_safety_execution_context
         assert kwargs["eval_safety_verifier"] is eval_safety_verifier
+        assert kwargs["epoch_certificate_issuance_owner"] is epoch_certificate_issuance_owner
+        assert "epoch_certificate_issuance_owner" not in result
 
 
 # ---------------------------------------------------------------------------

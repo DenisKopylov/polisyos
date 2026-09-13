@@ -1413,7 +1413,13 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
         return real_run_coro_sync(coro, timeout_seconds=timeout)
 
     monkeypatch.setattr(async_tools, "run_coro_sync", _run_coro_sync_with_load_budget)
+    from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
+
+    store = FileSystemCAS(tmp_path / "cas")
+    issuance_owner = DecisionPacketEpochIssuanceOwner.for_store(store=store)
     service = ControlPlaneService(
+        artifact_store=store,
+        epoch_certificate_issuance_owner=issuance_owner,
         cas_root=tmp_path / "cas",
         core_runs_root=tmp_path / "runs",
         policy_resolver=RuntimeExecutionPolicyResolver(
@@ -1455,6 +1461,8 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
         "non_promotable_reason": "nl_mock_agents_contract_testing_only",
     }
     assert captured["kwargs"]["store"] is service._artifact_store
+    assert captured["kwargs"]["epoch_certificate_issuance_owner"] is issuance_owner
+    assert "epoch_certificate_issuance_owner" not in payload
     inputs = payload["inputs"]
     assert "data_snapshot_ref" in inputs
     assert "input_bindings_ref" in inputs

@@ -130,3 +130,10 @@ Run node and workflow tests together when state aliases or DAG routing change.
 ## Last Updated
 
 - Last updated: 2026-06-10
+
+Canonical epoch issuance uses a neutral port in `validation/epoch_certificate_issuance.py`.
+The actual decision-packet builder owns invocation/completion emission; Runtime
+supplies complete-source admission and persistence through privileged composition.
+The root facade exposes these port/readback types, the existing Decision Validity
+owner and the exact governance-monitor reader. It exposes no completion minting
+operation. Empty authority/environment slots retain typed nonreceipts.

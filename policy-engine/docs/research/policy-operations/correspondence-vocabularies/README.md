@@ -1,13 +1,14 @@
-# Correspondence vocabularies — Stage 1 decision package
+# Correspondence vocabularies — research and bounded Stage 2
 
 Lane: `codex/correspondence-vocabularies`. Base:
 `28b8a1a420e746b54fbd0b87f73fad1fc4821ba5`. Date: 2026-09-13.
 
-**Stage 1 is the research deliverable; Stage 2 is authorized for the independent
-candidate/refusal projection described below.** Positive domain admission remains
+**Stage 1 was committed before implementation; Stage 2 was reached for the
+independent candidate/refusal projection described below.** The vocabulary research is
 **`complete-pending-an-architect-decision on the precise positive legal-membership
 claim and the first INT-R2 target/authorization/engagement/operation semantics
-to admit through the existing owners`**. This is not a no-vocabulary ruling or a
+to admit through the existing owners`**. Positive domain admission remains unresolved.
+This is not a no-vocabulary ruling or a
 wait for an institutional signer. No register or ledger standing is changed.
 
 ## What is established
@@ -36,7 +37,7 @@ research and supported engineering; it does not supply missing domain semantics.
 | **CV-Q2 — normative:** For the already commissioned consent, waiver and ethics-determination purposes, which first regime-specific operation definitions and evidence-to-use implications must the adapter admit, preserving protocol/site/population/risk/version identity? Name its intake/registrar and whether the existing ranking owner is a separately scoped member or only a reusable intake pattern. | Consent/waiver/ethics demand is settled and exceeds `value_schedule_for_ranking`. Ranking authorization and normative model/arbitration are real scoped owners. A new universal normative vocabulary is not justified, and a categorical refusal is not justified. Empty external appointments are not a prerequisite to engineering. | A purpose-preserving semantic adapter to AQ1's independent-owner/demanding-gate ports and VC1's registration. A valid ranking permission must fail as consent for a changed protocol. |
 | **CV-Q3 — assurance:** Which named engagement profile must `engagement.level` interpret, with what subject/criteria/period/scope, level definitions and cross-profile relation or declared incomparability? | Demand exists. Core audit supplies integrity packaging, not an assurance engagement. AUP is not an assurance tier; provider absence is not an adverse finding. | The level-recognition/verifier adapter, followed by the DS16 assurance projection. Integrity PASS or AUP must not satisfy reasonable/limited assurance. Choosing a provider is separate from specifying this internal contract. |
 | **CV-Q4 — estimand:** Which question-binding artifact is the source of truth for population/contrast/outcome/horizon/intercurrent-event/regime identity, and what evidence implications may be registered for that bound target or an explicitly justified equivalent/transported target? | Team Foundry / methods/catalog/causal owns the work. `BOUND`, `IDENTIFIED`, `ESTIMABLE`, `ESTIMATED` are distinct properties, not a supplied universal rank. `EstimandAST.query_str` is display prose excluded from canonical identity. | A target-to-analysis semantic binding adapter and defensible partial relation. Horizon/regime-only changes must not compare equal absent explicit justified equivalence; unknown/incomparable must refuse. Adding those words to a generic order would fail the property. |
-| **CV-Q5 — write operations:** Which actual canonical mutation and resource are demanded, and which existing substantive-right and technical-grant owners must jointly authorize that operation? | Exact token membership and CAS write metadata already exist. Legal, normative and write powers are not interchangeable; CAS metadata does not establish the right/grant conjunction. | A namespaced operation-to-right/grant adapter. Valid API credentials without the substantive right, and the reverse, must each refuse. |
+| **CV-Q5 — write operations:** Which actual canonical mutation and resource are demanded, and which existing substantive-right and technical-grant owners must jointly authorize that operation? | PDC `OperationContract` / `OperationClass`, the concrete Runtime `ACQUIRE` identity, exact token membership and CAS write metadata already exist (R2 comparison). Legal, normative and write powers are not interchangeable; those owners do not establish the right/grant conjunction for an unspecified operation. | A namespaced operation-to-right/grant adapter. Valid API credentials without the substantive right, and the reverse, must each refuse. |
 
 These questions select what an adapter would *mean*. They do not ask permission
 to create a module, fill an owner-name field, register a task, or leave a signer
@@ -54,13 +55,15 @@ positive semantic admission. A missing candidate, unsatisfied shape, split deman
 or other refusal that the canonical owner can recompute needs no invented
 positive vocabulary and no institutional appointment.
 
-This lane therefore builds that independent link after committing Stage 1. The
+This lane built that independent link after committing Stage 1. The
 [bounded implementation plan](stage2-plan.md) names its production caller, persisted
 binding, canonical receipt verifier, governed projection and independent projection
 worker. The existing DS15 renderer can show the refusal in its existing fields;
 no OpenAPI change is required. A global projection may consume only its dedicated
 fixed source family, never arbitrary private run CAS paths or HTTP-supplied refs.
 Every candidate remains non-authoritative and action eligibility stays blocked.
+The [implementation account](stage2-results.md) records the delivered boundary,
+review repairs and remaining ownership obligations.
 
 This does not establish a positive legal, consent, assurance or estimand semantic
 chain. Legal correspondence remains source-relative; ranking authorization remains
@@ -69,12 +72,12 @@ Those positive adapters stop at CV-Q1–5. B2's independently grounded causal-mo
 producer is already `own`; its next unresolved source-to-target acceptance rule
 is recorded in CORR-B2 rather than recast as an ownership question.
 
-Before Stage 2, the candidate chain is `bridge_missing` / `surface_missing` at the
+Before Stage 2, the candidate chain was `bridge_missing` / `surface_missing` at the
 AQ1-to-DS15 boundary. Completion must be demonstrated by real CLI input → canonical
 planner and AQ1 producer → persisted receipt and route binding → owner readback →
 governed projection → independently verified DS15 payload, with negative and
-removal probes. The final evidence record will state which links were actually
-executed; a plan or helper alone is not their completion.
+removal probes. The evidence record states which links were actually executed;
+a plan or helper alone is not their completion.
 
 ## Delivery and verification contract
 
@@ -93,7 +96,7 @@ deciding output and removal probes live under the already ignored
 `docs/superpowers/journals/correspondence/vocabularies/raw/`; the
 [evidence record](../../../superpowers/journals/correspondence/vocabularies/evidence.md)
 gives commands, their own exit codes and SHA-256 references. No push or guardrail
-sync is performed. Research is committed before any possible Stage 2 work.
+sync is performed. Research was committed before Stage 2 work.
 
 Relevant patterns: P01/P02/P03 (real producer/bridge/surface), P04/P05/P15/P32
 (non-substitutable authority and candidate semantics), P27 (reuse owners),

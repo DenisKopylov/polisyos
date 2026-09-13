@@ -74,6 +74,48 @@ uses a fixed 120-second timeout; destination is Runtime HTTP worker test harness
 This lane retains child output in its replay harness rather than excluding a red
 by its exit alone. These observations do not change domain authority here.
 
+CV-S2-LIVENESS: the first replay on the final import/hash source reached the
+ordinary service's 184-second owner-validation timeout. The unchanged constant
+has no service constructor/environment override. Destination is the existing
+Runtime governed-projections owner-worker liveness/budget owner, distinct from
+the test helper's 120-second budget. Timeout causation and inherited status are
+`not_established`; the evidence record retains subsequent actual results separately.
+The subsequent ordinary service/worker replay passed with the same 184-second
+limit (worker 46.34 seconds), and the unchanged acquisition worker selection
+passed all its selected tests. That later result does not attribute the earlier red.
+
+CV-S2-BUDGET-REF: the timing catalog's `manual_journal_excerpt:v1` source reference
+no longer resolves to the claimed timing evidence at its stated register line.
+Destination is the timing-catalog provenance owner. The catalog was used as
+declared configuration, not independently established performance evidence.
+
+CV-S2-ENV: offline frozen lane-environment provisioning could not obtain the
+locked `jaxlib==0.8.2` wheel from the local cache. Destination is the workspace
+dependency-cache/lock-environment owner. The incomplete environment was retained
+under ignored `raw/`; shared-interpreter tests do not become lane-lock receipts.
+
+CV-S2-LEDGER: the standalone ledger check returns 0 while retaining informational
+unknown-host closure selections, an unsupported runner, shifted status columns
+and standing supplied from ambiguous/prose sources. The collector/environment
+and runner findings go to the debt-ledger collector owner; column parsing goes
+to its parser owner; source standing goes to the named GY source owners. The
+complete output identifies the affected rows. No register repair is implied.
+
+CV-S2-GUARD: the first completed full guardrail invocation observed this lane's
+documentation edit during its output probe. That race belongs to this lane's
+verification harness and is corrected by freezing every tracked file throughout
+the repeat. The same invocation also reported OpenAPI and trust-claim-posture
+generated-output drift. Their provenance is `not_established`, not classified as
+inherited; destinations are the runtime OpenAPI snapshot owner (the user's named
+`openapi-snapshot-pins-environment-derived-digests` defect) and the trust-claim-posture
+generated projection owner. No generator synchronization is authorized here.
+
+CV-S2-STATIC: the complete invocation diagnostic returns 3 for dynamic receiver
+resolution at `_ProjectionCAS.get_bytes`. AQ1 `_resolve` and the planner-report
+loader call the actual store override, exercised by successful reads and the
+removal traceback. This remains the invocation instrument's declared
+`unresolved_by_construction` class; it does not require a fictitious caller task.
+
 ## Verification and pattern pass
 
 Relevant patterns are P01/P02/P03, P05/P15, P27/P29/P32 and P35/P37/P38. The property

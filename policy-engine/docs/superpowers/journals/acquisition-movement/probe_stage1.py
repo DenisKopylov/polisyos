@@ -31,27 +31,47 @@ CALLS = {
     "reenter_after_active_acquisition_overlay",
     "CycleBoardMovementGap",
 }
+GIT_READS: list[dict[str, object]] = []
 
 
 def git(*args: str) -> bytes:
-    return subprocess.check_output(["git", "-C", str(ROOT), *args])
+    command = ["git", "-C", str(ROOT), *args]
+    try:
+        output = subprocess.check_output(command, stderr=subprocess.PIPE)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        GIT_READS.append({"argv": command, "error": repr(exc)})
+        return b""
+    GIT_READS.append({"argv": command, "stdout_sha256": hashlib.sha256(output).hexdigest()})
+    return output
 
 
 def main() -> int:
+    GIT_READS.clear()
     result: dict[str, object] = {
         "purpose": "commissioned-row reconciliation and bounded structural discovery",
-        "head": git("rev-parse", "HEAD").decode().strip(),
+        "head": git("rev-parse", "HEAD").decode().strip() or None,
         "counterexamples": [
             "A commissioned name occurs only as a cross-reference, not a first-cell row.",
             "A strict production port or movement consumer exists under another class name.",
             "A direct call uses a case variant or an untracked Python member.",
         ],
         "actual_reads": [],
+        "git_reads": GIT_READS,
         "unreadable": [],
+        "selectors": {
+            "source_roots": ["src", "tools", "tests"],
+            "file_type": ".py",
+            "direct_call_names": sorted(CALLS),
+            "casefold_crosscheck": True,
+            "port_method_shape": ["execute", "reenter", "resume_reentry"],
+            "provider_method_shape": ["for_request", "for_job"],
+        },
         "unresolved_by_construction": [
             "AST name/attribute matching does not resolve aliases, receiver types or runtime dispatch.",
             "Source census excludes non-Python files, external packages and unexecuted runtime state.",
             "Register bytes identify commissioned rows, not evidence that their claims hold.",
+            "Authority documents and Python files outside the selected roots are not examined.",
+            "Import-time, service and subprocess reads beyond the recorded Git commands are not instrumented.",
         ],
     }
     reads: list[dict[str, object]] = []
@@ -84,7 +104,7 @@ def main() -> int:
     result["commissioned_rows"] = {
         "denominator": "exact IDs in commission; first cells of docs/plans/active/DEBT-REGISTER.md (.md)",
         "declared_total": 10,
-        "observed_total": len(admitted_rows),
+        "observed_total": sum(len(locations) for locations in admitted_rows.values()),
         "row_lines": admitted_rows,
         "independent_prefix_crosscheck": prefix_crosscheck,
     }
@@ -147,6 +167,7 @@ def main() -> int:
         not errors and indexed == tree == filesystem and admitted_rows == prefix_crosscheck
         and all(len(locations) == 1 for locations in admitted_rows.values())
         and len(ROWS) == 10
+        and not any("error" in operation for operation in GIT_READS)
     )
     result["status"] = "bounded_census_complete" if complete else "UNRUN_partial_coverage"
     print(json.dumps(result, indent=2))

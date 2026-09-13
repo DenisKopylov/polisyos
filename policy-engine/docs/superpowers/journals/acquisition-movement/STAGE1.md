@@ -143,6 +143,12 @@ Thus the defensible result is **no matching active successor established within
 the examined authority boundary**, plus a known projection limitation. It is not
 “genuinely unregistered” and not “an existing equivalent task proved registered.”
 Those would each require an additional ownership/semantic-equivalence finding.
+The primary `U15-F06` handoff is explicitly `deferred-with-a-name` in
+`docs/superpowers/journals/uninvoked/completion.md:18`; its line 23 distinguishes
+these charters from work assigned to execution elsewhere. The missing decisive
+record is a current allocation/standing act assigning the named task or a proved
+alias the sanctioned deployment-factory extension, acquisition authority provider
+and served request/job intake. Repeating a token census cannot supply that act.
 The detailed alias candidate reads, actual selectors and receipts are in
 `mandate/`; the destination is team-architecture/team-runtime to reconcile that
 successor, using the existing instrument-honesty row for projection semantics.
@@ -209,4 +215,5 @@ authority.
 | WDI port and route projection retain the historical fixture badge even when the concrete production class exists | Existing DS15 contract/surface owner; distinguish the legacy label from proof of an actual production instance. No unsolicited schema change. |
 | Offline dependency bootstrap lacks cached wheels | team-devx/station evidence; recorded nonreceipts and explicit reused local dependency station. No product conclusion. |
 | Raw evidence lacks a general ignore rule at this base | Lane-local journal `.gitignore` protects `raw/`; no repository-wide ignore or register change. |
-| OpenAPI environment-derived drift | Existing `openapi-snapshot-pins-environment-derived-digests` owner; snapshot is neither regenerated nor changed here. |
+| OpenAPI environment-derived drift family | Existing `openapi-snapshot-pins-environment-derived-digests` owner; the canonical snapshot is unchanged. The full check attempted a temporary export, which was interrupted; this run establishes no freshness or drift verdict. |
+| Full generated-owner check observed concurrent journal edits | This lane's verification record, `EVIDENCE.md`; own measurement interference, not attributed to the generator or inherited debt. Structural checks passed separately; full freshness remains unverified. |

@@ -217,3 +217,9 @@ authority.
 | Raw evidence lacks a general ignore rule at this base | Lane-local journal `.gitignore` protects `raw/`; no repository-wide ignore or register change. |
 | OpenAPI environment-derived drift family | Existing `openapi-snapshot-pins-environment-derived-digests` owner; the canonical snapshot is unchanged. The full check attempted a temporary export, which was interrupted; this run establishes no freshness or drift verdict. |
 | Full generated-owner check observed concurrent journal edits | This lane's verification record, `EVIDENCE.md`; own measurement interference, not attributed to the generator or inherited debt. Structural checks passed separately; full freshness remains unverified. |
+
+## Stage 2 continuation — accepted decisions
+
+The user accepted the 8+1+1 partition and GAP6 supplier/admitter chain. The split
+does not gate the build. Stage 1 above remains the original finding record; the
+implementation contract and subsequent findings are appended in [STAGE2.md](STAGE2.md).

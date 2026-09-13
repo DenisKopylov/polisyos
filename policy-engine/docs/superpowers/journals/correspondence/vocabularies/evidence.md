@@ -290,3 +290,42 @@ bounded review accounts. No complete-set claim is made about all scratch files.
 | `raw/worker-retry/6.request.json` | `7b51ef39dfa61ca2674947caa038c10b2ef674a45a7f583d9885b1b34a814fad` |
 | `raw/worker-retry/6.stderr.txt` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | `raw/worker-retry/6.stdout.json` | `0064dd039a442c6101028c7dfc908a603f0fe09e0b59c96a86517123d88a9f3a` |
+
+
+## Concluding frozen guardrail receipt
+
+The exact standalone guardrail command above was repeated on clean, attached
+commit `43e32a699be01265ba560c9690903e9eb7bb3114`, after branch readback and with
+all tracked files frozen until the process returned. Own exit **1**. The post-run
+`git status -sb` still showed only the attached branch, with no file changes.
+The earlier out-of-scratch documentation-change finding is absent from this
+complete output; that execution race is corrected.
+
+The remaining deciding findings are:
+
+- `runtime-openapi-snapshot`: generated comparison output differs from
+  `schemas/runtime_api_v1.openapi.json`.
+- `trust-claim-posture-register`: generated comparison output differs from
+  `apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json`.
+
+Both retain `not_established` provenance; they are not labelled inherited and are
+not excluded behind a green guardrail claim. Their destinations are CV-S2-GUARD.
+No canonical snapshot, generated trust-claim projection, register, ledger or
+guardrail baseline was synchronized. The API-client and dashboard API-type
+freshness checks passed within this invocation.
+
+The tool also states that the standalone Atlas status-retirement inventory is
+outside its command's coverage. No pass for that independent inventory is claimed;
+its named destination is the Atlas status-retirement inventory owner
+(CV-S2-ATLAS). This lane changed no retired-status enum or renderer implementation.
+
+| Raw path (relative to this journal) | SHA-256 |
+| --- | --- |
+| `raw/guardrails-check-frozen.txt` | `61d62d801d797e249732621c659bdc1eb26d08747da9d46db2329530d26c5323` |
+| `raw/verification-freeze-branch-readback.json` | `558436c1eff82c911f92507168ce288bedc386e212e1cbd56b8132e451297d60` |
+
+Stage 1 research remains complete-pending-an-architect-decision on the exact
+CV-Q1–5 semantic inputs in the decision package. Stage 2 reached and verified the
+independent candidate-refusal chain; it does not close the whole DS15 debt row or
+any positive vocabulary admission question. All changes are ordinary local
+commits on `codex/correspondence-vocabularies`; no push or standing edits were made.

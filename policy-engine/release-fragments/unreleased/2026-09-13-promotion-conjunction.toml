@@ -1,0 +1,16 @@
+id = "2026-09-13-promotion-conjunction"
+title = "Connect promotion evidence custody and post-core near-miss replay"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Generation selects exact configured evidence inputs and carries the epoch resolver into decision-front replay. Attempted-evaluation persistence resolves configured completed generation sources, freezes the safety core, and invokes canonical near-miss classification. Protected promotion persists signed candidate-source custody with an empty semantic acceptance slot."
+evidence = ["tests/unit/runtime/quality/test_promotion_scope_guards.py", "tests/unit/runtime/quality/test_promotion_safety.py", "tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py", "docs/superpowers/journals/promotion-conjunction/execution.md"]
+compatibility = "Additive internal selection and custody artifacts preserve historical N9 receipt replay. Existing HTTP request schemas and generated clients are unchanged. Near-miss classification additionally rejects evidence from a different evaluation mode."
+change_class = "python-contract"
+surface_classification = "internal: runtime promotion source selection, protected-purpose custody and post-core classification; existing audit artifact references expose the result"
+migration = "Deployment composition may populate the typed source-selection slots with exact existing producer inputs and completed source run IDs. Keep source trust separate from candidate context. Empty slots persist named nonreceipts; existing producer and canonical replay owners continue to decide admissibility."
+limitations = "Source signatures prove attribution only. Protected-purpose safety policy, appointment and independent semantic acceptance remain unestablished. S6/S7/S8 admission mapping and original-construct scientific acceptance remain scoped architecture decisions. This change appoints no institution and claims no authentic first promoted candidate."
+generated_client_compatibility = "unchanged"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

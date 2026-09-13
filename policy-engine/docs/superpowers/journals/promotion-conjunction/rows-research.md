@@ -27,7 +27,7 @@ Runtime owner label to appoint a scientific decider by adjacency (P36).
 | `gy-promotion-obligations-scope-insufficient` | Its recorded closure signal is the complete `GY-O0-NC-01` field-pilot event, not the count of helper returns. The current EFFECT/MEASUREMENT/INDEPENDENCE paths consume genuine owner evidence; protected EvalSafety still has no promotion-purpose decision input. | The head description is stale. Its remainder combines an authentic complete candidate, protected-purpose authority semantics/evidence, and observed near-miss/counter reconciliation. Scope refusal count alone cannot close it. Do not type the whole row as an appointment. |
 | `GY-O0-NC-01` | A *single real production* field-pilot request must be consumer-promotable while independently missing a required attempted-evaluation protection; its durable O0 decision must be blocked, near-miss true, counters reconciled once, core/hash unchanged. | An unproduced deciding event with multiple conjuncts. A supplied signer cannot manufacture the candidate, and a good data-only candidate cannot satisfy this field-pilot scope. The protected-purpose intake is buildable up to a typed-empty slot; scientific rules and authentic evidence remain separate. |
 | `eval-safety-promotion-authority-producer-missing` | `_eval_safety_obligation` has no promotion-purpose input and returns scope-insufficient for the protected modes; the O0 certificate explicitly denies promotion authority. | A real absent capability ahead of any appointment: contract, empty trust/authority slot, persistence/resolution, invocation bridge, and N9 consumer. The deciding protected-purpose policy and authorized minting actor are not supplied. Institutional absence does not prevent building neutral custody/intake and fail-closed consumption. |
-| `first-promotion-candidate-with-complete-evidence` | Authentic complete candidate evidence must jointly survive current N7/N8/N9 authority checks and reach the production consumer. | Historical claims of missing source-preservation/context wiring are superseded by current `GenerationCycleController` and `generation_source`. The live upstream scientific acceptance slot remains empty; available source identity alone is insufficient. This is neither merely a missing appointment nor permission to construct an all-green receipt. |
+| `first-promotion-candidate-with-complete-evidence` | Authentic complete candidate evidence must jointly survive current N7/N8/N9 authority checks and reach the production consumer. | Historical claims of missing source-preservation/context wiring are superseded by current `GenerationCycleController` and `generation_source`. The live upstream acceptance slot remains empty, but the correspondence standard, risk composition, allocation and stratum policy are already decided (PC-R1-CORRECTION below). Purpose-qualified appointment, scoped genuine labels and application remain distinct from source identity; an all-green receipt cannot be constructed for this row. |
 | `GY-PA1` (with `GY-GAP7`) | Authority to select from the exact source frontier, under the right purpose/decision role/case/scope/time, with persisted refusal and current consumers. | `producer_missing` is refuted for its S8/GAP7 mechanism by current source. The producer, persisted admission, resolver, typed request, ranked consumer, actual worker bridge, later signed HTTP intake and current readers exist. Empty deployment trust is an intentionally unfilled slot, not producer absence. Its separate N8/CG2 scientific gap does not retag the S8 permission mechanism as missing. |
 | `gy-j-positive-evidence-admission-producer-has-no-owner` | Admission of truthful evidence supporting an original requested construct in its actual scope, followed by the existing S1/production-population consumer. | Missing scientific admission capability/acceptance basis in the measured live chain; `absent/unallocated` for that semantic. Refusal custody and generic path maintenance already have owners. Architect allocation and acceptance decision are needed; copying their owner label is not sufficient. |
 
@@ -165,7 +165,7 @@ canonical observation classifier. That positive semantic link is the exact
 decision-dependent boundary; none of the surrounding refusal engineering is
 being handed back unbuilt.
 
-## PC-R1-UPSTREAM: current first-candidate evidence is a scientific boundary
+## PC-R1-UPSTREAM: current first-candidate evidence and acceptance boundaries
 
 `GenerationCycleController.__init__` in
 `src/polisyos/runtime/quality/generation_cycle.py` supplies
@@ -187,8 +187,10 @@ owner. `SourceIdentityBundle` in
 `src/polisyos/data_forge/domains/academic/knowledge/skg_identity_bridge.py` owns
 source-reference identity only and explicitly leaves numeric semantics, causal
 identification, world binding, transport and calibration unestablished. Those
-owners already provide typed-empty engineering mechanisms. Their promotion
-acceptance decision cannot be replaced with publication eligibility or a signer.
+owners already provide typed-empty engineering mechanisms. An empty source DTO does
+not establish that the governing scientific rule is undecided. Their missing positive
+admission cannot be replaced with publication eligibility or a signer; the precise
+current rule and remaining inputs are corrected in PC-R1-CORRECTION below.
 
 ## Input and interpretation limits
 
@@ -212,5 +214,77 @@ Route the stale PA1/GAP7 typing and GY-J overly broad owner wording to their exa
 existing register rows for architect transcription, without writing either
 register or ledger. Route source-to-construct acceptance to
 `gy-j-positive-evidence-admission-producer-has-no-owner`; route relation gold and
-outcome-sensitive calibration to `cg2-production-relation-gold-acceptance-unspecified`
-and the existing `HC-F11`–`HC-F14` boundary. No new sovereign subsystem is proposed.
+outcome-sensitive calibration application to `cg2-production-relation-gold-acceptance-unspecified`.
+The HC-F11–HC-F14 re-extraction boundary instead routes to `claim-level-evidence-axis`
+in `docs/reference/data-capability-requirements.md`. No new sovereign subsystem is proposed.
+
+
+## PC-R1-CORRECTION: decisions must be read past their opening paragraphs
+
+This correction supersedes any inference above that `RelationAcceptanceSlot`'s
+`None` fields prove an undecided CG2 scientific standard. The original read stopped
+at an implementation's empty slot and a historical report. That was P36 authority
+by adjacency, and the exact deciding rows refute it.
+
+`correspondence-acceptance-standing-rule` records the architect's decision and its
+later application. The causal member's substantive purpose is
+`CAUSAL_INSTANTIATION`; `CORR-R1` refutes interchangeability with
+`LEGAL_GOVERNANCE_CORRESPONDENCE`. Its qualification contract (point vi,
+`CORR-I1` ownable half) requires independence, competence for the named purpose,
+wrong-making gold authority, declared scope with a staling handle, and no custody
+substitution. `CORR-I2` is the causal appointment; a source signer does not become
+that adjudicator. `W4-K01` still says signing establishes custody, never correctness.
+The constructed-negative rule and custody-without-a-number outcome (`INT-K06`)
+are already decided. Positive purpose-qualified appointment and scoped independent
+labels remain absent in the measured source chain.
+
+The linked CORR consolidation's `CORR-R2`/`CORR-R3` per-unit versus horizon question
+is itself superseded by `delta-ground-composition-and-stratum-budget`. That row is
+closed: CGF appendix E.3 specifies pre-admission risk spending and the union-bound
+composition; CGF §E.4.1 records the adopted stratum and epoch-scope division, budget
+allocation, and the dated frame/re-declaration/recollection rules. There is no
+remaining architect decision on the estimand bridge to stop this lane on. The
+current source artifact's empty `outcome_sensitive_calibration_rule` is an unfilled
+application slot, not evidence that these decisions do not exist. The CG2 row's
+latest defensive-suite correction also prevents claiming its complete engineering
+verification is green from a historical selected test result; this note has not
+freshly rerun that complete suite.
+
+Exact authority inputs, read at `@28b8a1a42`: the named rows in
+`docs/plans/active/DEBT-REGISTER.md`; `CORR-R1`, `CORR-R2`, `CORR-R3` in
+`docs/research/policy-operations/corr-consolidation/corr-consolidation-report.md`;
+and `docs/reference/policy-design-causal-grounding-firewall-CGF-spec.md` E.3/E.4.1.
+The register is read as a versioned sequence of rulings, not only its first sentence.
+No register edit is made here. Route misleading empty-slot prose to the existing CG2
+row for the architect; no new rule is proposed.
+
+## PC-R1-HC: current re-extraction is a callable campaign, not an appointment wait
+
+The same standing-rule correction explicitly removes HC-F11–HC-F14 from the
+correspondence member set. `knowledge/skg_versioning.py::require_forwardable_confidence`
+continues to refuse the content-bound historical vintage. An adjudicator cannot
+change that historical current-rule mismatch.
+
+The current engineering chain exists in
+`src/polisyos/data_forge/domains/academic/batch/reextraction_cli.py`:
+`main` → `run_plan` → `reextraction_campaign.run_campaign`, with owner-bound
+source frame, SDK transport, durable checkpoint and recovery. Its separate
+`main` → `finalize_plan` → `pipeline.finalize_extraction_campaign_graph` path
+consumes completed candidate records through `graph_builder.load_graph` and
+`edge_synthesize.run_edge_synthesize`, persists the candidate graph packet, and
+independently reads it via `resolve_extraction_campaign_graph`. The runnable
+production terminus is
+`python -m polisyos.data_forge.domains.academic.batch.reextraction_cli` with
+`prepare`, `run`, `recover`, or `finalize`. This is not an uninvoked helper.
+
+`docs/reference/data-capability-requirements.md`'s later acquisition-state section
+names the outstanding campaign input: a dated operating declaration establishing
+provider throughput/model choice before a full pass is authorized, plus the actual
+completed data pass. It explicitly separates graph finalization's resource stage.
+Those are operational selection/execution inputs to a built mechanism, not missing
+scientific acceptance and not permission for this promotion lane to begin a paid
+corpus campaign. No current production dataset or provider operating envelope was
+read or executed here (`unresolved_by_construction.current_production_data`). Route
+the data pass to the existing `claim-level-evidence-axis` requirement and its
+campaign execution owner; retain its current data status rather than claiming a
+fresh forwardable reference. All paths in this paragraph were read at `@28b8a1a42`.

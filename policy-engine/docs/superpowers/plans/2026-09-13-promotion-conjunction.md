@@ -8,7 +8,9 @@ identified engineering link that does not need an unanswered semantic decision.
 reuse CAS and runtime composition. Keep protected-purpose semantic appointment empty.
 **Spec:** the user's promotion-conjunction commissioning request, plus findings below.
 **Base:** `28b8a1a420e746b54fbd0b87f73fad1fc4821ba5`; `codex/promotion-conjunction`.
-All product input paths in this plan and linked research mean `path@28b8a1a42`.
+Original Stage 1 source findings in this plan and linked research mean
+`path@28b8a1a42`. Explicit Stage 2 implementation/probe/census additions instead
+refer to the delivered implementation commit named in `execution.md`.
 
 ## Binding delivery contract
 
@@ -90,14 +92,21 @@ reachable. Their behavioral and source-removal controls are mandatory below.
 
 ## Finite Stage 2 work, caller before mechanism
 
-- [ ] **PC-B1: epoch resolver bridge.** Extend
+- [x] **PC-B1: epoch resolver bridge.** Extend
   `runtime/quality/generation_cycle.py` controller → `_apply_promotion_to_summaries`
   → canonical decision-front replay to carry the already-held epoch resolver.
   Non-test caller: `GenerationCycleController.run`; runnable production terminus:
   POST `/api/v1/control/runs` → recursive generation → persisted
   `runtime.compiled_recursive_generation_cycle`. Test actual replay with/without
   resolver and each forwarding seam; never promote an honest negative receipt.
-- [ ] **PC-B2: O0 post-core classification bridge.** Extend existing
+  Stop-rule extension: wire an exact deployment-owned `N9PromotionEvidenceSource`
+  through `PromotionRuntime` and the default controller/N9 port. Snapshot configured
+  producer inputs, bind problem plus original candidate and whole-summary hashes,
+  forward the actual measurement catalog/providers, independence/measurement writer
+  inputs, candidate safety-source refs and optional G4 record ref. Persist actual-read
+  selector receipts and typed unresolved classes; an empty or ambiguous selection
+  supplies no authority. Existing scientific producers still recompute admissibility.
+- [x] **PC-B2: O0 post-core classification bridge.** Extend existing
   `runtime/quality/evaluation_safety.py`, control persistence and lifecycle. Reuse
   existing completed run's compiled artifact as source; do not create an uninvoked
   replay-source producer. Deployment source selection slot is typed and empty by
@@ -109,7 +118,7 @@ reachable. Their behavioral and source-removal controls are mandatory below.
   POST run terminus. No request-supplied verdict. Source absence, ambiguity,
   malformed/foreign source, removed resolver and retries must retain safety core,
   blocking and idempotence. Empty institutional source does not block this build.
-- [ ] **PC-B3: promotion-purpose intake up to the decision.** Extend N9's existing
+- [x] **PC-B3: promotion-purpose intake up to the decision.** Extend N9's existing
   `_bind_production_promotion_evidence` path with a strict protected-purpose request,
   source custody/replay and typed-empty semantic acceptance/appointment slot. Use
   existing CAS signature verification for configured source authenticity; do not
@@ -120,11 +129,11 @@ reachable. Their behavioral and source-removal controls are mandatory below.
   authority. Unknown acceptance semantics remain empty and fail closed. Test signed
   candidate evidence, absent trust, wrong purpose/scope/content and marker-only
   forgery through real binding/replay. Do not invent the missing scientific rule.
-- [ ] **PC-B4: guard regressions and removal controls.** Build genuine negative N9
+- [x] **PC-B4: guard regressions and removal controls.** Build genuine negative N9
   receipts without the obsolete CG2 test fixture. Preserve scope markers while
   removing claimed admissibility or corrupting semantic scope: constructor must
   raise its original marker; replay must retain semantic-scope mismatch and
-  authority-laundering failures. In isolated source copies disable each guard while
+  authority-laundering failures. In isolated in-process function bytecode disable each guard while
   keeping marker strings; the corresponding test must turn red. Retain each output.
 - [ ] **PC-B5: review, targeted verification and committed handoff.** Independent
   review uses the P40 bucket rule: classify new class vs deeper instance before a
@@ -133,13 +142,17 @@ reachable. Their behavioral and source-removal controls are mandatory below.
   ledger and architecture separately. No OpenAPI regeneration. Commit at clean
   boundaries and read each delivered commit from the attached branch.
 
-Existing independence/measurement writer inputs and S6/S7/S8 input slots are already
-consumed by N9. The exact N4 capsule does not contain those source-owner artifacts;
-its candidate-only context cannot be recast as their evidence. Their source acquisition
-and scientific selection are unresolved inputs, not authorization to forge inputs
-or duplicate producers. Original-construct and relation-gold lanes already persist
-bound typed-empty requests and re-read them through real consumers (PC-R4,
-PC-R1-UPSTREAM). No additional decision-independent link is established there.
+Existing independence/measurement writer inputs are consumed by N9 but their default
+production source-selection bridge was missing. PC-B1 now includes that independent
+link; the N4 capsule remains a separate source. The deployment selects existing typed
+inputs, while existing producers independently decide their admissibility. S6/S7/S8
+already have typed-empty slots persisted in N9's canonical owner projection and real
+absence refusals. Their historical injected flags do not define verified, protected-
+purpose evidence admission; exposing those flags through the new selector would grant
+unestablished authority. The remaining semantic mapping is described with its direct
+evaluator falsifier in the conjunction journal. Original-construct and relation-gold
+lanes already persist bound typed-empty requests and re-read them through real
+consumers (PC-R4, PC-R1-UPSTREAM); no additional bridge is established for those slots.
 
 ## Pattern pass, acceptance and stopping point
 
@@ -153,7 +166,12 @@ owner `absent/unallocated`, PC-B3 `producer_missing`/`bridge_missing`; PA1 mecha
 already wired; GY-J positive semantic `absent/unallocated` with existing refusal custody.
 
 Stop only at protected-purpose acceptance/authorized producer, original-construct
-scientific admission, and relation-gold/outcome-sensitive calibration acceptance.
+scientific admission, and the independently verified promotion-purpose S6/S7/S8
+evidence-to-posture admission mapping described in execution finding PC-E02-P. Relation correspondence rules, risk composition, budget and
+stratum decisions are already settled (PC-R1-CORRECTION); their remaining appointment,
+scoped genuine labels and outcome-sensitive application are not an unanswered
+estimator decision. HC-F11–HC-F14 instead has a built campaign/finalization path
+with operating-declaration and data-pass inputs (PC-R1-HC).
 Do not claim a first authentic production candidate, field near-miss or institutional
 appointment. Terminal wording: `complete-pending-an-architect-decision on` those exact
 links if all independent engineering and verification are delivered.

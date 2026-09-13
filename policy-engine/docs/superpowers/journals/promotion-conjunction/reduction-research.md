@@ -114,8 +114,10 @@ Finite buildable work for the root Stage 1 decision:
    `_publish_generation_run`; do not create an uninvoked source DTO/writer. Resolve
    its unique completed job, exact terminal core-run manifest, tenant/cell scope,
    compiled CAS kind/schema/content hash, and selected candidate/problem/world.
-   Use the matching cycle value-port receipt because the candidate summary excludes
-   its in-memory receipt when serialized. Unavailable, ambiguous or malformed source
+   **Stage 2 supersedes this Stage 1 receipt-selection prescription:** select the
+   exact candidate's canonical N9 owner-projection value receipt, not the cycle's
+   last value-port receipt; see `bridge-execution.md`. The summary excludes its
+   in-memory receipt when serialized. Unavailable, ambiguous or malformed source
    yields a named durable nonreceipt. The slot is source plumbing, not an
    institutional promotion appointment.
 3. From the existing control lifecycle/persistence path, freeze the unchanged O0

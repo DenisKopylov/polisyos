@@ -2653,6 +2653,10 @@ class GenerationCycleController:
         if promotion_port is None:
             from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
 
+            source = (
+                promotion_runtime.promotion_evidence_source
+                if promotion_runtime is not None else None
+            )
             promotion_port = CanonicalN9PromotionPort(
                 repo_root=repo_root,
                 context_provider=self._promotion_source_context,
@@ -2661,6 +2665,8 @@ class GenerationCycleController:
                     epoch_n9_evidence_resolver
                     or getattr(promotion_runtime, "epoch_n9_evidence_resolver", None)
                 ),
+                measurement_catalog=source.measurement_catalog if source is not None else None,
+                measurement_providers=source.measurement_providers if source is not None else None,
             )
         self._promotion_port = promotion_port
         self._promotion_runtime = promotion_runtime
@@ -2795,15 +2801,25 @@ class GenerationCycleController:
     def _promotion_source_context(
         self, summary: CandidateSummary, problem: DesignProblem,
     ) -> Mapping[str, Any]:
+        runtime = self._promotion_runtime
+        context = dict(runtime.promotion_evidence_source.context_for(
+            candidate_summary=summary, problem=problem, store=runtime.store,
+        )) if runtime is not None else {}
         if self._source_repository is None or self._source_run_id is None:
-            return {}
+            return context
         resolution = self._source_repository.resolve(
             refs=self._source_handoff_refs, run_id=self._source_run_id,
             summary=summary, problem=problem,
         )
         if resolution.status != "resolved":
             self._source_issues.append(resolution.code)
-        return resolution.context
+        source_refs = tuple(context.get("producer_root_refs", ()))
+        context.update(resolution.context)
+        if source_refs:
+            context["producer_root_refs"] = (
+                *source_refs, *tuple(resolution.context.get("producer_root_refs", ())),
+            )
+        return context
 
     async def run(
         self,
@@ -2909,6 +2925,7 @@ class GenerationCycleController:
             promotion,
             problem=problem,
             open_world_resolver=self._open_world_resolver,
+            epoch_validity_resolver=self._epoch_n9_evidence_resolver,
             promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
@@ -6480,6 +6497,7 @@ def _apply_promotion_to_summaries(
     *,
     problem: DesignProblem | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> list[CandidateSummary]:
     certified = set(promotion.certified_candidate_ids)
@@ -6493,6 +6511,7 @@ def _apply_promotion_to_summaries(
                 summary,
                 problem=problem,
                 open_world_resolver=open_world_resolver,
+                epoch_validity_resolver=epoch_validity_resolver,
                 promotion_evidence_resolver=promotion_evidence_resolver,
             )
             and summary.current_valid
@@ -6522,6 +6541,7 @@ def _promotion_receipt_allows_decision_front(
     *,
     problem: DesignProblem | None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> bool:
     from polisyos.runtime.quality.promotion_sequence import (
@@ -6533,6 +6553,7 @@ def _promotion_receipt_allows_decision_front(
         summary,
         design_problem=problem,
         open_world_resolver=open_world_resolver,
+        epoch_validity_resolver=epoch_validity_resolver,
         promotion_evidence_resolver=promotion_evidence_resolver,
     )
 

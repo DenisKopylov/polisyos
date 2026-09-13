@@ -2481,6 +2481,162 @@ def test_real_measurement_root_resolves_and_binds_into_n9(fabric_measurement_own
         )
 
 
+@pytest.mark.parametrize("selection_matches", [True, False])
+def test_owned_source_selection_reaches_default_controller_and_real_n9_writers(
+    fabric_measurement_owner,
+    monkeypatch: pytest.MonkeyPatch,
+    selection_matches: bool,
+) -> None:
+    """Configured owner inputs must reach producer/replay without an N4 capsule."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import _positive_epoch_admitted_batch
+
+    owner = fabric_measurement_owner
+    summary = _summary()
+    selection = promotion_sequence_module.N9PromotionEvidenceSourceSelection(
+        design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem),
+        candidate_id=summary.candidate_id if selection_matches else "another-candidate",
+        candidate_content_hash=summary.content_hash,
+        candidate_summary_content_hash=(
+            promotion_sequence_module.promotion_candidate_summary_content_hash(summary)
+        ),
+        effective_independence=promotion_sequence_module._EffectiveIndependenceWriterInput(
+            evidence_lines=(_independence_line("source-selection-study", primary_source="journal"),),
+            portfolio_designs=(_independence_portfolio_design(),),
+            graph_id="source-selection-independence",
+        ),
+        measurement_root=promotion_sequence_module._MeasurementRootWriterInput(
+            envelope=_fabric_measurement_envelope(owner),
+        ),
+        promotion_safety_source_refs=("sha256:" + "f" * 64,),
+    )
+    source = promotion_sequence_module.N9PromotionEvidenceSource(
+        selections=(selection,),
+        measurement_catalog=owner.graph,
+        measurement_providers=owner.providers,
+    )
+    runtime = PromotionRuntime(store=owner.store, promotion_evidence_source=source)
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime, problem=owner.problem, summaries=(summary,),
+    )
+    controller = generation_cycle_module.GenerationCycleController(
+        promotion_runtime=runtime, repo_root=REPO_ROOT,
+    )
+    assert controller._source_repository is None
+    monkeypatch.setattr(promotion_sequence_module, "_legacy_policy_promotion_callers", lambda _: ())
+    observation = controller._promotion_port(admitted_batch=admitted, problem=owner.problem)
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    independence = next(row for row in receipt.obligations
+                        if row.source_obligation_ref.endswith("#effective_independence"))
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+    expected = (PromotionObligationStatus.SATISFIED if selection_matches
+                else PromotionObligationStatus.SCOPE_INSUFFICIENT)
+    assert independence.status == expected
+    assert measurement.status == expected
+    source_refs = tuple(ref for ref in receipt.owner_projection.producer_root_refs
+                        if ref.artifact_type == "N9PromotionEvidenceSourceResolution")
+    assert len(source_refs) == 1
+    persisted = json.loads(owner.store.get_bytes(source_refs[0].artifact_id))
+    assert persisted["inputs_read"]
+    assert persisted["unresolved_by_construction"]
+    assert persisted["status"] == ("selected" if selection_matches else "unresolved_by_construction")
+    assert validate_canonical_promotion_receipt(
+        receipt, repo_root=REPO_ROOT, candidate_summary=summary, design_problem=owner.problem,
+        open_world_resolver=runtime.resolver,
+        epoch_validity_resolver=runtime.epoch_n9_evidence_resolver,
+        promotion_evidence_resolver=controller._promotion_evidence_resolver,
+    ) == ()
+    assert receipt.consumer_promotable is False
+    context = controller._promotion_source_context(summary, owner.problem)
+    assert context.get("promotion_safety_source_refs", ()) == (
+        selection.promotion_safety_source_refs if selection_matches else ()
+    )
+
+
+def test_empty_owned_evidence_source_is_persisted_as_unresolved(tmp_path: Path) -> None:
+    """No configured owner is an audited selector boundary, never an invented input."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    controller = generation_cycle_module.GenerationCycleController(promotion_runtime=runtime)
+    context = controller._promotion_source_context(_summary(), _problem())
+    assert set(context) == {"producer_root_refs"}
+    source_ref, = context["producer_root_refs"]
+    payload = json.loads(runtime.store.get_bytes(source_ref.artifact_id))
+    assert payload["status"] == "unresolved_by_construction"
+    assert payload["limitation_code"] == "promotion_evidence_source_unconfigured"
+    assert payload["inputs_read"]
+    assert "external_evidence_outside_configured_selection" in payload["unresolved_by_construction"]
+
+
+def test_owned_source_freezes_nested_inputs_and_refuses_summary_or_selection_ambiguity() -> None:
+    """Configuration snapshots and complete identity, not mutable markers, select inputs."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
+
+    problem, summary = _problem(), _summary()
+    line = _independence_line("configured-study", primary_source="journal")
+    selection = promotion_sequence_module.N9PromotionEvidenceSourceSelection(
+        design_problem_binding=N9DesignProblemBinding.from_problem(problem),
+        candidate_id=summary.candidate_id,
+        candidate_content_hash=summary.content_hash,
+        candidate_summary_content_hash=(
+            promotion_sequence_module.promotion_candidate_summary_content_hash(summary)
+        ),
+        effective_independence=promotion_sequence_module._EffectiveIndependenceWriterInput(
+            evidence_lines=(line,), portfolio_designs=(_independence_portfolio_design(),),
+            graph_id="configured-independence",
+        ),
+    )
+    source = promotion_sequence_module.N9PromotionEvidenceSource(selections=(selection,))
+    before = source.resolve(summary, problem)
+    selection.effective_independence.evidence_lines[0]["primary_source"] = "changed-after-assembly"
+    after = source.resolve(summary, problem)
+    assert after.selected_configuration_hash == before.selected_configuration_hash
+    assert after.selection == before.selection
+    changed_summary = summary.model_copy(update={"current_valid": not summary.current_valid})
+    assert source.resolve(changed_summary, problem).limitation_code == (
+        "promotion_evidence_source_identity_mismatch"
+    )
+    ambiguous = promotion_sequence_module.N9PromotionEvidenceSource(selections=(selection, selection))
+    assert ambiguous.resolve(summary, problem).limitation_code == "promotion_evidence_source_ambiguous"
+    with pytest.raises(TypeError, match="promotion_evidence_source_selection_must_be_typed"):
+        promotion_sequence_module.N9PromotionEvidenceSource(selections=[selection])
+
+
+def test_injected_posture_flags_are_a_bounded_predicate_not_evidence_admission(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Retain the P37 witness without exposing these flags through production selection."""
+
+    s6, s7, s8 = _s6_posture(), _s7_posture(), _s8_posture()
+    rows = (
+        promotion_sequence_module.evaluate_s6_blind_spot_promotion_gate(s6),
+        promotion_sequence_module.evaluate_s7_mandate_delegation_promotion_gate(
+            s7, blind_spot_posture=s6,
+        ),
+        promotion_sequence_module.evaluate_s8_value_posture_promotion_gate(s8),
+    )
+    assert all(row.status == PromotionObligationStatus.SATISFIED for row in rows)
+    from tests.unit.runtime.quality.test_generation_cycle import _run_open_world_n9_case
+
+    _, _, _, receipt = _run_open_world_n9_case(tmp_path=tmp_path, monkeypatch=monkeypatch)
+    assert receipt.consumer_promotable is False
+    assert receipt.refusal_reasons
+    print(json.dumps({
+        "predicate_inputs": [posture.model_dump(mode="json") for posture in (s6, s7, s8)],
+        "actual_evaluator_outputs": [row.model_dump(mode="json") for row in rows],
+        "canonical_n9_promoted": receipt.promoted,
+        "canonical_n9_refusal_reasons": receipt.refusal_reasons,
+        "unresolved_by_construction": [
+            "s6_protected_purpose_evidence_to_whole_blind_spot_posture_admission",
+            "s7_signed_human_decision_to_governed_pilot_and_s6_mandate_admission",
+            "s8_signed_schedule_to_whole_value_posture_admission",
+        ],
+    }, sort_keys=True))
+
+
 def test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient() -> None:
     pilot_value = _value_receipt().model_copy(update={"evaluation_mode": "field_pilot"})
     receipt = _run(_promotion_input(value_receipt=pilot_value))

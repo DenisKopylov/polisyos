@@ -1,6 +1,8 @@
 # Promotion conjunction: Stage 1 source reading
 
-All source references below are relative to `policy-engine/` at `28b8a1a42`.
+Stage 1 source references are relative to `policy-engine/` at `28b8a1a42`.
+The explicitly marked Stage 2 section instead uses the implementation commit
+recorded in `execution.md`.
 This is read-only architectural research, not a claim that a positive production
 promotion has run. The task-zero census is maintained by the lane's primary report.
 
@@ -126,13 +128,103 @@ and wired before inventing replacements; institutional slots remain typed and
 empty where their evidence is absent.
 
 `evaluation_safety.verify_near_miss_classification` forwards epoch and open-world
-resolvers but omits the promotion-evidence resolver. A source search found only
-its definition in `src/**/*.py`; this lexical boundary cannot rule out reflective
-invocation. It is therefore a separate unestablished production-caller boundary,
-not a reason to add an uninvoked helper patch. Destination: primary lane's
-positive-evidence ownership/bridge determination.
+resolvers but omits the promotion-evidence resolver at the slice base. The actual
+control lifecycle persists `classification=None` rather than invoking it (PC-R04
+in `reduction-research.md`). That inspected caller state establishes the buildable
+bridge gap; it makes no whole-repository absence claim. Destination: PC-B2
+post-core production invocation and evidence replay.
 
 Pattern pass: P01/P02 (real invocation and bridge), P04/P05 (scope and authority),
 P29/P32/P33 (behavioral replay and removal probes), P35/P38 (instance versus
 function/return-site denominator and no proxy admission). No evidence here grants
 an institutional appointment or promotion authority.
+
+
+## Stage 2 stop-rule audit: completed source bridge and bounded posture mapping
+
+This section references delivered source at the implementation commit named in
+`execution.md`, overriding this note's Stage 1 base convention.
+
+PC-B1 includes the independently buildable source-selection link missed in the
+initial finite paragraph. `PromotionRuntime.promotion_evidence_source` defaults to a
+concrete typed empty selection. The default `GenerationCycleController` and standalone
+`CanonicalN9PromotionPort` consume it. The source snapshots each exact typed selection,
+including original candidate identity/hash, whole-summary content hash and complete
+problem binding; missing, ambiguous and mismatched selections persist named refusal
+receipts. Existing independence/measurement writer inputs reach their actual producers,
+and the same measurement catalog/providers reach replay. Candidate safety-source refs
+reach the protected-purpose custody request; optional G4 refs reach the existing owner
+resolver. No selector result grants authority. Every result records the actual candidate,
+problem and configured rows read, with external evidence, promotion authority and verified
+S6/S7/S8 admission named `unresolved_by_construction` boundaries. The independent source
+configuration is frozen to serialized bytes, so post-assembly nested mutation cannot
+change the runtime selection snapshot. Actual-read receipts remain candidate-grade.
+
+Posture census predicate, stated before execution: walk every `src/**/*.py` file and
+count direct constructor or class `model_validate`, `model_validate_json`, or
+`model_construct` calls to `Layer2S6BlindSpotPostureInput`,
+`Layer2S7DelegationPostureInput`, and `Layer2S8ValuePostureInput`, resolving import aliases.
+The reproducible script is `posture_census.py`. The census found **0 such explicit producer call sites across the full denominator of
+2,664 on-disk Python files under `src/`**, independently reconciled against **2,663
+tracked Python files under `src/` plus the single new `promotion_safety.py` Python file**;
+no tracked member was missing or unreadable. This is a syntactic producer-call count,
+not a claim of absent institutions or a proof against dynamic deserialization. Complete
+actual file hashes and named dynamic-dispatch boundary are retained in
+`raw/posture-producer-census.json` (SHA-256
+`cb3b215e21827050e9b67ea512c2dbb58843caf91b1d04995ce99d0b399af337`).
+The tracked-script replay returned actual process code 0 in 89.103 seconds;
+`raw/posture-census-replay.json` SHA-256 is
+`811c56ae6efccc185f2d8bb8fd35e9697c77d011a79b20843e4a46da66701093` and its process receipt
+is `raw/posture-census-replay-receipt.json`. Its complete result equals the original
+except the read hash of `evaluation_safety.py`, which changed from
+`dce13781f5a09a8af3356d47d58974992daf83dc32e44f2f65b263144c721953` to
+`dde45bf91a6cd06f728d734c3fc5becdcd5cede8bacb6100ec80813024ad5a73` as PC-B2 source work
+finished. The call set, input file set and unread-boundary results are identical.
+This source-wave timing difference is routed to the lane freeze receipt, with no
+product finding or borrowed absence claim.
+The independent call-boundary inspection read every class and its evaluator, then the
+real source owners below. Source inputs unchanged from the base are:
+`src/polisyos/pdc/_impl/layer2_design_search.py@28b8a1a420e746b54fbd0b87f73fad1fc4821ba5`,
+`src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py@28b8a1a420e746b54fbd0b87f73fad1fc4821ba5`,
+`src/polisyos/runtime/http/services/human_decisions.py@28b8a1a420e746b54fbd0b87f73fad1fc4821ba5`,
+and `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py@28b8a1a420e746b54fbd0b87f73fad1fc4821ba5`.
+
+- S6's DTO explicitly describes injected shadow-loop posture. Its N9 evaluator accepts
+  any nonblocked `overall_posture` and records refs without resolving their contents.
+  `build_gl_s6_mandate_consumer_gate` already produces a compatible legal-mandate source,
+  but deliberately sets `does_not_assert_s6_pass=True`, `s6_evaluation_ref=None` and
+  `s6_gate_disposition="compatibility_only"`. The missing deciding semantics are the
+  protected-purpose acceptance of measurability, aggregation, capacity, mandate and
+  strategic-response evidence into the whole S6 posture. A compatible source handoff
+  cannot settle those scientific predicates.
+- S7's N9 evaluator calls `_s7_governed_pilot_eligible`, whose deciding variables are
+  supplied posture/approval/firewall flags and reference presence. The real
+  `HumanDecisionService` has signed source reading, actor/role/scope/time checks and
+  live production-approval joins; HTTP human-decision routes invoke that service.
+  Its `agent_action_authority` and `production_approval` purposes do not specify the
+  mapping to N9 governed-pilot eligibility together with the S6 mandate conjunct.
+  The remaining act is protected-purpose semantic admission/appointment for that
+  mapping, not building another human-decision owner.
+- S8's N9 evaluator tests injected ranking/disposition/P20/P22 statuses. The existing
+  `NormativeValueScheduleOwner` verifies configured separate signers, exact authorization,
+  scope/frontier/generation binding and persisted re-resolution before ranked emission.
+  That PA1 source capability is real. It does not produce the complete injected S8
+  posture or establish its objective, tradeoff, mandate and whole-posture admission
+  semantics. Translating a signed schedule directly into pass flags would invent them.
+
+The canonical promotion input and persisted owner projection already carry nullable,
+typed S6/S7/S8 slots, and the real evaluators produce scope refusals for absence. No
+new empty posture DTO or duplicate request is needed. Adding raw flags to deployment
+selection would widen P37 authority risk rather than close an independent bridge.
+`test_injected_posture_flags_are_a_bounded_predicate_not_evidence_admission` is the
+bounded falsifier: direct actual evaluators receive fictional `s6://`, `s7://`, and
+`s8://` refs with green flags, and accept them; a real production N9 receipt still
+refuses promotion. The combined-wave receipt retains the full inputs, actual evaluator
+outputs and global refusal. `epoch_removal_probe.py` repeats this final frozen witness
+before mutating each epoch forwarding seam; its per-case receipts require the intended
+call-phase failure, not merely pytest exit code 1. Complete output stays under `raw/`. This historical injected-predicate issue is explicitly
+routed to architect register row **promotion-s6-s7-s8-injected-posture-admission-mapping**,
+with P37/P38 semantics and the existing source owners named above. The smallest missing
+capability is protected-purpose evidence-to-posture admission for each named axis;
+source authenticity alone is not the deciding property. This lane neither appoints
+that authority nor manufactures scientific acceptance rules.

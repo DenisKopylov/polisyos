@@ -59,15 +59,28 @@ from polisyos.runtime.quality.evaluation_safety import (
     decide_evaluation_safety_core,
     evaluation_execution_context_hash,
     evaluation_safety_metrics_projection_identity,
+    near_miss_resolver_basis_reference,
     reconcile_evaluation_safety_revisions,
     replay_evaluation_safety_authority,
     verify_evaluation_safety_consumer_admission,
     verify_evaluation_safety_mode_basis,
     verify_evaluation_safety_requirements,
+    verify_near_miss_classification,
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generation_cycle import (
+        CandidateSummary,
+        PromotionPortObservation,
+        ValueGateReceipt,
+    )
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceBridgeRepository
     from polisyos.runtime.quality.semantic_epoch import (
         SemanticFacetDenominatorReceipt,
         SemanticFacetRegistry,
@@ -97,6 +110,58 @@ class EvaluationSafetyPersistenceContext(BaseModel):
     governance: GovernanceMetadata
 
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class EvaluationSafetyPromotionSourceSlot(BaseModel):
+    """Deployment-selected prior generation runs; empty supplies no promotion evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    source_run_ids: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationSafetyPromotionSourceContext:
+    """Actual control owners used to resolve selected persisted generation runs."""
+
+    slot: EvaluationSafetyPromotionSourceSlot
+    control_store: ControlPlaneStore
+    core_runs_root: Path
+    promotion_runtime: PromotionRuntime
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository
+
+
+@dataclass(frozen=True, slots=True)
+class _PromotionReplaySource:
+    """Candidate material extracted from the existing compiled-run producer artifact."""
+
+    compiled_ref: str
+    candidate: CandidateSummary
+    problem: DesignProblem
+    value: ValueGateReceipt
+    promotion: PromotionPortObservation
+
+
+class EvaluationSafetyPromotionSourceResolution(BaseModel):
+    """Bounded actual-read receipt; source availability never implies promotion."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal["polisyos.eval_safety.promotion_source_resolution.v1"] = (
+        "polisyos.eval_safety.promotion_source_resolution.v1"
+    )
+    requested_source_run_ids: tuple[str, ...]
+    inputs_read_scope: Literal["source_selection_only"] = "source_selection_only"
+    inputs_read: tuple[str, ...]
+    source_selection_read_attempts: tuple[str, ...]
+    selected_compiled_ref: str | None
+    classification: Literal["not_established", "verified"]
+    refusal_reasons: tuple[str, ...]
+    unresolved_by_construction: tuple[str, ...] = (
+        "outside_deployment_selected_source_runs",
+        "historical_child_problem_without_source_capsule",
+        "partial_nested_owner_reads_when_source_resolution_raises",
+        "classification_resolver_transitive_reads",
+        "unappointed_promotion_semantic_acceptance",
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -149,6 +214,7 @@ class PersistedEvaluationSafetyAttempt:
     revision_nodes: tuple[EvalSafetyCertificateRevisionNode, ...]
     decision: EvaluationSafetyDecisionEvent
     owner_evidence: EvaluationSafetyDecisionEvidence
+    promotion_source_resolution_ref: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -247,6 +313,7 @@ class EvaluationSafetyPersistenceService:
         authorities: EvaluationSafetyAttemptAuthorities,
         context: EvaluationSafetyPersistenceContext,
         evaluated_at: datetime,
+        promotion_sources: EvaluationSafetyPromotionSourceContext | None = None,
     ) -> PersistedEvaluationSafetyAttempt:
         """Run the C01 owners and persist one complete audit-safe attempt chain."""
 
@@ -387,6 +454,44 @@ class EvaluationSafetyPersistenceService:
         elif classification is not None:
             classification = None
 
+        promotion_source_resolution_ref: str | None = None
+        if promotion_sources is not None:
+            # This is deliberately after the unchanged safety core has been frozen.
+            source, inputs_read, read_attempts, reasons = self._resolve_promotion_source(
+                sources=promotion_sources, intake=intake, context=context
+            )
+            classification_offer_ref = None
+            classification = None
+            if source is not None:
+                classification_offer_ref, classification = self._classify_promotion_source(
+                    source=source, sources=promotion_sources, intake=intake,
+                    core=core, context=context, evaluated_at=evaluated_at,
+                )
+                if classification is None:
+                    reasons.append("canonical_promotion_replay_not_established")
+            resolution = EvaluationSafetyPromotionSourceResolution(
+                requested_source_run_ids=promotion_sources.slot.source_run_ids,
+                inputs_read=tuple(inputs_read),
+                source_selection_read_attempts=tuple(read_attempts),
+                selected_compiled_ref=source.compiled_ref if source is not None else None,
+                classification="verified" if classification is not None else "not_established",
+                refusal_reasons=tuple(reasons),
+            )
+            written = self._artifact_store.put_json(
+                resolution.model_dump(mode="json"),
+                core_artifacts.ArtifactWriteOptions(
+                    kind="runtime.eval_safety.promotion_source_resolution",
+                    media_type="application/json",
+                    schema=core_artifacts.SchemaInfo(
+                        name="polisyos.eval_safety.PromotionSourceResolution", version="1.0"
+                    ),
+                    producer=core_artifacts.ProducerInfo(
+                        component=_PRODUCER_COMPONENT, version=_PRODUCER_VERSION
+                    ),
+                ),
+            )
+            promotion_source_resolution_ref = str(written.artifact_id)
+
         persisted_decision = self.persist_decision(
             core=core,
             classification=classification,
@@ -448,7 +553,293 @@ class EvaluationSafetyPersistenceService:
                 decision=persisted_decision.decision,
                 classification=classification,
             ),
+            promotion_source_resolution_ref=promotion_source_resolution_ref,
         )
+
+    def _read_promotion_source_json(
+        self, artifact_ref: str, *, kind: str, schema_name: str,
+        inputs_read: list[str], read_attempts: list[str]
+    ) -> object:
+        read_attempts.append(f"cas_manifest:{artifact_ref}")
+        manifest = self._artifact_store.get_manifest(artifact_ref)
+        inputs_read.append(f"cas_manifest:{artifact_ref}")
+        read_attempts.append(f"cas_bytes:{artifact_ref}")
+        raw = self._artifact_store.get_bytes(artifact_ref)
+        inputs_read.append(f"cas_bytes:{artifact_ref}")
+        if (
+            manifest.kind != kind
+            or artifact_ref != f"sha256:{canon.content_hash(raw)}"
+            or str(manifest.artifact_id) != artifact_ref
+            or manifest.integrity.sha256 != artifact_ref.removeprefix("sha256:")
+            or manifest.byte_size != len(raw)
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema
+            != core_artifacts.SchemaInfo(name=schema_name, version="1.0")
+        ):
+            raise ValueError("promotion_source_artifact_binding_mismatch")
+        return canon.from_canonical_bytes(raw)
+
+    def _resolve_promotion_source(
+        self,
+        *,
+        sources: EvaluationSafetyPromotionSourceContext,
+        intake: EvaluationAttemptIntake,
+        context: EvaluationSafetyPersistenceContext,
+    ) -> tuple[_PromotionReplaySource | None, list[str], list[str], list[str]]:
+        from polisyos.runtime.http.services.adapters.core_run import load_terminal_core_run_source
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+
+        inputs_read: list[str] = []
+        read_attempts: list[str] = []
+        reasons: list[str] = []
+        matches: list[_PromotionReplaySource] = []
+        selected = sources.slot.source_run_ids
+        if not selected:
+            return None, inputs_read, read_attempts, ["promotion_source_slot_empty"]
+        if len(selected) != len(set(selected)):
+            return None, inputs_read, read_attempts, ["promotion_source_selection_ambiguous"]
+        for source_run_id in selected:
+            try:
+                read_attempts.append(f"control_completed_job:{source_run_id}")
+                job = sources.control_store.get_unique_completed_job_by_run_and_kind(
+                    run_id=source_run_id, kind="natural_language_run"
+                )
+                inputs_read.append(f"control_completed_job:{source_run_id}")
+                if job is None or job.payload_ref is None:
+                    raise ValueError("promotion_source_job_not_completed")
+                payload = self._read_promotion_source_json(
+                    job.payload_ref, kind="runtime.control_job_payload.natural_language_run",
+                    schema_name="polisyos.runtime.ControlJobPayload",
+                    inputs_read=inputs_read, read_attempts=read_attempts,
+                )
+                if not isinstance(payload, dict) or (
+                    payload.get("tenant_id") != context.tenant_id
+                    or payload.get("cell_id") != context.cell_id
+                    or payload.get("run_id") != source_run_id
+                ):
+                    raise ValueError("promotion_source_actor_scope_mismatch")
+                read_attempts.append(
+                    f"terminal_trace:{sources.core_runs_root}/{source_run_id}/trace.jsonl"
+                )
+                terminal = load_terminal_core_run_source(
+                    store=self._artifact_store, core_runs_root=sources.core_runs_root,
+                    run_id=source_run_id,
+                )
+                inputs_read.extend((
+                    f"terminal_trace:{terminal.trace_path}",
+                    f"cas_manifest:{terminal.manifest_ref.artifact_id}",
+                    f"cas_bytes:{terminal.manifest_ref.artifact_id}",
+                ))
+                if (
+                    terminal.manifest.status != "ok"
+                    or terminal.tenant_id != context.tenant_id
+                    or terminal.cell_id != context.cell_id
+                    or str(terminal.manifest_ref.artifact_id) != job.progress.get("manifest_ref")
+                ):
+                    raise ValueError("promotion_source_terminal_scope_mismatch")
+                compiled_refs = tuple(
+                    str(ref.artifact_id) for ref in terminal.manifest.outputs
+                    if ref.kind == "runtime.compiled_recursive_generation_cycle"
+                )
+                if len(compiled_refs) != 1 or compiled_refs[0] != job.progress.get(
+                    "compiled_recursive_generation_cycle_ref"
+                ):
+                    raise ValueError("promotion_source_compiled_selection_mismatch")
+                compiled_ref = compiled_refs[0]
+                compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                    self._read_promotion_source_json(
+                        compiled_ref, kind="runtime.compiled_recursive_generation_cycle",
+                        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                        inputs_read=inputs_read, read_attempts=read_attempts,
+                    )
+                )
+                for node in compiled.recursive_run.leaf_nodes:
+                    cycle = node.cycle_run
+                    if cycle is None:
+                        continue
+                    for candidate in cycle.candidate_summaries:
+                        if candidate.candidate_id != intake.candidate_ref.artifact_id:
+                            continue
+                        if candidate.content_hash != intake.candidate_ref.content_hash:
+                            raise ValueError("promotion_source_candidate_content_mismatch")
+                        if node.design_problem_ref != intake.design_problem_ref:
+                            raise ValueError("promotion_source_problem_mismatch")
+                        problem = compiled.design_problem
+                        if node.design_problem_ref != compiled.design_problem_ref:
+                            from polisyos.runtime.quality.generation_source import (
+                                GenerationSourceRepository,
+                            )
+
+                            repository = GenerationSourceRepository(self._artifact_store)
+                            child_problems = []
+                            for source_ref in cycle.source_handoff_refs:
+                                read_attempts.append(f"generation_source_owner:{source_ref}")
+                                handoff = repository.load(source_ref, run_id=cycle.run_id)
+                                inputs_read.extend((
+                                    f"cas_manifest:{source_ref}", f"cas_bytes:{source_ref}"
+                                ))
+                                identity = (
+                                    node.design_problem_ref, candidate.candidate_id,
+                                    candidate.content_hash,
+                                )
+                                if identity in handoff.identities():
+                                    child_problems.append(handoff.problem)
+                            if len(child_problems) != 1:
+                                raise ValueError("promotion_source_child_problem_not_retained")
+                            problem = child_problems[0]
+                        from polisyos.runtime.quality.promotion_sequence import (
+                            CanonicalPromotionReceipt,
+                        )
+
+                        receipts = tuple(
+                            CanonicalPromotionReceipt.model_validate(payload)
+                            for payload in cycle.promotion_port.receipts
+                            if payload.get("candidate_id") == candidate.candidate_id
+                        )
+                        if len(receipts) != 1:
+                            raise ValueError("promotion_source_candidate_receipt_not_unique")
+                        owner = receipts[0].owner_projection
+                        if (
+                            owner.candidate_summary.candidate_id != candidate.candidate_id
+                            or owner.candidate_summary.content_hash != candidate.content_hash
+                        ):
+                            raise ValueError("promotion_source_owner_candidate_mismatch")
+                        value = owner.value_receipt
+                        if value is None:
+                            raise ValueError("promotion_source_candidate_value_receipt_missing")
+                        if value.evaluation_mode != intake.mode_resolution.canonical_mode:
+                            raise ValueError("promotion_source_evaluation_mode_mismatch")
+                        if (
+                            value.candidate_id != candidate.candidate_id
+                            or value.world_model_record_content_hash
+                            != intake.world_model_record_ref.content_hash
+                        ):
+                            raise ValueError("promotion_source_value_world_mismatch")
+                        matches.append(_PromotionReplaySource(
+                            compiled_ref=compiled_ref, candidate=owner.candidate_summary,
+                            problem=problem, value=value,
+                            promotion=cycle.promotion_port,
+                        ))
+            except (OSError, KeyError, TypeError, ValueError) as exc:
+                # A member that cannot be read is ambiguous, never silently a zero.
+                reasons.append(f"promotion_source_unresolved:{source_run_id}:{type(exc).__name__}")
+                reasons.append(str(exc))
+        if reasons:
+            return None, inputs_read, read_attempts, reasons
+        if len(matches) != 1:
+            return None, inputs_read, read_attempts, [
+                "promotion_source_candidate_absent" if not matches
+                else "promotion_source_candidate_ambiguous"
+            ]
+        return matches[0], inputs_read, read_attempts, []
+
+    def _persist_replay_binding(
+        self, payload: BaseModel, *, kind: str, semantic_hash: str
+    ) -> EvalSafetyArtifactRef:
+        written = self._artifact_store.put_json(
+            payload.model_dump(mode="json"),
+            core_artifacts.ArtifactWriteOptions(kind=kind, media_type="application/json"),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+        return EvalSafetyArtifactRef(
+            artifact_id=str(written.artifact_id), artifact_type=kind,
+            content_hash=semantic_hash, schema_ref=f"{kind}.v1", version="1.0",
+            uri=f"cas://sha256/{str(written.artifact_id).removeprefix('sha256:')}",
+        )
+
+    def _classify_promotion_source(
+        self,
+        *,
+        source: _PromotionReplaySource,
+        sources: EvaluationSafetyPromotionSourceContext,
+        intake: EvaluationAttemptIntake,
+        core: EvaluationSafetyDecisionCore,
+        context: EvaluationSafetyPersistenceContext,
+        evaluated_at: datetime,
+    ) -> tuple[EvalSafetyArtifactRef | None, VerifiedNearMissClassification | None]:
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.promotion_sequence import (
+            CanonicalPromotionReceipt,
+        )
+
+        try:
+            receipts = [
+                CanonicalPromotionReceipt.model_validate(payload)
+                for payload in source.promotion.receipts
+                if payload.get("candidate_id") == source.candidate.candidate_id
+            ]
+            if len(receipts) != 1:
+                return None, None
+            receipt = receipts[0]
+            owner = receipt.owner_projection
+            if owner.open_world_gate is None or owner.epoch_validity_projection is None:
+                return None, None
+            receipt_ref = self._persist_replay_binding(
+                receipt, kind="runtime.eval_safety.canonical_promotion_replay",
+                semantic_hash=gy_content_hash(receipt.model_dump(mode="json")),
+            )
+            input_ref = self._persist_replay_binding(
+                owner, kind="runtime.eval_safety.canonical_promotion_input_replay",
+                semantic_hash=owner.projection_hash,
+            )
+            problem_ref = self._persist_replay_binding(
+                owner.design_problem_binding, kind="runtime.eval_safety.design_problem_replay",
+                semantic_hash=gy_content_hash(owner.design_problem_binding.model_dump(mode="json")),
+            )
+            value_ref = self._persist_replay_binding(
+                source.value, kind="runtime.eval_safety.value_replay",
+                semantic_hash=source.value.value_ref,
+            )
+            open_world_ref = near_miss_resolver_basis_reference(
+                owner.open_world_gate.vector_artifact_ref, record="open_world_risk_vector"
+            )
+            epoch_ref = near_miss_resolver_basis_reference(
+                owner.epoch_validity_projection.gate_receipt_ref,
+                record="epoch_validity_gate_receipt"
+            )
+            offer_values = {
+                "promotion_receipt_ref": receipt_ref,
+                "canonical_promotion_input_ref": input_ref,
+                "design_problem_binding_ref": problem_ref,
+                "value_receipt_ref": value_ref,
+                "candidate_ref": intake.candidate_ref,
+                "world_model_record_ref": intake.world_model_record_ref,
+                "promotion_rule_version": receipt.schema_version,
+                "open_world_resolver_basis_ref": open_world_ref,
+                "epoch_resolver_basis_ref": epoch_ref,
+                "safety_semantic_hash": core.safety_semantic_hash,
+                "offered_at": evaluated_at,
+            }
+            offer = EvalSafetyNearMissClassificationOffer.build(**offer_values)
+            written = self._write(
+                key="classification_offer", payload=offer.model_dump(mode="json"),
+                context=context, input_refs=(receipt_ref, input_ref, problem_ref, value_ref),
+                validation_status="pass", blocking_status="non_blocking",
+            )
+            offer_ref = self._verified_eval_ref(
+                written.cas_ref.artifact_id, key="classification_offer",
+                semantic_hash=offer.content_hash, expected_context=written.identity_context,
+            )
+            classification = verify_near_miss_classification(
+                offer=offer, offer_ref=offer_ref, validation_basis_ref=input_ref,
+                canonical_promotion_input_ref=input_ref, design_problem_binding_ref=problem_ref,
+                value_receipt_ref=value_ref, candidate_ref=intake.candidate_ref,
+                world_model_record_ref=intake.world_model_record_ref,
+                promotion_rule_version=receipt.schema_version,
+                current_open_world_resolver_basis_ref=open_world_ref,
+                current_epoch_resolver_basis_ref=epoch_ref,
+                promotion=source.promotion, candidate_summary=source.candidate,
+                design_problem=source.problem, value_receipt=source.value,
+                open_world_resolver=sources.promotion_runtime.resolver,
+                epoch_validity_resolver=sources.promotion_runtime.epoch_n9_evidence_resolver,
+                promotion_evidence_resolver=sources.promotion_evidence_resolver,
+                core=core,
+            )
+            return offer_ref, classification
+        except (OSError, KeyError, TypeError, ValueError):
+            return None, None
 
     def _compose_owner_state(
         self,

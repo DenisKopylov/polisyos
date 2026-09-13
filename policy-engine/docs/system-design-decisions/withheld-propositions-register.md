@@ -449,6 +449,48 @@ path are constructible now.
 
 ---
 
+### `WP-14` — a producer's separate right to issue epoch transitions
+
+**Proposition.** That `producer_identity_ref` on `PersistedEpochValidityTransition`
+asserts a *separate, independently admitted right* held by this producer to issue epoch
+transitions in a given scope and interval — over and above the transition's origin and
+its signature — so that the same bytes, signature, provenance and scope would fail
+admission when that grant is absent or revoked.
+
+**Source.** 2026-09-12 · lane `codex/epoch-positive-path` · Stage 1 `EP-D01` · the two
+interpretations with their distinguishing case, adjudicated 2026-09-13 in favour of
+provenance.
+
+**Value.** It is the stricter reading, and it is not wrong — it is the reading a real
+institution would eventually want, because it separates *this execution produced these
+bytes* from *this producer was permitted to*. Recording it preserves that direction. The
+programme has been bitten once by a refusal stated for the wrong reason foreclosing a
+legitimate direction (`PV-K08`), and this register exists so that a decision taken for
+capability reasons does not read as an impossibility claim.
+
+**`withheld_as`** `presupposes_absent_institution` — no ratified act establishes a minting
+authority distinct from signing, and none supplies the admission evidence such a grant
+would need. The lane looked through `C5-PREREQ-DV-EPOCH-ADMISSION`, GY-N12 Task 4.4 and
+`CB-D01`/`CB-H01`/`CB-H02` and found the requirement asserted nowhere; a requirement does
+not create an authority source, and using an adjacent appointment for it would be
+authority-by-adjacency.
+
+**Activation.** A ratified act establishing a transition-minting authority separate from
+the signing authority, naming what evidence admits a grant, its scope and its revocation.
+**This does not gate any build**: under the adopted provenance reading the positive path
+is complete, and adding a grant check later is an additional conjunct on an existing
+admission predicate, not a new object.
+
+**Non-effect.** No change to `signer_provenance_ref`, which never stood in for producer
+identity and does not now. No appointment. No weakening of the origin admission that the
+adopted reading requires.
+
+**Related.** ADR-0176; the 2026-08-30 ruling that institutional absence binds the claim
+and never the capability. Engineering half: already built — the origin owner and its
+independent admission.
+
+---
+
 ## Appending to this register
 
 A consolidation stage produces `<wave>-withheld-propositions.md` and routes each row here

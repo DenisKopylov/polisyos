@@ -1756,6 +1756,28 @@ superseded_by = []
 related = ["0156", "0173", "0174"]
 
 [[adr]]
+id = "0176"
+title = "Epoch validity transition admission predicates"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0176-epoch-validity-transition-admission-predicates.md"
+supersedes = []
+superseded_by = []
+related = ["0175"]
+
+[[adr]]
+id = "0177"
+title = "The governed public record admits a bounded initial-root profile"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0177-governed-public-record-bounded-initial-root-profile.md"
+supersedes = []
+superseded_by = []
+related = ["0176"]
+
+[[adr]]
 id = "ADR-004"
 title = "Trinity-Only IR Runtime"
 status = "completed"

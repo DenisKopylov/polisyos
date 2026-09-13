@@ -2,7 +2,8 @@
 
 The implementation commit and final attached-branch readback are named in
 `execution.md`. Original Stage 1 inputs are `path@28b8a1a420e746b54fbd0b87f73fad1fc4821ba5`;
-delivered source/test/probe inputs use the implementation SHA in that handoff.
+delivered source/test/probe inputs are
+`path@f8f4b828024dc3cb827415e127d21bd58c77d0d2`.
 These relative raw links resolve within this local worktree; outputs are deliberately
 gitignored and retained on this machine. Hashes are SHA-256 of complete output bytes.
 Expected failing inner tests are distinguished from successful probe-runner results.
@@ -55,6 +56,8 @@ The ledger's first run was not timed exactly; its retained actual process code i
 | [raw/epoch-alias-recheck.receipt.json](raw/epoch-alias-recheck.receipt.json) | 0; Actual supervised process completion including imports | `23361ff99625bc98dc4c9eb1f0602d24eaa4c44b4ce44454a47146193c055d38` |
 | [raw/epoch_removal_probe_first.py](raw/epoch_removal_probe_first.py) | input artifact; Exact preserved first harness; explains module-attribute alias miss | `d46eace9e85ddd0d29c31da78cd045489acfca14e95ac95296389712d989e7a0` |
 | [raw/lint-closeout.txt](raw/lint-closeout.txt) | 0; final complete changed-Python selection including corrected harness | `82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18` |
+| [raw/implementation-commit.txt](raw/implementation-commit.txt) | 0; Ordinary local commit including repository hooks | `e1753f4dd826a0fe3b4f2abad3b9d8813c11562dfadbf1daca797f351b69a5dc` |
+| [raw/implementation-branch-readback.json](raw/implementation-branch-readback.json) | 0; Complete committed delivery set read from attached branch, equal to inspected/current bytes | `33a1edbdbfd3686f0b3b03034caf50a349cad2465775484e5f319ea21f1a75d3` |
 
 The source-read boundaries, full selected sets and independent cross-checks live
 inside their respective census/owner/probe outputs. Counts are intentionally not

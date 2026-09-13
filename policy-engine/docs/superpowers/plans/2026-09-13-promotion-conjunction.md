@@ -135,7 +135,7 @@ reachable. Their behavioral and source-removal controls are mandatory below.
   raise its original marker; replay must retain semantic-scope mismatch and
   authority-laundering failures. In isolated in-process function bytecode disable each guard while
   keeping marker strings; the corresponding test must turn red. Retain each output.
-- [ ] **PC-B5: review, targeted verification and committed handoff.** Independent
+- [x] **PC-B5: review, targeted verification and committed handoff.** Independent
   review uses the P40 bucket rule: classify new class vs deeper instance before a
   repair; on second same-class escape widen mechanism or declare/run bounded
   residual falsifier. Run targeted affected tests, lint, census and removal probes;
@@ -181,3 +181,12 @@ specified in PC-R05/PC-R4/PC-R5. The OpenAPI local-digest family goes only to
 `openapi-snapshot-pins-environment-derived-digests`. Tooling nonreceipts go to the
 lane evidence record; inherited test failures must be replayed at the slice base
 with changed-path/input-denominator disjointness before ownership is assigned.
+
+## Attached-branch delivery
+
+Stage 1 was committed/read back as `cc3f8ecce031a12a0b6041e6a2f54a53e4288655`
+before source edits. Implementation was committed/read back as
+`f8f4b828024dc3cb827415e127d21bd58c77d0d2` on `codex/promotion-conjunction`.
+The terminal disposition, scoped architecture decisions, original non-green
+receipts and complete output hashes are in
+`../journals/promotion-conjunction/execution.md` and `evidence.md` beside it.

@@ -5,6 +5,17 @@ from __future__ import annotations
 import importlib
 
 __all__ = [
+    "GovernedPublicCustodyBinding",
+    "GovernedPublicRecord",
+    "GovernedPublicRecordDraft",
+    "GovernedPublicRecordError",
+    "GovernedPublicRecordOwner",
+    "GovernedPublicRecordProjection",
+    "GovernedPublicRecordVerificationResponse",
+    "PublicationMandateStatement",
+    "PublicationSigningSlot",
+    "PublicationTrustedKey",
+    "publication_trust_epoch",
     "CONTINUOUS_GOVERNANCE_FLAG",
     "ENABLE_REISSUE_WORKFLOW_FLAG",
     "ENABLE_WITHDRAWAL_STATUS_FLAG",
@@ -84,6 +95,50 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "GovernedPublicCustodyBinding": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "GovernedPublicCustodyBinding",
+    ),
+    "GovernedPublicRecord": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "GovernedPublicRecord",
+    ),
+    "GovernedPublicRecordDraft": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "GovernedPublicRecordDraft",
+    ),
+    "GovernedPublicRecordError": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "GovernedPublicRecordError",
+    ),
+    "GovernedPublicRecordOwner": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "GovernedPublicRecordOwner",
+    ),
+    "GovernedPublicRecordProjection": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "GovernedPublicRecordProjection",
+    ),
+    "GovernedPublicRecordVerificationResponse": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "GovernedPublicRecordVerificationResponse",
+    ),
+    "PublicationMandateStatement": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "PublicationMandateStatement",
+    ),
+    "PublicationSigningSlot": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "PublicationSigningSlot",
+    ),
+    "PublicationTrustedKey": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "PublicationTrustedKey",
+    ),
+    "publication_trust_epoch": (
+        "polisyos.scientist.governance.continuous.governed_public_record",
+        "publication_trust_epoch",
+    ),
     "PublicRecordPopulationInspection": (
         "polisyos.scientist.governance.continuous.published_signature_custody",
         "PublicRecordPopulationInspection",

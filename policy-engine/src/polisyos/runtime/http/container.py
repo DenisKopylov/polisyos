@@ -284,7 +284,9 @@ class RuntimeServiceContainer:
             epoch_claim_lifecycle_bridge=epoch_claim_lifecycle_bridge,
             control_registry_providers=control_registry_providers,
             public_decision_verification_service=build_public_decision_verification_service(
-                cas_root=config.cas_root
+                cas_root=config.cas_root,
+                store=runtime_api_context.store,
+                claim_owner=claim_ledger_owner,
             ),
             control_service=overrides.control_service,
         )
@@ -325,7 +327,9 @@ class RuntimeServiceContainer:
                     normative_authority_trust=self.config.normative_authority_trust,
                     published_signature_population_provider=(
                         PublicVerificationRecordPopulationProvider(
-                            source=self.public_decision_verification_service
+                            source=self.public_decision_verification_service,
+                            admission_source=self.public_decision_verification_service.governed_owner,
+                            store=self.runtime_api_context.store,
                         )
                     ),
                 )

@@ -1,0 +1,56 @@
+id = "2026-09-12-governed-public-record"
+title = "Add bounded governed public record admission"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Add an explicitly selected governed publication mode that verifies an exact Claim-owner source and separately signed institutional mandate, retains public meaning, and feeds installed signature custody."
+evidence = ["tests/unit/runtime/http/test_public_export.py", "tests/unit/scientist/governance/continuous/test_governed_public_record.py", "tests/unit/scientist/governance/continuous/test_governed_public_record_population.py", "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.governed.test.tsx"]
+compatibility = "Default verification-report issuance and legacy pvr records retain their existing schema and refusal behavior. Explicit governed modes and gpr responses add strict union arms."
+change_class = "schema-openapi-abi; js-package-api; python-public-api"
+surface_classification = "public_stable: runtime public decision HTTP API; public_stable: Scientist continuous governance facade; internal: admission implementation and runtime-dashboard viewer"
+migration = "Regenerate consumers and discriminate publication_class before handling governed responses. Configure the separate publication trust slot and an externally signed exact mandate; the default slot remains empty."
+api = "Adds governed_public_record_candidate and governed_public_record query modes to the existing authenticated issuance route and a governed response arm to anonymous verification."
+limitations = "Establishes bounded issuer issuance and exact-profile faithfulness only; no actual institution is appointed, no real first promotion is asserted, and policy performance, complete history, current authority and public evidence obtainability remain unestablished."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/configure-governed-publication.md"]
+runbook_docs = ["docs/how-to/configure-governed-publication.md"]
+
+[[compatibility_change]]
+id = "governed-public-record-http"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: runtime public decision HTTP API"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Explicit governed issuance modes and gpr verification responses preserve the default report-only contract."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/how-to/configure-governed-publication.md"]
+runbook_docs = ["docs/how-to/configure-governed-publication.md"]
+
+[[compatibility_change]]
+id = "governed-public-record-clients"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard generated types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Generated clients expose governed publication query options and response union arms."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/how-to/configure-governed-publication.md"]
+runbook_docs = ["docs/how-to/configure-governed-publication.md"]
+
+[[compatibility_change]]
+id = "governed-public-record-python-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.governance.continuous"
+owner = "team-polisyos"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Expose governed record admission subjects and owner through the supported continuous governance facade; implementation identity and admission checks are unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/configure-governed-publication.md"]
+runbook_docs = ["docs/how-to/configure-governed-publication.md"]

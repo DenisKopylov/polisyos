@@ -1,8 +1,9 @@
-"""Issue and verify retained public-document reports through the existing CAS.
+"""Issue retained reports and dispatch governed records to their admission owner.
 
 The configured key is authorized only to issue verification reports. Neither
 this signature nor a document projection supplies PUBLIC decision issuance or
-current authority. Reads verify captured bytes and never re-sign old records.
+current authority. A separately composed governed owner verifies publication evidence;
+the report format and its trust purpose remain unchanged. Reads never re-sign records.
 """
 
 from __future__ import annotations
@@ -34,6 +35,11 @@ from polisyos.runtime.http.services.public_decision_verification_contracts impor
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from datetime import datetime
+
+    from polisyos.scientist.governance.continuous import (
+        GovernedPublicRecordOwner,
+        GovernedPublicRecordVerificationResponse,
+    )
 
 _RECORD_ID = re.compile(r"pvr_[A-Za-z0-9_-]{32}\Z")
 _PUBLIC_DOCUMENT = TypeAdapter(dict[str, PublicDecisionJsonValue])
@@ -93,6 +99,7 @@ class PublicDecisionVerificationService:
         signer: artifacts.Ed25519Signer | None,
         trusted_keys: tuple[PublicDecisionVerificationTrustedKey, ...],
         rule_version: str = PUBLIC_VERIFICATION_RULE_VERSION,
+        governed_owner: GovernedPublicRecordOwner | None = None,
     ) -> None:
         """Compose explicit server trust; missing signing material never self-generates."""
         if not issuer_id or not rule_version:
@@ -102,6 +109,7 @@ class PublicDecisionVerificationService:
         self._issuer_id = issuer_id
         self._signer = signer
         self._rule_version = rule_version
+        self.governed_owner = governed_owner
         self._keys: dict[str, PublicDecisionVerificationTrustedKey] = {}
         # Revocation is intentionally reported separately from mathematical validity.
         # Identity hints in the unsigned sidecar do not decide either dimension.
@@ -218,7 +226,7 @@ class PublicDecisionVerificationService:
     def issued_record_ids(self) -> tuple[str, ...]:
         """Enumerate this controlled index, without claiming complete public history."""
         if not self._index_root.exists():
-            return ()
+            return self.governed_owner.issued_record_ids() if self.governed_owner else ()
         if not self._index_root.is_dir():
             raise PublicDecisionVerificationError("issuance_index_invalid")
         result: list[str] = []
@@ -232,10 +240,15 @@ class PublicDecisionVerificationService:
             except (OSError, TypeError, ValueError) as exc:
                 raise PublicDecisionVerificationError("issuance_index_invalid") from exc
             result.append(entry.record_id)
-        return tuple(result)
+        governed = self.governed_owner.issued_record_ids() if self.governed_owner else ()
+        return tuple(sorted((*result, *governed)))
 
-    def verify(self, record_id: str) -> PublicDecisionVerificationResponse:
+    def verify(
+        self, record_id: str
+    ) -> PublicDecisionVerificationResponse | GovernedPublicRecordVerificationResponse:
         """Resolve an issued opaque ID and authenticate the exact retained document."""
+        if record_id.startswith("gpr_") and self.governed_owner is not None:
+            return self.governed_owner.verify(record_id)
         if _RECORD_ID.fullmatch(record_id) is None:
             reason: PublicDecisionVerificationReason = (
                 "client_token_not_server_issued"

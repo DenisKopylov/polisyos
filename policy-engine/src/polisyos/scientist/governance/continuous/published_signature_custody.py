@@ -10,17 +10,26 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon as core_canon
+from polisyos.scientist.governance.continuous.governed_public_record_contracts import (
+    GovernedPublicRecordBoundaryRead,
+)
 from polisyos.scientist.governance.continuous.monitors import (
     GovernanceMonitorEvent,
     monitor_event_id,
     persist_governance_monitor_event,
 )
+
+if TYPE_CHECKING:
+    from polisyos.scientist.governance.continuous.governed_public_record import (
+        GovernedPublicRecordOwner,
+        GovernedPublicRecordProjection,
+    )
 
 PUBLIC_SIGNATURE_POPULATION_KIND = "scientist.public_signature_population"
 PUBLIC_SIGNATURE_POPULATION_SCHEMA_NAME = "polisyos.scientist.PublicSignaturePopulation"
@@ -54,6 +63,23 @@ class PublicSignaturePopulationSnapshot(BaseModel):
     captured_at: datetime
 
 
+class PublicRecordInventoryRead(BaseModel):
+    """Actual controlled inventory read, without a global-publication inference."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    boundary: Literal["report_source", "admission_owner"]
+    outcome: Literal["read", "read_failed"]
+    # The canonical JSON decoder supplies arrays; only their container becomes
+    # an immutable tuple. Strict element types and forbidden extras are retained.
+    record_ids: tuple[str, ...] = Field(default=(), strict=False)
+    input_reads: tuple[GovernedPublicRecordBoundaryRead, ...] = Field(default=(), strict=False)
+    unresolved_by_construction: tuple[str, ...] = Field(
+        default=("unselected_report_index_extensions", "uncontrolled_public_signature_history"),
+        strict=False,
+    )
+
+
 class PersistedPublicSignaturePopulation(BaseModel):
     """Exact persisted population handle; no unverified snapshot crosses the watcher boundary."""
 
@@ -62,6 +88,10 @@ class PersistedPublicSignaturePopulation(BaseModel):
     population_ref: core_artifacts.ArtifactRef
     population_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     snapshot: PublicSignaturePopulationSnapshot
+    record_inspections: tuple[PublicRecordPopulationInspection, ...] = ()
+    inventory_reads: tuple[PublicRecordInventoryRead, ...] = ()
+    input_scope: str = "supplied_population_snapshot_and_member_artifacts"
+    unresolved_by_construction: tuple[str, ...] = ("uncontrolled_public_signature_history",)
 
 
 class PublicRecordPopulationInspection(BaseModel):
@@ -77,6 +107,7 @@ class PublicRecordPopulationInspection(BaseModel):
         "record_binding_mismatch",
         "promoted_record_not_admitted",
         "record_verification_error",
+        "promoted_record_admitted",
     ]
 
 
@@ -89,6 +120,9 @@ class PublicSignaturePopulationNonReceipt(BaseModel):
     predicate_provenance: Literal["not_established"] = "not_established"
     reason: str = Field(min_length=1)
     record_inspections: tuple[PublicRecordPopulationInspection, ...] = ()
+    inventory_reads: tuple[PublicRecordInventoryRead, ...] = ()
+    input_scope: str = "unappointed_population_provider"
+    unresolved_by_construction: tuple[str, ...] = ("uncontrolled_public_signature_history",)
 
 
 class PublicVerificationRecordObservation(Protocol):
@@ -103,8 +137,8 @@ class PublicVerificationRecordObservation(Protocol):
         """Return authentication of the verifier report, not publication authority."""
 
     @property
-    def promoted_record(self) -> None:
-        """Return the typed-empty governed public-record slot."""
+    def promoted_record(self) -> GovernedPublicRecordProjection | None:
+        """Return a candidate for independent admission, never authority by non-nullness."""
 
 
 class PublicVerificationRecordSource(Protocol):
@@ -118,19 +152,26 @@ class PublicVerificationRecordSource(Protocol):
 
 
 class PublicVerificationRecordPopulationProvider:
-    """Consume issued report evidence while keeping governed signature admission closed.
+    """Inspect the controlled inventory and re-resolve every governed member's admission."""
 
-    The current record owner issues authenticated verifier reports with an empty
-    promoted-record slot. Inspecting them is useful diagnostic work; neither their
-    signatures nor enumeration establish a governed policy-signature population.
-    """
-
-    def __init__(self, *, source: PublicVerificationRecordSource) -> None:
+    def __init__(
+        self,
+        *,
+        source: PublicVerificationRecordSource,
+        admission_source: GovernedPublicRecordOwner | None = None,
+        store: core_artifacts.ArtifactStore | None = None,
+    ) -> None:
+        """Compose the actual admission owner separately from untrusted report observations."""
         self._source = source
+        self._admission_source = admission_source
+        self._store = store
 
-    def resolve(self) -> PublicSignaturePopulationNonReceipt:
-        """Record each available report result without manufacturing population members."""
+    def resolve(
+        self,
+    ) -> PersistedPublicSignaturePopulation | PublicSignaturePopulationNonReceipt:
+        """Persist admitted members or the actual read observations and unread boundaries."""
 
+        inventory_reads: list[PublicRecordInventoryRead] = []
         try:
             record_ids = self._source.issued_record_ids()
             if (
@@ -144,10 +185,80 @@ class PublicVerificationRecordPopulationProvider:
                 raise ValueError("invalid local public report inventory")
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return PublicSignaturePopulationNonReceipt(
-                reason="public_record_inventory_unresolvable"
+                reason="public_record_inventory_unresolvable",
+                inventory_reads=(
+                    PublicRecordInventoryRead(boundary="report_source", outcome="read_failed"),
+                ),
+                input_scope="controlled_issued_index_read_failed",
+                unresolved_by_construction=(
+                    "unreadable_controlled_issued_index",
+                    "uncontrolled_public_signature_history",
+                ),
             )
 
+        inventory_reads.append(
+            PublicRecordInventoryRead(
+                boundary="report_source", outcome="read", record_ids=record_ids
+            )
+        )
+        if self._admission_source is not None:
+            from polisyos.scientist.governance.continuous.governed_public_record import (
+                GovernedPublicRecordOwner,
+            )
+
+            try:
+                owner = self._admission_source
+                if type(owner) is not GovernedPublicRecordOwner or owner.store is not self._store:
+                    raise ValueError("governed public inventory owner mismatch")
+                admitted_ids = owner.issued_record_ids()
+                inventory_reads.append(
+                    PublicRecordInventoryRead(
+                        boundary="admission_owner",
+                        outcome="read",
+                        record_ids=admitted_ids,
+                        input_reads=owner.last_boundary_reads,
+                        unresolved_by_construction=(
+                            "unselected_index_extensions",
+                            "other_owner_stores",
+                            "unregistered_external_publications",
+                        ),
+                    )
+                )
+            except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+                inventory_reads.append(
+                    PublicRecordInventoryRead(
+                        boundary="admission_owner",
+                        outcome="read_failed",
+                        input_reads=(
+                            owner.last_boundary_reads
+                            if type(owner) is GovernedPublicRecordOwner
+                            else ()
+                        ),
+                        unresolved_by_construction=("unreadable_controlled_governed_inventory",),
+                    )
+                )
+                return PublicSignaturePopulationNonReceipt(
+                    reason="governed_public_inventory_unresolvable",
+                    inventory_reads=tuple(inventory_reads),
+                    input_scope="supplied_reports_and_controlled_governed_inventory",
+                    unresolved_by_construction=(
+                        "unreadable_controlled_governed_inventory",
+                        "uncontrolled_public_signature_history",
+                    ),
+                )
+            if set(admitted_ids) != {item for item in record_ids if item.startswith("gpr_")}:
+                return PublicSignaturePopulationNonReceipt(
+                    reason="governed_public_inventory_not_reconciled",
+                    inventory_reads=tuple(inventory_reads),
+                    input_scope="supplied_reports_and_controlled_governed_inventory",
+                    unresolved_by_construction=(
+                        "controlled_governed_inventory_disagreement",
+                        "uncontrolled_public_signature_history",
+                    ),
+                )
         inspections: list[PublicRecordPopulationInspection] = []
+        members: list[PublicSignaturePopulationMember] = []
+        governed_failure = False
         for record_id in sorted(record_ids):
             authentication: Literal["verified", "invalid", "not_established"] = "not_established"
             reason: Literal[
@@ -156,6 +267,7 @@ class PublicVerificationRecordPopulationProvider:
                 "record_binding_mismatch",
                 "promoted_record_not_admitted",
                 "record_verification_error",
+                "promoted_record_admitted",
             ] = "record_verification_error"
             try:
                 report = self._source.verify(record_id)
@@ -168,17 +280,53 @@ class PublicVerificationRecordPopulationProvider:
                     reason = "record_not_authenticated"
                 elif report.promoted_record is not None:
                     reason = "promoted_record_not_admitted"
+                    from polisyos.scientist.governance.continuous.governed_public_record import (
+                        GovernedPublicRecordOwner,
+                    )
+
+                    owner = self._admission_source
+                    if type(owner) is GovernedPublicRecordOwner and owner.store is self._store:
+                        binding = owner.resolve_custody_binding(record_id)
+                        if binding.record_id != record_id:
+                            raise ValueError("governed custody record identity mismatch")
+                        members.append(
+                            PublicSignaturePopulationMember(
+                                signature_ref=binding.signature_ref,
+                                decision_packet_ref=binding.decision_packet_ref,
+                                affected_claim_ids=binding.affected_claim_ids,
+                                published_at=binding.published_at,
+                                staleness_after_seconds=binding.staleness_after_seconds,
+                            )
+                        )
+                        reason = "promoted_record_admitted"
                 else:
                     reason = "promoted_record_missing"
             except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
                 authentication = "not_established"
                 reason = "record_verification_error"
+            if record_id.startswith("gpr_") and reason != "promoted_record_admitted":
+                governed_failure = True
             inspections.append(
                 PublicRecordPopulationInspection(
                     record_id=record_id, report_authentication=authentication, reason=reason
                 )
             )
 
+        if members and not governed_failure and self._store is not None:
+            persisted = persist_public_signature_population(
+                self._store,
+                population_id="controlled_governed_public_records",
+                population_provenance="institutionally_supplied",
+                members=tuple(members),
+                captured_at=datetime.now(UTC),
+            )
+            return persisted.model_copy(
+                update={
+                    "record_inspections": tuple(inspections),
+                    "inventory_reads": tuple(inventory_reads),
+                    "input_scope": "controlled_issued_index_and_listed_record_verification",
+                }
+            )
         return PublicSignaturePopulationNonReceipt(
             reason=(
                 "public_record_verification_not_established"
@@ -186,6 +334,9 @@ class PublicVerificationRecordPopulationProvider:
                 else "governed_public_record_producer_missing"
             ),
             record_inspections=tuple(inspections),
+            inventory_reads=tuple(inventory_reads),
+            input_scope="controlled_issued_index_and_listed_record_verification",
+            unresolved_by_construction=("uncontrolled_public_signature_history",),
         )
 
 
@@ -237,6 +388,9 @@ class PublishedSignatureCustodyScan(BaseModel):
     monitor_event_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
     lifecycle_bridge_result_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
     record_inspections: tuple[PublicRecordPopulationInspection, ...] = ()
+    inventory_reads: tuple[PublicRecordInventoryRead, ...] = ()
+    input_scope: str = "supplied_population_snapshot_and_member_artifacts"
+    unresolved_by_construction: tuple[str, ...] = ("uncontrolled_public_signature_history",)
     reason: str = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -285,6 +439,10 @@ class PublishedSignatureCustodyResult(BaseModel):
     scan_receipt_ref: core_artifacts.ArtifactRef | None = None
     monitor_event_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
     lifecycle_bridge_result_refs: tuple[core_artifacts.ArtifactRef, ...] = ()
+    record_inspections: tuple[PublicRecordPopulationInspection, ...] = ()
+    inventory_reads: tuple[PublicRecordInventoryRead, ...] = ()
+    input_scope: str = "supplied_population_snapshot_and_member_artifacts"
+    unresolved_by_construction: tuple[str, ...] = ("uncontrolled_public_signature_history",)
     reason: str = Field(min_length=1)
 
 
@@ -521,6 +679,9 @@ class PublishedSignatureCustodyWatcher:
                     member_count=0,
                     reason=population.reason,
                     record_inspections=population.record_inspections,
+                    inventory_reads=population.inventory_reads,
+                    input_scope=population.input_scope,
+                    unresolved_by_construction=population.unresolved_by_construction,
                 ),
             )
             return PublishedSignatureCustodyResult(
@@ -528,8 +689,16 @@ class PublishedSignatureCustodyWatcher:
                 predicate_provenance="not_established",
                 scan_receipt_ref=persisted.scan_receipt_ref,
                 reason=population.reason,
+                record_inspections=population.record_inspections,
+                inventory_reads=population.inventory_reads,
+                input_scope=population.input_scope,
+                unresolved_by_construction=population.unresolved_by_construction,
             )
 
+        inventory_reads = population.inventory_reads
+        input_scope = population.input_scope
+        inspections = population.record_inspections
+        unresolved_boundaries = population.unresolved_by_construction
         try:
             population = resolve_public_signature_population(
                 self._store,
@@ -544,6 +713,10 @@ class PublishedSignatureCustodyWatcher:
                     predicate_provenance="not_established",
                     member_count=0,
                     reason=f"public_signature_population_unresolvable:{type(exc).__name__}",
+                    record_inspections=inspections,
+                    inventory_reads=inventory_reads,
+                    input_scope=input_scope,
+                    unresolved_by_construction=unresolved_boundaries,
                 ),
             )
             return PublishedSignatureCustodyResult(
@@ -551,6 +724,10 @@ class PublishedSignatureCustodyWatcher:
                 predicate_provenance="not_established",
                 scan_receipt_ref=persisted.scan_receipt_ref,
                 reason=persisted.scan.reason,
+                record_inspections=inspections,
+                inventory_reads=inventory_reads,
+                input_scope=input_scope,
+                unresolved_by_construction=unresolved_boundaries,
             )
 
         monitor_refs: list[core_artifacts.ArtifactRef] = []
@@ -604,6 +781,10 @@ class PublishedSignatureCustodyWatcher:
                 monitor_event_refs=tuple(monitor_refs),
                 lifecycle_bridge_result_refs=tuple(lifecycle_refs),
                 reason=f"published_signature_custody_blocked:{type(exc).__name__}",
+                record_inspections=inspections,
+                inventory_reads=inventory_reads,
+                input_scope=input_scope,
+                unresolved_by_construction=unresolved_boundaries,
             )
         else:
             scan = PublishedSignatureCustodyScan(
@@ -617,6 +798,10 @@ class PublishedSignatureCustodyWatcher:
                 monitor_event_refs=tuple(monitor_refs),
                 lifecycle_bridge_result_refs=tuple(lifecycle_refs),
                 reason="published_signature_custody_scan_completed",
+                record_inspections=inspections,
+                inventory_reads=inventory_reads,
+                input_scope=input_scope,
+                unresolved_by_construction=unresolved_boundaries,
             )
         persisted = persist_published_signature_custody_scan(self._store, scan)
         return PublishedSignatureCustodyResult(
@@ -627,11 +812,16 @@ class PublishedSignatureCustodyWatcher:
             monitor_event_refs=scan.monitor_event_refs,
             lifecycle_bridge_result_refs=scan.lifecycle_bridge_result_refs,
             reason=scan.reason,
+            record_inspections=scan.record_inspections,
+            inventory_reads=scan.inventory_reads,
+            input_scope=scan.input_scope,
+            unresolved_by_construction=scan.unresolved_by_construction,
         )
 
 
 __all__ = [
     "PublicRecordPopulationInspection",
+    "PublicRecordInventoryRead",
     "PublicVerificationRecordObservation",
     "PublicVerificationRecordPopulationProvider",
     "PublicVerificationRecordSource",

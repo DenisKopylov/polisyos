@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from polisyos.runtime.http.services.acquisition_surface_contracts import (
     AcquisitionBacklogProjection,
@@ -13,6 +14,9 @@ from polisyos.runtime.http.services.acquisition_surface_contracts import (
     N13bHistoryProjection,
     StructuralRouteProjection,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.non_data_acquisition import VerifiedNonDataRoute
 
 _QUALIFICATION_EFFECT = (
     "authority to qualify native semantic production, append its history head "
@@ -34,6 +38,7 @@ def build_acquisition_growth_projection(
     executor_contract: Mapping[str, object],
     lifecycle_manifest: Mapping[str, object],
     reentry_trace: Mapping[str, object],
+    non_data_routes: tuple[VerifiedNonDataRoute, ...] = (),
 ) -> AcquisitionGrowthPayload:
     """Derive strict acquisition facts from the complete historical owner family."""
 
@@ -96,7 +101,14 @@ def build_acquisition_growth_projection(
         )
         for row in backlog_rows
     )
-    structural_routes = tuple(_project_structural_route(row) for row in route_rows)
+    receipts = {entry.route_id: entry for entry in non_data_routes}
+    route_ids = {_text(_mapping(row, "route"), "route_id") for row in route_rows}
+    if len(receipts) != len(non_data_routes) or not receipts.keys() <= route_ids:
+        raise ValueError("non_data_projection_route_denominator_mismatch")
+    structural_routes = tuple(
+        _project_structural_route(row, receipts.get(_text(_mapping(row, "route"), "route_id")))
+        for row in route_rows
+    )
     attempt_count = _integer(n13b_journal, "request_count")
     terminal_count = _integer(n13b_journal, "terminal_count")
     admitted_count = _integer(n13b_journal, "response_admitted_count")
@@ -237,9 +249,24 @@ def _data_gap_is_independently_reconciled(
     )
 
 
-def _project_structural_route(row: Mapping[str, object]) -> StructuralRouteProjection:
+def _project_structural_route(
+    row: Mapping[str, object], entry: VerifiedNonDataRoute | None = None
+) -> StructuralRouteProjection:
     route = row.get("route")
     route_mapping = route if isinstance(route, Mapping) else {}
+    if entry is not None:
+        receipt = entry.receipt
+        # The source loader and independent worker both reverify the canonical
+        # receipt. A candidate's demand shape never establishes domain authority.
+        return StructuralRouteProjection(
+            route_id=_text(route_mapping, "route_id"),
+            route_class="candidate_non_data:"
+            + (",".join(receipt.shape.acquisition_types) or "not_established"),
+            witness_kind=receipt.resolution_state,
+            missing_link="; ".join(receipt.reason_codes),
+            gap_class=GapClass.NOT_ESTABLISHED,
+            action_eligibility="blocked",
+        )
     established = (
         row.get("route_class") == "not_a_data_gap"
         and isinstance(route_mapping.get("witness_kind"), str)

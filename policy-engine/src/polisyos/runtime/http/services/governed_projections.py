@@ -41,6 +41,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerSemanticReceiptProjection,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.non_data_acquisition import load_non_data_projection_source
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -222,9 +223,7 @@ class DependencyEnvironmentDiagnosticCaseProjection(_StrictModel):
 
     @model_validator(mode="after")
     def _field_matches_case_kind(self) -> Self:
-        if (self.case_kind == "distribution_field_disagreement") != (
-            self.field is not None
-        ):
+        if (self.case_kind == "distribution_field_disagreement") != (self.field is not None):
             raise ValueError("dependency diagnostic field/case kind drifted")
         return self
 
@@ -255,9 +254,7 @@ class DependencyEnvironmentDiagnosticProjection(_StrictModel):
                     "received dependency diagnostic requires its complete owner binding"
                 )
         elif any(value is not None for value in received_fields):
-            raise ValueError(
-                "dependency diagnostic non-receipt cannot carry owner evidence"
-            )
+            raise ValueError("dependency diagnostic non-receipt cannot carry owner evidence")
         if self.receipt_state == "not_received" and self.status != "not_established":
             raise ValueError("dependency diagnostic non-receipt is not established")
         if (self.status == "fail") != (self.first_case is not None):
@@ -285,9 +282,7 @@ class DependencyDiscriminantOwnerBinding(_StrictModel):
         "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
     ]
     owner_semantic_hash: str | None
-    semantic_hash_rule_version: Literal[
-        "polisyos.foundry.dependency_discriminant.v1"
-    ]
+    semantic_hash_rule_version: Literal["polisyos.foundry.dependency_discriminant.v1"]
     resolved_artifact_content_hash: str | None
     dependency_environment: DependencyEnvironmentDiagnosticProjection
 
@@ -330,8 +325,8 @@ class ProjectionSourceValidation(_StrictModel):
     recomputed_total_spend_denominator: int | None = None
     registry_delta_numerator: int | None = None
     registry_delta_denominator: int | None = None
-    _related_dependency_diagnostic: DependencyEnvironmentDiagnosticProjection | None = (
-        PrivateAttr(default=None)
+    _related_dependency_diagnostic: DependencyEnvironmentDiagnosticProjection | None = PrivateAttr(
+        default=None
     )
 
     @model_validator(mode="after")
@@ -1173,9 +1168,7 @@ _GUARDED_PAYLOAD_MODEL_BY_ID: dict[
     GuardedProjectionId,
     type[ConfidenceLedgerSemanticReceiptProjection],
 ] = {
-    GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND: (
-        ConfidenceLedgerSemanticReceiptProjection
-    ),
+    GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND: (ConfidenceLedgerSemanticReceiptProjection),
 }
 
 _PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
@@ -1251,9 +1244,7 @@ def _owner_bridge_failure(
 ) -> ProjectionSourceValidation:
     dependency_bindings = _component_dependency_bindings(loaded)
     return ProjectionSourceValidation(
-        validator_id=(
-            "polisyos.runtime.http.services.governed_projection_validation_worker:main"
-        ),
+        validator_id=("polisyos.runtime.http.services.governed_projection_validation_worker:main"),
         validator_version="policyos.runtime.governed_projection.owner_validation.v2",
         status="failed",
         bound_artifact_content_hash=loaded.content_hash,
@@ -1399,21 +1390,15 @@ def _run_owner_validation(
             bound_dependency_aggregate_identity=result.dependency_aggregate_identity,
             bound_dependency_count=len(result.dependency_bindings),
             semantic_projection_hash=result.semantic_projection_hash,
-            semantic_projection_hash_rule_version=(
-                result.semantic_projection_hash_rule_version
-            ),
+            semantic_projection_hash_rule_version=(result.semantic_projection_hash_rule_version),
             issue_codes=result.issue_codes,
             worker_validation_receipt_hash=hash_export_projection(worker_receipt),
             source_payload_equal=result.source_payload_equal,
             registry_content_hash=result.registry_content_hash,
             registry_projection_hash=result.registry_projection_hash,
             frozen_semantic_projection_hash=result.frozen_semantic_projection_hash,
-            recomputed_total_spend_numerator=(
-                result.recomputed_total_spend_numerator
-            ),
-            recomputed_total_spend_denominator=(
-                result.recomputed_total_spend_denominator
-            ),
+            recomputed_total_spend_numerator=(result.recomputed_total_spend_numerator),
+            recomputed_total_spend_denominator=(result.recomputed_total_spend_denominator),
             registry_delta_numerator=result.registry_delta_numerator,
             registry_delta_denominator=result.registry_delta_denominator,
         )
@@ -1436,9 +1421,7 @@ class GovernedProjectionService:
         self._repository_root = repository_root
         self._path_cache: dict[Path, _FileObservation] = {}
         self._parsed_cache: dict[tuple[str, str], dict[str, Any]] = {}
-        self._projection_cache: dict[
-            tuple[ProjectionId | GuardedProjectionId, str], bytes
-        ] = {}
+        self._projection_cache: dict[tuple[ProjectionId | GuardedProjectionId, str], bytes] = {}
 
     def catalog(self) -> tuple[ProjectionCatalogEntry, ...]:
         """Return the full denominator without touching artifact bytes."""
@@ -1553,9 +1536,7 @@ class GovernedProjectionService:
             source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
             as_of=as_of,
             freshness=ProjectionFreshness(
-                state=(
-                    "observed" if validation.status == "passed" else "invalid_source"
-                ),
+                state=("observed" if validation.status == "passed" else "invalid_source"),
                 basis=basis,
                 observed_at=observed_at,
                 source_as_of=as_of,
@@ -1649,9 +1630,7 @@ class GovernedProjectionService:
                         authoritative_for=definition.authoritative_for,
                         may_not_use_for=definition.may_not_use_for,
                         source=source,
-                        source_dependency_hash=(
-                            validation.bound_dependency_aggregate_identity
-                        ),
+                        source_dependency_hash=(validation.bound_dependency_aggregate_identity),
                         source_schema_version=_source_schema_version(loaded.parsed),
                         source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
                         projection_hash=resolved_projection_hash,
@@ -1667,9 +1646,7 @@ class GovernedProjectionService:
                             resolved_id,
                             artifact_content_hash=source.artifact_content_hash,
                             projection_hash=resolved_projection_hash,
-                            source_dependency_hash=(
-                                validation.bound_dependency_aggregate_identity
-                            ),
+                            source_dependency_hash=(validation.bound_dependency_aggregate_identity),
                             source_as_of=as_of,
                         ),
                         payload=payload,
@@ -1726,6 +1703,37 @@ class GovernedProjectionService:
             reentry_path = "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json"
             executor = self._parse(component_observations[executor_path], "json")
             reentry = self._parse(component_observations[reentry_path], "json")
+            try:
+                non_data = load_non_data_projection_source(
+                    governed_root=self._repository_root, census=census
+                )
+                for path, expected_hash in non_data.component_bindings:
+                    observed = self._read_file(path)
+                    if observed.content_hash != expected_hash:
+                        raise InvalidProjectionSourceError(
+                            f"non-data acquisition source changed during read: {path}"
+                        )
+                    component_observations[path] = observed
+            except (OSError, ValueError) as exc:
+                # Only already observed bytes are identified here. In particular,
+                # do not reread a refused path outside the owner's path guard.
+                observed_bindings = tuple(
+                    sorted(
+                        (path, observed.content_hash)
+                        for path, observed in component_observations.items()
+                    )
+                )
+                failed_source = _LoadedSource(
+                    relative_path="acquisition-growth:non-data-source-unverified",
+                    content_hash=hash_export_projection(dict(observed_bindings)),
+                    parsed=census,
+                    modified_at=max(
+                        observed.modified_at for observed in component_observations.values()
+                    ),
+                    declared_content_hash=None,
+                    component_bindings=observed_bindings,
+                )
+                raise _InvalidProjectionLoadError(failed_source, str(exc)) from exc
             bindings = tuple(
                 sorted(
                     (path, observed.content_hash)
@@ -1745,6 +1753,7 @@ class GovernedProjectionService:
                     "executor_contract": executor,
                     "lifecycle_manifest": lifecycle,
                     "reentry_trace": reentry,
+                    "non_data_routes": non_data.routes,
                 },
                 modified_at=max(
                     observed.modified_at for observed in component_observations.values()
@@ -2341,6 +2350,7 @@ def _project_acquisition_growth(source: dict[str, Any]) -> dict[str, Any]:
         executor_contract=_required_mapping(source, "executor_contract"),
         lifecycle_manifest=_required_mapping(source, "lifecycle_manifest"),
         reentry_trace=_required_mapping(source, "reentry_trace"),
+        non_data_routes=source.get("non_data_routes", ()),
     ).model_dump(mode="json")
 
 

@@ -1,6 +1,6 @@
 # Stage 2: expose recomputable AQ1 refusals through DS15
 
-Status: accepted bounded design; implementation starts only after the root's Stage 1 commit signal. This closes one ready production bridge. It does not appoint semantic vocabulary owners or close the entire acquisition union debt.
+Status: accepted bounded design; Stage 1 committed and read back from the branch before implementation began. This closes one ready production bridge. It does not appoint semantic vocabulary owners or close the entire acquisition union debt.
 
 ## Property and boundary
 
@@ -28,11 +28,17 @@ Relative to `POLISYOS_GOVERNED_ARTIFACT_ROOT` (or an explicitly supplied operato
 - Dedicated CAS root: `architecture/policy_design_case/gy_aq1_non_data_projection/cas`.
 - Candidate process journal: `architecture/policy_design_case/gy_aq1_non_data_projection/events.jsonl`.
 
+This runtime root must be a dedicated artifact snapshot outside the repository's
+checked `architecture/policy_design_case` output tree. The existing generated-public
+lifecycle audit recursively accounts for that tree even when Git ignores files;
+repo-root publication would require a separate registration, outside this lane's
+no-register-edit scope. No runtime bundle is committed by this lane.
+
 The operator command is `python -m polisyos.runtime.quality.non_data_acquisition --governed-root ROOT --request REQUEST.json --gap GAP.json --route-id ID --run-id ID --at ISO8601`. Input JSON paths are local operator inputs, never HTTP parameters. The CLI returns the emitted bundle/receipt identity; it is a real non-test caller of `run_non_data_acquisition`. Publication is an atomic, locked update of the fixed bundle, keyed by route ID; existing entries must remain valid before replacement. No committed sample bundle asserts a live receipt.
 
-Internal strict bundle schema `policyos.runtime.non_data_refusal_bundle.v1`: census byte SHA256 and entries. Each entry contains `route_id`, canonical route SHA256, the explicit typed `gap`, `run_id`, and `receipt_ref`. The receipt already binds request, demand, evaluation time, candidate/vocabulary refs and planner report ref. No stored projection labels or claimed authority are admitted. Duplicate route IDs refuse the bundle.
+Internal strict bundle schema `policyos.runtime.non_data_refusal_bundle.v1`: entries. Each entry contains `route_id`, canonical selected route SHA256, the explicit typed `gap`, `run_id`, and `receipt_ref`. The receipt already binds request, demand, evaluation time, candidate/vocabulary refs and planner report ref. No stored projection labels or claimed authority are admitted. Duplicate route IDs refuse the bundle. The complete current census bytes enter the loader/service component identity; they are not a frozen bundle field. This property-based correction allows unrelated census row growth without reminting semantic demand, while any selected-route content change refuses until that route is explicitly replaced. Existing retained entries are verified against the current source before atomic publication; replacing a stale selected entry does not require trusting it.
 
-Before producer writes or loader reads, paths must remain within this dedicated source family (including resolved symlinks). Artifact refs are typed SHA256 identities resolved only by that family's CAS. Every attempted referenced input must be local to this namespace; a foreign CAS is never opened. The planner report must load and recompute from the bundled gap/run ID and receipt time, and match the receipt/request report refs, instead of treating report-ref presence as planner proof.
+Before producer writes or loader reads, resolve the explicitly configured root as the trusted root and reject every symlink descendant, including dangling links. Apply the same invariant to canonical CAS artifact read/write paths, not only the bundle path. This closes review finding S2-RV02: confinement somewhere inside the governed root allowed the fixed family or CAS to alias a private sibling directory. Artifact refs are typed SHA256 identities resolved only by this family's CAS. Every attempted referenced input must be local to this namespace; a foreign CAS is never opened. The planner report must load and recompute from the bundled gap/run ID and receipt time, and match the receipt/request report refs, instead of treating report-ref presence as planner proof.
 
 ## Shared loader interface
 
@@ -65,7 +71,17 @@ Only a persisted receipt whose complete result recomputes with the canonical por
 - Producer/loader mirrored tests run the real CLI/main, canonical planner, CAS and receipt reader. Assert exact source-route claim/gap binding and complete dependency identities.
 - Service integration runs `get(ACQUISITION_GROWTH)` with the real extra-source loader and worker recomputation. Existing structural UI fields must contain the verified type/state/reasons and blocked action.
 - Negative cases: unknown shape; compound demand/split; independent admission refusal; changed request claim or gap; wrong census/route content identity; malformed or foreign receipt; CAS blob/manifest mutation; missing referenced CAS input; previously absent bundle appearing; externally admitted/reentry receipt that cannot reverify portlessly.
-- Row-growth falsifier: increase declared dataset row counts while keeping the non-data demand; refusal/action state must not advance. Rebinding a changed census requires the operator producer to run again; stale source binding itself refuses the projection.
+- Row-growth falsifier: increase declared dataset row counts while keeping the selected route and non-data demand; refusal/action state must not advance. Changing selected-route content requires the operator producer to run again; its stale route binding itself refuses the projection.
 - Run focused tests, lint and affected architecture/source-family guards. Capture a removal probe that disables canonical receipt verification while retaining receipt-shaped markers; the behavior test must fail. Freeze source before independent review, then run the agreed checks once.
 
 The simpler alternative, persisting rendered refusal labels, lacks canonical recomputation and duplicates the source of truth. Merely adding a detached export helper lacks the production caller. Both fail this slice's acceptance property. Broader vocabulary meaning, semantic appointments and successful non-data acquisition/reentry remain with their named AQ1/semantic owners; this slice exposes only the existing recomputable refusal process.
+
+Incidental documentation destination: the worker module docstring describes blanket isolation of heavy owners from the HTTP process, while `governed_projections.py` already imports `runtime.quality.confidence_ledger` and `runtime.quality.design_problem` at module scope. Root inspection confirmed that the new shared loader does not introduce the quality package's eager initialization for the first time. This is a bounded existing documentation discrepancy assigned to the governed projection maintainer; no unrelated import refactor belongs to this bridge.
+
+The import-boundary pass derives the added edges from all four mechanism Python
+files using the actual guardrail helper. Existing Core/Fabric/PDC public facades
+supply the same CAS and atomic IO owners. Route hashing uses PDC's recorded-content
+owner over the whole finite JSON object: unlike `gy_content_hash`, it must preserve
+`*_at` fields. The internal hash rule is explicit, Unicode changes invalidate the
+binding, and NaN/Infinity refuse before publication. No facade, baseline or export
+registry is extended to fit the implementation.

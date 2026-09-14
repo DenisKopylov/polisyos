@@ -407,3 +407,15 @@ The retained directory
 Those records retain successful and failed CAS reads plus scratch `Path.read_bytes`
 reads, exact fixture/input hashes, phase codes and explicit read-boundary limits.
 No product source was mutated by the probes, and no Stage 1 artifact was changed.
+
+## Final measurement correction and served result
+
+V1 above lacked retained source-read maps and independent source enumeration.
+Its bounded behavior remains historical; it is not complete source-read
+certification. V2 preserves the same custody predicate, records the full read
+boundary and produces UNRUN for mandatory-input read failures. Its completed
+0/1/0 results, exact witness/output hashes and declared exclusions are retained
+in [root Stage 2, S2-V13](../STAGE2.md#s2-v13--final-custody-removal-and-delivery-read-back).
+The actual tenant-scoped served acquisition, same-case re-entry and separate GY
+admission passed in S2-V09. Final gates and remaining owner acts are S2-V17 and
+S2-C01; none of this rewrites the earlier failed or partial receipts.

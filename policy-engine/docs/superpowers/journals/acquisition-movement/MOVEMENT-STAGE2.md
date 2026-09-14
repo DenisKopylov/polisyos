@@ -456,3 +456,16 @@ At this checkpoint its deciding output and the movement probe against the revise
 deferred supplier helper are pending. Root owns the final output hashes and
 closeout disposition; the earlier movement proof remains bound to its earlier
 recorded source and fixture bytes.
+
+## Final movement settlement
+
+The generation V2 and deferred movement removal probes completed with process
+exit 0 and property-removal 0/1/0 results; their complete deciding output is
+retained in the root Stage 2 journal. The subsequent eighth wave exercises real
+supplier completion, separate native GY admission, Cycle Board projection and
+retraction when required evidence is removed. See
+[S2-V09](STAGE2.md#s2-v09--served-acquisition-and-separate-gy-movement-exercised)
+and final [S2-C01](STAGE2.md#s2-c01--delivered-chain-and-exact-remaining-acts).
+The approved generated trust companion has been refreshed and passes its owner
+check. Exact Common tokenizer import admission remains with architecture. No
+exhaustive inventory, improved design grade or register closure is claimed.

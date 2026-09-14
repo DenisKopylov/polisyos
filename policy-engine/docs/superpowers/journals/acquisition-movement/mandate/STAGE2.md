@@ -438,3 +438,15 @@ Complete stderr:
 `raw/stage2-guarded-custody-removal-v2.stderr@sha256:d7c104a4eefd7a7b21b236f6fb3997f3d931ec050614fc75fdacec79b547577f`.
 This closes the guarded custody witness; it does not assign an acquisition-row
 status or claim completion of the remaining served chain.
+
+## Final served-chain settlement
+
+The subsequent served acquisition now passes through signed DS20/DS9 approval,
+persisted allow, restarted-worker replay, quarantine, later separately authorized
+native admission and same-case re-entry. The worker verifier removal probe records
+0/1/0 for both actual authorized generations. Complete deciding output and fixed
+witness hashes are in [root Stage 2, S2-V09](../STAGE2.md#s2-v09--served-acquisition-and-separate-gy-movement-exercised).
+S2-V13 corrects the historical unrun draft's versioned raw citation; the v2 custody
+receipt above remains valid. Final owner acts and gate results are S2-C01/S2-V17.
+No institutional appointment or debt-register standing is inferred from this
+served fixture demonstration.

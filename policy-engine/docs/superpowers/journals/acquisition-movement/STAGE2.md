@@ -827,3 +827,73 @@ OpenAPI remain identical to base `28b8a1a42`; direct base-blob read-back is
 `90d074cdc496c7b60b7d8016144242543c7e3d69ee8f9765919e4eec06c73c41`.
 This explicit permission resolves S2-V15's generated-register write hold; it
 does not admit the Common import baseline or appoint a WDI cost owner.
+
+## S2-V17 — final frozen gate receipts
+
+After the approved refresh, commit
+`af5cd58b7dfdc0e85e72dba57d250d87819d6213` was read back from attached
+`codex/acquisition-movement`; the reviewed JSON and journal exactly matched
+their branch blobs. Receipt `raw/stage2/trust-refresh-branch-readback.json` @
+`3d1c288da87b241039f744792f44f3fe7f2f94dc65a7a9cbd91cedf561c605df`.
+Both required gates were then rerun with the S2-V15 commands, changing only the
+redirected output filenames to `final-ledger-check.txt` and
+`final-architecture-guardrails.txt`. Each remained the sole command in its
+invocation. The tree stayed clean and frozen until both natural exits were read.
+
+The ledger returned **0**. Its complete output is byte-identical to the prior
+completed run: `raw/stage2/final-ledger-check.txt` @
+`3510f2ab1cc661c567b85cc8967b037974b30bd4fbcb92c34da544c8edc7fee3`.
+Architecture returned **1**: `raw/stage2/final-architecture-guardrails.txt` @
+`ec26782405e7283f0d5473f38c86dcf946da22a03f066facd1a1cc70fae144a4`.
+The approved trust register now passes freshness, as do the generated runtime
+client and dashboard API types. The complete remaining findings are the exact
+Cycle Board → Common tokenizer edge, its deep-import baseline drift, and the
+registered OpenAPI snapshot family. No other finding is suppressed or called
+inherited. The gate's standalone Atlas reminder retains that command's own
+scope; no unrun standalone gate is claimed passed.
+
+The processes' own exits, tested commit and complete output hashes are retained
+in `raw/stage2/final-ledger-process-receipt.json` @
+`1eea7a81339fc804475a029126f5a67067aeee06540e83766bef848978ce5547`
+and `raw/stage2/final-architecture-process-receipt.json` @
+`26799c4ab9e49e34ec0748b849e52470ec0c9814791e1280fc63f0497782127c`.
+Only append-only journal closeout follows these gates; mechanism and generated
+bytes are frozen at `af5cd58b7`. No broad pytest suite, push, guardrails sync,
+debt-register/ledger edit or canonical OpenAPI generation was performed.
+
+## S2-C01 — delivered chain and exact remaining acts
+
+Terminal status: **complete-pending-an-architect-decision on canonical WDI
+cost-basis admission and the exact Cycle Board Common tokenizer import**.
+
+The eight accepted acquisition obligations now have the buildable production
+links described in S2-A01. Served signed approval and restarted-worker replay
+reach real native admission, a recomputed positive membership delta and same-case
+N6 re-entry under tenant custody. The supplier receipt reaches a separately
+qualified GY movement intake and revalidated Cycle Board projection. Existing
+quarantine, empty authority/selection, both re-entry rejection paths, missing or
+forged custody, ambiguous admission, pending-action and replay refusals remain
+exercised. The retained removal probes fail when their operative property is
+removed and recover when it is restored with the same witnesses. Targeted
+verification is in S2-V09–V13; the lone eighth-wave catalog fixture failure was
+repaired and its exact selector passed in S2-V11. Stage 2 lint/format passed;
+the immutable Stage 1 harness style findings retain their named historical
+destination and are not represented as an all-lane green.
+
+The first exact remaining act is an owner-admitted WDI entry in the existing
+canonical acquisition cost schedule, S2-A01. Its typed producer/consumer path is
+built; the default refusal remains `costed_route_not_unique`. The served witness
+uses explicitly hypothetical cost and fixture institutional inputs, so it is
+not a claim of a live deployment appointment. Signing, currentness, native
+qualification and GY admission slots remain typed and empty until their actual
+owners supply admissible inputs. These empty slots did not block implementation.
+
+The second exact act is team-architecture acceptance of
+`polisyos.runtime.http.services.cycle_board_sources -> polisyos.common.markdown`
+and authorized baseline reconciliation under S2-A03. No parser duplication,
+hidden import or broad facade promotion substitutes for that ruling. The approved
+trust refresh is complete; the OpenAPI residual is handed to its registered
+owner under the user's explicit instruction. Numeric VoI granularity and
+education provenance remain outside this lane. GY evidence admission and GY
+register closure remain separate acts: this delivery does not close either
+register row by supplying a DS15 receipt.

@@ -534,7 +534,7 @@ def validate_acquisition_growth(root: Path) -> list[str]:
 
 def _acquisition_growth_inputs(
     root: Path,
-) -> tuple[set[str], dict[str, dict[str, Any]]]:
+) -> tuple[set[str], dict[str, Any]]:
     n13a_paths = (
         "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
         "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
@@ -550,7 +550,7 @@ def _acquisition_growth_inputs(
     owner_manifest = derive_lifecycle_manifest(root)
     registered_paths = {row.path for row in owner_manifest.registrations}
     paths = {*n13a_paths, *registered_paths}
-    inputs = {
+    inputs: dict[str, Any] = {
         "census": _load_json(root, n13a_paths[0]),
         "journal": _load_json(root, n13a_paths[1]),
         "carrier_liveness": _load_json(root, n13a_paths[2]),
@@ -564,6 +564,11 @@ def _acquisition_growth_inputs(
             "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json",
         ),
     }
+    from polisyos.runtime.quality.non_data_acquisition import load_non_data_projection_source
+
+    non_data = load_non_data_projection_source(governed_root=root, census=inputs["census"])
+    paths.update(path for path, _ in non_data.component_bindings)
+    inputs["non_data_routes"] = non_data.routes
     return paths, inputs
 
 
@@ -693,9 +698,9 @@ def _validate_confidence_ledger(
     except (TypeError, ValueError):
         issues.append("confidence_semantic_projection_invalid")
         return facts
-    facts["source_payload_equal"] = semantic.model_dump(
+    facts["source_payload_equal"] = semantic.model_dump(mode="json") == requested.model_dump(
         mode="json"
-    ) == requested.model_dump(mode="json")
+    )
     if not facts["source_payload_equal"]:
         issues.append("source_projection_payload_mismatch")
 
@@ -712,12 +717,8 @@ def _validate_confidence_ledger(
         "certificate_class_routes",
     )
     try:
-        registry_payload = {
-            field: raw_registry_projection[field] for field in registry_fields
-        }
-        registry_payload["schema_version"] = raw_registry_projection[
-            "registry_schema_version"
-        ]
+        registry_payload = {field: raw_registry_projection[field] for field in registry_fields}
+        registry_payload["schema_version"] = raw_registry_projection["registry_schema_version"]
         registry = load_confidence_ledger_registry(registry_payload)
         registry_content_hash = str(raw_registry_projection["registry_content_hash"])
         registry_projection_hash = str(raw_registry_projection["projection_hash"])
@@ -862,8 +863,9 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
             issues.append("owner_validator_unregistered")
         if not issues and confidence_ledger:
             try:
-                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
-                    io.StringIO()
+                with (
+                    contextlib.redirect_stdout(io.StringIO()),
+                    contextlib.redirect_stderr(io.StringIO()),
                 ):
                     facts = _validate_confidence_ledger(root, projection_payload)
                 issues.extend(facts.pop("issue_codes"))
@@ -875,8 +877,9 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
                 issues.append(str(error_code or type(exc).__name__))
         elif not issues and validator is not None:
             try:
-                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
-                    io.StringIO()
+                with (
+                    contextlib.redirect_stdout(io.StringIO()),
+                    contextlib.redirect_stderr(io.StringIO()),
                 ):
                     issues.extend(validator(root))
                     if projection_id == "value-gate" and not issues:
@@ -917,12 +920,8 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
     normalized = sorted({str(code) for code in issues if str(code)})
     result["issue_codes"] = normalized
     result["status"] = "passed" if not normalized else "failed"
-    result["semantic_projection_hash"] = (
-        semantic_projection_hash if not normalized else None
-    )
-    result["semantic_projection_hash_rule_version"] = (
-        semantic_hash_rule if not normalized else None
-    )
+    result["semantic_projection_hash"] = semantic_projection_hash if not normalized else None
+    result["semantic_projection_hash_rule_version"] = semantic_hash_rule if not normalized else None
     result["dependency_bindings"] = dependency_bindings
     result["dependency_aggregate_identity"] = _aggregate_identity(dependency_bindings)
     return result

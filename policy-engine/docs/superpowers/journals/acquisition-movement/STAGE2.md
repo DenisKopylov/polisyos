@@ -659,3 +659,171 @@ failed. Output `raw/stage2/tenth-wave.txt` @
 The identical terse pytest output hash to the ninth wave does not equate their
 inputs: the separately retained `tenth-wave-inputs.json`, result and JUnit bind
 this provider selector and invocation. The runtime authority body was unchanged.
+
+## S2-V13 — final custody removal and delivery read-back
+
+Custody probe V2 completed naturally with process exit **0**. Its complete
+selected denominator is two writer properties, each with baseline, removed and
+restored phases. The six result rows reconcile to those two three-phase groups;
+each group returns **0/1/0** with identical witness bytes within that group.
+The Fabric witness is
+`f03c13028e6379e46bd1f67f2de3fd16308af96b8825fa05d2bc5108538a38fc`;
+the native writer witness is
+`883ba5e76b19075acceb06ab501d0c55387d7f89c0b093630ee7e7bd94bcca81`.
+Both removed phases fail on actual unowned output readback. Baseline and restored
+phases retain the intended tenant/cell ownership and foreign-scope refusals.
+Unclassified mandatory-input read failures produce UNRUN, not an expected red.
+
+V2 retains the full before/after source maps and actual reads. Each source map
+contains 5,291 authored Python files in the declared `src`/`tests` selector,
+independently reconciled between pathlib and rg; both maps and all member hashes
+agree. The explicit excluded default-container test was not imported. Dependency
+internals, actual institutional acts and wall-clock expiry remain outside this
+probe. Full output `positive/raw/stage2-custody-removal-v2.txt` @
+`084cf068abc65732d8c372287583026c37fee92b31b7b46f0408bfdfaf2d682b`;
+complete receipt
+`positive/raw/stage2-custody-removal-v2-state/1789330362723424000-15547/receipt.json`
+@ `dd4198e578164d65f41bc318bc74d8b46b6b90a70c18ce6b05b67c1c43d10fae`.
+This supersedes V1's incomplete measurement disclosure, without changing its
+custody predicate or rewriting the historical result.
+
+Implementation commit `3ce7d9c5a1766a38b91947a15f9ed3b36d3d5f3b` was read back
+from attached `codex/acquisition-movement`. All 90 changed paths match their
+committed blobs; diff-tree, numstat and the commit summary independently agree on
+that path denominator. Ordinary commit hooks passed without formatting changes.
+The final Stage 2 Python selector has 76 files, independently reconciled and
+AST-parsed. Ruff check and format check each returned **0**. Complete delivery,
+style and preservation receipt `raw/stage2/final-python-style-v4/receipt.json` @
+`99dbc24f2aa4a900d58fa261200b014adffc469cd5c67bcc54005d0d9abc8d44`.
+Earlier explicit-config attempts used the wrong Ruff resolution base; their
+outputs remain harness nonreceipts, not product failures.
+
+Precisely, Stage 1 preservation means its original findings are unchanged:
+fourteen of the fifteen original journal files are byte-identical to the resume
+boundary, and `STAGE1.md` preserves the exact original prefix plus the six-line
+accepted-continuation appendix from `7e3ad7d`. The same receipt enumerates this
+set independently from the Stage 1 delta and resume tree. The canonical OpenAPI,
+debt register, ledger and failure-pattern register are the four explicitly
+protected files and remain byte-identical to the base of record.
+
+One historical citation uses an old draft hash with a later reused raw filename:
+mandate/STAGE2's guarded-custody draft is retained exactly as
+`mandate/raw/stage2-guarded-custody-removal-v1.py` @
+`f122ff1d71d17051252af93552954c50727e83c1fb58911d3e387fc4029f3de3`.
+That draft was explicitly unrun. The accepted v2 driver and deciding outputs
+remain separately pinned. Destination: this path-version correction; no witness
+was lost and no passing result is inferred from the draft.
+
+## S2-V14 — static invocation diagnostic, bounded by actual dispatch
+
+The production-invocation diagnostic ran from base `28b8a1a42` against committed
+`3ce7d9c5a` and completed naturally with exit **1**, coverage **partial**.
+Output `raw/stage2/final-production-invocation.txt` @
+`8be9a88455911bc2451f1fb837ff68192e99e428ce69098a4ee5c74988e74232`;
+full result `raw/stage2/final-production-invocation.json` @
+`9dcb5664108cdf22d474af41cfa24d79533f16a94650616d4bb038c06fdf4183`.
+Its two `uninvoked` findings are the concrete `RecordedCandidate.reconcile_candidate`
+in activation readback and `_MovementAdapter.reconcile_candidate` in GY intake.
+Both are passed as `adapter` to `QualificationConsumer.qualify`, whose real
+non-test call is `adapter.reconcile_candidate(request)` after policy intake.
+The eighth-wave activated readback and separately admitted movement positives
+require this call. The diagnostic cannot associate that protocol receiver with
+the supplied concrete instance; no source mutation or deferral masks its result.
+
+The current tracked `src`/`tools`/`tests` Python denominator is 5,735 files,
+independently reconciled between the index and committed tree; the base contains
+5,704. All 74 newly unresolved methods reconcile to the diagnostic's mechanism
+records and retain its declared HTTP/container/callback/deferred-dispatch
+limitations. This does not claim runtime coverage of all 74. Triage receipt
+`raw/stage2/final-invocation-triage-v2.json` @
+`5c072239eadde0b299b57472cc695881a4c8285e3613016017430c1132d5e4e6`.
+Its preceding census omitted `ls-tree --full-tree` when reading a nested tree;
+that harness zero was invalid, is retained, and is superseded by the corrected
+independent enumeration. Destination: the production-invocation instrument's
+declared protocol-dispatch boundary; actual served evidence remains S2-V09.
+
+## S2-V15 — completed deciding gates and trust projection triage
+
+Both gates ran against clean committed `3ce7d9c5a`, each as the only command in
+its invocation, with stdout/stderr redirected to its own ignored raw file.
+Neither was interrupted. No tracked journal/source writes occurred while the
+freshness probe ran; the tree was still clean when both process results were
+read back. Their exact commands from the product root were:
+
+```text
+PYTHONPATH=src:tests:. .venv/bin/python tools/quality/validation/check_debt_ledger.py --check > docs/superpowers/journals/acquisition-movement/raw/stage2/ledger-check.txt 2>&1
+PYTHONPATH=src:tests:. .venv/bin/python -m tools.cli architecture guardrails check > docs/superpowers/journals/acquisition-movement/raw/stage2/architecture-guardrails.txt 2>&1
+```
+
+The ledger process returned **0**. Full deciding output, including its actual
+read receipt and informational findings: `raw/stage2/ledger-check.txt` @
+`3510f2ab1cc661c567b85cc8967b037974b30bd4fbcb92c34da544c8edc7fee3`.
+This checks the ledger's declared inputs; it neither settles repository-wide
+mandate allocation nor changes any row's standing. Informational findings stay
+with the named existing ledger rows, not this lane's allocation measurement.
+
+Architecture returned **1**. Full deciding output:
+`raw/stage2/architecture-guardrails.txt` @
+`e4db7e1c69f932b7821805cea40fed7f60feecfd63b3b60004781fede0ef2538`.
+The complete output reports the exact Common tokenizer edge and its baseline
+drift, `runtime-openapi-snapshot`, and `trust-claim-posture-register`. The runtime
+client and dashboard API types freshness families passed. The temporary OpenAPI
+export finished; its canonical target was untouched. OpenAPI is handed to the
+explicitly registered `openapi-snapshot-pins-environment-derived-digests` owner
+under the user's allowance, not recast as a passing family or a measured
+inherited-red claim. The Common edge remains this lane's exact S2-A03 decision.
+
+The additional trust-posture drift is **this lane's** and has been triaged through
+its declared owner, `team-architecture`, without editing the canonical register.
+The exact owner scratch export completed with **0**. It read 2,668 selected
+Python sources plus eight selected non-Python inputs; independent filesystem
+enumeration reconciles the source denominator and no selected read failed.
+The canonical and regenerated complete claim sets contain 369 and 370 members:
+368 common IDs, one removed ID and two added IDs independently reconcile those
+totals. All common IDs retain their effective state. The dynamic movement
+authority declaration and denied-use tuple in `cycle_board_projection.py`
+produce an additional blocked declaration and broader file-level denials under
+the existing compiler. No positive claim is added. Four admitted source files
+also rebind hashes/coordinates. This is not digest-only drift and not grounds
+to weaken the reader or mutate source merely to preserve stale output.
+
+The concrete repair is the owner's generated JSON at
+`raw/stage2/trust-posture-triage-v1/export/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json`
+@ `b2f35c271aac6128d15fb835dd1469dd85635c3925346c54a13af15e93f5c206`.
+Full diff `raw/stage2/trust-posture-triage-v1/generated.diff` @
+`0cfae77c5c9abf0f974fd43dea3fcd000dc76535c2970687ed8c6196f36a5df3`;
+complete read/selection/claim-comparison receipt
+`raw/stage2/trust-posture-triage-v1/triage-receipt.json` @
+`c03282e864e8bb1180d06e27c00474a11a8041c996f810b4555bbdb15be6c1cb`.
+Its canonical write is the only held link here: the user explicitly prohibited
+register edits, so the generated public register refresh was presented for a
+scope ruling with this exact reviewable diff. The debt register, ledger,
+generator, baseline and canonical OpenAPI remain untouched. Destination:
+team-architecture's trust-posture generated companion, coupled to this lane's
+source change; no unrelated-debt attribution is claimed.
+
+## S2-V16 — approved trust companion refreshed through its owner
+
+The user explicitly allowed **this generated trust JSON refresh only**. The owner
+command `tools/quality/validation/check_trust_claim_posture.py --repo-root .
+--write --json` completed naturally with process exit **0** and wrote only
+`apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json`. Read-back
+matches the exact reviewed candidate SHA-256
+`b2f35c271aac6128d15fb835dd1469dd85635c3925346c54a13af15e93f5c206`.
+Complete write output `raw/stage2/trust-owner-write.txt` @
+`df3e67a75dd297e0d3bfcfa306181d70fc600986af6aa74801f77d7941acdc5f`.
+
+The same owner `--check --json` and `--corrupt-field-drift-check --json` each
+completed naturally with exit **0**, complete declared measurements and empty
+write sets. Their outputs are `raw/stage2/trust-owner-check.txt` @
+`3773aac0dd1eb2b308dea4ab3d698f487f29c841445b5663600e3f93b0e373b2`
+and `raw/stage2/trust-owner-corrupt-field.txt` @
+`ceb9df46249caab89ee92fec13858e57a63bcd3fc59653aa2f8d08cd81798f14`.
+The corrupt-field mode succeeds only when its actual mutated artifact is
+rejected. No generator, predicate, production source or test changed during this
+refresh. The debt register, ledger, failure-pattern register and canonical
+OpenAPI remain identical to base `28b8a1a42`; direct base-blob read-back is
+`raw/stage2/protected-base-readback.json` @
+`90d074cdc496c7b60b7d8016144242543c7e3d69ee8f9765919e4eec06c73c41`.
+This explicit permission resolves S2-V15's generated-register write hold; it
+does not admit the Common import baseline or appoint a WDI cost owner.

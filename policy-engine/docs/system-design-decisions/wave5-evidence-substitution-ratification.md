@@ -478,3 +478,74 @@ Consumers must now name `W5-K07` where they previously named the register rule a
 row `correspondence-acceptance-standing-rule` remains the operational rule — the five points, the
 pre-declared dated stratum, the constructed negatives, the one-appointment-discharges-all constraint
 — and `W5-K07` is the boundary that rule enforces.
+
+## 13. Correction — 2026-09-14: the premise of §12.3 was false
+
+**§12.3 refused a candidate `W5-K08` as a duplicate of `W4-K01`. `W4-K01` contains no such
+statement.** This section corrects the premise; it does not rewrite §12.3, which stands as the
+record of what was believed on 2026-09-10 (`S0-K08`: correction appends).
+
+### 13.1 What was wrong
+
+§12.3 says *"`W4-K01` holds that signing establishes custody, never correctness"*. The wave-4 act's
+§4.1 says something else entirely: **set-level facts are holder-relative** — a complete walk settles
+the number, not who may cite it; a census record carries the party that executed the walk and the
+predicate-provenance label relative to the present holder; and an `institutionally_supplied` census
+cannot settle a zero. Nothing in `W4-K01`, its amendment or its rationale concerns signing, custody
+or correctness.
+
+§12.3 also says `P37` and `P38` *"carry the same boundary at the predicate and proxy layer"*. They
+carry an **analogous** boundary — a declared predicate or a proxy is not the property it names — but
+neither states the signing proposition, and an analogy is not a ratification.
+
+### 13.2 How it was found, and how far it had travelled
+
+The correspondence-vocabularies lane recorded, as an incidental finding owed to this act's owner,
+that `W4-K01` establishes holder-relative attribution rather than the signature boundary it was being
+cited for. The architect then searched sentence by sentence — every statement in all five ratified
+acts, the identity and custody boundary, the north star, the custody time model, the operating model,
+the organising vision and the failure-pattern register — for any sentence that speaks of signing
+together with correctness, authority, custody, validity or truth. **The signing proposition appears
+in exactly one place: §12.3 itself.** The nearest ratified relatives say different things: `PV-K03`
+(a proof binds content semantics but cannot choose content or mint authority), `S0-K05` (no authority
+by observation, transport or projection), `S0-K07` (projection cannot mint authority), and the
+identity boundary's custody of what we sign for as long as the signature stands.
+
+By the time it was found, the misattribution had propagated to: the index entry for this act in
+`README.md`; four citations in the register row `correspondence-acceptance-standing-rule` and one in
+`cg2-production-relation-gold-acceptance-unspecified`; the design at
+`docs/superpowers/specs/2026-09-11-correspondence-consumers-design.md`, which repeats that §12.3 names
+`W4-K01` for the signature half; and the promotion-conjunction lane's research journal, which relied
+on it to refuse a source signer becoming a correspondence adjudicator. The register rows and the index
+are corrected by dated append; the design and the journal are historical records and are left intact,
+named here instead.
+
+### 13.3 What follows, and what does not
+
+**The proposition is not withdrawn.** *A signature may not stand in for an established correspondence*
+is correct, and every refusal that rests on it survives on its own reasoning: publication grade is not
+correspondence gold, signed observations are not calibration, a signing wrapper over the Lex mapping
+would authenticate the same unestablished assertion, and a source signer does not become the
+adjudicator. The Phase-5 lane reached that refusal independently, and it was right.
+
+**What changes is its standing.** The candidate was refused as a duplicate of a ratification that
+does not exist, so it is currently **ratified by no act**. It binds as the register-level operational
+rule `correspondence-acceptance-standing-rule`, and nothing more. `W5-K07` does not cover it: `W5-K07`
+forbids substituting the existence of a statute for the statute governing a lever, which is a
+different pair of evidence kinds.
+
+**The refusal-as-duplicate is withdrawn; the decision to ratify is not taken here.** Whether the
+signing proposition becomes `W5-K08` is reopened and left to a separate, dated decision. A correction
+is the wrong place to mint a constitutional statement, for the same reason §12.3 gave against two
+loci for one boundary: the record of an error and the record of a new rule should not be one edit.
+
+This is the precedent `PV-K08` already names: **a refusal stated for the wrong reason forecloses a
+legitimate direction.** Here it did so quietly, because a wrong citation reads exactly like a right one
+until someone opens the cited statement.
+
+### 13.4 Standing after this correction
+
+The act still carries **seven** statements, `W5-K01` to `W5-K07`. §8 is **not** activated and the
+outcome vocabulary is untouched. §12.4's sentence that the correspondence rule *cites `W4-K01` by name
+for its signature half* is superseded: until the separate decision, the signature half is carried by
+the register rule alone, and consumers cite this §13, not `W4-K01`.

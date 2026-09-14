@@ -11504,6 +11504,13 @@
       "target_root": "common"
     },
     {
+      "source_module": "polisyos.runtime.http.services.cycle_board_sources",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/cycle_board_sources.py",
+      "target_module": "polisyos.common.markdown",
+      "target_root": "common"
+    },
+    {
       "source_module": "polisyos.runtime.http.services.debug",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/debug.py",

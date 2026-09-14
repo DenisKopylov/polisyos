@@ -119,6 +119,8 @@ from polisyos.runtime.http.services.control.evaluation_safety import (
     EvaluationSafetyDecisionEvidence,
     EvaluationSafetyPersistenceContext,
     EvaluationSafetyPersistenceService,
+    EvaluationSafetyPromotionSourceContext,
+    EvaluationSafetyPromotionSourceSlot,
     EvaluationSafetyReplayMaterial,
     PersistedEvaluationSafetyAttempt,
     PersistedEvaluationSafetyProjection,
@@ -1241,6 +1243,7 @@ class ControlPlaneService(
         promotion_runtime: PromotionRuntime | None = None,
         epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
         evaluation_safety_persistence_service: EvaluationSafetyPersistenceService | None = None,
+        evaluation_safety_promotion_source_slot: EvaluationSafetyPromotionSourceSlot | None = None,
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
         normative_authority_trust: NormativeAuthorityTrust | None = None,
     ) -> None:
@@ -1375,6 +1378,11 @@ class ControlPlaneService(
             is not self._decision_validity_service
         ):
             raise ValueError("promotion_runtime_decision_validity_owner_mismatch")
+        source_slot = (
+            evaluation_safety_promotion_source_slot or EvaluationSafetyPromotionSourceSlot()
+        )
+        if type(source_slot) is not EvaluationSafetyPromotionSourceSlot:
+            raise TypeError("evaluation_safety_promotion_source_slot_must_be_typed")
         if epoch_claim_lifecycle_bridge is None:
             claim_owner = build_default_claim_ledger_owner(store=self._artifact_store)
             self._epoch_claim_lifecycle_bridge = build_epoch_claim_lifecycle_bridge(
@@ -1421,6 +1429,22 @@ class ControlPlaneService(
             )
         else:
             self._retrieval = retrieval_service
+        from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceBridgeRepository
+
+        self._evaluation_safety_promotion_sources = EvaluationSafetyPromotionSourceContext(
+            slot=source_slot,
+            control_store=self._control_store,
+            core_runs_root=self._core_runs_root,
+            promotion_runtime=self._promotion_runtime,
+            promotion_evidence_resolver=N9PromotionEvidenceBridgeRepository(
+                store=self._artifact_store,
+                measurement_catalog=self._promotion_runtime.promotion_evidence_source.measurement_catalog,
+                measurement_providers=(
+                    self._promotion_runtime.promotion_evidence_source.measurement_providers
+                ),
+                promotion_safety_source_trust=self._promotion_runtime.promotion_safety_source_trust,
+            ),
+        )
         self._worker: ControlWorker | None = None
         if self._policy_resolver.worker_backend == "embedded":
             self._worker = ControlWorker(
@@ -2730,7 +2754,23 @@ class ControlPlaneService(
             authorities=authorities,
             context=persistence_context,
             evaluated_at=intake.requested_at,
+            promotion_sources=self._evaluation_safety_promotion_sources,
         )
+        if persisted.promotion_source_resolution_ref is not None:
+            self._emit_runtime_diagnostic_event(
+                job_id=job.job_id,
+                run_id=job.run_id,
+                execution_profile=job.effective_execution_profile,
+                phase="evaluation_safety",
+                event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+                payload=payload,
+                event_payload={
+                    "producer": "promotion_classification_source_resolution",
+                    "source_resolution_ref": persisted.promotion_source_resolution_ref,
+                    "projection_authority": "informational_projection_only",
+                },
+                artifact_refs=[persisted.promotion_source_resolution_ref],
+            )
         evidence_key = (
             persisted.owner_evidence.decision_ref.artifact_id,
             persisted.owner_evidence.decision_ref.content_hash,
@@ -2858,6 +2898,9 @@ class ControlPlaneService(
         artifacts_index.update(
             {
                 "eval_safety_projection_ref": result.projection.projection_ref.artifact_id,
+                "eval_safety_promotion_source_resolution_ref": (
+                    result.persisted.promotion_source_resolution_ref
+                ),
                 "manifest_ref": str(manifest_ref.artifact_id),
             }
         )
@@ -2871,6 +2914,9 @@ class ControlPlaneService(
                 "authority_result": "blocked",
                 "eval_safety_projection_ref": (result.projection.projection_ref.artifact_id),
                 "eval_safety_disposition": result.persisted.decision.safety.status,
+                "eval_safety_promotion_source_resolution_ref": (
+                    result.persisted.promotion_source_resolution_ref
+                ),
                 "eval_safety_blocker_codes": blocker_codes,
                 "eval_safety_counters": {
                     "unsafe_attempt_blocked_count": (projection.unsafe_attempt_blocked_count),

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence  # noqa: TC003
 from dataclasses import dataclass
-from typing import Literal, Protocol, Self
+from typing import TYPE_CHECKING, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -43,7 +43,11 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     promotion_epoch_query,
 )
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
+from polisyos.runtime.quality.promotion_safety import PromotionSafetySourceTrust
 from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceSource
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
@@ -1251,8 +1255,26 @@ class PromotionRuntime:
             core_contracts.EpochValidityCompletedBatchEvidenceResolver | None
         ) = None,
         semantic_epoch_service: SemanticEpochService | None = None,
+        promotion_safety_source_trust: PromotionSafetySourceTrust | None = None,
+        promotion_evidence_source: N9PromotionEvidenceSource | None = None,
     ) -> None:
+        from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceSource
+
         self.store = store
+        self._promotion_evidence_source = (
+            promotion_evidence_source
+            if promotion_evidence_source is not None
+            else N9PromotionEvidenceSource()
+        )
+        if type(self._promotion_evidence_source) is not N9PromotionEvidenceSource:
+            raise TypeError("promotion_evidence_source_must_be_owner_configured")
+        self._promotion_safety_source_trust = (
+            promotion_safety_source_trust
+            if promotion_safety_source_trust is not None
+            else PromotionSafetySourceTrust()
+        )
+        if type(self._promotion_safety_source_trust) is not PromotionSafetySourceTrust:
+            raise TypeError("promotion_safety_trust_must_be_owner_configured")
         self.verifier_provenance_ref = store.put_bytes(
             _VERIFIER_PROVENANCE_BYTES,
             ArtifactWriteOptions(
@@ -1299,8 +1321,19 @@ class PromotionRuntime:
         )
 
     @property
+    def promotion_safety_source_trust(self) -> PromotionSafetySourceTrust:
+        """Return the fixed source-attribution trust captured at runtime assembly."""
+        return self._promotion_safety_source_trust
+
+    @property
     def resolver(self) -> OpenWorldRiskGenerationProjectionResolver:
         return self.open_world_authority.resolver
+
+    @property
+    def promotion_evidence_source(self) -> N9PromotionEvidenceSource:
+        """Return the fixed deployment selector; source selection grants no authority."""
+
+        return self._promotion_evidence_source
 
     def configure_semantic_epoch_service(
         self, *, semantic_epoch_service: SemanticEpochService

@@ -412,6 +412,34 @@ evidence cannot resolve as authority-grade established evidence. Historical
 bridge v1/v2 and source v1 bodies retain their original epochs; N9 receipt v6
 and owner projection v3 remain unchanged.
 
+## Protected promotion request custody
+
+`promotion_safety` is the N9 protected-mode request custody owner. The canonical
+N9 evidence intake persists the exact candidate/problem/value-receipt/mode scope
+and attempted signed source references through the existing CAS, carries the
+request in `producer_root_refs`, and independently replays it at the EvalSafety
+obligation. Source signatures establish candidate attribution only. The
+promotion-purpose rule, appointed authority and independently verified acceptance
+remain typed-empty; every protected attempt still refuses `scope_insufficient`.
+The request exposes actual reads and named unresolved scientific boundaries.
+Historical no-request receipts and the attempted-evaluation O0 authority remain
+unchanged; request custody uses its own additive v1 schema.
+
+## Promotion evidence input selection
+
+The default N9 production port and `GenerationCycleController` consume the fixed
+`PromotionRuntime.promotion_evidence_source` slot. `N9PromotionEvidenceSource` captures
+typed selections as immutable JSON and matches the exact problem binding, candidate
+artifact identity/hash and whole-summary hash. It forwards existing independence and
+measurement writer inputs, the configured measurement catalog/providers, candidate
+promotion-safety source refs and an optional G4 record ref. Selection grants no
+authority: the existing producer/replay owners decide admissibility. Every selection,
+including the default empty slot, persists an audit receipt naming actual inputs read
+and `unresolved_by_construction` boundaries. S6/S7/S8 flags are excluded from this
+selector; their existing empty canonical projection slots retain the real refusals
+until evidence-to-protected-purpose admission semantics are established. The generation
+decision-front replay carries the same epoch resolver used to admit the candidate.
+
 ## S8 generation disposition
 
 `design_axes.value_choice_provenance.NormativeValueScheduleOwner` owns the source-aware

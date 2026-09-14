@@ -42,6 +42,7 @@ from polisyos.runtime.quality.evaluation_modes import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core import artifacts as core_artifacts
     from polisyos.core import contracts as core_contracts
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
@@ -50,6 +51,7 @@ if TYPE_CHECKING:
         ValueGateReceipt,
     )
     from polisyos.runtime.quality.open_world_risk import OpenWorldRiskArtifactResolver
+    from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceBridgeRepository
     from polisyos.runtime.quality.semantic_epoch import (
         SemanticFacetDenominatorReceipt,
         SemanticFacetRegistry,
@@ -588,6 +590,12 @@ class EvalSafetyNearMissClassificationOffer(_FrozenModel):
     safety_semantic_hash: Digest
     offered_at: datetime
     content_hash: Digest
+
+    @classmethod
+    def build(cls, **values: object) -> EvalSafetyNearMissClassificationOffer:
+        """Build an offer with the admission owner's exact canonical content hash."""
+
+        return cls(**values, content_hash=_content_hash(values))
 
     @model_validator(mode="after")
     def _verify_offer_hash(self) -> Self:
@@ -1661,6 +1669,25 @@ def build_evaluation_safety_decision_event(
     return result
 
 
+def near_miss_resolver_basis_reference(
+    ref: core_artifacts.ArtifactRef,
+    *,
+    record: Literal["open_world_risk_vector", "epoch_validity_gate_receipt"],
+) -> ArtifactRef:
+    """Project an exact registered core reference into the existing offer contract."""
+    from polisyos.core.contracts import c4_profile
+
+    profile = c4_profile(record)
+    if ref.kind != profile.kind or ref.media_type != profile.media_type:
+        raise ValueError("near_miss_resolver_basis_profile_mismatch")
+    identity = str(ref.artifact_id)
+    return ArtifactRef(
+        artifact_id=identity, artifact_type=profile.kind, content_hash=identity,
+        schema_ref=profile.schema_name, version=profile.schema_version,
+        uri=f"cas://sha256/{identity.removeprefix('sha256:')}",
+    )
+
+
 def verify_near_miss_classification(
     *,
     offer: EvalSafetyNearMissClassificationOffer,
@@ -1681,6 +1708,7 @@ def verify_near_miss_classification(
     open_world_resolver: OpenWorldRiskArtifactResolver,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver,
     core: EvaluationSafetyDecisionCore,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> VerifiedNearMissClassification | None:
     """Produce an opaque post-core classification only after canonical N9 replay."""
 
@@ -1723,13 +1751,20 @@ def verify_near_miss_classification(
         offer.world_model_record_ref == world_model_record_ref,
         offer.promotion_rule_version == promotion_rule_version == receipt.schema_version,
         offer.open_world_resolver_basis_ref == current_open_world_resolver_basis_ref,
-        offer.open_world_resolver_basis_ref == open_world.vector_artifact_ref,
+        offer.open_world_resolver_basis_ref
+        == near_miss_resolver_basis_reference(
+            open_world.vector_artifact_ref, record="open_world_risk_vector"
+        ),
         offer.epoch_resolver_basis_ref == current_epoch_resolver_basis_ref,
-        offer.epoch_resolver_basis_ref == epoch.gate_receipt_ref,
+        offer.epoch_resolver_basis_ref
+        == near_miss_resolver_basis_reference(
+            epoch.gate_receipt_ref, record="epoch_validity_gate_receipt"
+        ),
         validation_basis_ref.content_hash == owner.projection_hash,
         offer.candidate_ref.artifact_id == candidate_summary.candidate_id,
         offer.candidate_ref.content_hash == candidate_summary.content_hash,
         offer.value_receipt_ref.content_hash == value_receipt.value_ref,
+        value_receipt.evaluation_mode == core.evaluation_mode,
         offer.world_model_record_ref.content_hash == value_receipt.world_model_record_content_hash,
     )
     if not all(exact_bindings):
@@ -1741,6 +1776,7 @@ def verify_near_miss_classification(
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
         epoch_validity_resolver=epoch_validity_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     ):
         return None
     safe = promotion_receipt_allows_decision_front(
@@ -1749,6 +1785,7 @@ def verify_near_miss_classification(
         design_problem=design_problem,
         open_world_resolver=open_world_resolver,
         epoch_validity_resolver=epoch_validity_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
     result = object.__new__(VerifiedNearMissClassification)
     object.__setattr__(result, "offer_ref", offer_ref)

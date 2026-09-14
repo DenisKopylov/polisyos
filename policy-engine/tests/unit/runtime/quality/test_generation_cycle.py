@@ -4169,6 +4169,119 @@ def test_offline_replay_rejects_missing_or_mutated_epoch_gate_evidence(
     assert "epoch_validity_gate_evidence_unresolved" in {issue["code"] for issue in rejected}
 
 
+@pytest.mark.asyncio
+async def test_generation_run_carries_epoch_owner_into_decision_front_replay(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Losing the owned resolver at the run boundary must fail even on a refusal."""
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    original_apply = generation_cycle_module._apply_promotion_to_summaries
+    received_resolvers: list[object] = []
+
+    def apply_with_replay(*args: Any, **kwargs: Any) -> list[CandidateSummary]:
+        received_resolvers.append(kwargs.get("epoch_validity_resolver"))
+        return original_apply(*args, **kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "_apply_promotion_to_summaries",
+        apply_with_replay,
+    )
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    )
+    run = await controller.run(
+        _problem("epoch_owner_decision_front_bridge"),
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+
+    assert received_resolvers == [runtime.epoch_n9_evidence_resolver], (
+        "epoch_owner_forwarding_missing_at_generation_run"
+    )
+    stored = runtime.store.put_json(
+        run.model_dump(mode="json"),
+        ArtifactWriteOptions(kind="test.generation_cycle_run", media_type="application/json"),
+        canon.CanonSpec(forbid_floats=False),
+    )
+    replayed = GenerationCycleRun.model_validate(
+        canon.from_canonical_bytes(runtime.store.get_bytes(stored.artifact_id))
+    )
+    assert replayed.fronts.decision.candidate_ids == ()
+    assert replayed.promotion_port.status == "not_promoted"
+    assert replayed.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+
+
+@pytest.mark.parametrize("epoch_evidence", ["valid", "missing_resolver", "corrupted_artifact"])
+def test_decision_front_replays_epoch_owner_and_preserves_refusal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    epoch_evidence: str,
+) -> None:
+    """Certification markers cannot replace fresh epoch evidence or erase refusals."""
+
+    runtime, problem, summary, receipt = _run_open_world_n9_case(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    stored = runtime.store.put_json(
+        receipt.model_dump(mode="json"),
+        ArtifactWriteOptions(kind="test.n9_promotion_receipt", media_type="application/json"),
+        canon.CanonSpec(forbid_floats=False),
+    )
+    payload = canon.from_canonical_bytes(runtime.store.get_bytes(stored.artifact_id))
+    promotion = PromotionPortObservation(
+        status="certified_current_valid",
+        certified_candidate_ids=(summary.candidate_id,),
+        receipts=(payload,),
+    )
+    if epoch_evidence == "corrupted_artifact":
+        projection = receipt.owner_projection.epoch_validity_projection
+        assert projection is not None
+        gate_blob, _ = runtime.store._paths(projection.gate_receipt_ref.artifact_id)
+        gate_blob.write_bytes(b'{"epoch_gate_marker":"retained_without_owner_evidence"}')
+    original_validate = promotion_sequence_module.validate_canonical_promotion_receipt
+    replay_issues: list[tuple[dict[str, Any], ...]] = []
+
+    def validate_with_owner(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], ...]:
+        issues = original_validate(*args, **kwargs)
+        replay_issues.append(issues)
+        return issues
+
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "validate_canonical_promotion_receipt",
+        validate_with_owner,
+    )
+    result = _apply_promotion_to_summaries(
+        (summary,),
+        promotion,
+        problem=problem,
+        open_world_resolver=runtime.resolver,
+        epoch_validity_resolver=(
+            None if epoch_evidence == "missing_resolver" else runtime.epoch_n9_evidence_resolver
+        ),
+    )
+
+    assert len(replay_issues) == 1
+    codes = {issue["code"] for issue in replay_issues[0]}
+    if epoch_evidence == "valid":
+        assert replay_issues[0] == (), "epoch_owner_replay_is_not_clean"
+    elif epoch_evidence == "missing_resolver":
+        assert "epoch_validity_resolver_not_established" in codes
+    else:
+        assert "epoch_validity_gate_evidence_unresolved" in codes
+    assert result == [summary]
+    assert _derive_fronts(tuple(result)).decision.candidate_ids == ()
+    assert payload["promoted"] is False
+    assert payload["refusal_reasons"] == list(receipt.refusal_reasons)
+
+
 def test_fresh_process_replay_rejects_deleted_or_mutated_open_world_vector(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

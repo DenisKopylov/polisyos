@@ -14,7 +14,7 @@ import ast
 import copy
 import json
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 from weakref import WeakKeyDictionary
@@ -129,6 +129,15 @@ from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskResolutionNonReceipt,
     PromotionRuntime,
     VerifiedOpenWorldRiskVector,
+)
+from polisyos.runtime.quality.promotion_safety import (
+    PROMOTION_SAFETY_REQUEST_SCHEMA,
+    PROMOTION_SAFETY_REQUEST_TYPE,
+    PROTECTED_PROMOTION_MODES,
+    PromotionSafetyOwner,
+    PromotionSafetyResolution,
+    PromotionSafetyScope,
+    PromotionSafetySourceTrust,
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecord  # noqa: TC001
 
@@ -590,6 +599,121 @@ class _MeasurementRootWriterInput(_StrictModel):
     envelope: ArtifactEnvelope
 
 
+class N9PromotionEvidenceSourceSelection(_StrictModel):
+    """Deployment-selected producer inputs for one exact candidate and problem."""
+
+    design_problem_binding: N9DesignProblemBinding
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    candidate_summary_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    effective_independence: _EffectiveIndependenceWriterInput | None = None
+    measurement_root: _MeasurementRootWriterInput | None = None
+    promotion_safety_source_refs: tuple[str, ...] = ()
+    g4_governed_promotion_ref: str | None = None
+
+
+class N9PromotionEvidenceSourceResolution(_StrictModel):
+    """Auditable selection result; selection itself grants no evidence authority."""
+
+    schema_version: Literal["policyos.runtime.n9_evidence_source_resolution.v1"] = (
+        "policyos.runtime.n9_evidence_source_resolution.v1"
+    )
+    authority_purpose: Literal["candidate_producer_input_selection_only"] = (
+        "candidate_producer_input_selection_only"
+    )
+    status: Literal["selected", "unresolved_by_construction"]
+    limitation_code: str
+    inputs_read: tuple[str, ...]
+    unresolved_by_construction: tuple[str, ...]
+    selected_configuration_hash: str | None = None
+    selection: N9PromotionEvidenceSourceSelection | None = Field(default=None, exclude=True)
+
+
+@dataclass(frozen=True)
+class N9PromotionEvidenceSource:
+    """Exact configured input selector; canonical producers still decide admissibility."""
+
+    selections: tuple[N9PromotionEvidenceSourceSelection, ...] = ()
+    measurement_catalog: catalog_api.DatasetCatalogGraph | None = None
+    measurement_providers: RetrievalProviders | None = None
+    _selection_json: tuple[str, ...] = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        if type(self.selections) is not tuple or any(
+            type(row) is not N9PromotionEvidenceSourceSelection for row in self.selections
+        ):
+            raise TypeError("promotion_evidence_source_selection_must_be_typed")
+        object.__setattr__(self, "_selection_json", tuple(
+            row.model_dump_json() for row in self.selections
+        ))
+
+    def resolve(
+        self, candidate_summary: CandidateSummary, problem: DesignProblem,
+    ) -> N9PromotionEvidenceSourceResolution:
+        """Inspect the complete configured set and refuse missing or ambiguous identity."""
+
+        binding = N9DesignProblemBinding.from_problem(problem)
+        inputs = [
+            "candidate_summary@" + promotion_candidate_summary_content_hash(candidate_summary),
+            "design_problem@" + binding.problem_content_hash,
+        ]
+        matches: list[tuple[N9PromotionEvidenceSourceSelection, str]] = []
+        for row_json in self._selection_json:
+            row = N9PromotionEvidenceSourceSelection.model_validate_json(row_json)
+            content_hash = gy_content_hash(row.model_dump(mode="json"))
+            inputs.append("configured_promotion_evidence_selection@" + content_hash)
+            if (row.design_problem_binding == binding
+                    and row.candidate_id == candidate_summary.candidate_id
+                    and row.candidate_content_hash == candidate_summary.content_hash
+                    and row.candidate_summary_content_hash
+                    == promotion_candidate_summary_content_hash(candidate_summary)):
+                matches.append((row, content_hash))
+        selected = matches[0] if len(matches) == 1 else None
+        code = (
+            "promotion_evidence_source_selected" if selected is not None
+            else "promotion_evidence_source_unconfigured" if not self._selection_json
+            else "promotion_evidence_source_ambiguous" if len(matches) > 1
+            else "promotion_evidence_source_identity_mismatch"
+        )
+        return N9PromotionEvidenceSourceResolution(
+            status="selected" if selected is not None else "unresolved_by_construction",
+            limitation_code=code,
+            inputs_read=tuple(inputs),
+            unresolved_by_construction=(
+                "external_evidence_outside_configured_selection",
+                "promotion_authority_not_established_by_source_selection",
+                "s6_s7_s8_independently_verified_posture_admission",
+            ),
+            selected_configuration_hash=selected[1] if selected is not None else None,
+            selection=selected[0] if selected is not None else None,
+        )
+
+    def context_for(
+        self, *, candidate_summary: CandidateSummary, problem: DesignProblem,
+        store: core_artifacts.ArtifactStore,
+    ) -> Mapping[str, Any]:
+        """Persist the selector boundary and pass only typed inputs to existing writers."""
+
+        resolution = self.resolve(candidate_summary, problem)
+        ref, semantic_hash, _ = _persist_model(
+            store=store, value=resolution, kind="runtime.n9_evidence_source_resolution",
+        )
+        context: dict[str, Any] = {"producer_root_refs": (ArtifactRef(
+            artifact_id=str(ref.artifact_id), artifact_type="N9PromotionEvidenceSourceResolution",
+            content_hash=semantic_hash, schema_ref=resolution.schema_version,
+            uri=f"cas://{ref.artifact_id}", version="v1",
+        ),)}
+        selection = resolution.selection
+        if selection is not None:
+            if selection.effective_independence is not None:
+                context["effective_independence_writer_input"] = selection.effective_independence
+            if selection.measurement_root is not None:
+                context["measurement_root_writer_input"] = selection.measurement_root
+            context["promotion_safety_source_refs"] = selection.promotion_safety_source_refs
+            context["g4_governed_promotion_ref"] = selection.g4_governed_promotion_ref
+        return context
+
+
 class _EffectObligationWriterInput(_StrictModel):
     """Owner inputs accepted only by the RACE O_effect producer boundary."""
 
@@ -613,8 +737,12 @@ class N9PromotionEvidenceBridgeRepository:
         store: core_artifacts.ArtifactStore,
         measurement_catalog: catalog_api.DatasetCatalogGraph | None = None,
         measurement_providers: RetrievalProviders | None = None,
+        promotion_safety_source_trust: PromotionSafetySourceTrust | None = None,
     ) -> None:
         self._store = store
+        self._promotion_safety = PromotionSafetyOwner(
+            store=store, trust=promotion_safety_source_trust
+        )
         self._measurement_catalog = measurement_catalog
         self._measurement_providers = measurement_providers
         self._verifier_provenance_ref = store.put_bytes(
@@ -623,6 +751,59 @@ class N9PromotionEvidenceBridgeRepository:
                 kind=_PROMOTION_EVIDENCE_VERIFIER_KIND,
                 media_type="text/plain",
             ),
+        )
+
+    def persist_promotion_safety_request(
+        self,
+        *,
+        promotion_input: CanonicalPromotionInput,
+        source_refs: tuple[str, ...] = (),
+        source_input_error: str | None = None,
+    ) -> ArtifactRef:
+        """Persist the protected-purpose request without assigning promotion authority."""
+        ref = self._promotion_safety.produce(
+            scope=_promotion_safety_scope(promotion_input),
+            source_refs=source_refs,
+            source_input_error=source_input_error,
+        )
+        identity = str(ref.artifact_id)
+        return ArtifactRef(
+            artifact_id=identity,
+            artifact_type=PROMOTION_SAFETY_REQUEST_TYPE,
+            version="v1",
+            content_hash=identity,
+            schema_ref=PROMOTION_SAFETY_REQUEST_SCHEMA,
+            uri=identity,
+        )
+
+    def resolve_promotion_safety(
+        self, *, promotion_input: CanonicalPromotionInput
+    ) -> PromotionSafetyResolution | None:
+        """Consume only the exact candidate's independently replayed request."""
+        receipt = promotion_input.value_receipt
+        if receipt is None or receipt.evaluation_mode not in PROTECTED_PROMOTION_MODES:
+            return None
+        refs = tuple(
+            ref
+            for ref in promotion_input.producer_root_refs
+            if ref.artifact_type == PROMOTION_SAFETY_REQUEST_TYPE
+        )
+        if not refs:
+            return None
+        if len(refs) != 1:
+            return PromotionSafetyResolution(limitation_code="promotion_safety_request_duplicate")
+        ref = refs[0]
+        if (
+            ref.artifact_id != ref.uri
+            or ref.content_hash != ref.uri
+            or ref.schema_ref != PROMOTION_SAFETY_REQUEST_SCHEMA
+            or ref.version != "v1"
+        ):
+            return PromotionSafetyResolution(
+                limitation_code="promotion_safety_request_ref_mismatch"
+            )
+        return self._promotion_safety.resolve(
+            request_ref=ref.uri, scope=_promotion_safety_scope(promotion_input)
         )
 
     def persist_effective_independence(
@@ -1628,6 +1809,21 @@ def _bind_production_promotion_evidence(
     if repository is None:
         return promotion_input
     producer_root_refs = list(promotion_input.producer_root_refs)
+    receipt = promotion_input.value_receipt
+    if receipt is not None and receipt.evaluation_mode in PROTECTED_PROMOTION_MODES:
+        raw_sources = context.get("promotion_safety_source_refs", ())
+        valid_sources = isinstance(raw_sources, (tuple, list)) and all(
+            isinstance(ref, str) and bool(ref) for ref in raw_sources
+        )
+        producer_root_refs.append(
+            repository.persist_promotion_safety_request(
+                promotion_input=promotion_input,
+                source_refs=tuple(raw_sources) if valid_sources else (),
+                source_input_error=(
+                    None if valid_sources else "promotion_safety_source_refs_invalid"
+                ),
+            )
+        )
     raw_independence = context.get("effective_independence_writer_input")
     if raw_independence is not None:
         try:
@@ -1683,6 +1879,25 @@ def _bind_production_promotion_evidence(
     if tuple(producer_root_refs) == promotion_input.producer_root_refs:
         return promotion_input
     return promotion_input.model_copy(update={"producer_root_refs": tuple(producer_root_refs)})
+
+
+def _promotion_safety_scope(promotion_input: CanonicalPromotionInput) -> PromotionSafetyScope:
+    receipt = promotion_input.value_receipt
+    if receipt is None or receipt.evaluation_mode not in PROTECTED_PROMOTION_MODES:
+        raise ValueError("promotion_safety_request_requires_protected_mode")
+    binding = promotion_input.design_problem_binding
+    return PromotionSafetyScope(
+        design_problem_id=binding.design_problem_id,
+        problem_content_hash=binding.problem_content_hash,
+        candidate_id=promotion_input.candidate_summary.candidate_id,
+        candidate_content_hash=promotion_input.candidate_summary.content_hash,
+        candidate_summary_content_hash=gy_content_hash(
+            promotion_input.candidate_summary.model_dump(mode="json")
+        ),
+        value_receipt_content_hash=gy_content_hash(receipt.model_dump(mode="json")),
+        evaluation_mode=receipt.evaluation_mode,
+        promotion_schema_version=promotion_input.schema_version,
+    )
 
 
 class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
@@ -2696,6 +2911,25 @@ class CanonicalN9PromotionPort:
         measurement_catalog: catalog_api.DatasetCatalogGraph | None = None,
         measurement_providers: RetrievalProviders | None = None,
     ) -> None:
+        source = (
+            promotion_runtime.promotion_evidence_source if promotion_runtime is not None else None
+        )
+        if source is not None:
+            if measurement_catalog is None:
+                measurement_catalog = source.measurement_catalog
+            if measurement_providers is None:
+                measurement_providers = source.measurement_providers
+            if context_provider is None and promotion_runtime is not None:
+                source_store = promotion_runtime.store
+
+                def source_context(
+                    summary: CandidateSummary, problem: DesignProblem,
+                ) -> Mapping[str, Any]:
+                    return source.context_for(
+                        candidate_summary=summary, problem=problem, store=source_store,
+                    )
+
+                context_provider = source_context
         runtime_epoch_resolver = (
             promotion_runtime.epoch_n9_evidence_resolver if promotion_runtime is not None else None
         )
@@ -2713,6 +2947,7 @@ class CanonicalN9PromotionPort:
         self._promotion_evidence_resolver = (
             N9PromotionEvidenceBridgeRepository(
                 store=promotion_runtime.store,
+                promotion_safety_source_trust=promotion_runtime.promotion_safety_source_trust,
                 measurement_catalog=measurement_catalog,
                 measurement_providers=measurement_providers,
             )
@@ -2901,6 +3136,7 @@ def _run_n9_promotion_port_batch(
     promotion_evidence_resolver = (
         N9PromotionEvidenceBridgeRepository(
             store=promotion_runtime.store,
+            promotion_safety_source_trust=promotion_runtime.promotion_safety_source_trust,
             measurement_catalog=measurement_catalog,
             measurement_providers=measurement_providers,
         )
@@ -3563,12 +3799,14 @@ def _build_promotion_receipt_from_owners(
     cg2_attempt: _CG2OwnerPromotabilityAttempt | None = None,
     base_obligations: tuple[PromotionObligationDraft, ...] | None = None,
     evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None = None,
+    promotion_safety_resolution: PromotionSafetyResolution | None = None,
 ) -> CanonicalPromotionReceipt:
     attempt = cg2_attempt or _resolve_cg2_owner_promotability(promotion_input)
     obligations = base_obligations or _compile_obligations(
         promotion_input,
         cg2_attempt=attempt,
         evidence_resolutions=evidence_resolutions,
+        promotion_safety_resolution=promotion_safety_resolution,
     )
     expected_checks = _resolve_expected_ledger_checks(
         ledger_receipt,
@@ -3804,6 +4042,10 @@ def _run_promotion_sequence_with_bound_session(
         promotion_input,
         cg2_attempt=cg2_attempt,
         evidence_resolutions=evidence_resolutions,
+        promotion_safety_resolution=(
+            promotion_evidence_resolver.resolve_promotion_safety(promotion_input=promotion_input)
+            if promotion_evidence_resolver is not None else None
+        ),
     )
     ledger_receipt = confidence_ledger_session.receipt()
     ledger_projection = project_n9_promotion_certificate(
@@ -3850,6 +4092,10 @@ def _rebind_promotion_receipt_to_ledger_head(
         ledger_projection=ledger_projection,
         ledger_semantic_projection=ledger_semantic_projection,
         evidence_resolutions=evidence_resolutions,
+        promotion_safety_resolution=(
+            promotion_evidence_resolver.resolve_promotion_safety(promotion_input=promotion_input)
+            if promotion_evidence_resolver is not None else None
+        ),
     )
 
 
@@ -4276,6 +4522,10 @@ def _validate_promotion_receipt_with_bound_session(
         replay_input,
         cg2_attempt=replay_cg2_attempt,
         evidence_resolutions=evidence_resolutions,
+        promotion_safety_resolution=(
+            promotion_evidence_resolver.resolve_promotion_safety(promotion_input=replay_input)
+            if promotion_evidence_resolver is not None else None
+        ),
     )
     issues.extend(
         _obligation_instance_issues(
@@ -4782,6 +5032,7 @@ def _compile_obligations(
     *,
     cg2_attempt: _CG2OwnerPromotabilityAttempt,
     evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None = None,
+    promotion_safety_resolution: PromotionSafetyResolution | None = None,
 ) -> tuple[PromotionObligationDraft, ...]:
     receipt = promotion_input.value_receipt
     summary = promotion_input.candidate_summary
@@ -4802,7 +5053,7 @@ def _compile_obligations(
             promotion_input.s7_delegation_posture,
             blind_spot_posture=promotion_input.s6_blind_spot_posture,
         ),
-        _eval_safety_obligation(receipt),
+        _eval_safety_obligation(receipt, resolution=promotion_safety_resolution),
         _value_obligation(promotion_input),
     ]
     if tuple(item.obligation_class for item in obligations) != tuple(PromotionObligationClass):
@@ -5460,7 +5711,11 @@ def _equilibrium_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
     )
 
 
-def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
+def _eval_safety_obligation(
+    receipt: ValueGateReceipt | None,
+    *,
+    resolution: PromotionSafetyResolution | None = None,
+) -> PromotionObligationDraft:
     mode = receipt.evaluation_mode if receipt is not None else None
     if mode in {"sandbox_pilot", "field_pilot", "deployment"}:
         return _scope_insufficient_obligation(
@@ -5471,7 +5726,14 @@ def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
                 "producer_missing: attempted-evaluation safety is implemented and "
                 "orchestrated, but its certificate expressly forbids promotion use; no "
                 "promotion-authoritative pilot/deployment predicate is allocated."
+                + (f" Request custody: {resolution.limitation_code}." if resolution else "")
             ),
+        ).model_copy(
+            update={
+                "evidence_refs": [resolution.request_ref]
+                if resolution is not None and resolution.request_ref is not None
+                else []
+            }
         )
     return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.EVAL_SAFETY,

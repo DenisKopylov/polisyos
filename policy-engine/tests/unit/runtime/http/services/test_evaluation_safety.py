@@ -649,16 +649,28 @@ def _verified_classification(
     candidate_hash = "sha256:" + "2" * 64
     value_hash = "sha256:" + "3" * 64
     world_hash = "sha256:" + "4" * 64
-    open_ref = named_ref(
-        "sha256:" + "5" * 64, "test.open-world", "sha256:" + "5" * 64
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core.contracts import c4_profile
+
+    def core_ref(label, record):
+        profile = c4_profile(record)
+        return core_artifacts.ArtifactRef(
+            artifact_id=core_artifacts.ArtifactID("sha256:" + label * 64),
+            kind=profile.kind, media_type=profile.media_type,
+        )
+
+    open_core_ref = core_ref("5", "open_world_risk_vector")
+    epoch_core_ref = core_ref("6", "epoch_validity_gate_receipt")
+    open_ref = es.near_miss_resolver_basis_reference(
+        open_core_ref, record="open_world_risk_vector"
     )
-    epoch_ref = named_ref(
-        "sha256:" + "6" * 64, "test.epoch", "sha256:" + "6" * 64
+    epoch_ref = es.near_miss_resolver_basis_reference(
+        epoch_core_ref, record="epoch_validity_gate_receipt"
     )
     design_binding = SimpleNamespace(model_dump=lambda **_values: {"design": "bound"})
     owner_projection = SimpleNamespace(
-        open_world_gate=SimpleNamespace(vector_artifact_ref=open_ref),
-        epoch_validity_projection=SimpleNamespace(gate_receipt_ref=epoch_ref),
+        open_world_gate=SimpleNamespace(vector_artifact_ref=open_core_ref),
+        epoch_validity_projection=SimpleNamespace(gate_receipt_ref=epoch_core_ref),
         design_problem_binding=design_binding,
         projection_hash=projection_hash,
     )
@@ -753,6 +765,7 @@ def _verified_classification(
         value_receipt=SimpleNamespace(
             value_ref=value_hash,
             world_model_record_content_hash=world_hash,
+            evaluation_mode=core.evaluation_mode,
         ),
         open_world_resolver=SimpleNamespace(),
         epoch_validity_resolver=SimpleNamespace(),

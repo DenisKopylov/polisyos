@@ -9,7 +9,7 @@ from contextlib import AbstractContextManager, contextmanager, nullcontext
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from opentelemetry.context import attach, detach
 
@@ -95,7 +95,11 @@ from polisyos.runtime.http.execution_policy import (
     RuntimePrincipal,
     build_capability_manifest_payload,
 )
-from polisyos.runtime.http.resilience import guard_runtime_cas, guard_runtime_control_store
+from polisyos.runtime.http.resilience import (
+    guard_runtime_cas,
+    guard_runtime_control_store,
+    run_guarded_dependency_operation,
+)
 from polisyos.runtime.http.services.adapters.core_run import (
     derive_core_run_dir,
     load_terminal_core_run_source,
@@ -466,6 +470,101 @@ class AcquisitionRouteLoopAuthoritySink:
             action_generation=receipt.action_generation,
         )
 
+    def resolve_action_generation(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        job_id: str,
+    ) -> int:
+        """Reuse one job's generation or select a successor to verified quarantine.
+
+        This read does not reserve a generation. The existing unique predecessor
+        insert fences competing requests before either can execute an effect.
+        """
+
+        heads = self._control_store.list_acquisition_action_heads(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+        )
+        same_job = tuple(head for head in heads if head.job_id == job_id)
+        if len(same_job) > 1:
+            raise ValueError("acquisition_action_job_generation_ambiguous")
+        if same_job:
+            self._verified_generation_head(same_job[0])
+            return same_job[0].action_generation
+        if not heads:
+            return 1
+        latest = max(heads, key=lambda head: head.action_generation)
+        receipt = self._verified_generation_head(latest)
+        if (
+            not isinstance(receipt, AcquisitionRouteLoopReceipt)
+            or receipt.terminal_outcome != "quarantined_no_growth"
+        ):
+            raise ValueError("acquisition_action_generation_not_reopenable")
+        return latest.action_generation + 1
+
+    def _verified_generation_head(
+        self,
+        head: AcquisitionActionHeadRecord,
+    ) -> AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt:
+        """Resolve the typed owner receipt and reconcile its exact durable event."""
+
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=head.receipt_ref,
+            expected_tenant_id=head.tenant_id,
+            expected_cell_id=head.cell_id,
+            expected_run_id=head.run_id,
+            expected_job_id=head.job_id,
+        )
+        manifest = self._artifact_store.get_manifest(head.receipt_ref)
+        if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
+            receipt_type = AcquisitionRouteLoopReceipt
+            schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
+        elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
+            receipt_type = AcquisitionRoutePhaseReceipt
+            schema_name = "polisyos.runtime.AcquisitionRoutePhaseReceipt"
+        else:
+            raise ValueError("acquisition_action_head_receipt_kind_invalid")
+        receipt = receipt_type.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(head.receipt_ref))
+        )
+        schema = manifest.artifact_schema
+        if (
+            head.receipt_ref != head.receipt_sha256
+            or report.durable_event_id != head.durable_event_id
+            or schema is None
+            or schema.name != schema_name
+            or schema.version != "1.0"
+            or manifest.producer.component != "polisyos.runtime.acquisition_route_loop"
+            or any(
+                getattr(receipt, field) != getattr(head, field)
+                for field in (
+                    "tenant_id",
+                    "cell_id",
+                    "run_id",
+                    "source_job_id",
+                    "route_id",
+                    "action_generation",
+                    "job_id",
+                    "coarse_phase",
+                    "receipt_phase",
+                    "recovery_state",
+                    "predecessor_receipt_ref",
+                )
+            )
+        ):
+            raise ValueError("acquisition_action_head_binding_mismatch")
+        return receipt
+
     def persist_phase(
         self,
         receipt: AcquisitionRoutePhaseReceipt,
@@ -648,6 +747,9 @@ class AcquisitionRouteLoopAuthoritySink:
         return head
 
 
+_CustodyResult = TypeVar("_CustodyResult")
+
+
 class HumanDecisionAuthoritySink:
     """Narrow persistence boundary for custodied human-decision records."""
 
@@ -663,6 +765,11 @@ class HumanDecisionAuthoritySink:
         self._artifact_store = artifact_store
         self._event_log = event_log
         self._reservation_store = reservation_store
+
+    def run_custody_operation(self, operation: Callable[[], _CustodyResult]) -> _CustodyResult:
+        """Keep a whole fenced operation on the guarded transaction owner."""
+
+        return run_guarded_dependency_operation(self._reservation_store, operation)
 
     def reserve_action(
         self,
@@ -884,123 +991,128 @@ class HumanDecisionAuthoritySink:
     ) -> HumanDecisionReservationRecord:
         """Discover and reconcile one signed orphan whose SQL refs rolled back."""
 
-        from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
-            HUMAN_DECISION_RECORD_V2,
-            HumanDecisionRecord,
-        )
+        def _restore() -> HumanDecisionReservationRecord:
+            from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+                HUMAN_DECISION_RECORD_V2,
+                HumanDecisionRecord,
+            )
 
-        if getattr(self._event_log, "_store", None) is not self._reservation_store:
-            raise RuntimeError("human-decision recovery requires the shared control store")
-        with self.hold_recovery_fence(
-            tenant_id=tenant_id,
-            governed_action_key=governed_action_key,
-            reservation_id=reservation_id,
-            reservation_version=reservation_version,
-        ) as fence:
-            matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
-            for artifact_id in self._artifact_store.iter_artifact_ids():
-                try:
-                    manifest = self._artifact_store.get_manifest(artifact_id)
-                except Exception as exc:
-                    raise RuntimeError("human-decision recovery CAS manifest scan failed") from exc
-                if manifest.kind != "runtime_quality.agent_action_human_decision":
-                    continue
-                try:
-                    payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
-                except Exception as exc:
-                    raise RuntimeError("human-decision recovery CAS readback failed") from exc
-                if not isinstance(payload, Mapping):
-                    raise RuntimeError("human-decision record payload is not an object")
+            if getattr(self._event_log, "_store", None) is not self._reservation_store:
+                raise RuntimeError("human-decision recovery requires the shared control store")
+            with self.hold_recovery_fence(
+                tenant_id=tenant_id,
+                governed_action_key=governed_action_key,
+                reservation_id=reservation_id,
+                reservation_version=reservation_version,
+            ) as fence:
+                matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
+                for artifact_id in self._artifact_store.iter_artifact_ids():
+                    try:
+                        manifest = self._artifact_store.get_manifest(artifact_id)
+                    except Exception as exc:
+                        raise RuntimeError(
+                            "human-decision recovery CAS manifest scan failed"
+                        ) from exc
+                    if manifest.kind != "runtime_quality.agent_action_human_decision":
+                        continue
+                    try:
+                        payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                    except Exception as exc:
+                        raise RuntimeError("human-decision recovery CAS readback failed") from exc
+                    if not isinstance(payload, Mapping):
+                        raise RuntimeError("human-decision record payload is not an object")
+                    if (
+                        payload.get("reservation_id") == reservation_id
+                        and payload.get("reservation_version") == reservation_version
+                    ):
+                        matches.append((str(artifact_id), manifest, payload))
+                if len(matches) != 1:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                record_ref, manifest, payload = matches[0]
+                schema = manifest.artifact_schema
                 if (
-                    payload.get("reservation_id") == reservation_id
-                    and payload.get("reservation_version") == reservation_version
+                    schema is None
+                    or schema.name != "polisyos.runtime.HumanDecisionRecord"
+                    or schema.version != "2.0"
                 ):
-                    matches.append((str(artifact_id), manifest, payload))
-            if len(matches) != 1:
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            record_ref, manifest, payload = matches[0]
-            schema = manifest.artifact_schema
-            if (
-                schema is None
-                or schema.name != "polisyos.runtime.HumanDecisionRecord"
-                or schema.version != "2.0"
-            ):
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            try:
-                record = HumanDecisionRecord.model_validate(payload)
-            except (TypeError, ValueError) as exc:
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
-            reservation = fence.reservation
-            if (
-                record.schema_version != HUMAN_DECISION_RECORD_V2
-                or record.tenant_id != tenant_id
-                or record.run_id != expected_run_id
-                or record.governed_action_key != governed_action_key
-                or record.reservation_id != reservation_id
-                or record.reservation_version != reservation_version
-                or record.binding_sha256 != reservation.binding_sha256
-                or record.valid_until != reservation.record_valid_until
-                or record.custody_signer_identity != expected_signer_identity
-                or record.custody_key_id != expected_key_id
-            ):
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            signature = self.verify_artifact_signature(
-                record_ref,
-                verifier,
-                strict_identity=True,
-            )
-            if (
-                not signature.ok
-                or signature.signer_identity != expected_signer_identity
-                or signature.key_id != expected_key_id
-            ):
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            authority = manifest.authority
-            if authority is None:
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            event_ref = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
-            event_manifest = self._artifact_store.get_manifest(event_ref)
-            event_schema = event_manifest.artifact_schema
-            if (
-                event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
-                or event_schema is None
-                or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
-                or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
-            ):
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            try:
-                event = DiagnosticEvent.model_validate(
-                    from_canonical_bytes(self._artifact_store.get_bytes(event_ref))
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                try:
+                    record = HumanDecisionRecord.model_validate(payload)
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
+                reservation = fence.reservation
+                if (
+                    record.schema_version != HUMAN_DECISION_RECORD_V2
+                    or record.tenant_id != tenant_id
+                    or record.run_id != expected_run_id
+                    or record.governed_action_key != governed_action_key
+                    or record.reservation_id != reservation_id
+                    or record.reservation_version != reservation_version
+                    or record.binding_sha256 != reservation.binding_sha256
+                    or record.valid_until != reservation.record_valid_until
+                    or record.custody_signer_identity != expected_signer_identity
+                    or record.custody_key_id != expected_key_id
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                signature = self.verify_artifact_signature(
+                    record_ref,
+                    verifier,
+                    strict_identity=True,
                 )
-            except (TypeError, ValueError) as exc:
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
-            if (
-                event.payload_ref != record_ref
-                or event.tenant_id != tenant_id
-                or event.run_id != expected_run_id
-                or event.job_id != expected_job_id
-                or (expected_cell_id is not None and event.cell_id != expected_cell_id)
-            ):
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            self._event_log.append(
-                event,
-                payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
-            )
-            report = self.reconcile_authority_artifact(
-                record_ref,
-                expected_tenant_id=tenant_id,
-                expected_cell_id=expected_cell_id,
-                expected_run_id=expected_run_id,
-                expected_job_id=expected_job_id,
-            )
-            if report.durable_event_id != event.event_id:
-                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            return fence.reconcile_orphan(
-                record_ref=record_ref,
-                record_sha256=record_ref,
-                durable_event_id=event.event_id,
-                reconciled_at=reconciled_at,
-            )
+                if (
+                    not signature.ok
+                    or signature.signer_identity != expected_signer_identity
+                    or signature.key_id != expected_key_id
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                authority = manifest.authority
+                if authority is None:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                event_ref = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
+                event_manifest = self._artifact_store.get_manifest(event_ref)
+                event_schema = event_manifest.artifact_schema
+                if (
+                    event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+                    or event_schema is None
+                    or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+                    or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                try:
+                    event = DiagnosticEvent.model_validate(
+                        from_canonical_bytes(self._artifact_store.get_bytes(event_ref))
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
+                if (
+                    event.payload_ref != record_ref
+                    or event.tenant_id != tenant_id
+                    or event.run_id != expected_run_id
+                    or event.job_id != expected_job_id
+                    or (expected_cell_id is not None and event.cell_id != expected_cell_id)
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                self._event_log.append(
+                    event,
+                    payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+                )
+                report = self.reconcile_authority_artifact(
+                    record_ref,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=expected_cell_id,
+                    expected_run_id=expected_run_id,
+                    expected_job_id=expected_job_id,
+                )
+                if report.durable_event_id != event.event_id:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                return fence.reconcile_orphan(
+                    record_ref=record_ref,
+                    record_sha256=record_ref,
+                    durable_event_id=event.event_id,
+                    reconciled_at=reconciled_at,
+                )
+
+        return self.run_custody_operation(_restore)
 
     def reconcile_empty_reservation(
         self,
@@ -1548,16 +1660,20 @@ class ControlPlaneService(
         )
         outputs = terminal.manifest.outputs
         compiled = [
-            str(ref.artifact_id) for ref in outputs
+            str(ref.artifact_id)
+            for ref in outputs
             if ref.kind == "runtime.compiled_recursive_generation_cycle"
         ]
         normative = [
-            str(ref.artifact_id) for ref in outputs
+            str(ref.artifact_id)
+            for ref in outputs
             if ref.kind == "runtime.normative_generation_composition"
         ]
         if (
             terminal.manifest.status != "ok"
-            or len(outputs) != 2 or len(compiled) != 1 or len(normative) != 1
+            or len(outputs) != 2
+            or len(compiled) != 1
+            or len(normative) != 1
         ):
             raise ValueError("normative_evidence_owned_run_source_mismatch")
         return compiled[0], normative[0]
@@ -1657,7 +1773,11 @@ class ControlPlaneService(
         )
 
     def _current_normative_generation_projection(
-        self, *, disposition_ref: str | None, compiled_run_ref: str | None, evaluated_at: datetime,
+        self,
+        *,
+        disposition_ref: str | None,
+        compiled_run_ref: str | None,
+        evaluated_at: datetime,
         refusal_reason: str | None = None,
     ) -> dict[str, object]:
         from polisyos.runtime.http.services.control.generation_cycle import (
@@ -2327,7 +2447,9 @@ class ControlPlaneService(
                         "compiled_run_ref": compiled_ref,
                     }
                     if event != expected or (head.job_id, head.run_id, head.compiled_run_ref) != (
-                        record.job_id, record.run_id, compiled_ref
+                        record.job_id,
+                        record.run_id,
+                        compiled_ref,
                     ):
                         raise ValueError("normative_head_source_binding_mismatch")
                     owner = normative_owner_for_runtime_store(
@@ -2341,7 +2463,8 @@ class ControlPlaneService(
                         evaluated_at=head.evaluated_at,
                     )
                     actual_evidence = {
-                        node: leaf.evidence for node, leaf in historical.leaf_dispositions.items()
+                        node: leaf.evidence
+                        for node, leaf in historical.leaf_dispositions.items()
                         if leaf.evidence is not None
                     }
                     if (
@@ -2352,7 +2475,8 @@ class ControlPlaneService(
                             leaf.admitted_at != head.evaluated_at
                             for leaf in historical.leaf_dispositions.values()
                         )
-                        or head.strangle_receipt != NormativeEvidenceHeadStrangleReceipt(
+                        or head.strangle_receipt
+                        != NormativeEvidenceHeadStrangleReceipt(
                             original_disposition_ref=original_disposition_ref,
                             current_disposition_ref=head.disposition_ref,
                         )

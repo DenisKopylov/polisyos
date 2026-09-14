@@ -280,8 +280,7 @@ class DistributedExecutionTrustContract:
             missing.append("replay_ref_or_non_replayable_reason")
         if missing:
             raise ValueError(
-                "distributed execution requires trust metadata: "
-                + ", ".join(sorted(missing))
+                "distributed execution requires trust metadata: " + ", ".join(sorted(missing))
             )
         processing_payload = metadata.get("processing")
         processing: ProcessingGuaranteeContract | None = None
@@ -298,9 +297,7 @@ class DistributedExecutionTrustContract:
             lineage_ref=str(metadata["lineage_ref"]),
             quality_contract_ref=str(metadata["quality_contract_ref"]),
             access_classification=str(metadata["access_classification"]),
-            replay_ref=(
-                str(metadata["replay_ref"]) if metadata.get("replay_ref") else None
-            ),
+            replay_ref=(str(metadata["replay_ref"]) if metadata.get("replay_ref") else None),
             non_replayable_reason=(
                 str(metadata["non_replayable_reason"])
                 if metadata.get("non_replayable_reason")
@@ -558,7 +555,11 @@ def run_orchestrated_ingestion(
             datasets_fetched=datasets_fetched,
         )
 
-    cas_store = _build_filesystem_artifact_store(resolved_cas_root)
+    cas_store = (
+        ingestion_dependencies.store_factory(resolved_cas_root)
+        if ingestion_dependencies is not None
+        else _build_filesystem_artifact_store(resolved_cas_root)
+    )
     snapshot_ref = run_coro_sync(
         _build_snapshot_from_evidence_async(
             store=ensure_async_artifact_store(cas_store),
@@ -670,8 +671,7 @@ def _validate_distributed_execution_trust(
     processing = trust_contract.processing
     if (
         processing is not None
-        and ProcessingGuarantee(processing.guarantee)
-        == ProcessingGuarantee.EXACTLY_ONCE_NARROW
+        and ProcessingGuarantee(processing.guarantee) == ProcessingGuarantee.EXACTLY_ONCE_NARROW
         and processing.atomicity_proof is None
     ):
         raise ValueError("distributed exactly_once_narrow requires atomicity proof")

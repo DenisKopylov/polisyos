@@ -471,7 +471,7 @@ class EpochReadbackChallengeRepository:
     def persist(
         self, statement: contract.AnchorReadbackChallengeStatement
     ) -> contract.PersistedAnchorReadbackChallenge:
-        store = self.owner._state().store
+        store = self.owner._runtime_artifact_store()
         if store is None:
             raise ValueError("epoch challenge repository is unconfigured")
         challenge = security.InMemoryAnchorReadbackChallengeRepository().persist(statement)
@@ -489,7 +489,7 @@ class EpochReadbackChallengeRepository:
     def resolve(
         self, *, challenge_record_ref: artifacts.ArtifactRef
     ) -> contract.PersistedAnchorReadbackChallenge:
-        raw = self.owner._repository().read_raw(artifact_ref=challenge_record_ref)
+        raw = self.owner._runtime_repository().read_raw(artifact_ref=challenge_record_ref)
         security.parse_canonical_statement(raw, contract.AnchorReadbackChallengeStatement)
         return contract.PersistedAnchorReadbackChallenge(
             challenge_record_ref=challenge_record_ref,

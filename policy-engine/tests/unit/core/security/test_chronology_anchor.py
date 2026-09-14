@@ -347,6 +347,7 @@ _PRE_CLUSTER3_CONTRACT_MODEL_NAMES = frozenset(
         "NativeChronologyPersistenceFailed",
         "NativeChronologyPolicyResolutionFailed",
         "NativeChronologyQualified",
+        "NativeChronologyProjectionStatement",
         "NativeChronologyQuery",
         "NativeChronologyReconciliation",
         "NativeExteriorAndAuthorityHeadNotEstablished",
@@ -360,6 +361,7 @@ _PRE_CLUSTER3_CONTRACT_MODEL_NAMES = frozenset(
         "OwnerQualifiedNativeCandidate",
         "PersistedApplicablePredicateDenominator",
         "PersistedChronologyProof",
+        "PersistedNativeChronologyProjection",
         "PersistedPredicateAdmissionPolicy",
         "PersistedPredicatePolicyAdmission",
         "PolicyAdmissionAmbiguousFailure",
@@ -527,7 +529,7 @@ def _source_owned_model_or_codec_signals(source: str) -> set[tuple[str, str]]:
 
 
 def test_cluster3_module_and_model_censuses_reconcile_independently() -> None:
-    """Nine modules and the complete 118-model contract stay in the denominator."""
+    """Nine modules and the complete 120-model contract stay in the denominator."""
     from polisyos.core.security.chronology_anchor import (
         C3_CONTRACT_MODEL_NAMES,
         C3_MODEL_REGISTRY,
@@ -560,7 +562,7 @@ def test_cluster3_module_and_model_censuses_reconcile_independently() -> None:
         "polisyos.core.security.anchor_lineage",
         "polisyos.core.security.chronology_anchor",
     }
-    assert len(ast_names) == len(runtime_names) == 118
+    assert len(ast_names) == len(runtime_names) == 120
     assert len(cluster3_names) == len(C3_MODEL_REGISTRY) == 52
     assert cluster3_names == set(C3_MODEL_REGISTRY)
     _assert_complete_contract_partition(

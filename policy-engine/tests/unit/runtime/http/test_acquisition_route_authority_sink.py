@@ -12,6 +12,7 @@ from polisyos.runtime.http.services.control.run_lifecycle import (
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
     AcquisitionRouteRecoveryRequired,
     persist_world_commit_and_reenter,
@@ -153,3 +154,135 @@ def test_active_owner_receipt_persists_reentry_pending_before_callback(
             predecessor_receipt_ref=pending_durable.receipt_ref,
             owner_receipt_refs=("sha256:" + "1" * 64,),
         )
+
+
+@pytest.fixture
+def generation_owner(tmp_path):
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
+    event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=cas)
+    sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=cas, event_log=event_log, control_store=store
+    )
+    return sink, store, cas
+
+
+def _generation_identity():
+    return {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "run_id": "run-a",
+        "source_job_id": "job-source",
+        "route_id": "sha256:" + "a" * 64,
+    }
+
+
+def _persist_generation(sink, *, generation, job_id, terminal_outcome=None):
+    """Exercise the real receipt owner; supplied owner refs are fixture evidence."""
+    common = {"action_generation": generation, "job_id": job_id}
+    requested = _receipt(
+        receipt_phase="requested",
+        coarse_phase="requested",
+        recovery_state="none",
+        predecessor_receipt_ref=None,
+    )
+    requested = AcquisitionRoutePhaseReceipt.model_validate({**requested.model_dump(), **common})
+    head = sink.persist_phase(requested)
+    executing = AcquisitionRoutePhaseReceipt.model_validate(
+        {
+            **requested.model_dump(),
+            "receipt_id": "receipt-executing",
+            "receipt_phase": "executing",
+            "coarse_phase": "executing",
+            "predecessor_receipt_ref": head.receipt_ref,
+        }
+    )
+    head = sink.persist_phase(executing)
+    if terminal_outcome is None:
+        return head
+    terminal = AcquisitionRouteLoopReceipt.model_validate(
+        {
+            **executing.model_dump(exclude={"schema_version"}),
+            "receipt_id": "receipt-terminal",
+            "receipt_phase": "terminal",
+            "coarse_phase": "terminal",
+            "recovery_state": "complete",
+            "predecessor_receipt_ref": head.receipt_ref,
+            "terminal_outcome": terminal_outcome,
+            "owner_receipt_refs": ("sha256:" + "f" * 64,),
+            "reentry_receipt_ref": (
+                "sha256:" + "1" * 64 if terminal_outcome == "reentry_completed" else None
+            ),
+        }
+    )
+    return sink.persist_terminal(terminal)
+
+
+def test_action_generation_preserves_quarantine_and_reuses_exact_job(generation_owner):
+    sink, store, cas = generation_owner
+    identity = _generation_identity()
+    assert sink.resolve_action_generation(**identity, job_id="first-job") == 1
+    first = _persist_generation(
+        sink, generation=1, job_id="first-job", terminal_outcome="quarantined_no_growth"
+    )
+    first_bytes = cas.get_bytes(first.receipt_ref)
+    assert sink.resolve_action_generation(**identity, job_id="first-job") == 1
+    assert sink.resolve_action_generation(**identity, job_id="second-job") == 2
+    second = _persist_generation(sink, generation=2, job_id="second-job")
+    assert sink.resolve_action_generation(**identity, job_id="second-job") == 2
+    assert sink.resolve_action_generation(**identity, job_id="first-job") == 1
+    heads = store.list_acquisition_action_heads(**identity)
+    assert heads == (first, second)
+    assert cas.get_bytes(first.receipt_ref) == first_bytes
+    assert store.get_acquisition_action_head(**identity, action_generation=1) == first
+
+
+@pytest.mark.parametrize("terminal_outcome", [None, "reentry_completed"])
+def test_new_action_generation_refuses_pending_or_positive_owner(
+    generation_owner, terminal_outcome
+):
+    sink, _store, _cas = generation_owner
+    _persist_generation(sink, generation=1, job_id="first-job", terminal_outcome=terminal_outcome)
+    with pytest.raises(ValueError, match="acquisition_action_generation_not_reopenable"):
+        sink.resolve_action_generation(**_generation_identity(), job_id="second-job")
+
+
+def test_action_generation_refuses_row_marker_without_terminal_custody(generation_owner):
+    sink, store, _cas = generation_owner
+    head = _persist_generation(sink, generation=1, job_id="first-job")
+    store._execute(
+        "UPDATE runtime_acquisition_action_heads SET coarse_phase = 'terminal', "
+        "receipt_phase = 'terminal', recovery_state = 'complete' WHERE receipt_ref = ?",
+        (head.receipt_ref,),
+    )
+    with pytest.raises(ValueError, match="acquisition_action_head_binding_mismatch"):
+        sink.resolve_action_generation(**_generation_identity(), job_id="second-job")
+
+
+def test_action_generation_requires_current_receipt_readback(generation_owner, monkeypatch):
+    sink, store, cas = generation_owner
+    head = _persist_generation(
+        sink, generation=1, job_id="first-job", terminal_outcome="quarantined_no_growth"
+    )
+    before = store.list_acquisition_action_heads(**_generation_identity())
+    original = cas.get_bytes
+
+    def unreadable(ref):
+        if ref == head.receipt_ref:
+            raise OSError("selected terminal receipt unreadable")
+        return original(ref)
+
+    monkeypatch.setattr(cas, "get_bytes", unreadable)
+    with pytest.raises(OSError, match="selected terminal receipt unreadable"):
+        sink.resolve_action_generation(**_generation_identity(), job_id="second-job")
+    assert store.list_acquisition_action_heads(**_generation_identity()) == before
+
+
+def test_action_generation_refuses_same_job_in_multiple_generations(generation_owner):
+    sink, _store, _cas = generation_owner
+    _persist_generation(
+        sink, generation=1, job_id="first-job", terminal_outcome="quarantined_no_growth"
+    )
+    _persist_generation(sink, generation=2, job_id="first-job")
+    with pytest.raises(ValueError, match="acquisition_action_job_generation_ambiguous"):
+        sink.resolve_action_generation(**_generation_identity(), job_id="first-job")

@@ -46,11 +46,19 @@ from polisyos.runtime.http.jwt_auth_middleware import (
     TokenValidationError,
 )
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.acquisition_authority_configuration import (
+    AcquisitionAuthorityConfig,
+    DeploymentAcquisitionAuthority,
+    build_acquisition_authority,
+)
 from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionTrustedProducer,
     HumanDecisionTrustPolicy,
 )
 from polisyos.runtime.http.step_up import JWTStepUpAssertionVerifier
+from polisyos.runtime.quality.acquisition_world_growth import (
+    AcquisitionWorldGrowthConfig,  # noqa: TC001 - Pydantic resolves deployment DTO annotations
+)
 from polisyos.runtime.quality.epoch_deployment import (
     EpochDeployment,
     EpochDeploymentConfig,
@@ -265,6 +273,8 @@ class DeploymentSecurityConfig(BaseModel):
     service_principals: tuple[ServicePrincipalGrant, ...] = ()
     human_decision_custody: HumanDecisionCustodyConfig | None = None
     epoch_deployment: EpochDeploymentConfig | None = None
+    acquisition_authority: AcquisitionAuthorityConfig | None = None
+    acquisition_world_growth: AcquisitionWorldGrowthConfig | None = None
 
     @model_validator(mode="after")
     def _validate_unique_principals(self) -> Self:
@@ -602,6 +612,7 @@ class RuntimeDeploymentSecurity:
     principal_grants: DeploymentPrincipalGrantResolver = field(repr=False)
     human_decision_custody: DeploymentHumanDecisionCustody = field(repr=False)
     epoch_deployment: EpochDeployment = field(repr=False)
+    acquisition_authority: DeploymentAcquisitionAuthority = field(repr=False)
 
     def __init__(
         self,
@@ -614,6 +625,7 @@ class RuntimeDeploymentSecurity:
         principal_grants: DeploymentPrincipalGrantResolver,
         human_decision_custody: DeploymentHumanDecisionCustody,
         epoch_deployment: EpochDeployment,
+        acquisition_authority: DeploymentAcquisitionAuthority,
     ) -> None:
         raise TypeError(
             "RuntimeDeploymentSecurity is factory-only; use build_deployment_security(config)"
@@ -638,6 +650,9 @@ class RuntimeDeploymentSecurity:
         if type(self.epoch_deployment) is not EpochDeployment:
             raise TypeError("epoch_deployment must come from deployment configuration")
         self.epoch_deployment.attestation_state()
+        if type(self.acquisition_authority) is not DeploymentAcquisitionAuthority:
+            raise TypeError("acquisition_authority must come from deployment configuration")
+        self.acquisition_authority.attestation_state()
 
 
 _CANONICAL_DEPLOYMENT_BEHAVIOR_ORIGINS: tuple[object, ...] = (
@@ -663,6 +678,7 @@ _CANONICAL_DEPLOYMENT_BEHAVIOR_ORIGINS: tuple[object, ...] = (
     EpochDeployment.verify_transition_signature,
     EpochDeployment.resolve_exact_signed_transition,
     EpochDeployment.attestation_state,
+    DeploymentAcquisitionAuthority.attestation_state,
 )
 
 
@@ -681,6 +697,7 @@ class _DeploymentSecurityAttestation:
         DeploymentPrincipalGrantResolver,
         DeploymentHumanDecisionCustody,
         EpochDeployment,
+        DeploymentAcquisitionAuthority,
     ]
 
 
@@ -704,6 +721,7 @@ def _deployment_components(
     DeploymentPrincipalGrantResolver,
     DeploymentHumanDecisionCustody,
     EpochDeployment,
+    DeploymentAcquisitionAuthority,
 ]:
     return (
         runtime.identity_provider,
@@ -713,6 +731,7 @@ def _deployment_components(
         runtime.principal_grants,
         runtime.human_decision_custody,
         runtime.epoch_deployment,
+        runtime.acquisition_authority,
     )
 
 
@@ -947,6 +966,7 @@ def _deployment_authority_state_fingerprint(
             runtime.human_decision_custody
         ),
         "epoch_deployment": runtime.epoch_deployment.attestation_state(),
+        "acquisition_authority": runtime.acquisition_authority.attestation_state(),
     }
     serialized = json.dumps(
         payload,
@@ -983,6 +1003,7 @@ def _deployment_behavior_origins(
         EpochDeployment.verify_transition_signature,
         EpochDeployment.resolve_exact_signed_transition,
         EpochDeployment.attestation_state,
+        DeploymentAcquisitionAuthority.attestation_state,
     )
 
 
@@ -1125,16 +1146,34 @@ def build_deployment_security(
         "human_decision_custody",
         _build_human_decision_custody(config.human_decision_custody),
     )
-    object.__setattr__(
-        runtime,
-        "epoch_deployment",
-        build_epoch_deployment(
+    from polisyos.runtime.quality.semantic_epoch_qualification import (
+        build_semantic_epoch_native_deployment,
+    )
+
+    epoch_owner = (
+        build_semantic_epoch_native_deployment(config.epoch_deployment)
+        if all(
+            value is None
+            for value in (
+                native_epoch_policy_verifier,
+                epoch_certificate_issuance_input_resolver,
+                epoch_perturbation_adjudication_provider,
+                epoch_owner_disposition_evidence_reader,
+            )
+        )
+        else build_epoch_deployment(
             config.epoch_deployment,
             native_policy_verifier=native_epoch_policy_verifier,
             epoch_certificate_issuance_input_resolver=epoch_certificate_issuance_input_resolver,
             epoch_perturbation_adjudication_provider=epoch_perturbation_adjudication_provider,
             epoch_owner_disposition_evidence_reader=epoch_owner_disposition_evidence_reader,
-        ),
+        )
+    )
+    object.__setattr__(runtime, "epoch_deployment", epoch_owner)
+    object.__setattr__(
+        runtime,
+        "acquisition_authority",
+        build_acquisition_authority(config.acquisition_authority),
     )
     runtime.__post_init__()
     attestation = _DeploymentSecurityAttestation(
@@ -1157,6 +1196,7 @@ def build_deployment_security(
             "principal_grants": runtime.principal_grants,
             "human_decision_custody": runtime.human_decision_custody,
             "epoch_deployment": runtime.epoch_deployment,
+            "acquisition_authority": runtime.acquisition_authority,
         },
     )
     return require_factory_produced_deployment_security(runtime)

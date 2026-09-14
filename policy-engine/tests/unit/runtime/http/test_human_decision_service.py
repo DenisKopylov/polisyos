@@ -157,6 +157,64 @@ def _bound_read_permission(
     )
 
 
+def _bound_mutation_permission(permission: Any, command: Any) -> Any:
+    """Give legacy signed-owner fixtures the real binder's full mutation context."""
+    import hashlib
+
+    from starlette.requests import Request
+
+    from polisyos.core import canon
+    from polisyos.runtime.http.resource_binding import (
+        _HUMAN_DECISION_CREATE_CONTEXT_KIND,
+        _RESOLVED_CONTEXT_CANON,
+        _build_bound_resource,
+        _human_decision_create_selectors,
+    )
+
+    gate = command.gate_input
+    body = gate.model_dump(mode="json", exclude={"tenant_id", "run_id", "exposure_session_ref"})
+    fields = command.model_dump(mode="json", exclude={"gate_input", "decision_action"})
+    body.update(fields, action=command.decision_action)
+    exposure_ref = gate.exposure_session_ref
+    raw_body = json.dumps(body, ensure_ascii=False, separators=(",", ":")).encode()
+    request = Request({"type": "http", "method": "POST", "path": "/", "query_string": b""})
+    bound = _build_bound_resource(
+        request=request,
+        requirement=permission.verification.requirement,
+        tenant_id=gate.tenant_id,
+        authority=permission.bound_resource.authority,
+        body_sha256="sha256:" + hashlib.sha256(raw_body).hexdigest(),
+        selectors=_human_decision_create_selectors(
+            body=body,
+            exposure_session_ref=exposure_ref,
+            selectors=(("run_id", json.dumps(gate.run_id)),),
+        ),
+        resolved_context_kind=_HUMAN_DECISION_CREATE_CONTEXT_KIND,
+        resolved_context=canon.to_canonical_bytes(
+            {
+                "context_version": _HUMAN_DECISION_CREATE_CONTEXT_KIND,
+                "body": body,
+                "exposure_session_ref": exposure_ref,
+            },
+            _RESOLVED_CONTEXT_CANON,
+        ),
+    )
+    return type(permission)(
+        verification=permission.verification, bound_resource=bound, _seal=permission._seal
+    )
+
+
+def _create_record_with_bound_mutation(service: Any, command: Any, **kwargs: Any) -> Any:
+    """Preserve each existing assertion while provisioning complete mutation input."""
+    return service.create_record(
+        command,
+        **{
+            **kwargs,
+            "bound_permission": _bound_mutation_permission(kwargs["bound_permission"], command),
+        },
+    )
+
+
 def _human_decision_record_ids(store: Any) -> set[str]:
     return {
         str(artifact_id)
@@ -958,7 +1016,8 @@ def test_production_approval_requires_matching_live_human_decision_record(
 
     gate = fixture.resolve()
     assert gate.status == "available"
-    created = fixture.base.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.base.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.gate_input,
             decision_action="approve",
@@ -1022,7 +1081,8 @@ def test_production_approval_blocks_unverified_scorecard_producer(tmp_path: Path
             "exposure_session_ref": bundle["exposure_session_ref"],
         }
     )
-    created = fixture.base.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.base.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=gate_input,
             decision_action="approve",
@@ -1168,7 +1228,8 @@ def test_production_record_reservation_admits_one_live_winner(tmp_path: Path) ->
         dissent_statement="No dissent after reviewing all required evidence.",
     )
 
-    first = fixture.base.service.create_record(
+    first = _create_record_with_bound_mutation(
+        fixture.base.service,
         command,
         bound_permission=fixture.base.bound_permission,
         write_context=fixture.base.write_context,
@@ -1176,7 +1237,8 @@ def test_production_record_reservation_admits_one_live_winner(tmp_path: Path) ->
     with pytest.raises(
         _service_module().HumanDecisionOperationalResolutionError,
     ) as exc_info:
-        fixture.base.service.create_record(
+        _create_record_with_bound_mutation(
+            fixture.base.service,
             command,
             bound_permission=fixture.base.bound_permission,
             write_context=fixture.base.write_context,
@@ -1189,7 +1251,8 @@ def test_production_record_reservation_admits_one_live_winner(tmp_path: Path) ->
 def test_signed_packet_stale_replayed_or_wrong_consumer_is_rejected(tmp_path: Path) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.base.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.base.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.gate_input,
             decision_action="approve",
@@ -1267,7 +1330,8 @@ def test_production_packet_without_custody_signature_is_typed_refusal(
 ) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.base.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.base.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.gate_input,
             decision_action="approve",
@@ -1325,7 +1389,8 @@ def test_production_resolver_rejects_unsigned_basis_with_zero_packet(
 ) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.base.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.base.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.gate_input,
             decision_action="approve",
@@ -1367,7 +1432,8 @@ def test_production_resolver_rejects_unsigned_record_with_zero_packet(
 ) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.base.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.base.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.gate_input,
             decision_action="approve",
@@ -2399,7 +2465,8 @@ def test_human_decision_persists_custody_signature_not_actor_signature(
 
     fixture = _signed_current_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.adapter_input,
             decision_action="approve",
@@ -2511,7 +2578,8 @@ def test_human_decision_record_model_rejects_actor_custody_key_alias(
 
     fixture = _signed_current_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.adapter_input,
             decision_action="approve",
@@ -2538,7 +2606,8 @@ def test_human_decision_record_model_rejects_duplicate_exposure_receipts(
 ) -> None:
     fixture = _signed_current_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.adapter_input,
             decision_action="approve",
@@ -2566,7 +2635,8 @@ def test_human_decision_v2_five_rights_are_derived_from_typed_receipts(
 ) -> None:
     fixture = _signed_current_gate_fixture(tmp_path)
     contracts = _contracts()
-    created = fixture.service.create_record(
+    created = _create_record_with_bound_mutation(
+        fixture.service,
         contracts.HumanDecisionCreateCommand(
             gate_input=fixture.adapter_input,
             decision_action="approve",
@@ -2609,7 +2679,8 @@ def test_human_decision_reissued_source_uses_one_stable_action_reservation(
         override_reason=None,
         blocking_reason=None,
     )
-    first = fixture.service.create_record(
+    first = _create_record_with_bound_mutation(
+        fixture.service,
         command,
         bound_permission=fixture.bound_permission,
         write_context=fixture.write_context,
@@ -2648,7 +2719,8 @@ def test_human_decision_reissued_source_uses_one_stable_action_reservation(
         services.HumanDecisionOperationalResolutionError,
         match="DS9-OVERLAPPING-REISSUE",
     ):
-        fixture.service.create_record(
+        _create_record_with_bound_mutation(
+            fixture.service,
             command.model_copy(update={"gate_input": reissued_input}),
             bound_permission=fixture.bound_permission,
             write_context=fixture.write_context,
@@ -2686,7 +2758,8 @@ def test_human_decision_signed_orphan_is_preserved_as_historical(
 
     monkeypatch.setattr(HumanDecisionWriteFence, "commit", _fail_commit)
     with pytest.raises(services.HumanDecisionPersistenceError):
-        fixture.service.create_record(
+        _create_record_with_bound_mutation(
+            fixture.service,
             contracts.HumanDecisionCreateCommand(
                 gate_input=fixture.adapter_input,
                 decision_action="approve",
@@ -2743,7 +2816,8 @@ def test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2(
     with monkeypatch.context() as crash:
         crash.setattr(HumanDecisionWriteFence, "commit", _die_after_signature)
         with pytest.raises(_SimulatedProcessDeath):
-            fixture.service.create_record(
+            _create_record_with_bound_mutation(
+                fixture.service,
                 command,
                 bound_permission=fixture.bound_permission,
                 write_context=fixture.write_context,
@@ -2781,7 +2855,8 @@ def test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2(
         services.HumanDecisionOperationalResolutionError,
         match="DS9-RESERVATION-RECOVERY-REQUIRED",
     ):
-        fixture.service.create_record(
+        _create_record_with_bound_mutation(
+            fixture.service,
             command,
             bound_permission=fixture.bound_permission,
             write_context=fixture.write_context,
@@ -2817,7 +2892,8 @@ def test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2(
 
     replacement_time = recovery_time + timedelta(seconds=1)
     monkeypatch.setattr(fixture.service, "_clock", lambda: replacement_time)
-    replacement = fixture.service.create_record(
+    replacement = _create_record_with_bound_mutation(
+        fixture.service,
         command,
         bound_permission=fixture.bound_permission,
         write_context=fixture.write_context,

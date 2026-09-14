@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-09-12
+- Last updated: 2026-09-13
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 authority/status composition, evidence and claim binding, replay, closeout
@@ -58,6 +58,34 @@ Boundary notes:
   `world_committed_reentry_pending` head. Missing production owners remain typed
   non-closures, and the behavioral fixture can never establish active
   qualification or production world growth.
+- `acquisition_world_growth.py` is the internal bridge from the canonical WDI
+  execution port to native semantic-epoch admission and same-case N6 re-entry.
+  It persists the actual live evidence and prior membership before admission,
+  binds admitted observation delta to native owner readback, and persists the
+  growth receipt before returning a positive result. A known persisted quarantine
+  may be resumed by a separately authorized action after exact policy appointment,
+  using the original evidence without another fetch. Admission and re-entry fences
+  retain unknown outcomes; an unacknowledged effect is not permission to retry it.
+- `semantic_epoch_qualification.py` is the internal native epoch policy owner.
+  Its factory composes the existing `EpochDeployment` with independently checked
+  signed policy selection, exact member/manifest binding, ancestry denominator,
+  and query binding. The shared chronology path persists and reopens the native
+  projection before returning qualified evidence. Empty policy or owner slots
+  still refuse; configuring a reference alone establishes no native predicate.
+- `acquisition_movement.py` is the internal supplier-receipt intake and native
+  per-row GY movement family. `AcquisitionActionService` feeds durable terminal
+  receipts to it; the existing Depth-N Cycle Board consumes its persisted,
+  requalified projection. Supplier completion and signed GY admission are separate
+  acts. Movement records a completed later N6 terminal under the new observations
+  at the supplier's time; it guarantees neither a better grade nor current overlay
+  availability. Missing supplier or projection custody retracts the projection.
+  This intake does not close a debt-register row or enumerate all possible rows.
+- These three modules are imported by their canonical internal module paths; they
+  add no supported package-facade entrypoint. The canonical WDI cost-schedule row,
+  institutional mandate/signing appointments, and exact epoch/GY policy admissions
+  remain independently supplied inputs. The existing canonical cost producer and
+  recomputing consumer refuse the default missing WDI row. Hypothetical fixture
+  pricing is mechanism evidence, not an admitted production cost basis.
 - `layer3_grounding_inventory.py` is the internal G0 pre-adapter inventory and
   firewall producer. It reads repository architecture/data artifacts, registers
   source touchpoints in shadow form, and enforces quarantine/status/import
@@ -109,8 +137,11 @@ Boundary notes:
 - `acquisition_epoch_admission.py` is an internal operational module CLI. It resolves
   the configured canonical acquisition provision, invokes the existing complete
   semantic-epoch producer from persisted evidence refs, and reads its exact durable
-  negative receipt before JSON output. `policy_admission_missing` remains a refusal;
-  this caller grants no positive epoch authority.
+  refusal or native activation back before JSON output. A configured native owner
+  must establish the positive admission; `policy_admission_missing` remains a
+  refusal. Historical production receipts preserve their original bytes when the
+  optional chronology-projection ref was absent; that compatibility does not supply
+  the projection custody required for current positive qualification.
 - `epoch_custody_audit.py` is an internal module CLI that invokes the existing
   no-argument custody provider, persists the candidate request and exact typed
   result, and reads both back before emitting an audit reference. The no-holder

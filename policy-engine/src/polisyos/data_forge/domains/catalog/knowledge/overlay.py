@@ -1011,6 +1011,72 @@ class CatalogAcquisitionOverlay:
         self._initialized = True
         return self._baseline_identity
 
+    def read_admitted_prepared_epoch_ref(
+        self,
+        *,
+        epoch_id: int,
+        boundary_candidate_ref: ArtifactRef,
+        artifact_store: _ArtifactStore,
+    ) -> ArtifactRef | None:
+        """Select the original prepared basis for an exact owner-held admission.
+
+        This is a custody read, not a new admission. The caller must resolve the
+        prepared artifact and rerun source admission and epoch finalization.
+        """
+
+        if not self._initialized:
+            raise OverlayAdmissionError("overlay_not_initialized")
+        self._require_baseline_unchanged()
+        existing = _existing_epoch(self.overlay_path, epoch_id)
+        if existing is None:
+            return None
+        if existing[2] is None:
+            raise OverlayAdmissionError("pending_overlay_receipt_not_established")
+        pending_ref = ArtifactRef.model_validate(json.loads(str(existing[2])))
+        mapping = _load_external_statement(
+            artifact_store=artifact_store,
+            ref=pending_ref,
+            expected_kind="epoch.pending_overlay_admission_receipt",
+        )
+        pending = epoch_contract.PendingOverlayAdmissionStatement.model_validate(mapping)
+        con = duckdb.connect(str(self.overlay_path), read_only=True)
+        try:
+            owner_mapping, owner_hash = _load_external_statement_record(
+                con,
+                ref=pending_ref,
+                expected_kind="epoch.pending_overlay_admission_receipt",
+            )
+            row = con.execute(
+                "SELECT passport_id, prepared_semantic_epoch_ref FROM acquisition_epochs "
+                "WHERE epoch_id = ?",
+                [epoch_id],
+            ).fetchone()
+        finally:
+            con.close()
+        if (
+            row is None
+            or pending.epoch_id != epoch_id
+            or pending.admission_content_sha256 != existing[0]
+            or pending.passport_id != str(row[0])
+            or pending.prepared_semantic_epoch_ref.model_dump(mode="json")
+            != json.loads(str(row[1]))
+            or owner_mapping != mapping
+            or owner_hash != _overlay_statement_content_hash(mapping)
+        ):
+            raise OverlayAdmissionError("pending_overlay_owner_copy_drift")
+        if pending.boundary_candidate_ref != boundary_candidate_ref:
+            raise OverlayAdmissionError("epoch_content_conflict", str(epoch_id))
+        member_keys, member_hash = _existing_member_denominator(
+            self.overlay_path, epoch_id=epoch_id, passport_id=pending.passport_id
+        )
+        if (
+            member_keys != pending.native_member_keys
+            or member_hash != pending.native_member_denominator_hash
+        ):
+            raise OverlayAdmissionError("pending_epoch_receipt_binding_mismatch")
+        self._require_baseline_unchanged()
+        return pending.prepared_semantic_epoch_ref
+
     def admit_epoch(
         self,
         *,
@@ -1329,10 +1395,18 @@ class CatalogAcquisitionOverlay:
                 "history_append_receipt_ref",
                 "chronology_bundle_ref",
                 "chronology_verification_ref",
+                "chronology_projection_ref",
                 "requested_query_context_ref",
                 "failure_codes",
             )
         }
+        if (
+            "chronology_projection_ref" not in persisted
+            and expected["chronology_projection_ref"] is None
+        ):
+            # The original receipt grammar omitted this subsequently added field.
+            # Preserve its exact bytes; absence supplies no native custody proof.
+            expected.pop("chronology_projection_ref")
         if persisted != expected:
             raise OverlayAdmissionError("semantic_epoch_production_receipt_drift")
         if production_receipt.receipt_content_hash != _semantic_content_hash(
@@ -1498,6 +1572,102 @@ class CatalogAcquisitionOverlay:
             receipt_ref=activated_ref,
             receipt_content_hash=activated_hash,
             replayed=replayed,
+        )
+
+    def read_activated_semantic_epoch_admission(
+        self,
+        *,
+        receipt_ref: ArtifactRef,
+        artifact_store: _ArtifactStore,
+    ) -> OverlayAdmissionReceipt:
+        """Resolve active admission against CAS, owner records and physical rows."""
+        value = _load_external_statement(
+            artifact_store=artifact_store,
+            ref=receipt_ref,
+            expected_kind="epoch.activated_overlay_admission_receipt",
+        )
+        statement = epoch_contract.ActivatedOverlayAdmissionStatement.model_validate(value)
+        pending_value = _load_external_statement(
+            artifact_store=artifact_store,
+            ref=statement.pending_overlay_receipt_ref,
+            expected_kind="epoch.pending_overlay_admission_receipt",
+        )
+        pending = epoch_contract.PendingOverlayAdmissionStatement.model_validate(pending_value)
+        if (
+            pending.epoch_id != statement.epoch_id
+            or pending.passport_id != statement.passport_id
+            or pending.admitted_observation_count != statement.admitted_observation_count
+            or pending.semantic_epoch_stamp != statement.semantic_epoch_stamp
+            or pending.prepared_semantic_epoch_ref != statement.prepared_semantic_epoch_ref
+        ):
+            raise OverlayAdmissionError("active_epoch_pending_binding_mismatch")
+        # Resolve owner metadata through the canonical read-only contract.
+        con = open_catalog_read_session(self.baseline_path, overlay_path=self.overlay_path)
+        try:
+            rows = con.execute(
+                "SELECT epoch_activation_state, admitted_observation_count, "
+                "pending_overlay_receipt_ref, semantic_epoch_production_receipt_ref, "
+                "activated_overlay_receipt_ref, admitted_boundary_evidence_ref "
+                "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+                [statement.epoch_id, statement.passport_id],
+            ).fetchall()
+            if len(rows) != 1 or str(rows[0][0]) != "active":
+                raise OverlayAdmissionError("epoch_activation_state_not_active")
+            row = rows[0]
+            expected_refs = (
+                statement.pending_overlay_receipt_ref,
+                statement.semantic_epoch_production_receipt_ref,
+                receipt_ref,
+                statement.admitted_boundary_evidence_ref,
+            )
+            if int(row[1]) != statement.admitted_observation_count or any(
+                raw is None or json.loads(str(raw)) != ref.model_dump(mode="json")
+                for raw, ref in zip(row[2:], expected_refs, strict=True)
+            ):
+                raise OverlayAdmissionError("active_epoch_receipt_binding_mismatch")
+            for ref, expected in (
+                (receipt_ref, value),
+                (statement.pending_overlay_receipt_ref, pending_value),
+            ):
+                actual, digest = _load_external_statement_record(
+                    con, ref=ref, expected_kind=ref.kind
+                )
+                if actual != expected or digest != _overlay_statement_content_hash(expected):
+                    raise OverlayAdmissionError("active_epoch_owner_copy_drift")
+        finally:
+            con.close()
+        native = duckdb.connect(str(self.overlay_path), read_only=True)
+        try:
+            _attach_read_only(native, self.baseline_path, alias="baseline")
+            member_rows = native.execute(
+                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [statement.epoch_id, statement.passport_id],
+            ).fetchall()
+            _reconcile_physical_epoch_members(
+                native, member_rows=member_rows, key_spec=_derive_baseline_primary_key_spec(native)
+            )
+            if sum(str(row[0]) == "ds_observations" for row in member_rows) != (
+                statement.admitted_observation_count
+            ):
+                raise OverlayAdmissionError("active_epoch_observation_count_mismatch")
+        finally:
+            native.close()
+        member_keys, member_hash = _existing_member_denominator(
+            self.overlay_path, epoch_id=statement.epoch_id, passport_id=statement.passport_id
+        )
+        if (
+            member_keys != pending.native_member_keys
+            or member_hash != pending.native_member_denominator_hash
+            or self._require_baseline_unchanged().content_sha256 != statement.baseline_after_sha256
+        ):
+            raise OverlayAdmissionError("active_epoch_member_denominator_mismatch")
+        return OverlayAdmissionReceipt(
+            **statement.model_dump(mode="python"),
+            receipt_ref=receipt_ref,
+            receipt_content_hash=_overlay_statement_content_hash(statement),
+            replayed=True,
         )
 
     def resolve_native_membership(

@@ -1801,6 +1801,45 @@ def _require_proof_header_matches_reconciliation(
         raise ValueError("proof header differs from reconciliation")
 
 
+class NativeChronologyProjectionStatement(_ChronologyModel):
+    """Custody projection of a completed native result, without new authority."""
+
+    schema_version: Literal["polisyos.chronology.native-projection.v1"]
+    reconciliation: NativeChronologyReconciliation
+    proof_result: FullPrefixVerified
+
+    @model_validator(mode="after")
+    def _bind_native_terminal(self) -> NativeChronologyProjectionStatement:
+        _require_proof_header_matches_reconciliation(
+            header=self.proof_result.parsed_header,
+            reconciliation=self.reconciliation,
+        )
+        candidate = self.reconciliation.owner_context.owner_qualified_candidate.candidate
+        if candidate.exterior_limitation_code is not None:
+            raise ValueError("limited native result cannot become a positive projection")
+        return self
+
+
+class PersistedNativeChronologyProjection(_ChronologyModel):
+    """Exact CAS identity of a reloaded native terminal projection."""
+
+    artifact_ref: ArtifactRef
+    raw_cas_hash: Digest
+    statement: NativeChronologyProjectionStatement
+
+    @model_validator(mode="after")
+    def _bind_projection_bytes(self) -> PersistedNativeChronologyProjection:
+        raw = _frame_record(_canonical_raw_bytes(_raw_model_mapping(self.statement)))
+        if (
+            self.artifact_ref.kind != "core.chronology.native_projection"
+            or self.artifact_ref.media_type != "application/octet-stream"
+            or self.raw_cas_hash != _sha256_digest(raw)
+            or self.raw_cas_hash != str(self.artifact_ref.artifact_id)
+        ):
+            raise ValueError("native projection identity differs from statement")
+        return self
+
+
 class NativeChronologyQualified(_ChronologyModel):
     """Qualified native candidate with verified and reloaded persisted proof."""
 
@@ -1808,6 +1847,7 @@ class NativeChronologyQualified(_ChronologyModel):
     reconciliation: NativeChronologyReconciliation
     proof_result: FullPrefixVerified
     persisted_proof: PersistedChronologyProof
+    projection_receipt: PersistedNativeChronologyProjection
 
     @model_validator(mode="after")
     def _bind_verified_and_persisted_proof(self) -> NativeChronologyQualified:
@@ -1822,6 +1862,11 @@ class NativeChronologyQualified(_ChronologyModel):
             or persisted.protocol_bundle_content_hash != self.proof_result.bundle_content_hash
         ):
             raise ValueError("persisted proof differs from verified proof")
+        if (
+            self.projection_receipt.statement.reconciliation != self.reconciliation
+            or self.projection_receipt.statement.proof_result != self.proof_result
+        ):
+            raise ValueError("native projection differs from qualified result")
         return self
 
 
@@ -3212,6 +3257,7 @@ __all__ = [
     "NativeChronologyOwnerContext",
     "NativeChronologyPersistenceFailed",
     "NativeChronologyPolicyResolutionFailed",
+    "NativeChronologyProjectionStatement",
     "NativeChronologyQualificationResult",
     "NativeChronologyQualified",
     "NativeChronologyQuery",
@@ -3229,6 +3275,7 @@ __all__ = [
     "PersistedAnchorReadbackChallenge",
     "PersistedApplicablePredicateDenominator",
     "PersistedChronologyProof",
+    "PersistedNativeChronologyProjection",
     "PersistedPredicateAdmissionPolicy",
     "PersistedPredicatePolicyAdmission",
     "PersistedSignedArtifactEvidence",

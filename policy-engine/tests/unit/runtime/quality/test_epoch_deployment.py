@@ -412,7 +412,7 @@ def test_configured_policy_exchange_reaches_native_verifier_limitation(tmp_path:
     result = QualificationConsumer.from_deployment(owner).qualify(
         adapter=EpochEvidenceExchange(owner), request=case.query
     )
-    assert not isinstance(result, contracts.NativeProjectionCustodyGap)
+    assert not isinstance(result, contracts.NativeChronologyQualified)
     assert result.failure.code == "policy_owner_relation_not_established"
     from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
 
@@ -450,14 +450,14 @@ def test_privileged_native_verifier_is_operational_and_deployment_local(tmp_path
             adapter=EpochEvidenceExchange(owner), request=case.query
         )
         if admitted:
-            assert isinstance(result, contracts.NativeProjectionCustodyGap)
+            assert isinstance(result, contracts.NativeChronologyQualified)
         else:
             assert result.failure.code == "policy_owner_relation_not_established"
     service = SemanticEpochService.for_deployment_policy_query(
         artifact_store=case.store, deployment=first
     )
     assert isinstance(
-        service.qualify_chronology_query(query=case.query), contracts.NativeProjectionCustodyGap
+        service.qualify_chronology_query(query=case.query), contracts.NativeChronologyQualified
     )
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(type(case.owner_verifier), "verify_owner_relation", lambda **kwargs: None)

@@ -446,3 +446,27 @@ Both models satisfy the typed extraction contract; MiniMax needed the existing o
 and a separately declared retry to do so, and that retry is recorded rather than folded into the
 comparison. Agreement between the two models is **not** treated as correctness anywhere.
 
+**Correction and routing, 2026-09-14 — the pipeline is on `main`, and nothing about the data moved.**
+The acquisition-state entry above describes the re-extraction pipeline as *not yet on `main`*. That
+is no longer true: the CORR capability branch (`350823a3f`) was merged in `1feac0bbb`, and
+`src/polisyos/data_forge/domains/academic/batch/reextraction_cli.py` and `reextraction_campaign.py`
+are tracked on `main`. The promotion-conjunction lane then read the chain at `28b8a1a42` and found
+it callable rather than waiting on an appointment: `main` → `run_plan` →
+`reextraction_campaign.run_campaign`, with an owner-bound source frame, SDK transport, durable
+checkpoint and recovery; and a separate `main` → `finalize_plan` →
+`pipeline.finalize_extraction_campaign_graph` path that consumes completed candidate records through
+`graph_builder.load_graph` and `edge_synthesize.run_edge_synthesize` and independently reads the
+persisted graph packet back. Its runnable terminus is
+`python -m polisyos.data_forge.domains.academic.batch.reextraction_cli` with `prepare`, `run`,
+`recover` or `finalize`. That lane routed its HC-F11 to HC-F14 re-extraction boundary here, and the
+architect accepts the routing: an adjudicator cannot change a historical current-rule mismatch, and
+`knowledge/skg_versioning.py::require_forwardable_confidence` still refuses the content-bound
+historical vintage.
+
+**What this entry does not change.** No production dataset and no provider operating envelope were
+read or executed by that lane (`unresolved_by_construction.current_production_data`), so nothing
+above is re-measured: status stays **`absent`** (`artifact_missing`), throughput stays the deciding
+constraint, and a new dated operating declaration is still what must precede any full pass. The
+normalizer defect remains a separate prerequisite. The execution owner remains unallocated. This is
+a correction of standing and a routing, not a data measurement, and rule 1 forbids reading it as one.
+

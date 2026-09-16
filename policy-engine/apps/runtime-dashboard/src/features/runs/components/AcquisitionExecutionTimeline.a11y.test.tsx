@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
-import type { AcquisitionRouteProjection } from "@polisyos/runtime-api-client";
 
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { AcquisitionExecutionTimeline } from "./AcquisitionExecutionTimeline";

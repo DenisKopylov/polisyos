@@ -30,6 +30,9 @@ export type AcquisitionGrowthPayload =
 export type AcquisitionGrowthSummary =
   RuntimeApiComponents["schemas"]["AcquisitionGrowthSummary"];
 
+export type AcquisitionMovementArtifact =
+  RuntimeApiComponents["schemas"]["AcquisitionMovementArtifact"];
+
 export type AcquisitionRouteListResponse =
   RuntimeApiComponents["schemas"]["AcquisitionRouteListResponse"];
 
@@ -866,6 +869,9 @@ export type HistoricalDS4Disposition =
 export type HistoricalProducerAvailability =
   RuntimeApiComponents["schemas"]["HistoricalProducerAvailability"];
 
+export type HistoricalProducerAvailabilityReadReceipt =
+  RuntimeApiComponents["schemas"]["HistoricalProducerAvailabilityReadReceipt"];
+
 export type HumanDecisionAllowedDecision =
   RuntimeApiComponents["schemas"]["HumanDecisionAllowedDecision"];
 
@@ -1064,6 +1070,11 @@ export type MonitoringVerdict =
 
 export type MonitoringWindow =
   RuntimeApiComponents["schemas"]["MonitoringWindow"];
+
+export type MovementRecord = RuntimeApiComponents["schemas"]["MovementRecord"];
+
+export type MovementRowProjection =
+  RuntimeApiComponents["schemas"]["MovementRowProjection"];
 
 export type N13AAcquisitionCensusPayload =
   RuntimeApiComponents["schemas"]["N13AAcquisitionCensusPayload"];

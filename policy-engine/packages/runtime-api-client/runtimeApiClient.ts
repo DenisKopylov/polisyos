@@ -79,6 +79,37 @@ export type AcquisitionGrowthSummary = {
   structural_route_count: number;
 };
 
+export type AcquisitionMovementArtifact = {
+  action_generation: number;
+  admitted_observation_count: number;
+  cell_id: string;
+  compiled_ref: string;
+  deeper_terminal_event_id: string;
+  design_problem_ref: string;
+  epoch_id: number;
+  gap_id?: string;
+  generation_cycle_run_id: string;
+  job_id: string;
+  new_cycle_index: number;
+  overlay_receipt_ref: string;
+  phase_receipt_refs: Array<string>;
+  reentry_receipt_ref: string;
+  route_id: string;
+  row_id: string;
+  run_id: string;
+  schema_version?: string;
+  semantic_epoch_production_receipt_ref: string;
+  semantic_epoch_ref: string;
+  source_cycle_index: number;
+  source_terminal_event_id: string;
+  supplier_generated_at: string;
+  supplier_receipt_ref: string;
+  supplier_terminal_event_id: string;
+  synthetic: boolean | null;
+  tenant_id: string;
+  terminal_kind: string;
+};
+
 export type AcquisitionRouteListResponse = {
   routes: Array<AcquisitionRouteProjection>;
   run_id: string;
@@ -93,7 +124,8 @@ export type AcquisitionRouteMutationRequest = {
 };
 
 export type AcquisitionRouteProjection = {
-  authority_badge?: string;
+  admitted_observation_delta?: number;
+  authority_badge?: "behavioral_fixture_not_production" | "native_owner_verified";
   authority_capability: "ready" | "producer_missing";
   cell_id: string;
   cost_basis: {
@@ -103,9 +135,9 @@ export type AcquisitionRouteProjection = {
   external_nonclosures?: Array<string>;
   planner_record_id: string;
   planner_report_hash: string;
-  qualification_predicate?: string;
-  qualification_reason?: string;
-  qualification_status?: string;
+  qualification_predicate?: "not_established" | "independently_reconciled";
+  qualification_reason?: "policy_admission_missing" | "native_owner_readback";
+  qualification_status?: "pending_epoch_activation" | "activated";
   recommended_strategy: string;
   replay_pins: AcquisitionRouteReplayPins;
   route_id: string;
@@ -114,7 +146,7 @@ export type AcquisitionRouteProjection = {
   run_id: string;
   schema_version?: string;
   tenant_id: string;
-  world_growth?: string;
+  world_growth?: "no_growth" | "admitted_delta";
 };
 
 export type AcquisitionRouteReplayPins = {
@@ -1803,7 +1835,7 @@ export type CycleBoardCompositionSource = {
   may_not_use_for: Array<string>;
   source_dependency_hash?: string | null;
   source_id: string;
-  source_kind: "governed_projection" | "control_plane_evidence" | "historical_owner_record" | "run_summary_lookup" | "run_paper_projection";
+  source_kind: "governed_projection" | "control_plane_evidence" | "historical_owner_record" | "run_summary_lookup" | "run_paper_projection" | "native_movement";
   source_ref?: string | null;
 };
 
@@ -1820,15 +1852,15 @@ export type CycleBoardCoverageGap = {
 };
 
 export type CycleBoardMovementGap = {
-  capability_state?: string;
+  capability_state?: "absent/unallocated" | "verification_missing" | "ready";
   chronology_route?: string;
-  deficits?: Array<"artifact_missing" | "bridge_missing">;
-  execution_status?: string;
+  deficits?: Array<"artifact_missing" | "bridge_missing" | "verification_missing">;
+  execution_status?: "not_established" | "partial" | "admitted";
+  exhaustive?: boolean;
   missing_link?: string;
-  movement_records?: Array<{
-  [key: string]: unknown;
-}>;
+  movement_records?: Array<MovementRecord>;
   producer_route?: string;
+  scope?: string;
 };
 
 export type CycleBoardProjectionPacket = {
@@ -1859,9 +1891,8 @@ export type CycleBoardRow = {
   generation_cycle_run_id: AvailableFact_str_ | AbsentFact;
   lifecycle_terminality: AvailableFact_RunTerminality_ | AbsentFact;
   missing_link: AvailableFact_str_ | AbsentFact;
-  movement_records?: Array<{
-  [key: string]: unknown;
-}>;
+  movement_records?: Array<MovementRecord>;
+  movement_status?: MovementRowProjection | null;
   responsible_slices: Array<string>;
   row_id: string;
   search_terminal_kind: AvailableFact_str_ | AbsentFact;
@@ -3225,8 +3256,22 @@ export type HistoricalProducerAvailability = {
 };
   environment_absence?: string;
   measurement_scope?: string;
+  read_receipt: HistoricalProducerAvailabilityReadReceipt;
   source_content_hash: string;
   source_ref: string;
+};
+
+export type HistoricalProducerAvailabilityReadReceipt = {
+  coverage: "complete_selected_input" | "partial";
+  read_error: string | null;
+  read_status: "read" | "failed";
+  selected_measurement_cell_count: number | null;
+  selector?: string;
+  source_content_hash: string | null;
+  source_ref: string;
+  status: "COMPLETE" | "UNRUN";
+  table_row_denominator: number | null;
+  unresolved_by_construction?: Array<"non_table_sections_uninterpreted" | "other_sources_unselected" | "current_availability_not_measured">;
 };
 
 export type HumanDecisionAllowedDecision = {
@@ -4080,6 +4125,26 @@ export type MonitoringWindow = {
   end_offset_days?: number;
   grace_days?: number;
   start_offset_days?: number;
+};
+
+export type MovementRecord = {
+  chronology_bundle_ref: string;
+  gy_admission_ref: string;
+  movement: AcquisitionMovementArtifact;
+  movement_artifact_ref: string;
+  predicate_class?: string;
+  qualification_ref: string;
+};
+
+export type MovementRowProjection = {
+  exhaustive?: boolean;
+  intake_receipt_refs?: Array<string>;
+  policy_status: "configured" | "policy_admission_missing";
+  reason: string | null;
+  records?: Array<MovementRecord>;
+  scope?: string;
+  source_content_hash: string;
+  status: "available" | "not_established" | "invalid_source";
 };
 
 export type N13AAcquisitionCensusPayload = {

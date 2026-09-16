@@ -349,6 +349,192 @@
         "title": "AcquisitionGrowthSummary",
         "type": "object"
       },
+      "AcquisitionMovementArtifact": {
+        "additionalProperties": false,
+        "description": "Supplier-derived facts, still a candidate until distinct GY admission.",
+        "properties": {
+          "action_generation": {
+            "minimum": 1.0,
+            "title": "Action Generation",
+            "type": "integer"
+          },
+          "admitted_observation_count": {
+            "exclusiveMinimum": 0.0,
+            "title": "Admitted Observation Count",
+            "type": "integer"
+          },
+          "cell_id": {
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "compiled_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Compiled Ref",
+            "type": "string"
+          },
+          "deeper_terminal_event_id": {
+            "minLength": 1,
+            "title": "Deeper Terminal Event Id",
+            "type": "string"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "epoch_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Epoch Id",
+            "type": "integer"
+          },
+          "gap_id": {
+            "const": "GY-GAP6",
+            "default": "GY-GAP6",
+            "title": "Gap Id",
+            "type": "string"
+          },
+          "generation_cycle_run_id": {
+            "minLength": 1,
+            "title": "Generation Cycle Run Id",
+            "type": "string"
+          },
+          "job_id": {
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "new_cycle_index": {
+            "minimum": 1.0,
+            "title": "New Cycle Index",
+            "type": "integer"
+          },
+          "overlay_receipt_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Overlay Receipt Ref",
+            "type": "string"
+          },
+          "phase_receipt_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Phase Receipt Refs",
+            "type": "array"
+          },
+          "reentry_receipt_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Reentry Receipt Ref",
+            "type": "string"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "row_id": {
+            "minLength": 1,
+            "title": "Row Id",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.acquisition_movement.v1",
+            "default": "policyos.runtime.acquisition_movement.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "semantic_epoch_production_receipt_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Semantic Epoch Production Receipt Ref",
+            "type": "string"
+          },
+          "semantic_epoch_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Semantic Epoch Ref",
+            "type": "string"
+          },
+          "source_cycle_index": {
+            "minimum": 0.0,
+            "title": "Source Cycle Index",
+            "type": "integer"
+          },
+          "source_terminal_event_id": {
+            "minLength": 1,
+            "title": "Source Terminal Event Id",
+            "type": "string"
+          },
+          "supplier_generated_at": {
+            "format": "date-time",
+            "title": "Supplier Generated At",
+            "type": "string"
+          },
+          "supplier_receipt_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Supplier Receipt Ref",
+            "type": "string"
+          },
+          "supplier_terminal_event_id": {
+            "minLength": 1,
+            "title": "Supplier Terminal Event Id",
+            "type": "string"
+          },
+          "synthetic": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Synthetic"
+          },
+          "tenant_id": {
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "terminal_kind": {
+            "minLength": 1,
+            "title": "Terminal Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "row_id",
+          "tenant_id",
+          "cell_id",
+          "run_id",
+          "generation_cycle_run_id",
+          "job_id",
+          "design_problem_ref",
+          "supplier_receipt_ref",
+          "supplier_terminal_event_id",
+          "source_terminal_event_id",
+          "phase_receipt_refs",
+          "compiled_ref",
+          "route_id",
+          "action_generation",
+          "reentry_receipt_ref",
+          "deeper_terminal_event_id",
+          "source_cycle_index",
+          "new_cycle_index",
+          "terminal_kind",
+          "overlay_receipt_ref",
+          "semantic_epoch_ref",
+          "semantic_epoch_production_receipt_ref",
+          "epoch_id",
+          "admitted_observation_count",
+          "supplier_generated_at",
+          "synthetic"
+        ],
+        "title": "AcquisitionMovementArtifact",
+        "type": "object"
+      },
       "AcquisitionRouteListResponse": {
         "additionalProperties": false,
         "description": "Run-bound list response; the current closure admits at most one route.",
@@ -421,9 +607,18 @@
         "additionalProperties": false,
         "description": "Read-only current route with independent execution and authority postures.",
         "properties": {
+          "admitted_observation_delta": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Admitted Observation Delta",
+            "type": "integer"
+          },
           "authority_badge": {
-            "const": "behavioral_fixture_not_production",
             "default": "behavioral_fixture_not_production",
+            "enum": [
+              "behavioral_fixture_not_production",
+              "native_owner_verified"
+            ],
             "title": "Authority Badge",
             "type": "string"
           },
@@ -475,20 +670,29 @@
             "type": "string"
           },
           "qualification_predicate": {
-            "const": "not_established",
             "default": "not_established",
+            "enum": [
+              "not_established",
+              "independently_reconciled"
+            ],
             "title": "Qualification Predicate",
             "type": "string"
           },
           "qualification_reason": {
-            "const": "policy_admission_missing",
             "default": "policy_admission_missing",
+            "enum": [
+              "policy_admission_missing",
+              "native_owner_readback"
+            ],
             "title": "Qualification Reason",
             "type": "string"
           },
           "qualification_status": {
-            "const": "pending_epoch_activation",
             "default": "pending_epoch_activation",
+            "enum": [
+              "pending_epoch_activation",
+              "activated"
+            ],
             "title": "Qualification Status",
             "type": "string"
           },
@@ -530,8 +734,11 @@
             "type": "string"
           },
           "world_growth": {
-            "const": "no_growth",
             "default": "no_growth",
+            "enum": [
+              "no_growth",
+              "admitted_delta"
+            ],
             "title": "World Growth",
             "type": "string"
           }
@@ -10312,7 +10519,8 @@
               "control_plane_evidence",
               "historical_owner_record",
               "run_summary_lookup",
-              "run_paper_projection"
+              "run_paper_projection",
+              "native_movement"
             ],
             "title": "Source Kind",
             "type": "string"
@@ -10414,11 +10622,15 @@
       },
       "CycleBoardMovementGap": {
         "additionalProperties": false,
-        "description": "Render the absent per-row N13b re-entry binding without simulated motion.",
+        "description": "Disclose admission coverage for the board's already enumerated rows.",
         "properties": {
           "capability_state": {
-            "const": "absent/unallocated",
             "default": "absent/unallocated",
+            "enum": [
+              "absent/unallocated",
+              "verification_missing",
+              "ready"
+            ],
             "title": "Capability State",
             "type": "string"
           },
@@ -10436,7 +10648,8 @@
             "items": {
               "enum": [
                 "artifact_missing",
-                "bridge_missing"
+                "bridge_missing",
+                "verification_missing"
               ],
               "type": "string"
             },
@@ -10444,10 +10657,20 @@
             "type": "array"
           },
           "execution_status": {
-            "const": "not_established",
             "default": "not_established",
+            "enum": [
+              "not_established",
+              "partial",
+              "admitted"
+            ],
             "title": "Execution Status",
             "type": "string"
+          },
+          "exhaustive": {
+            "const": false,
+            "default": false,
+            "title": "Exhaustive",
+            "type": "boolean"
           },
           "missing_link": {
             "const": "acquisition_reentry_deeper_terminal_binding",
@@ -10458,8 +10681,7 @@
           "movement_records": {
             "default": [],
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/MovementRecord"
             },
             "title": "Movement Records",
             "type": "array"
@@ -10468,6 +10690,12 @@
             "const": "GY-GAP6 -> GY-N13b",
             "default": "GY-GAP6 -> GY-N13b",
             "title": "Producer Route",
+            "type": "string"
+          },
+          "scope": {
+            "const": "known_board_rows_only",
+            "default": "known_board_rows_only",
+            "title": "Scope",
             "type": "string"
           }
         },
@@ -10716,11 +10944,20 @@
           "movement_records": {
             "default": [],
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/MovementRecord"
             },
             "title": "Movement Records",
             "type": "array"
+          },
+          "movement_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MovementRowProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "responsible_slices": {
             "items": {
@@ -18492,6 +18729,9 @@
             "title": "Measurement Scope",
             "type": "string"
           },
+          "read_receipt": {
+            "$ref": "#/components/schemas/HistoricalProducerAvailabilityReadReceipt"
+          },
           "source_content_hash": {
             "title": "Source Content Hash",
             "type": "string"
@@ -18504,9 +18744,125 @@
         "required": [
           "source_ref",
           "source_content_hash",
+          "read_receipt",
           "counts"
         ],
         "title": "HistoricalProducerAvailability",
+        "type": "object"
+      },
+      "HistoricalProducerAvailabilityReadReceipt": {
+        "additionalProperties": false,
+        "description": "Actual input read and interpretation boundary of the historical DS3 loader.",
+        "properties": {
+          "coverage": {
+            "enum": [
+              "complete_selected_input",
+              "partial"
+            ],
+            "title": "Coverage",
+            "type": "string"
+          },
+          "read_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read Error"
+          },
+          "read_status": {
+            "enum": [
+              "read",
+              "failed"
+            ],
+            "title": "Read Status",
+            "type": "string"
+          },
+          "selected_measurement_cell_count": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Measurement Cell Count"
+          },
+          "selector": {
+            "const": "all_markdown_table_cells_with_ds3_measurement",
+            "default": "all_markdown_table_cells_with_ds3_measurement",
+            "title": "Selector",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Content Hash"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "COMPLETE",
+              "UNRUN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "table_row_denominator": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Row Denominator"
+          },
+          "unresolved_by_construction": {
+            "default": [
+              "non_table_sections_uninterpreted",
+              "other_sources_unselected",
+              "current_availability_not_measured"
+            ],
+            "items": {
+              "enum": [
+                "non_table_sections_uninterpreted",
+                "other_sources_unselected",
+                "current_availability_not_measured"
+              ],
+              "type": "string"
+            },
+            "title": "Unresolved By Construction",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_ref",
+          "read_status",
+          "status",
+          "coverage",
+          "source_content_hash",
+          "read_error",
+          "table_row_denominator",
+          "selected_measurement_cell_count"
+        ],
+        "title": "HistoricalProducerAvailabilityReadReceipt",
         "type": "object"
       },
       "HumanDecisionAllowedDecision": {
@@ -23986,6 +24342,125 @@
           }
         },
         "title": "MonitoringWindow",
+        "type": "object"
+      },
+      "MovementRecord": {
+        "additionalProperties": false,
+        "description": "One admitted movement with separate supplier, GY head, and proof refs.",
+        "properties": {
+          "chronology_bundle_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Chronology Bundle Ref",
+            "type": "string"
+          },
+          "gy_admission_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Gy Admission Ref",
+            "type": "string"
+          },
+          "movement": {
+            "$ref": "#/components/schemas/AcquisitionMovementArtifact"
+          },
+          "movement_artifact_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Movement Artifact Ref",
+            "type": "string"
+          },
+          "predicate_class": {
+            "const": "independently_reconciled",
+            "default": "independently_reconciled",
+            "title": "Predicate Class",
+            "type": "string"
+          },
+          "qualification_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Qualification Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "movement_artifact_ref",
+          "movement",
+          "gy_admission_ref",
+          "qualification_ref",
+          "chronology_bundle_ref"
+        ],
+        "title": "MovementRecord",
+        "type": "object"
+      },
+      "MovementRowProjection": {
+        "additionalProperties": false,
+        "description": "Exact row projection, explicitly bounded by the diagnostic read window.",
+        "properties": {
+          "exhaustive": {
+            "const": false,
+            "default": false,
+            "title": "Exhaustive",
+            "type": "boolean"
+          },
+          "intake_receipt_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Intake Receipt Refs",
+            "type": "array"
+          },
+          "policy_status": {
+            "enum": [
+              "configured",
+              "policy_admission_missing"
+            ],
+            "title": "Policy Status",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "records": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MovementRecord"
+            },
+            "title": "Records",
+            "type": "array"
+          },
+          "scope": {
+            "const": "exact_row_observed_supplier_movements",
+            "default": "exact_row_observed_supplier_movements",
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Content Hash",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "available",
+              "not_established",
+              "invalid_source"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "policy_status",
+          "source_content_hash"
+        ],
+        "title": "MovementRowProjection",
         "type": "object"
       },
       "N13AAcquisitionCensusPayload": {
@@ -56356,18 +56831,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:e7469f7bf044b7d0244335385e4b3758a3fcc675788c648a750b6a93e7ff0ea2",
+                      "projection_hash": "sha256:0949a336a376a4524fbd43d90b588911bb341f3ae57c646952f16a4a26d08de7",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ae7469f7bf044b7d0244335385e4b3758a3fcc675788c648a750b6a93e7ff0ea2&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Acc77098fc9cd139b1f793c6f90002123efec65728cfd4a9cfb5f26c4519f0d9e",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A0949a336a376a4524fbd43d90b588911bb341f3ae57c646952f16a4a26d08de7&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A8e39d61e6e7e06d1715b5197cc911131c6e69b5564d41b6c04925aad84b0f525",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:e7469f7bf044b7d0244335385e4b3758a3fcc675788c648a750b6a93e7ff0ea2",
+                        "projection_hash": "sha256:0949a336a376a4524fbd43d90b588911bb341f3ae57c646952f16a4a26d08de7",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:cc77098fc9cd139b1f793c6f90002123efec65728cfd4a9cfb5f26c4519f0d9e"
+                        "source_dependency_hash": "sha256:8e39d61e6e7e06d1715b5197cc911131c6e69b5564d41b6c04925aad84b0f525"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -56376,8 +56851,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:cc77098fc9cd139b1f793c6f90002123efec65728cfd4a9cfb5f26c4519f0d9e",
-                          "bound_dependency_count": 6452,
+                          "bound_dependency_aggregate_identity": "sha256:8e39d61e6e7e06d1715b5197cc911131c6e69b5564d41b6c04925aad84b0f525",
+                          "bound_dependency_count": 6490,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -56392,16 +56867,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:6a5b04681ea1b4b1fb7cd43b1768eb7f8a441dc4c9810bdc276ccdc08d6655cb"
+                          "worker_validation_receipt_hash": "sha256:e5d494c3cea51457c7a5790305fe778633ce050b82477982470b843a0f54cb93"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:cc77098fc9cd139b1f793c6f90002123efec65728cfd4a9cfb5f26c4519f0d9e",
+                      "source_dependency_hash": "sha256:8e39d61e6e7e06d1715b5197cc911131c6e69b5564d41b6c04925aad84b0f525",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:6a5b04681ea1b4b1fb7cd43b1768eb7f8a441dc4c9810bdc276ccdc08d6655cb",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:6a5b04681ea1b4b1fb7cd43b1768eb7f8a441dc4c9810bdc276ccdc08d6655cb"
+                      "worker_validation_receipt_hash": "sha256:e5d494c3cea51457c7a5790305fe778633ce050b82477982470b843a0f54cb93",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:e5d494c3cea51457c7a5790305fe778633ce050b82477982470b843a0f54cb93"
                     }
                   }
                 },

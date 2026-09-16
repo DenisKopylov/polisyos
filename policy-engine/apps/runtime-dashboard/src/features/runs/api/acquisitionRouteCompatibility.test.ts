@@ -1,3 +1,8 @@
+import type {
+  HistoricalProducerAvailabilityReadReceipt,
+  MovementRecord,
+} from "@polisyos/runtime-api-client";
+
 import { packetToVisibleCycleBoard } from "@/features/runs/components/cycleBoardPresentation";
 import { presentRunAcquisitionRoute } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { cycleBoardProjectionPacketFixture } from "@/test/fixtures/depthNCycleBoard";
@@ -117,7 +122,7 @@ describe("current acquisition projection compatibility", () => {
 
   it("preserves added Board read receipts and native movement records without grading them", () => {
     const original = cycleBoardProjectionPacketFixture();
-    const readReceipt = {
+    const readReceipt: HistoricalProducerAvailabilityReadReceipt = {
       coverage: "complete_selected_input",
       read_error: null,
       read_status: "read",
@@ -131,9 +136,10 @@ describe("current acquisition projection compatibility", () => {
       unresolved_by_construction: ["current_availability_not_measured"],
     };
     // This fixture checks lossless display, not native evidence admission.
+    // It is deliberately partial, so it cannot be typed as a complete record.
     const movement = {
       movement: { new_cycle_index: 2, terminal_kind: "blocked" },
-    };
+    } as unknown as MovementRecord;
     const packet = {
       ...original,
       payload: {

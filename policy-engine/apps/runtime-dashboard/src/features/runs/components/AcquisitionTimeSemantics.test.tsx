@@ -4,11 +4,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type {
   AcquisitionBacklogProjection,
   AcquisitionGrowthPayload,
-  AcquisitionRouteProjection,
   StructuralRouteProjection,
 } from "@polisyos/runtime-api-client";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import {
   EpochSemanticsProvider,

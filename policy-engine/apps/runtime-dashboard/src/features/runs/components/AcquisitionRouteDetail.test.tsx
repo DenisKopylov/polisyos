@@ -1,9 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
-import type {
-  AcquisitionRouteProjection,
-  StructuralRouteProjection,
-} from "@polisyos/runtime-api-client";
+import type { StructuralRouteProjection } from "@polisyos/runtime-api-client";
 
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { Button } from "@polisyos/atlas-ui";
 

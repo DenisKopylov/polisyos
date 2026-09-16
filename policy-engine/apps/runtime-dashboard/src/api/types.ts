@@ -2072,6 +2072,79 @@ export interface components {
       structural_route_count: number;
     };
     /**
+     * AcquisitionMovementArtifact
+     * @description Supplier-derived facts, still a candidate until distinct GY admission.
+     */
+    AcquisitionMovementArtifact: {
+      /** Action Generation */
+      action_generation: number;
+      /** Admitted Observation Count */
+      admitted_observation_count: number;
+      /** Cell Id */
+      cell_id: string;
+      /** Compiled Ref */
+      compiled_ref: string;
+      /** Deeper Terminal Event Id */
+      deeper_terminal_event_id: string;
+      /** Design Problem Ref */
+      design_problem_ref: string;
+      /** Epoch Id */
+      epoch_id: number;
+      /**
+       * Gap Id
+       * @default GY-GAP6
+       * @constant
+       */
+      gap_id: "GY-GAP6";
+      /** Generation Cycle Run Id */
+      generation_cycle_run_id: string;
+      /** Job Id */
+      job_id: string;
+      /** New Cycle Index */
+      new_cycle_index: number;
+      /** Overlay Receipt Ref */
+      overlay_receipt_ref: string;
+      /** Phase Receipt Refs */
+      phase_receipt_refs: string[];
+      /** Reentry Receipt Ref */
+      reentry_receipt_ref: string;
+      /** Route Id */
+      route_id: string;
+      /** Row Id */
+      row_id: string;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default policyos.runtime.acquisition_movement.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.acquisition_movement.v1";
+      /** Semantic Epoch Production Receipt Ref */
+      semantic_epoch_production_receipt_ref: string;
+      /** Semantic Epoch Ref */
+      semantic_epoch_ref: string;
+      /** Source Cycle Index */
+      source_cycle_index: number;
+      /** Source Terminal Event Id */
+      source_terminal_event_id: string;
+      /**
+       * Supplier Generated At
+       * Format: date-time
+       */
+      supplier_generated_at: string;
+      /** Supplier Receipt Ref */
+      supplier_receipt_ref: string;
+      /** Supplier Terminal Event Id */
+      supplier_terminal_event_id: string;
+      /** Synthetic */
+      synthetic: boolean | null;
+      /** Tenant Id */
+      tenant_id: string;
+      /** Terminal Kind */
+      terminal_kind: string;
+    };
+    /**
      * AcquisitionRouteListResponse
      * @description Run-bound list response; the current closure admits at most one route.
      */
@@ -2102,11 +2175,18 @@ export interface components {
      */
     AcquisitionRouteProjection: {
       /**
+       * Admitted Observation Delta
+       * @default 0
+       */
+      admitted_observation_delta: number;
+      /**
        * Authority Badge
        * @default behavioral_fixture_not_production
-       * @constant
+       * @enum {string}
        */
-      authority_badge: "behavioral_fixture_not_production";
+      authority_badge:
+        | "behavioral_fixture_not_production"
+        | "native_owner_verified";
       /**
        * Authority Capability
        * @enum {string}
@@ -2140,21 +2220,23 @@ export interface components {
       /**
        * Qualification Predicate
        * @default not_established
-       * @constant
+       * @enum {string}
        */
-      qualification_predicate: "not_established";
+      qualification_predicate: "not_established" | "independently_reconciled";
       /**
        * Qualification Reason
        * @default policy_admission_missing
-       * @constant
+       * @enum {string}
        */
-      qualification_reason: "policy_admission_missing";
+      qualification_reason:
+        | "policy_admission_missing"
+        | "native_owner_readback";
       /**
        * Qualification Status
        * @default pending_epoch_activation
-       * @constant
+       * @enum {string}
        */
-      qualification_status: "pending_epoch_activation";
+      qualification_status: "pending_epoch_activation" | "activated";
       /** Recommended Strategy */
       recommended_strategy: string;
       replay_pins: components["schemas"]["AcquisitionRouteReplayPins"];
@@ -2181,9 +2263,9 @@ export interface components {
       /**
        * World Growth
        * @default no_growth
-       * @constant
+       * @enum {string}
        */
-      world_growth: "no_growth";
+      world_growth: "no_growth" | "admitted_delta";
     };
     /**
      * AcquisitionRouteReplayPins
@@ -6242,7 +6324,8 @@ export interface components {
         | "control_plane_evidence"
         | "historical_owner_record"
         | "run_summary_lookup"
-        | "run_paper_projection";
+        | "run_paper_projection"
+        | "native_movement";
       /** Source Ref */
       source_ref?: string | null;
     };
@@ -6306,15 +6389,15 @@ export interface components {
     };
     /**
      * CycleBoardMovementGap
-     * @description Render the absent per-row N13b re-entry binding without simulated motion.
+     * @description Disclose admission coverage for the board's already enumerated rows.
      */
     CycleBoardMovementGap: {
       /**
        * Capability State
        * @default absent/unallocated
-       * @constant
+       * @enum {string}
        */
-      capability_state: "absent/unallocated";
+      capability_state: "absent/unallocated" | "verification_missing" | "ready";
       /**
        * Chronology Route
        * @default GY-N12
@@ -6328,13 +6411,23 @@ export interface components {
        *       "bridge_missing"
        *     ]
        */
-      deficits: ("artifact_missing" | "bridge_missing")[];
+      deficits: (
+        | "artifact_missing"
+        | "bridge_missing"
+        | "verification_missing"
+      )[];
       /**
        * Execution Status
        * @default not_established
+       * @enum {string}
+       */
+      execution_status: "not_established" | "partial" | "admitted";
+      /**
+       * Exhaustive
+       * @default false
        * @constant
        */
-      execution_status: "not_established";
+      exhaustive: false;
       /**
        * Missing Link
        * @default acquisition_reentry_deeper_terminal_binding
@@ -6345,15 +6438,19 @@ export interface components {
        * Movement Records
        * @default []
        */
-      movement_records: {
-        [key: string]: unknown;
-      }[];
+      movement_records: components["schemas"]["MovementRecord"][];
       /**
        * Producer Route
        * @default GY-GAP6 -> GY-N13b
        * @constant
        */
       producer_route: "GY-GAP6 -> GY-N13b";
+      /**
+       * Scope
+       * @default known_board_rows_only
+       * @constant
+       */
+      scope: "known_board_rows_only";
     };
     /**
      * CycleBoardProjectionPacket
@@ -6455,9 +6552,8 @@ export interface components {
        * Movement Records
        * @default []
        */
-      movement_records: {
-        [key: string]: unknown;
-      }[];
+      movement_records: components["schemas"]["MovementRecord"][];
+      movement_status?: components["schemas"]["MovementRowProjection"] | null;
       /** Responsible Slices */
       responsible_slices: string[];
       /** Row Id */
@@ -9773,10 +9869,61 @@ export interface components {
        * @constant
        */
       measurement_scope: "environment_relative";
+      read_receipt: components["schemas"]["HistoricalProducerAvailabilityReadReceipt"];
       /** Source Content Hash */
       source_content_hash: string;
       /** Source Ref */
       source_ref: string;
+    };
+    /**
+     * HistoricalProducerAvailabilityReadReceipt
+     * @description Actual input read and interpretation boundary of the historical DS3 loader.
+     */
+    HistoricalProducerAvailabilityReadReceipt: {
+      /**
+       * Coverage
+       * @enum {string}
+       */
+      coverage: "complete_selected_input" | "partial";
+      /** Read Error */
+      read_error: string | null;
+      /**
+       * Read Status
+       * @enum {string}
+       */
+      read_status: "read" | "failed";
+      /** Selected Measurement Cell Count */
+      selected_measurement_cell_count: number | null;
+      /**
+       * Selector
+       * @default all_markdown_table_cells_with_ds3_measurement
+       * @constant
+       */
+      selector: "all_markdown_table_cells_with_ds3_measurement";
+      /** Source Content Hash */
+      source_content_hash: string | null;
+      /** Source Ref */
+      source_ref: string;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "COMPLETE" | "UNRUN";
+      /** Table Row Denominator */
+      table_row_denominator: number | null;
+      /**
+       * Unresolved By Construction
+       * @default [
+       *       "non_table_sections_uninterpreted",
+       *       "other_sources_unselected",
+       *       "current_availability_not_measured"
+       *     ]
+       */
+      unresolved_by_construction: (
+        | "non_table_sections_uninterpreted"
+        | "other_sources_unselected"
+        | "current_availability_not_measured"
+      )[];
     };
     /**
      * HumanDecisionAllowedDecision
@@ -12294,6 +12441,69 @@ export interface components {
        * @default 0
        */
       start_offset_days: number;
+    };
+    /**
+     * MovementRecord
+     * @description One admitted movement with separate supplier, GY head, and proof refs.
+     */
+    MovementRecord: {
+      /** Chronology Bundle Ref */
+      chronology_bundle_ref: string;
+      /** Gy Admission Ref */
+      gy_admission_ref: string;
+      movement: components["schemas"]["AcquisitionMovementArtifact"];
+      /** Movement Artifact Ref */
+      movement_artifact_ref: string;
+      /**
+       * Predicate Class
+       * @default independently_reconciled
+       * @constant
+       */
+      predicate_class: "independently_reconciled";
+      /** Qualification Ref */
+      qualification_ref: string;
+    };
+    /**
+     * MovementRowProjection
+     * @description Exact row projection, explicitly bounded by the diagnostic read window.
+     */
+    MovementRowProjection: {
+      /**
+       * Exhaustive
+       * @default false
+       * @constant
+       */
+      exhaustive: false;
+      /**
+       * Intake Receipt Refs
+       * @default []
+       */
+      intake_receipt_refs: string[];
+      /**
+       * Policy Status
+       * @enum {string}
+       */
+      policy_status: "configured" | "policy_admission_missing";
+      /** Reason */
+      reason: string | null;
+      /**
+       * Records
+       * @default []
+       */
+      records: components["schemas"]["MovementRecord"][];
+      /**
+       * Scope
+       * @default exact_row_observed_supplier_movements
+       * @constant
+       */
+      scope: "exact_row_observed_supplier_movements";
+      /** Source Content Hash */
+      source_content_hash: string;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "available" | "not_established" | "invalid_source";
     };
     /**
      * N13AAcquisitionCensusPayload

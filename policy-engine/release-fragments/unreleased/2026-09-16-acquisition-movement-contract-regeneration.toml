@@ -1,0 +1,50 @@
+id = "2026-09-16-acquisition-movement-contract-regeneration"
+title = "Regenerate the runtime contract the acquisition-movement merge changed"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Declare and regenerate the runtime OpenAPI change introduced by the acquisition-movement merge, with the generated client, the dashboard types and the dashboard tests that had been typed against the stale types."
+evidence = [
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+  "apps/runtime-dashboard/src/features/runs/api/acquisitionRouteCompatibility.test.ts",
+  "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.test.tsx",
+  "apps/runtime-dashboard/src/test/fixtures/depthNCycleBoard.ts",
+]
+compatibility = "Not purely additive. Component schemas grow from 550 to 554 (AcquisitionMovementArtifact, HistoricalProducerAvailabilityReadReceipt, MovementRecord and MovementRowProjection) and five change. AcquisitionRouteProjection adds admitted_observation_delta (default 0) and widens authority_badge, qualification_status, qualification_predicate, qualification_reason and world_growth from single constants to two-value enums. CycleBoardMovementGap adds the constants exhaustive and scope, widens capability_state, execution_status and deficits, and types movement_records as MovementRecord. CycleBoardRow adds a nullable movement_status and types movement_records as MovementRecord. HistoricalProducerAvailability adds a required read_receipt. CycleBoardCompositionSource adds the source_kind native_movement. Readers that validated the former constants must accept the activated arm, as the acquisition-movement fragment already states for the dashboard decoder. TypeScript code that constructs these objects must supply every field openapi-typescript renders as required, which includes server-defaulted fields."
+change_class = "schema-openapi-abi; js-package-api"
+surface_classification = "public_stable: runtime acquisition-route HTTP API and GET /api/v1/exports/governed-projections/depth-n-cycle-board; public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard src/api/types.ts"
+migration = "Regenerate both runtime API client families. Dashboard code that builds AcquisitionRouteProjection values for components should use the decoder type in apps/runtime-dashboard/src/features/runs/api/acquisitionRouteValidators.ts, which keeps the pending and activated arms distinct; the generated type is the flat wire record. Code that builds Cycle Board packets must supply read_receipt, exhaustive and scope."
+api = "GET /api/v1/runs/{run_id}/acquisition-routes, GET /api/v1/runs/{run_id}/acquisition-routes/{route_id} and GET /api/v1/exports/governed-projections/depth-n-cycle-board return the changed schemas. No operation is added or removed."
+limitations = "The contract change belongs to the acquisition-movement lane, whose own fragment (2026-09-13-acquisition-movement) correctly records that the lane did not regenerate; this fragment declares the regeneration at integration and does not restate that lane's semantics. The snapshot also carries environment-derived dependency digests (debt row openapi-snapshot-pins-environment-derived-digests), so this regeneration is not evidence that the snapshot reproduces on another machine. The dashboard test repairs change typing and fixture completeness only; no production code and no assertion changed."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/services/README.md", "packages/runtime-api-client/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]
+
+[[compatibility_change]]
+id = "acquisition-movement-openapi-schemas"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "public_stable: runtime acquisition-route HTTP API and GET /api/v1/exports/governed-projections/depth-n-cycle-board"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "No compatibility alias: responses carry the activated arm and the widened enums as soon as the backend serves them."
+release_note = "Acquisition-route and Cycle Board responses now carry the admitted observation delta, the historical producer read receipt, bounded movement-gap scope and per-row movement status, and several former constants are now enums that admit the activated state."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]
+
+[[compatibility_change]]
+id = "acquisition-movement-generated-types"
+change_class = "js-package-api"
+impact = "breaking"
+surface = "public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard src/api/types.ts"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "No compatibility alias: the generated types follow the served schema on regeneration."
+release_note = "Generated acquisition-route and Cycle Board types now require the fields the server always serializes and widen the former constants, so TypeScript callers that construct these objects must supply those fields or use the dashboard's two-arm decoder type."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]

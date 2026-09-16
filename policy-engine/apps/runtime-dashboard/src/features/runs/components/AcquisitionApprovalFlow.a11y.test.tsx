@@ -1,8 +1,8 @@
 import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
-import type { AcquisitionRouteProjection } from "@polisyos/runtime-api-client";
 import { MemoryRouter } from "react-router-dom";
 
+import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 const mocks = vi.hoisted(() => ({

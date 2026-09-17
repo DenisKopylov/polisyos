@@ -1778,6 +1778,17 @@ superseded_by = []
 related = ["0176"]
 
 [[adr]]
+id = "0178"
+title = "Promotion admits the S6, S7 and S8 postures only from owner artifacts it resolves and recomputes"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0178-promotion-posture-admission-resolves-owner-artifacts.md"
+supersedes = []
+superseded_by = []
+related = ["0176", "0177"]
+
+[[adr]]
 id = "ADR-004"
 title = "Trinity-Only IR Runtime"
 status = "completed"

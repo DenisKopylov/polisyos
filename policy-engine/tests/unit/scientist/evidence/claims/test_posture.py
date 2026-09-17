@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import importlib
-from datetime import date
+from datetime import date, timedelta
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -248,8 +248,10 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
             "owner": owner,
             "jurisdiction": "non_jurisdiction_specific",
             "jurisdiction_establishment": "recomputed",
-            "review_on": date(2026, 8, 1),
-            "review_due": date(2026, 9, 1),
+            # The review window is anchored to the register date, which moves with every
+            # ratified identity amendment; only the window's containing it matters here.
+            "review_on": register.register_as_of - timedelta(days=31),
+            "review_due": register.register_as_of,
             "evidence_refs": (evidence.ref,),
             "evidence_bindings": (evidence,),
             "limitation_refs": (),

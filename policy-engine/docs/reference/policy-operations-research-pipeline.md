@@ -344,3 +344,24 @@ recorded in the final package.
 
 **Where it binds.** Backlog Group E (`CV-DR1`–`CV-DR5`) is the first series run this way. Future decision
 research may adopt it by naming this section.
+
+### 7.1 First run — CV-DR, 2026-09-17
+
+**The series.** The first series run under this section, backlog Group E, delivered five research reports, seven audit artifacts and six final packages. The architect could review every package from the repository alone, so the self-containment premise held. Three observations change how the flow is run.
+
+1. **The base must be pushed before prompts are issued.** The commissioned base existed only in the architect's local repository.
+   - The researchers could not resolve it, read `main` at the last pushed commit instead, and recorded the reference they actually read. The manifest's content blobs were identical there, except for this pipeline and the backlog.
+   - The synthesizer refused to publish on a substituted base, which was correct, and the architect published under premise 2's fallback.
+
+   *Rule:* a prompt that names an unpushed base is not ready to issue. The architect pushes the base, with the principal's authorisation, before handing prompts over.
+2. **Library placement drifts; content identity is the fallback.** Deviations seen in this run:
+   - the cross-question audit was saved at the Library root rather than under `03_audit/`;
+   - a second audit of one question appeared;
+   - a later duplicate of the cross-question file appeared.
+
+   The synthesizer confirmed each artifact from its content, qualified finding IDs by source so equal IDs never merged, and recorded every deviation.
+
+   *Rule:* expected paths come first; confirmation by content is the recorded fallback, never a silent substitution.
+3. **"Every finding accepted" can converge on waiting.** All 36 findings were accepted and none declined. Each narrowed a recommendation towards least commitment, and with no concrete first case the five packages converged on "wait for real demand" for every first profile. The principal's growth ruling of 2026-09-17 (ADR-0179) is the counterweight: capability is built user-neutrally now, and first profiles arrive later as profiles.
+
+   *Rule:* a synthesizer states, for each accepted narrowing, which capability remains buildable meanwhile, so that a narrowed recommendation is never read as a scheduling stop.

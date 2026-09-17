@@ -8,7 +8,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 
 | Status | Count |
 | --- | --- |
-| `accepted` | 90 |
+| `accepted` | 91 |
 | `approved` | 7 |
 | `completed` | 1 |
 | `proposed` | 91 |
@@ -95,6 +95,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | [0176](0176-epoch-validity-transition-admission-predicates.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Epoch validity transition admission predicates | 0175 |
 | [0177](0177-governed-public-record-bounded-initial-root-profile.md) | `accepted` | `runtime-state` | `polisyos.runtime` | The governed public record admits a bounded initial-root profile | 0176 |
 | [0178](0178-promotion-posture-admission-resolves-owner-artifacts.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Promotion admits the S6, S7 and S8 postures only from owner artifacts it resolves and recomputes | 0176, 0177 |
+| [0179](0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md) | `accepted` | `product-domain` | `polisyos.runtime` | The correspondence vocabularies adopt five meaning principles, and their first profiles stay explicitly open | - |
 | [RSR-0130](repository-structure-0130-workspace-boundary.md) | `accepted` | `repository-structure` | `repository` | Workspace Boundary | 0096, 0111 |
 | [RSR-0135](repository-structure-0135-versioning-out-of-package-names.md) | `accepted` | `repository-structure` | `repository` | Versioning Out of Package Names And Compatibility Contracts | 0118 |
 | [RSR-0136](repository-structure-0136-foundry-methods-flat-vs-catalog.md) | `accepted` | `repository-structure` | `polisyos.foundry` | Foundry Methods Flat vs Catalog | RSR-0129 |

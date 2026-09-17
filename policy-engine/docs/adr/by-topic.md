@@ -14,7 +14,7 @@
 | `testing` | Test topology, fixtures, golden data, drift checks, and reproducibility gates. | 4 |
 | `release` | Release trains, SemVer, versioning, deprecation, migration, and retraction policy. | 6 |
 | `frontend` | Frontend workspace, dashboard, UI language, themes, and authored text surfaces. | 5 |
-| `product-domain` | Domain-level Foundry, Fabric, Lex, Data Forge, synthetic-world, and product concepts. | 50 |
+| `product-domain` | Domain-level Foundry, Fabric, Lex, Data Forge, synthetic-world, and product concepts. | 51 |
 
 ## Topic Index
 
@@ -251,4 +251,5 @@
 | [0161](0161-claim-argument-warrant-compiler-closeout-gate.md) | `accepted` | `repository` | Claim Argument, Warrant Reliability, And Compiler Closeout Gate | 0129, 0147, 0152, 0153, 0156, 0160 |
 | [0167](0167-participation-legitimacy-matrix.md) | `accepted` | `repository` | Participation Legitimacy Matrix | 0147, 0150, 0152, 0156, 0157, 0159, 0160, 0162, 0166 |
 | [0168](0168-legal-hierarchy-and-competence.md) | `accepted` | `polisyos.lex` | Legal Hierarchy And Competence Boundaries | 0051, 0057, 0147, 0150, 0152, 0157, 0158, 0159, 0166 |
+| [0179](0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md) | `accepted` | `polisyos.runtime` | The correspondence vocabularies adopt five meaning principles, and their first profiles stay explicitly open | - |
 | [ADR-043](ADR-043-provenance-law.md) | `approved` | `polisyos.lex` | Provenance Law Through QuantityValue | 0123, ADR-044, ADR-046 |

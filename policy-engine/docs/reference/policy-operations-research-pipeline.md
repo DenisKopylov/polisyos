@@ -277,3 +277,70 @@ It produces research contracts. Across four waves it has moved **no capability**
 package has ended `absent/unallocated`, which is the honest label and not a failure. Implementation
 authority, owner appointment, and institutional commitments come from elsewhere, and no volume of
 pipeline output substitutes for them — a fully specified system can still lack anyone able to sign.
+
+## 7. The Library-first flow — n + 1 prompts (principal's decision, 2026-09-17)
+
+**The decision.** For decision research that runs on cloud agents with a shared Library, the principal
+adopted on 2026-09-17 a four-step flow that scales with the number of questions:
+
+| step | who | produces | where |
+| --- | --- | --- | --- |
+| 1 | one researcher per question — **n prompts, written by the architect** | a full research report | Library |
+| 2 | one synthesizer — **1 prompt, written by the architect** | an analysis of all reports, then the audit and red-team prompts | Library |
+| 3 | auditors and red-teamers — **prompts written by the synthesizer** | an adversarial pass against the step-1 conclusions | Library |
+| 4 | the same synthesizer | final decision packages | **the repository**, one research branch |
+
+**The question it answers.** How can many questions be researched, attacked and synthesised without the
+coordination cost of delivering and tracking every intermediate artifact in the repository?
+
+**Options considered.**
+- **Every stage delivered to the repository** — the contract of §1 to §5. It gives a complete repository audit
+  trail. It costs a branch, a read-back and a delivery for every stage of every task, and the principal and
+  architect track each intermediate step. Not taken for this class of work.
+- **A coordinator, registrar and publisher roles over Library** (proposed the same day). This keeps intermediate
+  provenance explicit. It adds coordination work that grows with every task and every cycle. Not taken.
+- **n + 1 prompts, Library-first, one final publication** — **taken**. The coordination cost is n + 1 prompts
+  regardless of how many cycles happen inside Library. The repository receives the processed result rather
+  than its intermediates.
+
+**What stays binding.**
+- The Research Quality Bar and the Unified Deliverable Form of the Wave-2 backlog, for research reports.
+- The three standing axes (`W4-K05`).
+- §4's evidence rules.
+- Independence: a researcher does not read sibling outputs before delivering; an auditor did not write what it
+  audits and does not read the other audits.
+- §5's hygiene for the one publication: Markdown only, no transport workarounds, and a read-back at the
+  published commit with the commit and blob SHAs reported.
+- **Stage 7, ratification (§3.7), is unchanged, and only the principal confers authority.** A final
+  decision package is a recommendation.
+
+**What does not apply to the intermediate steps of this flow:** §2's branch topology, and the per-stage
+repository delivery of §3.1 to §3.5. Their adversarial purpose moves into step 3, which the synthesizer must
+commission against the step-1 conclusions, with audit findings carrying stable IDs and each disposition
+recorded in the final package.
+
+**Premises — each is a revisit trigger when it fails.**
+1. Every agent in steps 1 to 4 can read the Library area of the series; the synthesizer can find the expected
+   reports and audits by name.
+2. The synthesizer has verified write access to the repository. If it does not, the final packages are handed
+   to the architect, who publishes them with the principal's authorisation.
+3. **The architect reads only the repository, not Library.** A final package must therefore stand alone, with:
+   - portable citations;
+   - the decisive precedents summarised;
+   - each audit finding and its disposition;
+   - the red-team objections left unresolved;
+   - a provenance table naming the Library artifacts it rests on.
+
+**Costs accepted.**
+- Intermediate reports and audits are not in repository history, and the architect cannot re-check them
+  directly.
+- A defect introduced in synthesis is visible only through the package's own provenance and dissent sections.
+
+**Reopens when:**
+- a final package makes a claim that cannot be traced to a named Library artifact;
+- Library access is lost for any step;
+- an audit turns out not to be independent of what it audited;
+- a later decision is reversed because an intermediate finding never reached the package.
+
+**Where it binds.** Backlog Group E (`CV-DR1`–`CV-DR5`) is the first series run this way. Future decision
+research may adopt it by naming this section.

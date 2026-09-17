@@ -661,6 +661,14 @@ points to verify, not findings.
 | `CV-DR4` | **Estimand target binding (`CV-Q4`).** Which question-binding artifact should be the source of truth for population, contrast, outcome, horizon, intercurrent-event and regime identity, and which evidence implications may be registered for the bound target or for a justified equivalent or transported target? Directions: estimand frameworks in clinical trials, target-trial emulation, transportability theory, indirectness grading in evidence synthesis, and health-technology-assessment practice. | As `CV-DR1`. | Under the recommended option two bindings differing only in horizon or regime do not compare equal, and an unknown or incomparable pair refuses. | `estimand-binding-strength-terms-unregistered`; `team-foundry`, `methods/catalog/causal` |
 | `CV-DR5` | **Write operations (`CV-Q5`).** Which actual canonical mutation and resource are demanded, and which substantive-right and technical-grant owners must jointly authorize that operation? Directions: the separation of legal basis from access control in data protection, delegation-of-authority and dual-control practice, relationship- and attribute-based authorization systems, and policy-as-code. | As `CV-DR1`. | Under the recommended option valid credentials without the substantive right refuse, and so does the right without the grant. | `int-r2-ceiling-vocabulary-owners` (write field); PDC `OperationContract`; Runtime `ACQUIRE` |
 
+**Delivery flow amended 2026-09-17 by the principal — this group runs under pipeline §7 (Library-first,
+n + 1 prompts).**
+- The five research reports, the synthesizer's analysis and the audit and red-team passes live in Library.
+- The repository receives one publication: the synthesizer's final decision packages on the branch
+  `research/cv-dr-decisions`, under `policy-engine/docs/research/policy-operations/cv-dr-decisions/`.
+- This replaces, for this group only, the per-task branches implied by *delivers under pipeline §5* above.
+- Everything else in this section stands.
+
 ---
 
 ## Deferred Registry (36 IDs — typed activation triggers, specs preserved)

@@ -1789,6 +1789,17 @@ superseded_by = []
 related = ["0176", "0177"]
 
 [[adr]]
+id = "0179"
+title = "The correspondence vocabularies adopt five meaning principles, and their first profiles stay explicitly open"
+status = "accepted"
+topic = "product-domain"
+package = "polisyos.runtime"
+path = "docs/adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md"
+supersedes = []
+superseded_by = []
+related = []
+
+[[adr]]
 id = "ADR-004"
 title = "Trinity-Only IR Runtime"
 status = "completed"

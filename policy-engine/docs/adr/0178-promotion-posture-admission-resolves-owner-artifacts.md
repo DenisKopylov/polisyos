@@ -202,3 +202,67 @@ Cited for their structure, not their domain.
 - Binds under `W5-K08` (a signature may not stand in for an established correspondence), identity decision §9 items 5–7, and `S0-K06`'s band split.
 - Composes with the 2026-09-17 promotion-safety decision recorded in register row `eval-safety-promotion-authority-producer-missing`.
 - Related: ADR-0176, ADR-0177.
+
+## Amendment — 2026-09-17: D2.3 and D6 reopened by the CV-DR findings
+
+This section amends the decision above by dated record. D2.3 and D6 stand above as the record of what was decided earlier the same day; where they conflict with this section, this section governs.
+
+### What reopened it
+
+The CV-DR decision research, published at `docs/research/policy-operations/cv-dr-decisions/` and decided in ADR-0179, was written without sight of this ADR. Three of its accepted findings meet D2.3 and D6 head on:
+
+1. **`AUD-DR-X-003`, cross-question, and `RT-DR1-002`.** Independence offers no common truth-producing shortcut. It consists in reaching evidence capable of refuting the premise; separate files, organisations, signatures or reviewers do not give it. Even a non-producer may be shown only producer-curated material. D2.3's generic levels L1 (a different import closure) and L2 (a separated signer) are exactly such separation, so as pass conditions they would admit a curated row. Premise 3 of this ADR — that import-closure identity is a usable proxy for independence — fails.
+2. **D6 expected the research to set levels for four rows.** The research refuses a common level scheme: each premise names its own refutation-capable evidence.
+3. **`RT-DR-X-002`.** Proxy-strict refusal is a defect as well. Controls against material substitution need paired property-preserving controls.
+
+This is the revisit trigger this ADR named: *import-closure identity proves too coarse to separate producers*.
+
+### Options
+
+| option | disposition |
+| --- | --- |
+| Keep L0–L3 as pass conditions and only document the finding | not taken — it admits curated rows the research showed unsafe |
+| Drop independence requirements for S6 rows | not taken — it reopens the self-certification this ADR exists to close |
+| **Require, per row, named refutation-capable evidence the admission verifier can reach; keep producer and signer separation as hygiene, necessary where it applies but never sufficient** | **taken** |
+
+### Revised D2.3 — row evidence
+
+1. **Named refutation-capable evidence.** Every input row of the five S6 axis evaluators names the evidence capable of showing its declared status false, and that evidence must be reachable by the admission verifier, not only supplied by the row's producer. Illustrations, not a closed list:
+   - measurability — the data-plane binding and availability record that could show a construct unobserved;
+   - aggregation — the bound target of ADR-0179 `CV-Q4`, which could show a claim-scope mismatch;
+   - capacity feasibility — capacity data that could show the dimension infeasible;
+   - mandate — the accepted legal source and the lever's actual behaviour under ADR-0179 `CV-Q1`;
+   - strategic response — response-channel evidence.
+2. **An unnamed or unreachable row is unestablished.** Such a row cannot pass its axis. The reason names the missing evidence.
+3. **Separation is hygiene.** A different producer identity, whether by component, signer or import closure, remains required where the row's evidence is produced, but it is never itself a pass condition.
+4. **Recomputation stays.** L0 — N9 recomputing what persisted inputs determine — stays as it was.
+5. **No common label.** No common provenance label or level is introduced; `P37` provenance classes are unchanged.
+
+### Revised D6 — rows that depend on the CV decisions
+
+The four rows take their evidence requirement from the accepted principles of ADR-0179, not from a common level:
+
+| row | principle it follows |
+| --- | --- |
+| S6 mandate row | the `CV-Q1` principle |
+| normative part of S8 | the `CV-Q2` principle |
+| S6 aggregation row | the `CV-Q4` principle |
+| S7 right and grant | the `CV-Q5` principle, with native reuse of `execute_bound_effect` as the presumption |
+
+Where a principle's first profile is still open (ADR-0179), the dependent row is unestablished in the protected modes, with the missing profile named. The admission machinery is built user-neutrally now, and candidate and demonstration paths remain buildable.
+
+### New D7 — paired controls
+
+Every refusal path this ADR creates — `posture_binding_drift`, S6 recompute mismatch, S7 exposure-digest mismatch, and the context guard — is tested with at least one material substitution that must refuse. It is also tested with at least one property-preserving change that must not:
+- canonical re-serialisation;
+- a display alias;
+- a clerical protocol edit that keeps the approved content;
+- the same target with a different estimator.
+
+Refusals carry reasons.
+
+### Revisit triggers added
+
+- A row passes on separation alone, without named reachable evidence.
+- A property-preserving change is refused.
+- Adding a new user's evidence source requires changing the admission mechanism rather than supplying a profile or configuration — the principal's growth ruling of 2026-09-17, recorded in ADR-0179.

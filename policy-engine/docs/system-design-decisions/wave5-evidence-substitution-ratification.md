@@ -549,3 +549,91 @@ The act still carries **seven** statements, `W5-K01` to `W5-K07`. §8 is **not**
 outcome vocabulary is untouched. §12.4's sentence that the correspondence rule *cites `W4-K01` by name
 for its signature half* is superseded: until the separate decision, the signature half is carried by
 the register rule alone, and consumers cite this §13, not `W4-K01`.
+
+## 14. Amendment — 2026-09-17: `W5-K08` ratified
+
+§13 withdrew the refusal-as-duplicate and left ratification to a separate, dated decision. This is
+that decision, taken by the principal on the architect's proposal of 2026-09-16. It is recorded in
+the form the identity decision's §9 item 7 requires of every decision — question, options and their
+costs, premises, what is not decided, and what would reopen it — because §12.3 is the worked case
+that ruling was written from.
+
+### 14.1 The statement
+
+| statement | may not stand in for |
+| --- | --- |
+| `W5-K08` | a signature | an established correspondence |
+
+**What a signature establishes, and keeps establishing.** Who asserted, that the signed bytes are
+the bytes asserted, and when: custody and attribution of an assertion. **What it may not be
+projected as:** that the asserted correspondence holds — that this provision governs this lever,
+that this source measures this variable, that this schedule is this normative choice. A valid
+signature over a wrong correspondence authenticates a wrong correspondence, and the refusals §13.3
+lists all reached that conclusion independently.
+
+### 14.2 The question and the options
+
+*Does the signing proposition bind as a member of this act, or only as the register-level rule
+`correspondence-acceptance-standing-rule`?*
+
+- **Ratify as `W5-K08` — taken.** Cost: one more statement every lane reads, and one amendment
+  record to keep true.
+- **Leave it register-level — not taken.** Cost, already measured for `W5-K07` in §12.2: a register
+  rule binds where its row is read, and the one that existed did not stop `GY-S3` stalling on the
+  adjacent boundary. It would also leave a proposition that two lanes have already used as though
+  it were constitutional (§13.2) with no constitutional locus — which is exactly how §12.3's
+  miscitation travelled for four days without anyone opening the cited statement.
+
+### 14.3 The lens
+
+It binds the **authority band** only. It forbids nothing in the candidate band: signing, verifying
+signatures, persisting signed sources, showing a signed candidate correspondence, and ranking
+candidates by any means all remain. It restricts one projection — *this correspondence is
+established because it is signed*. Zero capability cost, like `W5-K01` to `W5-K07`.
+
+### 14.4 Why no ratified statement already covers it
+
+`W5-K07` is a different pair: the existence of a statute against the statute governing a lever.
+`PV-K03` says a proof binds content semantics but cannot choose content or mint authority — a
+statement about proofs over content, not about a signature standing in for a relation. `S0-K05` and
+`S0-K07` forbid minting authority by observation, transport or projection, which is not the
+substitution of one kind of evidence for a relation claim. `W4-K01` concerns holder-relative
+set-level facts (§13.1). The nearest relatives are real, and none of them states this pair.
+
+### 14.5 Premises
+
+1. **No ratified statement carries the pair.** Rests on the sentence-by-sentence search recorded in
+   §13.2, executed by the architect on 2026-09-14 over the five acts and the governing documents
+   named there — a search result, not an impossibility.
+2. **The refusals already resting on the proposition are correct on their own reasoning** (§13.3).
+   Ratification adds a locus; it does not validate them retroactively, and each still stands or
+   falls on its own evidence.
+
+### 14.6 What this does not decide
+
+It appoints no adjudicator of correspondence and defines no positive acceptance rule — that remains
+the operational content of `correspondence-acceptance-standing-rule` and the subject of the decision
+research `CV-DR1` to `CV-DR5`, commissioned the same day in the Wave-2 backlog. It does not make a
+signature less valuable as custody evidence. It does not activate §8.
+
+### 14.7 What would reopen it
+
+- **A ratified statement is found to carry the pair already.** Then this is the duplicate §12.3
+  feared, and one locus is withdrawn by dated record.
+- **A consumer shows that refusing the substitution removes a capability** rather than a
+  projection — that is, §14.3 is wrong for that consumer.
+- **A constitutive correspondence** — one that exists *because* an authorised issuer declares it,
+  such as an official designation of which indicator measures a statutory target. There the
+  issuer's authority, not the signature as such, is part of what establishes the correspondence.
+  The statement is not wrong in that case, but its scope must then be stated by amendment rather
+  than left for each consumer to interpret.
+
+### 14.8 Standing after this amendment
+
+The act now carries **eight** statements, `W5-K01` to `W5-K08`. §8 is **not** activated and the
+outcome vocabulary is untouched: a refused correspondence remains an honest refusal or `INT-K06`
+custody-without-a-number. Consumers cite `W5-K08` for the signature half, and §13.4's interim
+instruction to cite §13 is superseded. The register rows §13.2 named are rebound by dated append,
+and the index in `README.md` is updated; the design
+`docs/superpowers/specs/2026-09-11-correspondence-consumers-design.md` and the promotion-conjunction
+journal remain historical records and are not edited.

@@ -88,7 +88,7 @@ _GENERATED_MANIFEST_PATH = Path("architecture/generated_artifacts.toml")
 _GENERATED_REFERENCE_PATH = Path("docs/reference/generated-artifacts.md")
 _OUTPUT_PATH = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
 _DEBT_REGISTER_PATH = Path(CUSTODY_APPOINTMENT_SOURCE_PATH)
-_DEFAULT_REGISTER_AS_OF = date(2026, 9, 1)
+_DEFAULT_REGISTER_AS_OF = date(2026, 9, 17)
 _CORRUPTION_REASON_CODES: Mapping[str, tuple[str, ...]] = {
     "anti_role_removal": ("DS11-IDENTITY-ANTI-ROLE-DRIFT",),
     "body_fact_removal": ("DS11-A11Y-CERTIFICATION-NOT-EARNED",),

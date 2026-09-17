@@ -17,7 +17,7 @@ import yaml
 from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-FROZEN_AS_OF = date(2026, 9, 1)
+FROZEN_AS_OF = date(2026, 9, 17)
 IDENTITY_PATH = "docs/system-design-decisions/policyos-identity-and-custody-boundary.md"
 DEBT_REGISTER_PATH = "docs/plans/active/DEBT-REGISTER.md"
 A11Y_PATH = "docs/compliance/A11Y_AUDIT_2026Q2.md"

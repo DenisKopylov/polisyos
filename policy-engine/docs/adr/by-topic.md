@@ -9,7 +9,7 @@
 | `repository-structure` | Repository topology, package layout, import boundaries, docs governance, and workspace hygiene. | 32 |
 | `observation` | Observability, causal evidence, scientist workflows, measurement, confidence, and validity. | 49 |
 | `security` | Tenant isolation, signing, secrets, trust stores, and other security controls. | 4 |
-| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 22 |
+| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 23 |
 | `schemas` | IR, API, schema, serialization, registry, metadata, and compatibility contracts. | 17 |
 | `testing` | Test topology, fixtures, golden data, drift checks, and reproducibility gates. | 4 |
 | `release` | Release trains, SemVer, versioning, deprecation, migration, and retraction policy. | 6 |
@@ -143,6 +143,7 @@
 | [0175](0175-layer3-grounding-subordination-discipline.md) | `accepted` | `polisyos.runtime` | Layer 3 Grounding Subordination Discipline | 0156, 0173, 0174 |
 | [0176](0176-epoch-validity-transition-admission-predicates.md) | `accepted` | `polisyos.runtime` | Epoch validity transition admission predicates | 0175 |
 | [0177](0177-governed-public-record-bounded-initial-root-profile.md) | `accepted` | `polisyos.runtime` | The governed public record admits a bounded initial-root profile | 0176 |
+| [0178](0178-promotion-posture-admission-resolves-owner-artifacts.md) | `accepted` | `polisyos.runtime` | Promotion admits the S6, S7 and S8 postures only from owner artifacts it resolves and recomputes | 0176, 0177 |
 | [ADR-004](ADR-004-policy-surface-removal.md) | `completed` | `polisyos.ir` | Trinity-Only IR Runtime | - |
 
 ### schemas

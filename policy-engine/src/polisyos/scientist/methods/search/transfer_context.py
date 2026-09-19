@@ -166,6 +166,7 @@ def resolve_transfer_context(
         task_family
         or _string_or_none(payload.get("task_family"))
         or _nested_string(payload, "policy_search_context", "task_family")
+        or (base.task_family if base is not None else None)
         or _candidate_metadata(candidate, "task_family")
         or ("discovery" if _looks_like_discovery_candidate(candidate) else "policy")
     )
@@ -173,6 +174,7 @@ def resolve_transfer_context(
         domain
         or _string_or_none(payload.get("policy_request_domain"))
         or _string_or_none(payload.get("domain"))
+        or (base.domain if base is not None else None)
         or _candidate_domain(candidate)
         or _candidate_metadata(candidate, "domain")
         or None

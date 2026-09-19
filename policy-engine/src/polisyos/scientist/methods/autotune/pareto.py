@@ -2,11 +2,41 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .models import BenchmarkEvaluation, MetricDirection, PromotionPolicy
+from .models import (
+    BenchmarkEvaluation,
+    BenchmarkSplit,
+    MetricDirection,
+    PromotionPolicy,
+)
+
+
+class ParetoCoordinate(BaseModel):
+    """Typed identity for one normalized Pareto coordinate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    coordinate_id: str
+    metric: str
+    split: BenchmarkSplit
+    unit_state: Literal["absent", "present"]
+    unit: str | None = None
+    direction: MetricDirection
+
+
+class ParetoCoordinateSchema(BaseModel):
+    """Versioned schema shared by Pareto values and reference points."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    version: Literal["pareto-coordinate.v1"] = "pareto-coordinate.v1"
+    coordinates: list[ParetoCoordinate] = Field(default_factory=list)
 
 
 class ParetoMember(BaseModel):
@@ -16,6 +46,7 @@ class ParetoMember(BaseModel):
 
     candidate_ref_id: str
     objectives: dict[str, float]
+    coordinate_values: dict[str, float] = Field(default_factory=dict)
     evaluation: BenchmarkEvaluation
 
 
@@ -27,10 +58,38 @@ class ParetoFront(BaseModel):
     members: list[ParetoMember] = Field(default_factory=list)
     hypervolume: float = 0.0
     reference_point: dict[str, float] = Field(default_factory=dict)
+    coordinate_schema: ParetoCoordinateSchema = Field(
+        default_factory=ParetoCoordinateSchema
+    )
+    coordinate_reference_point: dict[str, float] = Field(default_factory=dict)
 
     @property
     def size(self) -> int:
         return len(self.members)
+
+
+def _coordinate_for_policy(policy: PromotionPolicy) -> ParetoCoordinate:
+    """Build a collision-safe coordinate identity from all policy dimensions."""
+    unit_state = "present" if policy.unit is not None else "absent"
+    identity = {
+        "direction": policy.direction.value,
+        "metric": policy.primary_metric,
+        "split": policy.compare_split.value,
+        "unit": policy.unit,
+        "unit_state": unit_state,
+    }
+    encoded = json.dumps(identity, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    coordinate_id = (
+        "pareto-coordinate.v1:" + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+    )
+    return ParetoCoordinate(
+        coordinate_id=coordinate_id,
+        metric=policy.primary_metric,
+        split=policy.compare_split,
+        unit_state=unit_state,
+        unit=policy.unit,
+        direction=policy.direction,
+    )
 
 
 class ParetoPromoter:
@@ -44,20 +103,26 @@ class ParetoPromoter:
         for policy in self._policies:
             metric_counts[policy.primary_metric] = metric_counts.get(policy.primary_metric, 0) + 1
 
-        objective_names: list[str] = []
+        coordinates = [_coordinate_for_policy(policy) for policy in self._policies]
+        coordinate_ids = [coordinate.coordinate_id for coordinate in coordinates]
+        if len(set(coordinate_ids)) != len(coordinate_ids):
+            raise ValueError("PromotionPolicy coordinates must be unique")
+
+        display_names: list[str] = []
         for policy in self._policies:
             if metric_counts[policy.primary_metric] == 1 and policy.unit is None:
-                objective_names.append(policy.primary_metric)
+                display_names.append(policy.primary_metric)
                 continue
             coordinate = [policy.primary_metric, policy.compare_split.value]
             if policy.unit is not None:
                 coordinate.append(f"unit={policy.unit}")
             coordinate.append(f"direction={policy.direction.value}")
-            objective_names.append("::".join(coordinate))
+            display_names.append("::".join(coordinate))
 
-        if len(set(objective_names)) != len(objective_names):
-            raise ValueError("PromotionPolicy coordinates must be unique")
-        self._objective_names = tuple(objective_names)
+        self._coordinates = tuple(coordinates)
+        self._coordinate_schema = ParetoCoordinateSchema(coordinates=coordinates)
+        self._objective_names = tuple(coordinate_ids)
+        self._display_objective_names = tuple(display_names)
 
     def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
         """Compute the Pareto front from a set of evaluations."""
@@ -79,22 +144,26 @@ class ParetoPromoter:
         members = [
             ParetoMember(
                 candidate_ref_id=str(valid_evaluations[i].candidate_ref.artifact_id),
-                objectives=self._vector_to_objectives(objective_vectors[i]),
+                objectives=self._vector_to_display_objectives(objective_vectors[i]),
+                coordinate_values=self._vector_to_objectives(objective_vectors[i]),
                 evaluation=valid_evaluations[i],
             )
             for i in non_dominated_indices
         ]
 
-        ref_point = self._reference_point(objective_vectors)
+        coordinate_ref_point = self._reference_point(objective_vectors)
+        ref_point = self._display_reference_point(objective_vectors)
         hv = self._compute_hypervolume(
             [objective_vectors[i] for i in non_dominated_indices],
-            ref_point,
+            coordinate_ref_point,
         )
 
         return ParetoFront(
             members=members,
             hypervolume=hv,
             reference_point=ref_point,
+            coordinate_schema=self._coordinate_schema,
+            coordinate_reference_point=coordinate_ref_point,
         )
 
     def is_dominated(
@@ -110,7 +179,9 @@ class ParetoPromoter:
         if cand_obj is None:
             return False
         for member in front.members:
-            if self._dominates(member.objectives, cand_obj):
+            if member.coordinate_values and self._dominates(
+                member.coordinate_values, cand_obj
+            ):
                 return True
         return False
 
@@ -156,6 +227,10 @@ class ParetoPromoter:
 
     def _vector_to_objectives(self, vector: tuple[float, ...]) -> dict[str, float]:
         return dict(zip(self._objective_names, vector, strict=True))
+
+    def _vector_to_display_objectives(self, vector: tuple[float, ...]) -> dict[str, float]:
+        """Return the legacy display projection for backwards-compatible readers."""
+        return dict(zip(self._display_objective_names, vector, strict=True))
 
     def _dominates(self, a: dict[str, float], b: dict[str, float]) -> bool:
         """Return True if a dominates b (all >= and at least one >)."""
@@ -345,6 +420,18 @@ class ParetoPromoter:
         return {
             metric_name: min(vector[index] for vector in objectives)
             for index, metric_name in enumerate(self._objective_names)
+        }
+
+    def _display_reference_point(
+        self,
+        objectives: list[tuple[float, ...]],
+    ) -> dict[str, float]:
+        """Return the legacy display projection of the reference point."""
+        if not objectives:
+            return {}
+        return {
+            display_name: min(vector[index] for vector in objectives)
+            for index, display_name in enumerate(self._display_objective_names)
         }
 
     def _compute_hypervolume(

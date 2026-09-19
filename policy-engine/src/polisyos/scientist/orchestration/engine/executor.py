@@ -59,7 +59,10 @@ from polisyos.scientist.orchestration.engine.state_branching import (
     mutation_journal_for_state,
     snapshot_state,
 )
-from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_outcomes
+from polisyos.scientist.orchestration.engine.state_merge import (
+    StateReplayIncompatible,
+    merge_parallel_outcomes,
+)
 from polisyos.scientist.orchestration.engine.telemetry import (
     add_span_events,
     set_span_attribute,
@@ -85,6 +88,7 @@ if TYPE_CHECKING:
 _CACHE_BYPASS_DISABLED = 1
 _CACHE_BYPASS_KEY_ERROR = 2
 _CACHE_BYPASS_STORE_ERROR = 3
+_CACHE_BYPASS_REPLAY_INCOMPATIBLE = 4
 
 _CACHE_DISABLED_NODE_IDS = frozenset(
     {
@@ -952,17 +956,39 @@ class WorkflowExecutor:
                         )
 
                 if cached_outcome is not None:
-                    outcome = cached_outcome.model_copy(
-                        update={
-                            "state": _merge_cached_outcome_state(
-                                alias=alias,
-                                node=node,
-                                base_state=state,
-                                outcome=cached_outcome,
-                            )
-                        }
-                    )
-                else:
+                    try:
+                        merged_cached_state = _merge_cached_outcome_state(
+                            alias=alias,
+                            node=node,
+                            base_state=state,
+                            outcome=cached_outcome,
+                        )
+                    except StateReplayIncompatible as exc:
+                        if self._cache is not None and cache_key is not None:
+                            self._cache.discard(cache_key)
+                        cached_outcome = None
+                        cache_hit = False
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}",
+                            "NODE_CACHE_BYPASS",
+                            metrics={
+                                "duration_ms": int((time.perf_counter() - started) * 1000),
+                                "cache_bypass": 1,
+                                "reason_code": _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
+                                "reason": str(exc),
+                            },
+                        )
+                        set_span_attribute(
+                            span,
+                            "polisyos.node.cache.bypass_reason",
+                            _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
+                        )
+                    else:
+                        outcome = cached_outcome.model_copy(
+                            update={"state": merged_cached_state}
+                        )
+
+                if cached_outcome is None:
                     retry_policy = inv.retry or RetryPolicy()
                     branched_state = branch_state(
                         state,

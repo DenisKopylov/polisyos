@@ -25,6 +25,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _MISSING = object()
+_MUTATION_JOURNAL_ATTR = "_polisyos_state_mutation_journal"
 _TOP_LEVEL_MUTABLE_FIELDS = (
     "inputs",
     "artifacts_index",
@@ -71,6 +72,25 @@ class StateMutationJournal:
         """Keep copied state models attached to the originating journal."""
         del memo
         return self
+
+
+class _JournaledExperimentState(ExperimentState):
+    """ExperimentState view that records declared scalar assignments."""
+
+    __slots__ = ()
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        try:
+            journal = object.__getattribute__(self, _MUTATION_JOURNAL_ATTR)
+        except AttributeError:
+            journal = None
+        if isinstance(journal, StateMutationJournal) and name in journal.isolated_paths:
+            previous = getattr(self, name, _MISSING)
+            super().__setattr__(name, value)
+            if previous is not _MISSING:
+                journal.record(path=(name,), operation="set", value=value)
+            return
+        super().__setattr__(name, value)
 
 
 StateMutationOperation = Literal[
@@ -126,7 +146,7 @@ def branch_state(
     declared path are isolated lazily by cloning only the traversed branches.
     """
 
-    branched = base_state.model_copy(deep=False)
+    branched = _promote_to_journaled_state(base_state.model_copy(deep=False))
     isolated_fields: list[str] = []
     for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
         value = getattr(base_state, field_name, None)
@@ -269,12 +289,15 @@ def _is_branchable_container(value: Any) -> bool:
     return isinstance(value, (BaseModel, dict, list, tuple, set))
 
 
-_MUTATION_JOURNAL_ATTR = "_polisyos_state_mutation_journal"
-
-
 def _attach_mutation_journal(state: ExperimentState, journal: StateMutationJournal) -> None:
     """Attach a private journal without widening the public state contract."""
     object.__setattr__(state, _MUTATION_JOURNAL_ATTR, journal)
+
+
+def _promote_to_journaled_state(state: ExperimentState) -> ExperimentState:
+    if not isinstance(state, _JournaledExperimentState):
+        state.__class__ = _JournaledExperimentState
+    return state
 
 
 def mutation_journal_for_state(state: ExperimentState) -> StateMutationJournal | None:

@@ -34,6 +34,8 @@ from polisyos.scientist.orchestration.engine.state_branching import (
 logger = get_logger(__name__)
 
 IDEMPOTENCY_CONTRACT_VERSION = "1.0"
+NODE_CACHE_ENTRY_SCHEMA_VERSION = "1.0"
+STATE_MUTATIONS_VERSION = "1.0"
 
 _IDEM_CANON = CanonSpec(
     name="polisyos.idempotency.canon",
@@ -48,7 +50,7 @@ class NodeCacheEntry(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default=NODE_CACHE_ENTRY_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     run_id: str
     node_id: str
     idempotency_key: str = Field(..., min_length=64, max_length=64)
@@ -142,6 +144,11 @@ class NodeResultCache:
     def has(self, key: str) -> bool:
         return key in self._index
 
+    def discard(self, key: str) -> None:
+        """Evict one cache key and its replay contract."""
+        self._index.delete(key)
+        self._mutation_journals.pop(key, None)
+
     def clear(self) -> None:
         self._index.clear()
         self._mutation_journals.clear()
@@ -180,9 +187,9 @@ class NodeResultCache:
         if outcome_ref is None:
             return None
         if key not in self._mutation_journals:
-            # A legacy cache entry has no operation contract and is historical
+            # A cache entry without a proven operation contract is historical
             # evidence only; replay it as a miss so the node can re-execute.
-            self._index.delete(key)
+            self.discard(key)
             return None
         try:
             payload = from_canonical_bytes(self._store.get_bytes(outcome_ref.artifact_id))
@@ -200,8 +207,7 @@ class NodeResultCache:
                 key,
                 exc,
             )
-            self._index.delete(key)
-            self._mutation_journals.pop(key, None)
+            self.discard(key)
             return None
         return outcome
 
@@ -233,7 +239,7 @@ class NodeResultCache:
             idempotency_key=key,
             outcome_ref=outcome_ref,
             state_mutations=state_mutations,
-            state_mutations_version="1.0",
+            state_mutations_version=STATE_MUTATIONS_VERSION if journal is not None else None,
         )
         entry_ref = self._store.put_json(
             entry.model_dump(mode="python", by_alias=True, exclude_none=False),
@@ -250,8 +256,11 @@ class NodeResultCache:
         )
         if output_aware:
             self._verify_output_aware_cache_artifact(entry_ref, entry=True)
-        self._index.set(key, outcome_ref)
-        self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)
+        if journal is not None:
+            self._index.set(key, outcome_ref)
+            self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)
+        else:
+            self.discard(key)
         if self._max_entries is not None:
             self.prune(self._max_entries)
         return entry_ref
@@ -261,11 +270,8 @@ class NodeResultCache:
         entry = NodeCacheEntry.model_validate(payload)
         if entry.run_id != self._run_id:
             return False
-        # An ordinary legacy entry may still be indexed for historical trace
-        # accounting, but it has no replay contract and therefore becomes a
-        # miss when the executor asks for a reusable outcome. A supplied
-        # output-aware body must establish both actual cache manifests before
-        # it is indexed.
+        # A supplied output-aware body must establish both actual cache
+        # manifests before replay admission is considered.
         try:
             offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref.artifact_id))
         except (FileNotFoundError, OSError, TypeError, ValueError):
@@ -277,13 +283,16 @@ class NodeResultCache:
             decode_node_outcome(offered)
             self._verify_output_aware_cache_artifact(entry.outcome_ref)
             self._verify_output_aware_cache_artifact(entry_ref, entry=True)
+        if entry.schema_version != NODE_CACHE_ENTRY_SCHEMA_VERSION:
+            self.discard(entry.idempotency_key)
+            return False
+        if entry.state_mutations_version != STATE_MUTATIONS_VERSION:
+            self.discard(entry.idempotency_key)
+            return False
         self._index.set(entry.idempotency_key, entry.outcome_ref)
-        if entry.state_mutations_version is not None:
-            self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
-                entry.state_mutations
-            )
-        else:
-            self._mutation_journals.pop(entry.idempotency_key, None)
+        self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
+            entry.state_mutations
+        )
         if self._max_entries is not None:
             self.prune(self._max_entries)
         return True

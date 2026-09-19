@@ -27,6 +27,17 @@ _MISSING = object()
 _DICT_FIELDS = frozenset({"inputs", "artifacts_index", "reports_index", "params"})
 
 
+class StateReplayIncompatible(ValueError):
+    """Typed fail-closed error for a cached mutation that cannot be replayed."""
+
+    code = "state.replay_incompatible"
+
+    def __init__(self, path: str, reason: str) -> None:
+        self.path = path
+        self.reason = reason
+        super().__init__(f"{self.code}: {path}: {reason}")
+
+
 class MergeConflictPolicy(StrEnum):
     """How to resolve overlapping writes produced by a parallel tier."""
 
@@ -68,6 +79,7 @@ class _StagedWrite:
     start: int | None = None
     stop: int | None = None
     step: int | None = None
+    ordinal: int | None = None
 
 
 @dataclass(frozen=True)
@@ -132,7 +144,7 @@ def merge_parallel_outcomes(
         base_state,
         write_paths=(write.path for write in accepted),
     ).state
-    for write in sorted(accepted, key=lambda item: item.path):
+    for write in sorted(accepted, key=_write_order_key):
         _apply_staged_write(merged, write)
 
     return MergeResult(
@@ -166,7 +178,32 @@ def _collect_staged_writes(
                     ),
                 )
             )
-    return staged
+    return _deduplicate_journal_writes(staged)
+
+
+def _deduplicate_journal_writes(staged: list[_StagedWrite]) -> list[_StagedWrite]:
+    """Select each journal operation once across overlapping declarations."""
+    seen: set[tuple[str, int]] = set()
+    deduplicated: list[_StagedWrite] = []
+    for write in staged:
+        if write.ordinal is None:
+            deduplicated.append(write)
+            continue
+        key = (write.alias, write.ordinal)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduplicated.append(write)
+    return deduplicated
+
+
+def _write_order_key(write: _StagedWrite) -> tuple[str, int, str]:
+    """Keep alias order deterministic while preserving journal order per alias."""
+    return (
+        write.alias,
+        write.ordinal if write.ordinal is not None else -1,
+        write.path,
+    )
 
 
 def _writes_for_spec(
@@ -230,7 +267,7 @@ def _writes_from_mutations(
     mutations: list[StateMutation],
 ) -> list[_StagedWrite]:
     staged: list[_StagedWrite] = []
-    for mutation in mutations:
+    for ordinal, mutation in enumerate(mutations):
         parts = tuple(part for part in mutation.path.split(".") if part)
         if (
             not parts
@@ -249,6 +286,7 @@ def _writes_from_mutations(
                 start=mutation.start,
                 stop=mutation.stop,
                 step=mutation.step,
+                ordinal=ordinal,
             )
         )
     return staged
@@ -406,11 +444,15 @@ def _apply_staged_write(root: ExperimentState, write: _StagedWrite) -> None:
         and write.parts
         and write.parts[0] in _PROTECTED_DELETE_ROOTS
     ):
-        raise ValueError(
-            f"state deletion forbidden for protected root {write.parts[0]!r}"
+        raise StateReplayIncompatible(
+            write.path,
+            f"state deletion forbidden for protected root {write.parts[0]!r}",
         )
     if write.operation == "set":
-        _set_path(root, write.parts, deepcopy(write.value))
+        try:
+            _set_path(root, write.parts, deepcopy(write.value))
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "set target is incompatible") from exc
         return
     if write.operation == "delete":
         _delete_path(root, write.parts)
@@ -418,87 +460,124 @@ def _apply_staged_write(root: ExperimentState, write: _StagedWrite) -> None:
 
     target = _get_path(root, write.parts)
     if target is _MISSING:
-        if write.operation in {"pop", "remove", "delete_index", "delete_slice"}:
-            return
-        raise ValueError(f"Cannot replay {write.operation} at missing path {write.path!r}")
+        raise StateReplayIncompatible(write.path, "target path is missing")
 
     if write.operation == "append":
         if not isinstance(target, list):
-            raise ValueError(f"Cannot append to non-list path {write.path!r}")
+            raise StateReplayIncompatible(write.path, "append target is not a list")
         target.append(deepcopy(write.value))
     elif write.operation == "extend":
         if not isinstance(target, list):
-            raise ValueError(f"Cannot extend non-list path {write.path!r}")
+            raise StateReplayIncompatible(write.path, "extend target is not a list")
         target.extend(deepcopy(write.value or []))
     elif write.operation == "insert":
         if not isinstance(target, list):
-            raise ValueError(f"Cannot insert into non-list path {write.path!r}")
-        target.insert(
-            write.index if write.index is not None else len(target),
-            deepcopy(write.value),
-        )
+            raise StateReplayIncompatible(write.path, "insert target is not a list")
+        try:
+            target.insert(
+                write.index if write.index is not None else len(target),
+                deepcopy(write.value),
+            )
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "insert index is invalid") from exc
     elif write.operation == "pop":
-        if isinstance(target, list) and target:
+        if not isinstance(target, list):
+            raise StateReplayIncompatible(write.path, "pop target is not a list")
+        try:
             target.pop(write.index if write.index is not None else -1)
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "pop index is invalid") from exc
     elif write.operation == "remove":
-        if isinstance(target, list):
-            try:
-                target.remove(write.value)
-            except ValueError:
-                pass
+        if not isinstance(target, list):
+            raise StateReplayIncompatible(write.path, "remove target is not a list")
+        try:
+            target.remove(write.value)
+        except ValueError as exc:
+            raise StateReplayIncompatible(write.path, "remove value is absent") from exc
     elif write.operation == "clear":
-        if isinstance(target, (dict, list, set)):
-            target.clear()
+        if not isinstance(target, (dict, list, set)):
+            raise StateReplayIncompatible(write.path, "clear target is not mutable")
+        target.clear()
     elif write.operation == "reverse":
-        if isinstance(target, list):
-            target.reverse()
+        if not isinstance(target, list):
+            raise StateReplayIncompatible(write.path, "reverse target is not a list")
+        target.reverse()
     elif write.operation == "sort":
-        if isinstance(target, list):
-            target.sort()
+        if not isinstance(target, list):
+            raise StateReplayIncompatible(write.path, "sort target is not a list")
+        target.sort()
     elif write.operation == "set_index":
         if not isinstance(target, list) or write.index is None:
-            raise ValueError(f"Cannot set list index at path {write.path!r}")
-        target[write.index] = deepcopy(write.value)
+            raise StateReplayIncompatible(write.path, "set_index target or index is invalid")
+        try:
+            target[write.index] = deepcopy(write.value)
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "set_index index is invalid") from exc
     elif write.operation == "delete_index":
-        if isinstance(target, list) and write.index is not None:
-            try:
-                del target[write.index]
-            except IndexError:
-                pass
+        if not isinstance(target, list) or write.index is None:
+            raise StateReplayIncompatible(write.path, "delete_index target or index is invalid")
+        try:
+            del target[write.index]
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "delete_index index is invalid") from exc
     elif write.operation == "set_slice":
         if not isinstance(target, list):
-            raise ValueError(f"Cannot set list slice at path {write.path!r}")
-        target[slice(write.start, write.stop, write.step)] = deepcopy(write.value or [])
+            raise StateReplayIncompatible(write.path, "set_slice target is not a list")
+        try:
+            target[slice(write.start, write.stop, write.step)] = deepcopy(write.value or [])
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "set_slice bounds are invalid") from exc
     elif write.operation == "delete_slice":
-        if isinstance(target, list):
+        if not isinstance(target, list):
+            raise StateReplayIncompatible(write.path, "delete_slice target is not a list")
+        try:
             del target[slice(write.start, write.stop, write.step)]
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "delete_slice bounds are invalid") from exc
     elif write.operation == "replace":
-        _set_path(root, write.parts, deepcopy(write.value))
+        try:
+            _set_path(root, write.parts, deepcopy(write.value))
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write.path, "replace target is incompatible") from exc
     else:
-        raise ValueError(f"Unknown state mutation operation {write.operation!r}")
+        raise StateReplayIncompatible(write.path, f"unknown operation {write.operation!r}")
 
 
 def _delete_path(root: ExperimentState, parts: tuple[str, ...]) -> None:
     if not parts or len(parts) == 1:
-        raise ValueError("state deletion forbidden at top-level field")
+        raise StateReplayIncompatible(
+            write_path(parts),
+            "state deletion forbidden at top-level field",
+        )
     if parts[0] in _PROTECTED_DELETE_ROOTS:
-        raise ValueError(f"state deletion forbidden for protected root {parts[0]!r}")
+        raise StateReplayIncompatible(
+            write_path(parts),
+            f"state deletion forbidden for protected root {parts[0]!r}",
+        )
     parent = _get_path(root, parts[:-1])
     if parent is _MISSING:
-        return
+        raise StateReplayIncompatible(write_path(parts), "delete parent path is missing")
     key = parts[-1]
     if isinstance(parent, BaseModel):
-        raise ValueError(f"state deletion forbidden for model field {write_path(parts)!r}")
+        raise StateReplayIncompatible(
+            write_path(parts),
+            f"state deletion forbidden for model field {write_path(parts)!r}",
+        )
     if isinstance(parent, dict):
-        parent.pop(key, None)
+        if key not in parent:
+            raise StateReplayIncompatible(write_path(parts), "delete target key is missing")
+        del parent[key]
         return
     if isinstance(parent, list):
         try:
             del parent[int(key)]
-        except (IndexError, TypeError, ValueError):
-            return
+        except (IndexError, TypeError, ValueError) as exc:
+            raise StateReplayIncompatible(write_path(parts), "delete index is invalid") from exc
         return
-    raise ValueError(f"state deletion forbidden for non-container path {write_path(parts)!r}")
+    raise StateReplayIncompatible(
+        write_path(parts),
+        f"state deletion forbidden for non-container path {write_path(parts)!r}",
+    )
 
 
 def write_path(parts: tuple[str, ...]) -> str:
@@ -510,5 +589,6 @@ __all__ = [
     "MergeConflict",
     "MergeConflictPolicy",
     "MergeResult",
+    "StateReplayIncompatible",
     "merge_parallel_outcomes",
 ]

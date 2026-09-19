@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import threading
 from decimal import Decimal
 from pathlib import Path
@@ -294,3 +295,148 @@ class TestFileBudgetLedger:
             Decimal("2"),
             Decimal("3"),
         ]
+
+    def test_ledger_reader_never_observes_blank_snapshot_during_writer_pause(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        path = tmp_path / "budget_ledger.json"
+        ledger = FileBudgetLedger(path)
+        ledger.load_or_bootstrap(_budget(max_usd="100", spent="10"))
+
+        original_persist = ledger._persist_snapshot
+        truncated = threading.Event()
+        resume = threading.Event()
+        reader_started = threading.Event()
+        allow_reader = threading.Event()
+        writer_errors: list[BaseException] = []
+        reader_errors: list[BaseException] = []
+        reader_states: list[BudgetState] = []
+
+        def pause_after_truncate(fd: int, snapshot: object) -> object:
+            os.ftruncate(fd, 0)
+            truncated.set()
+            if not resume.wait(timeout=2):
+                raise AssertionError("writer was not released")
+            return original_persist(fd, snapshot)
+
+        original_read_text = Path.read_text
+
+        def gate_reader(self: Path, *args: object, **kwargs: object) -> str:
+            if self == path:
+                reader_started.set()
+                if not allow_reader.wait(timeout=2):
+                    raise AssertionError("reader was not released")
+            return original_read_text(self, *args, **kwargs)
+
+        monkeypatch.setattr(ledger, "_persist_snapshot", pause_after_truncate)
+        monkeypatch.setattr(Path, "read_text", gate_reader)
+
+        def write_once() -> None:
+            try:
+                ledger.record_spend("run", Decimal("5"))
+            except BaseException as exc:  # pragma: no cover - reported below
+                writer_errors.append(exc)
+
+        writer = threading.Thread(target=write_once)
+        writer.start()
+        assert truncated.wait(timeout=2)
+
+        def read_once() -> None:
+            try:
+                reader_states.append(ledger.load())
+            except BaseException as exc:  # pragma: no cover - reported below
+                reader_errors.append(exc)
+
+        reader = threading.Thread(target=read_once)
+        reader.start()
+        reader_saw_publication_window = reader_started.wait(timeout=2)
+        if reader_saw_publication_window:
+            allow_reader.set()
+
+        try:
+            resume.set()
+            allow_reader.set()
+            writer.join(timeout=2)
+            reader.join(timeout=2)
+        finally:
+            resume.set()
+            allow_reader.set()
+
+        assert not writer.is_alive()
+        assert not reader.is_alive()
+        assert writer_errors == []
+        assert reader_errors == []
+        assert len(reader_states) == 1
+
+        observed = reader_states[0]
+        assert observed.limits["run"].max_usd == Decimal("100")
+        assert observed.spent["run"] in {Decimal("10"), Decimal("15")}
+
+    def test_ledger_failed_atomic_replace_preserves_last_valid_snapshot(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        path = tmp_path / "budget_ledger.json"
+        ledger = FileBudgetLedger(path)
+        ledger.load_or_bootstrap(_budget(max_usd="100", spent="10"))
+        before = ledger.snapshot()
+        replace_attempts: list[tuple[object, object]] = []
+        original_replace = os.replace
+
+        def fail_data_replace(source: object, destination: object) -> None:
+            if Path(destination) == path:
+                replace_attempts.append((source, destination))
+                raise OSError("simulated crash before ledger publication")
+            original_replace(source, destination)
+
+        monkeypatch.setattr(os, "replace", fail_data_replace)
+        try:
+            ledger.record_spend("run", Decimal("5"))
+        except OSError:
+            pass
+
+        assert replace_attempts, "writer did not exercise atomic publication"
+        after = ledger.snapshot()
+        assert after.revision == before.revision
+        assert after.state.limits["run"].max_usd == Decimal("100")
+        assert after.state.spent["run"] == Decimal("10")
+
+    def test_ledger_corrupt_existing_snapshot_never_becomes_unlimited(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "budget_ledger.json"
+        ledger = FileBudgetLedger(path)
+        ledger.load_or_bootstrap(_budget(max_usd="100", spent="10"))
+        path.write_text('{"schema_version":', encoding="utf-8")
+
+        try:
+            state = ledger.load()
+        except ValueError:
+            return
+
+        assert state.limits["run"].max_usd == Decimal("100")
+        assert state.spent["run"] == Decimal("10")
+
+    def test_ledger_reads_are_observations_without_spending_or_revision(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "budget_ledger.json"
+        ledger = FileBudgetLedger(path)
+        ledger.load_or_bootstrap(_budget(max_usd="100", spent="10"))
+        middleware = BudgetMiddleware(_budget(max_usd="100"), ledger=ledger)
+        before = ledger.snapshot()
+
+        for _ in range(3):
+            observed = middleware.budget_state
+            assert observed.limits["run"].max_usd == Decimal("100")
+            assert observed.spent["run"] == Decimal("10")
+
+        after = ledger.snapshot()
+        assert after.revision == before.revision
+        assert after.state.spent["run"] == Decimal("10")
+        assert [item.operation for item in after.recent_mutations] == ["bootstrap"]

@@ -4,12 +4,15 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.cursor import CursorState, WatermarkType
 from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
+from polisyos.fabric.ingestion import IngestionDependencies
+from polisyos.ir.connectors import DataVersion, FetchRequest, VersionStrategy
 
 
 def _make_evidence_bundle(store: FileSystemCAS):
@@ -45,7 +48,7 @@ class TestBatchIncremental:
         with (
             patch(
                 "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-                return_value=mock_result,
+                side_effect=_successful_orchestrator(mock_result),
             ),
             patch(
                 "polisyos.fabric.ingestion.run_connectors_ingestion",
@@ -81,7 +84,7 @@ class TestBatchIncremental:
         with (
             patch(
                 "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-                return_value=mock_result,
+                side_effect=_successful_orchestrator(mock_result),
             ),
             patch(
                 "polisyos.fabric.ingestion.run_connectors_ingestion",
@@ -115,7 +118,7 @@ class TestBatchIncremental:
         with (
             patch(
                 "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-                return_value=mock_result,
+                side_effect=_successful_orchestrator(mock_result),
             ),
             patch(
                 "polisyos.fabric.ingestion.run_connectors_ingestion",
@@ -185,6 +188,115 @@ class TestBatchIncremental:
             assert second_cursor is not None
             assert second_cursor.watermark_value >= first_value
 
+    def test_incremental_passes_legacy_cursor_to_typed_and_dict_dataset_requests(
+        self,
+        tmp_path: Path,
+    ):
+        """Typed and mapping manifests both pass the stored cursor to FetchRequest."""
+        for manifest_index, manifest in enumerate((_make_manifest(), _make_dict_manifest())):
+            cas_root = tmp_path / f".polisyos-{manifest_index}"
+            store = FileSystemCAS(cas_root)
+            cursor_store = CursorStore(store)
+            cursor_store.save_cursor(
+                CursorState(
+                    cursor_id="worldbank.wdi:NY.GDP.MKTP.CD",
+                    connector_id="worldbank.wdi",
+                    dataset_id="NY.GDP.MKTP.CD",
+                    watermark_type=WatermarkType.TIMESTAMP,
+                    watermark_value="2024-01-01T00:00:00+00:00",
+                    created_at=datetime(2024, 1, 1, tzinfo=UTC),
+                )
+            )
+            observed_requests: list[FetchRequest] = []
+
+            class _Connector:
+                def fetch(self, handle: object, request: FetchRequest) -> object:
+                    del handle
+                    observed_requests.append(request)
+                    return _fetch_result("2024-01-02T00:00:00+00:00")
+
+            dependencies = _test_dependencies(_Connector())
+            evidence_ref = _make_evidence_bundle(store)
+            mock_result = IngestionResult(
+                evidence_bundle_ref=evidence_ref,
+                datasets_fetched=1,
+            )
+
+            with patch(
+                "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+                side_effect=_request_observing_orchestrator(
+                    mock_result,
+                    observed_requests,
+                ),
+            ):
+                from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+                run_batch_incremental(
+                    connector_manifest=manifest,
+                    source="test",
+                    license_name="open",
+                    cas_root=cas_root,
+                    produce_snapshot=False,
+                    ingestion_dependencies=dependencies,
+                )
+
+            assert len(observed_requests) == 1
+            assert observed_requests[0].incremental_since is not None
+            assert observed_requests[0].incremental_since.value == (
+                "2024-01-01T00:00:00+00:00"
+            )
+            assert observed_requests[0].incremental_since.strategy is VersionStrategy.TIMESTAMP
+
+    def test_incremental_advances_only_confirmed_dataset_boundaries(self, tmp_path: Path):
+        """An aggregate success advances only datasets with a confirmed fetch result."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        evidence_ref = _make_evidence_bundle(store)
+        manifest = {
+            "datasets": [
+                {"connector_id": "alpha.source", "dataset_id": "A"},
+                {"connector_id": "beta.source", "dataset_id": "B"},
+            ]
+        }
+        mock_result = IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=1,
+        )
+        confirmed_result = _fetch_result("2024-01-09T00:00:00+00:00")
+
+        def _partial_orchestrator(**kwargs: object) -> IngestionResult:
+            sink = kwargs["raw_result_sink"]
+            assert callable(sink)
+            sink(
+                "alpha.source",
+                "A",
+                FetchRequest(dataset_id="A"),
+                confirmed_result,
+            )
+            return mock_result
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=_partial_orchestrator,
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest=manifest,
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+            )
+
+        cursor_store = CursorStore(store)
+        cursor_a = cursor_store.find_latest_cursor("alpha.source", "A")
+        cursor_b = cursor_store.find_latest_cursor("beta.source", "B")
+        assert result.cursor_ref is not None
+        assert cursor_a is not None
+        assert cursor_a.watermark_value == "2024-01-09T00:00:00+00:00"
+        assert cursor_b is None
+
 
 class TestIncrementalCheckpoint:
     def test_cursor_serialization_roundtrip(self, tmp_path: Path):
@@ -233,3 +345,96 @@ def _make_manifest():
             ),
         ],
     )
+
+
+def _make_dict_manifest() -> dict[str, list[dict[str, str]]]:
+    return {
+        "datasets": [
+            {
+                "connector_id": "worldbank.wdi",
+                "dataset_id": "NY.GDP.MKTP.CD",
+            }
+        ]
+    }
+
+
+def _fetch_result(source_updated_at: str) -> SimpleNamespace:
+    boundary = datetime.fromisoformat(source_updated_at)
+    return SimpleNamespace(
+        source_updated_at=boundary,
+        fetched_at=boundary,
+        version=DataVersion(
+            strategy=VersionStrategy.TIMESTAMP,
+            value=source_updated_at,
+            timestamp=boundary,
+        ),
+        evidence_ref=None,
+    )
+
+
+def _test_dependencies(connector: object) -> IngestionDependencies:
+    class _Registry:
+        def get(self, connector_id: str) -> object:
+            del connector_id
+            return connector
+
+    return IngestionDependencies(
+        registry=_Registry(),
+        tracer=SimpleNamespace(),
+        metrics=SimpleNamespace(),
+    )
+
+
+def _successful_orchestrator(mock_result: IngestionResult):
+    def _run(**kwargs: object) -> IngestionResult:
+        sink = kwargs["raw_result_sink"]
+        assert callable(sink)
+        manifest = kwargs["connector_manifest"]
+        datasets = manifest.datasets if hasattr(manifest, "datasets") else manifest["datasets"]
+        for dataset in datasets:
+            connector_id = (
+                dataset.connector_id if hasattr(dataset, "connector_id") else dataset["connector_id"]
+            )
+            dataset_id = (
+                dataset.dataset_id if hasattr(dataset, "dataset_id") else dataset["dataset_id"]
+            )
+            sink(
+                connector_id,
+                dataset_id,
+                FetchRequest(dataset_id=dataset_id),
+                _fetch_result("2024-01-02T00:00:00+00:00"),
+            )
+        return mock_result
+
+    return _run
+
+
+def _request_observing_orchestrator(
+    mock_result: IngestionResult,
+    observed_requests: list[FetchRequest],
+):
+    def _run(**kwargs: object) -> IngestionResult:
+        dependencies = kwargs["ingestion_dependencies"]
+        assert isinstance(dependencies, IngestionDependencies)
+        manifest = kwargs["connector_manifest"]
+        dataset = manifest.datasets[0] if hasattr(manifest, "datasets") else manifest["datasets"][0]
+        connector_id = (
+            dataset.connector_id if hasattr(dataset, "connector_id") else dataset["connector_id"]
+        )
+        dataset_id = (
+            dataset.dataset_id if hasattr(dataset, "dataset_id") else dataset["dataset_id"]
+        )
+        connector = dependencies.registry.get(connector_id)
+        connector.fetch(None, FetchRequest(dataset_id=dataset_id))
+        assert observed_requests
+        sink = kwargs["raw_result_sink"]
+        assert callable(sink)
+        sink(
+            connector_id,
+            dataset_id,
+            observed_requests[-1],
+            _fetch_result("2024-01-02T00:00:00+00:00"),
+        )
+        return mock_result
+
+    return _run

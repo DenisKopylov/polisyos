@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from .models import BenchmarkEvaluation, MetricDirection, PromotionPolicy
@@ -37,22 +39,48 @@ class ParetoPromoter:
     def __init__(self, policies: list[PromotionPolicy]) -> None:
         if not policies:
             raise ValueError("At least one PromotionPolicy is required")
-        self._policies = policies
-        self._objective_names = tuple(policy.primary_metric for policy in policies)
+        self._policies = list(policies)
+        metric_counts: dict[str, int] = {}
+        for policy in self._policies:
+            metric_counts[policy.primary_metric] = metric_counts.get(policy.primary_metric, 0) + 1
+
+        objective_names: list[str] = []
+        for policy in self._policies:
+            if metric_counts[policy.primary_metric] == 1 and policy.unit is None:
+                objective_names.append(policy.primary_metric)
+                continue
+            coordinate = [policy.primary_metric, policy.compare_split.value]
+            if policy.unit is not None:
+                coordinate.append(f"unit={policy.unit}")
+            coordinate.append(f"direction={policy.direction.value}")
+            objective_names.append("::".join(coordinate))
+
+        if len(set(objective_names)) != len(objective_names):
+            raise ValueError("PromotionPolicy coordinates must be unique")
+        self._objective_names = tuple(objective_names)
 
     def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
         """Compute the Pareto front from a set of evaluations."""
         if not evaluations:
             return ParetoFront()
 
-        objective_vectors = self._extract_objective_vectors(evaluations)
+        valid_evaluations: list[BenchmarkEvaluation] = []
+        objective_vectors: list[tuple[float, ...]] = []
+        for evaluation in evaluations:
+            vector = self._eval_objective_vector(evaluation)
+            if vector is None:
+                continue
+            valid_evaluations.append(evaluation)
+            objective_vectors.append(vector)
+        if not objective_vectors:
+            return ParetoFront()
         non_dominated_indices = self._find_non_dominated(objective_vectors)
 
         members = [
             ParetoMember(
-                candidate_ref_id=str(evaluations[i].candidate_ref.artifact_id),
+                candidate_ref_id=str(valid_evaluations[i].candidate_ref.artifact_id),
                 objectives=self._vector_to_objectives(objective_vectors[i]),
-                evaluation=evaluations[i],
+                evaluation=valid_evaluations[i],
             )
             for i in non_dominated_indices
         ]
@@ -79,6 +107,8 @@ class ParetoPromoter:
             return False
 
         cand_obj = self._eval_objectives(candidate)
+        if cand_obj is None:
+            return False
         for member in front.members:
             if self._dominates(member.objectives, cand_obj):
                 return True
@@ -88,30 +118,40 @@ class ParetoPromoter:
         self,
         evaluations: list[BenchmarkEvaluation],
     ) -> list[dict[str, float]]:
-        return [self._eval_objectives(ev) for ev in evaluations]
+        return [
+            objectives
+            for evaluation in evaluations
+            if (objectives := self._eval_objectives(evaluation)) is not None
+        ]
 
-    def _eval_objectives(self, ev: BenchmarkEvaluation) -> dict[str, float]:
-        return self._vector_to_objectives(self._eval_objective_vector(ev))
+    def _eval_objectives(self, ev: BenchmarkEvaluation) -> dict[str, float] | None:
+        vector = self._eval_objective_vector(ev)
+        if vector is None:
+            return None
+        return self._vector_to_objectives(vector)
 
     def _extract_objective_vectors(
         self,
         evaluations: list[BenchmarkEvaluation],
     ) -> list[tuple[float, ...]]:
-        return [self._eval_objective_vector(ev) for ev in evaluations]
+        return [
+            vector
+            for evaluation in evaluations
+            if (vector := self._eval_objective_vector(evaluation)) is not None
+        ]
 
-    def _eval_objective_vector(self, ev: BenchmarkEvaluation) -> tuple[float, ...]:
+    def _eval_objective_vector(self, ev: BenchmarkEvaluation) -> tuple[float, ...] | None:
         values: list[float] = []
         for policy in self._policies:
             value = ev.primary_value(split=policy.compare_split, metric=policy.primary_metric)
-            if value is None:
-                value = (
-                    float("inf") if policy.direction == MetricDirection.MINIMIZE else float("-inf")
-                )
+            if value is None or not math.isfinite(value):
+                return None
             # Normalize: higher is always better
             if policy.direction == MetricDirection.MINIMIZE:
-                values.append(-value)
-            else:
-                values.append(value)
+                value = -value
+            if not math.isfinite(value):
+                return None
+            values.append(value)
         return tuple(values)
 
     def _vector_to_objectives(self, vector: tuple[float, ...]) -> dict[str, float]:
@@ -119,10 +159,14 @@ class ParetoPromoter:
 
     def _dominates(self, a: dict[str, float], b: dict[str, float]) -> bool:
         """Return True if a dominates b (all >= and at least one >)."""
+        if a.keys() != b.keys() or any(
+            not math.isfinite(value) for value in (*a.values(), *b.values())
+        ):
+            return False
         at_least_one_better = False
         for key in a:
-            va = a.get(key, float("-inf"))
-            vb = b.get(key, float("-inf"))
+            va = a[key]
+            vb = b[key]
             if va < vb:
                 return False
             if va > vb:
@@ -170,7 +214,7 @@ class ParetoPromoter:
             reverse=True,
         )
         front: list[int] = []
-        max_second_from_previous_groups = float("-inf")
+        max_second_from_previous_groups: float | None = None
         cursor = 0
         while cursor < len(ranked):
             first_value = objectives[ranked[cursor]][0]
@@ -182,14 +226,18 @@ class ParetoPromoter:
             group_max_second = max(objectives[index][1] for index in group)
             for index in group:
                 second_value = objectives[index][1]
-                if second_value < max_second_from_previous_groups:
+                if (
+                    max_second_from_previous_groups is not None
+                    and second_value <= max_second_from_previous_groups
+                ):
                     continue
                 if second_value == group_max_second:
                     front.append(index)
-            max_second_from_previous_groups = max(
-                max_second_from_previous_groups,
-                group_max_second,
-            )
+            if (
+                max_second_from_previous_groups is None
+                or group_max_second > max_second_from_previous_groups
+            ):
+                max_second_from_previous_groups = group_max_second
         return sorted(front)
 
     def _find_non_dominated_3d(
@@ -288,6 +336,12 @@ class ParetoPromoter:
         """Worst value per objective as reference point."""
         if not objectives:
             return {}
+        if any(
+            not math.isfinite(value)
+            for vector in objectives
+            for value in vector
+        ):
+            return {}
         return {
             metric_name: min(vector[index] for vector in objectives)
             for index, metric_name in enumerate(self._objective_names)
@@ -303,6 +357,16 @@ class ParetoPromoter:
             return 0.0
 
         keys = self._objective_names
+        if set(ref_point) != set(keys):
+            return 0.0
+        if any(not math.isfinite(value) for value in ref_point.values()):
+            return 0.0
+        if any(
+            len(objective) != len(keys)
+            or any(not math.isfinite(value) for value in objective)
+            for objective in front_objectives
+        ):
+            return 0.0
         if len(keys) == 1:
             return max(0.0, max(obj[0] for obj in front_objectives) - ref_point[keys[0]])
 

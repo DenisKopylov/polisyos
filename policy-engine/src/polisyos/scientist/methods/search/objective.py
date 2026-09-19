@@ -2,10 +2,40 @@
 
 from __future__ import annotations
 
+import math
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Protocol
+
+
+_MISSING = object()
+_INVALID = object()
+_BALANCE_ALIASES = ("gov_balance", "government_balance")
+_DEFICIT_ALIASES = ("budget_deficit", "deficit")
+
+
+def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:
+    """Read one numeric metric from aliases without hiding conflicts or invalid values."""
+    values: list[float] = []
+    for alias in aliases:
+        raw_value = results.get(alias, _MISSING)
+        if raw_value is _MISSING or raw_value is None:
+            continue
+        try:
+            value = float(raw_value)
+        except (TypeError, ValueError):
+            return _INVALID
+        if not math.isfinite(value):
+            return _INVALID
+        values.append(value)
+
+    if not values:
+        return _MISSING
+    if any(value != values[0] for value in values[1:]):
+        return _INVALID
+    return values[0]
 
 
 class OptimizationDirection(str, Enum):
@@ -102,8 +132,8 @@ class BaseObjective(ABC):
     def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
         raw = self._extract_value(results)
 
-        is_satisfied = True
-        if self._threshold is not None:
+        is_satisfied = math.isfinite(raw)
+        if self._threshold is not None and is_satisfied:
             if self.direction == OptimizationDirection.MINIMIZE:
                 is_satisfied = raw <= self._threshold
             else:
@@ -151,10 +181,16 @@ class BudgetDeficitObjective(BaseObjective):
         return OptimizationDirection.MINIMIZE
 
     def _extract_value(self, results: dict[str, Any]) -> float:
-        balance = results.get("gov_balance", 0.0)
-        if balance is None:
-            balance = -results.get("budget_deficit", 0.0)
-        return abs(min(balance, 0))
+        balance = _read_metric_aliases(results, _BALANCE_ALIASES)
+        if balance is _INVALID:
+            return math.nan
+        if balance is not _MISSING:
+            return max(-float(balance), 0.0)
+
+        deficit = _read_metric_aliases(results, _DEFICIT_ALIASES)
+        if deficit is _INVALID or deficit is _MISSING:
+            return math.nan
+        return abs(float(deficit))
 
 
 class InequalityObjective(BaseObjective):

@@ -203,6 +203,7 @@ class PromotionPolicy(_PydanticBaseModel):
 
     loop_id: str = Field(..., min_length=1, max_length=128)
     primary_metric: str = Field(..., min_length=1, max_length=128)
+    unit: str | None = Field(default=None, min_length=1, max_length=64)
     direction: MetricDirection = MetricDirection.MAXIMIZE
     compare_split: BenchmarkSplit = BenchmarkSplit.HOLDOUT
     min_improvement: float = 0.0

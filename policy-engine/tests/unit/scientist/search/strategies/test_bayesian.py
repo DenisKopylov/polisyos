@@ -142,3 +142,104 @@ def test_bayesian_batch_shape_when_deps_available(simple_space: SearchSpace) -> 
     ]
     batch = strategy.suggest_batch(evaluations, batch_size=3)
     assert len(batch) == 3
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
+    simple_space: SearchSpace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Warm history and current observations form one compatible GP corpus."""
+    strategy = BayesianOptimizer(
+        simple_space,
+        BayesianConfig(n_initial=6, num_restarts=3, raw_samples=32, seed=21),
+    )
+    warm = [
+        make_evaluation(
+            candidate_id=f"warm-{index}",
+            params={"x": -3.5 + index},
+            score=float(index),
+            space=simple_space,
+        )
+        for index in range(7)
+    ]
+    malformed = make_evaluation(
+        candidate_id="warm-foreign-basis",
+        params={"x": 4.5},
+        score=7.0,
+        space=simple_space,
+    )
+    malformed.params_normalized = (0.25, 0.75)
+    warm.append(malformed)
+    current = [
+        make_evaluation(
+            candidate_id="current-0",
+            params={"x": 4.0},
+            score=8.0,
+            space=simple_space,
+        )
+    ]
+
+    strategy.warm_start(warm)
+    observed_shapes: list[tuple[int, int]] = []
+    original_fit = strategy._fit_gp
+
+    def observe_fit(X, y_bo):
+        observed_shapes.append((int(X.shape[0]), int(y_bo.shape[0])))
+        return original_fit(X, y_bo)
+
+    monkeypatch.setattr(strategy, "_fit_gp", observe_fit)
+    strategy.suggest(current)
+
+    assert observed_shapes == [(8, 8)]
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
+    simple_space: SearchSpace,
+) -> None:
+    """A pre-refit-interval observation conditions the fitted GP instead of resetting it."""
+    strategy = BayesianOptimizer(
+        simple_space,
+        BayesianConfig(
+            n_initial=1,
+            num_restarts=3,
+            raw_samples=32,
+            refit_interval=10,
+            seed=22,
+        ),
+    )
+    initial = [
+        make_evaluation(
+            candidate_id=f"initial-{index}",
+            params={"x": -3.5 + index},
+            score=float((index - 3) ** 2),
+            space=simple_space,
+        )
+        for index in range(8)
+    ]
+    strategy.suggest(initial)
+    assert strategy._model is not None
+    model_before = strategy._model
+    learned_before = {
+        name: parameter.detach().clone()
+        for name, parameter in model_before.named_parameters()
+    }
+
+    expanded = initial + [
+        make_evaluation(
+            candidate_id="new-observation",
+            params={"x": 4.0},
+            score=0.25,
+            space=simple_space,
+        )
+    ]
+    strategy.suggest(expanded)
+
+    assert strategy._model is not None
+    assert strategy._train_X is not None
+    assert int(strategy._train_X.shape[0]) == 9
+    learned_after = dict(strategy._model.named_parameters())
+    assert set(learned_before).issubset(learned_after)
+    for name, parameter in learned_before.items():
+        assert strategy._torch.equal(parameter, learned_after[name].detach())

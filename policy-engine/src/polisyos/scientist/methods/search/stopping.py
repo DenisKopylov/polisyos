@@ -48,6 +48,10 @@ class StoppingCriterion(ABC):
         """Reset any internal state (e.g., timers)."""
         pass
 
+    def state_keys(self) -> tuple[str, ...]:
+        """Return externally-owned state keys required by this criterion."""
+        return ()
+
 
 class MaxIterations(StoppingCriterion):
     """Stop after a fixed number of iterations."""
@@ -62,7 +66,7 @@ class MaxIterations(StoppingCriterion):
         return "max_iterations"
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
-        current = len(history)
+        current = int(state.get("evaluation_iterations", len(history)))
         if current >= self._max_iter:
             return StoppingCondition(
                 should_stop=True,
@@ -222,6 +226,10 @@ class CostBudgetStopping(StoppingCriterion):
             )
         return StoppingCondition(should_stop=False)
 
+    def state_keys(self) -> tuple[str, ...]:
+        """Return the exact budget key this criterion reads."""
+        return (self._cost_key,)
+
 
 class CompositeStoppingCriterion(StoppingCriterion):
     """Stop when ANY contained criterion triggers (OR logic)."""
@@ -250,6 +258,14 @@ class CompositeStoppingCriterion(StoppingCriterion):
         for criterion in self._criteria:
             criterion.reset()
 
+    def state_keys(self) -> tuple[str, ...]:
+        """Return the de-duplicated state keys required by child criteria."""
+        return tuple(
+            dict.fromkeys(
+                key for criterion in self._criteria for key in criterion.state_keys()
+            )
+        )
+
 
 class AllStoppingCriteria(StoppingCriterion):
     """Stop only when ALL contained criteria trigger (AND logic)."""
@@ -277,6 +293,14 @@ class AllStoppingCriteria(StoppingCriterion):
     def reset(self) -> None:
         for criterion in self._criteria:
             criterion.reset()
+
+    def state_keys(self) -> tuple[str, ...]:
+        """Return the de-duplicated state keys required by child criteria."""
+        return tuple(
+            dict.fromkeys(
+                key for criterion in self._criteria for key in criterion.state_keys()
+            )
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

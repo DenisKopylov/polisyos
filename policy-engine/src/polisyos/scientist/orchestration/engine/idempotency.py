@@ -26,6 +26,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
+    StateMutationJournal,
     mutation_journal_for_state,
     mutation_journal_from_operations,
 )
@@ -128,7 +129,7 @@ class NodeResultCache:
         self._run_id = run_id
         self._max_entries = max_entries
         self._index: LRUCache[str, ArtifactRef] = LRUCache(max_size=max_entries)
-        self._mutation_journals: dict[str, object] = {}
+        self._mutation_journals: dict[str, StateMutationJournal] = {}
 
     @property
     def run_id(self) -> str:

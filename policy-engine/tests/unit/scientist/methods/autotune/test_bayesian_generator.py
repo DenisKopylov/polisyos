@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
@@ -361,3 +362,58 @@ class TestBenchmarkToEvaluation:
         )
 
         assert result is None or not result.is_valid
+
+    def test_merges_canonical_artifact_id_wire_identity_and_rejects_distinct_wire_id(self):
+        native_space = _native_space()
+        typed_ref = ArtifactRef(
+            artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+            kind="test",
+            media_type="application/json",
+        )
+        round_tripped_ref = ArtifactRef.model_validate_json(typed_ref.model_dump_json())
+        canonical_wire_id = round_tripped_ref.model_dump(mode="json")["artifact_id"]
+
+        assert isinstance(round_tripped_ref.artifact_id, ArtifactID)
+        assert canonical_wire_id == f"sha256:{'a' * 64}"
+        metadata = {
+            "candidate_id": canonical_wire_id,
+            "evaluation_id": f"sha256:{'d' * 64}",
+            "origin": "benchmark-run-canonical-id",
+            "params": {"x": 7.0},
+            "split": "selection",
+        }
+        accepted_bench = BenchmarkEvaluation(
+            loop_id="loop1",
+            suite_id="suite1",
+            candidate_ref=round_tripped_ref,
+            selection_metrics={"score": 0.8},
+            runtime_split_type=BenchmarkSplit.SELECTION,
+            metadata=metadata,
+        )
+
+        accepted = benchmark_to_evaluation(
+            accepted_bench,
+            primary_metric="score",
+            direction=MetricDirection.MAXIMIZE,
+            split=BenchmarkSplit.SELECTION,
+            dim=1,
+            search_space=native_space,
+        )
+
+        assert accepted is not None
+        assert accepted.is_valid
+        assert accepted.candidate_id == canonical_wire_id
+
+        rejected_bench = accepted_bench.model_copy(
+            update={"metadata": {**metadata, "candidate_id": f"sha256:{'b' * 64}"}}
+        )
+        rejected = benchmark_to_evaluation(
+            rejected_bench,
+            primary_metric="score",
+            direction=MetricDirection.MAXIMIZE,
+            split=BenchmarkSplit.SELECTION,
+            dim=1,
+            search_space=native_space,
+        )
+
+        assert rejected is None or not rejected.is_valid

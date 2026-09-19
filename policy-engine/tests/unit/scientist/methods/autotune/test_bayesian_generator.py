@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
@@ -193,6 +195,71 @@ def test_search_iteration_history_preserves_origin_params_split_and_full_ids() -
         assert evaluation.stage_b_result["params"] == {"x": x}
 
 
+@pytest.mark.parametrize(
+    "identity_field",
+    ["candidate_id", "evaluation_id", "split", "origin"],
+)
+def test_history_identity_conflicts_fail_closed(identity_field: str) -> None:
+    native_space = _native_space()
+    values = {
+        "candidate_id": ("candidate-id", "runtime-id", "metadata-id"),
+        "evaluation_id": ("candidate-eval", "runtime-eval", "metadata-eval"),
+        "split": ("selection", "holdout", "metadata-split"),
+        "origin": ("candidate-origin", "runtime-origin", "metadata-origin"),
+    }
+    candidate_value, runtime_value, metadata_value = values[identity_field]
+    candidate_metadata = {
+        "candidate_id": "candidate-id",
+        "evaluation_id": "candidate-eval",
+        "split": "selection",
+        "origin": "candidate-origin",
+    }
+    runtime_identity = {
+        "candidate_id": "runtime-id",
+        "evaluation_id": "runtime-eval",
+        "split": "selection",
+        "origin": "runtime-origin",
+    }
+    metadata_identity = {
+        "candidate_id": "metadata-id",
+        "evaluation_id": "metadata-eval",
+        "split": "selection",
+        "origin": "metadata-origin",
+    }
+    candidate_metadata[identity_field] = candidate_value
+    runtime_identity[identity_field] = runtime_value
+    metadata_identity[identity_field] = metadata_value
+
+    iteration = SearchIteration(
+        iteration=0,
+        candidate={"x": 7.0, "_strategy_metadata": candidate_metadata},
+        objective_value=0.25,
+        objective_details=[
+            ObjectiveValue(
+                name="score",
+                raw_value=0.25,
+                direction=OptimizationDirection.MINIMIZE,
+            )
+        ],
+        is_promising=True,
+        stage_a_passed=True,
+        stage_b_result={
+            **runtime_identity,
+            "metadata": metadata_identity,
+            "params": {"x": 7.0},
+            "score": 0.25,
+        },
+        duration_seconds=0.1,
+        timestamp=datetime.now(UTC),
+    )
+
+    evaluations = BayesianCandidateGenerator(search_space=native_space)._history_to_evaluations(
+        [iteration]
+    )
+
+    assert not any(evaluation.is_valid for evaluation in evaluations)
+
+
 def test_history_without_score_is_not_a_successful_zero_observation() -> None:
     generator = BayesianCandidateGenerator(search_space=_native_space())
 
@@ -276,3 +343,30 @@ class TestBenchmarkToEvaluation:
             assert result.metadata["evaluation_id"] == evaluation_id
             assert result.metadata["origin"] == origin
             assert result.metadata["split"] == "selection"
+
+    def test_rejects_metadata_split_conflicting_with_typed_runtime_split(self):
+        native_space = _native_space()
+        bench = BenchmarkEvaluation(
+            loop_id="loop1",
+            suite_id="suite1",
+            candidate_ref=_ref_with_id(f"sha256:{'b' * 64}"),
+            selection_metrics={"score": 0.8},
+            runtime_split_type=BenchmarkSplit.SELECTION,
+            metadata={
+                "evaluation_id": f"sha256:{'d' * 64}",
+                "origin": "benchmark-run-conflict",
+                "params": {"x": 7.0},
+                "params_normalized": list(native_space.normalize({"x": 7.0})),
+                "split": "holdout",
+            },
+        )
+
+        result = benchmark_to_evaluation(
+            bench,
+            primary_metric="score",
+            direction=MetricDirection.MAXIMIZE,
+            split=BenchmarkSplit.SELECTION,
+            dim=1,
+        )
+
+        assert result is None or not result.is_valid

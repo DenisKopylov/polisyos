@@ -200,16 +200,24 @@ def _strategy_value_is_valid(strategy: VersionStrategy, value: str) -> bool:
     if not normalized:
         return False
     if strategy is VersionStrategy.TIMESTAMP:
-        if normalized.endswith("Z"):
-            normalized = f"{normalized[:-1]}+00:00"
-        try:
-            parsed = datetime.fromisoformat(normalized)
-        except ValueError:
-            return False
-        return parsed.tzinfo is not None and parsed.utcoffset() is not None
+        return _parse_timestamp_value(normalized) is not None
     if strategy is VersionStrategy.REVISION:
         return normalized.isdigit()
     return True
+
+
+def _parse_timestamp_value(value: str) -> datetime | None:
+    """Parse one source timestamp and reject timezone-free values."""
+    normalized = value.strip()
+    if normalized.endswith("Z"):
+        normalized = f"{normalized[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
+    return parsed
 
 
 def _admit_incremental_version(
@@ -316,9 +324,36 @@ def _complete_source_boundary(
         return None
     if strategy is VersionStrategy.TIMESTAMP:
         source_updated_at = getattr(fetch_result, "source_updated_at", None)
-        if not isinstance(source_updated_at, datetime):
+        source_timestamp = (
+            source_updated_at
+            if isinstance(source_updated_at, datetime)
+            and source_updated_at.tzinfo is not None
+            and source_updated_at.utcoffset() is not None
+            else None
+        )
+        version = getattr(fetch_result, "version", None)
+        if getattr(version, "strategy", None) is VersionStrategy.TIMESTAMP:
+            version_value = getattr(version, "value", None)
+            version_timestamp = getattr(version, "timestamp", None)
+            if not isinstance(version_value, str) or not isinstance(
+                version_timestamp, datetime
+            ):
+                return None
+            parsed_version_value = _parse_timestamp_value(version_value)
+            if parsed_version_value is None:
+                return None
+            if (
+                version_timestamp.tzinfo is None
+                or version_timestamp.utcoffset() is None
+                or version_timestamp != parsed_version_value
+            ):
+                return None
+            if source_timestamp is not None and source_timestamp != parsed_version_value:
+                return None
+            source_timestamp = parsed_version_value
+        if source_timestamp is None:
             return None
-        return strategy, source_updated_at.isoformat(), source_updated_at
+        return strategy, source_timestamp.isoformat(), source_timestamp
 
     version = getattr(fetch_result, "version", None)
     if getattr(version, "strategy", None) is not strategy:

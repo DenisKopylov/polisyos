@@ -83,6 +83,20 @@ def test_duplicate_detection_uses_canonical_integer_and_category_execution() -> 
     assert proposal.params_normalized != pending.params_normalized
     assert strategy._is_duplicate(proposal, [pending])
 
+    different_integer = PolicyCandidate(
+        candidate_id="different-integer",
+        params={"budget_steps": 1, "regime": "A"},
+        params_normalized=(0.86, 0.80, 0.20),
+    )
+    different_category = PolicyCandidate(
+        candidate_id="different-category",
+        params={"budget_steps": 0, "regime": "B"},
+        params_normalized=(0.12, 0.20, 0.80),
+    )
+
+    assert not strategy._is_duplicate(different_integer, [pending])
+    assert not strategy._is_duplicate(different_category, [pending])
+
 
 @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
 def test_bayesian_batch_shape_when_deps_available(simple_space: SearchSpace) -> None:

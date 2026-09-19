@@ -21,6 +21,7 @@ from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     EvaluationStatus,
     ParameterBounds,
+    ParameterType,
 )
 
 
@@ -73,67 +74,123 @@ class TestBayesianCandidateGeneratorFallback:
 
 
 def test_first_sobol_candidate_uses_native_search_space_protocol() -> None:
-    """The autotune wrapper must drive a real SearchSpace on its first suggest."""
+    """The autotune wrapper must drive the native mixed-type SearchSpace protocol."""
+    native_space = SearchSpace(
+        bounds=[
+            ParameterBounds(name="tax_rate", lower=0.0, upper=1.0),
+            ParameterBounds(
+                name="budget_steps",
+                lower=0,
+                upper=1,
+                dtype=ParameterType.INTEGER,
+            ),
+            ParameterBounds(
+                name="regime",
+                dtype=ParameterType.CATEGORICAL,
+                categories=("A", "B", "C"),
+            ),
+        ]
+    )
     generator = BayesianCandidateGenerator(
-        search_space=AutotuneSearchSpace([{"name": "x", "lower": 0.0, "upper": 10.0}]),
+        search_space=AutotuneSearchSpace(
+            [
+                {"name": "tax_rate", "lower": 0.0, "upper": 1.0},
+                {
+                    "name": "budget_steps",
+                    "lower": 0,
+                    "upper": 1,
+                    "dtype": ParameterType.INTEGER,
+                },
+                {
+                    "name": "regime",
+                    "dtype": ParameterType.CATEGORICAL,
+                    "categories": ("A", "B", "C"),
+                },
+            ]
+        ),
         n_initial=1,
         seed=7,
     )
 
     candidate = generator.generate(history=[], current_best=None, context={})
+    expected_vector = native_space.sample_sobol(n_samples=1, seed=7)[0]
+    expected_params = native_space.denormalize(expected_vector)
 
-    assert 0.0 <= candidate["x"] <= 10.0
-    assert candidate["_strategy_metadata"]["source"] == "sobol_init"
+    assert {name: candidate[name] for name in expected_params} == expected_params
 
 
 def test_search_iteration_history_preserves_origin_params_split_and_full_ids() -> None:
-    full_candidate_id = f"sha256:{'c' * 64}"
-    full_evaluation_id = f"sha256:{'e' * 64}"
-    iteration = SearchIteration(
-        iteration=7,
-        candidate={
-            "x": 7.0,
-            "_strategy_metadata": {
-                "candidate_id": full_candidate_id,
-                "evaluation_id": full_evaluation_id,
-                "origin": "search-run-17",
-                "split": "selection",
+    native_space = _native_space()
+    observations = [
+        (
+            f"sha256:{'c' * 64}",
+            f"sha256:{'e' * 64}",
+            7.0,
+            "search-run-17",
+            "selection",
+            0.25,
+        ),
+        (
+            f"sha256:{'f' * 64}",
+            f"sha256:{'1' * 64}",
+            2.0,
+            "search-run-18",
+            "holdout",
+            0.75,
+        ),
+    ]
+    iterations = [
+        SearchIteration(
+            iteration=index,
+            candidate={
+                "x": x,
+                "_strategy_metadata": {
+                    "candidate_id": candidate_id,
+                    "evaluation_id": evaluation_id,
+                    "origin": origin,
+                    "split": split,
+                },
             },
-        },
-        objective_value=0.25,
-        objective_details=[
-            ObjectiveValue(
-                name="score",
-                raw_value=0.25,
-                direction=OptimizationDirection.MINIMIZE,
-            )
-        ],
-        is_promising=True,
-        stage_a_passed=True,
-        stage_b_result={
-            "candidate_id": full_candidate_id,
-            "evaluation_id": full_evaluation_id,
-            "origin": "search-run-17",
-            "params": {"x": 7.0},
-            "score": 0.25,
-            "split": "selection",
-        },
-        duration_seconds=0.1,
-        timestamp=datetime.now(UTC),
-    )
-    generator = BayesianCandidateGenerator(search_space=_native_space())
+            objective_value=score,
+            objective_details=[
+                ObjectiveValue(
+                    name="score",
+                    raw_value=score,
+                    direction=OptimizationDirection.MINIMIZE,
+                )
+            ],
+            is_promising=True,
+            stage_a_passed=True,
+            stage_b_result={
+                "candidate_id": candidate_id,
+                "evaluation_id": evaluation_id,
+                "origin": origin,
+                "params": {"x": x},
+                "score": score,
+                "split": split,
+            },
+            duration_seconds=0.1,
+            timestamp=datetime.now(UTC),
+        )
+        for index, (candidate_id, evaluation_id, x, origin, split, score) in enumerate(observations)
+    ]
+    generator = BayesianCandidateGenerator(search_space=native_space)
 
-    evaluations = generator._history_to_evaluations([iteration])
+    evaluations = generator._history_to_evaluations(iterations)
 
-    assert len(evaluations) == 1
-    evaluation = evaluations[0]
-    assert evaluation.candidate_id == full_candidate_id
-    assert evaluation.params == {"x": 7.0}
-    assert evaluation.params_normalized == (0.7,)
-    assert evaluation.stage_b_result == iteration.stage_b_result
-    assert evaluation.metadata["origin"] == "search-run-17"
-    assert evaluation.metadata["split"] == "selection"
-    assert evaluation.metadata["evaluation_id"] == full_evaluation_id
+    assert len(evaluations) == len(observations)
+    assert evaluations[0].params_normalized != evaluations[1].params_normalized
+    for evaluation, (candidate_id, evaluation_id, x, origin, split, _score) in zip(
+        evaluations, observations, strict=True
+    ):
+        assert evaluation.candidate_id == candidate_id
+        assert evaluation.params == {"x": x}
+        assert evaluation.params_normalized == native_space.normalize({"x": x})
+        assert evaluation.metadata["origin"] == origin
+        assert evaluation.metadata["split"] == split
+        assert evaluation.metadata["evaluation_id"] == evaluation_id
+        assert evaluation.stage_b_result is not None
+        assert evaluation.stage_b_result["params"] == {"x": x}
 
 
 def test_history_without_score_is_not_a_successful_zero_observation() -> None:
@@ -182,36 +239,40 @@ class TestBenchmarkToEvaluation:
         assert result is None
 
     def test_preserves_full_identity_split_origin_and_candidate_params(self):
-        candidate_id = f"sha256:{'b' * 64}"
-        evaluation_id = f"sha256:{'d' * 64}"
-        bench = BenchmarkEvaluation(
-            loop_id="loop1",
-            suite_id="suite1",
-            candidate_ref=_ref_with_id(candidate_id),
-            selection_metrics={"score": 0.8},
-            holdout_metrics={"score": 0.4},
-            runtime_split_type=BenchmarkSplit.SELECTION,
-            metadata={
-                "evaluation_id": evaluation_id,
-                "origin": "benchmark-run-17",
-                "params": {"x": 7.0},
-                "params_normalized": [0.7],
-                "split": "selection",
-            },
-        )
+        native_space = _native_space()
+        observations = [
+            (f"sha256:{'b' * 64}", f"sha256:{'d' * 64}", 7.0, "benchmark-run-17"),
+            (f"sha256:{'2' * 64}", f"sha256:{'3' * 64}", 2.0, "benchmark-run-18"),
+        ]
+        for candidate_id, evaluation_id, x, origin in observations:
+            bench = BenchmarkEvaluation(
+                loop_id="loop1",
+                suite_id="suite1",
+                candidate_ref=_ref_with_id(candidate_id),
+                selection_metrics={"score": 0.8},
+                holdout_metrics={"score": 0.4},
+                runtime_split_type=BenchmarkSplit.SELECTION,
+                metadata={
+                    "evaluation_id": evaluation_id,
+                    "origin": origin,
+                    "params": {"x": x},
+                    "params_normalized": list(native_space.normalize({"x": x})),
+                    "split": "selection",
+                },
+            )
 
-        result = benchmark_to_evaluation(
-            bench,
-            primary_metric="score",
-            direction=MetricDirection.MAXIMIZE,
-            split=BenchmarkSplit.SELECTION,
-            dim=1,
-        )
+            result = benchmark_to_evaluation(
+                bench,
+                primary_metric="score",
+                direction=MetricDirection.MAXIMIZE,
+                split=BenchmarkSplit.SELECTION,
+                dim=1,
+            )
 
-        assert result is not None
-        assert result.candidate_id == candidate_id
-        assert result.params == {"x": 7.0}
-        assert result.params_normalized == (0.7,)
-        assert result.metadata["evaluation_id"] == evaluation_id
-        assert result.metadata["origin"] == "benchmark-run-17"
-        assert result.metadata["split"] == "selection"
+            assert result is not None
+            assert result.candidate_id == candidate_id
+            assert result.params == {"x": x}
+            assert result.params_normalized == native_space.normalize({"x": x})
+            assert result.metadata["evaluation_id"] == evaluation_id
+            assert result.metadata["origin"] == origin
+            assert result.metadata["split"] == "selection"

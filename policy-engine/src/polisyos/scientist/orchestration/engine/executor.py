@@ -54,7 +54,11 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeStatus,
 )
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync
-from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state,
+    mutation_journal_for_state,
+    snapshot_state,
+)
 from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_outcomes
 from polisyos.scientist.orchestration.engine.telemetry import (
     add_span_events,
@@ -381,6 +385,7 @@ def _merge_cached_outcome_state(
         base_state,
         {alias: outcome},
         {alias: list(getattr(node.spec, "state_writes", ()))},
+        mutation_journals={alias: mutation_journal_for_state(outcome.state)},
     )
     return merge_result.state
 

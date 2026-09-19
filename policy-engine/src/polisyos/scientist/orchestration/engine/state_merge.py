@@ -16,7 +16,12 @@ from pydantic import BaseModel
 
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    StateMutation,
+    StateMutationJournal,
+    branch_state,
+    mutation_journal_for_state,
+)
 
 _MISSING = object()
 _DICT_FIELDS = frozenset({"inputs", "artifacts_index", "reports_index", "params"})
@@ -58,6 +63,11 @@ class _StagedWrite:
     path: str
     parts: tuple[str, ...]
     value: Any
+    operation: str = "set"
+    index: int | None = None
+    start: int | None = None
+    stop: int | None = None
+    step: int | None = None
 
 
 @dataclass(frozen=True)
@@ -78,6 +88,7 @@ def merge_parallel_outcomes(
     write_specs: dict[str, list[str]],
     *,
     conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
+    mutation_journals: dict[str, StateMutationJournal | None] | None = None,
 ) -> MergeResult:
     """Merge outcomes from parallel nodes by their ``state_writes`` declarations.
 
@@ -92,7 +103,12 @@ def merge_parallel_outcomes(
     if not outcomes:
         return MergeResult(state=base_state)
 
-    staged = _collect_staged_writes(base_state, outcomes, write_specs)
+    staged = _collect_staged_writes(
+        base_state,
+        outcomes,
+        write_specs,
+        mutation_journals=mutation_journals,
+    )
     accepted, conflicts, resolved_conflicts = _resolve_conflicts(
         staged,
         conflict_policy=conflict_policy,
@@ -117,7 +133,7 @@ def merge_parallel_outcomes(
         write_paths=(write.path for write in accepted),
     ).state
     for write in sorted(accepted, key=lambda item: item.path):
-        _set_path(merged, write.parts, deepcopy(write.value))
+        _apply_staged_write(merged, write)
 
     return MergeResult(
         state=merged,
@@ -130,6 +146,8 @@ def _collect_staged_writes(
     base_state: ExperimentState,
     outcomes: dict[str, NodeOutcome],
     write_specs: dict[str, list[str]],
+    *,
+    mutation_journals: dict[str, StateMutationJournal | None] | None = None,
 ) -> list[_StagedWrite]:
     staged: list[_StagedWrite] = []
     for alias in sorted(outcomes):
@@ -141,6 +159,11 @@ def _collect_staged_writes(
                     write_field=write_field,
                     base_state=base_state,
                     outcome_state=outcome.state,
+                    mutation_journal=(
+                        mutation_journals.get(alias)
+                        if mutation_journals is not None and alias in mutation_journals
+                        else mutation_journal_for_state(outcome.state)
+                    ),
                 )
             )
     return staged
@@ -152,10 +175,18 @@ def _writes_for_spec(
     write_field: str,
     base_state: ExperimentState,
     outcome_state: ExperimentState,
+    mutation_journal: StateMutationJournal | None = None,
 ) -> list[_StagedWrite]:
     parts = tuple(part for part in write_field.split(".") if part)
     if not parts:
         return []
+
+    if mutation_journal is not None:
+        return _writes_from_mutations(
+            alias=alias,
+            write_parts=parts,
+            mutations=mutation_journal.operations,
+        )
 
     if len(parts) == 1 and parts[0] in _DICT_FIELDS:
         outcome_val = _get_path(outcome_state, parts)
@@ -190,6 +221,37 @@ def _writes_for_spec(
     if base_val is not _MISSING and outcome_val == base_val:
         return []
     return [_StagedWrite(alias=alias, path=write_field, parts=parts, value=outcome_val)]
+
+
+def _writes_from_mutations(
+    *,
+    alias: str,
+    write_parts: tuple[str, ...],
+    mutations: list[StateMutation],
+) -> list[_StagedWrite]:
+    staged: list[_StagedWrite] = []
+    for mutation in mutations:
+        parts = tuple(part for part in mutation.path.split(".") if part)
+        if not parts or not _paths_overlap(write_parts, parts) or not _path_contains(write_parts, parts):
+            continue
+        staged.append(
+            _StagedWrite(
+                alias=alias,
+                path=mutation.path,
+                parts=parts,
+                value=mutation.value,
+                operation=mutation.operation,
+                index=mutation.index,
+                start=mutation.start,
+                stop=mutation.stop,
+                step=mutation.step,
+            )
+        )
+    return staged
+
+
+def _path_contains(parent: tuple[str, ...], child: tuple[str, ...]) -> bool:
+    return len(parent) <= len(child) and parent == child[: len(parent)]
 
 
 def _resolve_conflicts(
@@ -272,6 +334,12 @@ def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
                 return _MISSING
             current = current[part]
             continue
+        if isinstance(current, list):
+            try:
+                current = current[int(part)]
+            except (IndexError, TypeError, ValueError):
+                return _MISSING
+            continue
         return _MISSING
     return current
 
@@ -299,6 +367,12 @@ def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
                 child = current[part]
             current = child
             continue
+        if isinstance(current, list):
+            try:
+                current = current[int(part)]
+            except (IndexError, TypeError, ValueError) as exc:
+                raise TypeError(f"Cannot descend into list path segment {part!r}") from exc
+            continue
         raise TypeError(f"Cannot descend into non-container path segment {next_part!r}")
     _assign_value(current, parts[-1], value)
 
@@ -310,7 +384,111 @@ def _assign_value(root: Any, key: str, value: Any) -> None:
     if isinstance(root, dict):
         root[key] = value
         return
+    if isinstance(root, list):
+        try:
+            root[int(key)] = value
+        except (IndexError, TypeError, ValueError) as exc:
+            raise TypeError(f"Cannot assign to list path segment {key!r}") from exc
+        return
     raise TypeError(f"Cannot assign to path segment {key!r}")
+
+
+_PROTECTED_DELETE_ROOTS = frozenset({"inputs", "artifacts_index", "reports_index"})
+
+
+def _apply_staged_write(root: ExperimentState, write: _StagedWrite) -> None:
+    if write.operation == "set":
+        _set_path(root, write.parts, deepcopy(write.value))
+        return
+    if write.operation == "delete":
+        _delete_path(root, write.parts)
+        return
+
+    target = _get_path(root, write.parts)
+    if target is _MISSING:
+        if write.operation in {"pop", "remove", "delete_index", "delete_slice"}:
+            return
+        raise ValueError(f"Cannot replay {write.operation} at missing path {write.path!r}")
+
+    if write.operation == "append":
+        if not isinstance(target, list):
+            raise ValueError(f"Cannot append to non-list path {write.path!r}")
+        target.append(deepcopy(write.value))
+    elif write.operation == "extend":
+        if not isinstance(target, list):
+            raise ValueError(f"Cannot extend non-list path {write.path!r}")
+        target.extend(deepcopy(write.value or []))
+    elif write.operation == "insert":
+        if not isinstance(target, list):
+            raise ValueError(f"Cannot insert into non-list path {write.path!r}")
+        target.insert(write.index if write.index is not None else len(target), deepcopy(write.value))
+    elif write.operation == "pop":
+        if isinstance(target, list) and target:
+            target.pop(write.index if write.index is not None else -1)
+    elif write.operation == "remove":
+        if isinstance(target, list):
+            try:
+                target.remove(write.value)
+            except ValueError:
+                pass
+    elif write.operation == "clear":
+        if isinstance(target, (dict, list, set)):
+            target.clear()
+    elif write.operation == "reverse":
+        if isinstance(target, list):
+            target.reverse()
+    elif write.operation == "sort":
+        if isinstance(target, list):
+            target.sort()
+    elif write.operation == "set_index":
+        if not isinstance(target, list) or write.index is None:
+            raise ValueError(f"Cannot set list index at path {write.path!r}")
+        target[write.index] = deepcopy(write.value)
+    elif write.operation == "delete_index":
+        if isinstance(target, list) and write.index is not None:
+            try:
+                del target[write.index]
+            except IndexError:
+                pass
+    elif write.operation == "set_slice":
+        if not isinstance(target, list):
+            raise ValueError(f"Cannot set list slice at path {write.path!r}")
+        target[slice(write.start, write.stop, write.step)] = deepcopy(write.value or [])
+    elif write.operation == "delete_slice":
+        if isinstance(target, list):
+            del target[slice(write.start, write.stop, write.step)]
+    elif write.operation == "replace":
+        _set_path(root, write.parts, deepcopy(write.value))
+    else:
+        raise ValueError(f"Unknown state mutation operation {write.operation!r}")
+
+
+def _delete_path(root: ExperimentState, parts: tuple[str, ...]) -> None:
+    if not parts or len(parts) == 1:
+        raise ValueError("state deletion forbidden at top-level field")
+    if parts[0] in _PROTECTED_DELETE_ROOTS:
+        raise ValueError(f"state deletion forbidden for protected root {parts[0]!r}")
+    parent = _get_path(root, parts[:-1])
+    if parent is _MISSING:
+        return
+    key = parts[-1]
+    if isinstance(parent, BaseModel):
+        raise ValueError(f"state deletion forbidden for model field {write_path(parts)!r}")
+    if isinstance(parent, dict):
+        parent.pop(key, None)
+        return
+    if isinstance(parent, list):
+        try:
+            del parent[int(key)]
+        except (IndexError, TypeError, ValueError):
+            return
+        return
+    raise ValueError(f"state deletion forbidden for non-container path {write_path(parts)!r}")
+
+
+def write_path(parts: tuple[str, ...]) -> str:
+    """Render a path for state mutation errors."""
+    return ".".join(parts)
 
 
 __all__ = [

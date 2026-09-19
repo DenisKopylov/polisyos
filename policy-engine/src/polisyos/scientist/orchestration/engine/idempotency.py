@@ -24,6 +24,11 @@ from polisyos.scientist.orchestration.engine.protocol import (
     decode_node_outcome,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import (
+    StateMutation,
+    mutation_journal_for_state,
+    mutation_journal_from_operations,
+)
 
 logger = get_logger(__name__)
 
@@ -47,6 +52,8 @@ class NodeCacheEntry(BaseModel):
     node_id: str
     idempotency_key: str = Field(..., min_length=64, max_length=64)
     outcome_ref: ArtifactRef
+    state_mutations: tuple[StateMutation, ...] = Field(default_factory=tuple)
+    state_mutations_version: str | None = Field(default=None, pattern=r"^\d+\.\d+$")
     created_at: datetime = Field(default_factory=lambda: utc_now(drop_microseconds=True))
 
 
@@ -121,6 +128,7 @@ class NodeResultCache:
         self._run_id = run_id
         self._max_entries = max_entries
         self._index: LRUCache[str, ArtifactRef] = LRUCache(max_size=max_entries)
+        self._mutation_journals: dict[str, object] = {}
 
     @property
     def run_id(self) -> str:
@@ -135,9 +143,15 @@ class NodeResultCache:
 
     def clear(self) -> None:
         self._index.clear()
+        self._mutation_journals.clear()
 
     def prune(self, max_entries: int) -> int:
-        return self._index.prune(max_entries)
+        removed = self._index.prune(max_entries)
+        active_keys = set(self._index.keys())
+        for key in tuple(self._mutation_journals):
+            if key not in active_keys:
+                del self._mutation_journals[key]
+        return removed
 
     def _verify_output_aware_cache_artifact(self, ref: ArtifactRef, *, entry: bool = False) -> None:
         """Read back the actual immutable cache epoch, including reused CAS bytes."""
@@ -169,6 +183,9 @@ class NodeResultCache:
             outcome = decode_node_outcome(payload)
             if isinstance(outcome, OutputAwareNodeOutcome):
                 self._verify_output_aware_cache_artifact(outcome_ref)
+            journal = self._mutation_journals.get(key)
+            if journal is not None:
+                object.__setattr__(outcome.state, "_polisyos_state_mutation_journal", journal)
         except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
             logger.debug(
                 "Cache miss for key %s, evicting: %s",
@@ -176,6 +193,7 @@ class NodeResultCache:
                 exc,
             )
             self._index.delete(key)
+            self._mutation_journals.pop(key, None)
             return None
         return outcome
 
@@ -204,6 +222,14 @@ class NodeResultCache:
             node_id=node_id,
             idempotency_key=key,
             outcome_ref=outcome_ref,
+            state_mutations=(
+                tuple(mutation_journal_for_state(outcome.state).operations)
+                if mutation_journal_for_state(outcome.state) is not None
+                else ()
+            ),
+            state_mutations_version=(
+                "1.0" if mutation_journal_for_state(outcome.state) is not None else None
+            ),
         )
         entry_ref = self._store.put_json(
             entry.model_dump(mode="python", by_alias=True, exclude_none=False),
@@ -221,6 +247,11 @@ class NodeResultCache:
         if output_aware:
             self._verify_output_aware_cache_artifact(entry_ref, entry=True)
         self._index.set(key, outcome_ref)
+        journal = mutation_journal_for_state(outcome.state)
+        if journal is not None:
+            self._mutation_journals[key] = mutation_journal_from_operations(journal.operations)
+        else:
+            self._mutation_journals.pop(key, None)
         if self._max_entries is not None:
             self.prune(self._max_entries)
         return entry_ref
@@ -245,6 +276,12 @@ class NodeResultCache:
             self._verify_output_aware_cache_artifact(entry.outcome_ref)
             self._verify_output_aware_cache_artifact(entry_ref, entry=True)
         self._index.set(entry.idempotency_key, entry.outcome_ref)
+        if entry.state_mutations_version is not None:
+            self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
+                entry.state_mutations
+            )
+        else:
+            self._mutation_journals.pop(entry.idempotency_key, None)
         if self._max_entries is not None:
             self.prune(self._max_entries)
         return True

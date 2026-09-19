@@ -431,8 +431,10 @@ class BayesianOptimizer(BaseSearchStrategy):
         for key in replicate_keys:
             left_value = left.metadata.get(key)
             right_value = right.metadata.get(key)
-            if left_value is not None or right_value is not None:
-                return left_value == right_value
+            if left_value is None and right_value is None:
+                continue
+            if left_value != right_value:
+                return False
         return True
 
     def _tensor_to_candidate(

@@ -50,6 +50,22 @@ def _identity_value(value: Any) -> Any:
     return value.value if isinstance(value, Enum) else value
 
 
+def _merge_identity_sources(
+    sources: tuple[Mapping[str, Any], ...],
+) -> dict[str, Any] | None:
+    """Merge identity claims only when every explicit claim agrees."""
+    identity: dict[str, Any] = {}
+    for source in sources:
+        for key in _IDENTITY_KEYS:
+            if key not in source or source[key] is None:
+                continue
+            value = _identity_value(source[key])
+            if key in identity and identity[key] != value:
+                return None
+            identity[key] = value
+    return identity
+
+
 def _finite_float(value: Any) -> float | object:
     try:
         result = float(value)
@@ -337,21 +353,19 @@ class BayesianCandidateGenerator:
         stage_b_result: dict[str, Any],
         entry_mapping: dict[str, Any],
         entry_metadata: dict[str, Any],
-    ) -> dict[str, Any]:
+    ) -> dict[str, Any] | None:
         candidate_metadata = _as_mapping(candidate.get("_strategy_metadata"))
         stage_b_metadata = _as_mapping(stage_b_result.get("metadata"))
-        identity: dict[str, Any] = {}
-        for source in (
-            entry_mapping,
-            entry_metadata,
-            candidate_metadata,
-            stage_b_metadata,
-            stage_b_result,
-        ):
-            for key in _IDENTITY_KEYS:
-                if key in source and source[key] is not None:
-                    identity[key] = _identity_value(source[key])
-        return identity
+        return _merge_identity_sources(
+            (
+                entry_mapping,
+                entry_metadata,
+                candidate,
+                candidate_metadata,
+                stage_b_result,
+                stage_b_metadata,
+            )
+        )
 
     def _history_to_evaluations(self, history: list[Any]) -> list[Any]:
         deps = _try_import_bayesian()
@@ -386,6 +400,9 @@ class BayesianCandidateGenerator:
                 entry_mapping=entry_mapping,
                 entry_metadata=entry_metadata,
             )
+            if identity is None:
+                logger.warning("Skipping history entry %s: conflicting identity fields", idx)
+                continue
             candidate_id = str(identity.get("candidate_id") or f"hist_{idx}")
             score, score_is_scalar = self._history_score(
                 entry=entry,
@@ -487,7 +504,18 @@ def benchmark_to_evaluation(
         return None
     _, _, Evaluation, EvaluationStatus, _, ObjectiveValue, OptimizationDirection = deps
 
-    if not bench.matches_runtime_split(split):
+    runtime_split = bench.resolved_runtime_split_type()
+    if runtime_split != split:
+        return None
+    benchmark_metadata = dict(bench.metadata)
+    benchmark_identity = _merge_identity_sources(
+        (
+            {"candidate_id": bench.candidate_ref.artifact_id, "split": runtime_split},
+            benchmark_metadata,
+            _as_mapping(benchmark_metadata.get("metadata")),
+        )
+    )
+    if benchmark_identity is None:
         return None
     value = bench.primary_value(split=split, metric=primary_metric)
     if value is None:
@@ -496,7 +524,6 @@ def benchmark_to_evaluation(
     if finite_value is _INVALID:
         return None
 
-    benchmark_metadata = dict(bench.metadata)
     raw_params = benchmark_metadata.get("params", benchmark_metadata.get("candidate_params"))
     if not isinstance(raw_params, Mapping):
         return None
@@ -532,7 +559,7 @@ def benchmark_to_evaluation(
         "loop_id": bench.loop_id,
         "suite_id": bench.suite_id,
         "suite_version": bench.suite_version,
-        "split": benchmark_metadata.get("split", split_value),
+        "split": split_value,
         "params": dict(params),
         "params_normalized": list(params_normalized),
     }

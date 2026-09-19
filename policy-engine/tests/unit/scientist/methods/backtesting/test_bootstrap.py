@@ -59,6 +59,18 @@ class TestBootstrapMetric:
         with pytest.raises(BootstrapValidationError, match="finite"):
             bootstrap_metric([1.0, non_finite], n_bootstrap=1, seed=42)
 
+    def test_non_finite_statistic_output_is_rejected(self):
+        def non_finite_statistic(_values):
+            return float("nan")
+
+        with pytest.raises(BootstrapValidationError, match="finite"):
+            bootstrap_metric(
+                [1.0, 2.0],
+                statistic=non_finite_statistic,
+                n_bootstrap=1,
+                seed=42,
+            )
+
 
 class TestBootstrapScenarioMetrics:
     def test_produces_mae_and_rmse(self):

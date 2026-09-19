@@ -10,7 +10,11 @@ from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
     LessonTrustLevel,
 )
-from polisyos.scientist.methods.search.transfer_context import TransferContext, TransferPolicy
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferContext,
+    TransferPolicy,
+    resolve_transfer_context,
+)
 
 
 def _registry(tmp_path) -> LessonRegistry:
@@ -34,6 +38,136 @@ def _card(*, created_at: datetime | None = None) -> LessonCard:
         created_at=created_at or datetime.now(UTC),
         tags=["tax_reform", "gdp_growth"],
     )
+
+
+def test_resolve_transfer_context_preserves_typed_base_until_explicit_override() -> None:
+    base = TransferContext(
+        task_family="discovery",
+        domain="education",
+        run_id="run-base",
+        tenant_hash="tenant-a",
+        cross_tenant_opt_in=True,
+        timestamp=datetime(2026, 9, 1, tzinfo=UTC),
+    )
+
+    for payload in (base, base.model_dump(mode="json")):
+        resolved = resolve_transfer_context(context={"transfer_context": payload})
+
+        assert (resolved.task_family, resolved.domain, resolved.run_id) == (
+            "discovery",
+            "education",
+            "run-base",
+        )
+        assert resolved.cross_tenant_opt_in is True
+
+    overridden = resolve_transfer_context(
+        context={"transfer_context": base},
+        task_family="policy",
+        domain="health",
+    )
+
+    assert (overridden.task_family, overridden.domain, overridden.run_id) == (
+        "policy",
+        "health",
+        "run-base",
+    )
+
+
+def test_query_with_transfer_reapplies_source_trust_and_confidence_filters(tmp_path) -> None:
+    registry = _registry(tmp_path)
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="loop-source",
+        tenant_hash="tenant-a",
+    )
+    weak = _card().model_copy(update={"confidence": 0.2, "tags": ["weak"]})
+    strong = _card().model_copy(update={"confidence": 0.9, "tags": ["strong"]})
+    registry.record_local(weak, context=source)
+    registry.record_local(strong, context=source)
+
+    assert registry.query(
+        LessonQuery(
+            task_family="policy",
+            domain="fiscal",
+            tenant_hash="tenant-a",
+            source_run_id="run-source",
+            tags=["weak"],
+            trust_levels=[LessonTrustLevel.LOCAL],
+            min_confidence=0.8,
+            limit=3,
+        )
+    ) == []
+    local_strong = registry.query(
+        LessonQuery(
+            task_family="policy",
+            domain="fiscal",
+            tenant_hash="tenant-a",
+            source_run_id="run-source",
+            tags=["strong"],
+            trust_levels=[LessonTrustLevel.LOCAL],
+            min_confidence=0.8,
+            limit=3,
+        )
+    )
+    assert len(local_strong) == 1
+    assert registry.query(
+        LessonQuery(
+            task_family="policy",
+            domain="fiscal",
+            tenant_hash="tenant-a",
+            source_run_id="run-other",
+            tags=["strong"],
+            min_confidence=0.8,
+            limit=3,
+        )
+    ) == []
+
+    transfer_cases = (
+        (
+            LessonQuery(
+                task_family="policy",
+                source_run_id="run-source",
+                tags=["weak"],
+                trust_levels=[LessonTrustLevel.TRANSFERRED],
+                min_confidence=0.8,
+                limit=3,
+            ),
+            "labor-weak",
+        ),
+        (
+            LessonQuery(
+                task_family="policy",
+                source_run_id="run-source",
+                tags=["strong"],
+                trust_levels=[LessonTrustLevel.LOCAL],
+                min_confidence=0.8,
+                limit=3,
+            ),
+            "labor-trust",
+        ),
+        (
+            LessonQuery(
+                task_family="policy",
+                source_run_id="run-other",
+                tags=["strong"],
+                min_confidence=0.8,
+                limit=3,
+            ),
+            "labor-source",
+        ),
+    )
+
+    for query, domain in transfer_cases:
+        assert registry.query_with_transfer(
+            query,
+            target_context=TransferContext(
+                task_family="policy",
+                domain=domain,
+                run_id="loop-target",
+                tenant_hash="tenant-a",
+            ),
+        ) == []
 
 
 def test_query_with_transfer_materializes_cross_domain_same_tenant(tmp_path) -> None:

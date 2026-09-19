@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -44,6 +45,44 @@ _BROAD_CACHED_SPEC = NodeSpec(
     metadata=_BROAD_CACHED_METADATA,
     state_reads=["params.seed"],
     state_writes=["params"],
+)
+
+_TOP_LEVEL_REF = ArtifactRef(
+    artifact_id="sha256:" + "a" * 64,
+    kind="test.ref",
+    media_type="application/json",
+)
+
+_TOP_LEVEL_REF_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse("scientist.node_top_level_ref@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
+    display_name="Top-Level Ref",
+    description="Test node for scalar state replay",
+    tags=["test"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_TOP_LEVEL_REF_SPEC = NodeSpec(
+    metadata=_TOP_LEVEL_REF_METADATA,
+    state_reads=["params.seed"],
+    state_writes=["preflight_report_ref"],
+)
+
+_INVALID_REPLAY_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse("scientist.node_invalid_replay@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
+    display_name="Invalid Replay",
+    description="Test node for cache replay precondition handling",
+    tags=["test"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_INVALID_REPLAY_SPEC = NodeSpec(
+    metadata=_INVALID_REPLAY_METADATA,
+    state_reads=["params.seed"],
+    state_writes=["params.items"],
 )
 
 _FAIL_METADATA = ComponentMetadata(
@@ -102,6 +141,37 @@ class BroadCachedCounterNode:
         return NodeOutcome(status="ok", state=new_state)
 
 
+class TopLevelRefNode:
+    calls = 0
+
+    @property
+    def spec(self) -> NodeSpec:
+        return _TOP_LEVEL_REF_SPEC
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        TopLevelRefNode.calls += 1
+        new_state = state.model_copy(deep=True)
+        new_state.preflight_report_ref = _TOP_LEVEL_REF
+        return NodeOutcome(status="ok", state=new_state)
+
+
+class InvalidReplayNode:
+    calls = 0
+
+    @property
+    def spec(self) -> NodeSpec:
+        return _INVALID_REPLAY_SPEC
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        InvalidReplayNode.calls += 1
+        new_state = state.model_copy(deep=True)
+        if isinstance(new_state.params.get("items"), list):
+            new_state.params["items"].pop(1)
+        else:
+            new_state.params["reexecuted"] = True
+        return NodeOutcome(status="ok", state=new_state)
+
+
 class AlwaysFailNode:
     calls = 0
 
@@ -139,6 +209,8 @@ def _build_context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext,
     registry = NodeRegistry()
     registry.register(CachedCounterNode())
     registry.register(BroadCachedCounterNode())
+    registry.register(TopLevelRefNode())
+    registry.register(InvalidReplayNode())
     registry.register(AlwaysFailNode())
     return ctx, registry
 
@@ -220,6 +292,80 @@ def test_executor_cache_hit_preserves_unrelated_current_state(tmp_path) -> None:
     assert BroadCachedCounterNode.calls == 1
     assert result_b.state.params["unrelated"] == "new"
     assert result_b.state.params["cached_counter"] == 1
+
+
+# Production mutation caught: a cache hit must replay a declared top-level
+# scalar/ref write, including when the current base still carries None.
+def test_executor_cache_hit_replays_top_level_ref_write(tmp_path) -> None:
+    TopLevelRefNode.calls = 0
+    store = FileSystemCAS(tmp_path)
+    workflow = WorkflowSpec(
+        workflow_id="top_level_ref_cache",
+        nodes=[
+            NodeInvocation(
+                alias="ref_writer",
+                node_id=ComponentId.parse("scientist.node_top_level_ref@1.0.0"),
+            ),
+        ],
+    )
+
+    ctx_a, registry_a = _build_context(store, "R_top_level_ref_cache")
+    result_a = WorkflowExecutor(ctx_a, registry_a).execute(
+        workflow,
+        ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7}),
+    )
+    assert result_a.report.status == "ok"
+    assert result_a.state.preflight_report_ref == _TOP_LEVEL_REF
+
+    ctx_b, registry_b = _build_context(store, "R_top_level_ref_cache")
+    result_b = WorkflowExecutor(ctx_b, registry_b).execute(
+        workflow,
+        ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7}),
+    )
+
+    assert result_b.report.status == "ok"
+    assert TopLevelRefNode.calls == 1
+    assert result_b.state.preflight_report_ref == _TOP_LEVEL_REF
+
+
+# Production mutation caught: an incompatible cached list target must evict
+# the cache entry and re-execute, never silently report a cache-hit success.
+def test_executor_reexecutes_when_cached_replay_target_is_incompatible(tmp_path) -> None:
+    InvalidReplayNode.calls = 0
+    store = FileSystemCAS(tmp_path)
+    workflow = WorkflowSpec(
+        workflow_id="invalid_replay_target",
+        nodes=[
+            NodeInvocation(
+                alias="invalid_replay",
+                node_id=ComponentId.parse("scientist.node_invalid_replay@1.0.0"),
+            ),
+        ],
+    )
+
+    ctx_a, registry_a = _build_context(store, "R_invalid_replay_target")
+    result_a = WorkflowExecutor(ctx_a, registry_a).execute(
+        workflow,
+        ExperimentState(
+            run_id="R_invalid_replay_target",
+            params={"seed": 7, "items": ["cached", "removed"]},
+        ),
+    )
+    assert result_a.report.status == "ok"
+    assert result_a.state.params["items"] == ["cached"]
+
+    ctx_b, registry_b = _build_context(store, "R_invalid_replay_target")
+    result_b = WorkflowExecutor(ctx_b, registry_b).execute(
+        workflow,
+        ExperimentState(
+            run_id="R_invalid_replay_target",
+            params={"seed": 7, "items": {}},
+        ),
+    )
+
+    assert result_b.report.status == "ok"
+    assert InvalidReplayNode.calls == 2
+    assert result_b.state.params["reexecuted"] is True
 
 
 def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path) -> None:

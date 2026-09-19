@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
@@ -20,6 +22,7 @@ from polisyos.scientist.orchestration.engine.idempotency import (
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 
 def _artifact(store: FileSystemCAS, payload: dict[str, object], *, kind: str = "test.payload"):
@@ -27,7 +30,32 @@ def _artifact(store: FileSystemCAS, payload: dict[str, object], *, kind: str = "
 
 
 def _outcome(run_id: str = "R_test") -> NodeOutcome:
+    state = branch_state(ExperimentState(run_id=run_id), write_paths=()).state
+    return NodeOutcome(status="ok", state=state)
+
+
+def _plain_outcome(run_id: str = "R_test") -> NodeOutcome:
     return NodeOutcome(status="ok", state=ExperimentState(run_id=run_id))
+
+
+def _with_journal(outcome: NodeOutcome) -> NodeOutcome:
+    state = branch_state(outcome.state, write_paths=()).state
+    return outcome.model_copy(update={"state": state})
+
+
+def _rewrite_cache_entry(store: FileSystemCAS, entry_ref, **updates):
+    payload = dict(from_canonical_bytes(store.get_bytes(entry_ref.artifact_id)))
+    payload.update(updates)
+    manifest = store.get_manifest(entry_ref.artifact_id)
+    return store.put_json(
+        payload,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+        ),
+    )
 
 
 def test_compute_idempotency_key_stable_for_same_inputs(tmp_path) -> None:
@@ -129,6 +157,44 @@ def test_node_result_cache_corrupted_entry_is_treated_as_miss(tmp_path) -> None:
     assert not cache.has(key)
 
 
+# Production mutation caught: an outcome without a proven mutation journal
+# must not be cached and reused as an exact replay contract.
+def test_node_result_cache_does_not_reuse_outcome_without_journal(tmp_path) -> None:
+    cache = NodeResultCache(FileSystemCAS(tmp_path), run_id="R_unproven_journal")
+    key = "u" * 64
+
+    cache.put(
+        key,
+        node_id="scientist.node_test@1.0.0",
+        outcome=_plain_outcome("R_unproven_journal"),
+    )
+
+    assert cache.get(key) is None
+
+
+# Production mutation caught: unknown cache-entry and mutation-contract
+# versions must be rejected instead of replayed by the current interpreter.
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("schema_version", "9.9"), ("state_mutations_version", "2.0")],
+)
+def test_node_result_cache_rejects_unknown_replay_versions(tmp_path, field, value) -> None:
+    store = FileSystemCAS(tmp_path)
+    key = "v" * 64
+    cache = NodeResultCache(store, run_id="R_unknown_version")
+    entry_ref = cache.put(
+        key,
+        node_id="scientist.node_test@1.0.0",
+        outcome=_outcome("R_unknown_version"),
+    )
+    forged_entry_ref = _rewrite_cache_entry(store, entry_ref, **{field: value})
+
+    restored = NodeResultCache(store, run_id="R_unknown_version")
+
+    assert restored.load_entry(forged_entry_ref) is False
+    assert restored.get(key) is None
+
+
 def test_node_result_cache_seed_from_trace(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     key = "c" * 64
@@ -188,7 +254,7 @@ def test_output_aware_cache_preserves_complete_outcome(tmp_path) -> None:
     )
 
     store = FileSystemCAS(tmp_path)
-    outcome = _output_aware_transport_outcome(store)
+    outcome = _with_journal(_output_aware_transport_outcome(store))
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
     key = "e" * 64
     entry_ref = cache.put(key, node_id="scientist.node_transport@2.0.0", outcome=outcome)
@@ -267,7 +333,7 @@ def test_output_aware_cache_refuses_existing_base_epoch_manifest(tmp_path) -> No
     )
 
     store = FileSystemCAS(tmp_path)
-    outcome = _output_aware_transport_outcome(store)
+    outcome = _with_journal(_output_aware_transport_outcome(store))
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
     key = "a" * 64
     _base_epoch_output_aware_cache_entry(store, outcome, key)
@@ -284,7 +350,7 @@ def test_output_aware_cache_refuses_loading_base_epoch_entry(tmp_path) -> None:
     )
 
     store = FileSystemCAS(tmp_path)
-    outcome = _output_aware_transport_outcome(store)
+    outcome = _with_journal(_output_aware_transport_outcome(store))
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
     key = "b" * 64
     entry_ref = _base_epoch_output_aware_cache_entry(store, outcome, key)
@@ -301,7 +367,7 @@ def test_output_aware_cache_refuses_old_entry_even_with_current_outcome(tmp_path
     )
 
     store = FileSystemCAS(tmp_path)
-    outcome = _output_aware_transport_outcome(store)
+    outcome = _with_journal(_output_aware_transport_outcome(store))
     cache = NodeResultCache(store, run_id=outcome.state.run_id)
     cache.put("c" * 64, node_id="scientist.node_transport@2.0.0", outcome=outcome)
     key = "d" * 64

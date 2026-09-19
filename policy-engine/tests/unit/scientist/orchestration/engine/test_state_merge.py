@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
@@ -21,6 +22,14 @@ def base_state():
 def _ok_outcome(state: ExperimentState, **updates) -> NodeOutcome:
     updated_state = state.model_copy(update=updates) if updates else state
     return NodeOutcome(status="ok", state=updated_state, events=[], artifacts=[])
+
+
+def _artifact_ref(tag: str = "a") -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=f"sha256:{tag * 64}",
+        kind="test.ref",
+        media_type="application/json",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -230,3 +239,105 @@ class TestMergeParallelOutcomes:
                 {"node_a": _ok_outcome(branch)},
                 {"node_a": ["artifacts_index"]},
             )
+
+    # Production mutation caught: scalar/ref paths must replay through both
+    # parallel merge and an explicit same-value declared write.
+    def test_replay_replays_top_level_ref_and_same_value_write(self, base_state):
+        previous_ref = _artifact_ref("a")
+        next_ref = _artifact_ref("b")
+        source = base_state.model_copy(update={"preflight_report_ref": previous_ref})
+
+        changed_branch = branch_state(source, write_paths=("preflight_report_ref",))
+        changed_branch.state.preflight_report_ref = next_ref
+        changed_result = merge_parallel_outcomes(
+            base_state.model_copy(update={"preflight_report_ref": None}),
+            {"node_a": _ok_outcome(changed_branch.state)},
+            {"node_a": ["preflight_report_ref"]},
+        )
+
+        same_value_branch = branch_state(source, write_paths=("preflight_report_ref",))
+        same_value_branch.state.preflight_report_ref = previous_ref
+        same_value_result = merge_parallel_outcomes(
+            base_state.model_copy(update={"preflight_report_ref": None}),
+            {"node_a": _ok_outcome(same_value_branch.state)},
+            {"node_a": ["preflight_report_ref"]},
+        )
+
+        assert changed_result.state.preflight_report_ref == next_ref
+        assert same_value_result.state.preflight_report_ref == previous_ref
+
+    # Production mutation caught: merge must retain journal order when a child
+    # write is followed by deleting its parent.
+    def test_replay_preserves_child_set_then_parent_delete_order(self, base_state):
+        source = base_state.model_copy(update={"params": {"cfg": {"x": 1}}})
+        branch = branch_state(source, write_paths=("params",)).state
+        branch.params["cfg"]["x"] = 2
+        del branch.params["cfg"]
+
+        result = merge_parallel_outcomes(
+            source,
+            {"node_a": _ok_outcome(branch)},
+            {"node_a": ["params"]},
+        )
+
+        assert "cfg" not in result.state.params
+
+    # Production mutation caught: merge must retain journal order when a parent
+    # replacement is followed by deleting one of its children.
+    def test_replay_preserves_parent_set_then_child_delete_order(self, base_state):
+        source = base_state.model_copy(update={"params": {"cfg": {"x": 1}}})
+        branch = branch_state(source, write_paths=("params",)).state
+        branch.params["cfg"] = {"x": 2, "y": 3}
+        del branch.params["cfg"]["x"]
+
+        result = merge_parallel_outcomes(
+            source,
+            {"node_a": _ok_outcome(branch)},
+            {"node_a": ["params"]},
+        )
+
+        assert result.state.params["cfg"] == {"y": 3}
+
+    # Production mutation caught: overlapping parent/child declarations must
+    # select one journal operation rather than applying the append twice.
+    def test_replay_deduplicates_overlapping_write_specs(self, base_state):
+        source = base_state.model_copy(update={"params": {"items": []}})
+        branch = branch_state(source, write_paths=("params",)).state
+        branch.params["items"].append("x")
+
+        result = merge_parallel_outcomes(
+            source,
+            {"node_a": _ok_outcome(branch)},
+            {"node_a": ["params", "params.items"]},
+        )
+
+        assert result.state.params["items"] == ["x"]
+
+    # Production mutation caught: invalid replay targets must become a typed
+    # cache-incompatible result, never a silent no-op or a raw IndexError.
+    @pytest.mark.parametrize(
+        "current_params",
+        [{}, {"items": {}}, {"items": []}, {"items": ["only"]}],
+    )
+    def test_replay_invalid_container_or_index_fails_closed(
+        self,
+        base_state,
+        current_params,
+    ):
+        source = base_state.model_copy(update={"params": {"items": ["cached", "removed"]}})
+        branch = branch_state(source, write_paths=("params.items",)).state
+        branch.params["items"].pop(1)
+        current = base_state.model_copy(update={"params": current_params})
+
+        try:
+            result = merge_parallel_outcomes(
+                current,
+                {"node_a": _ok_outcome(branch)},
+                {"node_a": ["params.items"]},
+            )
+        except Exception as exc:  # noqa: BLE001 - assert the typed boundary contract.
+            assert exc.__class__.__name__ == "StateReplayIncompatible"
+        else:
+            assert result.applied is False
+            assert result.state is current
+            assert any("replay_incompatible" in item for item in result.conflicts)

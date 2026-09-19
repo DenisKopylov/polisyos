@@ -511,15 +511,15 @@ class LessonRegistry:
                     run_id=entry.origin_run_id or entry.lesson_id,
                     tenant_hash=namespace_context.tenant_hash,
                 )
+                card = load_lesson_card(self._store, entry.artifact_ref)
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
-                    created_at=self._activity_anchor(entry),
+                    created_at=self._evidence_anchor(entry, card),
                     policy=active_policy,
                 )
                 if weight <= 0.0:
                     continue
-                card = load_lesson_card(self._store, entry.artifact_ref)
                 if not self._revalidate_transfer(card, context, target_context=target_context):
                     continue
                 normalized = self._normalize_card(
@@ -549,7 +549,7 @@ class LessonRegistry:
         weight = compute_provenance_weight(
             source_context,
             target_context,
-            created_at=card.last_accessed_at or card.created_at,
+            created_at=card.created_at,
             policy=active_policy,
         )
         if weight <= 0.0:
@@ -588,6 +588,8 @@ class LessonRegistry:
             ),
             target_context=target_context,
         )
+        if query is not None and not self._matches_query(materialized, query):
+            return None
         self.record_local(materialized, context=target_context)
         return materialized
 
@@ -696,11 +698,7 @@ class LessonRegistry:
             if not self._entry_matches(entry, query):
                 continue
             card = self._materialize_query_card(entry, now=now)
-            if query.source_run_id and card.source_run_id != query.source_run_id:
-                continue
-            if query.trust_levels and card.trust_level not in set(query.trust_levels):
-                continue
-            if float(card.confidence) < float(query.min_confidence):
+            if not self._matches_query(card, query):
                 continue
             results.append(card)
             entry.last_accessed_at = now
@@ -748,11 +746,7 @@ class LessonRegistry:
         ] = {}
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
             card = self._materialize_query_card(entry, now=now)
-            if query.source_run_id and card.source_run_id != query.source_run_id:
-                continue
-            if query.trust_levels and card.trust_level not in set(query.trust_levels):
-                continue
-            if float(card.confidence) < float(query.min_confidence):
+            if not self._matches_query(card, query):
                 continue
             results.append(card)
             entry.last_accessed_at = now
@@ -804,22 +798,56 @@ class LessonRegistry:
             target_context.tenant_hash is None and target_context.domain.startswith("isolated::")
         )
 
-    def _entry_matches(self, entry: LessonIndexEntry, query: LessonQuery) -> bool:
+    def _entry_matches(
+        self,
+        entry: LessonIndexEntry,
+        query: LessonQuery,
+    ) -> bool:
+        return self._matches_query(
+            entry,
+            query,
+            include_trust=False,
+        )
+
+    @staticmethod
+    def _matches_query(
+        record: LessonCard | LessonIndexEntry,
+        query: LessonQuery,
+        *,
+        include_trust: bool = True,
+    ) -> bool:
+        """Apply one query predicate to an index entry or effective lesson card.
+
+        Index entries skip source-run and trust checks because the index does
+        not own the effective card status and transfer may change trust. The
+        same predicate is then applied to the effective card before it is
+        persisted or returned.
+        """
+
+        if query.failure_type and record.failure_type != query.failure_type:
+            return False
+        if query.stage_name and record.stage_name != query.stage_name:
+            return False
+        if query.fidelity_level is not None and record.fidelity_level != query.fidelity_level:
+            return False
+        if query.candidate_hash and record.candidate_hash != query.candidate_hash:
+            return False
+        if query.task_family and record.task_family != query.task_family:
+            return False
+        if query.domain and record.domain != query.domain:
+            return False
+        if query.source_run_id and isinstance(record, LessonCard):
+            if record.source_run_id != query.source_run_id:
+                return False
+        if include_trust and query.trust_levels and record.trust_level not in set(
+            query.trust_levels
+        ):
+            return False
+        if float(record.confidence) < float(query.min_confidence):
+            return False
         tag_filter = {tag for tag in query.tags if tag}
-        if query.failure_type and entry.failure_type != query.failure_type:
-            return False
-        if query.stage_name and entry.stage_name != query.stage_name:
-            return False
-        if query.fidelity_level is not None and entry.fidelity_level != query.fidelity_level:
-            return False
-        if query.candidate_hash and entry.candidate_hash != query.candidate_hash:
-            return False
-        if query.task_family and entry.task_family != query.task_family:
-            return False
-        if query.domain and entry.domain != query.domain:
-            return False
         if tag_filter:
-            overlap = len(set(entry.tags) & tag_filter)
+            overlap = len(set(record.tags) & tag_filter)
             if overlap < query.min_tag_overlap:
                 return False
         return True
@@ -832,8 +860,8 @@ class LessonRegistry:
     ) -> LessonCard:
         card = load_lesson_card(self._store, entry.artifact_ref)
         normalized = self._normalize_card(card)
-        activity_anchor = entry.last_accessed_at or normalized.last_accessed_at or entry.last_seen
-        age = max(timedelta(), now - activity_anchor)
+        evidence_anchor = self._evidence_anchor(entry, normalized)
+        age = max(timedelta(), now - evidence_anchor)
         trust_level = normalized.trust_level
         confidence = normalized.confidence
         if age > timedelta(days=self._transfer_policy.ttl_days):
@@ -893,16 +921,7 @@ class LessonRegistry:
     ) -> bool:
         if card.task_family != target_context.task_family:
             return False
-        if query.stage_name and card.stage_name != query.stage_name:
-            return False
-        if query.fidelity_level is not None and card.fidelity_level != query.fidelity_level:
-            return False
-        tag_filter = {tag for tag in query.tags if tag}
-        if tag_filter:
-            overlap = len(set(card.tags) & tag_filter)
-            if overlap < query.min_tag_overlap:
-                return False
-        return True
+        return self._matches_query(card, query, include_trust=False)
 
     def _demoted_entry(
         self,
@@ -917,7 +936,13 @@ class LessonRegistry:
 
     @staticmethod
     def _activity_anchor(entry: LessonIndexEntry) -> datetime:
+        """Return the usage clock used only for retention and garbage collection."""
         return entry.last_accessed_at or entry.last_seen
+
+    @staticmethod
+    def _evidence_anchor(entry: LessonIndexEntry, card: LessonCard) -> datetime:
+        """Return the newest producer/evidence timestamp, never an access time."""
+        return max(entry.last_seen, card.created_at)
 
     def _index_path_for_context(self, context: TransferContext) -> Path:
         return (

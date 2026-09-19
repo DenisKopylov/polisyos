@@ -24,6 +24,7 @@ class TestBootstrapMetric:
         values = [1.0, 2.0, 3.0, 100.0, 5.0] * 20
         ci = bootstrap_metric(values, metric="m", statistic="median", seed=42)
         assert ci.lower <= ci.point_estimate <= ci.upper
+        assert ci.point_estimate == 3.0
 
     def test_empty_values(self):
         with pytest.raises(BootstrapValidationError, match="at least one observed value"):
@@ -43,6 +44,20 @@ class TestBootstrapMetric:
         ci2 = bootstrap_metric(values, seed=123)
         assert ci1.lower == ci2.lower
         assert ci1.upper == ci2.upper
+
+    def test_unknown_statistic_is_rejected_instead_of_defaulting_to_mean(self):
+        with pytest.raises(BootstrapValidationError, match="statistic"):
+            bootstrap_metric(
+                [0.0, 0.0, 9.0],
+                statistic="medain",
+                n_bootstrap=1,
+                seed=42,
+            )
+
+    @pytest.mark.parametrize("non_finite", [np.nan, np.inf])
+    def test_non_finite_observations_are_rejected(self, non_finite):
+        with pytest.raises(BootstrapValidationError, match="finite"):
+            bootstrap_metric([1.0, non_finite], n_bootstrap=1, seed=42)
 
 
 class TestBootstrapScenarioMetrics:

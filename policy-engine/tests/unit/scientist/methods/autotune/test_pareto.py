@@ -45,6 +45,17 @@ def _policies(*metric_names: str) -> list[PromotionPolicy]:
     ]
 
 
+def _split_eval(*, selection_score: float, holdout_score: float) -> BenchmarkEvaluation:
+    return BenchmarkEvaluation(
+        loop_id="loop1",
+        suite_id="suite1",
+        candidate_ref=_ref(),
+        selection_metrics={"score": selection_score},
+        holdout_metrics={"score": holdout_score},
+        promotable=True,
+    )
+
+
 def _slow_non_dominated_points(points: list[tuple[float, ...]]) -> list[int]:
     """Return a front with an intentionally simple quadratic oracle."""
     result: list[int] = []
@@ -207,6 +218,104 @@ class TestParetoFront:
         assert set(front.reference_point) == keys
         assert promoter.is_dominated(first, front) is False
         assert promoter.is_dominated(second, front) is False
+
+    def test_single_axis_identity_preserves_split_and_direction_without_unit(self):
+        """A unique metric still has a self-describing canonical coordinate."""
+        # Catches the production mutation that retains only the legacy metric key
+        # and loses split/direction when the metric is unique and unitless.
+        evaluation = _split_eval(selection_score=2.0, holdout_score=2.0)
+        selection_front = ParetoPromoter(
+            [
+                PromotionPolicy(
+                    loop_id="loop1",
+                    primary_metric="score",
+                    compare_split=BenchmarkSplit.SELECTION,
+                    direction=MetricDirection.MAXIMIZE,
+                )
+            ]
+        ).compute_front([evaluation])
+        holdout_front = ParetoPromoter(
+            [
+                PromotionPolicy(
+                    loop_id="loop1",
+                    primary_metric="score",
+                    compare_split=BenchmarkSplit.HOLDOUT,
+                    direction=MetricDirection.MINIMIZE,
+                )
+            ]
+        ).compute_front([evaluation])
+
+        selection_coordinate = selection_front.model_dump(mode="json")[
+            "coordinate_schema"
+        ]
+        holdout_coordinate = holdout_front.model_dump(mode="json")["coordinate_schema"]
+        assert selection_coordinate["version"] == "pareto-coordinate.v1"
+        assert holdout_coordinate["version"] == "pareto-coordinate.v1"
+        selection_axis = selection_coordinate["coordinates"][0]
+        holdout_axis = holdout_coordinate["coordinates"][0]
+        assert selection_axis["split"] == "selection"
+        assert selection_axis["direction"] == "maximize"
+        assert holdout_axis["split"] == "holdout"
+        assert holdout_axis["direction"] == "minimize"
+        assert selection_axis["coordinate_id"] != holdout_axis["coordinate_id"]
+
+    def test_single_axis_identity_distinguishes_absent_and_present_unit(self):
+        """Absent and explicit units are different coordinates, not aliases."""
+        # Catches the production mutation that conflates unit=None with a real unit.
+        evaluation = _eval(score=1.0)
+        absent = ParetoPromoter(
+            [PromotionPolicy(loop_id="loop1", primary_metric="score")]
+        ).compute_front([evaluation])
+        present = ParetoPromoter(
+            [PromotionPolicy(loop_id="loop1", primary_metric="score", unit="ratio")]
+        ).compute_front([evaluation])
+
+        absent_axis = absent.model_dump(mode="json")["coordinate_schema"]["coordinates"][0]
+        present_axis = present.model_dump(mode="json")["coordinate_schema"]["coordinates"][0]
+        assert absent_axis["unit_state"] == "absent"
+        assert absent_axis["unit"] is None
+        assert present_axis["unit_state"] == "present"
+        assert present_axis["unit"] == "ratio"
+        assert absent_axis["coordinate_id"] != present_axis["coordinate_id"]
+
+        # The old key remains a display projection, never the canonical identity.
+        absent_member = absent.model_dump(mode="json")["members"][0]
+        assert absent_member["objectives"] == {"score": 1.0}
+        assert set(absent_member["coordinate_values"]) == {absent_axis["coordinate_id"]}
+
+    def test_coordinate_schema_round_trips_and_labels_reference_point(self):
+        """One typed coordinate schema labels values and reference-point data."""
+        # Catches fixing member output while leaving reference-point construction
+        # on the non-self-describing legacy key.
+        front = ParetoPromoter(
+            [
+                PromotionPolicy(
+                    loop_id="loop1",
+                    primary_metric="score",
+                    compare_split=BenchmarkSplit.HOLDOUT,
+                    direction=MetricDirection.MINIMIZE,
+                    unit="ratio",
+                )
+            ]
+        ).compute_front([_eval(score=1.0)])
+
+        payload = front.model_dump(mode="json")
+        restored = ParetoFront.model_validate(payload)
+        assert restored.model_dump(mode="json") == payload
+        coordinate_ids = {
+            item["coordinate_id"] for item in payload["coordinate_schema"]["coordinates"]
+        }
+        assert set(payload["members"][0]["coordinate_values"]) == coordinate_ids
+        assert set(payload["coordinate_reference_point"]) == coordinate_ids
+
+    def test_duplicate_full_coordinate_is_rejected(self):
+        """Identical typed coordinates remain invalid even with a canonical schema."""
+        # Catches a production mutation that deduplicates by display key or silently
+        # keeps only one policy row.
+        policy = PromotionPolicy(loop_id="loop1", primary_metric="score", unit="ratio")
+
+        with pytest.raises(ValueError, match="(?i)coordinates must be unique"):
+            ParetoPromoter([policy, policy.model_copy()])
 
     def test_non_finite_and_missing_metrics_are_excluded_from_numeric_front(self):
         """Unusable metrics cannot become infinite best/worst Pareto values."""

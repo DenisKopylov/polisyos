@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
+    claim_promotion_policy,
+)
 from polisyos.ir.analytics.literature import (
     CausalCredibility,
     ClaimAdjudicationResult,
@@ -52,6 +55,23 @@ def _claim_result(
         publishable_edge=publishable,
         adjudication_notes="test",
     )
+
+
+def test_default_claim_policy_projection_preserves_historical_absent_unit_shape() -> None:
+    """Null optional fields must not alter the canonical claim-policy bytes."""
+    # Catches the production mutation that emits unit=null from PromotionPolicy.model_dump().
+    policy = default_claim_adjudication_promotion_policy()
+
+    assert policy.model_dump(mode="json") == claim_promotion_policy()
+    assert "unit" not in policy.model_dump(mode="json")
+
+
+def test_explicit_claim_policy_unit_survives_canonical_serialization() -> None:
+    """A real unit remains part of a generic policy artifact."""
+    # Catches an over-broad null-exclusion fix that drops explicit non-null units.
+    policy = default_claim_adjudication_promotion_policy().model_copy(update={"unit": "ratio"})
+
+    assert policy.model_dump(mode="json")["unit"] == "ratio"
 
 
 def test_baseline_claim_adjudication_config_preserves_current_consensus_behavior(tmp_path) -> None:
@@ -190,5 +210,20 @@ def test_successful_claim_promotion_changes_runtime_selection(tmp_path) -> None:
     )
 
     assert decision.promoted is True
+    pointer = registry.get("claim_adjudication")
+    assert pointer is not None
+    assert pointer.metadata["promoted_by_policy"] == claim_promotion_policy()
+    assert "unit" not in pointer.metadata["promoted_by_policy"]
+
+    mismatch = registry.consider_promotion(
+        "claim_adjudication",
+        candidate_ref,
+        evaluation_ref,
+        default_claim_adjudication_promotion_policy().model_copy(update={"unit": "ratio"}),
+    )
+    # Catches a canonicalization change that accidentally makes explicit policy mismatches
+    # admissible after omitting null fields from the default policy.
+    assert mismatch.promoted is False
+    assert mismatch.reason == "claim_promotion_policy_mismatch"
     reloaded = loader.load()
     assert reloaded.prompt_variants == ["promoted-variant"]

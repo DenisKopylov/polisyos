@@ -487,8 +487,13 @@ def benchmark_to_evaluation(
         return None
     _, _, Evaluation, EvaluationStatus, _, ObjectiveValue, OptimizationDirection = deps
 
+    if not bench.matches_runtime_split(split):
+        return None
     value = bench.primary_value(split=split, metric=primary_metric)
     if value is None:
+        return None
+    finite_value = _finite_float(value)
+    if finite_value is _INVALID:
         return None
 
     benchmark_metadata = dict(bench.metadata)
@@ -515,7 +520,11 @@ def benchmark_to_evaluation(
     if dim and len(params_normalized) != dim:
         return None
 
-    scalar = -float(value) if direction == MetricDirection.MAXIMIZE else float(value)
+    scalar = (
+        -float(finite_value)
+        if direction == MetricDirection.MAXIMIZE
+        else float(finite_value)
+    )
     split_value = split.value
     metadata = {
         **benchmark_metadata,

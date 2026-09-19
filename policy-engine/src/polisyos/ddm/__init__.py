@@ -48,10 +48,10 @@ _LAZY_EXPORTS = {
 def __getattr__(
     name: str,
 ) -> (
-    DDMWindowResult
-    | DriftAndDegradationMonitor
-    | ModelRegistryReadinessRecord
-    | RegistryGateDecision
+    type[DDMWindowResult]
+    | type[DriftAndDegradationMonitor]
+    | type[ModelRegistryReadinessRecord]
+    | type[RegistryGateDecision]
 ):
     """Load orchestration exports only when a caller requests them."""
 

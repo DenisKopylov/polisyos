@@ -1332,7 +1332,7 @@ class PolicyGroundingPort:
 
 
 class JointSimulationPort:
-    """Default N5 port calling the joint simulation controller when request data exists."""
+    """Default N5 port assembling and calling the canonical joint controller."""
 
     def __init__(
         self,
@@ -1360,7 +1360,7 @@ class JointSimulationPort:
         problem: DesignProblem,
         cycle_index: int,
     ) -> SimulationPortObservation:
-        """Run N5 from a supplied request factory, otherwise return a pending port."""
+        """Run N5 from a supplied request or the data-only request builder."""
 
         candidate_id = _candidate_id(candidate)
         factory = problem.runtime_hints.get("joint_simulation_request_factory")
@@ -1369,6 +1369,30 @@ class JointSimulationPort:
             request = factory(candidate=candidate, problem=problem, cycle_index=cycle_index)
         elif problem.runtime_hints.get("joint_simulation_request") is not None:
             request = problem.runtime_hints["joint_simulation_request"]
+        elif self._request_builder_is_requested(problem):
+            try:
+                request = self._build_joint_simulation_request(
+                    candidate=candidate,
+                    problem=problem,
+                )
+            except (TypeError, ValueError, WorldModelRecordError) as exc:
+                code = str(getattr(exc, "code", None) or "joint_simulation_request_invalid")
+                return SimulationPortObservation(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=(code,),
+                    diagnostics={
+                        "port": "N5",
+                        "reason": code,
+                        "world_model_source": (
+                            "cycle_substrate_context"
+                            if self._cycle_substrate_context is not None
+                            else "real_substrate_registry_boundary"
+                        ),
+                        "request_builder": "runtime_quality_joint_simulation_port",
+                        "request_builder_error": str(exc),
+                    },
+                )
         if request is None:
             world_record = None
             world_error_code: str | None = None
@@ -1474,6 +1498,273 @@ class JointSimulationPort:
             k_world_ref_after=k_world_ref,
             world_model_record=request.world_model_record,
         )
+
+    @staticmethod
+    def _request_builder_is_requested(problem: DesignProblem) -> bool:
+        """Return whether the caller supplied the durable N5 request inputs."""
+
+        return any(
+            key in problem.runtime_hints
+            for key in (
+                "joint_simulation_budget_ref",
+                "joint_simulation_horizon",
+                "joint_simulation_resource",
+                "joint_simulation_engine_plan",
+                "joint_simulation_ncm_spec",
+            )
+        )
+
+    def _build_joint_simulation_request(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+    ) -> JointSimulationRequest:
+        """Build one serializable N5 request from the bound cycle inputs.
+
+        The durable route accepts data-only request shaping hints.  It never
+        accepts a callable factory here, fills numerical fields with a zero,
+        or manufactures a model when the world owner has not supplied one.
+        """
+
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            EnginePlan,
+            HorizonSpec,
+        )
+        from polisyos.runtime.quality.world_model_record import (
+            consume_world_model_record_for_simulation,
+        )
+
+        hints = problem.runtime_hints
+        resource = hints.get("joint_simulation_resource")
+        if not isinstance(resource, str) or not resource.strip():
+            raise WorldModelRecordError("joint_simulation_resource_missing")
+        allowed_resources = {
+            "program_graph",
+            "ncm_parallel_worlds",
+            "coupled_des_abm",
+            "system_dynamics",
+            "method_registry_estimator",
+        }
+        if resource not in allowed_resources:
+            raise WorldModelRecordError(
+                "joint_simulation_resource_unallowed",
+                str(resource),
+            )
+
+        budget_ref = hints.get("joint_simulation_budget_ref")
+        if not isinstance(budget_ref, str) or not budget_ref.strip():
+            raise WorldModelRecordError("joint_simulation_budget_ref_missing")
+        raw_horizon = hints.get("joint_simulation_horizon")
+        if not isinstance(raw_horizon, Mapping):
+            raise WorldModelRecordError("joint_simulation_horizon_missing")
+        horizon = HorizonSpec.model_validate(raw_horizon)
+
+        world_record = (
+            self._context_world_model_record(candidate=candidate, problem=problem)
+            if self._cycle_substrate_context is not None
+            else self._boundary_world_model_record(candidate=candidate, problem=problem)
+        )
+        # Resolve the Foundry input boundary before constructing the N5 DTO.  A
+        # model may carry opaque refs, but the request cannot proceed without a
+        # concrete WMR that the existing consumer accepts.
+        consume_world_model_record_for_simulation(world_record)
+
+        raw_atoms = getattr(candidate, "intervention_atoms", None)
+        if raw_atoms is None:
+            raw_atoms = (_object_get(candidate, "atom"),)
+        atoms = tuple(atom for atom in raw_atoms if atom is not None)
+        if not atoms:
+            raise WorldModelRecordError("joint_simulation_intervention_atoms_missing")
+        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+
+        if any(not isinstance(atom, InterventionAtomBinding) for atom in atoms):
+            raise WorldModelRecordError("joint_simulation_intervention_atom_not_canonical")
+
+        outcome = _value_outcome_variable(candidate, problem)
+        if not outcome:
+            raise WorldModelRecordError("joint_simulation_outcome_missing")
+        variable_map = self._joint_simulation_variable_map(
+            atoms=atoms,
+            outcome=outcome,
+            raw_hint=hints.get("joint_simulation_variable_map"),
+        )
+
+        raw_plan = hints.get("joint_simulation_engine_plan")
+        if raw_plan is None:
+            plan_values: dict[str, Any] = {}
+        elif isinstance(raw_plan, EnginePlan):
+            plan_values = raw_plan.model_dump(mode="python")
+        elif isinstance(raw_plan, Mapping):
+            plan_values = dict(raw_plan)
+        else:
+            raise WorldModelRecordError("joint_simulation_engine_plan_invalid")
+        if resource == "ncm_parallel_worlds" and "ncm_spec" not in plan_values:
+            plan_values["ncm_spec"] = self._resolve_joint_simulation_ncm(
+                problem=problem,
+                world_record=world_record,
+            )
+        plan_values.update(
+            {
+                "engine_kind": resource,
+                "objective_ref": f"objective://{outcome}",
+                "variable_map": variable_map,
+            }
+        )
+        if "eligibility_conditions" not in plan_values:
+            plan_values["eligibility_conditions"] = (
+                ("acyclic", "counterfactual_do_worlds")
+                if resource == "ncm_parallel_worlds"
+                else ()
+            )
+        plan = EnginePlan.model_validate(plan_values)
+        return JointSimulationRequest(
+            world_model_record_ref=world_record.world_model_record_id,
+            world_model_record=world_record,
+            intervention_atoms=atoms,
+            selected_outcomes=(outcome,),
+            horizon=horizon,
+            engine_plan=(plan,),
+            baseline_state=self._numeric_mapping_hint(
+                hints.get("joint_simulation_baseline_state"),
+                "joint_simulation_baseline_state",
+            ),
+            comparator_refs=self._string_tuple_hint(
+                hints.get("joint_simulation_comparator_refs"),
+                "joint_simulation_comparator_refs",
+            ),
+            budget_ref=budget_ref,
+            seed=self._integer_hint(hints.get("joint_simulation_seed"), "joint_simulation_seed", 0),
+            replications=self._integer_hint(
+                hints.get("joint_simulation_replications"),
+                "joint_simulation_replications",
+                1,
+            ),
+            world_credal_state_before=self._mapping_hint(
+                hints.get("joint_simulation_world_credal_state_before"),
+                "joint_simulation_world_credal_state_before",
+            ),
+        )
+
+    @staticmethod
+    def _joint_simulation_variable_map(
+        *,
+        atoms: Sequence[object],
+        outcome: str,
+        raw_hint: object,
+    ) -> dict[str, str]:
+        """Resolve intervention write variables to the selected engine names."""
+
+        if raw_hint is not None and not isinstance(raw_hint, Mapping):
+            raise WorldModelRecordError("joint_simulation_variable_map_invalid")
+        variable_map: dict[str, str] = {}
+        if isinstance(raw_hint, Mapping):
+            for key, value in raw_hint.items():
+                key_text = str(key).strip()
+                value_text = str(value).strip()
+                if not key_text or not value_text:
+                    raise WorldModelRecordError("joint_simulation_variable_map_invalid")
+                variable_map[key_text] = value_text
+        for atom in atoms:
+            writes = tuple(
+                str(item)
+                for item in getattr(getattr(atom, "causal_do_expr", None), "write_variables", ())
+                if str(item).strip()
+            )
+            if not writes:
+                raise WorldModelRecordError("joint_simulation_atom_write_variables_missing")
+            overrides = getattr(
+                getattr(atom, "direct_effect_bundle", None),
+                "mechanism_config_overrides",
+                {},
+            )
+            engine_variable = overrides.get("joint_simulation_engine_variable")
+            if engine_variable is None and len(writes) != 1:
+                raise WorldModelRecordError("joint_simulation_engine_variable_missing")
+            if engine_variable is not None and not str(engine_variable).strip():
+                raise WorldModelRecordError("joint_simulation_engine_variable_missing")
+            target = str(engine_variable) if engine_variable is not None else writes[0]
+            for write in writes:
+                prior = variable_map.get(write)
+                if prior is not None and prior != target:
+                    raise WorldModelRecordError("joint_simulation_variable_map_conflict")
+                variable_map[write] = target
+        prior_outcome = variable_map.get(outcome)
+        if prior_outcome is not None and not prior_outcome.strip():
+            raise WorldModelRecordError("joint_simulation_outcome_variable_missing")
+        variable_map.setdefault(outcome, outcome)
+        return variable_map
+
+    def _resolve_joint_simulation_ncm(
+        self,
+        *,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> object:
+        """Resolve an owner-provided NCM, refusing an absent model."""
+
+        from polisyos.ir.analytics.ncm import NCMSpec, load_ncm_spec
+
+        raw = problem.runtime_hints.get("joint_simulation_ncm_spec")
+        if raw is not None:
+            try:
+                return raw if isinstance(raw, NCMSpec) else NCMSpec.model_validate(raw)
+            except (TypeError, ValueError) as exc:
+                raise WorldModelRecordError("joint_simulation_ncm_spec_invalid", str(exc)) from exc
+        refs = tuple(world_record.simulation_model_ref.ncm_refs)
+        if len(refs) != 1 or not refs[0].startswith("sha256:"):
+            raise WorldModelRecordError("joint_simulation_ncm_spec_missing")
+        from polisyos.core.artifacts import FileSystemCAS
+        from polisyos.ir.registry.refs import NCMSpecRef
+
+        try:
+            root = (self._repo_root or Path.cwd()).resolve()
+            ref = NCMSpecRef(
+                artifact_id=refs[0],
+                kind="ir.ncm_spec",
+                media_type="application/json",
+            )
+            return load_ncm_spec(FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas"), ref)
+        except (OSError, TypeError, ValueError) as exc:
+            raise WorldModelRecordError("joint_simulation_ncm_spec_unresolved", str(exc)) from exc
+
+    @staticmethod
+    def _mapping_hint(raw: object, name: str) -> dict[str, Any]:
+        if raw is None:
+            return {}
+        if not isinstance(raw, Mapping):
+            raise WorldModelRecordError(f"{name}_invalid")
+        return dict(raw)
+
+    @classmethod
+    def _numeric_mapping_hint(cls, raw: object, name: str) -> dict[str, float]:
+        values = cls._mapping_hint(raw, name)
+        try:
+            return {str(key): float(value) for key, value in values.items()}
+        except (TypeError, ValueError) as exc:
+            raise WorldModelRecordError(f"{name}_invalid", str(exc)) from exc
+
+    @staticmethod
+    def _string_tuple_hint(raw: object, name: str) -> tuple[str, ...]:
+        if raw is None:
+            return ()
+        if isinstance(raw, str) or not isinstance(raw, Sequence):
+            raise WorldModelRecordError(f"{name}_invalid")
+        values = tuple(str(item) for item in raw if str(item).strip())
+        if len(values) != len(raw):
+            raise WorldModelRecordError(f"{name}_invalid")
+        return values
+
+    @staticmethod
+    def _integer_hint(raw: object, name: str, default: int) -> int:
+        if raw is None:
+            return default
+        if isinstance(raw, bool):
+            raise WorldModelRecordError(f"{name}_invalid")
+        try:
+            return int(raw)
+        except (TypeError, ValueError) as exc:
+            raise WorldModelRecordError(f"{name}_invalid", str(exc)) from exc
 
     def _request_with_verified_world_model(
         self,
@@ -2613,6 +2904,7 @@ class GenerationCycleController:
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED,
         observation_family: str | None = None,
         authority_scope: Literal["production", "contract_testing"] = "production",
@@ -2635,6 +2927,7 @@ class GenerationCycleController:
         self._value_port = value_port or _DefaultSimulationBoundFoundryValuePort(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
+            eval_safety_verifier=eval_safety_verifier,
             observation_to_contract_manifest=observation_to_contract_manifest,
             observation_family=observation_family,
         )

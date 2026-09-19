@@ -607,21 +607,22 @@ class RecursiveGenerationCycleController:
             raise RecursiveGenerationCycleError("recursive_graph_unreachable_node")
         leaf_refs = {node_ref for node_ref, child_refs in children.items() if not child_refs}
         if self._cycle_controller_factory is None:
-            if evaluation_contexts_by_node is None:
+            if evaluation_contexts_by_node is None and cycle_substrate_contexts_by_node is None:
                 raise RecursiveGenerationCycleError(
                     "recursive_eval_safety_context_not_established"
                 )
-            if set(evaluation_contexts_by_node) != leaf_refs:
-                raise RecursiveGenerationCycleError(
-                    "recursive_eval_safety_context_denominator_mismatch"
-                )
-            if any(
-                not isinstance(context, EvaluationExecutionContext)
-                for context in evaluation_contexts_by_node.values()
-            ):
-                raise RecursiveGenerationCycleError(
-                    "recursive_eval_safety_context_not_canonical"
-                )
+            if evaluation_contexts_by_node is not None and evaluation_contexts_by_node:
+                if set(evaluation_contexts_by_node) != leaf_refs:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_eval_safety_context_denominator_mismatch"
+                    )
+                if any(
+                    not isinstance(context, EvaluationExecutionContext)
+                    for context in evaluation_contexts_by_node.values()
+                ):
+                    raise RecursiveGenerationCycleError(
+                        "recursive_eval_safety_context_not_canonical"
+                    )
         if n4_generation_ports_by_node is not None:
             if self._cycle_controller_factory is not None:
                 raise RecursiveGenerationCycleError(
@@ -654,24 +655,28 @@ class RecursiveGenerationCycleController:
                             "recursive_leaf_context_problem_mismatch"
                         )
                 if self._cycle_controller_factory is None:
-                    if evaluation_contexts_by_node is None:  # pragma: no cover - guarded above
-                        raise RecursiveGenerationCycleError(
-                            "recursive_eval_safety_context_not_established"
-                        )
-                    evaluation_context = evaluation_contexts_by_node[node_ref]
-                    if evaluation_context.design_problem_ref != problem_ref:
+                    evaluation_context = (evaluation_contexts_by_node or {}).get(node_ref)
+                    if (
+                        evaluation_context is not None
+                        and evaluation_context.design_problem_ref != problem_ref
+                    ):
                         raise RecursiveGenerationCycleError(
                             "recursive_eval_safety_design_problem_mismatch"
                         )
-                    value_port = FoundryValuePort(
-                        evaluation_context=evaluation_context,
-                        eval_safety_verifier=self._eval_safety_verifier,
-                        repo_root=self._repo_root,
-                        cycle_substrate_context=context,
+                    value_port = (
+                        FoundryValuePort(
+                            evaluation_context=evaluation_context,
+                            eval_safety_verifier=self._eval_safety_verifier,
+                            repo_root=self._repo_root,
+                            cycle_substrate_context=context,
+                        )
+                        if evaluation_context is not None
+                        else None
                     )
                     controller = GenerationCycleController(
                         generation_port=(n4_generation_ports_by_node or {}).get(node_ref),
                         value_port=value_port,
+                        eval_safety_verifier=self._eval_safety_verifier,
                         repo_root=self._repo_root,
                         model_id=self._leaf_model_id,
                         cycle_substrate_context=context,

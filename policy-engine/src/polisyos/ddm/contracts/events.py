@@ -298,6 +298,7 @@ class ReadinessStateEvent(BaseModel):
     expires_at: AwareDatetime | None = None
     promotion_allowed: bool
 
+
 class CalibrationAudit(BaseModel):
     """False-positive certification under a declared stationarity regime."""
 

@@ -25,6 +25,7 @@ from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
     _observation_payload_row_limit,
     run_core_sources_ingest,
 )
+from polisyos.data_forge.domains.catalog.batch.core_sources import loaders, validators, writers
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
@@ -60,6 +61,17 @@ def _stub_dataset_capability_describe(monkeypatch):
         UNESCOUISConnector,
     ):
         monkeypatch.setattr(connector_cls, "describe_dataset", _fake_describe)
+
+
+def test_core_sources_facade_does_not_broadcast_new_globals_to_leaf_group(monkeypatch) -> None:
+    marker = object()
+    monkeypatch.setattr(core_ingest, "_dfi01_probe_only", marker, raising=False)
+
+    core_ingest._sync_implementation_globals()
+
+    assert "_dfi01_probe_only" not in loaders.__dict__
+    assert "_dfi01_probe_only" not in validators.__dict__
+    assert "_dfi01_probe_only" not in writers.__dict__
 
 
 def test_core_sources_ingest_populates_registry_tables(monkeypatch) -> None:

@@ -244,9 +244,14 @@ def _admit_incremental_version(
 
 
 def _cursor_version(cursor: CursorState, connector: Any) -> DataVersion | None:
-    """Convert an admitted persisted cursor to the connector version contract."""
+    """Reject legacy timestamp cursors until provenance/epoch is contract-bound."""
     strategy = _VERSION_STRATEGY_BY_WATERMARK.get(cursor.watermark_type)
     if strategy is None:
+        return None
+    if strategy is VersionStrategy.TIMESTAMP:
+        # CursorState has no independently admitted source-provenance/epoch
+        # field.  Its created_at and watermark_value are not authority for a
+        # subsequent incremental request, so remain in full/candidate mode.
         return None
     return _admit_incremental_version(
         connector=connector,
@@ -370,54 +375,19 @@ def _save_confirmed_cursors(
     confirmed_results: dict[tuple[str, str], Any],
     result: Any,
 ) -> None:
-    """Persist source cursors after complete results and evidence persistence."""
-    from polisyos.fabric.data_plane.watermark import resolve_watermark_policy
+    """Keep cursor promotion fail-closed until evidence binding is available.
 
+    The current lease has no verifier that resolves an evidence reference and
+    binds its contents to the confirmed dataset and ingestion run.  CAS
+    integrity or reference presence is not semantic evidence, so neither
+    absent nor non-None references authorize a cursor write here.  The
+    evidence-contract owner must supply that bridge before this boundary can
+    be reopened.
+    """
+    del cursor_store, connectors, datasets, confirmed_results
     if getattr(result, "evidence_bundle_ref", None) is None:
         return
-
-    manifest_datasets = set(datasets)
-    for (connector_id, dataset_id), fetch_result in confirmed_results.items():
-        if (connector_id, dataset_id) not in manifest_datasets:
-            continue
-
-        connector_family = connector_id.split(".", 1)[0] if connector_id else ""
-        policy = resolve_watermark_policy(connector_family)
-        boundary = _complete_source_boundary(fetch_result, policy.watermark_type)
-        if boundary is None:
-            continue
-        strategy, watermark_value, boundary_timestamp = boundary
-        admitted_version = _admit_incremental_version(
-            connector=connectors.get((connector_id, dataset_id)),
-            strategy=strategy,
-            value=watermark_value,
-            timestamp=boundary_timestamp,
-        )
-        if admitted_version is None:
-            continue
-        watermark_value = admitted_version.value
-
-        created_at = getattr(fetch_result, "fetched_at", None)
-        if not isinstance(created_at, datetime):
-            created_at = datetime.now(UTC)
-        elif created_at.tzinfo is None:
-            created_at = created_at.replace(tzinfo=UTC)
-
-        evidence_bundle_ref = _cursor_result_ref(getattr(fetch_result, "evidence_ref", None))
-        if evidence_bundle_ref is None:
-            evidence_bundle_ref = _cursor_result_ref(getattr(result, "evidence_bundle_ref", None))
-
-        cursor_state = CursorState(
-            cursor_id=f"{connector_id}:{dataset_id}",
-            connector_id=connector_id,
-            dataset_id=dataset_id,
-            watermark_type=policy.watermark_type,
-            watermark_value=str(watermark_value),
-            created_at=created_at,
-            evidence_bundle_ref=evidence_bundle_ref,
-        )
-        cursor_ref = cursor_store.save_cursor(cursor_state)
-        result.cursor_ref = str(cursor_ref.artifact_id)
+    return
 
 
 def run_batch_incremental(

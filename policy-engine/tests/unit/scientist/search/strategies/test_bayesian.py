@@ -98,6 +98,35 @@ def test_duplicate_detection_uses_canonical_integer_and_category_execution() -> 
     assert not strategy._is_duplicate(different_category, [pending])
 
 
+def test_duplicate_detection_keeps_same_replicate_different_seed_distinct() -> None:
+    space = SearchSpace(
+        bounds=[
+            ParameterBounds(name="budget_steps", lower=0, upper=1, dtype=ParameterType.INTEGER),
+            ParameterBounds(
+                name="regime",
+                dtype=ParameterType.CATEGORICAL,
+                categories=("A", "B"),
+            ),
+        ]
+    )
+    strategy = BayesianOptimizer(space, BayesianConfig(seed=13))
+    pending = PolicyCandidate(
+        candidate_id="replica-seed-17",
+        params={"budget_steps": 0, "regime": "A"},
+        params_normalized=(0.12, 0.80, 0.20),
+        metadata={"replicate_id": "replicate-1", "seed": 17},
+    )
+    proposal = PolicyCandidate(
+        candidate_id="replica-seed-23",
+        params={"budget_steps": 0, "regime": "A"},
+        params_normalized=(0.24, 0.60, 0.40),
+        metadata={"replicate_id": "replicate-1", "seed": 23},
+    )
+
+    assert proposal.params_normalized != pending.params_normalized
+    assert not strategy._is_duplicate(proposal, [pending])
+
+
 @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
 def test_bayesian_batch_shape_when_deps_available(simple_space: SearchSpace) -> None:
     strategy = BayesianOptimizer(simple_space, BayesianConfig(n_initial=1, seed=8))

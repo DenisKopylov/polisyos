@@ -1159,7 +1159,8 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
     assert compiled.recursive_run.root_design_problem_ref == substrate_context.design_problem_ref
     leaf = compiled.recursive_run.leaf_nodes[0]
     assert leaf.cycle_run is not None
-    leaf_simulation = leaf.cycle_run.simulation
+    assert leaf.cycle_run.cycles
+    leaf_simulation = leaf.cycle_run.cycles[0].simulation
     assert leaf_simulation.world_model_record is substrate_context.world_model_record
     assert leaf_simulation.world_model_record.content_hash == (
         substrate_context.world_model_record_content_hash
@@ -1294,7 +1295,8 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
     assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
     leaf = compiled.recursive_run.leaf_nodes[0]
     assert leaf.cycle_run is not None
-    simulation = leaf.cycle_run.simulation
+    assert leaf.cycle_run.cycles
+    simulation = leaf.cycle_run.cycles[0].simulation
     assert simulation.status == "simulation_blocked"
     assert simulation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
     assert simulation.world_model_record is substrate_context.world_model_record

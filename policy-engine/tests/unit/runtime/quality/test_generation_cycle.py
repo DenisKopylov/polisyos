@@ -2161,15 +2161,66 @@ def test_joint_port_rejects_unverified_ncm_authority_sources(hostile_location: s
         JointSimulationResult,
     )
 
-    ncm = _ncm_with_cross_term()
+    # This payload is deliberately caller-provided and non-authoritative. Keep
+    # it inline so the rejection witness cannot depend on the N5 fixture helper
+    # or accidentally promote a test-built NCM into the owner boundary.
+    hostile_ncm_payload = {
+        "endogenous_vars": ["income_delta", "balance_delta", "firm_survival"],
+        "exogenous_specs": [
+            {
+                "variable": "u_income",
+                "associated_endogenous": "income_delta",
+            },
+            {
+                "variable": "u_balance",
+                "associated_endogenous": "balance_delta",
+            },
+            {
+                "variable": "u_survival",
+                "associated_endogenous": "firm_survival",
+            },
+        ],
+        "structural_equations": [
+            {
+                "variable": "income_delta",
+                "parents": [],
+                "exogenous": "u_income",
+                "equation_type": "linear",
+                "equation_params": {"intercept": 0.0, "coefficients": {}},
+            },
+            {
+                "variable": "balance_delta",
+                "parents": [],
+                "exogenous": "u_balance",
+                "equation_type": "linear",
+                "equation_params": {"intercept": 0.0, "coefficients": {}},
+            },
+            {
+                "variable": "firm_survival",
+                "parents": ["income_delta", "balance_delta"],
+                "exogenous": "u_survival",
+                "equation_type": "nonlinear",
+                "equation_params": {
+                    "noise_expression": (
+                        "1.0 + (2.0 * income_delta) + (3.0 * balance_delta) "
+                        "+ (5.0 * income_delta * balance_delta) + u"
+                    ),
+                },
+            },
+        ],
+        "is_acyclic": True,
+        "markov_condition_verified": True,
+        "independence_model": "dag_markov",
+        "fit_method": "caller_payload",
+    }
     if hostile_location == "runtime_hint":
-        hostile_hints = {"joint_simulation_ncm_spec": ncm.model_dump(mode="python")}
+        hostile_hints = {"joint_simulation_ncm_spec": hostile_ncm_payload}
     else:
         hostile_hints = {
             "joint_simulation_engine_plan": {
                 "engine_kind": "ncm_parallel_worlds",
                 "objective_ref": "objective://firm_survival",
-                "ncm_spec": ncm.model_dump(mode="python"),
+                "ncm_spec": hostile_ncm_payload,
                 "variable_map": {
                     "agents.income": "income_delta",
                     "government.balance": "balance_delta",

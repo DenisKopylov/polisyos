@@ -184,7 +184,7 @@ class TestParetoFront:
             suite_id="suite1",
             candidate_ref=_ref(),
             selection_metrics={"score": 10.0},
-            holdout_metrics={"score": 1.0},
+            holdout_metrics={"score": 10.0},
             promotable=True,
         )
         second = BenchmarkEvaluation(
@@ -192,7 +192,7 @@ class TestParetoFront:
             suite_id="suite1",
             candidate_ref=_ref(),
             selection_metrics={"score": 1.0},
-            holdout_metrics={"score": 10.0},
+            holdout_metrics={"score": 1.0},
             promotable=True,
         )
 

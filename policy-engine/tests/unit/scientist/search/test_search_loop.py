@@ -318,8 +318,9 @@ class TestOptimizationFlow:
         assert not second_thread.is_alive()
         assert "first" in outcomes
         assert "second" not in outcomes
-        assert isinstance(errors.get("second"), RuntimeError)
-        assert str(errors["second"]) == "SearchController.run is not reentrant"
+        second_error = errors.get("second")
+        assert isinstance(second_error, RuntimeError)
+        assert str(second_error) == "SearchController.run is not reentrant"
 
     def test_diversity_telemetry_is_scoped_to_each_run(self, quadratic_objective, monkeypatch):
         """Fresh runs reset diversity telemetry without a cross-run contract."""

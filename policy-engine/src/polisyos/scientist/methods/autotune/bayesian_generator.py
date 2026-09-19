@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
 )
@@ -47,7 +48,11 @@ def _as_mapping(value: Any) -> dict[str, Any]:
 
 
 def _identity_value(value: Any) -> Any:
-    return value.value if isinstance(value, Enum) else value
+    if isinstance(value, Enum):
+        value = value.value
+    if isinstance(value, ArtifactID):
+        return str(value)
+    return value
 
 
 def _merge_identity_sources(

@@ -7,7 +7,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import uuid4
 
 from pydantic import ValidationError
@@ -21,6 +21,7 @@ from polisyos.scientist.methods.search.frontier import (
     update_legacy_pareto_front,
 )
 from polisyos.scientist.methods.search.objective import CompositeObjective, ObjectiveValue
+from polisyos.scientist.methods.search.run_state import SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 from polisyos.scientist.methods.search.stopping import StoppingCriterion
 
@@ -208,17 +209,7 @@ class SearchController:
         self._stage_a = stage_a_evaluator
         self._stage_b = stage_b_evaluator
 
-        self._history: list[SearchIteration] = []
-        self._best_candidate: dict[str, Any] | None = None
-        self._best_objective: float = float("inf")
-        self._status = SearchStatus.NOT_STARTED
-        self._search_id = ""
-        self._pareto_front: list[dict[str, Any]] = []
-        self._pareto_points: list[FrontierPoint] = []
-
-        self._stage_a_count = 0
-        self._stage_b_count = 0
-        self._sentinel_evaluations = 0
+        self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)
         self._metrics = metrics if metrics is not None else _default_metrics()
         self._diversity_enabled = _as_bool(
             os.getenv("POLISYOS_SEARCH_DIVERSITY_ENABLED"),
@@ -237,6 +228,96 @@ class SearchController:
                 self._diversity_enabled = False
             else:
                 self._diversity_tracker = DiversityTracker()
+
+    @property
+    def _history(self) -> list[SearchIteration]:
+        """Compatibility view onto the current run-state history."""
+        return self._run_state.history
+
+    @_history.setter
+    def _history(self, value: list[SearchIteration]) -> None:
+        self._run_state.history = value
+
+    @property
+    def _best_candidate(self) -> dict[str, Any] | None:
+        """Compatibility view onto the current run-state champion."""
+        return self._run_state.best_candidate
+
+    @_best_candidate.setter
+    def _best_candidate(self, value: dict[str, Any] | None) -> None:
+        self._run_state.best_candidate = value
+
+    @property
+    def _best_objective(self) -> float:
+        """Compatibility view onto the current run-state objective."""
+        return self._run_state.best_objective
+
+    @_best_objective.setter
+    def _best_objective(self, value: float) -> None:
+        self._run_state.best_objective = value
+
+    @property
+    def _status(self) -> SearchStatus:
+        """Compatibility view onto the current run-state status."""
+        return cast(SearchStatus, self._run_state.status)
+
+    @_status.setter
+    def _status(self, value: SearchStatus) -> None:
+        self._run_state.status = value
+
+    @property
+    def _search_id(self) -> str:
+        """Compatibility view onto the current run identity."""
+        return self._run_state.search_id
+
+    @_search_id.setter
+    def _search_id(self, value: str) -> None:
+        self._run_state.search_id = value
+
+    @property
+    def _pareto_front(self) -> list[dict[str, Any]]:
+        """Compatibility view onto the current run frontier."""
+        return self._run_state.pareto_front
+
+    @_pareto_front.setter
+    def _pareto_front(self, value: list[dict[str, Any]]) -> None:
+        self._run_state.pareto_front = value
+
+    @property
+    def _pareto_points(self) -> list[FrontierPoint]:
+        """Compatibility view onto the current run frontier points."""
+        return self._run_state.pareto_points
+
+    @_pareto_points.setter
+    def _pareto_points(self, value: list[FrontierPoint]) -> None:
+        self._run_state.pareto_points = value
+
+    @property
+    def _stage_a_count(self) -> int:
+        """Compatibility view onto Stage A evaluation count."""
+        return self._run_state.stage_a_evaluations
+
+    @_stage_a_count.setter
+    def _stage_a_count(self, value: int) -> None:
+        self._run_state.stage_a_evaluations = value
+
+    @property
+    def _stage_b_count(self) -> int:
+        """Compatibility view onto Stage B evaluation count."""
+        return self._run_state.stage_b_evaluations
+
+    @_stage_b_count.setter
+    def _stage_b_count(self, value: int) -> None:
+        self._run_state.stage_b_evaluations = value
+
+    @property
+    def _sentinel_evaluations(self) -> int:
+        """Compatibility view onto sentinel evaluation count."""
+        return self._run_state.sentinel_evaluations
+
+    @_sentinel_evaluations.setter
+    def _sentinel_evaluations(self, value: int) -> None:
+        self._run_state.sentinel_evaluations = value
 
     def run(
         self,
@@ -258,7 +339,7 @@ class SearchController:
         start_time = datetime.now(UTC)
         self._status = SearchStatus.RUNNING
         self._config.stopping.reset()
-        self._pareto_front: list[dict[str, Any]] = []
+        self._pareto_front = []
         self._pareto_points = []
         self._search_id = search_id
 

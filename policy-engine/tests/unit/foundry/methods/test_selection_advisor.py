@@ -515,9 +515,18 @@ def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner
     assert selected_entry.runnable is True
     assert advisor_module._catalog_entry_is_value_method(selected_entry, registry=registry)
     assert registry.get(selected_entry.fqn).signature.fqn == selected_entry.fqn
-    assert all(
-        slot.get("contract_id") and slot.get("contract_owner")
+    value_slots = tuple(
+        slot
         for slot in selected_entry.output_slots
+        if "value_uncertainty_projection" in tuple(slot.get("contract_capabilities", ()))
+    )
+    assert value_slots
+    assert all(slot.get("contract_id") and slot.get("contract_owner") for slot in value_slots)
+    auxiliary_slot = next(
+        slot for slot in selected_entry.output_slots if slot.get("name") == "uncertainty_envelope"
+    )
+    assert "value_uncertainty_projection" not in tuple(
+        auxiliary_slot.get("contract_capabilities", ())
     )
 
 

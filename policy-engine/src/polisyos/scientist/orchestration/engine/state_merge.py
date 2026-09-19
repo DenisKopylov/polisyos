@@ -232,7 +232,11 @@ def _writes_from_mutations(
     staged: list[_StagedWrite] = []
     for mutation in mutations:
         parts = tuple(part for part in mutation.path.split(".") if part)
-        if not parts or not _paths_overlap(write_parts, parts) or not _path_contains(write_parts, parts):
+        if (
+            not parts
+            or not _paths_overlap(write_parts, parts)
+            or not _path_contains(write_parts, parts)
+        ):
             continue
         staged.append(
             _StagedWrite(
@@ -421,7 +425,10 @@ def _apply_staged_write(root: ExperimentState, write: _StagedWrite) -> None:
     elif write.operation == "insert":
         if not isinstance(target, list):
             raise ValueError(f"Cannot insert into non-list path {write.path!r}")
-        target.insert(write.index if write.index is not None else len(target), deepcopy(write.value))
+        target.insert(
+            write.index if write.index is not None else len(target),
+            deepcopy(write.value),
+        )
     elif write.operation == "pop":
         if isinstance(target, list) and target:
             target.pop(write.index if write.index is not None else -1)

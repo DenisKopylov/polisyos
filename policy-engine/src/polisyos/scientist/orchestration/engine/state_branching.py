@@ -525,7 +525,11 @@ class _TrackedList(list[Any]):
                 self,
                 index,
                 [
-                    _wrap_mutable_value(item, (*self._mutation_path, str(i)), self._mutation_journal)
+                    _wrap_mutable_value(
+                        item,
+                        (*self._mutation_path, str(i)),
+                        self._mutation_journal,
+                    )
                     for i, item in enumerate(values)
                 ],
             )
@@ -574,7 +578,11 @@ class _TrackedList(list[Any]):
     def append(self, value: Any) -> None:
         list.append(
             self,
-            _wrap_mutable_value(value, (*self._mutation_path, str(len(self))), self._mutation_journal),
+            _wrap_mutable_value(
+                value,
+                (*self._mutation_path, str(len(self))),
+                self._mutation_journal,
+            ),
         )
         self._mutation_journal.record(
             path=self._mutation_path,

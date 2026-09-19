@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from polisyos.ddm.detectors import FeatureContract, adapt_shift_event, evaluate_data_quality
 from polisyos.ddm.integration import (
     AffectedSlice,
@@ -14,6 +16,47 @@ from polisyos.ddm.integration import (
     ShiftDetectedEvent,
 )
 from polisyos.ddm.readiness import map_readiness
+
+
+def test_metric_budget_policy_has_one_canonical_contract_owner() -> None:
+    from polisyos.ddm.contracts.metric_budget import (
+        MetricBudgetPolicy as CanonicalMetricBudgetPolicy,
+    )
+    from polisyos.ddm.readiness import MetricBudgetPolicy as PublicMetricBudgetPolicy
+    from polisyos.ddm.readiness.readiness_mapper import (
+        MetricBudgetPolicy as MapperMetricBudgetPolicy,
+    )
+
+    assert PublicMetricBudgetPolicy is CanonicalMetricBudgetPolicy
+    assert MapperMetricBudgetPolicy is CanonicalMetricBudgetPolicy
+
+    policy = CanonicalMetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+    )
+    assert policy.model_dump() == {
+        "model_id": "model",
+        "model_version": "v1",
+        "metric": "accuracy",
+        "metric_direction": MetricDirection.HIGHER_IS_BETTER,
+        "reference_value": 0.90,
+        "minimum_acceptable_value": 0.80,
+        "maximum_acceptable_value": None,
+    }
+
+    with pytest.raises(ValueError, match="reference_value must be above"):
+        CanonicalMetricBudgetPolicy(
+            model_id="model",
+            model_version="v1",
+            metric="accuracy",
+            metric_direction=MetricDirection.HIGHER_IS_BETTER,
+            reference_value=0.80,
+            minimum_acceptable_value=0.80,
+        )
 
 
 def _window() -> MonitoringWindow:

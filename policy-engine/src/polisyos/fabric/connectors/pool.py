@@ -487,7 +487,6 @@ class ConnectionPool(Generic[ConnectorT]):
         permit_owned = False
         permit_release = False
         cleanup_attempted = False
-        pending_owner = False
         pending_retry = False
         generation = 0
 
@@ -532,7 +531,6 @@ class ConnectionPool(Generic[ConnectorT]):
                 pooled.pending_permit = pooled.pending_permit or permit_owned
                 cleaned = await self._cleanup_pooled(pooled)
                 if not cleaned:
-                    pending_owner = True
                     pooled = None
                     raise RuntimeError("Connection cleanup is pending for the released owner")
                 pooled.pending_permit = False
@@ -547,7 +545,6 @@ class ConnectionPool(Generic[ConnectorT]):
                     pooled.pending_permit = True
                     cleaned = await self._cleanup_pooled(pooled)
                     if not cleaned:
-                        pending_owner = True
                         pooled = None
                         raise RuntimeError(
                             "Connection cleanup is pending after release validation failed"
@@ -576,7 +573,6 @@ class ConnectionPool(Generic[ConnectorT]):
                 pooled.pending_permit = True
                 cleaned = await self._cleanup_pooled(pooled)
                 if not cleaned:
-                    pending_owner = True
                     pooled = None
                     raise RuntimeError("Connection cleanup is pending after pool rotation")
                 pooled.pending_permit = False
@@ -593,7 +589,6 @@ class ConnectionPool(Generic[ConnectorT]):
                         permit_release = True
                     else:
                         self._retain_pending_cleanup(pooled)
-                        pending_owner = True
                 else:
                     pooled.pending_permit = True
                     try:
@@ -606,7 +601,6 @@ class ConnectionPool(Generic[ConnectorT]):
                             permit_release = True
                         else:
                             self._retain_pending_cleanup(pooled)
-                            pending_owner = True
                             exc.add_note(
                                 f"cleanup during release failed: {cleanup_exc!r}"
                             )
@@ -618,7 +612,6 @@ class ConnectionPool(Generic[ConnectorT]):
                             permit_release = True
                         else:
                             self._retain_pending_cleanup(pooled)
-                            pending_owner = True
                             pooled = None
             raise
         finally:

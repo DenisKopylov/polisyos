@@ -2044,32 +2044,27 @@ def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
     assert observation.k_world_ref_before == context.world_model_record.content_hash
 
 
-def test_joint_port_builds_real_n5_input_and_preserves_numeric_cas_readback(
-    tmp_path: Path,
-) -> None:
-    """A bound cycle must reach N5 without a ready request or zero fallback."""
+def _cyc01_owner_bound_n5_case(
+    *,
+    runtime_hints: dict[str, Any] | None = None,
+) -> tuple[DesignProblem, CycleSubstrateContext, object]:
+    """Build canonical atom/context inputs without granting an NCM source."""
 
     from polisyos.runtime.quality.intervention_atom_binding import (
         InterventionAtomBinding,
         intervention_atom_content_hash,
     )
-    from polisyos.runtime.quality.joint_simulation_horizon import (
-        JointSimulationHorizonController,
-        JointSimulationRequest,
-        JointSimulationResult,
-    )
     from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
-    budget_ref = f"budget://cyc-01/{uuid4().hex}/n5"
-    horizon = {"start": 0, "end": 3, "step": 1}
-    problem = _problem(f"cyc_n5_builder_{uuid4().hex}").model_copy(
-        update={
-            "runtime_hints": {
-                "joint_simulation_budget_ref": budget_ref,
-                "joint_simulation_horizon": horizon,
-                "joint_simulation_resource": "ncm_parallel_worlds",
-            }
-        }
+    hints = {
+        "joint_simulation_budget_ref": f"budget://cyc-01/{uuid4().hex}/n5",
+        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_resource": "ncm_parallel_worlds",
+    }
+    if runtime_hints:
+        hints.update(runtime_hints)
+    problem = _problem(f"cyc_n5_owner_boundary_{uuid4().hex}").model_copy(
+        update={"runtime_hints": hints}
     )
     registry = _lane0_registry(
         domain=problem.domain,
@@ -2117,29 +2112,22 @@ def test_joint_port_builds_real_n5_input_and_preserves_numeric_cas_readback(
         atom=atoms[0],
         intervention_atoms=atoms,
     )
+    return problem, context, candidate
 
-    store = FileSystemCAS(tmp_path / "cas")
-    recorded: list[tuple[JointSimulationRequest, str]] = []
-    real_n5 = JointSimulationHorizonController()
+
+def test_joint_port_owner_missing_ncm_blocks_with_bound_wmr_provenance() -> None:
+    """Absent owner NCM blocks N5 without dropping the already-resolved WMR."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+
+    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    controller_calls: list[JointSimulationRequest] = []
 
     class _RecordingN5Controller:
-        def run(self, concrete_request: JointSimulationRequest) -> JointSimulationResult:
-            assert isinstance(concrete_request, JointSimulationRequest)
-            numeric = real_n5.run(concrete_request)
-            result_ref = store.put_json(
-                numeric,
-                ArtifactWriteOptions(
-                    kind="runtime.n5.joint_simulation_result",
-                    media_type="application/json",
-                ),
-            )
-            recorded.append((concrete_request, result_ref.artifact_id))
-            return numeric
+        def run(self, concrete_request: JointSimulationRequest) -> object:
+            controller_calls.append(concrete_request)
+            raise AssertionError("owner-blocked NCM path must not invoke N5")
 
-    # No ready request or factory is supplied: the production builder must
-    # assemble the request from the candidate and the bound context before the
-    # real controller sees it.  The recorder proves that boundary call rather
-    # than treating an independently-run N5 result as port evidence.
     port = JointSimulationPort(
         controller=_RecordingN5Controller(),
         repo_root=REPO_ROOT,
@@ -2147,44 +2135,78 @@ def test_joint_port_builds_real_n5_input_and_preserves_numeric_cas_readback(
     )
     observation = port(candidate=candidate, problem=problem, cycle_index=0)
 
-    assert len(recorded) == 1
-    captured, result_artifact_id = recorded[0]
-    assert captured.world_model_record is context.world_model_record
-    assert captured.world_model_record_ref == context.world_model_record.world_model_record_id
-    assert captured.intervention_atoms == candidate.intervention_atoms
-    assert all(
-        atom.problem_frame_ref == context.design_problem_ref
-        for atom in captured.intervention_atoms
+    assert observation.status == "simulation_blocked"
+    assert observation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_source"] == "cycle_substrate_context"
+    assert observation.diagnostics["world_model_record_id"] == (
+        context.world_model_record.world_model_record_id
     )
-    assert all(
-        atom.world_model_record_ref
-        in {
-            context.world_model_record.world_model_record_id,
-            context.world_model_record.content_hash,
-        }
-        for atom in captured.intervention_atoms
+    assert observation.diagnostics["world_model_record_content_hash"] == (
+        context.world_model_record.content_hash
     )
-    assert captured.selected_outcomes == (problem.outcome_of_interest.target_variable,)
-    assert captured.horizon.model_dump(mode="json", exclude_unset=True) == horizon
-    assert captured.budget_ref == budget_ref
-    assert captured.engine_plan[0].engine_kind == problem.runtime_hints[
-        "joint_simulation_resource"
-    ]
-
-    replayed = JointSimulationResult.model_validate(
-        canon.from_canonical_bytes(store.get_bytes(result_artifact_id))
-    )
-    joint = replayed.trajectory_for(
-        "joint",
-        tuple(item.intervention_id for item in captured.intervention_atoms),
-    )
-    assert joint.points[-1].outcomes["firm_survival"] == pytest.approx(11.0)
-    assert joint.points[-1].outcomes["firm_survival"] != pytest.approx(0.0)
-
-    assert observation.status == "joint_simulated"
-    assert observation.simulation_ref == replayed.receipt.payload_hash
     assert observation.k_world_ref_before == context.world_model_record.content_hash
     assert observation.k_world_ref_after == context.world_model_record.content_hash
+    assert observation.simulation_ref is None
+    assert controller_calls == []
+
+
+@pytest.mark.parametrize("hostile_location", ("runtime_hint", "engine_plan"))
+def test_joint_port_rejects_unverified_ncm_authority_sources(hostile_location: str) -> None:
+    """Neither caller hints nor nested plans can replace the owner NCM resolver."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        JointSimulationRequest,
+        JointSimulationResult,
+    )
+
+    ncm = _ncm_with_cross_term()
+    if hostile_location == "runtime_hint":
+        hostile_hints = {"joint_simulation_ncm_spec": ncm.model_dump(mode="python")}
+    else:
+        hostile_hints = {
+            "joint_simulation_engine_plan": {
+                "engine_kind": "ncm_parallel_worlds",
+                "objective_ref": "objective://firm_survival",
+                "ncm_spec": ncm.model_dump(mode="python"),
+                "variable_map": {
+                    "agents.income": "income_delta",
+                    "government.balance": "balance_delta",
+                    "firm_survival": "firm_survival",
+                },
+                "eligibility_conditions": ("acyclic", "counterfactual_do_worlds"),
+            }
+        }
+    problem, context, candidate = _cyc01_owner_bound_n5_case(runtime_hints=hostile_hints)
+    controller_calls: list[JointSimulationRequest] = []
+    real_n5 = JointSimulationHorizonController()
+
+    class _RecordingN5Controller:
+        def run(self, concrete_request: JointSimulationRequest) -> JointSimulationResult:
+            controller_calls.append(concrete_request)
+            return real_n5.run(concrete_request)
+
+    observation = JointSimulationPort(
+        controller=_RecordingN5Controller(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert observation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
+    assert observation.world_model_record is context.world_model_record
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+    assert observation.k_world_ref_after == context.world_model_record.content_hash
+    assert controller_calls == []
+
+
+def test_joint_port_rejects_changed_problem_and_catalog_after_owner_block() -> None:
+    """The owner-blocked path retains the existing identity refusal boundaries."""
+
+    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    port = JointSimulationPort(repo_root=REPO_ROOT, cycle_substrate_context=context)
+    problem_ref = context.design_problem_ref
 
     foreign_problem = problem.model_copy(update={"domain": "foreign_cyc_domain"})
     rejected_problem = port(candidate=candidate, problem=foreign_problem, cycle_index=0)

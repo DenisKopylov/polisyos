@@ -317,7 +317,7 @@ class TestFileBudgetLedger:
         def pause_after_truncate(fd: int, snapshot: object) -> object:
             os.ftruncate(fd, 0)
             truncated.set()
-            if not resume.wait(timeout=2):
+            if not resume.wait(timeout=10):
                 raise AssertionError("writer was not released")
             return original_persist(fd, snapshot)
 

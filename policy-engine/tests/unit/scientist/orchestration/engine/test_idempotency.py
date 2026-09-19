@@ -195,6 +195,61 @@ def test_node_result_cache_rejects_unknown_replay_versions(tmp_path, field, valu
     assert restored.get(key) is None
 
 
+# Production mutation caught: an exact legacy v1 entry with a plain outcome
+# and empty operations must be rejected before indexing so execution may rerun.
+def test_node_result_cache_rejects_legacy_empty_unproven_contract(tmp_path) -> None:
+    from polisyos.core.artifacts import ProducerInfo, SchemaInfo
+    from polisyos.core.canon import CanonSpec
+
+    store = FileSystemCAS(tmp_path)
+    key = "l" * 64
+    outcome = _plain_outcome("R_legacy_empty")
+    outcome_ref = store.put_json(
+        outcome.model_dump(mode="python", by_alias=True, exclude_none=False),
+        PutOptions(
+            kind="scientist.node_outcome",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.NodeOutcome",
+                version="1.0",
+            ),
+            producer=ProducerInfo(component="scientist.engine.idempotency", version="1.0.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    entry = NodeCacheEntry(
+        schema_version="1.0",
+        run_id=outcome.state.run_id,
+        node_id="scientist.node_test@1.0.0",
+        idempotency_key=key,
+        outcome_ref=outcome_ref,
+        state_mutations=(),
+        state_mutations_version="1.0",
+    )
+    entry_ref = store.put_json(
+        entry.model_dump(mode="python", by_alias=True, exclude_none=False),
+        PutOptions(
+            kind="scientist.node_cache_entry",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.NodeCacheEntry",
+                version="1.0",
+            ),
+            producer=ProducerInfo(component="scientist.engine.idempotency", version="1.0.0"),
+        ),
+    )
+
+    cache = NodeResultCache(store, run_id=outcome.state.run_id)
+
+    assert cache.load_entry(entry_ref) is False
+    assert not cache.has(key)
+    assert cache.get(key) is None
+
+    replacement = _outcome("R_legacy_empty")
+    cache.put(key, node_id="scientist.node_test@1.0.0", outcome=replacement)
+    assert cache.get(key) is not None
+
+
 def test_node_result_cache_seed_from_trace(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     key = "c" * 64

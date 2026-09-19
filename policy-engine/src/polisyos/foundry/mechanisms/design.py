@@ -16,7 +16,6 @@ from polisyos.ir.analytics.mechanism_design import (
     certify_piecewise_linear_tax,
 )
 
-
 __all__ = [
     "build_reserve_auction_welfare_loss_bound",
     "certify_affine_tax",

@@ -324,34 +324,31 @@ def _complete_source_boundary(
         return None
     if strategy is VersionStrategy.TIMESTAMP:
         source_updated_at = getattr(fetch_result, "source_updated_at", None)
-        source_timestamp = (
-            source_updated_at
-            if isinstance(source_updated_at, datetime)
+        if not (
+            isinstance(source_updated_at, datetime)
             and source_updated_at.tzinfo is not None
             and source_updated_at.utcoffset() is not None
-            else None
-        )
+        ):
+            return None
+        source_timestamp = source_updated_at
         version = getattr(fetch_result, "version", None)
-        if getattr(version, "strategy", None) is VersionStrategy.TIMESTAMP:
-            version_value = getattr(version, "value", None)
-            version_timestamp = getattr(version, "timestamp", None)
-            if not isinstance(version_value, str) or not isinstance(
-                version_timestamp, datetime
-            ):
-                return None
-            parsed_version_value = _parse_timestamp_value(version_value)
-            if parsed_version_value is None:
-                return None
-            if (
-                version_timestamp.tzinfo is None
-                or version_timestamp.utcoffset() is None
-                or version_timestamp != parsed_version_value
-            ):
-                return None
-            if source_timestamp is not None and source_timestamp != parsed_version_value:
-                return None
-            source_timestamp = parsed_version_value
-        if source_timestamp is None:
+        if getattr(version, "strategy", None) is not VersionStrategy.TIMESTAMP:
+            return None
+        version_value = getattr(version, "value", None)
+        version_timestamp = getattr(version, "timestamp", None)
+        if not isinstance(version_value, str) or not isinstance(
+            version_timestamp, datetime
+        ):
+            return None
+        parsed_version_value = _parse_timestamp_value(version_value)
+        if parsed_version_value is None:
+            return None
+        if (
+            version_timestamp.tzinfo is None
+            or version_timestamp.utcoffset() is None
+            or version_timestamp != parsed_version_value
+            or source_timestamp != parsed_version_value
+        ):
             return None
         return strategy, source_timestamp.isoformat(), source_timestamp
 

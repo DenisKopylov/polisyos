@@ -10,6 +10,7 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.state_merge import (
     MergeConflictPolicy,
+    StateReplayIncompatible,
     merge_parallel_outcomes,
 )
 
@@ -329,15 +330,29 @@ class TestMergeParallelOutcomes:
         branch.params["items"].pop(1)
         current = base_state.model_copy(update={"params": current_params})
 
-        try:
-            result = merge_parallel_outcomes(
+        with pytest.raises(StateReplayIncompatible):
+            merge_parallel_outcomes(
                 current,
                 {"node_a": _ok_outcome(branch)},
                 {"node_a": ["params.items"]},
             )
-        except Exception as exc:  # noqa: BLE001 - assert the typed boundary contract.
-            assert exc.__class__.__name__ == "StateReplayIncompatible"
-        else:
-            assert result.applied is False
-            assert result.state is current
-            assert any("replay_incompatible" in item for item in result.conflicts)
+
+    # Production mutation caught: a recorded list replacement must validate
+    # the current target kind and presence before writing a replacement value.
+    @pytest.mark.parametrize("current_params", [{"items": {}}, {}])
+    def test_replay_replace_requires_current_list_target(
+        self,
+        base_state,
+        current_params,
+    ):
+        source = base_state.model_copy(update={"params": {"items": ["b", "a"]}})
+        branch = branch_state(source, write_paths=("params.items",)).state
+        branch.params["items"].sort()
+        current = base_state.model_copy(update={"params": current_params})
+
+        with pytest.raises(StateReplayIncompatible):
+            merge_parallel_outcomes(
+                current,
+                {"node_a": _ok_outcome(branch)},
+                {"node_a": ["params.items"]},
+            )

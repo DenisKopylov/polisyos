@@ -43,8 +43,11 @@ def _make_evidence_bundle(store: FileSystemCAS):
 
 
 class TestBatchIncremental:
-    def test_incremental_with_no_prior_cursor(self, tmp_path: Path):
-        """batch_incremental with no prior cursor behaves like batch_full."""
+    def test_incremental_with_no_prior_cursor_stays_full_without_evidence_binding(
+        self,
+        tmp_path: Path,
+    ):
+        """No cursor is promoted while the evidence ref lacks content binding."""
         cas_root = tmp_path / ".polisyos"
         store = FileSystemCAS(cas_root)
         evidence_ref = _make_evidence_bundle(store)
@@ -76,12 +79,12 @@ class TestBatchIncremental:
             )
 
         assert result.datasets_fetched == 1
-        # Cursor should be saved
         cursor_store = CursorStore(store)
         found = cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
-        assert found is not None
+        assert found is None
 
-    def test_incremental_saves_cursor_after_success(self, tmp_path: Path):
+    def test_incremental_does_not_save_cursor_from_unverified_evidence(self, tmp_path: Path):
+        """Aggregate success does not make a fake evidence ref authoritative."""
         cas_root = tmp_path / ".polisyos"
         store = FileSystemCAS(cas_root)
         evidence_ref = _make_evidence_bundle(store)
@@ -111,14 +114,11 @@ class TestBatchIncremental:
                 ingestion_dependencies=_supported_dependencies(),
             )
 
-        assert result.cursor_ref is not None
+        assert result.cursor_ref is None
 
         cursor_store = CursorStore(store)
         cursor = cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
-        assert cursor is not None
-        assert cursor.watermark_type == WatermarkType.TIMESTAMP
-        assert cursor.connector_id == "worldbank.wdi"
-        assert cursor.dataset_id == "NY.GDP.MKTP.CD"
+        assert cursor is None
 
     def test_incremental_does_not_save_cursor_on_zero_fetched(self, tmp_path: Path):
         cas_root = tmp_path / ".polisyos"
@@ -149,7 +149,8 @@ class TestBatchIncremental:
         cursor_store = CursorStore(store)
         assert cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD") is None
 
-    def test_multiple_incremental_runs_advance_cursor(self, tmp_path: Path):
+    def test_multiple_incremental_runs_stay_full_without_evidence_binding(self, tmp_path: Path):
+        """Repeated aggregate success cannot advance an unverified cursor."""
         cas_root = tmp_path / ".polisyos"
         store = FileSystemCAS(cas_root)
         evidence_ref = _make_evidence_bundle(store)
@@ -182,14 +183,9 @@ class TestBatchIncremental:
             )
             cursor_store = CursorStore(store)
             first_cursor = cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
-            assert first_cursor is not None
-            first_value = first_cursor.watermark_value
+            assert first_cursor is None
 
             # Second run
-            import time
-
-            time.sleep(0.01)  # ensure timestamp differs
-
             run_batch_incremental(
                 connector_manifest=_make_manifest(),
                 source="test",
@@ -199,8 +195,7 @@ class TestBatchIncremental:
             )
 
             second_cursor = cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
-            assert second_cursor is not None
-            assert second_cursor.watermark_value >= first_value
+            assert second_cursor is None
 
     def test_incremental_does_not_pass_unproven_legacy_cursor_to_requests(
         self,
@@ -310,9 +305,8 @@ class TestBatchIncremental:
         cursor_store = CursorStore(store)
         cursor_a = cursor_store.find_latest_cursor("alpha.source", "A")
         cursor_b = cursor_store.find_latest_cursor("beta.source", "B")
-        assert result.cursor_ref is not None
-        assert cursor_a is not None
-        assert cursor_a.watermark_value == "2024-01-09T00:00:00+00:00"
+        assert result.cursor_ref is None
+        assert cursor_a is None
         assert cursor_b is None
 
     def test_incremental_does_not_promote_fetched_at_without_source_boundary(
@@ -552,8 +546,11 @@ class TestBatchIncremental:
         assert len(connector.requests) == 1
         assert connector.requests[0].incremental_since is None
 
-    def test_incremental_promotes_complete_source_boundary_not_fetch_time(self, tmp_path: Path):
-        """A supported complete result persists its source boundary, not fetch time."""
+    def test_incremental_keeps_source_boundary_fail_closed_without_evidence_binding(
+        self,
+        tmp_path: Path,
+    ):
+        """A source boundary remains unpromoted without content-bound evidence."""
         cas_root = tmp_path / ".polisyos"
         store = FileSystemCAS(cas_root)
         evidence_ref = _make_evidence_bundle(store)
@@ -593,13 +590,14 @@ class TestBatchIncremental:
             )
 
         cursor = CursorStore(store).find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
-        assert result.cursor_ref is not None
-        assert cursor is not None
-        assert cursor.watermark_value == source_boundary.isoformat()
-        assert cursor.watermark_value != fetched_at.isoformat()
+        assert result.cursor_ref is None
+        assert cursor is None
 
-    def test_incremental_promotes_native_rest_last_modified_version(self, tmp_path: Path):
-        """A REST Last-Modified version is valid with its explicit source marker."""
+    def test_incremental_keeps_native_rest_last_modified_fail_closed_without_evidence_binding(
+        self,
+        tmp_path: Path,
+    ):
+        """A valid REST marker cannot bypass the evidence-binding gate."""
         from polisyos.fabric.connectors.reference.rest_json import GenericRESTConnector
 
         cas_root = tmp_path / ".polisyos"
@@ -647,16 +645,14 @@ class TestBatchIncremental:
             )
 
         cursor = CursorStore(store).find_latest_cursor("rest.json", "dataset")
-        assert result.cursor_ref is not None
-        assert cursor is not None
-        assert cursor.watermark_value == version.value
-        assert cursor.watermark_value != fetched_at.isoformat()
+        assert result.cursor_ref is None
+        assert cursor is None
 
-    def test_incremental_accepts_marked_rest_version_equal_to_fetched_at(
+    def test_incremental_keeps_marked_rest_version_fail_closed_without_evidence_binding(
         self,
         tmp_path: Path,
     ):
-        """A marked source version may equal fetch time without using fetch time as proof."""
+        """A marked source version cannot bypass missing evidence binding."""
         from polisyos.fabric.connectors.reference.rest_json import GenericRESTConnector
 
         cas_root = tmp_path / ".polisyos"
@@ -705,9 +701,8 @@ class TestBatchIncremental:
             )
 
         cursor = CursorStore(store).find_latest_cursor("rest.json", "dataset")
-        assert result.cursor_ref is not None
-        assert cursor is not None
-        assert cursor.watermark_value == fetched_at.isoformat()
+        assert result.cursor_ref is None
+        assert cursor is None
 
     def test_incremental_rejects_legacy_timestamp_version_without_source_marker(
         self,

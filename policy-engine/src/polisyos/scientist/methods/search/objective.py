@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Protocol
 
-
 _MISSING = object()
 _INVALID = object()
 _BALANCE_ALIASES = ("gov_balance", "government_balance")

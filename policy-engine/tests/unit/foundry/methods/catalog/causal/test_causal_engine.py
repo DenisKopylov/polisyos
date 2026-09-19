@@ -425,6 +425,14 @@ class TestCausalEngineIdentify:
         result = self.engine.identify("X", "Y", graph, z_interventions=frozenset({"Z"}))
         assert isinstance(result, (IdentificationResult, NegativeCertificate))
 
+    def test_identify_with_z_interventions_rejects_unblocked_common_cause(self):
+        graph = make_dag([("U", "X"), ("U", "Y"), ("X", "Y"), ("Z", "Y")])
+
+        result = self.engine.identify("X", "Y", graph, z_interventions=frozenset({"Z"}))
+
+        assert isinstance(result, IdentificationResult)
+        assert all(step.rule_name != "Z_TRANSPORT" for step in result.proof_steps)
+
     def test_identify_with_conditions(self):
         graph = make_dag([("Z", "X"), ("X", "Y"), ("Z", "Y")])
         result = self.engine.identify("X", "Y", graph, conditions=frozenset({"Z"}))

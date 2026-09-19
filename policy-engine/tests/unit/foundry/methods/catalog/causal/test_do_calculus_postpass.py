@@ -1,7 +1,10 @@
 """Tests for do-calculus post-pass in transport_engine._try_tr_via_id_engine (Phase 4)."""
 
+from polisyos.foundry.methods.catalog.causal.do_calculus import apply_rule1, apply_rule3
+from polisyos.foundry.methods.catalog.causal.sigma_calculus import apply_sigma_rule1
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.estimand import DistributionDomain, DistributionRef
 from polisyos.ir.analytics.transportability import SelectionDiagram, SNode, TransportabilityStatus
 
 # ---------------------------------------------------------------------------
@@ -18,6 +21,29 @@ def _dag(edges: list[tuple[str, str]]) -> CausalGraphModel:
             CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
             for s, d in edges
         ],
+    )
+
+
+def _admg_bidirected(src: str, dst: str) -> CausalGraphModel:
+    return CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=[src, dst],
+        edges=[
+            CausalEdge(
+                src=src,
+                dst=dst,
+                mark_src=EdgeMark.ARROW,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
+    )
+
+
+def _conditioned_outcome_ref() -> DistributionRef:
+    return DistributionRef(
+        domain=DistributionDomain.SOURCE,
+        variables=("Y",),
+        conditioning=("X",),
     )
 
 
@@ -60,6 +86,44 @@ def _try_tr(diagram: SelectionDiagram, treatment: str, outcome: str):
 # ---------------------------------------------------------------------------
 # Tests: _try_tr_via_id_engine
 # ---------------------------------------------------------------------------
+
+
+class TestSharedSeparatorConsumers:
+    def test_rule1_does_not_delete_an_open_fork_condition(self):
+        graph = _dag([("U", "X"), ("U", "Y")])
+
+        result = apply_rule1(
+            _conditioned_outcome_ref(),
+            graph,
+            frozenset({"X"}),
+        )
+
+        assert result is None
+
+    def test_sigma_rule1_does_not_delete_an_open_fork_condition(self):
+        graph = _dag([("U", "X"), ("U", "Y")])
+
+        result = apply_sigma_rule1(
+            _conditioned_outcome_ref(),
+            graph,
+            frozenset({"X"}),
+            frozenset({"X"}),
+        )
+
+        assert result is None
+
+    def test_rule3_deletes_a_do_with_no_directed_or_latent_effect_on_outcome(self):
+        ref = DistributionRef(
+            domain=DistributionDomain.SOURCE,
+            variables=("Y",),
+            intervention_set=("X",),
+        )
+
+        result = apply_rule3(ref, _admg_bidirected("X", "Y"), frozenset({"X"}))
+
+        assert result is not None
+        new_ref, _step = result
+        assert new_ref.intervention_set == ()
 
 
 class TestTryTrViaIdEngine:

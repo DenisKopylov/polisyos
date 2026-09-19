@@ -2,6 +2,8 @@
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     augment_with_s_nodes,
+    do_operator,
+    m_separation,
     project_to_subgraph,
     resolve_s_node_by_adjustment,
     s_reachable,
@@ -30,6 +32,108 @@ def _confounded(directed, bidirected):
     for s, d in bidirected:
         edges.append(CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
     return CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
+
+
+def _admg(directed, bidirected=()):
+    nodes = sorted({n for e in (*directed, *bidirected) for n in e})
+    edges = [
+        CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
+        for s, d in directed
+    ]
+    edges.extend(
+        CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW)
+        for s, d in bidirected
+    )
+    return CausalGraphModel(graph_type=GraphType.ADMG, nodes=nodes, edges=edges)
+
+
+class TestMSeparation:
+    def test_chain_is_open_without_conditioning_and_closed_on_middle(self):
+        graph = _admg([("X", "M"), ("M", "Y")])
+
+        assert not m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset())
+        assert m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset({"M"}))
+
+    def test_fork_is_open_without_conditioning_and_closed_on_common_cause(self):
+        graph = _admg([("U", "X"), ("U", "Y")])
+
+        assert not m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset())
+        assert m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset({"U"}))
+
+    def test_collider_is_closed_and_conditioning_opens_it(self):
+        graph = _admg([("X", "M"), ("Y", "M")])
+
+        assert m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset())
+        assert not m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset({"M"}))
+
+    def test_bidirected_collider_is_closed_and_conditioning_opens_it(self):
+        graph = _admg([], [("X", "M"), ("M", "Y")])
+
+        assert m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset())
+        assert not m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset({"M"}))
+
+    def test_conditioned_descendant_opens_collider_path(self):
+        graph = _admg([("X", "M"), ("Y", "M"), ("M", "D")])
+
+        assert not m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset({"D"}))
+
+    def test_separator_is_symmetric(self):
+        graph = _admg([("X", "M"), ("M", "Y")])
+
+        assert not m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset())
+        assert not m_separation(graph, frozenset({"Y"}), frozenset({"X"}), frozenset())
+
+    def test_separator_is_invariant_under_renaming(self):
+        original = _admg([("X", "M"), ("M", "Y")])
+        renamed = _admg([("alpha", "bridge"), ("bridge", "omega")])
+
+        original_result = m_separation(
+            original, frozenset({"X"}), frozenset({"Y"}), frozenset()
+        )
+        renamed_result = m_separation(
+            renamed, frozenset({"alpha"}), frozenset({"omega"}), frozenset()
+        )
+        assert original_result is renamed_result is False
+
+
+class TestPerfectDo:
+    def test_do_cuts_action_incident_bidirected_but_keeps_outgoing_and_unrelated_edges(self):
+        graph = _admg(
+            [("X", "Y")],
+            [("X", "Y"), ("Y", "Z")],
+        )
+        original_edges = tuple(graph.edges)
+
+        mutilated = do_operator(graph, frozenset({"X"}))
+
+        assert any(
+            e.src == "X"
+            and e.dst == "Y"
+            and e.mark_src is EdgeMark.TAIL
+            and e.mark_dst is EdgeMark.ARROW
+            for e in mutilated.edges
+        )
+        assert not any(
+            {e.src, e.dst} == {"X", "Y"}
+            and e.mark_src is EdgeMark.ARROW
+            and e.mark_dst is EdgeMark.ARROW
+            for e in mutilated.edges
+        )
+        assert any(
+            {e.src, e.dst} == {"Y", "Z"}
+            and e.mark_src is EdgeMark.ARROW
+            and e.mark_dst is EdgeMark.ARROW
+            for e in mutilated.edges
+        )
+        assert tuple(graph.edges) == original_edges
+
+    def test_do_matches_latent_dag_surgery(self):
+        graph = _dag([("U", "X"), ("U", "Y")])
+
+        mutilated = do_operator(graph, frozenset({"X"}))
+
+        assert not any(e.src == "U" and e.dst == "X" for e in mutilated.edges)
+        assert any(e.src == "U" and e.dst == "Y" for e in mutilated.edges)
 
 
 class TestAugmentWithSNodes:

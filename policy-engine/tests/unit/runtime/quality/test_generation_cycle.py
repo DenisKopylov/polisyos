@@ -2044,6 +2044,121 @@ def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
     assert observation.k_world_ref_before == context.world_model_record.content_hash
 
 
+def test_joint_port_builds_real_n5_input_and_preserves_numeric_cas_readback(
+    tmp_path: Path,
+) -> None:
+    """A bound cycle must reach N5 without a ready request or zero fallback."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import intervention_atom_content_hash
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        JointSimulationResult,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+    problem = _problem(f"cyc_n5_builder_{uuid4().hex}")
+    registry = _lane0_registry(
+        domain=problem.domain,
+        source_id="l2_cyc:serializable_n5_builder.duckdb",
+    )
+    selected_hash = registry.entries[0].entry_content_hash
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="firm_survival",
+        policy_slot_ids=("agents.income", "government.balance", "firm_survival"),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    substrate_input_hash = gy_content_hash(
+        {"domain": problem.domain, "registry": registry.content_hash}
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=gy_content_hash("cyc-n5-builder-pack"),
+        substrate_input_content_hash=substrate_input_hash,
+    )
+
+    # The helper constructs the production JointSimulationRequest and strict
+    # InterventionAtomBinding DTOs in memory; it is not an owner/source bundle.
+    request = _request(record=world, world_model_record_ref=world.world_model_record_id)
+    atom = request.intervention_atoms[0].model_copy(update={"problem_frame_ref": problem_ref})
+    atom = atom.model_copy(update={"content_hash": intervention_atom_content_hash(atom)})
+    candidate = SimpleNamespace(candidate_id=atom.intervention_id, atom=atom)
+
+    numeric = JointSimulationHorizonController().run(request)
+    store = FileSystemCAS(tmp_path / "cas")
+    result_ref = store.put_json(
+        numeric,
+        ArtifactWriteOptions(
+            kind="runtime.n5.joint_simulation_result",
+            media_type="application/json",
+        ),
+    )
+    replayed = JointSimulationResult.model_validate(
+        canon.from_canonical_bytes(store.get_bytes(result_ref.artifact_id))
+    )
+    joint = replayed.trajectory_for(
+        "joint",
+        tuple(item.intervention_id for item in request.intervention_atoms),
+    )
+    assert joint.points[-1].outcomes["firm_survival"] == pytest.approx(11.0)
+    assert joint.points[-1].outcomes["firm_survival"] != pytest.approx(0.0)
+
+    port = JointSimulationPort(repo_root=REPO_ROOT, cycle_substrate_context=context)
+    observation = port(candidate=candidate, problem=problem, cycle_index=0)
+    assert observation.status == "joint_simulated"
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+    assert observation.k_world_ref_after == context.world_model_record.content_hash
+
+    foreign_problem = problem.model_copy(update={"domain": "foreign_cyc_domain"})
+    rejected_problem = port(candidate=candidate, problem=foreign_problem, cycle_index=0)
+    assert rejected_problem.status == "simulation_blocked"
+    assert "cycle_substrate_design_problem_mismatch" in rejected_problem.authority_blockers
+
+    foreign_registry = _lane0_registry(
+        domain=problem.domain,
+        source_id="l2_cyc:changed_catalog.duckdb",
+    )
+    foreign_hash = foreign_registry.entries[0].entry_content_hash
+    foreign_world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="firm_survival",
+        policy_slot_ids=("agents.income", "government.balance", "firm_survival"),
+        substrate_registry=foreign_registry,
+        selected_registry_entry_hashes=(foreign_hash,),
+    )
+    foreign_context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=foreign_registry,
+        selected_registry_entry_hashes=(foreign_hash,),
+        world_model_record=foreign_world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=gy_content_hash("cyc-n5-changed-catalog"),
+        substrate_input_content_hash=gy_content_hash(
+            {"domain": problem.domain, "registry": foreign_registry.content_hash}
+        ),
+    )
+    rejected_catalog = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=foreign_context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+    assert rejected_catalog.status == "simulation_blocked"
+    assert "world_identity_unresolved" in rejected_catalog.authority_blockers
+
+
 def test_real_unsupported_n5_result_is_serialized_as_simulation_blocked() -> None:
     """A real gated N5 receipt cannot be relabeled as a completed simulation."""
 

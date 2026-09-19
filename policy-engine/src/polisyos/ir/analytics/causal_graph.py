@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from copy import deepcopy
 import json
 from enum import Enum
 from functools import cached_property
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -48,6 +50,86 @@ class EdgeSource(str, Enum):
     LLM_PRIOR = "llm_prior"
     EXPERT = "expert"
     SIMULATION = "simulation"
+
+
+class _FrozenList(list[Any]):
+    """List-compatible container that rejects in-place mutation."""
+
+    __slots__ = ()
+
+    def _immutable(self, *_args: Any, **_kwargs: Any) -> None:
+        raise TypeError("published graph containers are immutable")
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    __iadd__ = _immutable
+    __imul__ = _immutable
+    append = _immutable
+    clear = _immutable
+    extend = _immutable
+    insert = _immutable
+    pop = _immutable
+    remove = _immutable
+    reverse = _immutable
+    sort = _immutable
+
+    def __copy__(self) -> _FrozenList:
+        return _FrozenList(self)
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> _FrozenList:
+        existing = memo.get(id(self))
+        if existing is not None:
+            return existing
+        copied = _FrozenList()
+        memo[id(self)] = copied
+        list.extend(copied, (deepcopy(item, memo) for item in self))
+        return copied
+
+
+class _FrozenDict(dict[Any, Any]):
+    """Dict-compatible container that rejects in-place mutation."""
+
+    __slots__ = ()
+
+    def _immutable(self, *_args: Any, **_kwargs: Any) -> None:
+        raise TypeError("published graph containers are immutable")
+
+    __delitem__ = _immutable
+    __ior__ = _immutable
+    __setitem__ = _immutable
+    clear = _immutable
+    pop = _immutable
+    popitem = _immutable
+    setdefault = _immutable
+    update = _immutable
+
+    def __copy__(self) -> _FrozenDict:
+        return _FrozenDict(self)
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> _FrozenDict:
+        existing = memo.get(id(self))
+        if existing is not None:
+            return existing
+        copied = _FrozenDict()
+        memo[id(self)] = copied
+        dict.update(
+            copied,
+            ((deepcopy(key, memo), deepcopy(value, memo)) for key, value in self.items()),
+        )
+        return copied
+
+
+def _freeze_value(value: Any) -> Any:
+    """Recursively freeze standard mutable containers while preserving wire shapes."""
+    if isinstance(value, Mapping):
+        return _FrozenDict((key, _freeze_value(item)) for key, item in value.items())
+    if isinstance(value, list):
+        return _FrozenList(_freeze_value(item) for item in value)
+    if isinstance(value, tuple):
+        return tuple(_freeze_value(item) for item in value)
+    if isinstance(value, set):
+        return frozenset(_freeze_value(item) for item in value)
+    return value
 
 
 class CausalEdge(BaseModel):
@@ -100,6 +182,24 @@ class CausalEdge(BaseModel):
             if not (0.0 <= value <= 1.0):
                 raise ValueError(f"{name} must be in [0,1], got {value}")
         return self
+
+    def model_post_init(self, __context: Any) -> None:
+        self._freeze_collections()
+
+    def _freeze_collections(self) -> None:
+        object.__setattr__(self, "sources", _freeze_value(self.sources))
+        object.__setattr__(self, "evidence_refs", _freeze_value(self.evidence_refs))
+        object.__setattr__(self, "metadata", _freeze_value(self.metadata))
+
+    def model_copy(
+        self,
+        *,
+        update: Mapping[str, Any] | None = None,
+        deep: bool = False,
+    ) -> Self:
+        copied = super().model_copy(update=update, deep=deep)
+        copied._freeze_collections()
+        return copied
 
     @staticmethod
     def _clamp_probability(value: float | None) -> float:
@@ -193,6 +293,29 @@ class CausalGraphModel(BaseModel):
                     "pag_identification_policy=probabilistic"
                 )
         return self
+
+    def model_post_init(self, __context: Any) -> None:
+        self._freeze_collections()
+
+    def _freeze_collections(self) -> None:
+        object.__setattr__(self, "nodes", _freeze_value(self.nodes))
+        object.__setattr__(self, "edges", _freeze_value(self.edges))
+        object.__setattr__(self, "metadata", _freeze_value(self.metadata))
+        for edge in self.edges:
+            if isinstance(edge, CausalEdge):
+                edge._freeze_collections()
+
+    def model_copy(
+        self,
+        *,
+        update: Mapping[str, Any] | None = None,
+        deep: bool = False,
+    ) -> Self:
+        copied = super().model_copy(update=update, deep=deep)
+        copied._freeze_collections()
+        copied.__dict__.pop("kuzu_node_rows", None)
+        copied.__dict__.pop("kuzu_edge_rows", None)
+        return copied
 
     @staticmethod
     def _dot_escape(value: str) -> str:

@@ -4,6 +4,7 @@ Verification tests for Phase 17: Search Loop + Two-Stage + Engine Abstraction.
 
 from __future__ import annotations
 
+from threading import Event, Thread
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -257,6 +258,103 @@ class TestOptimizationFlow:
 
         assert warm.history[0].iteration == -1
         assert warm.history[0].candidate["x"] == 0.5
+
+    def test_concurrent_runs_are_rejected_as_non_reentrant(self, quadratic_objective):
+        """One mutable controller rejects a second run while the first is active."""
+
+        first_entered_stage_b = Event()
+        release_first_stage_b = Event()
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best
+                return {"x": context["run_id"], "semantic": {"interventions": []}}
+
+        def stage_a(candidate, context):
+            del candidate, context
+            return 0.0, True
+
+        def stage_b(candidate, context):
+            del context
+            if candidate["x"] == "first":
+                first_entered_stage_b.set()
+                release_first_stage_b.wait(timeout=2.0)
+            return {"simulation_results": {"x": 1.0}, "feedback": {"verdict": "APPROVE"}}
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=stage_a,
+            stage_b_evaluator=stage_b,
+        )
+        outcomes: dict[str, Any] = {}
+        errors: dict[str, Exception] = {}
+
+        def invoke(label: str, run_id: str) -> None:
+            try:
+                outcomes[label] = controller.run(
+                    {"run_id": run_id},
+                    initial_candidate={
+                        "x": run_id,
+                        "semantic": {"interventions": []},
+                    },
+                )
+            except Exception as exc:
+                errors[label] = exc
+
+        first_thread = Thread(target=invoke, args=("first", "first"))
+        second_thread = Thread(target=invoke, args=("second", "second"))
+        first_thread.start()
+        assert first_entered_stage_b.wait(timeout=2.0)
+        second_thread.start()
+        second_thread.join(timeout=2.0)
+        release_first_stage_b.set()
+        first_thread.join(timeout=2.0)
+
+        assert not first_thread.is_alive()
+        assert not second_thread.is_alive()
+        assert "first" in outcomes
+        assert "second" not in outcomes
+        assert isinstance(errors.get("second"), RuntimeError)
+        assert str(errors["second"]) == "SearchController.run is not reentrant"
+
+    def test_diversity_telemetry_is_scoped_to_each_run(self, quadratic_objective, monkeypatch):
+        """Fresh runs reset diversity telemetry without a cross-run contract."""
+
+        monkeypatch.setenv("POLISYOS_SEARCH_DIVERSITY_ENABLED", "true")
+
+        class ContextGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best
+                return {
+                    "x": 1.0,
+                    "semantic": {
+                        "interventions": [{"mechanism_type": context["run_id"]}],
+                    },
+                }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=ContextGenerator(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": candidate["x"]},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        )
+
+        first = controller.run({"run_id": "first-mechanism"})
+        second = controller.run({"run_id": "second-mechanism"})
+
+        assert first.telemetry["diversity_unique_mechanisms_total"] == 1
+        assert second.telemetry["diversity_unique_mechanisms_total"] == 1
+        assert second.telemetry["diversity_ratio"] == 1.0
 
 
 # ─────────────────────────────────────────────────────────────────────────────

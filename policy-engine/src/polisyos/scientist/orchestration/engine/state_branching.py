@@ -22,6 +22,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _MISSING = object()
@@ -34,6 +35,10 @@ _TOP_LEVEL_MUTABLE_FIELDS = (
     "budgets",
     "causal_method_params",
 )
+
+StateMutationTargetPresence = Literal["present", "missing"]
+StateMutationTargetKind = Literal["missing", "dict", "list", "set", "model", "scalar"]
+StateMutationValueKind = Literal["json", "artifact_ref"]
 
 
 @dataclass(frozen=True)
@@ -54,17 +59,22 @@ class StateMutationJournal:
         start: int | None = None,
         stop: int | None = None,
         step: int | None = None,
+        target: Any = _MISSING,
     ) -> None:
         """Append one concrete mutation to the branch journal."""
+        target_presence, target_kind = _target_descriptor(target)
         self.operations.append(
             StateMutation(
                 path=".".join(path),
                 operation=operation,
                 value=deepcopy(value),
+                value_kind=_mutation_value_kind(value),
                 index=index,
                 start=start,
                 stop=stop,
                 step=step,
+                target_presence=target_presence,
+                target_kind=target_kind,
             )
         )
 
@@ -88,7 +98,7 @@ class _JournaledExperimentState(ExperimentState):
             previous = getattr(self, name, _MISSING)
             super().__setattr__(name, value)
             if previous is not _MISSING:
-                journal.record(path=(name,), operation="set", value=value)
+                journal.record(path=(name,), operation="set", value=value, target=previous)
             return
         super().__setattr__(name, value)
 
@@ -120,10 +130,33 @@ class StateMutation(BaseModel):
     path: str = Field(min_length=1)
     operation: StateMutationOperation
     value: Any = None
+    value_kind: StateMutationValueKind = "json"
     index: int | None = None
     start: int | None = None
     stop: int | None = None
     step: int | None = None
+    target_presence: StateMutationTargetPresence = "present"
+    target_kind: StateMutationTargetKind = "scalar"
+
+
+def _mutation_value_kind(value: Any) -> StateMutationValueKind:
+    if isinstance(value, ArtifactRef):
+        return "artifact_ref"
+    return "json"
+
+
+def _target_descriptor(value: Any) -> tuple[StateMutationTargetPresence, StateMutationTargetKind]:
+    if value is _MISSING:
+        return "missing", "missing"
+    if isinstance(value, dict):
+        return "present", "dict"
+    if isinstance(value, list):
+        return "present", "list"
+    if isinstance(value, set):
+        return "present", "set"
+    if isinstance(value, BaseModel):
+        return "present", "model"
+    return "present", "scalar"
 
 
 @dataclass(frozen=True)
@@ -449,6 +482,7 @@ class _TrackedDict(dict[str, Any]):
             )
 
     def __setitem__(self, key: str, value: Any) -> None:
+        previous = self.get(key, _MISSING)
         wrapped = _wrap_mutable_value(
             value,
             (*self._mutation_path, str(key)),
@@ -459,13 +493,16 @@ class _TrackedDict(dict[str, Any]):
             path=(*self._mutation_path, str(key)),
             operation="set",
             value=value,
+            target=previous,
         )
 
     def __delitem__(self, key: str) -> None:
+        previous = self[key]
         dict.__delitem__(self, key)
         self._mutation_journal.record(
             path=(*self._mutation_path, str(key)),
             operation="delete",
+            target=previous,
         )
 
     def update(self, *args: Any, **kwargs: Any) -> None:
@@ -488,6 +525,7 @@ class _TrackedDict(dict[str, Any]):
         self._mutation_journal.record(
             path=(*self._mutation_path, str(key)),
             operation="delete",
+            target=value,
         )
         return value
 
@@ -496,16 +534,18 @@ class _TrackedDict(dict[str, Any]):
         self._mutation_journal.record(
             path=(*self._mutation_path, str(key)),
             operation="delete",
+            target=value,
         )
         return key, value
 
     def clear(self) -> None:
-        keys = list(self)
+        items = list(self.items())
         dict.clear(self)
-        for key in keys:
+        for key, value in items:
             self._mutation_journal.record(
                 path=(*self._mutation_path, str(key)),
                 operation="delete",
+                target=value,
             )
 
     def __deepcopy__(self, memo: dict[int, Any]) -> _TrackedDict:
@@ -563,6 +603,7 @@ class _TrackedList(list[Any]):
                 start=index.start,
                 stop=index.stop,
                 step=index.step,
+                target=self,
             )
             return
         list.__setitem__(
@@ -579,6 +620,7 @@ class _TrackedList(list[Any]):
             operation="set_index",
             value=value,
             index=index,
+            target=self,
         )
 
     def __delitem__(self, index: int | slice) -> None:
@@ -590,12 +632,14 @@ class _TrackedList(list[Any]):
                 start=index.start,
                 stop=index.stop,
                 step=index.step,
+                target=self,
             )
         else:
             self._mutation_journal.record(
                 path=self._mutation_path,
                 operation="delete_index",
                 index=index,
+                target=self,
             )
 
     def append(self, value: Any) -> None:
@@ -611,6 +655,7 @@ class _TrackedList(list[Any]):
             path=self._mutation_path,
             operation="append",
             value=value,
+            target=self,
         )
 
     def extend(self, values: Iterable[Any]) -> None:
@@ -629,6 +674,7 @@ class _TrackedList(list[Any]):
             operation="insert",
             value=value,
             index=index,
+            target=self,
         )
 
     def pop(self, index: int = -1) -> Any:
@@ -637,6 +683,7 @@ class _TrackedList(list[Any]):
             path=self._mutation_path,
             operation="pop",
             index=index,
+            target=self,
         )
         return value
 
@@ -646,15 +693,16 @@ class _TrackedList(list[Any]):
             path=self._mutation_path,
             operation="remove",
             value=value,
+            target=self,
         )
 
     def clear(self) -> None:
         list.clear(self)
-        self._mutation_journal.record(path=self._mutation_path, operation="clear")
+        self._mutation_journal.record(path=self._mutation_path, operation="clear", target=self)
 
     def reverse(self) -> None:
         list.reverse(self)
-        self._mutation_journal.record(path=self._mutation_path, operation="reverse")
+        self._mutation_journal.record(path=self._mutation_path, operation="reverse", target=self)
 
     def sort(self, *args: Any, **kwargs: Any) -> None:
         list.sort(self, *args, **kwargs)
@@ -662,6 +710,7 @@ class _TrackedList(list[Any]):
             path=self._mutation_path,
             operation="replace",
             value=list(self),
+            target=self,
         )
 
     def __iadd__(self, values: Iterable[Any]) -> _TrackedList:
@@ -674,6 +723,7 @@ class _TrackedList(list[Any]):
             path=self._mutation_path,
             operation="replace",
             value=list(self),
+            target=self,
         )
         return self
 
@@ -723,6 +773,9 @@ __all__ = [
     "StateMutation",
     "StateMutationOperation",
     "StateMutationJournal",
+    "StateMutationTargetKind",
+    "StateMutationTargetPresence",
+    "StateMutationValueKind",
     "branch_state",
     "mutation_journal_for_state",
     "mutation_journal_from_operations",

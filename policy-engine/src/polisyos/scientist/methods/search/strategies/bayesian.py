@@ -400,19 +400,40 @@ class BayesianOptimizer(BaseSearchStrategy):
         return self._random_candidate(source=source)
 
     def _is_duplicate(self, candidate: PolicyCandidate, pending: list[PolicyCandidate]) -> bool:
-        if candidate.params_normalized is None:
+        candidate_execution = self._effective_execution(candidate)
+        if candidate_execution is None:
             return False
         for other in pending:
-            if other.params_normalized is None:
+            if not self._same_replicate_scope(candidate, other):
                 continue
-            if len(candidate.params_normalized) != len(other.params_normalized):
+            other_execution = self._effective_execution(other)
+            if other_execution is None:
                 continue
-            dist = sum(
-                (a - b) ** 2 for a, b in zip(candidate.params_normalized, other.params_normalized)
-            )
-            if dist <= 1e-10:
+            if candidate_execution == other_execution:
                 return True
         return False
+
+    def _effective_execution(self, candidate: PolicyCandidate) -> dict[str, Any] | None:
+        """Resolve a proposal to the typed parameters that will actually run."""
+        if candidate.params_normalized is not None:
+            try:
+                return self._space.denormalize(candidate.params_normalized)
+            except (TypeError, ValueError):
+                return None
+        if candidate.params:
+            return dict(candidate.params)
+        return None
+
+    @staticmethod
+    def _same_replicate_scope(left: PolicyCandidate, right: PolicyCandidate) -> bool:
+        """Keep explicit independent replicate identities distinct."""
+        replicate_keys = ("replicate_id", "replica_id", "seed")
+        for key in replicate_keys:
+            left_value = left.metadata.get(key)
+            right_value = right.metadata.get(key)
+            if left_value is not None or right_value is not None:
+                return left_value == right_value
+        return True
 
     def _tensor_to_candidate(
         self,

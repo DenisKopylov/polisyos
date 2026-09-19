@@ -77,6 +77,8 @@ class PooledConnection:
     use_count: int = 0
     closed: bool = False
     closing: bool = False
+    cleanup_task: asyncio.Task[bool] | None = field(default=None, repr=False, compare=False)
+    pending_permit: bool = False
 
     @property
     def age_seconds(self) -> float:
@@ -245,6 +247,7 @@ class ConnectionPool(Generic[ConnectorT]):
         # Connection storage
         self._idle: deque[PooledConnection] = deque()
         self._in_use: dict[str, PooledConnection] = {}
+        self._pending_cleanup: dict[str, PooledConnection] = {}
         self._released_session_ids: OrderedDict[str, None] = OrderedDict()
         self._closed_session_ids: OrderedDict[str, None] = OrderedDict()
 
@@ -325,7 +328,10 @@ class ConnectionPool(Generic[ConnectorT]):
         """Reserve one permit, prepare a connection outside the metadata lock, and publish it."""
         start_time = datetime.now(UTC)
         permit_acquired = False
+        permit_release = False
         published = False
+        cleanup_attempted = False
+        pending_owner = False
         pooled: PooledConnection | None = None
 
         try:
@@ -346,6 +352,7 @@ class ConnectionPool(Generic[ConnectorT]):
             while True:
                 async with self._lock:
                     if self._closed:
+                        permit_release = True
                         raise PoolClosedError(self._pool_id)
                     generation = self._generation
                     pooled = self._idle.popleft() if self._idle else None
@@ -355,15 +362,35 @@ class ConnectionPool(Generic[ConnectorT]):
                     # remains the physical-capacity reservation while this operation is pending.
                     pooled = await self._create_connection()
                 elif self._should_retire(pooled):
-                    await self._finish_cleanup(pooled)
+                    cleanup_attempted = True
+                    pooled.pending_permit = True
+                    cleaned = await self._cleanup_pooled(pooled)
+                    if not cleaned:
+                        pending_owner = True
+                        pooled = None
+                        raise RuntimeError(
+                            "Connection cleanup is pending before a replacement can be acquired"
+                        )
+                    pooled.pending_permit = False
                     pooled = None
+                    cleanup_attempted = False
                     continue
                 elif self._config.validate_on_acquire:
                     # Health checks are connector I/O and must not serialize other handles.
                     healthy = await self._validate_connection(pooled)
                     if not healthy:
-                        await self._finish_cleanup(pooled)
+                        cleanup_attempted = True
+                        pooled.pending_permit = True
+                        cleaned = await self._cleanup_pooled(pooled)
+                        if not cleaned:
+                            pending_owner = True
+                            pooled = None
+                            raise RuntimeError(
+                                "Connection cleanup is pending before a replacement can be acquired"
+                            )
+                        pooled.pending_permit = False
                         pooled = None
+                        cleanup_attempted = False
                         continue
 
                 async with self._lock:
@@ -394,15 +421,56 @@ class ConnectionPool(Generic[ConnectorT]):
                     published = True
                     return pooled.connector, pooled.handle
 
-                await self._finish_cleanup(pooled)
+                cleanup_attempted = True
+                pooled.pending_permit = True
+                cleaned = await self._cleanup_pooled(pooled)
+                if not cleaned:
+                    pending_owner = True
+                    pooled = None
+                    raise RuntimeError("Connection cleanup is pending for the closed pool")
+                pooled.pending_permit = False
                 pooled = None
+                permit_release = True
                 raise PoolClosedError(self._pool_id)
-        except BaseException:
+        except BaseException as exc:
             if pooled is not None and not published:
-                await self._finish_cleanup(pooled)
+                if cleanup_attempted:
+                    if pooled.closed:
+                        pooled.pending_permit = False
+                        pooled = None
+                        permit_release = True
+                    else:
+                        self._retain_pending_cleanup(pooled)
+                        pending_owner = True
+                else:
+                    pooled.pending_permit = True
+                    try:
+                        cleaned = await self._cleanup_pooled(pooled)
+                    except BaseException as cleanup_exc:
+                        if pooled.closed:
+                            pooled.pending_permit = False
+                            pooled = None
+                            permit_release = True
+                        else:
+                            self._retain_pending_cleanup(pooled)
+                            pending_owner = True
+                            exc.add_note(
+                                f"cleanup during acquire failed: {cleanup_exc!r}"
+                            )
+                    else:
+                        if cleaned:
+                            pooled.pending_permit = False
+                            pooled = None
+                            permit_release = True
+                        else:
+                            self._retain_pending_cleanup(pooled)
+                            pending_owner = True
+                            pooled = None
+            elif not published and not pending_owner:
+                permit_release = True
             raise
         finally:
-            if permit_acquired and not published:
+            if permit_acquired and not published and permit_release:
                 self._semaphore.release()
 
     async def release(self, handle: ConnectionHandle) -> None:
@@ -417,6 +485,10 @@ class ConnectionPool(Generic[ConnectorT]):
         """
         pooled: PooledConnection | None = None
         permit_owned = False
+        permit_release = False
+        cleanup_attempted = False
+        pending_owner = False
+        pending_retry = False
         generation = 0
 
         try:
@@ -424,35 +496,65 @@ class ConnectionPool(Generic[ConnectorT]):
                 pooled = self._in_use.pop(handle.session_id, None)
 
                 if pooled is None:
-                    if handle.session_id not in self._released_session_ids:
-                        logger.warning(
-                            "Released unknown connection",
-                            pool_id=self._pool_id,
-                            session_id=handle.session_id,
-                        )
-                    return
+                    pooled = self._pending_cleanup.get(handle.session_id)
+                    if pooled is not None:
+                        pending_retry = True
+                        permit_owned = pooled.pending_permit
+                        generation = self._generation
+                        should_close = True
+                    else:
+                        if handle.session_id not in self._released_session_ids:
+                            logger.warning(
+                                "Released unknown connection",
+                                pool_id=self._pool_id,
+                                session_id=handle.session_id,
+                            )
+                        return
 
-                permit_owned = True
-                generation = self._generation
-                self._remember_session_id(self._released_session_ids, handle.session_id)
+                if pending_retry:
+                    # The original owner retained the permit when cleanup failed. The retry
+                    # must target that same physical owner; it must not create a replacement.
+                    pass
+                else:
+                    permit_owned = True
+                    generation = self._generation
+                    self._remember_session_id(self._released_session_ids, handle.session_id)
 
-                with self._stats_lock:
-                    self._total_releases += 1
+                    with self._stats_lock:
+                        self._total_releases += 1
 
-                should_close = self._closed or self._should_retire(pooled)
+                    should_close = self._closed or self._should_retire(pooled)
 
             # Retirement, validation, and disconnect are connector operations. They must not
             # hold the metadata lock, so another handle can be released independently.
             if should_close:
-                await self._finish_cleanup(pooled)
+                cleanup_attempted = True
+                pooled.pending_permit = pooled.pending_permit or permit_owned
+                cleaned = await self._cleanup_pooled(pooled)
+                if not cleaned:
+                    pending_owner = True
+                    pooled = None
+                    raise RuntimeError("Connection cleanup is pending for the released owner")
+                pooled.pending_permit = False
                 pooled = None
+                permit_release = permit_owned
                 return
 
             if self._config.validate_on_release:
                 healthy = await self._validate_connection(pooled)
                 if not healthy:
-                    await self._finish_cleanup(pooled)
+                    cleanup_attempted = True
+                    pooled.pending_permit = True
+                    cleaned = await self._cleanup_pooled(pooled)
+                    if not cleaned:
+                        pending_owner = True
+                        pooled = None
+                        raise RuntimeError(
+                            "Connection cleanup is pending after release validation failed"
+                        )
+                    pooled.pending_permit = False
                     pooled = None
+                    permit_release = permit_owned
                     return
 
             async with self._lock:
@@ -460,6 +562,7 @@ class ConnectionPool(Generic[ConnectorT]):
                     publish_idle = False
                 else:
                     self._idle.append(pooled)
+                    pooled.pending_permit = False
                     publish_idle = True
                     logger.debug(
                         "Connection released to pool",
@@ -469,19 +572,95 @@ class ConnectionPool(Generic[ConnectorT]):
                     )
 
             if not publish_idle:
-                await self._finish_cleanup(pooled)
-                pooled = None
-        except BaseException:
+                cleanup_attempted = True
+                pooled.pending_permit = True
+                cleaned = await self._cleanup_pooled(pooled)
+                if not cleaned:
+                    pending_owner = True
+                    pooled = None
+                    raise RuntimeError("Connection cleanup is pending after pool rotation")
+                pooled.pending_permit = False
+            else:
+                permit_release = permit_owned
+            pooled = None
+        except BaseException as exc:
             if pooled is not None and permit_owned:
-                await self._finish_cleanup(pooled)
+                if cleanup_attempted:
+                    if pooled.closed:
+                        pooled.pending_permit = False
+                        self._clear_pending_cleanup(pooled)
+                        pooled = None
+                        permit_release = True
+                    else:
+                        self._retain_pending_cleanup(pooled)
+                        pending_owner = True
+                else:
+                    pooled.pending_permit = True
+                    try:
+                        cleaned = await self._cleanup_pooled(pooled)
+                    except BaseException as cleanup_exc:
+                        if pooled.closed:
+                            pooled.pending_permit = False
+                            self._clear_pending_cleanup(pooled)
+                            pooled = None
+                            permit_release = True
+                        else:
+                            self._retain_pending_cleanup(pooled)
+                            pending_owner = True
+                            exc.add_note(
+                                f"cleanup during release failed: {cleanup_exc!r}"
+                            )
+                    else:
+                        if cleaned:
+                            pooled.pending_permit = False
+                            self._clear_pending_cleanup(pooled)
+                            pooled = None
+                            permit_release = True
+                        else:
+                            self._retain_pending_cleanup(pooled)
+                            pending_owner = True
+                            pooled = None
             raise
         finally:
-            if permit_owned:
+            if permit_owned and permit_release:
                 self._semaphore.release()
 
-    async def _finish_cleanup(self, pooled: PooledConnection) -> None:
+    def _retain_pending_cleanup(self, pooled: PooledConnection) -> None:
+        """Retain one unresolved physical owner until its disconnect is confirmed."""
+        session_id = pooled.handle.session_id
+        if pooled.closed or session_id in self._closed_session_ids:
+            self._pending_cleanup.pop(session_id, None)
+            return
+        self._pending_cleanup[session_id] = pooled
+
+    def _clear_pending_cleanup(self, pooled: PooledConnection) -> None:
+        """Forget a pending owner only after confirmed physical cleanup."""
+        self._pending_cleanup.pop(pooled.handle.session_id, None)
+
+    async def _cleanup_pooled(self, pooled: PooledConnection) -> bool:
+        """Attempt cleanup and retain the owner when the physical handle remains unresolved."""
+        try:
+            cleaned = await self._finish_cleanup(pooled)
+        except BaseException:
+            self._retain_pending_cleanup(pooled)
+            raise
+
+        if cleaned:
+            self._clear_pending_cleanup(pooled)
+        else:
+            self._retain_pending_cleanup(pooled)
+        return cleaned
+
+    async def _finish_cleanup(self, pooled: PooledConnection) -> bool:
         """Finish one physical cleanup even when the caller is cancelled."""
-        cleanup_task = asyncio.create_task(self._close_connection(pooled))
+        async with self._lock:
+            if pooled.closed or pooled.handle.session_id in self._closed_session_ids:
+                return True
+            cleanup_task = pooled.cleanup_task
+            if cleanup_task is None or cleanup_task.done():
+                cleanup_task = asyncio.create_task(self._close_connection(pooled))
+                pooled.cleanup_task = cleanup_task
+
         cancelled = False
         while not cleanup_task.done():
             try:
@@ -489,13 +668,18 @@ class ConnectionPool(Generic[ConnectorT]):
             except asyncio.CancelledError:
                 cancelled = True
 
+        underlying_cancelled = False
         try:
-            await cleanup_task
+            cleaned = bool(cleanup_task.result())
         except asyncio.CancelledError:
-            cancelled = True
+            cleaned = False
+            underlying_cancelled = True
+        except BaseException:
+            cleaned = False
 
-        if cancelled:
+        if cancelled or underlying_cancelled:
             raise asyncio.CancelledError
+        return cleaned
 
     async def _get_idle_connection(self) -> PooledConnection | None:
         """
@@ -511,12 +695,14 @@ class ConnectionPool(Generic[ConnectorT]):
                 pooled = self._idle.popleft()
 
             if self._should_retire(pooled):
-                await self._finish_cleanup(pooled)
+                if not await self._cleanup_pooled(pooled):
+                    raise RuntimeError("Connection cleanup is pending for an idle owner")
                 continue
             if self._config.validate_on_acquire:
                 healthy = await self._validate_connection(pooled)
                 if not healthy:
-                    await self._finish_cleanup(pooled)
+                    if not await self._cleanup_pooled(pooled):
+                        raise RuntimeError("Connection cleanup is pending for an idle owner")
                     continue
             return pooled
 
@@ -622,16 +808,18 @@ class ConnectionPool(Generic[ConnectorT]):
             use_count=pooled.use_count,
             consecutive_failures=pooled.consecutive_failures,
         )
-        await self._close_connection(pooled)
+        if not await self._cleanup_pooled(pooled):
+            raise RuntimeError("Connection cleanup is pending for the retired owner")
 
-    async def _close_connection(self, pooled: PooledConnection) -> None:
+    async def _close_connection(self, pooled: PooledConnection) -> bool:
         """Close a pooled connection using its connector instance."""
         if (
             pooled.closed
-            or pooled.closing
             or pooled.handle.session_id in self._closed_session_ids
         ):
-            return
+            return True
+        if pooled.closing:
+            return False
         pooled.closing = True
         try:
             await pooled.connector.disconnect(pooled.handle)
@@ -646,25 +834,25 @@ class ConnectionPool(Generic[ConnectorT]):
                 session_id=pooled.handle.session_id,
                 error=str(e),
             )
-            return
+            return False
 
         pooled.closed = True
         pooled.closing = False
         self._remember_session_id(self._closed_session_ids, pooled.handle.session_id)
         with self._stats_lock:
             self._total_closes += 1
+        return True
 
-    async def _close_connection_handle(self, handle: ConnectionHandle) -> None:
+    async def _close_connection_handle(self, handle: ConnectionHandle) -> bool:
         """Close a connection handle using a fresh connector instance."""
         if handle.session_id in self._closed_session_ids:
-            return
-        self._remember_session_id(self._closed_session_ids, handle.session_id)
+            return True
         connector = self._connector_factory()
 
         try:
             await connector.disconnect(handle)
-            with self._stats_lock:
-                self._total_closes += 1
+        except asyncio.CancelledError:
+            raise
         except Exception as e:
             logger.warning(
                 "Error closing connection",
@@ -672,6 +860,12 @@ class ConnectionPool(Generic[ConnectorT]):
                 session_id=handle.session_id,
                 error=str(e),
             )
+            return False
+
+        self._remember_session_id(self._closed_session_ids, handle.session_id)
+        with self._stats_lock:
+            self._total_closes += 1
+        return True
 
     async def close_all(self) -> None:
         """
@@ -680,35 +874,54 @@ class ConnectionPool(Generic[ConnectorT]):
         After calling this, the pool cannot be used.
         """
         async with self._lock:
-            if self._closed:
-                return
-            self._closed = True
-            self._generation += 1
             idle_to_close: list[PooledConnection] = []
             in_use_to_close: list[PooledConnection] = []
+            pending_to_close: list[PooledConnection] = []
 
-            while self._idle:
-                idle_to_close.append(self._idle.popleft())
+            if self._closed:
+                pending_to_close.extend(self._pending_cleanup.values())
+            else:
+                self._closed = True
+                self._generation += 1
 
-            for pooled in list(self._in_use.values()):
-                in_use_to_close.append(pooled)
-                self._remember_session_id(self._released_session_ids, pooled.handle.session_id)
-            self._in_use.clear()
+                while self._idle:
+                    idle_to_close.append(self._idle.popleft())
+
+                for pooled in list(self._in_use.values()):
+                    pooled.pending_permit = True
+                    in_use_to_close.append(pooled)
+                    self._remember_session_id(
+                        self._released_session_ids,
+                        pooled.handle.session_id,
+                    )
+                self._in_use.clear()
+
+                pending_to_close.extend(self._pending_cleanup.values())
+
+        cleanup_items: list[PooledConnection] = []
+        seen_session_ids: set[str] = set()
+        for pooled in (*idle_to_close, *in_use_to_close, *pending_to_close):
+            session_id = pooled.handle.session_id
+            if session_id in seen_session_ids:
+                continue
+            seen_session_ids.add(session_id)
+            cleanup_items.append(pooled)
 
         cancelled = False
-        for pooled in idle_to_close:
+        cleanup_failed = False
+        for pooled in cleanup_items:
             try:
-                await self._finish_cleanup(pooled)
+                cleaned = await self._cleanup_pooled(pooled)
             except asyncio.CancelledError:
                 cancelled = True
+                cleaned = pooled.closed
 
-        for pooled in in_use_to_close:
-            try:
-                await self._finish_cleanup(pooled)
-            except asyncio.CancelledError:
-                cancelled = True
-            finally:
-                self._semaphore.release()
+            if cleaned:
+                if pooled.pending_permit:
+                    pooled.pending_permit = False
+                    self._semaphore.release()
+            else:
+                cleanup_failed = True
 
         logger.info(
             "Connection pool closed",
@@ -718,6 +931,8 @@ class ConnectionPool(Generic[ConnectorT]):
         )
         if cancelled:
             raise asyncio.CancelledError
+        if cleanup_failed:
+            raise RuntimeError("Connection cleanup remains pending for the closed pool")
 
     async def __aenter__(self) -> ConnectionPool[ConnectorT]:
         """Async context manager entry."""
@@ -781,9 +996,13 @@ class ConnectionPool(Generic[ConnectorT]):
         with self._backpressure_lock:
             signals = tuple(self._backpressure_signals.values())
 
-        available_slots = max(0, self._config.max_size - len(self._in_use))
+        pending_permits = sum(
+            1 for pooled in self._pending_cleanup.values() if pooled.pending_permit
+        )
+        active_connections = len(self._in_use) + pending_permits
+        available_slots = max(0, self._config.max_size - active_connections)
         utilization = (
-            min(1.0, len(self._in_use) / self._config.max_size)
+            min(1.0, active_connections / self._config.max_size)
             if self._config.max_size > 0
             else 0.0
         )

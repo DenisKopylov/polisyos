@@ -138,3 +138,55 @@ def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None
 
     assert gate.promotion_allowed is False
     assert gate.reason == "R1_blocks_promotion"
+
+
+def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
+    """The existing monitor surface must consume relocated contracts unchanged."""
+
+    from polisyos.ddm.contracts.events import ShiftDetectedEvent as CanonicalShiftDetectedEvent
+    from polisyos.ddm.contracts.metric_budget import (
+        MetricBudgetPolicy as CanonicalMetricBudgetPolicy,
+    )
+    from polisyos.ddm.integration import ShiftDetectedEvent as PublicShiftDetectedEvent
+    from polisyos.ddm.readiness import MetricBudgetPolicy as PublicMetricBudgetPolicy
+
+    assert PublicShiftDetectedEvent is CanonicalShiftDetectedEvent
+    assert PublicMetricBudgetPolicy is CanonicalMetricBudgetPolicy
+
+    event = CanonicalShiftDetectedEvent(
+        event_id="shift-boundary",
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        model_id="model",
+        model_version="v1",
+        detector_id="input_mmd_global_v3",
+        detector_family="online_mmd",
+        signal="input_shift",
+        representation="feature_embedding_v2",
+        reference_window=_window(),
+        current_window=_window(),
+        stationarity_regime_id="SR-1-model-v1",
+        calibration_id="calib-1",
+        test_statistic=0.2,
+        ert=10000,
+        empirical_fp_rate=0.001,
+        shift_severity=0.72,
+    )
+    budget = CanonicalMetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.90,
+        minimum_acceptable_value=0.80,
+    )
+
+    result = DriftAndDegradationMonitor().evaluate_window(
+        model_id="model",
+        model_version="v1",
+        shift_events=[event],
+        metric_budget=budget,
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+    )
+
+    assert result.shift_risk_events[0].shift_event_id == "shift-boundary"
+    assert result.readiness_event.readiness_state == ReadinessState.R3

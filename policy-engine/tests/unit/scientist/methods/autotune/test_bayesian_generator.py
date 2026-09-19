@@ -10,8 +10,10 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
-    SearchSpace as AutotuneSearchSpace,
     benchmark_to_evaluation,
+)
+from polisyos.scientist.methods.autotune.bayesian_generator import (
+    SearchSpace as AutotuneSearchSpace,
 )
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,

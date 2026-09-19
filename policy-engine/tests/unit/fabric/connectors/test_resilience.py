@@ -12,11 +12,13 @@ from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
 from polisyos.fabric.connectors.resilience import (
     AdaptiveRateLimiter,
+    BoundedResourceRegistry,
     CacheFallback,
     CircuitBreaker,
     CircuitBreakerConfig,
     FallbackChain,
     MockFallback,
+    RateLimiter,
     RateLimiterConfig,
     RetryExhaustedError,
     RetryPolicy,
@@ -574,3 +576,373 @@ async def test_cache_fallback_uses_request_and_sets_resilience() -> None:
     assert cache.seen is not None
     assert cache.seen[0] == request
     assert cache.seen[1] == "test"
+
+
+@pytest.mark.asyncio
+async def test_rate_limiter_sub_unit_rate_accepts_unit_request_and_preserves_pacing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A 0.2 RPS limiter admits one request, then waits five seconds per token."""
+    import polisyos.fabric.connectors.resilience.rate_limiter as rl
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+        async def sleep(self, delay: float) -> None:
+            sleep_calls.append(delay)
+            self.now += delay
+
+    sleep_calls: list[float] = []
+    clock = FakeClock()
+    monkeypatch.setattr(rl, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(asyncio, "sleep", clock.sleep)
+
+    limiter = RateLimiter(rate_limit_rps=0.2)
+
+    await limiter.acquire()
+    await limiter.acquire()
+
+    assert sleep_calls == [pytest.approx(5.0)]
+    assert limiter.get_stats()["total_requests"] == 2
+    assert limiter.rate_limit_rps == 0.2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("rate_rps", "expected_delay"),
+    [(0.1, 10.0), (0.2, 5.0), (1.0, 1.0), (2.0, 0.5)],
+    ids=("tenth", "fifth", "one", "two"),
+)
+async def test_rate_limiter_single_capacity_keeps_declared_long_term_rate(
+    rate_rps: float,
+    expected_delay: float,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An explicit unit capacity paces each ordinary request at the configured rate."""
+    import polisyos.fabric.connectors.resilience.rate_limiter as rl
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+        async def sleep(self, delay: float) -> None:
+            sleep_calls.append(delay)
+            self.now += delay
+
+    sleep_calls: list[float] = []
+    clock = FakeClock()
+    monkeypatch.setattr(rl, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(asyncio, "sleep", clock.sleep)
+
+    limiter = RateLimiter(rate_limit_rps=rate_rps, burst_size=1.0)
+
+    await limiter.acquire()
+    await limiter.acquire()
+
+    assert sleep_calls == [pytest.approx(expected_delay)]
+    assert limiter.get_stats()["total_requests"] == 2
+
+
+@pytest.mark.asyncio
+async def test_rate_limiter_rejects_weight_above_capacity_without_waiting() -> None:
+    """An impossible weighted operation fails immediately instead of waiting forever."""
+    limiter = RateLimiter(rate_limit_rps=0.2)
+
+    with pytest.raises(ValueError, match="tokens must be <= burst_size"):
+        await limiter.acquire(tokens=2.0)
+
+
+@pytest.mark.asyncio
+async def test_rate_limiter_cancellation_does_not_consume_unacquired_request(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Cancelling a throttled wait leaves the successful-request accounting intact."""
+    import polisyos.fabric.connectors.resilience.rate_limiter as rl
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+        async def sleep(self, delay: float) -> None:
+            sleep_calls.append(delay)
+            raise asyncio.CancelledError
+
+    sleep_calls: list[float] = []
+    clock = FakeClock()
+    monkeypatch.setattr(rl, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(asyncio, "sleep", clock.sleep)
+
+    limiter = RateLimiter(rate_limit_rps=0.2, burst_size=1.0)
+    await limiter.acquire()
+
+    with pytest.raises(asyncio.CancelledError):
+        await limiter.acquire()
+
+    assert sleep_calls == [pytest.approx(5.0)]
+    assert limiter.get_stats()["total_requests"] == 1
+
+
+@pytest.mark.asyncio
+async def test_circuit_breaker_late_closed_success_does_not_claim_new_half_open_generation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A CLOSED attempt completing late still returns its result after a new probe starts."""
+    import polisyos.fabric.connectors.resilience.circuit_breaker as cb
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+    clock = FakeClock()
+    monkeypatch.setattr(cb, "_monotonic", clock.monotonic)
+    breaker = CircuitBreaker(
+        circuit_id="late-success",
+        config=CircuitBreakerConfig(
+            failure_threshold=1,
+            success_threshold=1,
+            timeout_seconds=10.0,
+            half_open_max_calls=1,
+            min_throughput=1,
+        ),
+    )
+    started = asyncio.Event()
+    finish = asyncio.Event()
+
+    async def slow_success() -> int:
+        started.set()
+        await finish.wait()
+        return 42
+
+    task = asyncio.create_task(breaker.execute(slow_success))
+    await started.wait()
+    breaker.record_failure()
+    assert breaker.is_open()
+
+    clock.now = 10.0
+    current_probe = breaker.acquire_attempt()
+    assert current_probe is not None
+    assert breaker.is_half_open()
+
+    finish.set()
+    assert await task == 42
+
+    breaker.record_success(current_probe)
+    assert breaker.is_closed()
+
+
+@pytest.mark.asyncio
+async def test_circuit_breaker_late_closed_failure_preserves_original_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A late CLOSED failure is not replaced by a bookkeeping ownership error."""
+    import polisyos.fabric.connectors.resilience.circuit_breaker as cb
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+    clock = FakeClock()
+    monkeypatch.setattr(cb, "_monotonic", clock.monotonic)
+    breaker = CircuitBreaker(
+        circuit_id="late-failure",
+        config=CircuitBreakerConfig(
+            failure_threshold=1,
+            success_threshold=1,
+            timeout_seconds=10.0,
+            half_open_max_calls=1,
+            min_throughput=1,
+        ),
+    )
+    started = asyncio.Event()
+    finish = asyncio.Event()
+
+    async def slow_failure() -> int:
+        started.set()
+        await finish.wait()
+        raise OSError("upstream failure")
+
+    task = asyncio.create_task(breaker.execute(slow_failure))
+    await started.wait()
+    breaker.record_failure()
+    assert breaker.is_open()
+
+    clock.now = 10.0
+    current_probe = breaker.acquire_attempt()
+    assert current_probe is not None
+    assert breaker.is_half_open()
+
+    finish.set()
+    with pytest.raises(OSError, match="upstream failure"):
+        await task
+
+    breaker.record_success(current_probe)
+    assert breaker.is_closed()
+
+
+def test_circuit_breaker_stale_half_open_token_does_not_steal_new_generation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A probe invalidated by a later OPEN transition cannot fail a new generation."""
+    import polisyos.fabric.connectors.resilience.circuit_breaker as cb
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+    clock = FakeClock()
+    monkeypatch.setattr(cb, "_monotonic", clock.monotonic)
+    breaker = CircuitBreaker(
+        circuit_id="stale-half-open",
+        config=CircuitBreakerConfig(
+            failure_threshold=1,
+            success_threshold=1,
+            timeout_seconds=10.0,
+            half_open_max_calls=2,
+            min_throughput=1,
+        ),
+    )
+    breaker.record_failure()
+
+    clock.now = 10.0
+    stale_probe = breaker.acquire_attempt()
+    competing_probe = breaker.acquire_attempt()
+    assert stale_probe is not None
+    assert competing_probe is not None
+    assert breaker.is_half_open()
+
+    breaker.record_failure(competing_probe)
+    assert breaker.is_open()
+
+    clock.now = 20.0
+    current_probe = breaker.acquire_attempt()
+    assert current_probe is not None
+    assert breaker.is_half_open()
+
+    breaker.record_success(stale_probe)
+    assert breaker.is_half_open()
+    breaker.record_success(current_probe)
+    assert breaker.is_closed()
+
+
+@pytest.mark.asyncio
+async def test_bounded_registry_pressure_preserves_rate_limit_cooldown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pressure eviction cannot create a second limiter while Retry-After is active."""
+    import polisyos.fabric.connectors.resilience._bounded_registry as registry_mod
+    import polisyos.fabric.connectors.resilience.rate_limiter as rl
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+        async def sleep(self, delay: float) -> None:
+            sleep_calls.append(delay)
+            self.now += delay
+
+    sleep_calls: list[float] = []
+    clock = FakeClock()
+    monkeypatch.setattr(registry_mod, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(rl, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(asyncio, "sleep", clock.sleep)
+
+    registry = BoundedResourceRegistry[RateLimiter](max_items=1, ttl_seconds=300.0)
+    first = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
+    first.record_rate_limit(retry_after_seconds=300.0)
+    registry.get_or_create("source-b", lambda: RateLimiter(1.0, burst_size=1.0))
+
+    current = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
+    await current.acquire()
+
+    assert sleep_calls == [pytest.approx(300.0)]
+    assert current.get_stats()["total_requests"] == 1
+
+
+@pytest.mark.asyncio
+async def test_bounded_registry_ttl_preserves_rate_limit_cooldown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """TTL cleanup cannot discard a limiter whose Retry-After still governs admission."""
+    import polisyos.fabric.connectors.resilience._bounded_registry as registry_mod
+    import polisyos.fabric.connectors.resilience.rate_limiter as rl
+
+    class FakeClock:
+        def __init__(self) -> None:
+            self.now = 0.0
+
+        def monotonic(self) -> float:
+            return self.now
+
+        async def sleep(self, delay: float) -> None:
+            sleep_calls.append(delay)
+            self.now += delay
+
+    sleep_calls: list[float] = []
+    clock = FakeClock()
+    monkeypatch.setattr(registry_mod, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(rl, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(asyncio, "sleep", clock.sleep)
+
+    registry = BoundedResourceRegistry[RateLimiter](max_items=2, ttl_seconds=1.0)
+    limiter = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
+    limiter.record_rate_limit(retry_after_seconds=300.0)
+    clock.now = 2.0
+
+    current = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
+    await current.acquire()
+
+    assert sleep_calls == [pytest.approx(298.0)]
+    assert current.get_stats()["total_requests"] == 1
+
+
+def test_bounded_registry_pressure_preserves_open_circuit_state() -> None:
+    """Pressure eviction cannot reopen a circuit by constructing a fresh CLOSED breaker."""
+    registry = BoundedResourceRegistry[CircuitBreaker](max_items=1, ttl_seconds=300.0)
+    first = registry.get_or_create(
+        "source-a",
+        lambda: CircuitBreaker(
+            circuit_id="source-a",
+            config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
+        ),
+    )
+    first.record_failure()
+    assert first.is_open()
+    registry.get_or_create(
+        "source-b",
+        lambda: CircuitBreaker(
+            circuit_id="source-b",
+            config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
+        ),
+    )
+
+    current = registry.get_or_create(
+        "source-a",
+        lambda: CircuitBreaker(
+            circuit_id="source-a",
+            config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
+        ),
+    )
+
+    assert current.is_open()

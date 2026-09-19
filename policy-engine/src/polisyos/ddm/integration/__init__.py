@@ -68,10 +68,10 @@ def __getattr__(
     | Callable[..., RootCauseBundle]
     | Callable[..., ModelRegistryReadinessRecord]
     | Callable[..., RegistryGateDecision]
-    | DDMWindowResult
-    | DriftAndDegradationMonitor
-    | ModelRegistryReadinessRecord
-    | RegistryGateDecision
+    | type[DDMWindowResult]
+    | type[DriftAndDegradationMonitor]
+    | type[ModelRegistryReadinessRecord]
+    | type[RegistryGateDecision]
 ):
     """Load incident, registry, and monitor exports on demand."""
 

@@ -8,6 +8,7 @@ import duckdb
 import polisyos.data_forge.read_api.academic as academic_read_api
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import ComponentId
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -18,18 +19,20 @@ from polisyos.ir.analytics.causal_graph import (
     persist_causal_graph_model,
 )
 from polisyos.ir.analytics.parameters import load_context_adaptive_parameter_bundle
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.idempotency import compute_idempotency_key
-from polisyos.scientist.orchestration.engine.registry import NodeRegistry
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import mutation_journal_for_state
-from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveParametersNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeCacheEntry,
+    compute_idempotency_key,
+)
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -247,19 +250,26 @@ def test_context_bundle_ref_survives_native_cache_round_trip_as_typed_ref(tmp_pa
         ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
     ]
     assert isinstance(first_ref, ArtifactRef)
-    first_journal = mutation_journal_for_state(result_first.state)
-    assert first_journal is not None
+    first_events = _trace_events(ctx_first)
+    cache_store = next(
+        event for event in first_events if event.get("event") == "NODE_CACHE_STORE"
+    )
+    cache_outputs = cache_store.get("refs", {}).get("outputs", [])
+    assert isinstance(cache_outputs, list)
+    assert len(cache_outputs) == 1
+    entry_ref = ArtifactRef.model_validate(cache_outputs[0])
+    cache_entry = NodeCacheEntry.model_validate(
+        from_canonical_bytes(ctx_first.store.get_bytes(entry_ref.artifact_id))
+    )
     ref_mutations = [
-        operation
-        for operation in first_journal.operations
-        if operation.path
+        mutation
+        for mutation in cache_entry.state_mutations
+        if mutation.path
         == f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}"
     ]
     assert len(ref_mutations) == 1
     assert ref_mutations[0].value_kind == "artifact_ref"
     first_bundle = load_context_adaptive_parameter_bundle(ctx_first.store, first_ref)
-    first_events = _trace_events(ctx_first)
-    assert any(event.get("event") == "NODE_CACHE_STORE" for event in first_events)
 
     ctx_replay = _build_ctx(tmp_path, run_id=run_id)
     result_replay = WorkflowExecutor(ctx_replay, registry).execute(

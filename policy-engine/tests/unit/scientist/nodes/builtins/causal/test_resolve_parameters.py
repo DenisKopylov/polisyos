@@ -9,7 +9,11 @@ import duckdb
 import pytest
 
 import polisyos.scientist.nodes.builtins.causal.resolve_parameters as resolve_parameters_module
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType, persist_causal_graph_model
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
@@ -22,7 +26,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
+)
 
 
 def _seed_reusable_skg(db_path) -> None:

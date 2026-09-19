@@ -9,7 +9,8 @@ from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import StreamLifecycleState, WindowStrategy
-from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
@@ -24,14 +25,95 @@ from polisyos.fabric.quality.processing_guarantees import (
     BackpressurePolicy,
     stream_processing_contract,
 )
+from polisyos.ir.connectors import FetchRequest
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
+class _StreamingLifecycleConnector:
+    """Controlled connector used to witness session ownership transitions."""
+
+    def __init__(self, *, fail_subscribe: bool = False, close_failures: int = 0) -> None:
+        self.fail_subscribe = fail_subscribe
+        self.close_failures = close_failures
+        self.disconnect_calls = 0
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        return ConnectionHandle(connector_id="stream-lifecycle", config=config)
+
+    async def disconnect(self, handle: ConnectionHandle) -> None:
+        del handle
+        self.disconnect_calls += 1
+
+    async def subscribe_stream(self, handle: ConnectionHandle, request: Any) -> object:
+        del handle, request
+        if self.fail_subscribe:
+            raise RuntimeError("subscribe failed")
+        return object()
+
+    async def close_stream(self, handle: ConnectionHandle) -> None:
+        del handle
+        if self.close_failures:
+            self.close_failures -= 1
+            raise RuntimeError("close failed")
+
+
 def _valid_rows(batch, **kwargs):
     del kwargs
     return [dict(row) for row in batch if isinstance(row, dict)], [], 0
+
+
+@pytest.mark.asyncio
+async def test_net01_subscribe_failure_releases_acquired_handle() -> None:
+    """A failed subscription must not leave its acquired slot in use."""
+
+    connector = _StreamingLifecycleConnector(fail_subscribe=True)
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
+    )
+    session = StreamingSourceSession(
+        connector_id="stream-lifecycle",
+        dataset_id="subscribe-failure",
+        pool=pool,
+        request=FetchRequest(dataset_id="subscribe-failure"),
+    )
+
+    with pytest.raises(RuntimeError, match="subscribe failed"):
+        await session.subscribe()
+
+    stats = pool.get_stats()
+    assert stats.in_use_connections == 0
+    assert stats.total_releases == 1
+    await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_net01_close_failure_can_finish_cleanup_on_retry() -> None:
+    """A close error must leave a retry able to finish release and pool cleanup."""
+
+    connector = _StreamingLifecycleConnector(close_failures=1)
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="https://stream.example"),
+        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
+    )
+    session = StreamingSourceSession(
+        connector_id="stream-lifecycle",
+        dataset_id="close-retry",
+        pool=pool,
+        request=FetchRequest(dataset_id="close-retry"),
+    )
+    await session.subscribe()
+
+    with pytest.raises(RuntimeError, match="close failed"):
+        await session.close()
+    await session.close()
+
+    assert pool.get_stats().in_use_connections == 0
+    assert connector.disconnect_calls >= 1
 
 
 @pytest.mark.asyncio

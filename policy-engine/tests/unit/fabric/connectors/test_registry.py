@@ -110,6 +110,23 @@ class MockConnectorA(BaseConnector[list[dict]]):
         return ValidationResult.success()
 
 
+class _SlowSecondConnectConnector(MockConnectorA):
+    """Connector whose second physical connect is held by a test gate."""
+
+    def __init__(self) -> None:
+        self.connect_count = 0
+        self.second_connect_started = asyncio.Event()
+        self.allow_second_connect = asyncio.Event()
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        self.connect_count += 1
+        handle = self._create_handle(config)
+        if self.connect_count == 2:
+            self.second_connect_started.set()
+            await self.allow_second_connect.wait()
+        return handle
+
+
 class MockConnectorA_v10(BaseConnector[list[dict]]):
     """Mock connector with higher semver version."""
 
@@ -1004,6 +1021,102 @@ class TestConnectionPool:
                 await pool.acquire()
 
             await pool.release(next_handle)
+            await pool.close_all()
+
+        asyncio.run(_run())
+
+    def test_net01_cancel_after_permit_waiting_for_lock_restores_capacity(
+        self,
+        mock_connector_factory,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Cancellation after permit acquisition must not strand the only slot."""
+
+        async def _run() -> None:
+            pool = ConnectionPool(
+                connector_factory=mock_connector_factory,
+                config=sample_config,
+                pool_config=PoolConfig(max_size=1, acquire_timeout_seconds=0.02),
+            )
+            await pool._lock.acquire()
+            acquire_task = asyncio.create_task(pool.acquire())
+            for _ in range(10):
+                await asyncio.sleep(0)
+                if pool._semaphore._value == 0:
+                    break
+            assert pool._semaphore._value == 0
+
+            acquire_task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await acquire_task
+
+            pool._lock.release()
+            try:
+                handle = await pool.acquire()
+                assert handle is not None
+            finally:
+                await pool.close_all()
+
+        asyncio.run(_run())
+
+    def test_net01_closed_pool_failure_returns_one_permit_only(
+        self,
+        mock_connector_factory,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """A closed-pool rejection must not make the semaphore exceed max_size."""
+
+        async def _run() -> None:
+            pool = ConnectionPool(
+                connector_factory=mock_connector_factory,
+                config=sample_config,
+                pool_config=PoolConfig(max_size=1, acquire_timeout_seconds=0.02),
+            )
+            await pool.close_all()
+
+            with pytest.raises(PoolClosedError):
+                await pool.acquire()
+
+            permit = await pool._semaphore.acquire()
+            assert permit is True
+            with pytest.raises(asyncio.TimeoutError):
+                await asyncio.wait_for(pool._semaphore.acquire(), timeout=0.01)
+            pool._semaphore.release()
+
+        asyncio.run(_run())
+
+    def test_net01_slow_connect_does_not_block_independent_release(
+        self,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """A second connect must not hold the metadata lock over another release."""
+
+        async def _run() -> None:
+            connector = _SlowSecondConnectConnector()
+            pool = ConnectionPool(
+                connector_factory=lambda: connector,
+                config=sample_config,
+                pool_config=PoolConfig(
+                    max_size=2,
+                    validate_on_acquire=False,
+                    acquire_timeout_seconds=0.2,
+                ),
+            )
+            first = await pool.acquire()
+            second_task = asyncio.create_task(pool.acquire())
+            await connector.second_connect_started.wait()
+            release_task = asyncio.create_task(pool.release(first))
+            try:
+                await asyncio.wait_for(asyncio.shield(release_task), timeout=0.05)
+            except asyncio.TimeoutError:
+                second_task.cancel()
+                await asyncio.gather(second_task, release_task, return_exceptions=True)
+                await pool.close_all()
+                raise
+
+            connector.allow_second_connect.set()
+            second = await second_task
+            await pool.release(second)
             await pool.close_all()
 
         asyncio.run(_run())

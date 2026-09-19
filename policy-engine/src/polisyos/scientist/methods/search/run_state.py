@@ -15,6 +15,21 @@ class GenerationTransition(str, Enum):
     EXHAUSTED = "exhausted"
 
 
+class _EvaluationDisposition(str, Enum):
+    """Classify one evaluated candidate at the run-state boundary."""
+
+    ORDINARY = "ordinary"
+    SENTINEL = "sentinel"
+
+
+@dataclass(frozen=True)
+class _EvaluationTransition:
+    """Carry one internal candidate disposition and its detached history record."""
+
+    disposition: _EvaluationDisposition
+    record: Any
+
+
 @dataclass
 class SearchRunState:
     """Mutable state owned by exactly one controller run."""
@@ -45,6 +60,19 @@ class SearchRunState:
             "evaluation_iterations": self.evaluation_iterations,
             "budget_spent": self.budget_spent,
         }
+
+    def apply_evaluation_transition(self, transition: _EvaluationTransition) -> None:
+        """Apply one candidate disposition to the sole run-state owner.
+
+        Sentinel evaluations remain observable through their dedicated count but
+        do not consume an ordinary evaluation iteration or enter ordinary
+        history. Every ordinary transition updates both values together.
+        """
+        if transition.disposition is _EvaluationDisposition.SENTINEL:
+            self.sentinel_evaluations += 1
+            return
+        self.history.append(transition.record)
+        self.evaluation_iterations += 1
 
     def snapshot(self) -> SearchRunState:
         """Return a deep snapshot that cannot be changed by a later run."""

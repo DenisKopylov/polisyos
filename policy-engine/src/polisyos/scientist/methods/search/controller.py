@@ -24,7 +24,12 @@ from polisyos.scientist.methods.search.frontier import (
     update_legacy_pareto_front,
 )
 from polisyos.scientist.methods.search.objective import CompositeObjective, ObjectiveValue
-from polisyos.scientist.methods.search.run_state import GenerationTransition, SearchRunState
+from polisyos.scientist.methods.search.run_state import (
+    GenerationTransition,
+    SearchRunState,
+    _EvaluationDisposition,
+    _EvaluationTransition,
+)
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 from polisyos.scientist.methods.search.stopping import StoppingCriterion
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
@@ -407,6 +412,7 @@ class SearchController:
                 self._best_candidate = deepcopy(record.candidate)
 
         stopping_reason: str | None = None
+        initial_candidate_pending = initial_candidate is not None
 
         while self._run_state.evaluation_iterations < self._config.max_iterations_hard_limit:
             stop_check = self._config.stopping.check(
@@ -421,12 +427,11 @@ class SearchController:
 
             batch = self._generate_candidates(
                 iteration=self._run_state.evaluation_iterations,
-                initial_candidate=initial_candidate,
+                initial_candidate=initial_candidate if initial_candidate_pending else None,
                 context=initial_context,
             )
-            generated = not (
-                self._run_state.evaluation_iterations == 0 and initial_candidate is not None
-            )
+            generated = not initial_candidate_pending
+            initial_candidate_pending = False
             if generated:
                 self._run_state.generation_attempts += 1
                 self._update_budget_spent(initial_context)
@@ -459,13 +464,21 @@ class SearchController:
             for candidate in batch:
                 if self._run_state.evaluation_iterations >= self._config.max_iterations_hard_limit:
                     break
-                self._evaluate_candidate(
+                transition = self._evaluate_candidate(
                     candidate,
                     iteration=self._run_state.evaluation_iterations,
                     context=initial_context,
                 )
-                self._run_state.evaluation_iterations += 1
+                self._run_state.apply_evaluation_transition(transition)
                 self._update_budget_spent(initial_context)
+
+                if (
+                    transition.disposition is _EvaluationDisposition.SENTINEL
+                    and not generated
+                ):
+                    self._status = SearchStatus.STOPPED
+                    stopping_reason = "Initial sentinel evaluated"
+                    break
 
                 stop_check = self._config.stopping.check(
                     [self._to_history_dict(h) for h in self._history],
@@ -606,7 +619,7 @@ class SearchController:
         candidate: dict[str, Any],
         iteration: int,
         context: dict[str, Any],
-    ) -> None:
+    ) -> _EvaluationTransition:
         candidate = deepcopy(candidate)
         iter_start = datetime.now(UTC)
         is_sentinel = extract_sentinel_metadata(candidate) is not None
@@ -671,13 +684,16 @@ class SearchController:
             duration_seconds=iter_duration,
             policy_evaluation=deepcopy(policy_evaluation),
         )
-        if is_sentinel:
-            self._sentinel_evaluations += 1
-            return
-
-        self._history.append(record)
-        if self._diversity_tracker is not None:
+        if not is_sentinel and self._diversity_tracker is not None:
             self._diversity_tracker.record_iteration(candidate)
+        return _EvaluationTransition(
+            disposition=(
+                _EvaluationDisposition.SENTINEL
+                if is_sentinel
+                else _EvaluationDisposition.ORDINARY
+            ),
+            record=record,
+        )
 
     def _build_generation_context(
         self,

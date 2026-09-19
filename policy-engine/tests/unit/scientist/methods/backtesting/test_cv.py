@@ -32,19 +32,36 @@ class TestForwardChainingSplits:
         splits = forward_chaining_splits(3, min_train_size=2, step_size=1)
         assert len(splits) == 1
 
-    @pytest.mark.parametrize("step_size", [0, -1])
-    def test_non_positive_step_is_rejected_before_loop(self, monkeypatch, step_size):
+    @pytest.mark.parametrize(
+        ("min_train_size", "step_size", "max_folds"),
+        [
+            (2, 0, 3),
+            (2, -1, 3),
+            (0, 1, 3),
+            (-1, 1, 3),
+            (1001, 1, 3),
+            (2, 1, 0),
+            (2, 1, -1),
+        ],
+    )
+    def test_invalid_cv_parameters_are_rejected_before_loop(
+        self,
+        monkeypatch,
+        min_train_size,
+        step_size,
+        max_folds,
+    ):
         def forbidden_range(*args):
-            raise AssertionError("invalid step entered fold materialization")
+            raise AssertionError("invalid parameter entered fold materialization")
 
         monkeypatch.setattr(builtins, "range", forbidden_range)
 
-        with pytest.raises(ValueError, match="step_size"):
+        with pytest.raises(ValueError):
             forward_chaining_splits(
                 1000,
-                min_train_size=2,
+                min_train_size=min_train_size,
                 step_size=step_size,
-                max_folds=3,
+                max_folds=max_folds,
             )
 
 

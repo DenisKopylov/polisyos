@@ -308,6 +308,115 @@ class TestParetoFront:
         assert set(payload["members"][0]["coordinate_values"]) == coordinate_ids
         assert set(payload["coordinate_reference_point"]) == coordinate_ids
 
+    def test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed(self):
+        """Historical payloads cannot silently enter v1 coordinate operations."""
+        # Catches the production mutation that treats a missing schema as the
+        # current v1 schema and lets a legacy payload answer is_dominated().
+        promoter = ParetoPromoter(_policies("score"))
+        payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+        payload.pop("coordinate_schema")
+        payload.pop("coordinate_reference_point")
+
+        try:
+            restored = ParetoFront.model_validate(payload)
+        except ValueError as exc:
+            assert "coordinate" in str(exc).lower() or "schema" in str(exc).lower()
+            return
+
+        schema = restored.coordinate_schema
+        explicit_legacy = schema is None or getattr(schema, "status", None) == "legacy_limited"
+        try:
+            promoter.is_dominated(_eval(score=0.0), restored)
+        except ValueError as exc:
+            assert "coordinate" in str(exc).lower() or "schema" in str(exc).lower()
+        else:
+            assert explicit_legacy
+
+    def test_tampered_coordinate_id_is_rejected(self):
+        """The typed coordinate id must be bound to its canonical tuple."""
+        # Catches the production mutation that validates coordinate_id as an
+        # opaque string while accepting a different metric/split/unit tuple.
+        promoter = ParetoPromoter(_policies("score"))
+        payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+        payload["coordinate_schema"]["coordinates"][0]["coordinate_id"] = "tampered"
+
+        with pytest.raises(ValueError, match="(?i)coordinate"):
+            ParetoFront.model_validate(payload)
+
+    def test_complete_v1_payload_has_exact_coordinate_and_reference_keys(self):
+        """Complete v1 payloads expose one exact, mutually bound key set."""
+        # Catches the production mutation that adds a schema marker but leaves
+        # member/reference dictionaries on an untyped or divergent key set.
+        promoter = ParetoPromoter(_policies("score"))
+        payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+
+        assert set(payload) == {
+            "members",
+            "hypervolume",
+            "reference_point",
+            "coordinate_schema",
+            "coordinate_reference_point",
+        }
+        assert set(payload["coordinate_schema"]) == {"version", "status", "coordinates"}
+        assert set(payload["members"][0]) == {
+            "candidate_ref_id",
+            "objectives",
+            "coordinate_values",
+            "evaluation",
+        }
+
+        coordinates = payload["coordinate_schema"]["coordinates"]
+        assert coordinates
+        assert set(coordinates[0]) == {
+            "coordinate_id",
+            "metric",
+            "split",
+            "unit_state",
+            "unit",
+            "direction",
+        }
+        coordinate_ids = {item["coordinate_id"] for item in coordinates}
+        assert set(payload["members"][0]["coordinate_values"]) == coordinate_ids
+        assert set(payload["coordinate_reference_point"]) == coordinate_ids
+        assert set(payload["reference_point"]) == set(payload["members"][0]["objectives"])
+
+    def test_empty_and_invalid_front_preserves_schema_as_incomplete(self):
+        """Empty producer output retains known coordinates with an incomplete state."""
+        # Catches the production mutation that returns a fresh empty schema and
+        # discards the promoter's known coordinate contract for no valid rows.
+        promoter = ParetoPromoter(_policies("score"))
+        complete = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+        expected_coordinates = complete["coordinate_schema"]["coordinates"]
+
+        for evaluations in ([], [_eval(score=math.nan)]):
+            payload = promoter.compute_front(evaluations).model_dump(mode="json")
+            assert payload["coordinate_schema"]["version"] == "pareto-coordinate.v1"
+            assert payload["coordinate_schema"]["status"] == "incomplete"
+            assert payload["coordinate_schema"]["coordinates"] == expected_coordinates
+            assert payload["members"] == []
+            assert payload["coordinate_reference_point"] == {}
+
+    def test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false(self):
+        """A member without canonical values cannot be treated as non-dominated."""
+        # Catches the production mutation that skips members with empty
+        # coordinate_values and returns False instead of rejecting the payload.
+        promoter = ParetoPromoter(_policies("score"))
+        payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+        payload["members"][0]["coordinate_values"] = {}
+
+        try:
+            restored = ParetoFront.model_validate(payload)
+        except ValueError as exc:
+            assert "coordinate" in str(exc).lower() or "schema" in str(exc).lower()
+            return
+
+        try:
+            dominated = promoter.is_dominated(_eval(score=0.0), restored)
+        except ValueError as exc:
+            assert "coordinate" in str(exc).lower() or "schema" in str(exc).lower()
+        else:
+            assert dominated is True
+
     def test_duplicate_full_coordinate_is_rejected(self):
         """Identical typed coordinates remain invalid even with a canonical schema."""
         # Catches a production mutation that deduplicates by display key or silently

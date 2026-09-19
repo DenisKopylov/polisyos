@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import uuid4
@@ -21,7 +23,7 @@ from polisyos.scientist.methods.search.frontier import (
     update_legacy_pareto_front,
 )
 from polisyos.scientist.methods.search.objective import CompositeObjective, ObjectiveValue
-from polisyos.scientist.methods.search.run_state import SearchRunState
+from polisyos.scientist.methods.search.run_state import GenerationTransition, SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 from polisyos.scientist.methods.search.stopping import StoppingCriterion
 
@@ -175,6 +177,14 @@ class SearchConfig:
     initial_evaluations: list[dict[str, Any]] = field(default_factory=list)
     policy_objective_stack: ObjectiveStack | None = None
     pareto_registry: ParetoRegistry | None = None
+    max_empty_generation_attempts: int = 3
+
+    def __post_init__(self) -> None:
+        """Validate the controller-owned hard bounds."""
+        if self.max_iterations_hard_limit < 1:
+            raise ValueError("max_iterations_hard_limit must be >= 1")
+        if self.max_empty_generation_attempts < 1:
+            raise ValueError("max_empty_generation_attempts must be >= 1")
 
 
 class SearchController:
@@ -337,11 +347,12 @@ class SearchController:
         """
         search_id = str(uuid4())[:8]
         start_time = datetime.now(UTC)
-        self._status = SearchStatus.RUNNING
+        self._run_state = SearchRunState(
+            search_id=search_id,
+            status=SearchStatus.RUNNING,
+        )
         self._config.stopping.reset()
-        self._pareto_front = []
-        self._pareto_points = []
-        self._search_id = search_id
+        self._update_budget_spent(initial_context)
 
         logger.info(f"Starting search {search_id}")
 
@@ -350,26 +361,25 @@ class SearchController:
             obj_value = eval_dict.get("objective_value", float("inf"))
             record = SearchIteration(
                 iteration=-1,
-                candidate=eval_dict.get("candidate", {}),
+                candidate=deepcopy(eval_dict.get("candidate", {})),
                 objective_value=obj_value,
                 objective_details=[],
                 is_promising=eval_dict.get("is_promising", False),
                 stage_a_passed=True,
-                stage_b_result=eval_dict.get("stage_b_result"),
+                stage_b_result=deepcopy(eval_dict.get("stage_b_result")),
                 duration_seconds=0.0,
             )
             self._history.append(record)
             if obj_value < self._best_objective:
                 self._best_objective = obj_value
-                self._best_candidate = record.candidate
+                self._best_candidate = deepcopy(record.candidate)
 
         stopping_reason: str | None = None
-        iteration = 0
 
-        while iteration < self._config.max_iterations_hard_limit:
+        while self._run_state.evaluation_iterations < self._config.max_iterations_hard_limit:
             stop_check = self._config.stopping.check(
                 [self._to_history_dict(h) for h in self._history],
-                {"iteration": iteration, "best_objective": self._best_objective},
+                self._stopping_state(initial_context),
             )
             if stop_check.should_stop:
                 stopping_reason = stop_check.reason
@@ -378,19 +388,56 @@ class SearchController:
                 break
 
             batch = self._generate_candidates(
-                iteration=iteration,
+                iteration=self._run_state.evaluation_iterations,
                 initial_candidate=initial_candidate,
                 context=initial_context,
             )
-            for candidate in batch:
-                if iteration >= self._config.max_iterations_hard_limit:
+            generated = not (
+                self._run_state.evaluation_iterations == 0 and initial_candidate is not None
+            )
+            if generated:
+                self._run_state.generation_attempts += 1
+                self._update_budget_spent(initial_context)
+                generation_stop = self._config.stopping.check(
+                    [self._to_history_dict(h) for h in self._history],
+                    self._stopping_state(initial_context),
+                )
+                if generation_stop.should_stop:
+                    stopping_reason = generation_stop.reason
+                    self._status = SearchStatus.STOPPED
+                    logger.info(f"Stopping: {stopping_reason}")
                     break
-                self._evaluate_candidate(candidate, iteration=iteration, context=initial_context)
-                iteration += 1
+            if not batch:
+                self._run_state.empty_generation_attempts += 1
+                if (
+                    self._run_state.empty_generation_attempts
+                    >= self._config.max_empty_generation_attempts
+                ):
+                    self._run_state.generation_transition = GenerationTransition.EXHAUSTED
+                    stopping_reason = "generation_exhausted"
+                    self._status = SearchStatus.STOPPED
+                    logger.info("Stopping: generation exhausted")
+                    break
+                continue
+
+            if self._run_state.empty_generation_attempts:
+                self._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
+                self._run_state.empty_generation_attempts = 0
+
+            for candidate in batch:
+                if self._run_state.evaluation_iterations >= self._config.max_iterations_hard_limit:
+                    break
+                self._evaluate_candidate(
+                    candidate,
+                    iteration=self._run_state.evaluation_iterations,
+                    context=initial_context,
+                )
+                self._run_state.evaluation_iterations += 1
+                self._update_budget_spent(initial_context)
 
                 stop_check = self._config.stopping.check(
                     [self._to_history_dict(h) for h in self._history],
-                    {"iteration": iteration, "best_objective": self._best_objective},
+                    self._stopping_state(initial_context),
                 )
                 if stop_check.should_stop:
                     stopping_reason = stop_check.reason
@@ -408,29 +455,55 @@ class SearchController:
             )
 
         total_duration = (datetime.now(UTC) - start_time).total_seconds()
+        snapshot = self._run_state.snapshot()
         telemetry: dict[str, Any] = {}
         if self._diversity_tracker is not None:
             telemetry["diversity_unique_mechanisms_total"] = (
                 self._diversity_tracker.unique_mechanisms_total
             )
             telemetry["diversity_ratio"] = self._diversity_tracker.diversity_ratio
-        if self._sentinel_evaluations:
-            telemetry["sentinel_evaluations"] = self._sentinel_evaluations
+        if snapshot.sentinel_evaluations:
+            telemetry["sentinel_evaluations"] = snapshot.sentinel_evaluations
+        transition_payload = snapshot.generation_transition_payload()
+        if transition_payload is not None:
+            telemetry["generation_transition"] = transition_payload
 
         return SearchResult(
-            search_id=search_id,
-            status=self._status,
-            best_candidate=self._best_candidate,
-            best_objective=self._best_objective,
-            iterations_completed=iteration,
-            history=self._history,
+            search_id=snapshot.search_id,
+            status=cast(SearchStatus, snapshot.status),
+            best_candidate=deepcopy(snapshot.best_candidate),
+            best_objective=snapshot.best_objective,
+            iterations_completed=snapshot.evaluation_iterations,
+            history=deepcopy(snapshot.history),
             stopping_reason=stopping_reason,
             total_duration_seconds=total_duration,
-            stage_a_evaluations=self._stage_a_count,
-            stage_b_evaluations=self._stage_b_count,
-            pareto_front=self._pareto_front,
-            telemetry=telemetry,
+            stage_a_evaluations=snapshot.stage_a_evaluations,
+            stage_b_evaluations=snapshot.stage_b_evaluations,
+            pareto_front=deepcopy(snapshot.pareto_front),
+            telemetry=deepcopy(telemetry),
         )
+
+    def _stopping_state(self, context: dict[str, Any]) -> dict[str, Any]:
+        """Build stopping input from run counters and declared budget owners."""
+        state = {
+            "iteration": self._run_state.evaluation_iterations,
+            "evaluation_iterations": self._run_state.evaluation_iterations,
+            "generation_attempts": self._run_state.generation_attempts,
+            "empty_generation_attempts": self._run_state.empty_generation_attempts,
+            "best_objective": self._best_objective,
+            "budget_spent": self._run_state.budget_spent,
+        }
+        for key in self._config.stopping.state_keys():
+            if key in context:
+                state[key] = context[key]
+        return state
+
+    def _update_budget_spent(self, context: dict[str, Any]) -> None:
+        """Refresh budget telemetry from the declared stopping owner."""
+        for key in self._config.stopping.state_keys():
+            value = context.get(key)
+            if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
+                self._run_state.budget_spent = float(value)
 
     def _generate_candidates(
         self,
@@ -500,6 +573,7 @@ class SearchController:
         iteration: int,
         context: dict[str, Any],
     ) -> None:
+        candidate = deepcopy(candidate)
         iter_start = datetime.now(UTC)
         is_sentinel = extract_sentinel_metadata(candidate) is not None
 
@@ -539,7 +613,7 @@ class SearchController:
 
             if not is_sentinel and objective_value < self._best_objective:
                 self._best_objective = objective_value
-                self._best_candidate = candidate
+                self._best_candidate = deepcopy(candidate)
                 logger.info(f"Iteration {iteration}: New best objective = {objective_value:.6f}")
 
             if not is_sentinel:
@@ -553,15 +627,15 @@ class SearchController:
         iter_duration = (datetime.now(UTC) - iter_start).total_seconds()
         record = SearchIteration(
             iteration=iteration,
-            candidate=candidate,
+            candidate=deepcopy(candidate),
             objective_value=objective_value,
-            objective_details=objective_details,
+            objective_details=deepcopy(objective_details),
             is_promising=stage_a_passed
             and (stage_b_result or {}).get("feedback", {}).get("verdict") == "APPROVE",
             stage_a_passed=stage_a_passed,
-            stage_b_result=stage_b_result,
+            stage_b_result=deepcopy(stage_b_result),
             duration_seconds=iter_duration,
-            policy_evaluation=policy_evaluation,
+            policy_evaluation=deepcopy(policy_evaluation),
         )
         if is_sentinel:
             self._sentinel_evaluations += 1

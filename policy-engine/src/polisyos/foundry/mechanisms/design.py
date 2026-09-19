@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from polisyos.foundry.methods.catalog.mechanism.families import (
+    get_mechanism_family_spec,
+    mechanism_family_catalog,
+)
 from polisyos.ir.analytics.mechanism_design import (
     ICVerificationMode,
     MechanismFamily,
@@ -10,10 +14,6 @@ from polisyos.ir.analytics.mechanism_design import (
     certify_affine_tax,
     certify_license_scoring_auction,
     certify_piecewise_linear_tax,
-)
-from polisyos.foundry.methods.catalog.mechanism.families import (
-    get_mechanism_family_spec,
-    mechanism_family_catalog,
 )
 
 

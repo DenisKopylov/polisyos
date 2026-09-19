@@ -7,13 +7,13 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
+    claim_promotion_policy,
+)
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
     ClaimAdjudicationVerifier,
     ClaimEvaluatorAppointment,
     read_claim_promotion_predecessor,
-)
-from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
-    claim_promotion_policy,
 )
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
     materialize_claim_adjudication_result,

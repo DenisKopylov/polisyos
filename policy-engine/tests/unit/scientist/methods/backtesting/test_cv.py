@@ -54,15 +54,16 @@ class TestForwardChainingSplits:
         def forbidden_range(*args):
             raise AssertionError("invalid parameter entered fold materialization")
 
-        monkeypatch.setattr(builtins, "range", forbidden_range)
+        with monkeypatch.context() as scoped:
+            scoped.setattr(builtins, "range", forbidden_range)
 
-        with pytest.raises(ValueError):
-            forward_chaining_splits(
-                1000,
-                min_train_size=min_train_size,
-                step_size=step_size,
-                max_folds=max_folds,
-            )
+            with pytest.raises(ValueError):
+                forward_chaining_splits(
+                    1000,
+                    min_train_size=min_train_size,
+                    step_size=step_size,
+                    max_folds=max_folds,
+                )
 
 
 class TestRunForwardChainingCV:
@@ -78,7 +79,6 @@ class TestRunForwardChainingCV:
                 raise AssertionError("discarded folds were materialized")
             return requested
 
-        monkeypatch.setattr(builtins, "range", bounded_range)
         data = np.arange(1000, dtype=float)
         observed_shapes = []
 
@@ -86,13 +86,15 @@ class TestRunForwardChainingCV:
             observed_shapes.append((len(train), len(test)))
             return {"test_size": float(len(test))}
 
-        result = run_forward_chaining_cv(
-            data,
-            evaluator,
-            min_train_size=2,
-            step_size=1,
-            max_folds=3,
-        )
+        with monkeypatch.context() as scoped:
+            scoped.setattr(builtins, "range", bounded_range)
+            result = run_forward_chaining_cv(
+                data,
+                evaluator,
+                min_train_size=2,
+                step_size=1,
+                max_folds=3,
+            )
 
         assert [(len(fold.train_indices), fold.test_indices) for fold in result.folds] == [
             (2, [2]),

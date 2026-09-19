@@ -118,7 +118,7 @@ class TestBatchIncremental:
         with (
             patch(
                 "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-                side_effect=_successful_orchestrator(mock_result),
+                return_value=mock_result,
             ),
             patch(
                 "polisyos.fabric.ingestion.run_connectors_ingestion",
@@ -151,7 +151,7 @@ class TestBatchIncremental:
         with (
             patch(
                 "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-                return_value=mock_result,
+                side_effect=_successful_orchestrator(mock_result),
             ),
             patch(
                 "polisyos.fabric.ingestion.run_connectors_ingestion",

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from pydantic import BaseModel
+
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
-from pydantic import BaseModel
 
 
 class _BranchNestedModel(BaseModel):

@@ -37,7 +37,13 @@ def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
     return ExecutionContext(store=store, run=run, logger=logging.getLogger(f"test.{run_id}"))
 
 
-def _seed_skg(db_path, *, version_id: int = 12, fiscal_value: float = 1.35) -> None:
+def _seed_skg(
+    db_path,
+    *,
+    version_id: int = 12,
+    fiscal_value: float = 1.35,
+    scalar_parameter: bool = True,
+) -> None:
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
@@ -53,6 +59,15 @@ def _seed_skg(db_path, *, version_id: int = 12, fiscal_value: float = 1.35) -> N
         )
         con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
         con.execute("INSERT INTO ac_skg_versions VALUES (?)", [version_id])
+        parameter_payload = {
+            "name": "fiscal_multiplier",
+            "parameter_type": "quantitative",
+            "evidence_strength": "observational",
+        }
+        if scalar_parameter:
+            parameter_payload["value"] = fiscal_value
+        else:
+            parameter_payload["value_range"] = [fiscal_value, fiscal_value + 0.1]
         con.executemany(
             "INSERT INTO ac_skg_parameters VALUES (?, ?, ?, ?, ?)",
             [
@@ -60,14 +75,7 @@ def _seed_skg(db_path, *, version_id: int = 12, fiscal_value: float = 1.35) -> N
                     "p_cee",
                     "fiscal_multiplier",
                     "W_CEE",
-                    json.dumps(
-                        {
-                            "name": "fiscal_multiplier",
-                            "value": fiscal_value,
-                            "parameter_type": "quantitative",
-                            "evidence_strength": "observational",
-                        }
-                    ),
+                    json.dumps(parameter_payload),
                     json.dumps(
                         {
                             "context_id": "PL",
@@ -204,7 +212,7 @@ def test_resolve_parameters_node_skips_on_missing_inputs(tmp_path) -> None:
 def test_same_skg_path_binds_version_snapshot_to_idempotency_key(tmp_path) -> None:
     """Live replacement misses and a pinned source snapshot replays safely."""
     db_path = tmp_path / "skg.duckdb"
-    _seed_skg(db_path, version_id=12, fiscal_value=1.35)
+    _seed_skg(db_path, version_id=12, fiscal_value=1.35, scalar_parameter=False)
     frozen_db_path = tmp_path / "skg-v12-frozen.duckdb"
     frozen_db_path.write_bytes(db_path.read_bytes())
 
@@ -254,7 +262,7 @@ def test_same_skg_path_binds_version_snapshot_to_idempotency_key(tmp_path) -> No
     bundle_a = _snapshot_bundle(ctx_a, result_a)
 
     db_path.unlink()
-    _seed_skg(db_path, version_id=13, fiscal_value=2.4)
+    _seed_skg(db_path, version_id=13, fiscal_value=2.4, scalar_parameter=False)
     live_state_b = _bind_owner_snapshot(
         _base_state(run_id="R_phase15_snapshot_identity", source_path=db_path),
         db_path,
@@ -292,21 +300,32 @@ def test_same_skg_path_binds_version_snapshot_to_idempotency_key(tmp_path) -> No
     assert bundle_a.skg_snapshot_ref == live_state_a.params["skg_snapshot_ref"]
     assert bundle_b.skg_snapshot_ref == live_state_b.params["skg_snapshot_ref"]
     assert bundle_a.skg_snapshot_ref != bundle_b.skg_snapshot_ref
-    assert bundle_a.parameters["fiscal_multiplier"].value != bundle_b.parameters[
+    assert bundle_a.parameters["fiscal_multiplier"].value_range != bundle_b.parameters[
         "fiscal_multiplier"
-    ].value
+    ].value_range
     assert key_a != key_b
     assert key_frozen_a == key_frozen_b
     assert bundle_frozen_a.skg_snapshot_ref == frozen_state.params["skg_snapshot_ref"]
     assert bundle_frozen_b.skg_snapshot_ref == frozen_state.params["skg_snapshot_ref"]
-    assert bundle_frozen_b.parameters["fiscal_multiplier"].value == 1.35
-    assert any(event.get("event") == "NODE_CACHE_HIT" for event in _trace_events(ctx_frozen_b))
+    assert bundle_frozen_b.parameters["fiscal_multiplier"].value_range == (
+        1.35,
+        1.4500000000000002,
+    )
+    frozen_a_events = _trace_events(ctx_frozen_a)
+    frozen_b_events = _trace_events(ctx_frozen_b)
+    assert any(event.get("event") == "NODE_CACHE_STORE" for event in frozen_a_events)
+    assert any(event.get("event") == "NODE_CACHE_HIT" for event in frozen_b_events)
+    assert not any(
+        event.get("event") == "NODE_CACHE_BYPASS"
+        and event.get("metrics", {}).get("reason_code") == 3
+        for event in frozen_a_events + frozen_b_events
+    )
 
 
 def test_skg_key_and_read_share_one_content_bound_snapshot(tmp_path, monkeypatch) -> None:
     """A replacement after key admission must not be read under the old key."""
     db_path = tmp_path / "skg.duckdb"
-    _seed_skg(db_path, version_id=12, fiscal_value=1.35)
+    _seed_skg(db_path, version_id=12, fiscal_value=1.35, scalar_parameter=False)
     ctx = _build_ctx(tmp_path, run_id="R_phase15_snapshot_content_bound")
     graph_ref = persist_causal_graph_model(
         ctx.store,
@@ -360,7 +379,7 @@ def test_skg_key_and_read_share_one_content_bound_snapshot(tmp_path, monkeypatch
             if not admission.get("replaced"):
                 admission["replaced"] = True
                 db_path.unlink()
-                _seed_skg(db_path, version_id=13, fiscal_value=2.4)
+                _seed_skg(db_path, version_id=13, fiscal_value=2.4, scalar_parameter=False)
 
     monkeypatch.setattr(academic_read_api, "SKGQuery", InterposedSKGQuery)
     result = WorkflowExecutor(ctx, registry).execute(workflow, state)
@@ -370,16 +389,25 @@ def test_skg_key_and_read_share_one_content_bound_snapshot(tmp_path, monkeypatch
         "snapshot_ref": f"duckdb://{db_path}#v12",
         "replaced": True,
     }
+    trace_events = _trace_events(ctx)
+    assert not any(
+        event.get("event") == "NODE_CACHE_BYPASS"
+        and event.get("metrics", {}).get("reason_code") == 3
+        for event in trace_events
+    )
     assert result.report.nodes[0].status != "ok" or (
         (bundle := _snapshot_bundle(ctx, result)).skg_version_id == 12
-        and bundle.parameters["fiscal_multiplier"].value == 1.35
+        and bundle.parameters["fiscal_multiplier"].value_range == (
+            1.35,
+            1.4500000000000002,
+        )
     )
 
 
 def test_prebound_skg_snapshot_without_provenance_cannot_replay_after_replacement(tmp_path) -> None:
     """A stale pre-bound identity must not authorize a frozen cache replay."""
     db_path = tmp_path / "skg.duckdb"
-    _seed_skg(db_path, version_id=12, fiscal_value=1.35)
+    _seed_skg(db_path, version_id=12, fiscal_value=1.35, scalar_parameter=False)
     ctx_first = _build_ctx(tmp_path, run_id="R_phase15_snapshot_unverified")
     graph_ref = persist_causal_graph_model(
         ctx_first.store,
@@ -418,16 +446,45 @@ def test_prebound_skg_snapshot_without_provenance_cannot_replay_after_replacemen
     first_state = _bind_owner_snapshot(_state(), db_path)
     result_first = WorkflowExecutor(ctx_first, registry).execute(workflow, first_state)
     assert result_first.report.status == "ok"
+    first_events = _trace_events(ctx_first)
+    assert any(event.get("event") == "NODE_CACHE_STORE" for event in first_events)
+    assert not any(
+        event.get("event") == "NODE_CACHE_BYPASS"
+        and event.get("metrics", {}).get("reason_code") == 3
+        for event in first_events
+    )
+
+    ctx_control = _build_ctx(tmp_path, run_id="R_phase15_snapshot_unverified")
+    result_control = WorkflowExecutor(ctx_control, registry).execute(
+        workflow,
+        first_state.model_copy(deep=True),
+    )
+    assert result_control.report.status == "ok"
+    control_events = _trace_events(ctx_control)
+    assert any(event.get("event") == "NODE_CACHE_HIT" for event in control_events)
+    control_bundle = _snapshot_bundle(ctx_control, result_control)
+    assert control_bundle.skg_version_id == 12
+    assert control_bundle.parameters["fiscal_multiplier"].value_range == (
+        1.35,
+        1.4500000000000002,
+    )
 
     db_path.unlink()
-    _seed_skg(db_path, version_id=13, fiscal_value=2.4)
+    _seed_skg(db_path, version_id=13, fiscal_value=2.4, scalar_parameter=False)
     stale_state = _state()
     stale_state.params["skg_snapshot_ref"] = first_state.params["skg_snapshot_ref"]
     stale_state.params["skg_version_id"] = first_state.params["skg_version_id"]
     ctx_after = _build_ctx(tmp_path, run_id="R_phase15_snapshot_unverified")
     result_after = WorkflowExecutor(ctx_after, registry).execute(workflow, stale_state)
 
+    after_events = _trace_events(ctx_after)
+    assert not any(event.get("event") == "NODE_CACHE_HIT" for event in after_events)
+    assert not any(
+        event.get("event") == "NODE_CACHE_BYPASS"
+        and event.get("metrics", {}).get("reason_code") == 3
+        for event in after_events
+    )
     assert result_after.report.nodes[0].status != "ok" or (
         (bundle_after := _snapshot_bundle(ctx_after, result_after)).skg_version_id == 13
-        and bundle_after.parameters["fiscal_multiplier"].value == 2.4
+        and bundle_after.parameters["fiscal_multiplier"].value_range == (2.4, 2.5)
     )

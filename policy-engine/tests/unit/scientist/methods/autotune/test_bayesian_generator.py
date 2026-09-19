@@ -208,24 +208,15 @@ def test_history_identity_conflicts_fail_closed(identity_field: str) -> None:
         "origin": ("candidate-origin", "runtime-origin", "metadata-origin"),
     }
     candidate_value, runtime_value, metadata_value = values[identity_field]
-    candidate_metadata = {
-        "candidate_id": "candidate-id",
-        "evaluation_id": "candidate-eval",
+    canonical_identity = {
+        "candidate_id": "shared-candidate-id",
+        "evaluation_id": "shared-evaluation-id",
         "split": "selection",
-        "origin": "candidate-origin",
+        "origin": "shared-origin",
     }
-    runtime_identity = {
-        "candidate_id": "runtime-id",
-        "evaluation_id": "runtime-eval",
-        "split": "selection",
-        "origin": "runtime-origin",
-    }
-    metadata_identity = {
-        "candidate_id": "metadata-id",
-        "evaluation_id": "metadata-eval",
-        "split": "selection",
-        "origin": "metadata-origin",
-    }
+    candidate_metadata = dict(canonical_identity)
+    runtime_identity = dict(canonical_identity)
+    metadata_identity = dict(canonical_identity)
     candidate_metadata[identity_field] = candidate_value
     runtime_identity[identity_field] = runtime_value
     metadata_identity[identity_field] = metadata_value

@@ -169,6 +169,19 @@ def _entry(
     )
 
 
+def _catalog_with_real_entries(
+    registry: MethodRegistry,
+    *fqns: str,
+) -> MethodCatalogSnapshot:
+    """Build a controlled snapshot from registered owner-backed entries."""
+
+    ensure_all_methods_registered(registry)
+    catalog = build_method_catalog_snapshot(registry=registry)
+    entries_by_fqn = {entry.fqn: entry for entry in catalog.entries}
+    assert set(fqns) <= entries_by_fqn.keys()
+    return catalog.model_copy(update={"entries": [entries_by_fqn[fqn] for fqn in fqns]})
+
+
 def _consensus_estimand(*, time_horizon: str | None = None) -> EstimandSpec:
     return EstimandSpec(
         query_id="q-cross-method",
@@ -319,6 +332,193 @@ def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
         row["method_fqn"] == result["selected_method_fqn"]
         for row in result["ranked_alternatives"]
     ) == 1
+
+
+def test_registered_singleton_value_denominator_is_accepted_but_fictional_request_is_blocked(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A real one-member registry projection is not a fixed default."""
+
+    registry = MethodRegistry.get_instance()
+    singleton = _catalog_with_real_entries(
+        registry,
+        "econometrics.panel.difference_gmm@1.0.0",
+    )
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: singleton,
+    )
+
+    selected = select_value_method_for_problem(
+        registry=registry,
+        candidate={
+            "candidate_id": "registered-singleton",
+            "diversity_key": ("panel", "effect"),
+        },
+        problem={
+            "design_problem_id": "registered-singleton",
+            "problem_statement": "Estimate a panel effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": True,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                },
+                "value_required_data_modalities": ("panel",),
+            },
+        },
+    )
+
+    assert selected["status"] == "selected"
+    assert selected["selected_method_fqn"] == singleton.entries[0].fqn
+    assert selected["denominator"] == (singleton.entries[0].fqn,)
+    assert advisor_module._catalog_entry_is_value_method(
+        singleton.entries[0], registry=registry
+    )
+
+    fictional = select_value_method_for_problem(
+        registry=registry,
+        candidate={"candidate_id": "unregistered-request"},
+        problem={
+            "design_problem_id": "unregistered-request",
+            "problem_statement": "Choose a registered value method.",
+            "domain": "generic_policy",
+        },
+        requested_method_fqn="econometrics.panel.does_not_exist@1.0.0",
+    )
+
+    assert fictional["status"] == "blocked"
+    assert fictional["blockers"] == ("unsupported_method_unavailable",)
+
+
+def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Eligibility is applied before ranking truncates the candidate set."""
+
+    registry = MethodRegistry.get_instance()
+    catalog = _catalog_with_real_entries(
+        registry,
+        "causal.diagnostics.parallel_trends_check@1.0.0",
+        "causal.inference.did.staggered@1.0.0",
+        "econometrics.panel.difference_gmm@1.0.0",
+    )
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: catalog,
+    )
+
+    result = select_value_method_for_problem(
+        registry=registry,
+        candidate={
+            "candidate_id": "value-after-non-value-clutter",
+            "diversity_key": ("panel", "effect"),
+        },
+        problem={
+            "design_problem_id": "value-after-non-value-clutter",
+            "problem_statement": "Estimate a panel effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": True,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                },
+                "value_required_data_modalities": ("panel",),
+            },
+        },
+    )
+
+    assert result["status"] == "selected"
+    assert result["selected_method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
+    assert set(result["score_trace"]) <= {"econometrics.panel.difference_gmm@1.0.0"}
+    assert all(
+        row["method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
+        for row in result["ranked_alternatives"]
+    )
+
+
+def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unsupported panel stays a hard requirement; supported output is owner-backed."""
+
+    registry = MethodRegistry.get_instance()
+    tabular_only = _catalog_with_real_entries(
+        registry,
+        "bayesian.gp.gp_regression@1.0.0",
+    )
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: tabular_only,
+    )
+
+    unsupported = select_value_method_for_problem(
+        registry=registry,
+        candidate={
+            "candidate_id": "unsupported-panel",
+            "diversity_key": ("panel", "effect"),
+        },
+        problem={
+            "design_problem_id": "unsupported-panel",
+            "problem_statement": "Estimate a panel effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_required_data_modalities": ("panel",),
+            },
+        },
+    )
+
+    assert unsupported["status"] == "blocked"
+    assert unsupported["blockers"] == ("value_method_required_data_modality_unavailable",)
+    assert unsupported["required_data_modalities"] == ("panel",)
+    assert "panel" in unsupported["reason"]
+
+    panel_catalog = _catalog_with_real_entries(
+        registry,
+        "econometrics.panel.event_study@1.0.0",
+    )
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: panel_catalog,
+    )
+    supported = select_value_method_for_problem(
+        registry=registry,
+        candidate={
+            "candidate_id": "supported-panel",
+            "diversity_key": ("panel", "effect"),
+        },
+        problem={
+            "design_problem_id": "supported-panel",
+            "problem_statement": "Estimate a panel effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_required_data_modalities": ("panel",),
+            },
+        },
+    )
+
+    assert supported["status"] == "selected"
+    assert supported["selected_method_fqn"] == "econometrics.panel.event_study@1.0.0"
+    selected_entry = panel_catalog.entries[0]
+    assert selected_entry.runnable is True
+    assert advisor_module._catalog_entry_is_value_method(selected_entry, registry=registry)
+    assert registry.get(selected_entry.fqn).signature.fqn == selected_entry.fqn
+    assert all(
+        slot.get("contract_id") and slot.get("contract_owner")
+        for slot in selected_entry.output_slots
+    )
 
 
 def test_value_denominator_excludes_diagnostics_without_native_projection() -> None:

@@ -5,6 +5,8 @@ from __future__ import annotations
 import importlib
 import sys
 import types
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -20,20 +22,53 @@ sys.modules.setdefault("polisyos.foundry.methods._logging", _foundry_logging)
 _REPO_ROOT = Path(__file__).resolve().parents[6]
 _CATALOG_ROOT = _REPO_ROOT / "src" / "polisyos" / "foundry" / "methods" / "catalog"
 _CAUSAL_ROOT = _CATALOG_ROOT / "causal"
+_CATALOG_MODULE = "polisyos.foundry.methods.catalog"
+_CAUSAL_MODULE = f"{_CATALOG_MODULE}.causal"
 
-catalog_pkg = sys.modules.setdefault(
-    "polisyos.foundry.methods.catalog",
-    types.ModuleType("polisyos.foundry.methods.catalog"),
-)
-catalog_pkg.__path__ = [str(_CATALOG_ROOT)]  # type: ignore[attr-defined]
-causal_pkg = sys.modules.setdefault(
-    "polisyos.foundry.methods.catalog.causal",
-    types.ModuleType("polisyos.foundry.methods.catalog.causal"),
-)
-causal_pkg.__path__ = [str(_CAUSAL_ROOT)]  # type: ignore[attr-defined]
 
-_id_contracts = importlib.import_module("polisyos.foundry.methods.catalog.causal._id_contracts")
-_id_engine = importlib.import_module("polisyos.foundry.methods.catalog.causal.id_engine")
+@contextmanager
+def _synthetic_catalog_namespace() -> Iterator[None]:
+    """Isolate the synthetic catalog package used by these characterization imports."""
+
+    previous_modules = {
+        name: sys.modules[name]
+        for name in tuple(sys.modules)
+        if name == _CATALOG_MODULE or name.startswith(f"{_CATALOG_MODULE}.")
+    }
+    parent_module = sys.modules.get("polisyos.foundry.methods")
+    missing = object()
+    previous_catalog_attribute = (
+        getattr(parent_module, "catalog", missing) if parent_module is not None else missing
+    )
+
+    for name in previous_modules:
+        del sys.modules[name]
+
+    try:
+        catalog_pkg = types.ModuleType(_CATALOG_MODULE)
+        catalog_pkg.__path__ = [str(_CATALOG_ROOT)]  # type: ignore[attr-defined]
+        sys.modules[_CATALOG_MODULE] = catalog_pkg
+
+        causal_pkg = types.ModuleType(_CAUSAL_MODULE)
+        causal_pkg.__path__ = [str(_CAUSAL_ROOT)]  # type: ignore[attr-defined]
+        sys.modules[_CAUSAL_MODULE] = causal_pkg
+        yield
+    finally:
+        for name in tuple(sys.modules):
+            if name == _CATALOG_MODULE or name.startswith(f"{_CATALOG_MODULE}."):
+                del sys.modules[name]
+        sys.modules.update(previous_modules)
+
+        if parent_module is not None:
+            if previous_catalog_attribute is missing:
+                parent_module.__dict__.pop("catalog", None)
+            else:
+                parent_module.catalog = previous_catalog_attribute
+
+
+with _synthetic_catalog_namespace():
+    _id_contracts = importlib.import_module("polisyos.foundry.methods.catalog.causal._id_contracts")
+    _id_engine = importlib.import_module("polisyos.foundry.methods.catalog.causal.id_engine")
 _causal_graph = importlib.import_module("polisyos.ir.analytics.causal_graph")
 
 IdentificationStatus = _id_contracts.IdentificationStatus

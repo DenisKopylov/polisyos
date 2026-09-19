@@ -27,7 +27,7 @@ from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
 )
-from polisyos.ir.connectors import DataVersion, FetchRequest, VersionStrategy
+from polisyos.ir.connectors import ConnectorCapability, DataVersion, FetchRequest, VersionStrategy
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
@@ -35,6 +35,12 @@ if TYPE_CHECKING:
     from polisyos.fabric.ingestion import IngestionDependencies
 
 logger = get_logger(__name__)
+
+_VERSION_STRATEGY_BY_WATERMARK: dict[WatermarkType, VersionStrategy] = {
+    WatermarkType.TIMESTAMP: VersionStrategy.TIMESTAMP,
+    WatermarkType.ETAG: VersionStrategy.ETAG,
+    WatermarkType.REVISION: VersionStrategy.REVISION,
+}
 
 
 def _build_filesystem_store(cas_root: Path) -> FileSystemCAS:
@@ -170,28 +176,76 @@ class _CursorAwareRegistry:
         return getattr(self._registry, name)
 
 
-def _cursor_version(cursor: CursorState) -> DataVersion | None:
-    """Convert a compatible persisted cursor to the connector version contract."""
-    strategy_by_watermark = {
-        WatermarkType.TIMESTAMP: VersionStrategy.TIMESTAMP,
-        WatermarkType.ETAG: VersionStrategy.ETAG,
-        WatermarkType.REVISION: VersionStrategy.REVISION,
-    }
-    strategy = strategy_by_watermark.get(cursor.watermark_type)
-    if strategy is None or not cursor.watermark_value.strip():
+def _connector_supports_incremental(connector: Any) -> bool:
+    """Return whether a connector declares the incremental fetch capability."""
+    capabilities = getattr(connector, "capabilities", None)
+    if capabilities is None:
+        metadata = getattr(connector, "metadata", None)
+        capabilities = getattr(metadata, "capabilities", None)
+    if isinstance(capabilities, ConnectorCapability):
+        flags = capabilities
+    elif isinstance(capabilities, int):
+        try:
+            flags = ConnectorCapability(capabilities)
+        except ValueError:
+            return False
+    else:
+        return False
+    return bool(flags & ConnectorCapability.INCREMENTAL_FETCH)
+
+
+def _strategy_value_is_valid(strategy: VersionStrategy, value: str) -> bool:
+    """Validate the strategy-specific syntax of a persisted version value."""
+    normalized = value.strip()
+    if not normalized:
+        return False
+    if strategy is VersionStrategy.TIMESTAMP:
+        if normalized.endswith("Z"):
+            normalized = f"{normalized[:-1]}+00:00"
+        try:
+            parsed = datetime.fromisoformat(normalized)
+        except ValueError:
+            return False
+        return parsed.tzinfo is not None and parsed.utcoffset() is not None
+    if strategy is VersionStrategy.REVISION:
+        return normalized.isdigit()
+    return True
+
+
+def _admit_incremental_version(
+    *,
+    connector: Any,
+    strategy: VersionStrategy,
+    value: str,
+    timestamp: datetime,
+) -> DataVersion | None:
+    """Admit one source version only when capability and value contracts hold."""
+    if not _connector_supports_incremental(connector):
+        return None
+    normalized = value.strip()
+    if not _strategy_value_is_valid(strategy, normalized):
         return None
     try:
         return DataVersion(
             strategy=strategy,
-            value=cursor.watermark_value,
-            timestamp=cursor.created_at,
+            value=normalized,
+            timestamp=timestamp,
         )
     except (TypeError, ValueError):
-        logger.warning(
-            "batch_incremental: ignoring incompatible cursor %s",
-            cursor.cursor_id,
-        )
         return None
+
+
+def _cursor_version(cursor: CursorState, connector: Any) -> DataVersion | None:
+    """Convert an admitted persisted cursor to the connector version contract."""
+    strategy = _VERSION_STRATEGY_BY_WATERMARK.get(cursor.watermark_type)
+    if strategy is None:
+        return None
+    return _admit_incremental_version(
+        connector=connector,
+        strategy=strategy,
+        value=cursor.watermark_value,
+        timestamp=cursor.created_at,
+    )
 
 
 def _cursor_aware_dependencies(
@@ -209,21 +263,86 @@ def _cursor_aware_dependencies(
     )
 
 
+def _resolve_dataset_connectors(
+    dependencies: IngestionDependencies | None,
+    datasets: list[tuple[str, str]],
+) -> dict[tuple[str, str], Any]:
+    """Resolve connector instances used by cursor capability admission."""
+    if dependencies is None:
+        return {}
+    resolved: dict[tuple[str, str], Any] = {}
+    for connector_id, dataset_id in datasets:
+        try:
+            resolved[(connector_id, dataset_id)] = dependencies.registry.get(connector_id)
+        except Exception as exc:
+            logger.warning(
+                "batch_incremental: capability metadata unavailable for %s:%s: %s",
+                connector_id,
+                dataset_id,
+                exc,
+            )
+    return resolved
+
+
 def _cursor_result_ref(value: Any) -> str | None:
     """Return an artifact id from a fetch or aggregate evidence reference."""
     artifact_id = getattr(value, "artifact_id", None)
     return str(artifact_id) if artifact_id is not None else None
 
 
+def _complete_source_boundary(
+    fetch_result: Any,
+    watermark_type: WatermarkType,
+) -> tuple[VersionStrategy, str, datetime] | None:
+    """Return a source-backed complete boundary, never a local fetch time."""
+    if bool(getattr(fetch_result, "has_more", False)):
+        return None
+    if getattr(fetch_result, "next_page_token", None) is not None:
+        return None
+
+    completeness = getattr(fetch_result, "completeness", None)
+    if completeness is not None:
+        try:
+            coverage = float(completeness)
+        except (TypeError, ValueError):
+            return None
+        if not math.isfinite(coverage) or coverage != 1.0:
+            return None
+    if getattr(fetch_result, "is_complete", True) is False:
+        return None
+
+    strategy = _VERSION_STRATEGY_BY_WATERMARK.get(watermark_type)
+    if strategy is None:
+        return None
+    if strategy is VersionStrategy.TIMESTAMP:
+        source_updated_at = getattr(fetch_result, "source_updated_at", None)
+        if not isinstance(source_updated_at, datetime):
+            return None
+        return strategy, source_updated_at.isoformat(), source_updated_at
+
+    version = getattr(fetch_result, "version", None)
+    if getattr(version, "strategy", None) is not strategy:
+        return None
+    value = getattr(version, "value", None)
+    timestamp = getattr(version, "timestamp", None)
+    if not isinstance(value, str) or not isinstance(timestamp, datetime):
+        return None
+    return strategy, value, timestamp
+
+
 def _save_confirmed_cursors(
     *,
     cursor_store: CursorStore,
+    connectors: dict[tuple[str, str], Any],
     datasets: list[tuple[str, str]],
     confirmed_results: dict[tuple[str, str], Any],
     result: Any,
 ) -> None:
-    """Persist cursors only for per-dataset fetch results observed at the sink."""
+    """Persist source cursors after complete results and evidence persistence."""
     from polisyos.fabric.data_plane.watermark import resolve_watermark_policy
+
+    if getattr(result, "evidence_bundle_ref", None) is None:
+        return
 
     manifest_datasets = set(datasets)
     for (connector_id, dataset_id), fetch_result in confirmed_results.items():
@@ -232,9 +351,19 @@ def _save_confirmed_cursors(
 
         connector_family = connector_id.split(".", 1)[0] if connector_id else ""
         policy = resolve_watermark_policy(connector_family)
-        watermark_value = policy.extract(fetch_result)
-        if watermark_value is None:
+        boundary = _complete_source_boundary(fetch_result, policy.watermark_type)
+        if boundary is None:
             continue
+        strategy, watermark_value, boundary_timestamp = boundary
+        admitted_version = _admit_incremental_version(
+            connector=connectors.get((connector_id, dataset_id)),
+            strategy=strategy,
+            value=watermark_value,
+            timestamp=boundary_timestamp,
+        )
+        if admitted_version is None:
+            continue
+        watermark_value = admitted_version.value
 
         created_at = getattr(fetch_result, "fetched_at", None)
         if not isinstance(created_at, datetime):
@@ -283,12 +412,22 @@ def run_batch_incremental(
     store = _build_filesystem_store(cas_root)
     cursor_store = CursorStore(store, index_root=cas_root)
 
+    effective_input_dependencies = ingestion_dependencies
+    if effective_input_dependencies is None:
+        from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+
+        effective_input_dependencies = resolve_ingestion_dependencies()
+
     datasets = _extract_datasets(connector_manifest)
+    dataset_connectors = _resolve_dataset_connectors(effective_input_dependencies, datasets)
     cursor_versions: dict[tuple[str, str], DataVersion] = {}
     for connector_id, dataset_id in datasets:
         cursor = cursor_store.find_latest_cursor(connector_id, dataset_id)
         if cursor is not None:
-            version = _cursor_version(cursor)
+            version = _cursor_version(
+                cursor,
+                dataset_connectors.get((connector_id, dataset_id)),
+            )
             if version is None:
                 continue
             cursor_versions[(connector_id, dataset_id)] = version
@@ -311,9 +450,9 @@ def run_batch_incremental(
         confirmed_results[(str(connector_id), str(dataset_id))] = fetch_result
 
     effective_dependencies = (
-        _cursor_aware_dependencies(ingestion_dependencies, cursor_versions)
+        _cursor_aware_dependencies(effective_input_dependencies, cursor_versions)
         if cursor_versions
-        else ingestion_dependencies
+        else effective_input_dependencies
     )
 
     # Run normal orchestrated ingestion
@@ -330,6 +469,7 @@ def run_batch_incremental(
 
     _save_confirmed_cursors(
         cursor_store=cursor_store,
+        connectors=dataset_connectors,
         datasets=datasets,
         confirmed_results=confirmed_results,
         result=result,

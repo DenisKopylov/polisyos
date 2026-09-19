@@ -72,6 +72,7 @@ class TestBatchIncremental:
                 license_name="open",
                 cas_root=cas_root,
                 produce_snapshot=False,
+                ingestion_dependencies=_supported_dependencies(),
             )
 
         assert result.datasets_fetched == 1
@@ -107,6 +108,7 @@ class TestBatchIncremental:
                 source="test",
                 license_name="open",
                 cas_root=cas_root,
+                ingestion_dependencies=_supported_dependencies(),
             )
 
         assert result.cursor_ref is not None
@@ -168,6 +170,7 @@ class TestBatchIncremental:
             ),
         ):
             from polisyos.fabric.data_plane.modes import run_batch_incremental
+            dependencies = _supported_dependencies()
 
             # First run
             run_batch_incremental(
@@ -175,6 +178,7 @@ class TestBatchIncremental:
                 source="test",
                 license_name="open",
                 cas_root=cas_root,
+                ingestion_dependencies=dependencies,
             )
             cursor_store = CursorStore(store)
             first_cursor = cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
@@ -191,6 +195,7 @@ class TestBatchIncremental:
                 source="test",
                 license_name="open",
                 cas_root=cas_root,
+                ingestion_dependencies=dependencies,
             )
 
             second_cursor = cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
@@ -219,6 +224,10 @@ class TestBatchIncremental:
             observed_requests: list[FetchRequest] = []
 
             class _Connector:
+                capabilities = (
+                    ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH
+                )
+
                 def __init__(self, observed_requests: list[FetchRequest]) -> None:
                     self._observed_requests = observed_requests
 
@@ -299,6 +308,7 @@ class TestBatchIncremental:
                 license_name="open",
                 cas_root=cas_root,
                 produce_snapshot=False,
+                ingestion_dependencies=_supported_dependencies(),
             )
 
         cursor_store = CursorStore(store)
@@ -721,6 +731,14 @@ def _test_dependencies(connector: object) -> IngestionDependencies:
         registry=_Registry(),
         tracer=SimpleNamespace(),
         metrics=SimpleNamespace(),
+    )
+
+
+def _supported_dependencies() -> IngestionDependencies:
+    return _test_dependencies(
+        SimpleNamespace(
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH
+        )
     )
 
 

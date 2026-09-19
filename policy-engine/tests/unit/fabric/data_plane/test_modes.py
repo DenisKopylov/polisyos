@@ -6,6 +6,8 @@ import asyncio
 from types import SimpleNamespace
 from typing import Any
 
+import pytest
+
 
 def _fake_evidence_ref() -> SimpleNamespace:
     return SimpleNamespace(artifact_id=SimpleNamespace(hex="evidence-ref"))
@@ -147,6 +149,60 @@ def test_run_replay_mode_uses_shared_blocking_bridge(
 
     assert blocking_calls == ["_fake_run_connectors_ingestion"]
     assert result.mode_effective == "replay"
+
+
+def test_run_replay_mode_does_not_fallback_to_live_after_fixture_failure(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    """A missing/corrupt replay fixture must not invoke ordinary ingestion."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+
+    async def _fail_replay_ingestion(
+        func: Any,
+        /,
+        *args: Any,
+        timeout_seconds: float | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        del func, args, timeout_seconds, kwargs
+        raise RuntimeError("replay fixture missing")
+
+    live_calls: list[bool] = []
+
+    def _live_delegate(**kwargs: Any) -> Any:
+        del kwargs
+        live_calls.append(True)
+        raise AssertionError("ordinary ingestion must not run in replay mode")
+
+    monkeypatch.setattr(modes_mod, "run_blocking_async", _fail_replay_ingestion)
+    monkeypatch.setattr(
+        "polisyos.fabric.connectors.testing.simulator.APISimulator",
+        _NoopSimulator,
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.data_plane.replay_store.ReplayStore",
+        _ReplayStoreStub,
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+        _live_delegate,
+    )
+
+    with pytest.raises(RuntimeError, match="replay fixture missing"):
+        modes_mod.run_replay_mode(
+            connector_manifest={
+                "datasets": [
+                    {"connector_id": "test.integration_mock", "dataset_id": "events"},
+                ],
+            },
+            source="test",
+            license_name="MIT",
+            cas_root=tmp_path / ".polisyos",
+            replay_ref="sha256:" + ("0" * 64),
+        )
+
+    assert live_calls == []
 
 
 def test_run_streaming_windowed_legacy_path_uses_async_store_adapter(

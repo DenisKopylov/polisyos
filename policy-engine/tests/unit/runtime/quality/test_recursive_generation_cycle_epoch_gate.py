@@ -1094,6 +1094,101 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
     assert http_subject_ids == direct_subject_ids
 
 
+@pytest.mark.asyncio
+async def test_http_recursive_route_carries_one_cycle_context_without_manual_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """HTTP → recursion → N6 must retain one content-bound substrate envelope."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _CgfGenerationPort,
+        _budget,
+        _lane0_cycle_context,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+
+    problem, substrate_context = _lane0_cycle_context()
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+
+    class _NeverCalledVerifier:
+        def require_admission(self, *_args, **_kwargs):
+            raise AssertionError("ordinary HTTP test unexpectedly called EvalSafety verifier")
+
+    async def compile_problem(**kwargs):
+        del kwargs
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+
+    class _ContextFixtureN4Port(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="fixture-model")
+            self._delegate = _CgfGenerationPort()
+
+        async def __call__(self, problem, *, cycle_index):
+            return await self._delegate(problem, cycle_index=cycle_index)
+
+    recursive_budget = RecursiveCycleBudget(
+        max_depth=0,
+        max_nodes=1,
+        min_cycles_per_leaf=1,
+        max_cycles_per_leaf=1,
+    )
+    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+        raw_request=problem.nl_provenance.raw_request,
+        context={},
+        model_name="fixture-model",
+        compiler_gateway=object(),  # type: ignore[arg-type]
+        budget_state=_budget(),
+        recursive_budget=recursive_budget,
+        root_evaluation_context=None,
+        eval_safety_verifier=_NeverCalledVerifier(),
+        cycle_substrate_context=substrate_context,
+        root_n4_generation_port=_ContextFixtureN4Port(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    )
+
+    assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
+    assert compiled.recursive_run.root_design_problem_ref == substrate_context.design_problem_ref
+
+    foreign_problem = problem.model_copy(
+        update={"design_problem_id": "foreign_http_recursive_problem"}
+    )
+
+    async def compile_foreign(**kwargs):
+        del kwargs
+        return foreign_problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_foreign,
+    )
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=foreign_problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=recursive_budget,
+            root_evaluation_context=None,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            cycle_substrate_context=substrate_context,
+            root_n4_generation_port=_ContextFixtureN4Port(),
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+    assert getattr(exc_info.value, "code", None) == "cycle_substrate_design_problem_mismatch"
+
+
 def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     git_paths, filesystem_paths = _production_python_paths(repo_root)

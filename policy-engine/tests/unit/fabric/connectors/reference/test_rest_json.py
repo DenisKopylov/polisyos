@@ -10,8 +10,9 @@ import asyncio
 import json
 from datetime import UTC, datetime
 
-import polisyos.fabric.connectors.reference.rest_json as rest_json_module
 import pytest
+
+import polisyos.fabric.connectors.reference.rest_json as rest_json_module
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     FetchRequest,

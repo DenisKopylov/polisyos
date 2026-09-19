@@ -24,6 +24,11 @@ agent-sim tooling.
 - [compile/api.py](compile/api.py) for the public `compile()` contract and
   failure semantics.
 
+- [compile/randomization.py](compile/randomization.py) for the canonical
+  reproducible randomization and treasury-plan owner; the retained
+  [mechanisms/treasury.py](mechanisms/treasury.py) path is a direct
+  compatibility facade for existing callers.
+
 - [execute/api.py](execute/api.py) for `execute()`, input bindings, and replay
   behavior.
 

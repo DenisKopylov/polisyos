@@ -9,6 +9,13 @@ by domain family and registered into the shared `MethodRegistry`.
 - **Used by:** Foundry method execution, Scientist orchestration, registry bootstraps
 - Keeps domain-specific implementations in one place while preserving flat public imports.
 
+## Where to Start
+
+- [mechanism/families.py](mechanism/families.py) is the canonical owner for
+  mechanism-family specifications and catalog lookup; the retained
+  [../../mechanisms/design.py](../../mechanisms/design.py) path is a direct
+  compatibility facade for existing callers.
+
 ## Key Concepts
 
 - **Domain families** - causal, econometrics, optimization, simulation, survey, ml, and more.

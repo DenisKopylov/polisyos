@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import builtins
+
 import numpy as np
+import pytest
 from polisyos.scientist.methods.backtesting.cv import (
     forward_chaining_splits,
     run_forward_chaining_cv,
@@ -29,8 +32,61 @@ class TestForwardChainingSplits:
         splits = forward_chaining_splits(3, min_train_size=2, step_size=1)
         assert len(splits) == 1
 
+    @pytest.mark.parametrize("step_size", [0, -1])
+    def test_non_positive_step_is_rejected_before_loop(self, monkeypatch, step_size):
+        def forbidden_range(*args):
+            raise AssertionError("invalid step entered fold materialization")
+
+        monkeypatch.setattr(builtins, "range", forbidden_range)
+
+        with pytest.raises(ValueError, match="step_size"):
+            forward_chaining_splits(
+                1000,
+                min_train_size=2,
+                step_size=step_size,
+                max_folds=3,
+            )
+
 
 class TestRunForwardChainingCV:
+    def test_max_folds_limits_preparation_before_cv_evaluator(self, monkeypatch):
+        real_range = builtins.range
+        materialized_items = 0
+
+        def bounded_range(*args):
+            nonlocal materialized_items
+            requested = real_range(*args)
+            materialized_items += len(requested)
+            if materialized_items > 1504:
+                raise AssertionError("discarded folds were materialized")
+            return requested
+
+        monkeypatch.setattr(builtins, "range", bounded_range)
+        data = np.arange(1000, dtype=float)
+        observed_shapes = []
+
+        def evaluator(train, test):
+            observed_shapes.append((len(train), len(test)))
+            return {"test_size": float(len(test))}
+
+        result = run_forward_chaining_cv(
+            data,
+            evaluator,
+            min_train_size=2,
+            step_size=1,
+            max_folds=3,
+        )
+
+        assert [(len(fold.train_indices), fold.test_indices) for fold in result.folds] == [
+            (2, [2]),
+            (500, [500]),
+            (999, [999]),
+        ]
+        assert sum(
+            len(fold.train_indices) + len(fold.test_indices) for fold in result.folds
+        ) == 1504
+        assert observed_shapes == [(2, 1), (500, 1), (999, 1)]
+
     def test_basic_cv(self):
         data = np.arange(20, dtype=float)
 

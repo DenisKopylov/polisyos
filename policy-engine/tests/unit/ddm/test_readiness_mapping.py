@@ -9,6 +9,7 @@ import pytest
 from polisyos.ddm.detectors import FeatureContract, adapt_shift_event, evaluate_data_quality
 from polisyos.ddm.integration import (
     AffectedSlice,
+    DataQualitySignal,
     MetricDirection,
     MonitoringWindow,
     PerformanceDegradationEvent,
@@ -150,3 +151,36 @@ def test_hard_data_quality_failure_maps_to_r0() -> None:
     assert quality.hard_failure is True
     assert readiness.readiness_state == ReadinessState.R0
     assert readiness.promotion_allowed is False
+
+
+def test_unavailable_observation_feed_is_not_an_observed_empty_window() -> None:
+    """Unknown observation authority must fail closed while an observed empty window may pass."""
+
+    timestamp = datetime(2026, 4, 26, tzinfo=UTC)
+    observed_empty = map_readiness(
+        model_id="model",
+        model_version="v1",
+        shift_events=[],
+        timestamp=timestamp,
+    )
+    unavailable_feed = map_readiness(
+        model_id="model",
+        model_version="v1",
+        shift_events=[],
+        data_quality_signals=[
+            DataQualitySignal(
+                signal_id="observation-feed-unavailable",
+                timestamp=timestamp,
+                model_id="model",
+                model_version="v1",
+                risk_score=0.0,
+                violations=["observation_window_unavailable"],
+            )
+        ],
+        timestamp=timestamp,
+    )
+
+    assert observed_empty.readiness_state == ReadinessState.R4
+    assert observed_empty.promotion_allowed is True
+    assert unavailable_feed.readiness_state is not ReadinessState.R4
+    assert unavailable_feed.promotion_allowed is False

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from polisyos.ddm.calibration import (
     FpTarget,
     OnlineFDRController,
@@ -71,6 +73,54 @@ def test_stationary_holdout_certificate_passes_when_no_false_alerts() -> None:
     assert audit.pass_ is True
     assert audit.empirical_fp_upper_95 <= 0.05
     assert status.valid is True
+
+
+@pytest.mark.parametrize(
+    ("now", "observed_triggers", "expected_valid", "expected_reasons"),
+    [
+        (datetime(2026, 4, 10, tzinfo=UTC), [], True, []),
+        (
+            datetime(2026, 5, 2, tzinfo=UTC),
+            [],
+            False,
+            ["calibration_expired"],
+        ),
+        (
+            datetime(2026, 4, 10, tzinfo=UTC),
+            ["model_version_change"],
+            False,
+            ["model_version_change"],
+        ),
+        (datetime(2026, 4, 10, tzinfo=UTC), ["unrelated_trigger"], True, []),
+    ],
+)
+def test_calibration_validity_binds_effective_time_and_observed_triggers(
+    now: datetime,
+    observed_triggers: list[str],
+    expected_valid: bool,
+    expected_reasons: list[str],
+) -> None:
+    """The existing validity owner must remain the sole expiry/trigger authority."""
+
+    calibration_streams = [[0.10, 0.12, 0.11, 0.13] for _ in range(100)]
+    holdout_streams = [[0.05, 0.07, 0.08, 0.09] for _ in range(100)]
+    report = calibrate_detector(
+        detector_id="input_mmd_global_v3",
+        stationarity_regime=_regime(),
+        fp_target=FpTarget(horizon="30d", alpha=0.05, ert=10000),
+        calibration_streams=calibration_streams,
+        holdout_streams=holdout_streams,
+    )
+
+    status = check_calibration_validity(
+        calibration_id="calib-1",
+        report=report,
+        now=now,
+        observed_invalidation_triggers=observed_triggers,
+    )
+
+    assert status.valid is expected_valid
+    assert status.reasons == expected_reasons
 
 
 def test_moving_block_bootstrap_is_reproducible_and_preserves_length() -> None:

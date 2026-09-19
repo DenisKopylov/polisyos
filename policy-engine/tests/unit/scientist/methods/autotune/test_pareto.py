@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,

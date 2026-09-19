@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from importlib import import_module
 from typing import TYPE_CHECKING
 
@@ -23,6 +22,8 @@ from polisyos.ddm.contracts.events import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from polisyos.ddm.integration.model_registry import (
         ModelRegistryReadinessRecord,
         RegistryGateDecision,

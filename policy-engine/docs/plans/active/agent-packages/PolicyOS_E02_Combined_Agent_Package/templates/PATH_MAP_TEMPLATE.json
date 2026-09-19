@@ -1,0 +1,322 @@
+{
+  "template_only": true,
+  "moves": [
+    {
+      "id": "MOVE-01",
+      "owner_bundle": "FRY-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "FRY-03",
+        "JIT-01",
+        "RES-04",
+        "CAL-05"
+      ]
+    },
+    {
+      "id": "MOVE-02",
+      "owner_bundle": "FRY-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "SEL-01",
+        "CMP-01"
+      ]
+    },
+    {
+      "id": "MOVE-03",
+      "owner_bundle": "FRY-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "RES-04"
+      ]
+    },
+    {
+      "id": "MOVE-04",
+      "owner_bundle": "FRY-03",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "ECO-01",
+        "PLG-03",
+        "CAL-05"
+      ]
+    },
+    {
+      "id": "MOVE-05",
+      "owner_bundle": "CTL-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "CTL-03",
+        "SRV-01",
+        "SRV-03",
+        "FUN-01",
+        "CTL-02"
+      ]
+    },
+    {
+      "id": "MOVE-06",
+      "owner_bundle": "SRV-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "SRV-03",
+        "FUN-01",
+        "FUN-02",
+        "OPT-04"
+      ]
+    },
+    {
+      "id": "MOVE-07",
+      "owner_bundle": "UDF-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "OBS-01",
+        "UDF-02",
+        "OBS-02",
+        "UDF-04"
+      ]
+    },
+    {
+      "id": "MOVE-08",
+      "owner_bundle": "OBS-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "UDF-02",
+        "OBS-02",
+        "CAL-01"
+      ]
+    },
+    {
+      "id": "MOVE-09",
+      "owner_bundle": "UDF-02",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "OBS-02",
+        "UDF-05"
+      ]
+    },
+    {
+      "id": "MOVE-10",
+      "owner_bundle": "DDM-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "DDM-02"
+      ]
+    },
+    {
+      "id": "MOVE-11",
+      "owner_bundle": "CAN-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "CAS-01",
+        "CAS-02",
+        "CAS-03",
+        "WIRE-01",
+        "RES-01",
+        "STA-02"
+      ]
+    },
+    {
+      "id": "MOVE-12",
+      "owner_bundle": "SCL-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "SCL-03",
+        "LLM-01",
+        "LLM-02"
+      ]
+    },
+    {
+      "id": "MOVE-13",
+      "owner_bundle": "MIG-02",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "REP-01",
+        "RES-01",
+        "RES-04"
+      ]
+    },
+    {
+      "id": "MOVE-14",
+      "owner_bundle": "MIG-04",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "MIG-05",
+        "CAS-02"
+      ]
+    },
+    {
+      "id": "MOVE-15",
+      "owner_bundle": "MIG-05",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "MIG-01",
+        "MIG-04"
+      ]
+    },
+    {
+      "id": "MOVE-16",
+      "owner_bundle": "EMB-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "EMB-02",
+        "EMB-03",
+        "DFI-03",
+        "TRN-02"
+      ]
+    },
+    {
+      "id": "MOVE-17",
+      "owner_bundle": "PCL-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "BKT-01",
+        "BKT-02",
+        "BKT-03",
+        "FRC-02"
+      ]
+    },
+    {
+      "id": "MOVE-18",
+      "owner_bundle": "REP-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "RES-01",
+        "RES-02",
+        "RES-04",
+        "CAS-02"
+      ]
+    },
+    {
+      "id": "MOVE-19",
+      "owner_bundle": "UDF-04",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "UDF-01",
+        "UDF-02"
+      ]
+    },
+    {
+      "id": "MOVE-20",
+      "owner_bundle": "ECO-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "PLG-03",
+        "CAL-05"
+      ]
+    },
+    {
+      "id": "MOVE-21",
+      "owner_bundle": "LEX-01",
+      "status": "proposed_not_applied",
+      "actual_source_paths": [],
+      "actual_target_paths": [],
+      "accepted_commit": null,
+      "consumer_redirects": [],
+      "retained_aliases": [],
+      "revalidation_required": [
+        "HYG-02"
+      ]
+    }
+  ]
+}

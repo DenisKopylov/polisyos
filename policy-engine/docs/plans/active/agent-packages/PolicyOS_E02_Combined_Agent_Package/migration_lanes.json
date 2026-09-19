@@ -1,0 +1,225 @@
+[
+  {
+    "id": "LANE-01",
+    "title": "Пользовательский цикл и явное N7 требование",
+    "bundles": [
+      "CYC-01",
+      "REQ-01",
+      "CYC-03",
+      "ACQ-01",
+      "CYC-04",
+      "CYC-02",
+      "CYC-05",
+      "SIM-01",
+      "SIM-02",
+      "SIM-03",
+      "SEL-01"
+    ],
+    "sequence": "REQ-01 → ACQ-01; CYC-03 → ACQ-01. Остальной цикл идёт по собственным prerequisites, не ждёт общего завершения legacy.",
+    "rationale": "B12 и уточнённая LA-046 делят реальный N7 handoff. Уже работающие typed gap/explicit specs не заменяются новым lexical planner."
+  },
+  {
+    "id": "LANE-02",
+    "title": "Search state → adapters → actual autotune consumer",
+    "bundles": [
+      "CTL-01",
+      "CTL-03",
+      "SRV-01",
+      "SRV-03",
+      "CTL-02",
+      "STP-01",
+      "OPT-01",
+      "OPT-02",
+      "OPT-03",
+      "OPT-04",
+      "FUN-01",
+      "FUN-02",
+      "FUN-03",
+      "TRN-01",
+      "TRN-02",
+      "TRN-03"
+    ],
+    "sequence": "CTL-01 → CTL-03 → SRV-01 → SRV-03. OPT/RNG/funnel пакеты поставляют исправленные contracts; совместная приёмка не требует одинакового старого ошибочного результата.",
+    "rationale": "LA-014/015 и B118–127 не создают две реализации исправленного loop. В том же цикле планируется native cutover, не cleanup после всех B."
+  },
+  {
+    "id": "LANE-03",
+    "title": "Empirical scope, calibration и S10 — без смешения ролей",
+    "bundles": [
+      "EMP-01",
+      "FRC-01",
+      "PCL-01",
+      "FRC-02",
+      "BKT-01",
+      "BKT-02",
+      "BKT-03",
+      "BKT-04"
+    ],
+    "sequence": "B32+LA-051 в FRC-01; затем FRC-02 после PCL-01/EMP-01. LA-052/053 в одном test/owner пакете; backtesting не переносится целиком.",
+    "rationale": "Одна временная правка не создаёт calibration evidence. Nominal CI, observed coverage, Foundry fit и DDM FP имеют разные предметы."
+  },
+  {
+    "id": "LANE-04",
+    "title": "Compile/runtime владельцы, baseline-модели и executable plans",
+    "bundles": [
+      "FRY-01",
+      "FRY-03",
+      "ECO-01",
+      "PLG-01",
+      "PLG-02",
+      "PLG-03",
+      "CMP-01",
+      "CMP-02",
+      "CMP-03",
+      "JIT-01",
+      "RES-04",
+      "CAL-05"
+    ],
+    "sequence": "FRY-01 → FRY-03 → ECO-01; PLG-02 → PLG-03. CMP/JIT правятся независимо, но после принятого move читают актуальный path map.",
+    "rationale": "Randomization/catalog/layout переезжают с consumers. Baseline laws не меняются в relocation, а новые критерии и настоящий trainer не появляются из переименования."
+  },
+  {
+    "id": "LANE-05",
+    "title": "Causal shared helpers, wrappers и model/query",
+    "bundles": [
+      "GRF-01",
+      "GRF-02",
+      "GRF-03",
+      "API-01",
+      "CAU-01",
+      "CAU-02",
+      "CAU-03",
+      "CAU-04",
+      "CAU-05",
+      "SCM-01",
+      "SCM-02",
+      "SCM-03",
+      "FIT-01"
+    ],
+    "sequence": "GRF-01 включает только три пустых sibling .py вместе с примитивами B216/217. CAU-01 metadata-detachment → общие estimator fixes → CAU-05 dedicated cutover.",
+    "rationale": "Dedicated DiD ещё использует те же numerical helpers. Полезные одноимённые causal packages защищены; facade migration не свидетельствует математической корректности."
+  },
+  {
+    "id": "LANE-06",
+    "title": "Состояние, deadlines, replay, канон и persisted migrations",
+    "bundles": [
+      "STA-01",
+      "STA-02",
+      "EXE-01",
+      "EXE-02",
+      "RES-01",
+      "RES-02",
+      "RES-03",
+      "RUN-01",
+      "RUN-02",
+      "RUN-03",
+      "DUR-01",
+      "DUR-02",
+      "WIRE-01",
+      "CAS-01",
+      "CAS-02",
+      "CAS-03",
+      "REP-01",
+      "CAN-01",
+      "MIG-01",
+      "MIG-02",
+      "MIG-04",
+      "MIG-05"
+    ],
+    "sequence": "RUN-01 сначала exact TypeVar cleanup, затем deadline/context fix отдельным commit. MIG-01 единый CLI/Trinity; MIG-02/MIG-04 исправляют его разные режимы. CAN/WIRE не сливаются.",
+    "rationale": "LA-057 затрагивает тот же async_tools, что B14/40/69/95. Replay alias не равно checkpoint format. Strict canon и runtime Decimal transport имеют разные обязательства."
+  },
+  {
+    "id": "LANE-07",
+    "title": "Ukraine builders: перенос helpers сразу с ремонтом наблюдений",
+    "bundles": [
+      "UDF-01",
+      "OBS-01",
+      "UDF-02",
+      "OBS-02",
+      "UDF-04",
+      "UDF-05",
+      "FED-01",
+      "FED-02",
+      "CAL-01"
+    ],
+    "sequence": "UDF-01 contracts/D4 → OBS-01 observation-time+B146 → UDF-02 IO/bindings → OBS-02 B147. UDF-04/05 независимы при свободных write leases.",
+    "rationale": "LA-031 не отделяется от B146/147: period и iterator исправляются в согласованных новых владельцах. D4 остаётся producer handoff, не calibration admission."
+  },
+  {
+    "id": "LANE-08",
+    "title": "Catalog ingestion, generation-bound embeddings и resume",
+    "bundles": [
+      "DFK-02",
+      "DFI-01",
+      "DFI-02",
+      "EMB-01",
+      "EMB-02",
+      "EMB-03",
+      "DFI-03",
+      "ING-01",
+      "ING-02",
+      "ING-03",
+      "NET-01",
+      "NET-02"
+    ],
+    "sequence": "DFI-01 → DFI-02 для broadcast; EMB-01 → EMB-02 → EMB-03/DFI-03 для index generation/reuse. Соседние B ingestion/network сохраняют свои owners.",
+    "rationale": "LA-038–042 соединяют existing Fabric acquisition, batch transformation, общий publisher и reader; их нельзя объединить в один новый transport или считать B134 той же индексной реализацией."
+  },
+  {
+    "id": "LANE-09",
+    "title": "Scholar raw acquisition и snapshot handoff",
+    "bundles": [
+      "SCL-01",
+      "SCL-03",
+      "LLM-01",
+      "LLM-02"
+    ],
+    "sequence": "SCL-01 B17+LA-024 → SCL-03 LA-025. LLM cache/planning остаётся отдельным контрактом с общей snapshot приёмкой.",
+    "rationale": "Один HTTP helper, вызванный дважды, не устраняет потерю версии. Поиск, acquisition и enrichment сохраняют самостоятельную полезную работу."
+  },
+  {
+    "id": "LANE-10",
+    "title": "Калибровка модели и закон неопределённости",
+    "bundles": [
+      "CAL-02",
+      "CAL-03",
+      "CAL-04",
+      "CAL-06",
+      "UQS-01",
+      "UQP-01",
+      "UQP-02",
+      "UQP-03",
+      "DOE-01",
+      "DOE-02",
+      "DOE-03",
+      "STR-01"
+    ],
+    "sequence": "Существующие B цепочки; учесть upstream changes FRY/OBS и downstream PCL/FRC без объединения разных calibration APIs.",
+    "rationale": "Миграция baseline/inputs не должна вернуть потерянные fixed params, неправильно связанный covariance или фиктивные independent samples."
+  },
+  {
+    "id": "LANE-11",
+    "title": "Explainability и monitoring: явный profile и актуальный decision",
+    "bundles": [
+      "BER-01",
+      "DDM-01",
+      "DDM-02",
+      "LEX-01"
+    ],
+    "sequence": "DDM-01 → DDM-02; BERL и Lex независимы. Общая проверка ограничений, но нет общего нового authority engine.",
+    "rationale": "LA-034/036 — structural/algorithm identity; LA-054/055 — report application/precedence. R2 override и handwritten schema channel guards защищены."
+  },
+  {
+    "id": "LANE-12",
+    "title": "Точные retirement и generated client поставка",
+    "bundles": [
+      "DFK-01",
+      "HYG-02",
+      "HYG-04",
+      "CLI-01"
+    ],
+    "sequence": "Готовые небольшие cleanup задачи выдаются между связанными fixes. Generated-family build и distribution объединяются в CP6; нет обязательной cleanup-фазы после B.",
+    "rationale": "D/C — конечная проверка конкретной функции/адреса, не разрешение удалять корни. Raw client удаляется лишь после scratch handoff и смены retaining tests/checker."
+  }
+]

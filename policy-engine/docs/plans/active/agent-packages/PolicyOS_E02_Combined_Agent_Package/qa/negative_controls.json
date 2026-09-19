@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "scope": "verifier negative controls only",
+  "cases": [
+    {
+      "case": "missing_B",
+      "detected": true,
+      "error": "B coverage has missing or duplicate assignments"
+    },
+    {
+      "case": "missing_LA",
+      "detected": true,
+      "error": "LA coverage incomplete"
+    },
+    {
+      "case": "missing_late_amendment",
+      "detected": true,
+      "error": "Late amendments missing"
+    },
+    {
+      "case": "dependency_cycle",
+      "detected": true,
+      "error": "Implementation dependency cycle"
+    },
+    {
+      "case": "source_changed",
+      "detected": true,
+      "error": "LA_r09 source integrity mismatch"
+    },
+    {
+      "case": "excess_parallel_tests",
+      "detected": true,
+      "error": "Mac resource limits changed"
+    },
+    {
+      "case": "DDM_schema_protection_removed",
+      "detected": true,
+      "error": "Protected LK coverage incomplete"
+    },
+    {
+      "case": "move_target_not_leased",
+      "detected": true,
+      "error": "MOVE-01 does not lease both move ends"
+    }
+  ],
+  "count": 8,
+  "PolicyOS_execution": false
+}

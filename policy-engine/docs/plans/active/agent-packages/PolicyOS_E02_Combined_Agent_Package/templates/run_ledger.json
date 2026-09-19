@@ -1,0 +1,1094 @@
+{
+  "template_only": true,
+  "plan_revision": "E02",
+  "integration_commit": null,
+  "imported_E01_evidence": [],
+  "bundles": {
+    "CYC-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "REQ-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CYC-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "ACQ-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CYC-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CYC-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CYC-05": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SIM-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SIM-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SIM-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SEL-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CTL-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CTL-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SRV-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SRV-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CTL-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "STP-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "OPT-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "OPT-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "OPT-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "OPT-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FUN-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FUN-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FUN-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "TRN-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "TRN-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "TRN-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "EMP-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FRC-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "PCL-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FRC-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "BKT-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "BKT-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "BKT-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "BKT-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FRY-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FRY-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "ECO-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "PLG-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "PLG-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "PLG-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CMP-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CMP-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CMP-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "JIT-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "RES-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAL-05": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "GRF-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "GRF-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "GRF-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "API-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAU-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAU-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAU-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAU-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAU-05": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SCM-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SCM-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SCM-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FIT-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "STA-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "STA-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "EXE-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "EXE-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "RES-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "RES-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "RES-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "RUN-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "RUN-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "RUN-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DUR-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DUR-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "WIRE-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAS-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAS-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAS-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "REP-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAN-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "MIG-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "MIG-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "MIG-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "MIG-05": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UDF-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "OBS-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UDF-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "OBS-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UDF-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UDF-05": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FED-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "FED-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAL-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DFK-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DFI-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DFI-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "EMB-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "EMB-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "EMB-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DFI-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "ING-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "ING-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "ING-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "NET-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "NET-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SCL-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "SCL-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "LLM-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "LLM-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAL-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAL-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAL-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CAL-06": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UQS-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UQP-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UQP-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "UQP-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DOE-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DOE-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DOE-03": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "STR-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "BER-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DDM-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DDM-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "LEX-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "DFK-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "HYG-02": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "HYG-04": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    },
+    "CLI-01": {
+      "status": "planned",
+      "base_commit": null,
+      "patch_commit": null,
+      "review": null
+    }
+  },
+  "B_outcomes": {
+    "B01": "planned",
+    "B02": "planned",
+    "B03": "planned",
+    "B09": "planned",
+    "B27": "planned",
+    "B28": "planned",
+    "B12": "planned",
+    "B10": "planned",
+    "B11": "planned",
+    "B04": "planned",
+    "B05": "planned",
+    "B08": "planned",
+    "B15": "planned",
+    "B29": "planned",
+    "B30": "planned",
+    "B06": "planned",
+    "B07": "planned",
+    "B18": "planned",
+    "B20": "planned",
+    "B22": "planned",
+    "B19": "planned",
+    "B21": "planned",
+    "B23": "planned",
+    "B25": "planned",
+    "B26": "planned",
+    "B34": "planned",
+    "B35": "planned",
+    "B36": "planned",
+    "B118": "planned",
+    "B119": "planned",
+    "B120": "planned",
+    "B121": "planned",
+    "B123": "planned",
+    "B124": "planned",
+    "B125": "planned",
+    "B126": "planned",
+    "B41": "planned",
+    "B122": "planned",
+    "B108": "planned",
+    "B109": "planned",
+    "B110": "planned",
+    "B111": "planned",
+    "B112": "planned",
+    "B113": "planned",
+    "B127": "planned",
+    "B114": "planned",
+    "B115": "planned",
+    "B116": "planned",
+    "B117": "planned",
+    "B156": "planned",
+    "B158": "planned",
+    "B159": "planned",
+    "B157": "planned",
+    "B160": "planned",
+    "B162": "planned",
+    "B165": "planned",
+    "B161": "planned",
+    "B163": "planned",
+    "B164": "planned",
+    "B128": "planned",
+    "B130": "planned",
+    "B131": "planned",
+    "B132": "planned",
+    "B129": "planned",
+    "B133": "planned",
+    "B134": "planned",
+    "B135": "planned",
+    "B136": "planned",
+    "B137": "planned",
+    "B16": "planned",
+    "B31": "planned",
+    "B33": "planned",
+    "B32": "planned",
+    "B166": "planned",
+    "B169": "planned",
+    "B170": "planned",
+    "B167": "planned",
+    "B168": "planned",
+    "B171": "planned",
+    "B172": "planned",
+    "B173": "planned",
+    "B174": "planned",
+    "B175": "planned",
+    "B42": "planned",
+    "B43": "planned",
+    "B44": "planned",
+    "B45": "planned",
+    "B46": "planned",
+    "B47": "planned",
+    "B48": "planned",
+    "B49": "planned",
+    "B50": "planned",
+    "B53": "planned",
+    "B74": "planned",
+    "B75": "planned",
+    "B76": "planned",
+    "B185": "planned",
+    "B216": "planned",
+    "B217": "planned",
+    "B219": "planned",
+    "B220": "planned",
+    "B214": "planned",
+    "B218": "planned",
+    "B204": "planned",
+    "B205": "planned",
+    "B206": "planned",
+    "B207": "planned",
+    "B208": "planned",
+    "B209": "planned",
+    "B210": "planned",
+    "B211": "planned",
+    "B212": "planned",
+    "B213": "planned",
+    "B221": "planned",
+    "B222": "planned",
+    "B215": "planned",
+    "B223": "planned",
+    "B224": "planned",
+    "B225": "planned",
+    "B54": "planned",
+    "B56": "planned",
+    "B57": "planned",
+    "B58": "planned",
+    "B59": "planned",
+    "B60": "planned",
+    "B61": "planned",
+    "B62": "planned",
+    "B51": "planned",
+    "B52": "planned",
+    "B55": "planned",
+    "B77": "planned",
+    "B63": "planned",
+    "B70": "planned",
+    "B71": "planned",
+    "B72": "planned",
+    "B73": "planned",
+    "B13": "planned",
+    "B14": "planned",
+    "B40": "planned",
+    "B69": "planned",
+    "B95": "planned",
+    "B24": "planned",
+    "B39": "planned",
+    "B96": "planned",
+    "B37": "planned",
+    "B38": "planned",
+    "B78": "planned",
+    "B94": "planned",
+    "B150": "planned",
+    "B151": "planned",
+    "B153": "planned",
+    "B148": "planned",
+    "B149": "planned",
+    "B152": "planned",
+    "B154": "planned",
+    "B155": "planned",
+    "B146": "planned",
+    "B147": "planned",
+    "B138": "planned",
+    "B140": "planned",
+    "B141": "planned",
+    "B145": "planned",
+    "B139": "planned",
+    "B142": "planned",
+    "B143": "planned",
+    "B144": "planned",
+    "B176": "planned",
+    "B177": "planned",
+    "B178": "planned",
+    "B79": "planned",
+    "B80": "planned",
+    "B88": "planned",
+    "B81": "planned",
+    "B82": "planned",
+    "B85": "planned",
+    "B83": "planned",
+    "B84": "planned",
+    "B86": "planned",
+    "B87": "planned",
+    "B89": "planned",
+    "B90": "planned",
+    "B91": "planned",
+    "B92": "planned",
+    "B93": "planned",
+    "B17": "planned",
+    "B64": "planned",
+    "B65": "planned",
+    "B66": "planned",
+    "B67": "planned",
+    "B68": "planned",
+    "B179": "planned",
+    "B180": "planned",
+    "B181": "planned",
+    "B182": "planned",
+    "B183": "planned",
+    "B195": "planned",
+    "B184": "planned",
+    "B196": "planned",
+    "B203": "planned",
+    "B197": "planned",
+    "B198": "planned",
+    "B199": "planned",
+    "B200": "planned",
+    "B201": "planned",
+    "B202": "planned",
+    "B186": "planned",
+    "B189": "planned",
+    "B190": "planned",
+    "B191": "planned",
+    "B187": "planned",
+    "B188": "planned",
+    "B192": "planned",
+    "B193": "planned",
+    "B194": "planned",
+    "B97": "planned",
+    "B98": "planned",
+    "B99": "planned",
+    "B100": "planned",
+    "B101": "planned",
+    "B102": "planned",
+    "B103": "planned",
+    "B104": "planned",
+    "B105": "planned",
+    "B106": "planned",
+    "B107": "planned"
+  },
+  "LA_outcomes": {
+    "LA-001": "planned",
+    "LA-002": "planned",
+    "LA-003": "planned",
+    "LA-004": "planned",
+    "LA-005": "planned",
+    "LA-006": "planned",
+    "LA-007": "planned",
+    "LA-008": "planned",
+    "LA-009": "planned",
+    "LA-010": "planned",
+    "LA-011": "planned",
+    "LA-012": "planned",
+    "LA-013": "planned",
+    "LA-014": "planned",
+    "LA-015": "planned",
+    "LA-016": "planned",
+    "LA-017": "planned",
+    "LA-018": "planned",
+    "LA-019": "planned",
+    "LA-020": "planned",
+    "LA-021": "planned",
+    "LA-022": "planned",
+    "LA-023": "planned",
+    "LA-024": "planned",
+    "LA-025": "planned",
+    "LA-026": "planned",
+    "LA-027": "planned",
+    "LA-028": "planned",
+    "LA-029": "planned",
+    "LA-030": "planned",
+    "LA-031": "planned",
+    "LA-032": "planned",
+    "LA-033": "planned",
+    "LA-034": "planned",
+    "LA-035": "planned",
+    "LA-036": "planned",
+    "LA-037": "planned",
+    "LA-038": "planned",
+    "LA-039": "planned",
+    "LA-040": "planned",
+    "LA-041": "planned",
+    "LA-042": "planned",
+    "LA-043": "planned",
+    "LA-044": "planned",
+    "LA-045": "planned",
+    "LA-046": "planned",
+    "LA-047": "planned",
+    "LA-048": "planned",
+    "LA-049": "planned",
+    "LA-050": "planned",
+    "LA-051": "planned",
+    "LA-052": "planned",
+    "LA-053": "planned",
+    "LA-054": "planned",
+    "LA-055": "planned",
+    "LA-056": "planned",
+    "LA-057": "planned"
+  },
+  "checkpoints": {
+    "CP1": "not_run",
+    "CP2": "not_run",
+    "CP3": "not_run",
+    "CP4": "not_run",
+    "CP5": "not_run",
+    "CP6": "not_run"
+  },
+  "resource_profile": {
+    "light_max_jobs": 2,
+    "native_max_jobs": 1,
+    "native_exclusive": true,
+    "checkpoint_max_jobs": 1,
+    "checkpoint_exclusive": true,
+    "routine_load_polling": false,
+    "parallel_installs": false,
+    "default_luna": 14,
+    "implementers": 9,
+    "reviewers": 3,
+    "integrators": 2,
+    "modes": {
+      "12": [
+        8,
+        2,
+        2
+      ],
+      "14": [
+        9,
+        3,
+        2
+      ],
+      "16": [
+        10,
+        4,
+        2
+      ]
+    }
+  }
+}

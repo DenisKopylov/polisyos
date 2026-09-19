@@ -1,0 +1,581 @@
+{
+  "LA-001": {
+    "required_bundles": [
+      "FRY-01"
+    ],
+    "closure_owner": "FRY-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-002": {
+    "required_bundles": [
+      "FRY-01"
+    ],
+    "closure_owner": "FRY-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-003": {
+    "required_bundles": [
+      "FRY-03"
+    ],
+    "closure_owner": "FRY-03",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-004": {
+    "required_bundles": [
+      "ECO-01"
+    ],
+    "closure_owner": "ECO-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-005": {
+    "required_bundles": [
+      "DFK-01"
+    ],
+    "closure_owner": "DFK-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  },
+  "LA-006": {
+    "required_bundles": [
+      "DFK-01"
+    ],
+    "closure_owner": "DFK-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-007": {
+    "required_bundles": [
+      "GRF-01"
+    ],
+    "closure_owner": "GRF-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  },
+  "LA-008": {
+    "required_bundles": [
+      "HYG-02"
+    ],
+    "closure_owner": "HYG-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  },
+  "LA-009": {
+    "required_bundles": [
+      "HYG-02"
+    ],
+    "closure_owner": "HYG-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-010": {
+    "required_bundles": [
+      "MIG-01"
+    ],
+    "closure_owner": "MIG-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-011": {
+    "required_bundles": [
+      "HYG-04"
+    ],
+    "closure_owner": "HYG-04",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-012": {
+    "required_bundles": [
+      "HYG-04"
+    ],
+    "closure_owner": "HYG-04",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-013": {
+    "required_bundles": [
+      "HYG-04"
+    ],
+    "closure_owner": "HYG-04",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  },
+  "LA-014": {
+    "required_bundles": [
+      "SRV-01"
+    ],
+    "closure_owner": "SRV-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-015": {
+    "required_bundles": [
+      "CTL-01",
+      "SRV-03"
+    ],
+    "closure_owner": "SRV-03",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-016": {
+    "required_bundles": [
+      "CAU-01",
+      "CAU-05"
+    ],
+    "closure_owner": "CAU-05",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-017": {
+    "required_bundles": [
+      "LEX-01"
+    ],
+    "closure_owner": "LEX-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-018": {
+    "required_bundles": [
+      "HYG-02"
+    ],
+    "closure_owner": "HYG-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-019": {
+    "required_bundles": [
+      "GRF-01"
+    ],
+    "closure_owner": "GRF-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  },
+  "LA-020": {
+    "required_bundles": [
+      "API-01"
+    ],
+    "closure_owner": "API-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-021": {
+    "required_bundles": [
+      "CAN-01"
+    ],
+    "closure_owner": "CAN-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-022": {
+    "required_bundles": [
+      "PLG-01"
+    ],
+    "closure_owner": "PLG-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-023": {
+    "required_bundles": [
+      "PLG-02",
+      "PLG-03"
+    ],
+    "closure_owner": "PLG-03",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-024": {
+    "required_bundles": [
+      "SCL-01"
+    ],
+    "closure_owner": "SCL-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-025": {
+    "required_bundles": [
+      "SCL-03"
+    ],
+    "closure_owner": "SCL-03",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-026": {
+    "required_bundles": [
+      "DFK-01"
+    ],
+    "closure_owner": "DFK-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  },
+  "LA-027": {
+    "required_bundles": [
+      "DFK-01"
+    ],
+    "closure_owner": "DFK-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-028": {
+    "required_bundles": [
+      "DFK-02"
+    ],
+    "closure_owner": "DFK-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-029": {
+    "required_bundles": [
+      "UDF-04"
+    ],
+    "closure_owner": "UDF-04",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-030": {
+    "required_bundles": [
+      "UDF-01"
+    ],
+    "closure_owner": "UDF-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-031": {
+    "required_bundles": [
+      "OBS-01",
+      "UDF-01",
+      "UDF-02"
+    ],
+    "closure_owner": "UDF-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-032": {
+    "required_bundles": [
+      "UDF-05"
+    ],
+    "closure_owner": "UDF-05",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-033": {
+    "required_bundles": [
+      "REP-01"
+    ],
+    "closure_owner": "REP-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-034": {
+    "required_bundles": [
+      "BER-01"
+    ],
+    "closure_owner": "BER-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-035": {
+    "required_bundles": [
+      "ECO-01"
+    ],
+    "closure_owner": "ECO-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-036": {
+    "required_bundles": [
+      "BER-01"
+    ],
+    "closure_owner": "BER-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-037": {
+    "required_bundles": [
+      "FRY-01"
+    ],
+    "closure_owner": "FRY-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-038": {
+    "required_bundles": [
+      "DFI-01",
+      "DFI-02"
+    ],
+    "closure_owner": "DFI-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-039": {
+    "required_bundles": [
+      "EMB-01",
+      "EMB-02"
+    ],
+    "closure_owner": "EMB-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-040": {
+    "required_bundles": [
+      "EMB-03"
+    ],
+    "closure_owner": "EMB-03",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-041": {
+    "required_bundles": [
+      "DFI-03"
+    ],
+    "closure_owner": "DFI-03",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-042": {
+    "required_bundles": [
+      "EMB-03"
+    ],
+    "closure_owner": "EMB-03",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-043": {
+    "required_bundles": [
+      "CLI-01"
+    ],
+    "closure_owner": "CLI-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-044": {
+    "required_bundles": [
+      "CLI-01"
+    ],
+    "closure_owner": "CLI-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-045": {
+    "required_bundles": [
+      "REQ-01"
+    ],
+    "closure_owner": "REQ-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  },
+  "LA-046": {
+    "required_bundles": [
+      "REQ-01",
+      "ACQ-01"
+    ],
+    "closure_owner": "ACQ-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-047": {
+    "required_bundles": [
+      "MIG-05"
+    ],
+    "closure_owner": "MIG-05",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-048": {
+    "required_bundles": [
+      "MIG-02"
+    ],
+    "closure_owner": "MIG-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-049": {
+    "required_bundles": [
+      "MIG-01"
+    ],
+    "closure_owner": "MIG-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-050": {
+    "required_bundles": [
+      "MIG-04"
+    ],
+    "closure_owner": "MIG-04",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-051": {
+    "required_bundles": [
+      "FRC-01",
+      "FRC-02"
+    ],
+    "closure_owner": "FRC-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-052": {
+    "required_bundles": [
+      "PCL-01"
+    ],
+    "closure_owner": "PCL-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-053": {
+    "required_bundles": [
+      "PCL-01"
+    ],
+    "closure_owner": "PCL-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "C"
+  },
+  "LA-054": {
+    "required_bundles": [
+      "DDM-02"
+    ],
+    "closure_owner": "DDM-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-055": {
+    "required_bundles": [
+      "DDM-02"
+    ],
+    "closure_owner": "DDM-02",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "M"
+  },
+  "LA-056": {
+    "required_bundles": [
+      "DDM-01"
+    ],
+    "closure_owner": "DDM-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "R"
+  },
+  "LA-057": {
+    "required_bundles": [
+      "RUN-01"
+    ],
+    "closure_owner": "RUN-01",
+    "source_kind": "legacy_decision",
+    "initial_status": "planned",
+    "close_rule": "Все назначенные этапы приняты в указанной области; незавершённый bridge/lifecycle/packaging остаётся отдельным явным остатком. Ни B-fix, ни relocation сами по себе не закрывают LA.",
+    "category": "D"
+  }
+}

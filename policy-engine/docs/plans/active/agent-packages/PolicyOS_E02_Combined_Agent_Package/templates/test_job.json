@@ -1,0 +1,16 @@
+{
+  "template_only": true,
+  "bundle_id": null,
+  "class": "L",
+  "command": null,
+  "cwd": null,
+  "exact_commit": null,
+  "import_owner_check": null,
+  "expected_scope": null,
+  "native_dependencies": [],
+  "isolated_output_root": null,
+  "completed": false,
+  "exit_code": null,
+  "log_path": null,
+  "note": "I1 admits globally: max2L OR1N/C exclusive; no per-agent pools or load-polling ritual."
+}

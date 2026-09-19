@@ -1,0 +1,456 @@
+{
+  "status": "proposed_not_applied",
+  "moves": [
+    {
+      "id": "MOVE-01",
+      "owner_bundle": "FRY-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/mechanisms/treasury.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/foundry/compile/randomization.py"
+      ],
+      "followers": [
+        "FRY-03",
+        "JIT-01",
+        "RES-04",
+        "CAL-05"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Root seed=0, salts, old serialized plans unchanged in relocation; replay profiles not rewritten.",
+      "target_status": {
+        "policy-engine/src/polisyos/foundry/compile/randomization.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-02",
+      "owner_bundle": "FRY-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/mechanisms/design.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py"
+      ],
+      "followers": [
+        "SEL-01",
+        "CMP-01"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Family specs remain distinct from executable methods; certify_* stays IR.",
+      "target_status": {
+        "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-03",
+      "owner_bundle": "FRY-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/layout.py",
+        "policy-engine/src/polisyos/foundry/methods/compiler/layout.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/ir/kernel/slots.py"
+      ],
+      "followers": [
+        "CMP-01",
+        "CMP-02",
+        "CMP-03",
+        "RES-04"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Existing target; remove intermediate hops only per support policy; exact object identity.",
+      "target_status": {
+        "policy-engine/src/polisyos/ir/kernel/slots.py": "existing_in_audit_not_currently_reverified"
+      }
+    },
+    {
+      "id": "MOVE-04",
+      "owner_bundle": "FRY-03",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py",
+        "policy-engine/src/polisyos/foundry/mechanisms/labor.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+        "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py"
+      ],
+      "followers": [
+        "ECO-01",
+        "PLG-03",
+        "CAL-05"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Equivalent numeric relocation; runtime class paths and catalog identity updated once.",
+      "target_status": {
+        "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py": "proposed_destination_not_created",
+        "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-05",
+      "owner_bundle": "CTL-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py"
+      ],
+      "followers": [
+        "CTL-03",
+        "SRV-01",
+        "SRV-03",
+        "FUN-01",
+        "CTL-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Partial extraction, not deletion of controller; fixes migrate with the state-owner.",
+      "target_status": {
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-06",
+      "owner_bundle": "SRV-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/adapters.py"
+      ],
+      "followers": [
+        "SRV-03",
+        "FUN-01",
+        "FUN-02",
+        "OPT-04"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "DTO stays contracts, concrete adapters move; tell calls existing state transition.",
+      "target_status": {
+        "policy-engine/src/polisyos/scientist/methods/search/adapters.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-07",
+      "owner_bundle": "UDF-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/calibration.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/contracts.py"
+      ],
+      "followers": [
+        "OBS-01",
+        "UDF-02",
+        "OBS-02",
+        "UDF-04"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "D4 payload/filename/stage/schema/purpose denials preserved; common only partially extracted.",
+      "target_status": {
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py": "proposed_destination_not_created",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/contracts.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-08",
+      "owner_bundle": "OBS-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py"
+      ],
+      "followers": [
+        "UDF-02",
+        "OBS-02",
+        "CAL-01"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Period helpers move before B146 behavioral correction; old bad dates not golden truth.",
+      "target_status": {
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-09",
+      "owner_bundle": "UDF-02",
+      "source_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py"
+      ],
+      "followers": [
+        "OBS-02",
+        "UDF-05"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "IO transport can reuse atomic_text while previous formatter bytes preserved; iterator B147 targets resolved owner.",
+      "target_status": {
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py": "proposed_destination_not_created",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-10",
+      "owner_bundle": "DDM-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/ddm/integration/events.py",
+        "policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/ddm/contracts/events.py",
+        "policy-engine/src/polisyos/ddm/contracts/metric_budget.py"
+      ],
+      "followers": [
+        "DDM-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Single class definitions, lazy root required; behavior/schema changes are later commits.",
+      "target_status": {
+        "policy-engine/src/polisyos/ddm/contracts/events.py": "proposed_destination_not_created",
+        "policy-engine/src/polisyos/ddm/contracts/metric_budget.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-11",
+      "owner_bundle": "CAN-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "policy-engine/src/polisyos/core/canon/hashing.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/common/canonical.py",
+        "policy-engine/src/polisyos/common/hashing.py"
+      ],
+      "followers": [
+        "CAS-01",
+        "CAS-02",
+        "CAS-03",
+        "WIRE-01",
+        "RES-01",
+        "STA-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Common neutral primitives, explicit Core/IR profiles; runtime JSON not merged.",
+      "target_status": {
+        "policy-engine/src/polisyos/common/canonical.py": "proposed_destination_not_created",
+        "policy-engine/src/polisyos/common/hashing.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-12",
+      "owner_bundle": "SCL-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+        "policy-engine/src/polisyos/scholar/search/fetcher.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/scholar/discover/transport.py"
+      ],
+      "followers": [
+        "SCL-03",
+        "LLM-01",
+        "LLM-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Both result adapters preserved, raw bytes/redirect policies do not become snippet-only.",
+      "target_status": {
+        "policy-engine/src/polisyos/scholar/discover/transport.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-13",
+      "owner_bundle": "MIG-02",
+      "source_paths": [
+        "policy-engine/tools/ops_runners/migrations/migrate.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/runtime/manifest_migrations.py"
+      ],
+      "followers": [
+        "REP-01",
+        "RES-01",
+        "RES-04"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Only Runtime path conversion, not complete CLI; actual source/destination object binding.",
+      "target_status": {
+        "policy-engine/src/polisyos/runtime/manifest_migrations.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-14",
+      "owner_bundle": "MIG-04",
+      "source_paths": [
+        "policy-engine/src/polisyos/common/migrations/manifest.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/fabric/identity/migrations.py"
+      ],
+      "followers": [
+        "MIG-05",
+        "CAS-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Format mapping prerequisite; composition registers, Common must not import Fabric back.",
+      "target_status": {
+        "policy-engine/src/polisyos/fabric/identity/migrations.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-15",
+      "owner_bundle": "MIG-05",
+      "source_paths": [
+        "policy-engine/src/polisyos/common/migrations/base.py",
+        "policy-engine/src/polisyos/ir/migrations/base.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/common/migrations/_engine.py"
+      ],
+      "followers": [
+        "MIG-01",
+        "MIG-04"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "One linear executor with explicit observable profiles; IR negotiation and Data Forge branching remain.",
+      "target_status": {
+        "policy-engine/src/polisyos/common/migrations/_engine.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-16",
+      "owner_bundle": "EMB-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py"
+      ],
+      "followers": [
+        "EMB-02",
+        "EMB-03",
+        "DFI-03",
+        "TRN-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Only common encode/index/publish mechanics. TRN vector-memory is a separate store, related control not same implementation.",
+      "target_status": {
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-17",
+      "owner_bundle": "PCL-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/calibration/curve.py",
+        "policy-engine/tests/unit/calibration/test_continuous.py"
+      ],
+      "followers": [
+        "BKT-01",
+        "BKT-02",
+        "BKT-03",
+        "FRC-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Existing canonical implementation; migrate numerical tests without doubling, intentional empty-contract fix separately.",
+      "target_status": {
+        "policy-engine/src/polisyos/calibration/curve.py": "existing_in_audit_not_currently_reverified",
+        "policy-engine/tests/unit/calibration/test_continuous.py": "existing_in_audit_not_currently_reverified"
+      }
+    },
+    {
+      "id": "MOVE-18",
+      "owner_bundle": "REP-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/runtime/replay.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/scientist/replay/deterministic.py"
+      ],
+      "followers": [
+        "RES-01",
+        "RES-02",
+        "RES-04",
+        "CAS-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Existing target; root lazy API scope kept; runtime/quality/replay.py untouched.",
+      "target_status": {
+        "policy-engine/src/polisyos/scientist/replay/deterministic.py": "existing_in_audit_not_currently_reverified"
+      }
+    },
+    {
+      "id": "MOVE-19",
+      "owner_bundle": "UDF-04",
+      "source_paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/server.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/tools/ops_runners/ukraine_data/server_bootstrap.py",
+        "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py"
+      ],
+      "followers": [
+        "UDF-01",
+        "UDF-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Ops owns provision/test launch, domain keeps requirements/result contract; server-only policy unchanged.",
+      "target_status": {
+        "policy-engine/tools/ops_runners/ukraine_data/server_bootstrap.py": "proposed_destination_not_created",
+        "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-20",
+      "owner_bundle": "ECO-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/foundry/methods/_internal/loss.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py"
+      ],
+      "followers": [
+        "PLG-03",
+        "CAL-05"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Baseline GlobalState formula remains distinct from EconomicState objectives.",
+      "target_status": {
+        "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py": "proposed_destination_not_created"
+      }
+    },
+    {
+      "id": "MOVE-21",
+      "owner_bundle": "LEX-01",
+      "source_paths": [
+        "policy-engine/src/polisyos/lex/simulator/engine.py",
+        "policy-engine/src/polisyos/lex/simulator/diff.py",
+        "policy-engine/src/polisyos/lex/simulator/report.py"
+      ],
+      "proposed_target_paths": [
+        "policy-engine/src/polisyos/lex/normpack/diff.py",
+        "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py"
+      ],
+      "followers": [
+        "HYG-02"
+      ],
+      "initial_status": "proposed_not_applied",
+      "note": "Subject comparison and heuristic topics separated after reading full consumers; no unsupported whole-package move.",
+      "target_status": {
+        "policy-engine/src/polisyos/lex/normpack/diff.py": "proposed_destination_not_created",
+        "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py": "proposed_destination_not_created"
+      }
+    }
+  ]
+}

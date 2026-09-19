@@ -1,0 +1,34 @@
+[
+  {
+    "id": "LA-010",
+    "heading": "## LA-010 — уточнение r02",
+    "start_line": 1154,
+    "amendment_id": "AM01",
+    "end_line": 1157,
+    "sha256": "0b392df40386fa717d9a0b03265858aad388a09cf12e78977d14d2455ae45b65"
+  },
+  {
+    "id": "LA-004",
+    "heading": "## LA-004 — уточнение r02",
+    "start_line": 1158,
+    "amendment_id": "AM02",
+    "end_line": 1161,
+    "sha256": "2c5c027d2143cd9435326a3c44f14103e8c07d3b614ed00b0741ae349377bc95"
+  },
+  {
+    "id": "LA-045",
+    "heading": "## LA-045 — дополнительное private-определение, без новой карточки",
+    "start_line": 3434,
+    "amendment_id": "AM03",
+    "end_line": 3447,
+    "sha256": "3db79240854b1c2940de8a926ce8e21a7818fcf42f23da35c13059112d02eaf4"
+  },
+  {
+    "id": "LA-046",
+    "heading": "## LA-046 — N7 handoff теперь прочитан до непосредственного downstream-вызова",
+    "start_line": 3818,
+    "amendment_id": "AM04",
+    "end_line": 3842,
+    "sha256": "203efa72ef790e5aaa6454d69a5ce89a2e20d88e499fe21cfb10c029a4cd22bb"
+  }
+]

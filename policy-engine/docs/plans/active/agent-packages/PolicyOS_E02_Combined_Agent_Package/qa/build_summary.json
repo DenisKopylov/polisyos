@@ -1,0 +1,31 @@
+{
+  "status": "STRUCTURE_VERIFIED",
+  "counts": {
+    "bundles": 127,
+    "old_bundle_ids_retained": 84,
+    "new_bundles": 43,
+    "B_findings": 225,
+    "LA_decisions": 57,
+    "source_records_B_plus_LA": 282,
+    "S_directions": 8,
+    "legacy_controls": 36,
+    "implementation_edges": 95,
+    "write_conflict_pairs": 151,
+    "read_contract_impact_edges": 171,
+    "relocation_maps": 21,
+    "coordination_lanes": 12,
+    "source_amendments": 4,
+    "B_reassigned": 6,
+    "legacy_categories": {
+      "R": 10,
+      "M": 27,
+      "D": 8,
+      "C": 12
+    }
+  },
+  "source_sha256": {
+    "B_r19": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "LA_r09": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+  },
+  "verification_scope": "Launch plan structure and preservation only; no PolicyOS execution"
+}

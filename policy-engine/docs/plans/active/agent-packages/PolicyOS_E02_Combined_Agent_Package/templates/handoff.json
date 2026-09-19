@@ -1,0 +1,29 @@
+{
+  "template_only": true,
+  "bundle_id": null,
+  "base_commit": null,
+  "patch_commit": null,
+  "B_outcomes": [],
+  "LA_phase_outcomes": [],
+  "equivalent_change": [],
+  "intended_behavior_delta": [],
+  "actual_write_paths": [],
+  "actual_path_map_changes": [],
+  "commands": [
+    {
+      "command": null,
+      "cwd": null,
+      "commit": null,
+      "class": null,
+      "exit_code": null,
+      "log_path": null,
+      "native_scope": null
+    }
+  ],
+  "reviewer": null,
+  "review_outcome": null,
+  "deferred_native": [],
+  "compatibility_pending": [],
+  "bridge_pending": [],
+  "activation_remaining": []
+}

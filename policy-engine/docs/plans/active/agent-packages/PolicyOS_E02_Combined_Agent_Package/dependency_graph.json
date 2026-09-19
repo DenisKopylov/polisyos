@@ -1,0 +1,3388 @@
+{
+  "nodes": [
+    "CYC-01",
+    "REQ-01",
+    "CYC-03",
+    "ACQ-01",
+    "CYC-04",
+    "CYC-02",
+    "CYC-05",
+    "SIM-01",
+    "SIM-02",
+    "SIM-03",
+    "SEL-01",
+    "CTL-01",
+    "CTL-03",
+    "SRV-01",
+    "SRV-03",
+    "CTL-02",
+    "STP-01",
+    "OPT-01",
+    "OPT-02",
+    "OPT-03",
+    "OPT-04",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03",
+    "TRN-01",
+    "TRN-02",
+    "TRN-03",
+    "EMP-01",
+    "FRC-01",
+    "PCL-01",
+    "FRC-02",
+    "BKT-01",
+    "BKT-02",
+    "BKT-03",
+    "BKT-04",
+    "FRY-01",
+    "FRY-03",
+    "ECO-01",
+    "PLG-01",
+    "PLG-02",
+    "PLG-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "JIT-01",
+    "RES-04",
+    "CAL-05",
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "API-01",
+    "CAU-01",
+    "CAU-02",
+    "CAU-03",
+    "CAU-04",
+    "CAU-05",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03",
+    "FIT-01",
+    "STA-01",
+    "STA-02",
+    "EXE-01",
+    "EXE-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "DUR-01",
+    "DUR-02",
+    "WIRE-01",
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "REP-01",
+    "CAN-01",
+    "MIG-01",
+    "MIG-02",
+    "MIG-04",
+    "MIG-05",
+    "UDF-01",
+    "OBS-01",
+    "UDF-02",
+    "OBS-02",
+    "UDF-04",
+    "UDF-05",
+    "FED-01",
+    "FED-02",
+    "CAL-01",
+    "DFK-02",
+    "DFI-01",
+    "DFI-02",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03",
+    "DFI-03",
+    "ING-01",
+    "ING-02",
+    "ING-03",
+    "NET-01",
+    "NET-02",
+    "SCL-01",
+    "SCL-03",
+    "LLM-01",
+    "LLM-02",
+    "CAL-02",
+    "CAL-03",
+    "CAL-04",
+    "CAL-06",
+    "UQS-01",
+    "UQP-01",
+    "UQP-02",
+    "UQP-03",
+    "DOE-01",
+    "DOE-02",
+    "DOE-03",
+    "STR-01",
+    "BER-01",
+    "DDM-01",
+    "DDM-02",
+    "LEX-01",
+    "DFK-01",
+    "HYG-02",
+    "HYG-04",
+    "CLI-01"
+  ],
+  "edges": [
+    {
+      "from": "CYC-01",
+      "to": "CYC-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "REQ-01",
+      "to": "ACQ-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-03",
+      "to": "ACQ-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-03",
+      "to": "CYC-04",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-01",
+      "to": "CYC-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "SIM-01",
+      "to": "CYC-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "SIM-02",
+      "to": "CYC-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "SIM-03",
+      "to": "CYC-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-02",
+      "to": "CYC-05",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-03",
+      "to": "CYC-05",
+      "kind": "implementation"
+    },
+    {
+      "from": "SIM-02",
+      "to": "SIM-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "OPT-01",
+      "to": "CTL-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "CTL-01",
+      "to": "CTL-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CTL-03",
+      "to": "SRV-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "SRV-01",
+      "to": "SRV-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CTL-02",
+      "to": "SRV-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "STP-01",
+      "to": "SRV-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "OPT-02",
+      "to": "CTL-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "OPT-01",
+      "to": "OPT-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "OPT-02",
+      "to": "OPT-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "OPT-01",
+      "to": "OPT-04",
+      "kind": "implementation"
+    },
+    {
+      "from": "OPT-02",
+      "to": "OPT-04",
+      "kind": "implementation"
+    },
+    {
+      "from": "CTL-03",
+      "to": "FUN-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "FUN-01",
+      "to": "FUN-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "FUN-02",
+      "to": "FUN-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "OPT-02",
+      "to": "TRN-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-01",
+      "to": "EMP-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-01",
+      "to": "FRC-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "FRC-01",
+      "to": "FRC-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "PCL-01",
+      "to": "FRC-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "EMP-01",
+      "to": "FRC-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "BKT-01",
+      "to": "BKT-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "BKT-02",
+      "to": "BKT-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "FRY-01",
+      "to": "FRY-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "FRY-03",
+      "to": "ECO-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "PLG-02",
+      "to": "PLG-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CMP-01",
+      "to": "CMP-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CMP-02",
+      "to": "CMP-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CMP-02",
+      "to": "RES-04",
+      "kind": "implementation"
+    },
+    {
+      "from": "GRF-01",
+      "to": "GRF-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "GRF-02",
+      "to": "GRF-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAU-01",
+      "to": "CAU-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAU-01",
+      "to": "CAU-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAU-01",
+      "to": "CAU-05",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAU-02",
+      "to": "CAU-05",
+      "kind": "implementation"
+    },
+    {
+      "from": "GRF-02",
+      "to": "SCM-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "SCM-01",
+      "to": "SCM-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "SCM-02",
+      "to": "SCM-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "GRF-01",
+      "to": "SCM-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "GRF-02",
+      "to": "SCM-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "STA-01",
+      "to": "STA-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "STA-01",
+      "to": "EXE-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "RUN-01",
+      "to": "EXE-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "RES-02",
+      "to": "EXE-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "RES-01",
+      "to": "EXE-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "STA-02",
+      "to": "RES-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "RES-02",
+      "to": "RES-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "STA-01",
+      "to": "RES-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CYC-02",
+      "to": "RES-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CMP-01",
+      "to": "RES-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "RUN-01",
+      "to": "RUN-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "STA-01",
+      "to": "RUN-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "RUN-01",
+      "to": "RUN-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "RUN-03",
+      "to": "DUR-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "RES-02",
+      "to": "DUR-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAS-01",
+      "to": "CAS-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAS-01",
+      "to": "CAS-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "MIG-01",
+      "to": "MIG-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "MIG-01",
+      "to": "MIG-04",
+      "kind": "implementation"
+    },
+    {
+      "from": "UDF-01",
+      "to": "OBS-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "UDF-01",
+      "to": "UDF-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "OBS-01",
+      "to": "UDF-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "UDF-02",
+      "to": "OBS-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "FED-01",
+      "to": "FED-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "DFI-01",
+      "to": "DFI-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "EMB-01",
+      "to": "EMB-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "EMB-02",
+      "to": "EMB-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "EMB-02",
+      "to": "DFI-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "ING-01",
+      "to": "ING-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "NET-01",
+      "to": "ING-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "ING-02",
+      "to": "ING-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "SCL-01",
+      "to": "SCL-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "LLM-01",
+      "to": "LLM-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAL-01",
+      "to": "CAL-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAL-02",
+      "to": "CAL-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAL-03",
+      "to": "CAL-04",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAL-04",
+      "to": "CAL-06",
+      "kind": "implementation"
+    },
+    {
+      "from": "UQP-02",
+      "to": "CAL-06",
+      "kind": "implementation"
+    },
+    {
+      "from": "UQP-02",
+      "to": "UQS-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "CAL-06",
+      "to": "UQS-01",
+      "kind": "implementation"
+    },
+    {
+      "from": "UQP-01",
+      "to": "UQP-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "UQP-02",
+      "to": "UQP-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "DOE-01",
+      "to": "DOE-02",
+      "kind": "implementation"
+    },
+    {
+      "from": "DOE-02",
+      "to": "DOE-03",
+      "kind": "implementation"
+    },
+    {
+      "from": "DDM-01",
+      "to": "DDM-02",
+      "kind": "implementation"
+    }
+  ],
+  "topological_order": [
+    "CYC-01",
+    "REQ-01",
+    "SIM-01",
+    "SIM-02",
+    "SEL-01",
+    "OPT-01",
+    "STP-01",
+    "TRN-02",
+    "TRN-03",
+    "PCL-01",
+    "BKT-01",
+    "BKT-04",
+    "FRY-01",
+    "PLG-01",
+    "PLG-02",
+    "CMP-01",
+    "JIT-01",
+    "CAL-05",
+    "GRF-01",
+    "API-01",
+    "CAU-01",
+    "CAU-04",
+    "FIT-01",
+    "STA-01",
+    "RUN-01",
+    "DUR-01",
+    "WIRE-01",
+    "CAS-01",
+    "REP-01",
+    "CAN-01",
+    "MIG-01",
+    "MIG-05",
+    "UDF-01",
+    "UDF-04",
+    "UDF-05",
+    "FED-01",
+    "CAL-01",
+    "DFK-02",
+    "DFI-01",
+    "EMB-01",
+    "ING-01",
+    "NET-01",
+    "NET-02",
+    "SCL-01",
+    "LLM-01",
+    "UQP-01",
+    "DOE-01",
+    "STR-01",
+    "BER-01",
+    "DDM-01",
+    "LEX-01",
+    "DFK-01",
+    "HYG-02",
+    "HYG-04",
+    "CLI-01",
+    "CYC-03",
+    "EMP-01",
+    "FRC-01",
+    "SIM-03",
+    "CTL-01",
+    "OPT-02",
+    "BKT-02",
+    "FRY-03",
+    "PLG-03",
+    "CMP-02",
+    "GRF-02",
+    "CAU-02",
+    "CAU-03",
+    "STA-02",
+    "RES-02",
+    "EXE-01",
+    "RUN-02",
+    "RUN-03",
+    "CAS-02",
+    "CAS-03",
+    "MIG-02",
+    "MIG-04",
+    "OBS-01",
+    "FED-02",
+    "CAL-02",
+    "DFI-02",
+    "EMB-02",
+    "ING-02",
+    "SCL-03",
+    "LLM-02",
+    "UQP-02",
+    "DOE-02",
+    "DDM-02",
+    "ACQ-01",
+    "CYC-04",
+    "FRC-02",
+    "CYC-02",
+    "CTL-03",
+    "CTL-02",
+    "OPT-03",
+    "OPT-04",
+    "TRN-01",
+    "BKT-03",
+    "ECO-01",
+    "CMP-03",
+    "RES-04",
+    "GRF-03",
+    "SCM-01",
+    "CAU-05",
+    "RES-01",
+    "DUR-02",
+    "UDF-02",
+    "CAL-03",
+    "EMB-03",
+    "DFI-03",
+    "ING-03",
+    "UQP-03",
+    "DOE-03",
+    "CYC-05",
+    "RES-03",
+    "SRV-01",
+    "FUN-01",
+    "SCM-02",
+    "EXE-02",
+    "OBS-02",
+    "CAL-04",
+    "SRV-03",
+    "FUN-02",
+    "SCM-03",
+    "CAL-06",
+    "FUN-03",
+    "UQS-01"
+  ],
+  "write_conflicts": [
+    {
+      "a": "CYC-01",
+      "b": "CYC-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "ACQ-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "CYC-05",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "SIM-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-01",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "ACQ-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "CYC-05",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "SIM-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-03",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "CYC-05",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "SIM-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ACQ-01",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-04",
+      "b": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-04",
+      "b": "CYC-05",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-04",
+      "b": "SIM-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-04",
+      "b": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-04",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-04",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-04",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-02",
+      "b": "CYC-05",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-02",
+      "b": "SIM-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-02",
+      "b": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-02",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-02",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-02",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-05",
+      "b": "SIM-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-05",
+      "b": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-05",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-05",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CYC-05",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SIM-01",
+      "b": "SIM-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SIM-01",
+      "b": "SIM-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SIM-01",
+      "b": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SIM-01",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SIM-01",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SIM-01",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SIM-02",
+      "b": "SIM-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-01",
+      "b": "CTL-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-01",
+      "b": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-01",
+      "b": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-01",
+      "b": "STP-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-03",
+      "b": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-03",
+      "b": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-03",
+      "b": "STP-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SRV-01",
+      "b": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SRV-03",
+      "b": "OPT-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SRV-03",
+      "b": "OPT-04",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-02",
+      "b": "OPT-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CTL-02",
+      "b": "OPT-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "OPT-01",
+      "b": "OPT-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "OPT-02",
+      "b": "OPT-04",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FUN-01",
+      "b": "FUN-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FUN-01",
+      "b": "FUN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FUN-02",
+      "b": "FUN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "TRN-01",
+      "b": "TRN-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EMP-01",
+      "b": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EMP-01",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EMP-01",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FRC-01",
+      "b": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FRC-01",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FRC-02",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "BKT-01",
+      "b": "BKT-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "BKT-01",
+      "b": "BKT-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "BKT-02",
+      "b": "BKT-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FRY-03",
+      "b": "ECO-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+        "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "PLG-02",
+      "b": "PLG-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/plugins/api.py",
+        "policy-engine/src/polisyos/foundry/plugins/cli.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CMP-01",
+      "b": "CMP-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CMP-01",
+      "b": "RES-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CMP-01",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CMP-02",
+      "b": "CMP-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CMP-02",
+      "b": "RES-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CMP-02",
+      "b": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "GRF-01",
+      "b": "GRF-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "GRF-01",
+      "b": "GRF-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "GRF-02",
+      "b": "GRF-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "GRF-03",
+      "b": "SCM-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "GRF-03",
+      "b": "SCM-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "GRF-03",
+      "b": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAU-01",
+      "b": "CAU-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAU-01",
+      "b": "CAU-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAU-01",
+      "b": "CAU-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAU-01",
+      "b": "CAU-05",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAU-02",
+      "b": "CAU-05",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SCM-01",
+      "b": "SCM-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SCM-01",
+      "b": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "SCM-02",
+      "b": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "STA-01",
+      "b": "STA-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "STA-01",
+      "b": "RES-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "STA-02",
+      "b": "RES-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EXE-01",
+      "b": "EXE-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EXE-01",
+      "b": "RES-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EXE-01",
+      "b": "RES-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EXE-02",
+      "b": "RES-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EXE-02",
+      "b": "RES-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "RES-01",
+      "b": "RES-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "RUN-01",
+      "b": "RUN-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "RUN-01",
+      "b": "RUN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "RUN-02",
+      "b": "RUN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "MIG-01",
+      "b": "MIG-02",
+      "paths": [
+        "policy-engine/tools/ops_runners/migrations/migrate.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "MIG-01",
+      "b": "MIG-04",
+      "paths": [
+        "policy-engine/tools/ops_runners/migrations/migrate.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "MIG-02",
+      "b": "MIG-04",
+      "paths": [
+        "policy-engine/ops/migrations/migration-contracts.toml",
+        "policy-engine/tools/ops_runners/migrations/migrate.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "UDF-01",
+      "b": "OBS-01",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "UDF-01",
+      "b": "UDF-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "OBS-01",
+      "b": "UDF-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "OBS-01",
+      "b": "OBS-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "UDF-02",
+      "b": "OBS-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "FED-01",
+      "b": "FED-02",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+        "policy-engine/src/polisyos/fabric/connectors/federation/types.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-01",
+      "b": "CAL-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/measurement.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-01",
+      "b": "CAL-06",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/calibration.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "DFI-01",
+      "b": "DFI-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "DFI-02",
+      "b": "EMB-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "DFI-02",
+      "b": "DFI-03",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EMB-01",
+      "b": "EMB-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EMB-01",
+      "b": "EMB-03",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EMB-02",
+      "b": "EMB-03",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/kernel/embeddings.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "EMB-02",
+      "b": "DFI-03",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ING-01",
+      "b": "ING-02",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ING-01",
+      "b": "ING-03",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/modes.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ING-02",
+      "b": "ING-03",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ING-02",
+      "b": "NET-01",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "ING-03",
+      "b": "NET-01",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "LLM-01",
+      "b": "LLM-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-02",
+      "b": "CAL-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-02",
+      "b": "CAL-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-02",
+      "b": "CAL-06",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-03",
+      "b": "CAL-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-03",
+      "b": "CAL-06",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-04",
+      "b": "CAL-06",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-06",
+      "b": "UQS-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "CAL-06",
+      "b": "UQP-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/covariance.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "UQP-01",
+      "b": "UQP-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "UQP-01",
+      "b": "UQP-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "UQP-02",
+      "b": "UQP-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "DOE-01",
+      "b": "DOE-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "DOE-02",
+      "b": "DOE-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py"
+      ],
+      "special_leases": []
+    },
+    {
+      "a": "DDM-01",
+      "b": "DDM-02",
+      "paths": [
+        "policy-engine/src/polisyos/ddm/calibration/audit.py",
+        "policy-engine/src/polisyos/ddm/contracts/events.py",
+        "policy-engine/src/polisyos/ddm/contracts/metric_budget.py",
+        "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+        "policy-engine/src/polisyos/ddm/integration/monitor.py",
+        "policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py"
+      ],
+      "special_leases": []
+    }
+  ],
+  "read_contract_impacts": [
+    {
+      "producer": "CYC-01",
+      "consumer": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-01",
+      "consumer": "CYC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-02",
+      "consumer": "CYC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-03",
+      "consumer": "CYC-01",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SEL-01",
+      "consumer": "CYC-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/selection/advisor.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "REQ-01",
+      "consumer": "ACQ-01",
+      "paths": [
+        "policy-engine/src/polisyos/data_requirement/compiler.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "HYG-04",
+      "consumer": "REQ-01",
+      "paths": [
+        "policy-engine/architecture/shims.toml"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CYC-03",
+      "consumer": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CYC-02",
+      "consumer": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CYC-05",
+      "consumer": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-01",
+      "consumer": "CYC-04",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-01",
+      "consumer": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-02",
+      "consumer": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-03",
+      "consumer": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "EMP-01",
+      "consumer": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/core/contracts/value_outer_set.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "CYC-02",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SIM-03",
+      "consumer": "SIM-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/coupling/estimation.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-01",
+      "consumer": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-01",
+      "consumer": "CTL-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-01",
+      "consumer": "STP-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-01",
+      "consumer": "TRN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-03",
+      "consumer": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-03",
+      "consumer": "CTL-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-02",
+      "consumer": "CTL-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/policy_design/objectives.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-03",
+      "consumer": "STP-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-03",
+      "consumer": "TRN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-03",
+      "consumer": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-01",
+      "consumer": "CTL-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-01",
+      "consumer": "STP-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-02",
+      "consumer": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-04",
+      "consumer": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-01",
+      "consumer": "FUN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "FUN-01",
+      "consumer": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-01",
+      "consumer": "FUN-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "FUN-02",
+      "consumer": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "FUN-03",
+      "consumer": "SRV-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-01",
+      "consumer": "TRN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-03",
+      "consumer": "CTL-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-02",
+      "consumer": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-03",
+      "consumer": "STP-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "STP-01",
+      "consumer": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-03",
+      "consumer": "OPT-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-03",
+      "consumer": "SRV-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SRV-03",
+      "consumer": "TRN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-02",
+      "consumer": "OPT-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CTL-02",
+      "consumer": "OPT-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-02",
+      "consumer": "OPT-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-01",
+      "consumer": "OPT-04",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-04",
+      "consumer": "OPT-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-01",
+      "consumer": "TRN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-01",
+      "consumer": "STR-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-02",
+      "consumer": "OPT-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-03",
+      "consumer": "OPT-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-02",
+      "consumer": "OPT-04",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "OPT-02",
+      "consumer": "TRN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "OPT-04",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "FUN-02",
+      "consumer": "FUN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "FUN-03",
+      "consumer": "FUN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stages.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "FUN-02",
+      "consumer": "FUN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "TRN-01",
+      "consumer": "TRN-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "TRN-01",
+      "consumer": "TRN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "TRN-02",
+      "consumer": "TRN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "TRN-02",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-02",
+      "consumer": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-03",
+      "consumer": "EMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "PCL-01",
+      "consumer": "FRC-01",
+      "paths": [
+        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "PCL-01",
+      "consumer": "FRC-02",
+      "paths": [
+        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "BKT-01",
+      "consumer": "BKT-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "BKT-02",
+      "consumer": "BKT-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/backtest.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "BKT-01",
+      "consumer": "BKT-04",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "BKT-02",
+      "consumer": "BKT-03",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/backtest.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "PLG-01",
+      "consumer": "PLG-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/plugins/core.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CMP-02",
+      "consumer": "CMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CMP-01",
+      "consumer": "CMP-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CMP-03",
+      "consumer": "CMP-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CMP-01",
+      "consumer": "RES-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CMP-02",
+      "consumer": "CMP-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CMP-03",
+      "consumer": "CMP-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/linker.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CMP-02",
+      "consumer": "RES-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/components/composer.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "JIT-01",
+      "consumer": "RES-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "RES-04",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-02",
+      "consumer": "CAL-05",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-03",
+      "consumer": "CAL-05",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-04",
+      "consumer": "CAL-05",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-06",
+      "consumer": "CAL-05",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/calibrator.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-02",
+      "consumer": "GRF-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-03",
+      "consumer": "GRF-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-01",
+      "consumer": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-03",
+      "consumer": "GRF-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-02",
+      "consumer": "SCM-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-02",
+      "consumer": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-03",
+      "consumer": "SCM-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SCM-02",
+      "consumer": "GRF-03",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "GRF-03",
+      "consumer": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+        "policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SCM-03",
+      "consumer": "GRF-03",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal_queries.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAU-01",
+      "consumer": "CAU-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAU-01",
+      "consumer": "CAU-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAU-04",
+      "consumer": "CAU-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAU-04",
+      "consumer": "CAU-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAU-04",
+      "consumer": "CAU-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQS-01",
+      "consumer": "CAU-04",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SCM-01",
+      "consumer": "SCM-02",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SCM-01",
+      "consumer": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQS-01",
+      "consumer": "SCM-01",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SCM-02",
+      "consumer": "SCM-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "STA-01",
+      "consumer": "EXE-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "STA-01",
+      "consumer": "EXE-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-01",
+      "consumer": "STA-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "STA-01",
+      "consumer": "RES-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-02",
+      "consumer": "STA-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "STA-01",
+      "consumer": "RUN-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "STA-02",
+      "consumer": "EXE-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-01",
+      "consumer": "EXE-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "EXE-01",
+      "consumer": "RUN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RUN-01",
+      "consumer": "EXE-01",
+      "paths": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-01",
+      "consumer": "EXE-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-02",
+      "consumer": "EXE-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "EXE-02",
+      "consumer": "RUN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-01",
+      "consumer": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-01",
+      "consumer": "RUN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-01",
+      "consumer": "DUR-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-02",
+      "consumer": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-02",
+      "consumer": "RUN-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RES-02",
+      "consumer": "DUR-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "RES-03",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RUN-01",
+      "consumer": "RUN-02",
+      "paths": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "RUN-01",
+      "consumer": "NET-01",
+      "paths": [
+        "policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "WIRE-01",
+      "consumer": "RUN-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "DUR-01",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/_atomic_write.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "LLM-01",
+      "consumer": "WIRE-01",
+      "paths": [
+        "policy-engine/src/polisyos/core/llm/response.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "CAS-02",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "CAS-03",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-03",
+      "consumer": "CAS-01",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "ING-02",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-01",
+      "consumer": "SCL-03",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAS-03",
+      "consumer": "CAS-02",
+      "paths": [
+        "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "MIG-02",
+      "consumer": "MIG-01",
+      "paths": [
+        "policy-engine/ops/migrations/migration-contracts.toml"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "MIG-04",
+      "consumer": "MIG-01",
+      "paths": [
+        "policy-engine/ops/migrations/migration-contracts.toml",
+        "policy-engine/src/polisyos/common/migrations/__init__.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "MIG-01",
+      "consumer": "MIG-05",
+      "paths": [
+        "policy-engine/src/polisyos/ir/migrations/policy_ir.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "MIG-04",
+      "consumer": "MIG-05",
+      "paths": [
+        "policy-engine/src/polisyos/common/migrations/manifest.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "MIG-05",
+      "consumer": "MIG-04",
+      "paths": [
+        "policy-engine/src/polisyos/common/migrations/base.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "FED-01",
+      "consumer": "FED-02",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-01",
+      "consumer": "CAL-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+        "policy-engine/src/polisyos/ir/analytics/calibration.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "DFK-02",
+      "consumer": "DFI-02",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "ING-01",
+      "consumer": "ING-03",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "ING-03",
+      "consumer": "ING-01",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "ING-02",
+      "consumer": "ING-03",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "ING-03",
+      "consumer": "ING-02",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "ING-03",
+      "consumer": "NET-01",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "NET-01",
+      "consumer": "NET-02",
+      "paths": [
+        "policy-engine/src/polisyos/fabric/connectors/pool.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "SCL-01",
+      "consumer": "SCL-03",
+      "paths": [
+        "policy-engine/src/polisyos/scholar/discover/transport.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "LLM-01",
+      "consumer": "LLM-02",
+      "paths": [
+        "policy-engine/src/polisyos/core/llm/traced_client.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-02",
+      "consumer": "CAL-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/loss.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-06",
+      "consumer": "CAL-02",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/calibration.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-03",
+      "consumer": "CAL-04",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/calibration/multi_start.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-06",
+      "consumer": "UQS-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/covariance.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQS-01",
+      "consumer": "CAL-06",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "CAL-06",
+      "consumer": "UQP-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/covariance.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQS-01",
+      "consumer": "UQP-02",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQP-02",
+      "consumer": "UQS-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/covariance.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQS-01",
+      "consumer": "UQP-03",
+      "paths": [
+        "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQP-02",
+      "consumer": "UQP-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/covariance.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQP-01",
+      "consumer": "UQP-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQP-03",
+      "consumer": "UQP-01",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/config.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQP-02",
+      "consumer": "UQP-03",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "UQP-03",
+      "consumer": "UQP-02",
+      "paths": [
+        "policy-engine/src/polisyos/foundry/uncertainty/config.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "DOE-01",
+      "consumer": "DOE-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "STR-01",
+      "consumer": "DOE-01",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/adversarial.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "DOE-02",
+      "consumer": "DOE-03",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "DOE-03",
+      "consumer": "DOE-02",
+      "paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    },
+    {
+      "producer": "DDM-01",
+      "consumer": "DDM-02",
+      "paths": [
+        "policy-engine/src/polisyos/ddm/integration/incident.py"
+      ],
+      "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
+    }
+  ],
+  "semantics": "Only implementation edges form DAG; conflicts are mutex, impact edges require targeted freshness checks."
+}

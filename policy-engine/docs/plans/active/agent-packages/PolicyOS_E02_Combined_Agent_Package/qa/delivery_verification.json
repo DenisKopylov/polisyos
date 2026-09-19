@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "extraction_replay": "PASS",
+  "negative_controls": 8,
+  "report": {
+    "status": "PASS",
+    "scope": "launch-kit integrity and plan structure only; not PolicyOS code or hardware tests",
+    "bundles": 127,
+    "B_unique": 225,
+    "LA_unique": 57,
+    "S_unique": 8,
+    "protected_controls": 36,
+    "late_amendments": 4,
+    "dependency_edges": 95,
+    "write_conflict_pairs": 151,
+    "initial_dispatch_conflict_free": true,
+    "source_partitions_complete": true,
+    "source_blocks_unchanged": true,
+    "relative_links_checked": 1251,
+    "checksums_checked": 184,
+    "native_PolicyOS_tests_run": false,
+    "current_head_verified": false
+  },
+  "scope": "Only launch-kit distribution; no code fixes, current HEAD check, native PolicyOS/CI, or user Mac benchmark."
+}

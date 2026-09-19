@@ -1,0 +1,290 @@
+{
+  "K01": {
+    "id": "K01",
+    "title": "polisyos.calibration и foundry/calibration",
+    "start_line": 600,
+    "end_line": 605,
+    "sha256": "438ca250a8fda884e4d3b24c08486faeb587cce60caa8e56677c2ee15a1c6a6f",
+    "active_id": "LK01"
+  },
+  "K02": {
+    "id": "K02",
+    "title": "foundry/data_plane и fabric/data_plane",
+    "start_line": 606,
+    "end_line": 611,
+    "sha256": "dc09945531f8b3e26deac75a1a872325e6a359d4055eaf43d8ba0606d8bb5301",
+    "active_id": "LK02"
+  },
+  "K03": {
+    "id": "K03",
+    "title": "schemas/abi_models.py",
+    "start_line": 612,
+    "end_line": 617,
+    "sha256": "7aacdfb68d1cd23efa166324ba676cd8013be07e9a892b1937d5f55a761e4243",
+    "active_id": "LK03"
+  },
+  "K04": {
+    "id": "K04",
+    "title": "fabric/numerics/finite.py",
+    "start_line": 618,
+    "end_line": 623,
+    "sha256": "06632232ae949516d759d6f1022a7d7e195a0bdb9d10448c50ae25717d908757",
+    "active_id": "LK04"
+  },
+  "K05": {
+    "id": "K05",
+    "title": "foundry/methods/catalog/causal/id_engine/",
+    "start_line": 624,
+    "end_line": 629,
+    "sha256": "172104bc9f48df74bac9a8658e4bddb94f68e3451a96399ce271cb2b005e7ea7",
+    "active_id": "LK05"
+  },
+  "K06": {
+    "id": "K06",
+    "title": "foundry/_registry.py и catalog/mechanism/runtime.py",
+    "start_line": 630,
+    "end_line": 636,
+    "sha256": "49fc2d5006fcbe222f51a54da2955c9e589a29a7481f6f841654b61aa22a3d81",
+    "active_id": "LK06"
+  },
+  "K07": {
+    "id": "K07",
+    "title": "Runtime JSON и строгий канон — разные контракты",
+    "start_line": 1162,
+    "end_line": 1165,
+    "sha256": "ac4c572d3b4056cde4338c2aa7b1a0b2a182da2f48b293f4e8bebe7265c36343",
+    "active_id": "LK07"
+  },
+  "K08": {
+    "id": "K08",
+    "title": "DomainPlugin не равен FoundryMethodPlugin",
+    "start_line": 1166,
+    "end_line": 1169,
+    "sha256": "16a38d7f32d3c21ff46626acab6597f8b73c15a2a5fb6fc9fdf84416b56aec47",
+    "active_id": "LK08"
+  },
+  "K09": {
+    "id": "K09",
+    "title": "Поиск, seed acquisition и enrichment не являются тремя копиями поиска",
+    "start_line": 1170,
+    "end_line": 1177,
+    "sha256": "45dea5d6e52b31e05e8864b704cce3ed9187c08274306db7f79f56fef47e2b08",
+    "active_id": "LK09"
+  },
+  "K10": {
+    "id": "K10",
+    "title": "Малый materialize.py выполняет настоящую функцию",
+    "start_line": 1718,
+    "end_line": 1721,
+    "sha256": "04bc25550952f114499d0d909d64e8afcdd056f3793d291b2c38640823ee2333",
+    "active_id": "LK10"
+  },
+  "K11": {
+    "id": "K11",
+    "title": "Academic shadow — не обязательно остаток, который пора выбросить",
+    "start_line": 1722,
+    "end_line": 1725,
+    "sha256": "6b097f6e5cc829d922a7529165ab250072b492d8c90e62dd14c4a5f14bdd5ed2",
+    "active_id": "LK11"
+  },
+  "K12": {
+    "id": "K12",
+    "title": "read_api содержит проверки, а не только forwarding",
+    "start_line": 1726,
+    "end_line": 1729,
+    "sha256": "9eb0b3728252197359aa6948aa57884e3e4dd6a5e39c431efa55a24d06863a76",
+    "active_id": "LK12"
+  },
+  "K13": {
+    "id": "K13",
+    "title": "BERL — не целиком legacy; раскрытый fallback может быть полезен",
+    "start_line": 2181,
+    "end_line": 2184,
+    "sha256": "f9742ee08a9e1796e189b5391568ae27f35fd8a516a9d3ec2bf27082acb50485",
+    "active_id": "LK13"
+  },
+  "K14": {
+    "id": "K14",
+    "title": "DDM monitoring и N11 confidence accounting не являются заменами",
+    "start_line": 2185,
+    "end_line": 2190,
+    "sha256": "23b4a8edfd41b66c58f73fe0b024f71ac19990fbed00562896949b1601782000",
+    "active_id": "LK14"
+  },
+  "K15": {
+    "id": "K15",
+    "title": "Старый RunManifest сохраняет самостоятельный on-disk контракт",
+    "start_line": 2191,
+    "end_line": 2194,
+    "sha256": "0772415031d7e81ffdce7f3ff2821ab5cd09f9831ffc0a8cd0a9a101d532a6a1",
+    "active_id": "LK15"
+  },
+  "K16": {
+    "id": "K16",
+    "title": "Runtime Reference Shell — отдельный diagnostic consumer, не прежний frontend redirect",
+    "start_line": 2195,
+    "end_line": 2200,
+    "sha256": "05a7d1b6fa2ea43af93e9718a98e9200482b4097f608bdf59b0bdc63cdf5d076",
+    "active_id": "LK16"
+  },
+  "K17": {
+    "id": "K17",
+    "title": "Явно публичный OPA facade не обязан исчезать вместе со всеми aliases",
+    "start_line": 2201,
+    "end_line": 2204,
+    "sha256": "08ddc8d22803d9c4aa5e5ec27ba7e686ef586a7d1f8bb09887da80e579c1148c",
+    "active_id": "LK17"
+  },
+  "K18": {
+    "id": "K18",
+    "title": "Корневой evidence — не доказанный дубль Scientist evidence",
+    "start_line": 2663,
+    "end_line": 2668,
+    "sha256": "afaaa9341ceeb3294b9a74d1854c4ad857d01e69406acb60c56386938a81ad69",
+    "active_id": "LK18"
+  },
+  "K19": {
+    "id": "K19",
+    "title": "Catalog ingestion уже переиспользует Fabric — не всякая дополнительная стадия является вторым acquisition",
+    "start_line": 2669,
+    "end_line": 2674,
+    "sha256": "96111d9bea8b6444f0c3c52a846c69de5afd7c032cb5e9d37a626364e5bf6acf",
+    "active_id": "LK19"
+  },
+  "K20": {
+    "id": "K20",
+    "title": "Content identity и контрольная сумма не являются сами по себе разрешением на reuse или closeout",
+    "start_line": 2675,
+    "end_line": 2680,
+    "sha256": "837be62412e266909431fb56569e9c6460a49ef6f7820716459246ec947871da",
+    "active_id": "LK20"
+  },
+  "K21": {
+    "id": "K21",
+    "title": "Полная generated-output freshness-проверка уже существует",
+    "start_line": 3071,
+    "end_line": 3076,
+    "sha256": "a598fc2892c6f90bceb2c03ef07edee06caf0f28b3d7264f83f625497b1b5703",
+    "active_id": "LK21"
+  },
+  "K22": {
+    "id": "K22",
+    "title": "Канонизатор и recursive normalizer не равны лишней копии клиента",
+    "start_line": 3077,
+    "end_line": 3080,
+    "sha256": "8320b1e56641aef29ef4bb6150fa07aaa786133e919344492f5b2016cb893e0f",
+    "active_id": "LK22"
+  },
+  "K23": {
+    "id": "K23",
+    "title": "Небольшой terminal styleguide и RuntimeMiddlewarePlugin — не мёртвые CLI/плагины",
+    "start_line": 3081,
+    "end_line": 3086,
+    "sha256": "c9d0afe6b728fcc5ad7743d47a514820725b124ce89e52e47054f88d610ed73b",
+    "active_id": "LK23"
+  },
+  "K24": {
+    "id": "K24",
+    "title": "Неиспользуемый extractor не делает неиспользуемыми исторические readers и resolver guards",
+    "start_line": 3087,
+    "end_line": 3090,
+    "sha256": "d4ad276e935df5a7e2b15879ea9f85d755d4e4163ab287da3fc022f12044eb8b",
+    "active_id": "LK24"
+  },
+  "K25": {
+    "id": "K25",
+    "title": "Data Forge graph migration не равен двум линейным runners",
+    "start_line": 3448,
+    "end_line": 3451,
+    "sha256": "7b02430b8f92f5e77f98e30ae3c616159430327a06b5a5aa7f2fd140aba952bc",
+    "active_id": "LK25"
+  },
+  "K26": {
+    "id": "K26",
+    "title": "Текущий Trinity loader действительно вызывает validator",
+    "start_line": 3452,
+    "end_line": 3455,
+    "sha256": "8e28a919f457b732a8f9ce7d214c371c08b0c877fd95e1ba2b255c256a27ae1d",
+    "active_id": "LK26"
+  },
+  "K27": {
+    "id": "K27",
+    "title": "Path containment и operational binding — полезные, но другие проверки",
+    "start_line": 3456,
+    "end_line": 3459,
+    "sha256": "19a6839bab29faefaf47e1e05f777960b48fb5e485a3e21aefe25cbc06e39272",
+    "active_id": "LK27"
+  },
+  "K28": {
+    "id": "K28",
+    "title": "Маленький manifest converter не является пустым placeholder",
+    "start_line": 3460,
+    "end_line": 3463,
+    "sha256": "20d1396d7e227e42644575266ac66975bf1721a9a120f9525dba9bc2bd1d0275",
+    "active_id": "LK28"
+  },
+  "K29": {
+    "id": "K29",
+    "title": "S10-запись, численная диагностика и production admission — разные уровни",
+    "start_line": 3843,
+    "end_line": 3846,
+    "sha256": "1df543172d9fb296a853aaac3c245e637e5434cad00d6badf0cbad66f8f62575",
+    "active_id": "LK29"
+  },
+  "K30": {
+    "id": "K30",
+    "title": "Shared calibration — работающий вычислительный владелец, но не готовая полная замена N8 calibration",
+    "start_line": 3847,
+    "end_line": 3850,
+    "sha256": "85e48d16fc01e7b7eca1f888341e28ed983ddab3bf08efe399016799a9551c04",
+    "active_id": "LK30"
+  },
+  "K31": {
+    "id": "K31",
+    "title": "N7 уже имеет реальные пути явного требования; fallback не означает, что весь acquisition устарел",
+    "start_line": 3851,
+    "end_line": 3854,
+    "sha256": "65bb5f3586785992b36fe4f14debcd69caf1d501bb7b3f9a72877097089f50c6",
+    "active_id": "LK31"
+  },
+  "K32": {
+    "id": "K32",
+    "title": "TruthfulnessReceipt исполняет reconciliation, а не повторную калибровку",
+    "start_line": 3855,
+    "end_line": 3859,
+    "sha256": "37d9ab1908d142a47f200ec0d1daaa19b3bf3cde7d2106476eedf1a1e7bd1b86",
+    "active_id": "LK32"
+  },
+  "K33": {
+    "id": "K33",
+    "title": "Существующая validity-проверка нужна; исторический FP pass не равен текущей применимости",
+    "start_line": 4206,
+    "end_line": 4209,
+    "sha256": "553a80786a9de185b0ba2b8f2404c5a8f996dc3eb574be4a2e0ae05183d86135",
+    "active_id": "LK33"
+  },
+  "K34": {
+    "id": "K34",
+    "title": "R2 signoff, diagnostic-only и drift-only ограничения — намеренные полезные различия",
+    "start_line": 4210,
+    "end_line": 4213,
+    "sha256": "be332bb2328a1c2333f5da758649d6c6d52f2eff43f65ec3191344b53840d8b5",
+    "active_id": "LK34"
+  },
+  "K35": {
+    "id": "K35",
+    "title": "Ручная DDM JSON-schema — не пустой generated-дубль",
+    "start_line": 4214,
+    "end_line": 4219,
+    "sha256": "79b7dca2cdbd51ebb599aba39e1fe52be1af5ce8b9b741bfcff3e077fd5ef1a5",
+    "active_id": "LK35"
+  },
+  "K36": {
+    "id": "K36",
+    "title": "Async bridge работает; маленькая типовая очистка не отменяет его исполнительный контракт",
+    "start_line": 4220,
+    "end_line": 4223,
+    "sha256": "6c2f4bd2b0da83aa30fa1db4329deb7e5b796d4252f760b466bc69e099d861d9",
+    "active_id": "LK36"
+  }
+}

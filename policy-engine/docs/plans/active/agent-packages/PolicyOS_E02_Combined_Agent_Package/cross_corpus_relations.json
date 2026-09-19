@@ -1,0 +1,351 @@
+[
+  {
+    "id": "REL01",
+    "kind": "SAME_OWNER",
+    "legacy": "LA-046",
+    "findings": [
+      "B12"
+    ],
+    "bundles": [
+      "REQ-01",
+      "ACQ-01"
+    ],
+    "reason": "Actual N7 scenario adapter, text/domain/resolver and acquisition dispatch; source r08 amendment applies.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL02",
+    "kind": "SAME_OWNER",
+    "legacy": "LA-051",
+    "findings": [
+      "B32"
+    ],
+    "bundles": [
+      "FRC-01",
+      "FRC-02"
+    ],
+    "reason": "Same S10 helper/times; LA additionally covers fabricated calibration from estimator shape.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL03",
+    "kind": "EXTRACTION_AND_FIX",
+    "legacy": "LA-015",
+    "findings": [
+      "B118",
+      "B119",
+      "B120",
+      "B121",
+      "B123"
+    ],
+    "bundles": [
+      "CTL-01",
+      "CTL-03",
+      "SRV-01",
+      "SRV-03"
+    ],
+    "reason": "One run-state/transition owner, corrected behavior survives native driver cutover.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL04",
+    "kind": "SHARED_ADAPTER",
+    "legacy": "LA-014",
+    "findings": [
+      "B123",
+      "B124"
+    ],
+    "bundles": [
+      "SRV-01",
+      "CTL-03",
+      "CTL-02"
+    ],
+    "reason": "tell must not bypass typed eligibility or source identity via private fields.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL05",
+    "kind": "SHARED_HELPERS",
+    "legacy": "LA-016",
+    "findings": [
+      "B204",
+      "B205",
+      "B206",
+      "B207",
+      "B208",
+      "B209"
+    ],
+    "bundles": [
+      "CAU-01",
+      "CAU-02",
+      "CAU-05"
+    ],
+    "reason": "Dedicated methods retain shared numerical helpers; metadata migration separate from inference delta.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL06",
+    "kind": "EXTRACTION_AND_FIX",
+    "legacy": "LA-031",
+    "findings": [
+      "B146",
+      "B147"
+    ],
+    "bundles": [
+      "UDF-01",
+      "OBS-01",
+      "UDF-02",
+      "OBS-02"
+    ],
+    "reason": "Calendar/IO fixes follow actual extracted helper owners; no second patch to obsolete common.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL07",
+    "kind": "SAME_FILE_DIFFERENT_CHANGE",
+    "legacy": "LA-057",
+    "findings": [
+      "B14",
+      "B40",
+      "B69",
+      "B95"
+    ],
+    "bundles": [
+      "RUN-01"
+    ],
+    "reason": "Only TypeVar residue deletion then distinct deadline/context regression commits.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL08",
+    "kind": "NEIGHBOUR_PROTECTED",
+    "legacy": "LA-007",
+    "findings": [
+      "B216",
+      "B217"
+    ],
+    "bundles": [
+      "GRF-01"
+    ],
+    "reason": "Delete empty sibling .py, protect real package; correctness of shared ADMG ops independently tested.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL09",
+    "kind": "NEIGHBOUR_PROTECTED",
+    "legacy": "LA-019",
+    "findings": [
+      "B216",
+      "B217",
+      "B214"
+    ],
+    "bundles": [
+      "GRF-01",
+      "API-01",
+      "GRF-03"
+    ],
+    "reason": "Sibling cleanup does not remove causal/interference packages or attest their algorithms.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL10",
+    "kind": "SAME_DOMAIN_DIFFERENT_LAYER",
+    "legacy": "LA-024",
+    "findings": [
+      "B17",
+      "B64"
+    ],
+    "bundles": [
+      "SCL-01",
+      "LLM-01"
+    ],
+    "reason": "Provider exhaustion, transport and LLM cache are distinct; common raw transport only.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL11",
+    "kind": "UPSTREAM_SNAPSHOT",
+    "legacy": "LA-025",
+    "findings": [
+      "B60",
+      "B61",
+      "B64"
+    ],
+    "bundles": [
+      "SCL-03",
+      "STA-02",
+      "LLM-01"
+    ],
+    "reason": "Version-bound acquired bytes must reach consumers; no common universal cache inferred.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL12",
+    "kind": "ACCEPTANCE_ONLY",
+    "legacy": "LA-052",
+    "findings": [
+      "B167",
+      "B168"
+    ],
+    "bundles": [
+      "PCL-01",
+      "BKT-02"
+    ],
+    "reason": "Both require honest denominator, but generic calibration and backtest evaluation have different owners.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL13",
+    "kind": "ALIAS_ONLY",
+    "legacy": "LA-053",
+    "findings": [
+      "B174",
+      "B175"
+    ],
+    "bundles": [
+      "PCL-01",
+      "BKT-04"
+    ],
+    "reason": "Canonical curve import/test migration must not delete CV/bootstrap or all backtesting.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL14",
+    "kind": "FORMAT_BOUNDARY",
+    "legacy": "LA-021",
+    "findings": [
+      "B94",
+      "B150",
+      "B152"
+    ],
+    "bundles": [
+      "CAN-01",
+      "WIRE-01",
+      "CAS-01",
+      "CAS-03"
+    ],
+    "reason": "Strict canon profiles vs runtime JSON/Decimal transport; identity preservation joint, mechanisms not indiscriminately merged.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL15",
+    "kind": "ALIAS_ONLY",
+    "legacy": "LA-033",
+    "findings": [
+      "B70",
+      "B74",
+      "B75",
+      "B76"
+    ],
+    "bundles": [
+      "REP-01",
+      "RES-01",
+      "RES-04"
+    ],
+    "reason": "Replay entrypath migration not equivalent to checkpoint identity/inventory repair.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL16",
+    "kind": "UPSTREAM_PATH",
+    "legacy": "LA-037",
+    "findings": [
+      "B42",
+      "B43",
+      "B49"
+    ],
+    "bundles": [
+      "FRY-01",
+      "CMP-01",
+      "JIT-01"
+    ],
+    "reason": "Current IR slot owner and compiler imports; requires/caching fixes remain separate.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL17",
+    "kind": "MODEL_PROFILE",
+    "legacy": "LA-003",
+    "findings": [
+      "B185"
+    ],
+    "bundles": [
+      "FRY-03",
+      "CAL-05"
+    ],
+    "reason": "PatchMap/runtime class path relocation must preserve scheduled active/PRNG behavior.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL18",
+    "kind": "SAME_PRINCIPLE_NOT_SAME_STORE",
+    "legacy": "LA-039",
+    "findings": [
+      "B134",
+      "B76",
+      "B149"
+    ],
+    "bundles": [
+      "EMB-01",
+      "EMB-02",
+      "TRN-02",
+      "RES-04",
+      "CAS-02"
+    ],
+    "reason": "NPZ/HNSW generation is not in-memory VectorMemoryStore or CAS export; share controls, not ownership.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL19",
+    "kind": "SAME_PRINCIPLE_NOT_SAME_CHECKPOINT",
+    "legacy": "LA-041",
+    "findings": [
+      "B70",
+      "B71",
+      "B74",
+      "B75",
+      "B76"
+    ],
+    "bundles": [
+      "DFI-03",
+      "RES-01",
+      "RES-04"
+    ],
+    "reason": "Catalog batch state and research checkpoint differ; input/output identity rules bind their own inventory.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL20",
+    "kind": "ACTIVATION_DISTINCTION",
+    "legacy": "LA-054",
+    "findings": [
+      "B137",
+      "B163"
+    ],
+    "bundles": [
+      "DDM-02",
+      "TRN-03",
+      "FUN-03"
+    ],
+    "reason": "Historical pass/freshness versus measured current readiness analogous, DDM FP owner remains separate.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  },
+  {
+    "id": "REL21",
+    "kind": "ACTIVATION_DISTINCTION",
+    "legacy": "LA-055",
+    "findings": [
+      "B164",
+      "B165",
+      "B116"
+    ],
+    "bundles": [
+      "DDM-02",
+      "FUN-03",
+      "FUN-02",
+      "OPT-04"
+    ],
+    "reason": "Gate/callback/pointer decisions are not one authority model; preserve DDM R2 and concrete precedence.",
+    "origin": "E02 engineering synthesis of supplied sources"
+  }
+]

@@ -179,14 +179,21 @@ class NodeResultCache:
         outcome_ref = self._index.get(key)
         if outcome_ref is None:
             return None
+        if key not in self._mutation_journals:
+            # A legacy cache entry has no operation contract and is historical
+            # evidence only; replay it as a miss so the node can re-execute.
+            self._index.delete(key)
+            return None
         try:
             payload = from_canonical_bytes(self._store.get_bytes(outcome_ref.artifact_id))
             outcome = decode_node_outcome(payload)
             if isinstance(outcome, OutputAwareNodeOutcome):
                 self._verify_output_aware_cache_artifact(outcome_ref)
-            journal = self._mutation_journals.get(key)
-            if journal is not None:
-                object.__setattr__(outcome.state, "_polisyos_state_mutation_journal", journal)
+            object.__setattr__(
+                outcome.state,
+                "_polisyos_state_mutation_journal",
+                self._mutation_journals[key],
+            )
         except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
             logger.debug(
                 "Cache miss for key %s, evicting: %s",
@@ -202,6 +209,8 @@ class NodeResultCache:
         output_aware = isinstance(outcome, OutputAwareNodeOutcome)
         producer_version = "2.0.0" if output_aware else "1.0.0"
         outcome_schema = "OutputAwareNodeOutcome" if output_aware else "NodeOutcome"
+        journal = mutation_journal_for_state(outcome.state)
+        state_mutations = tuple(journal.operations) if journal is not None else ()
         outcome_ref = self._store.put_json(
             outcome.model_dump(mode="python", by_alias=True, exclude_none=False),
             PutOptions(
@@ -223,14 +232,8 @@ class NodeResultCache:
             node_id=node_id,
             idempotency_key=key,
             outcome_ref=outcome_ref,
-            state_mutations=(
-                tuple(mutation_journal_for_state(outcome.state).operations)
-                if mutation_journal_for_state(outcome.state) is not None
-                else ()
-            ),
-            state_mutations_version=(
-                "1.0" if mutation_journal_for_state(outcome.state) is not None else None
-            ),
+            state_mutations=state_mutations,
+            state_mutations_version="1.0",
         )
         entry_ref = self._store.put_json(
             entry.model_dump(mode="python", by_alias=True, exclude_none=False),
@@ -248,11 +251,7 @@ class NodeResultCache:
         if output_aware:
             self._verify_output_aware_cache_artifact(entry_ref, entry=True)
         self._index.set(key, outcome_ref)
-        journal = mutation_journal_for_state(outcome.state)
-        if journal is not None:
-            self._mutation_journals[key] = mutation_journal_from_operations(journal.operations)
-        else:
-            self._mutation_journals.pop(key, None)
+        self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)
         if self._max_entries is not None:
             self.prune(self._max_entries)
         return entry_ref
@@ -262,9 +261,11 @@ class NodeResultCache:
         entry = NodeCacheEntry.model_validate(payload)
         if entry.run_id != self._run_id:
             return False
-        # An ordinary legacy entry may be seeded before its outcome is readable;
-        # preserve that existing behavior. A supplied output-aware body, however,
-        # must establish both actual cache manifests before it is indexed.
+        # An ordinary legacy entry may still be indexed for historical trace
+        # accounting, but it has no replay contract and therefore becomes a
+        # miss when the executor asks for a reusable outcome. A supplied
+        # output-aware body must establish both actual cache manifests before
+        # it is indexed.
         try:
             offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref.artifact_id))
         except (FileNotFoundError, OSError, TypeError, ValueError):

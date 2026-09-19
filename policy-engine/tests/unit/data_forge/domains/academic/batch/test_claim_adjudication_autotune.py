@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import json
+
+from pydantic import BaseModel
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
     claim_promotion_policy,
@@ -28,6 +32,11 @@ from polisyos.scientist.methods.autotune.claim_adjudication import (
     default_claim_gold_suite,
     select_prompt_variant,
 )
+from polisyos.scientist.methods.autotune.models import PromotionPolicy
+
+
+class _ClaimPolicyEnvelope(BaseModel):
+    policy: PromotionPolicy
 
 
 def _claim_result(
@@ -72,6 +81,33 @@ def test_explicit_claim_policy_unit_survives_canonical_serialization() -> None:
     policy = default_claim_adjudication_promotion_policy().model_copy(update={"unit": "ratio"})
 
     assert policy.model_dump(mode="json")["unit"] == "ratio"
+
+
+def test_claim_policy_serializer_characterization_across_json_and_nesting() -> None:
+    """Policy serialization keeps null omission and explicit units at each boundary."""
+    # Catches a serializer mutation that handles one dump API but leaks nulls
+    # through explicit exclude_none=False or a nested Pydantic model.
+    default_policy = default_claim_adjudication_promotion_policy()
+    default_json = json.loads(default_policy.model_dump_json())
+    default_dump = default_policy.model_dump(mode="json", exclude_none=False)
+    nested_default = _ClaimPolicyEnvelope(policy=default_policy).model_dump(
+        mode="json", exclude_none=False
+    )["policy"]
+
+    assert "unit" not in default_json
+    assert "unit" not in default_dump
+    assert "unit" not in nested_default
+
+    explicit_policy = default_policy.model_copy(update={"unit": "ratio"})
+    explicit_json = json.loads(explicit_policy.model_dump_json())
+    explicit_dump = explicit_policy.model_dump(mode="json", exclude_none=False)
+    nested_explicit = _ClaimPolicyEnvelope(policy=explicit_policy).model_dump(
+        mode="json", exclude_none=False
+    )["policy"]
+
+    assert explicit_json["unit"] == "ratio"
+    assert explicit_dump["unit"] == "ratio"
+    assert nested_explicit["unit"] == "ratio"
 
 
 def test_baseline_claim_adjudication_config_preserves_current_consensus_behavior(tmp_path) -> None:

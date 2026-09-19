@@ -6,7 +6,12 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType, persist_causal_graph_model
+from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.parameters import (
+    ContextAdaptiveParameterBundle,
+    persist_context_adaptive_parameter_bundle,
+)
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
     ResolveParametersNode,
 )
@@ -14,6 +19,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 
 
 def test_skip_when_missing_target_context(execution_context, minimal_state):
@@ -84,6 +90,44 @@ def test_ok_when_already_present(execution_context, minimal_state, artifact_ref_
     outcome = ResolveParametersNode().execute(execution_context, state)
     assert outcome.status == "ok"
     assert outcome.state is state
+
+
+def test_existing_bundle_ref_does_not_short_circuit_changed_request(
+    execution_context, minimal_state, tmp_path
+):
+    """A stale CAS bundle cannot satisfy a changed request by presence alone."""
+    graph_ref = persist_causal_graph_model(
+        execution_context.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["new_parameter"], edges=[]),
+    )
+    stale_bundle_ref = persist_context_adaptive_parameter_bundle(
+        execution_context.store,
+        ContextAdaptiveParameterBundle(
+            target_context=ContextProfile(context_id="old-context", countries=["US"]),
+            simulation_domain="fiscal",
+            skg_snapshot_ref="duckdb://frozen-skg#v1",
+            skg_version_id=1,
+        ),
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = stale_bundle_ref
+    state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+    state.params.update(
+        {
+            "target_context": {
+                "context_id": "new-context",
+                "countries": ["UA"],
+                "publication_year": 2026,
+            },
+            "required_parameters": ["new_parameter"],
+            "skg_db_path": str(tmp_path / "unavailable.duckdb"),
+            "skg_index_dir": str(tmp_path / "index"),
+        }
+    )
+
+    outcome = ResolveParametersNode().execute(execution_context, state)
+
+    assert outcome.status != "ok"
 
 
 def test_target_context_assertion_is_not_swallowed(

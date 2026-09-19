@@ -8,6 +8,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
+from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
 from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
@@ -108,6 +109,29 @@ def test_compute_idempotency_key_changes_on_artifact_change(tmp_path) -> None:
         node.spec,
         state_b,
     )
+
+
+def test_idempotency_key_preserves_data_plane_presence_semantics(tmp_path) -> None:
+    """The key follows DataPlaneGate's defaults without collapsing real values."""
+    del tmp_path
+    node = DataPlaneGateNode()
+
+    def _key(params: dict[str, object]) -> str:
+        return compute_idempotency_key(
+            node.spec,
+            ExperimentState(run_id="R_data_plane_presence", params=params),
+        )
+
+    key_missing = _key({"governance_profile": "mvp"})
+    key_default = _key({"governance_profile": "mvp", "tenant_tier": "shared"})
+    key_null = _key({"governance_profile": "mvp", "tenant_tier": None})
+    key_zero = _key({"governance_profile": "mvp", "tenant_tier": 0})
+    key_false = _key({"governance_profile": "mvp", "tenant_tier": False})
+    key_empty = _key({"governance_profile": "mvp", "tenant_tier": []})
+
+    assert key_missing == key_default
+    assert key_missing != key_null
+    assert len({key_null, key_zero, key_false, key_empty}) == 4
 
 
 def test_compute_idempotency_key_available_for_all_builtin_nodes(tmp_path) -> None:

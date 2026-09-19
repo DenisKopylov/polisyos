@@ -14,6 +14,7 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.parameters import load_context_adaptive_parameter_bundle
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.idempotency import compute_idempotency_key
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveParametersNode
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -29,7 +30,7 @@ def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
     return ExecutionContext(store=store, run=run, logger=logging.getLogger(f"test.{run_id}"))
 
 
-def _seed_skg(db_path) -> None:
+def _seed_skg(db_path, *, version_id: int = 12, fiscal_value: float = 1.35) -> None:
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
@@ -44,7 +45,7 @@ def _seed_skg(db_path) -> None:
             """
         )
         con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
-        con.execute("INSERT INTO ac_skg_versions VALUES (12)")
+        con.execute("INSERT INTO ac_skg_versions VALUES (?)", [version_id])
         con.executemany(
             "INSERT INTO ac_skg_parameters VALUES (?, ?, ?, ?, ?)",
             [
@@ -55,7 +56,7 @@ def _seed_skg(db_path) -> None:
                     json.dumps(
                         {
                             "name": "fiscal_multiplier",
-                            "value": 1.35,
+                            "value": fiscal_value,
                             "parameter_type": "quantitative",
                             "evidence_strength": "observational",
                         }
@@ -160,3 +161,83 @@ def test_resolve_parameters_node_skips_on_missing_inputs(tmp_path) -> None:
     assert outcome.status == "skip"
     assert outcome.events
     assert outcome.events[0].level == "warn"
+
+
+def test_same_skg_path_binds_version_snapshot_to_idempotency_key(tmp_path) -> None:
+    """Live SKG replacement changes the consumed snapshot key; a frozen ref reuses."""
+    ctx = _build_ctx(tmp_path, run_id="R_phase15_snapshot_identity")
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path, version_id=12, fiscal_value=1.35)
+    graph_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    state_a = ExperimentState(
+        run_id="R_phase15_snapshot_identity",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "UA",
+                "income_level": "lower_middle",
+                "institutional_quality": 0.4,
+                "post_communist": True,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        },
+    )
+
+    outcome_a = ResolveParametersNode().execute(ctx, state_a)
+    assert outcome_a.status == "ok"
+    bundle_a = load_context_adaptive_parameter_bundle(
+        ctx.store,
+        outcome_a.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
+    )
+
+    db_path.unlink()
+    _seed_skg(db_path, version_id=13, fiscal_value=2.4)
+    outcome_b = ResolveParametersNode().execute(ctx, state_a.model_copy(deep=True))
+    assert outcome_b.status == "ok"
+    bundle_b = load_context_adaptive_parameter_bundle(
+        ctx.store,
+        outcome_b.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
+    )
+
+    assert bundle_a.skg_snapshot_ref == f"duckdb://{db_path}#v12"
+    assert bundle_b.skg_snapshot_ref == f"duckdb://{db_path}#v13"
+    assert bundle_a.skg_snapshot_ref != bundle_b.skg_snapshot_ref
+    assert bundle_a.parameters["fiscal_multiplier"].value != bundle_b.parameters[
+        "fiscal_multiplier"
+    ].value
+
+    node = ResolveParametersNode()
+    keyed_a = state_a.model_copy(deep=True)
+    keyed_a.params.update(
+        {
+            "skg_snapshot_ref": bundle_a.skg_snapshot_ref,
+            "skg_version_id": bundle_a.skg_version_id,
+        }
+    )
+    keyed_b = state_a.model_copy(deep=True)
+    keyed_b.params.update(
+        {
+            "skg_snapshot_ref": bundle_b.skg_snapshot_ref,
+            "skg_version_id": bundle_b.skg_version_id,
+        }
+    )
+    frozen = keyed_b.model_copy(deep=True)
+    frozen.params.update(
+        {
+            "skg_snapshot_ref": bundle_a.skg_snapshot_ref,
+            "skg_version_id": bundle_a.skg_version_id,
+        }
+    )
+
+    key_a = compute_idempotency_key(node.spec, keyed_a)
+    key_b = compute_idempotency_key(node.spec, keyed_b)
+    key_frozen = compute_idempotency_key(node.spec, frozen)
+
+    assert key_a != key_b
+    assert key_frozen == key_a

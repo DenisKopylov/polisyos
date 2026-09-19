@@ -232,9 +232,10 @@ def do_operator(
 ) -> CausalGraphModel:
     """Return the mutilated graph G_{\\overline{X}} after do(X = intervention_set).
 
-    All directed edges *into* any node in intervention_set are removed.
-    Bidirected edges (latent common causes) from nodes in X are KEPT — the latent
-    variable is still present; only the mechanism is cut.
+    All directed edges *into* any node in intervention_set are removed.  Any
+    bidirected edge incident to an intervened node is removed as well: the
+    latent cause remains represented for other nodes, but its influence on the
+    replaced mechanism is cut.  Outgoing directed effects are preserved.
 
     Returns a new CausalGraphModel (immutable, since frozen=True).
     """
@@ -246,6 +247,10 @@ def do_operator(
         if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW:
             if e.dst in intervention_set:
                 continue  # cut
+        # Perfect intervention also cuts latent influence into action nodes.
+        if e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW:
+            if e.src in intervention_set or e.dst in intervention_set:
+                continue  # cut action-incident bidirected edge
         kept_edges.append(e)
 
     return _derived_graph_model(
@@ -264,10 +269,11 @@ def remove_incoming_edges(
     graph: CausalGraphModel,
     nodes: frozenset[str],
 ) -> CausalGraphModel:
-    """G_{X̄}: remove all incoming directed edges to nodes in *nodes*.
+    """G_{X̄}: apply perfect-do surgery to nodes in *nodes*.
 
-    This is the do-operator mutilation G_{do(X)}: cutting the mechanisms of
-    variables in *nodes* by removing their incoming directed edges.
+    This is the do-operator mutilation G_{do(X)}: cutting incoming directed
+    and action-incident bidirected influences while preserving outgoing
+    directed effects.
 
     Provided as a named alias for :func:`do_operator` so that do-calculus rule
     descriptions can use the standard notation explicitly.
@@ -422,6 +428,35 @@ def induced_subgraph(
 # ---------------------------------------------------------------------------
 
 
+def _m_separation_adjacency(
+    graph: CausalGraphModel,
+) -> dict[str, list[tuple[str, Any, Any]]]:
+    """Build traversal entries carrying both endpoint marks for each edge."""
+    from polisyos.ir.analytics.causal_graph import EdgeMark
+
+    cached = _get_cached_adjacency(graph)
+    adj: dict[str, list[tuple[str, Any, Any]]] = {n: [] for n in graph.nodes}
+
+    for src, dst in cached.directed_edges:
+        adj[src].append((dst, EdgeMark.TAIL, EdgeMark.ARROW))
+        adj[dst].append((src, EdgeMark.ARROW, EdgeMark.TAIL))
+
+    for pair in cached.bidirected_edges:
+        src, dst = tuple(pair)
+        adj[src].append((dst, EdgeMark.ARROW, EdgeMark.ARROW))
+        adj[dst].append((src, EdgeMark.ARROW, EdgeMark.ARROW))
+
+    for src, dst in cached.circle_edges:
+        # A circle mark admits both a directed and a bidirected reading. Keep
+        # all conservative possibilities so PAG uncertainty cannot look safer.
+        adj[src].append((dst, EdgeMark.TAIL, EdgeMark.ARROW))
+        adj[dst].append((src, EdgeMark.ARROW, EdgeMark.TAIL))
+        adj[src].append((dst, EdgeMark.ARROW, EdgeMark.ARROW))
+        adj[dst].append((src, EdgeMark.ARROW, EdgeMark.ARROW))
+
+    return adj
+
+
 def m_separation(
     graph: CausalGraphModel,
     x_set: frozenset[str],
@@ -430,85 +465,50 @@ def m_separation(
 ) -> bool:
     """Test m-separation: X ⊥⊥ Y | Z in the mixed graph G.
 
-    Uses the Bayes Ball algorithm adapted for ADMGs (Richardson & Spirtes 2002).
-    Returns True iff X and Y are m-separated by Z.
-
-    This handles:
-    - Directed edges (TAIL→ARROW): d-separation rules
-    - Bidirected edges (ARROW↔ARROW): latent common cause paths
-
-    CIRCLE marks (PAG uncertainty) are treated as both directed and bidirected
-    (conservative: if either interpretation creates a path, not m-separated).
+    The traversal carries the mark at the node where each path arrives.  The
+    mark on the next edge then determines whether that node is a collider;
+    collider activation uses the directed ancestor closure of ``z_set``.
     """
-    cached = _get_cached_adjacency(graph)
+    from polisyos.ir.analytics.causal_graph import EdgeMark
 
-    # Build adjacency for path traversal
-    # Each entry: (neighbor, is_parent_of_node, is_bidirected)
-    adj: dict[str, list[tuple[str, bool, bool]]] = {n: [] for n in graph.nodes}
-    for src, dst in cached.directed_edges:
-        # src → dst: src is parent of dst
-        adj[src].append((dst, False, False))
-        adj[dst].append((src, True, False))
-    for pair in cached.bidirected_edges:
-        src, dst = tuple(pair)
-        adj[src].append((dst, False, True))
-        adj[dst].append((src, False, True))
-    for src, dst in cached.circle_edges:
-        # PAG uncertainty — add both directed and bidirected interpretations.
-        adj[src].append((dst, False, False))
-        adj[dst].append((src, True, False))
-        adj[src].append((dst, False, True))
-        adj[dst].append((src, False, True))
+    if x_set & y_set:
+        return False
+    if not x_set or not y_set:
+        return True
 
-    # Ancestors of Z in the directed graph (for collider activation)
-    an_z = ancestors(graph, z_set)
+    adj = _m_separation_adjacency(graph)
+    an_z = ancestors(graph, z_set) if z_set else frozenset()
 
-    # Bayes Ball reachability: (node, arrived_via_child)
-    # arrived_via_child=True means we arrived at node coming from a child of node
-    visited: set[tuple[str, bool]] = set()
-    queue: deque[tuple[str, bool]] = deque()
+    # State is (node, incoming mark at node).  Keeping the actual endpoint mark
+    # distinguishes parent/child arrival and bidirected collider passages.
+    visited: set[tuple[str, Any | None]] = set()
+    queue: deque[tuple[str, Any | None]] = deque()
 
-    for x in x_set:
-        # Start from x, not arriving from a child (i.e., top-down pass)
-        state = (x, False)
-        if state not in visited:
+    for source in x_set:
+        if source in adj:
+            state = (source, None)
             visited.add(state)
             queue.append(state)
 
     while queue:
-        node, via_child = queue.popleft()
+        node, incoming_mark = queue.popleft()
 
         if node in y_set:
-            return False  # found path → NOT m-separated
+            return False  # found an open path → NOT m-separated
 
-        for neighbor, is_parent, is_bidirected in adj[node]:
-            if is_bidirected:
-                # Bidirected edges are always active (unless... collider rules apply)
-                # For ADMG: bidirected edge is active if neighbor not in Z
-                # and if the "latent" activation passes through
-                if neighbor not in z_set:
-                    state = (neighbor, False)
-                    if state not in visited:
-                        visited.add(state)
-                        queue.append(state)
-            elif is_parent:
-                # We arrived at node from its child; now going to a parent of node
-                # This is a "v-structure" (collider) path: child → node ← parent
-                # Collider is ACTIVE only if node (or descendant) in Z
-                if node in z_set or node in an_z:
-                    state = (neighbor, False)
-                    if state not in visited:
-                        visited.add(state)
-                        queue.append(state)
-            else:
-                # We arrived at node from its parent; going to a child
-                # OR we arrived via bidirected; going to child
-                # Active iff node not in Z (not conditioned upon / not blocking)
-                if node not in z_set:
-                    state = (neighbor, True)
-                    if state not in visited:
-                        visited.add(state)
-                        queue.append(state)
+        for neighbor, mark_at_node, mark_at_neighbor in adj[node]:
+            if incoming_mark is not None:
+                is_collider = incoming_mark is EdgeMark.ARROW and mark_at_node is EdgeMark.ARROW
+                if is_collider:
+                    if node not in an_z:
+                        continue
+                elif node in z_set:
+                    continue
+
+            state = (neighbor, mark_at_neighbor)
+            if state not in visited:
+                visited.add(state)
+                queue.append(state)
 
     return True  # no path found → m-separated
 

@@ -3,16 +3,25 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
+
+import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.cursor import CursorState, WatermarkType
 from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.ingestion import IngestionDependencies
-from polisyos.ir.connectors import DataVersion, FetchRequest, VersionStrategy
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    DataVersion,
+    FetchRequest,
+    FetchResult,
+    VersionStrategy,
+)
 
 
 def _make_evidence_bundle(store: FileSystemCAS):
@@ -300,6 +309,289 @@ class TestBatchIncremental:
         assert cursor_a.watermark_value == "2024-01-09T00:00:00+00:00"
         assert cursor_b is None
 
+    def test_incremental_does_not_promote_fetched_at_without_source_boundary(
+        self,
+        tmp_path: Path,
+    ):
+        """A local fetch time is not an incremental source boundary."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        evidence_ref = _make_evidence_bundle(store)
+        fetched_at = datetime(2024, 1, 2, tzinfo=UTC)
+        connector = _RecordingConnector(
+            _typed_fetch_result(source_updated_at=None, fetched_at=fetched_at),
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=1,
+        )
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="worldbank.wdi",
+                dataset_id="NY.GDP.MKTP.CD",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest=_make_manifest(),
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        assert result.cursor_ref is None
+        assert CursorStore(store).find_latest_cursor(
+            "worldbank.wdi", "NY.GDP.MKTP.CD"
+        ) is None
+
+    @pytest.mark.parametrize(
+        ("has_more", "next_page_token", "completeness"),
+        [
+            (True, "page-2", 1.0),
+            (False, None, 0.5),
+        ],
+    )
+    def test_incremental_does_not_advance_incomplete_result(
+        self,
+        tmp_path: Path,
+        has_more: bool,
+        next_page_token: str | None,
+        completeness: float,
+    ):
+        """Pagination or partial coverage leaves the prior cursor unchanged."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        cursor_store = CursorStore(store)
+        previous_value = "2024-01-01T00:00:00+00:00"
+        cursor_store.save_cursor(
+            CursorState(
+                cursor_id="worldbank.wdi:NY.GDP.MKTP.CD",
+                connector_id="worldbank.wdi",
+                dataset_id="NY.GDP.MKTP.CD",
+                watermark_type=WatermarkType.TIMESTAMP,
+                watermark_value=previous_value,
+                created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            )
+        )
+        evidence_ref = _make_evidence_bundle(store)
+        connector = _RecordingConnector(
+            _typed_fetch_result(
+                source_updated_at=datetime(2024, 1, 2, tzinfo=UTC),
+                fetched_at=datetime(2024, 1, 3, tzinfo=UTC),
+                has_more=has_more,
+                next_page_token=next_page_token,
+                completeness=completeness,
+            ),
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=1,
+        )
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="worldbank.wdi",
+                dataset_id="NY.GDP.MKTP.CD",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest=_make_manifest(),
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        cursor = cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
+        assert result.cursor_ref is None
+        assert cursor is not None
+        assert cursor.watermark_value == previous_value
+
+    def test_incremental_full_only_connector_stays_full_mode(self, tmp_path: Path):
+        """A connector without incremental capability gets no cursor hint or promotion."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        cursor_store = CursorStore(store)
+        previous_value = "2024-01-01T00:00:00+00:00"
+        cursor_store.save_cursor(
+            CursorState(
+                cursor_id="reference.static_csv:dataset",
+                connector_id="reference.static_csv",
+                dataset_id="dataset",
+                watermark_type=WatermarkType.TIMESTAMP,
+                watermark_value=previous_value,
+                created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            )
+        )
+        evidence_ref = _make_evidence_bundle(store)
+        connector = _RecordingConnector(
+            _typed_fetch_result(
+                source_updated_at=datetime(2024, 1, 2, tzinfo=UTC),
+                fetched_at=datetime(2024, 1, 3, tzinfo=UTC),
+            ),
+            capabilities=ConnectorCapability.FULL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=1,
+        )
+        manifest = {"datasets": [{"connector_id": "reference.static_csv", "dataset_id": "dataset"}]}
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="reference.static_csv",
+                dataset_id="dataset",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest=manifest,
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        assert len(connector.requests) == 1
+        assert connector.requests[0].incremental_since is None
+        cursor = cursor_store.find_latest_cursor("reference.static_csv", "dataset")
+        assert result.cursor_ref is None
+        assert cursor is not None
+        assert cursor.watermark_value == previous_value
+
+    @pytest.mark.parametrize(
+        ("watermark_type", "watermark_value"),
+        [
+            (WatermarkType.TIMESTAMP, "not-a-timestamp"),
+            (WatermarkType.REVISION, "not-a-revision"),
+        ],
+    )
+    def test_incremental_ignores_malformed_legacy_cursor(
+        self,
+        tmp_path: Path,
+        watermark_type: WatermarkType,
+        watermark_value: str,
+    ):
+        """Malformed supported-kind cursors remain full mode conservatively."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        cursor_store = CursorStore(store)
+        cursor_store.save_cursor(
+            CursorState(
+                cursor_id="worldbank.wdi:NY.GDP.MKTP.CD",
+                connector_id="worldbank.wdi",
+                dataset_id="NY.GDP.MKTP.CD",
+                watermark_type=watermark_type,
+                watermark_value=watermark_value,
+                created_at=datetime(2024, 1, 1, tzinfo=UTC),
+            )
+        )
+        evidence_ref = _make_evidence_bundle(store)
+        connector = _RecordingConnector(
+            _typed_fetch_result(
+                source_updated_at=datetime(2024, 1, 2, tzinfo=UTC),
+                fetched_at=datetime(2024, 1, 3, tzinfo=UTC),
+            ),
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=1,
+        )
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="worldbank.wdi",
+                dataset_id="NY.GDP.MKTP.CD",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            run_batch_incremental(
+                connector_manifest=_make_manifest(),
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        assert len(connector.requests) == 1
+        assert connector.requests[0].incremental_since is None
+
+    def test_incremental_promotes_complete_source_boundary_not_fetch_time(self, tmp_path: Path):
+        """A supported complete result persists its source boundary, not fetch time."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        evidence_ref = _make_evidence_bundle(store)
+        source_boundary = datetime(2024, 1, 2, tzinfo=UTC)
+        fetched_at = datetime(2024, 1, 3, tzinfo=UTC)
+        connector = _RecordingConnector(
+            _typed_fetch_result(
+                source_updated_at=source_boundary,
+                fetched_at=fetched_at,
+            ),
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=1,
+        )
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="worldbank.wdi",
+                dataset_id="NY.GDP.MKTP.CD",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest=_make_manifest(),
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        cursor = CursorStore(store).find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD")
+        assert result.cursor_ref is not None
+        assert cursor is not None
+        assert cursor.watermark_value == source_boundary.isoformat()
+        assert cursor.watermark_value != fetched_at.isoformat()
+
 
 class TestIncrementalCheckpoint:
     def test_cursor_serialization_roundtrip(self, tmp_path: Path):
@@ -375,6 +667,50 @@ def _fetch_result(source_updated_at: str) -> SimpleNamespace:
     )
 
 
+def _typed_fetch_result(
+    *,
+    source_updated_at: datetime | None,
+    fetched_at: datetime,
+    has_more: bool = False,
+    next_page_token: str | None = None,
+    completeness: float = 1.0,
+) -> FetchResult:
+    version_value = (source_updated_at or fetched_at).isoformat()
+    return FetchResult(
+        data=[{"value": "row"}],
+        row_count=1,
+        schema_id="test.schema",
+        schema_version="1.0",
+        version=DataVersion(
+            strategy=VersionStrategy.TIMESTAMP,
+            value=version_value,
+            timestamp=source_updated_at or fetched_at,
+        ),
+        fetched_at=fetched_at,
+        source_updated_at=source_updated_at,
+        completeness=completeness,
+        has_more=has_more,
+        next_page_token=next_page_token,
+    )
+
+
+class _RecordingConnector:
+    def __init__(
+        self,
+        fetch_result: FetchResult,
+        *,
+        capabilities: ConnectorCapability,
+    ) -> None:
+        self._fetch_result = fetch_result
+        self.capabilities = capabilities
+        self.requests: list[FetchRequest] = []
+
+    def fetch(self, handle: object, request: FetchRequest) -> FetchResult:
+        del handle
+        self.requests.append(request)
+        return self._fetch_result
+
+
 def _test_dependencies(connector: object) -> IngestionDependencies:
     class _Registry:
         def get(self, connector_id: str) -> object:
@@ -410,6 +746,24 @@ def _successful_orchestrator(mock_result: IngestionResult):
         return mock_result
 
     return _run
+
+
+def _orchestrate_one_fetch(
+    *,
+    connector_id: str,
+    dataset_id: str,
+    mock_result: IngestionResult,
+    **kwargs: object,
+) -> IngestionResult:
+    dependencies = kwargs["ingestion_dependencies"]
+    assert isinstance(dependencies, IngestionDependencies)
+    connector = dependencies.registry.get(connector_id)
+    request = FetchRequest(dataset_id=dataset_id)
+    fetch_result = connector.fetch(None, request)
+    sink = kwargs["raw_result_sink"]
+    assert callable(sink)
+    sink(connector_id, dataset_id, request, fetch_result)
+    return mock_result
 
 
 def _request_observing_orchestrator(

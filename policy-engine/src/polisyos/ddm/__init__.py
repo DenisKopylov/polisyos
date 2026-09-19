@@ -1,6 +1,9 @@
 """Drift-and-Degradation Monitor for Phase 5 Problem 15.7."""
 
-from polisyos.ddm.integration.events import (
+from importlib import import_module
+from typing import Any
+
+from polisyos.ddm.contracts.events import (
     AffectedFeature,
     AffectedSlice,
     CalibrationAudit,
@@ -15,11 +18,34 @@ from polisyos.ddm.integration.events import (
     ShiftDetectedEvent,
     ShiftRiskEvent,
 )
-from polisyos.ddm.integration.model_registry import (
-    ModelRegistryReadinessRecord,
-    RegistryGateDecision,
-)
-from polisyos.ddm.integration.monitor import DDMWindowResult, DriftAndDegradationMonitor
+
+_LAZY_EXPORTS = {
+    "DDMWindowResult": ("polisyos.ddm.integration.monitor", "DDMWindowResult"),
+    "DriftAndDegradationMonitor": (
+        "polisyos.ddm.integration.monitor",
+        "DriftAndDegradationMonitor",
+    ),
+    "ModelRegistryReadinessRecord": (
+        "polisyos.ddm.integration.model_registry",
+        "ModelRegistryReadinessRecord",
+    ),
+    "RegistryGateDecision": (
+        "polisyos.ddm.integration.model_registry",
+        "RegistryGateDecision",
+    ),
+}
+
+
+def __getattr__(name: str) -> Any:
+    """Load orchestration exports only when a caller requests them."""
+
+    try:
+        module_name, attribute_name = _LAZY_EXPORTS[name]
+    except KeyError as exc:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc
+    value = getattr(import_module(module_name), attribute_name)
+    globals()[name] = value
+    return value
 
 __all__ = [
     "AffectedFeature",

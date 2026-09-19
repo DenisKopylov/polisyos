@@ -7,6 +7,7 @@ Includes harness compliance and connector-specific unit/integration tests.
 from __future__ import annotations
 
 import asyncio
+import json
 from datetime import UTC, datetime
 
 import polisyos.fabric.connectors.reference.rest_json as rest_json_module
@@ -225,6 +226,105 @@ async def test_rest_json_reuses_one_session_per_handle(monkeypatch) -> None:
 
     await connector.disconnect(handle)
     assert created[0].closed
+
+
+@pytest.mark.parametrize(
+    ("response_headers", "payloads", "expected_strategy", "expects_marker"),
+    [
+        (
+            [{"Last-Modified": "Mon, 01 Jan 2024 00:00:00 GMT"}],
+            [[{"id": 1}]],
+            VersionStrategy.TIMESTAMP,
+            True,
+        ),
+        ([{}], [[{"id": 1}]], VersionStrategy.CONTENT_HASH, False),
+        (
+            [{"Last-Modified": "not-a-date"}],
+            [[{"id": 1}]],
+            VersionStrategy.CONTENT_HASH,
+            False,
+        ),
+        (
+            [
+                {"Last-Modified": "Mon, 01 Jan 2024 00:00:00 GMT"},
+                {"Last-Modified": "Tue, 02 Jan 2024 00:00:00 GMT"},
+            ],
+            [[{"id": 1}], []],
+            VersionStrategy.CONTENT_HASH,
+            False,
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_rest_json_fetch_binds_last_modified_source_marker(
+    response_headers,
+    payloads,
+    expected_strategy,
+    expects_marker,
+) -> None:
+    """Fetch binds only a valid consistent Last-Modified source boundary."""
+
+    class FakeResponse:
+        status = 200
+
+        def __init__(self, headers, payload):
+            self.headers = headers
+            self._payload = payload
+
+        async def read(self):
+            return json.dumps({"data": self._payload}).encode("utf-8")
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            del exc_type, exc, tb
+            return False
+
+    class FakeSession:
+        closed = False
+
+        def __init__(self):
+            self.calls = []
+            self._responses = [
+                FakeResponse(headers, payload)
+                for headers, payload in zip(response_headers, payloads, strict=True)
+            ]
+
+        def get(self, *args, **kwargs):
+            self.calls.append((args, kwargs))
+            return self._responses.pop(0)
+
+        async def close(self):
+            self.closed = True
+
+    connector = GenericRESTConnector()
+    config_headers = {"X-REST-DataPath": "data"}
+    if len(payloads) > 1:
+        config_headers["X-REST-PageSize"] = "1"
+    handle = await connector.connect(
+        ConnectionConfig(
+            url="https://example.test/data",
+            headers=config_headers,
+        )
+    )
+    session = FakeSession()
+    handle.set_state("session", session)
+
+    result = await connector.fetch(handle, FetchRequest(dataset_id="dataset"))
+
+    assert result.version.strategy is expected_strategy
+    if expects_marker:
+        assert result.source_updated_at is not None
+        assert result.source_updated_at.tzinfo is not None
+        assert result.source_updated_at == result.version.timestamp
+        assert result.version.value == result.source_updated_at.isoformat()
+    else:
+        assert result.source_updated_at is None
+        assert result.version.strategy is VersionStrategy.CONTENT_HASH
+    assert not session._responses
+
+    await connector.disconnect(handle)
 
 
 # =============================================================================

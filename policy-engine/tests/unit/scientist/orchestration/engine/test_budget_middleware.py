@@ -8,6 +8,7 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.budget import (
     BudgetExhaustedError,
     BudgetLimit,

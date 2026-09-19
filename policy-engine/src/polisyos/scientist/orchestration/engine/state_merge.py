@@ -14,11 +14,14 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
     StateMutationJournal,
+    StateMutationTargetKind,
+    StateMutationTargetPresence,
     branch_state,
     mutation_journal_for_state,
 )
@@ -80,6 +83,8 @@ class _StagedWrite:
     stop: int | None = None
     step: int | None = None
     ordinal: int | None = None
+    expected_target_presence: StateMutationTargetPresence | None = None
+    expected_target_kind: StateMutationTargetKind | None = None
 
 
 @dataclass(frozen=True)
@@ -280,16 +285,32 @@ def _writes_from_mutations(
                 alias=alias,
                 path=mutation.path,
                 parts=parts,
-                value=mutation.value,
+                value=_restore_mutation_value(mutation),
                 operation=mutation.operation,
                 index=mutation.index,
                 start=mutation.start,
                 stop=mutation.stop,
                 step=mutation.step,
                 ordinal=ordinal,
+                expected_target_presence=mutation.target_presence,
+                expected_target_kind=mutation.target_kind,
             )
         )
     return staged
+
+
+def _restore_mutation_value(mutation: StateMutation) -> Any:
+    if mutation.value_kind != "artifact_ref":
+        return mutation.value
+    if isinstance(mutation.value, ArtifactRef):
+        return mutation.value
+    try:
+        return ArtifactRef.model_validate(mutation.value)
+    except (TypeError, ValueError) as exc:
+        raise StateReplayIncompatible(
+            mutation.path,
+            "artifact ref mutation value is invalid",
+        ) from exc
 
 
 def _path_contains(parent: tuple[str, ...], child: tuple[str, ...]) -> bool:
@@ -393,20 +414,16 @@ def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
 
     current: Any = root
     for index, part in enumerate(parts[:-1]):
-        next_part = parts[index + 1]
         if isinstance(current, BaseModel):
             child = getattr(current, part, _MISSING)
             if child is _MISSING or child is None:
-                replacement: Any = {} if index < len(parts) - 2 else {}
-                setattr(current, part, replacement)
-                child = replacement
+                raise TypeError(f"Cannot descend through missing state path segment {part!r}")
             current = child
             continue
         if isinstance(current, dict):
             child = current.get(part, _MISSING)
             if child is _MISSING or child is None:
-                current[part] = {}
-                child = current[part]
+                raise TypeError(f"Cannot descend through missing state path segment {part!r}")
             current = child
             continue
         if isinstance(current, list):
@@ -415,7 +432,7 @@ def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
             except (IndexError, TypeError, ValueError) as exc:
                 raise TypeError(f"Cannot descend into list path segment {part!r}") from exc
             continue
-        raise TypeError(f"Cannot descend into non-container path segment {next_part!r}")
+        raise TypeError(f"Cannot descend into non-container path segment {part!r}")
     _assign_value(current, parts[-1], value)
 
 
@@ -438,6 +455,44 @@ def _assign_value(root: Any, key: str, value: Any) -> None:
 _PROTECTED_DELETE_ROOTS = frozenset({"inputs", "artifacts_index", "reports_index"})
 
 
+def _target_kind(value: Any) -> StateMutationTargetKind:
+    if isinstance(value, dict):
+        return "dict"
+    if isinstance(value, list):
+        return "list"
+    if isinstance(value, set):
+        return "set"
+    if isinstance(value, BaseModel):
+        return "model"
+    return "scalar"
+
+
+def _validate_target_precondition(root: ExperimentState, write: _StagedWrite) -> None:
+    """Reject replay when a journaled operation's target changed shape or vanished."""
+    if write.expected_target_presence is None or write.expected_target_kind is None:
+        return
+    # Direct assignments intentionally overwrite the current leaf.  Their
+    # parent path is still checked by _set_path; existing-leaf shape is not a
+    # replay precondition (None is a valid replacement target).
+    if write.operation == "set":
+        return
+    actual = _get_path(root, write.parts)
+    if write.expected_target_presence == "missing":
+        raise StateReplayIncompatible(
+            write.path,
+            "operation target was not present in producer branch",
+        )
+    if actual is _MISSING:
+        raise StateReplayIncompatible(write.path, "operation target is missing")
+    actual_kind = _target_kind(actual)
+    if actual_kind != write.expected_target_kind:
+        raise StateReplayIncompatible(
+            write.path,
+            f"operation target kind changed from {write.expected_target_kind!r} "
+            f"to {actual_kind!r}",
+        )
+
+
 def _apply_staged_write(root: ExperimentState, write: _StagedWrite) -> None:
     if (
         write.operation in {"delete", "pop", "remove", "clear", "delete_index", "delete_slice"}
@@ -448,6 +503,7 @@ def _apply_staged_write(root: ExperimentState, write: _StagedWrite) -> None:
             write.path,
             f"state deletion forbidden for protected root {write.parts[0]!r}",
         )
+    _validate_target_precondition(root, write)
     if write.operation == "set":
         try:
             _set_path(root, write.parts, deepcopy(write.value))

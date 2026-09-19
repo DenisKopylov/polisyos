@@ -36,12 +36,35 @@ logger = get_logger(__name__)
 IDEMPOTENCY_CONTRACT_VERSION = "1.0"
 NODE_CACHE_ENTRY_SCHEMA_VERSION = "1.0"
 STATE_MUTATIONS_VERSION = "1.0"
+REPLAY_EPOCH = "2.0"
 
 _IDEM_CANON = CanonSpec(
     name="polisyos.idempotency.canon",
     version=IDEMPOTENCY_CONTRACT_VERSION,
     forbid_floats=False,
     sort_keys=True,
+)
+
+
+class JournalProof(BaseModel):
+    """Producer-issued hash binding a mutation journal to its cache manifest."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    replay_epoch: str = Field(pattern=r"^\d+\.\d+$")
+    payload_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    manifest_schema: SchemaInfo
+    manifest_producer: ProducerInfo
+
+
+_CACHE_ENTRY_SCHEMA = SchemaInfo(
+    name="polisyos.scientist.orchestration.engine.NodeCacheEntry",
+    version=NODE_CACHE_ENTRY_SCHEMA_VERSION,
+)
+_JOURNAL_PROOF_CANON = CanonSpec(
+    name="polisyos.scientist.orchestration.engine.journal-proof",
+    version="1.0",
+    forbid_floats=False,
 )
 
 
@@ -57,7 +80,61 @@ class NodeCacheEntry(BaseModel):
     outcome_ref: ArtifactRef
     state_mutations: tuple[StateMutation, ...] = Field(default_factory=tuple)
     state_mutations_version: str | None = Field(default=None, pattern=r"^\d+\.\d+$")
+    replay_epoch: str | None = Field(default=None, pattern=r"^\d+\.\d+$")
+    journal_proof: JournalProof | None = None
     created_at: datetime = Field(default_factory=lambda: utc_now(drop_microseconds=True))
+
+
+def _cache_producer(*, output_aware: bool) -> ProducerInfo:
+    return ProducerInfo(
+        component="scientist.engine.idempotency",
+        version="2.0.0" if output_aware else "1.0.0",
+    )
+
+
+def _journal_payload(entry: NodeCacheEntry) -> dict[str, Any]:
+    return entry.model_dump(
+        mode="python",
+        by_alias=True,
+        exclude_none=False,
+        exclude={"journal_proof"},
+    )
+
+
+def _journal_proof_hash(
+    entry: NodeCacheEntry,
+    *,
+    manifest_schema: SchemaInfo,
+    manifest_producer: ProducerInfo,
+) -> str:
+    material = {
+        "replay_epoch": entry.replay_epoch,
+        "entry": _journal_payload(entry),
+        "manifest_schema": manifest_schema,
+        "manifest_producer": manifest_producer,
+    }
+    return content_hash(
+        to_canonical_bytes(material, _JOURNAL_PROOF_CANON),
+        prefix=True,
+    )
+
+
+def _build_journal_proof(
+    entry: NodeCacheEntry,
+    *,
+    manifest_schema: SchemaInfo,
+    manifest_producer: ProducerInfo,
+) -> JournalProof:
+    return JournalProof(
+        replay_epoch=REPLAY_EPOCH,
+        payload_hash=_journal_proof_hash(
+            entry,
+            manifest_schema=manifest_schema,
+            manifest_producer=manifest_producer,
+        ),
+        manifest_schema=manifest_schema,
+        manifest_producer=manifest_producer,
+    )
 
 
 def _resolve_path(state: ExperimentState, path: str) -> Any:
@@ -161,17 +238,27 @@ class NodeResultCache:
                 del self._mutation_journals[key]
         return removed
 
-    def _verify_output_aware_cache_artifact(self, ref: ArtifactRef, *, entry: bool = False) -> None:
+    def _verify_cache_artifact(
+        self,
+        ref: ArtifactRef,
+        *,
+        output_aware: bool,
+        entry: bool = False,
+    ) -> None:
         """Read back the actual immutable cache epoch, including reused CAS bytes."""
         if not self._store.verify(ref.artifact_id).ok:
-            raise ValueError("output_aware_cache_custody: artifact_integrity_failed")
+            raise ValueError("cache_custody: artifact_integrity_failed")
         manifest = self._store.get_manifest(ref.artifact_id)
         kind = "scientist.node_cache_entry" if entry else "scientist.node_outcome"
-        schema_name = "NodeCacheEntry" if entry else "OutputAwareNodeOutcome"
+        schema_name = (
+            "NodeCacheEntry"
+            if entry
+            else ("OutputAwareNodeOutcome" if output_aware else "NodeOutcome")
+        )
         expected_schema = SchemaInfo(
             name=f"polisyos.scientist.orchestration.engine.{schema_name}", version="1.0"
         )
-        expected_producer = ProducerInfo(component="scientist.engine.idempotency", version="2.0.0")
+        expected_producer = _cache_producer(output_aware=output_aware)
         if (
             ref.kind != kind
             or ref.media_type != "application/json"
@@ -180,7 +267,19 @@ class NodeResultCache:
             or manifest.artifact_schema != expected_schema
             or manifest.producer != expected_producer
         ):
-            raise ValueError("output_aware_cache_custody: immutable_epoch_mismatch")
+            raise ValueError("cache_custody: immutable_epoch_mismatch")
+
+    def _verify_output_aware_cache_artifact(
+        self,
+        ref: ArtifactRef,
+        *,
+        entry: bool = False,
+    ) -> None:
+        """Read back an output-aware cache artifact under its immutable epoch."""
+        try:
+            self._verify_cache_artifact(ref, output_aware=True, entry=entry)
+        except ValueError as exc:
+            raise ValueError(f"output_aware_cache_custody: {exc}") from exc
 
     def get(self, key: str) -> NodeOutcome | None:
         outcome_ref = self._index.get(key)
@@ -213,8 +312,11 @@ class NodeResultCache:
 
     def put(self, key: str, node_id: str, outcome: NodeOutcome) -> ArtifactRef:
         output_aware = isinstance(outcome, OutputAwareNodeOutcome)
-        producer_version = "2.0.0" if output_aware else "1.0.0"
         outcome_schema = "OutputAwareNodeOutcome" if output_aware else "NodeOutcome"
+        outcome_schema_info = SchemaInfo(
+            name=f"polisyos.scientist.orchestration.engine.{outcome_schema}", version="1.0"
+        )
+        cache_producer = _cache_producer(output_aware=output_aware)
         journal = mutation_journal_for_state(outcome.state)
         state_mutations = tuple(journal.operations) if journal is not None else ()
         outcome_ref = self._store.put_json(
@@ -222,40 +324,50 @@ class NodeResultCache:
             PutOptions(
                 kind="scientist.node_outcome",
                 media_type="application/json",
-                schema=SchemaInfo(
-                    name=f"polisyos.scientist.orchestration.engine.{outcome_schema}", version="1.0"
-                ),
-                producer=ProducerInfo(
-                    component="scientist.engine.idempotency", version=producer_version
-                ),
+                schema=outcome_schema_info,
+                producer=cache_producer,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
         if output_aware:
             self._verify_output_aware_cache_artifact(outcome_ref)
-        entry = NodeCacheEntry(
+        else:
+            self._verify_cache_artifact(outcome_ref, output_aware=False)
+        entry_without_proof = NodeCacheEntry(
             run_id=self._run_id,
             node_id=node_id,
             idempotency_key=key,
             outcome_ref=outcome_ref,
             state_mutations=state_mutations,
             state_mutations_version=STATE_MUTATIONS_VERSION if journal is not None else None,
+            replay_epoch=REPLAY_EPOCH if journal is not None else None,
+        )
+        entry = (
+            entry_without_proof.model_copy(
+                update={
+                    "journal_proof": _build_journal_proof(
+                        entry_without_proof,
+                        manifest_schema=_CACHE_ENTRY_SCHEMA,
+                        manifest_producer=cache_producer,
+                    )
+                }
+            )
+            if journal is not None
+            else entry_without_proof
         )
         entry_ref = self._store.put_json(
             entry.model_dump(mode="python", by_alias=True, exclude_none=False),
             PutOptions(
                 kind="scientist.node_cache_entry",
                 media_type="application/json",
-                schema=SchemaInfo(
-                    name="polisyos.scientist.orchestration.engine.NodeCacheEntry", version="1.0"
-                ),
-                producer=ProducerInfo(
-                    component="scientist.engine.idempotency", version=producer_version
-                ),
+                schema=_CACHE_ENTRY_SCHEMA,
+                producer=cache_producer,
             ),
         )
         if output_aware:
             self._verify_output_aware_cache_artifact(entry_ref, entry=True)
+        else:
+            self._verify_cache_artifact(entry_ref, output_aware=False, entry=True)
         if journal is not None:
             self._index.set(key, outcome_ref)
             self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)
@@ -270,23 +382,40 @@ class NodeResultCache:
         entry = NodeCacheEntry.model_validate(payload)
         if entry.run_id != self._run_id:
             return False
-        # A supplied output-aware body must establish both actual cache
-        # manifests before replay admission is considered.
-        try:
-            offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref.artifact_id))
-        except (FileNotFoundError, OSError, TypeError, ValueError):
-            offered = None
-        extension_fields = (
-            OutputAwareNodeOutcome.model_fields.keys() - NodeOutcome.model_fields.keys()
-        )
-        if isinstance(offered, dict) and extension_fields.intersection(offered):
-            decode_node_outcome(offered)
+        offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref.artifact_id))
+        decoded = decode_node_outcome(offered)
+        output_aware = isinstance(decoded, OutputAwareNodeOutcome)
+        if output_aware:
             self._verify_output_aware_cache_artifact(entry.outcome_ref)
             self._verify_output_aware_cache_artifact(entry_ref, entry=True)
+        else:
+            self._verify_cache_artifact(entry.outcome_ref, output_aware=False)
+            self._verify_cache_artifact(entry_ref, output_aware=False, entry=True)
         if entry.schema_version != NODE_CACHE_ENTRY_SCHEMA_VERSION:
             self.discard(entry.idempotency_key)
             return False
         if entry.state_mutations_version != STATE_MUTATIONS_VERSION:
+            self.discard(entry.idempotency_key)
+            return False
+        if entry.replay_epoch != REPLAY_EPOCH or entry.journal_proof is None:
+            self.discard(entry.idempotency_key)
+            return False
+        proof = entry.journal_proof
+        entry_manifest = self._store.get_manifest(entry_ref.artifact_id)
+        expected_producer = _cache_producer(output_aware=output_aware)
+        if (
+            proof.replay_epoch != REPLAY_EPOCH
+            or proof.manifest_schema != entry_manifest.artifact_schema
+            or proof.manifest_producer != entry_manifest.producer
+            or proof.manifest_schema != _CACHE_ENTRY_SCHEMA
+            or proof.manifest_producer != expected_producer
+            or proof.payload_hash
+            != _journal_proof_hash(
+                entry,
+                manifest_schema=entry_manifest.artifact_schema,
+                manifest_producer=entry_manifest.producer,
+            )
+        ):
             self.discard(entry.idempotency_key)
             return False
         self._index.set(entry.idempotency_key, entry.outcome_ref)
@@ -359,8 +488,10 @@ class NodeResultCache:
 
 __all__ = [
     "IDEMPOTENCY_CONTRACT_VERSION",
+    "JournalProof",
     "NodeCacheEntry",
     "NodeResultCache",
+    "REPLAY_EPOCH",
     "compute_idempotency_key",
     "compute_idempotency_payload",
     "extract_state_slice",

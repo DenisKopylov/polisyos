@@ -975,8 +975,12 @@ class WorkflowExecutor:
                                 "duration_ms": int((time.perf_counter() - started) * 1000),
                                 "cache_bypass": 1,
                                 "reason_code": _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
-                                "reason": str(exc),
                             },
+                        )
+                        self._ctx.logger.warning(
+                            "Node %s cache replay bypassed: %s",
+                            alias,
+                            exc,
                         )
                         set_span_attribute(
                             span,

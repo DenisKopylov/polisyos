@@ -1,7 +1,9 @@
 """Integration contracts for DDM-15.7."""
 
+from __future__ import annotations
+
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING, Callable
 
 from polisyos.ddm.contracts.events import (
     AffectedFeature,
@@ -18,6 +20,13 @@ from polisyos.ddm.contracts.events import (
     ShiftDetectedEvent,
     ShiftRiskEvent,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ddm.integration.model_registry import (
+        ModelRegistryReadinessRecord,
+        RegistryGateDecision,
+    )
+    from polisyos.ddm.integration.monitor import DDMWindowResult, DriftAndDegradationMonitor
 
 _LAZY_EXPORTS = {
     "build_incident_payload": (
@@ -52,7 +61,18 @@ _LAZY_EXPORTS = {
 }
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(
+    name: str,
+) -> (
+    Callable[..., IncidentPayload]
+    | Callable[..., RootCauseBundle]
+    | Callable[..., ModelRegistryReadinessRecord]
+    | Callable[..., RegistryGateDecision]
+    | DDMWindowResult
+    | DriftAndDegradationMonitor
+    | ModelRegistryReadinessRecord
+    | RegistryGateDecision
+):
     """Load incident, registry, and monitor exports on demand."""
 
     try:

@@ -1,7 +1,9 @@
 """Drift-and-Degradation Monitor for Phase 5 Problem 15.7."""
 
+from __future__ import annotations
+
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING
 
 from polisyos.ddm.contracts.events import (
     AffectedFeature,
@@ -18,6 +20,13 @@ from polisyos.ddm.contracts.events import (
     ShiftDetectedEvent,
     ShiftRiskEvent,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ddm.integration.model_registry import (
+        ModelRegistryReadinessRecord,
+        RegistryGateDecision,
+    )
+    from polisyos.ddm.integration.monitor import DDMWindowResult, DriftAndDegradationMonitor
 
 _LAZY_EXPORTS = {
     "DDMWindowResult": ("polisyos.ddm.integration.monitor", "DDMWindowResult"),
@@ -36,7 +45,14 @@ _LAZY_EXPORTS = {
 }
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(
+    name: str,
+) -> (
+    DDMWindowResult
+    | DriftAndDegradationMonitor
+    | ModelRegistryReadinessRecord
+    | RegistryGateDecision
+):
     """Load orchestration exports only when a caller requests them."""
 
     try:

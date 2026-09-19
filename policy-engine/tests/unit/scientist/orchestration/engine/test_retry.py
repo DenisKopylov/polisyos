@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
 import multiprocessing as mp
+import threading
 import time as _time
+from contextvars import ContextVar
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+import polisyos.scientist.orchestration.engine.retry as retry_module
 from polisyos.core.contracts import BoundedLivenessConfig
 from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, RetryExhaustedError
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
@@ -399,6 +404,163 @@ class TestExecuteWithRetrySync:
         assert result.status == "fail"
         assert node.execute.call_count == 2
 
+    def test_timeout_thread_fallback_preserves_context_for_each_request(
+        self, ctx, state, monkeypatch
+    ):
+        owner_scope: ContextVar[str | None] = ContextVar("owner_scope", default=None)
+        observed: list[str | None] = []
+
+        class _ContextNode:
+            def execute(self, _ctx, _state):
+                observed.append(owner_scope.get())
+                return _ok_outcome(state)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
+            lambda: executor,
+        )
+
+        try:
+            token = owner_scope.set("request-A")
+            try:
+                direct = execute_with_retry_sync(
+                    _ContextNode(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=None,
+                    alias="a",
+                )
+            finally:
+                owner_scope.reset(token)
+
+            async def _async_entry() -> NodeOutcome:
+                token = owner_scope.set("request-B")
+                try:
+                    return await execute_with_retry_async(
+                        _ContextNode(),
+                        ctx,
+                        state,
+                        retry_policy=RetryPolicy(),
+                        timeout_s=None,
+                        alias="b",
+                    )
+                finally:
+                    owner_scope.reset(token)
+
+            async_result = asyncio.run(_async_entry())
+
+            for request_id in ("request-C", "request-D"):
+                token = owner_scope.set(request_id)
+                try:
+                    threaded = execute_with_retry_sync(
+                        _ContextNode(),
+                        ctx,
+                        state,
+                        retry_policy=RetryPolicy(),
+                        timeout_s=0.5,
+                        alias=request_id,
+                    )
+                finally:
+                    owner_scope.reset(token)
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert direct.status == "ok"
+        assert async_result.status == "ok"
+        assert threaded.status == "ok"
+        assert observed == ["request-A", "request-B", "request-C", "request-D"]
+        assert owner_scope.get() is None
+
+    def test_timeout_wait_cancel_does_not_commit_late_state_write(self, ctx, state, monkeypatch):
+        started = threading.Event()
+        release = threading.Event()
+        completed = threading.Event()
+
+        class _LateWriteNode:
+            def execute(self, _ctx, passed_state):
+                started.set()
+                release.wait(timeout=1.0)
+                passed_state.params["late_write"] = "unauthorised"
+                completed.set()
+                return _ok_outcome(passed_state)
+
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
+            lambda: executor,
+        )
+
+        try:
+            with pytest.raises(NodeTimeoutError):
+                execute_with_retry_sync(
+                    _LateWriteNode(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=0.01,
+                    alias="late-write",
+                )
+            assert started.wait(timeout=0.5)
+            release.set()
+            assert completed.wait(timeout=0.5)
+        finally:
+            release.set()
+            executor.shutdown(wait=True, cancel_futures=True)
+
+        assert "late_write" not in state.params
+
+    def test_one_effective_deadline_passes_remaining_budget_to_each_retry(
+        self, ctx, state, monkeypatch
+    ):
+        config = BoundedLivenessConfig(
+            default_deadline_s=0.1,
+            default_retry_ceiling=1,
+            producer_deadline_overrides_s={"scientist.node.a": 0.1},
+        )
+        observed: list[float | None] = []
+
+        class _Clock:
+            value = 100.0
+
+            def __call__(self) -> float:
+                return self.value
+
+        clock = _Clock()
+
+        def _capture(_node, _ctx, _state, *, timeout_s):
+            observed.append(timeout_s)
+            if len(observed) == 1:
+                clock.value += 0.06
+                return _fail_outcome(state)
+            return _ok_outcome(state)
+
+        monkeypatch.setattr(retry_module, "_execute_with_timeout_sync", _capture)
+        monkeypatch.setattr(retry_module.time, "monotonic", clock)
+        monkeypatch.setattr(retry_module.time, "sleep", lambda _seconds: None)
+
+        result = execute_with_retry_sync(
+            MagicMock(),
+            ctx,
+            state,
+            retry_policy=RetryPolicy(max_retries=1, jitter="none"),
+            timeout_s=None,
+            alias="a",
+            liveness_config=config,
+        )
+
+        assert result.status == "ok"
+        assert observed == [pytest.approx(0.1), pytest.approx(0.04)]
+
 
 # ---------------------------------------------------------------------------
 # execute_with_retry_async
@@ -509,6 +671,31 @@ class TestExecuteWithRetryAsync:
                 timeout_s=None,
                 alias="a",
             )
+
+    @pytest.mark.asyncio
+    async def test_async_entry_uses_one_effective_deadline_when_timeout_is_omitted(
+        self, ctx, state, monkeypatch
+    ):
+        config = BoundedLivenessConfig(default_deadline_s=0.1, default_retry_ceiling=0)
+        observed: list[float | None] = []
+
+        async def _bridge(_func, *_args, **kwargs):
+            observed.append(kwargs.get("timeout_seconds"))
+            return _ok_outcome(state)
+
+        monkeypatch.setattr(retry_module, "run_blocking_async", _bridge)
+        result = await execute_with_retry_async(
+            MagicMock(),
+            ctx,
+            state,
+            retry_policy=RetryPolicy(),
+            timeout_s=None,
+            alias="a",
+            liveness_config=config,
+        )
+
+        assert result.status == "ok"
+        assert observed == [pytest.approx(0.1)]
 
 
 class TestRetryTimeoutWorker:

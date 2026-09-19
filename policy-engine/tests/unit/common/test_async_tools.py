@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 import time
+from collections.abc import Awaitable, Callable
 from contextvars import ContextVar
+from typing import get_type_hints
 
 import pytest
 
+import polisyos.common.async_tools as async_tools
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async, run_coro_sync
 
 
@@ -93,3 +97,54 @@ def test_run_blocking_async_concurrent_soak_smoke() -> None:
     results, executor_ids = run_coro_sync(_exercise())
     assert results == list(range(24))
     assert executor_ids == {id(get_shared_executor())}
+
+
+def test_async_bridge_module_typevar_cleanup_preserves_function_type_parameters() -> None:
+    """The narrow module cleanup must not change any function generic contract."""
+    assert not hasattr(async_tools, "T")
+    assert not hasattr(async_tools, "TypeVar")
+
+    namespace = dict(vars(async_tools))
+    namespace.update(Awaitable=Awaitable, Callable=Callable)
+    generic_functions = (
+        async_tools._await_awaitable,
+        async_tools._run_coro_in_fresh_loop,
+        async_tools.run_coro_sync,
+        async_tools.run_blocking_async,
+    )
+
+    for function in generic_functions:
+        type_params = getattr(function, "__type_params__", ())
+        assert len(type_params) == 1
+        assert type_params[0].__name__ == "T"
+        hints = get_type_hints(function, globalns=namespace, localns=namespace)
+        assert "return" in hints
+
+
+def test_shared_executor_saturation_does_not_turn_inner_work_into_timeout(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A small saturated pool must progress or reject re-entry explicitly."""
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", executor)
+
+    def _run_inner(index: int) -> int:
+        async def _exercise() -> int:
+            return await run_blocking_async(lambda: index, timeout_seconds=0.02)
+
+        return asyncio.run(_exercise())
+
+    futures = [executor.submit(_run_inner, index) for index in range(2)]
+    outcomes: list[object] = []
+    try:
+        for future in futures:
+            try:
+                outcomes.append(future.result(timeout=0.5))
+            except Exception as exc:  # explicit re-entry rejection is allowed
+                outcomes.append(exc)
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+        monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+
+    for index, outcome in enumerate(outcomes):
+        assert outcome == index or isinstance(outcome, RuntimeError)

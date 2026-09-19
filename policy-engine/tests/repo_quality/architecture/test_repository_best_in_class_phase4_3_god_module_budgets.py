@@ -8,9 +8,9 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 INITIAL_FOUNDRY_FOCUS = {
-    "src/polisyos/foundry/methods/catalog/causal/causal_engine.py",
-    "src/polisyos/foundry/methods/catalog/causal/interference.py",
-    "src/polisyos/foundry/methods/catalog/causal/id_engine.py",
+    "src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+    "src/polisyos/foundry/methods/catalog/causal/interference/estimation.py",
+    "src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
     "src/polisyos/foundry/methods/selection.py",
 }
 
@@ -27,6 +27,7 @@ EXPECTED_COHESIVE_RESPONSIBILITIES = {
 ID_ENGINE_CHARACTERIZATION = (
     "tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"
 )
+ID_ENGINE_BUDGET_PATH = "src/polisyos/foundry/methods/catalog/causal/id_engine/core.py"
 
 
 def test_phase4_3_god_module_budgets_have_owner_ready_shrink_metadata() -> None:
@@ -67,7 +68,7 @@ def test_phase4_3_god_module_budgets_have_owner_ready_shrink_metadata() -> None:
 def test_phase4_3_id_engine_has_characterization_tests_and_shrink_plan() -> None:
     payload = _read_toml(REPO_ROOT / "architecture" / "module_size_budget.toml")
     budget_by_path = {budget["path"]: budget for budget in payload["budget"]}
-    id_engine = budget_by_path["src/polisyos/foundry/methods/catalog/causal/id_engine.py"]
+    id_engine = budget_by_path[ID_ENGINE_BUDGET_PATH]
 
     assert ID_ENGINE_CHARACTERIZATION in id_engine["characterization_tests"]
     assert (REPO_ROOT / ID_ENGINE_CHARACTERIZATION).exists()

@@ -241,26 +241,7 @@ risk_notes = "Below warning threshold; budget exists to prevent silent growth in
 characterization_tests = ["tests/repo_quality/tools/test_extension_examples.py"]
 
 [[budget]]
-path = "src/polisyos/foundry/methods/catalog/causal/causal_engine.py"
-package = "foundry"
-owner = "team-foundry"
-baseline_lines = 10231
-current_lines = 10
-warning_lines = 1000
-report_only_limit_lines = 10
-next_ratchet_lines = 10
-target_lines = 10
-sunset = "2026-12-31"
-issue = "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-41---foundry-causal-god-module-splits"
-strategy = "keep the legacy causal_engine.py path as a no-growth compatibility facade"
-shrink_plan = "Phase 4.1 moved the CausalEngine implementation behind src/polisyos/foundry/methods/catalog/causal/causal_engine/ while preserving the historical import surface. Keep this facade at ten lines and track remaining oversized implementation leaves separately."
-extraction_sequence = ["serialization"]
-risk_notes = "The shim must not grow; implementation risk is tracked on causal_engine package leaf budgets."
-characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py"]
-
-[[budget]]
 path = "src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py"
-legacy_path = "src/polisyos/foundry/methods/catalog/causal/causal_engine.py"
 package = "foundry"
 owner = "team-foundry"
 baseline_lines = 4809
@@ -279,7 +260,6 @@ characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test_phase4
 
 [[budget]]
 path = "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py"
-legacy_path = "src/polisyos/foundry/methods/catalog/causal/causal_engine.py"
 package = "foundry"
 owner = "team-foundry"
 baseline_lines = 2539
@@ -315,26 +295,7 @@ risk_notes = "The facade synchronizes legacy monkeypatch globals into split leav
 characterization_tests = ["tests/unit/data_forge/domains/catalog/batch/test__core_sources_ingest_contracts.py"]
 
 [[budget]]
-path = "src/polisyos/foundry/methods/catalog/causal/interference.py"
-package = "foundry"
-owner = "team-foundry"
-baseline_lines = 5769
-current_lines = 9
-warning_lines = 1000
-report_only_limit_lines = 9
-next_ratchet_lines = 9
-target_lines = 9
-sunset = "2026-12-31"
-issue = "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-41---foundry-causal-god-module-splits"
-strategy = "keep the legacy interference.py path as a no-growth compatibility facade"
-shrink_plan = "Phase 4.1 moved interference implementation behind interference/{identification,estimation,api}. Keep this shim at nine lines and track any future estimator growth on package leaves."
-extraction_sequence = ["serialization"]
-risk_notes = "The shim must preserve old imports while estimator behavior remains in split leaves."
-characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py"]
-
-[[budget]]
 path = "src/polisyos/foundry/methods/catalog/causal/interference/estimation.py"
-legacy_path = "src/polisyos/foundry/methods/catalog/causal/interference.py"
 package = "foundry"
 owner = "team-foundry"
 baseline_lines = 2896
@@ -352,21 +313,21 @@ risk_notes = "Estimator-family extraction must preserve report schema compatibil
 characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py"]
 
 [[budget]]
-path = "src/polisyos/foundry/methods/catalog/causal/id_engine.py"
+path = "src/polisyos/foundry/methods/catalog/causal/id_engine/core.py"
 package = "foundry"
 owner = "team-foundry"
 baseline_lines = 5045
-current_lines = 9
+current_lines = 2171
 warning_lines = 1000
-report_only_limit_lines = 9
-next_ratchet_lines = 9
-target_lines = 9
+report_only_limit_lines = 2171
+next_ratchet_lines = 2000
+target_lines = 2000
 sunset = "2026-12-31"
 issue = "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-41---foundry-causal-god-module-splits"
-strategy = "keep the legacy id_engine.py path as a no-growth compatibility facade"
-shrink_plan = "Phase 4.1 moved ID implementation behind id_engine/{core,transport,counterfactual,api}. Keep this shim at nine lines while split leaves preserve ID/IDC status, formulas, proof rules, and hedge certificates."
+strategy = "track the canonical id_engine/core.py package leaf after retiring the empty sibling facade"
+shrink_plan = "Phase 4.1 moved ID implementation behind id_engine/{core,transport,counterfactual,api}. Keep core.py below its ratchet while preserving ID/IDC status, formulas, proof rules, and hedge certificates."
 extraction_sequence = ["models/contracts", "validation", "graph transforms", "estimand compilation", "diagnostics", "execution adapters", "serialization"]
-risk_notes = "The shim must preserve old ID/IDC imports and proof-trace callers."
+risk_notes = "The canonical core leaf must preserve ID/IDC status, proof-trace callers, and hedge certificates while future extraction proceeds."
 characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"]
 
 [[budget]]

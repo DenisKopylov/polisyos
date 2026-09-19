@@ -94,21 +94,6 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 _GOVERNED_CAPABILITY_ROWS_PATH = (
     _REPO_ROOT / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
 )
-_DATA_FAMILY_ORDER: tuple[str, ...] = (
-    "production_msme_panel",
-    "credit_program_registry",
-    "regional_displacement_indicators",
-    "labor_force_panel",
-    "employment_registry",
-    "regional_vulnerability_index",
-    "tax_admin_panel",
-    "fiscal_revenue_series",
-    "housing_beneficiary_registry",
-    "rent_market_panel",
-    "service_delivery_registry",
-    "vaccination_coverage_panel",
-    "rural_access_indicators",
-)
 
 
 def _data_requirement_family_fallback_enabled() -> bool:
@@ -834,87 +819,6 @@ def _capability_binding_metadata(binding: CapabilityBindingLike) -> dict[str, An
     }
 
 
-def _data_families_from_obligation_graph(
-    obligation_graph: object | Mapping[str, Any] | None,
-) -> tuple[str, ...]:
-    """Extract data source families from W6.C blocking frontier metadata.
-
-    Track A1 introduces this primary path. Vertical governance rules seeded
-    in Track B2 carry a ``data_family`` (or ``evidence_family``) field in the
-    rule logic; the obligation-graph compiler surfaces those through the
-    frontier item ``metadata`` mapping. When the W6.B catalog has no vertical
-    rule for a given case, this function returns an empty tuple and the
-    caller falls back to the legacy heuristic (see
-    ``_required_data_families_from_heuristic``).
-    """
-
-    if obligation_graph is None:
-        return ()
-    frontier = getattr(obligation_graph, "blocking_frontier", None)
-    if frontier is None and isinstance(obligation_graph, Mapping):
-        frontier = obligation_graph.get("blocking_frontier")
-    if not frontier:
-        return ()
-    families: list[str] = []
-    for item in frontier:
-        family_token = _data_family_token_from_frontier_item(item)
-        if family_token and family_token not in families:
-            families.append(family_token)
-    return _ordered_data_families(families)
-
-
-def _data_family_token_from_frontier_item(item: Any) -> str | None:
-    bundle_key = getattr(item, "bundle_key", None)
-    bundle_family = (
-        getattr(bundle_key, "family", None)
-        if bundle_key is not None
-        else None
-    )
-    if isinstance(item, Mapping):
-        bundle_family = bundle_family or _nested(item, ("bundle_key", "family"))
-        metadata = item.get("metadata") or {}
-    else:
-        metadata = getattr(item, "metadata", {}) or {}
-    if _normalised_family(bundle_family) != "data":
-        return None
-    if isinstance(metadata, Mapping):
-        for key in ("data_family", "evidence_family"):
-            value = metadata.get(key)
-            if isinstance(value, str) and value.strip():
-                return _slug_family(value)
-    return None
-
-
-def _nested(payload: Mapping[str, Any], path: Sequence[str]) -> Any:
-    cursor: Any = payload
-    for key in path:
-        if not isinstance(cursor, Mapping):
-            return None
-        cursor = cursor.get(key)
-    return cursor
-
-
-def _normalised_family(value: Any) -> str | None:
-    if value is None:
-        return None
-    text = str(value).strip().casefold()
-    return text or None
-
-
-def _slug_family(value: str) -> str:
-    return "_".join(value.strip().casefold().replace("-", "_").split())
-
-
-def _ordered_data_families(families: Sequence[str]) -> tuple[str, ...]:
-    priority = {family: index for index, family in enumerate(_DATA_FAMILY_ORDER)}
-    return tuple(
-        sorted(
-            families,
-            key=lambda family: (priority.get(family, len(priority)), family),
-        )
-    )
-
-
 def _required_data_families_from_heuristic(
     *,
     facets: Sequence[Mapping[str, Any]],
@@ -1208,11 +1112,6 @@ def _text_tuple(value: object) -> tuple[str, ...]:
             if (text := _text(item))
         )
     )
-
-
-def _digest(payload: object) -> str:
-    data = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode()
-    return hashlib.sha256(data).hexdigest()[:16]
 
 
 def _slug(value: str) -> str:

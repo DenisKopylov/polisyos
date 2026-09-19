@@ -50,7 +50,7 @@ def build_treasury_plan(program: ProgramGraph, root_seed: int = 0) -> TreasuryPl
         node_salts=node_salts,
         stream_salts=stream_salts,
         notes=[
-            "Used by Trinity compilation for reproducible execution streams.",
+            "Used by trinity compilation for reproducible execution streams.",
             "Node salts are derived from stable node identifiers and the treasury root seed.",
         ],
     )

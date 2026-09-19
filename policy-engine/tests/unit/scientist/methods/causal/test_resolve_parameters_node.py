@@ -4,6 +4,8 @@ import json
 import logging
 
 import duckdb
+
+import polisyos.data_forge.read_api.academic as academic_read_api
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import ComponentId
 from polisyos.core.registry import build_default_registry_bundle
@@ -299,3 +301,133 @@ def test_same_skg_path_binds_version_snapshot_to_idempotency_key(tmp_path) -> No
     assert bundle_frozen_b.skg_snapshot_ref == frozen_state.params["skg_snapshot_ref"]
     assert bundle_frozen_b.parameters["fiscal_multiplier"].value == 1.35
     assert any(event.get("event") == "NODE_CACHE_HIT" for event in _trace_events(ctx_frozen_b))
+
+
+def test_skg_key_and_read_share_one_content_bound_snapshot(tmp_path, monkeypatch) -> None:
+    """A replacement after key admission must not be read under the old key."""
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path, version_id=12, fiscal_value=1.35)
+    ctx = _build_ctx(tmp_path, run_id="R_phase15_snapshot_content_bound")
+    graph_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    state = ExperimentState(
+        run_id="R_phase15_snapshot_content_bound",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "UA",
+                "income_level": "lower_middle",
+                "institutional_quality": 0.4,
+                "post_communist": True,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        },
+    )
+    workflow = WorkflowSpec(
+        workflow_id="resolve_parameters_snapshot_content_bound",
+        nodes=[
+            NodeInvocation(
+                alias="resolve_parameters",
+                node_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),
+            )
+        ],
+    )
+    registry = NodeRegistry()
+    registry.register(ResolveParametersNode())
+    admission: dict[str, object] = {}
+    real_skg_query = SKGQuery
+
+    class InterposedSKGQuery(real_skg_query):
+        """Replace the same source only after the owner has admitted its identity."""
+
+        def latest_skg_version_id(self):
+            version_id = super().latest_skg_version_id()
+            admission["version_id"] = version_id
+            return version_id
+
+        def skg_snapshot_ref(self, *, version_id=None):
+            snapshot_ref = super().skg_snapshot_ref(version_id=version_id)
+            admission["snapshot_ref"] = snapshot_ref
+            return snapshot_ref
+
+        def close(self):
+            super().close()
+            if not admission.get("replaced"):
+                admission["replaced"] = True
+                db_path.unlink()
+                _seed_skg(db_path, version_id=13, fiscal_value=2.4)
+
+    monkeypatch.setattr(academic_read_api, "SKGQuery", InterposedSKGQuery)
+    result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+
+    assert admission == {
+        "version_id": 12,
+        "snapshot_ref": f"duckdb://{db_path}#v12",
+        "replaced": True,
+    }
+    assert result.report.nodes[0].status != "ok" or (
+        (bundle := _snapshot_bundle(ctx, result)).skg_version_id == 12
+        and bundle.parameters["fiscal_multiplier"].value == 1.35
+    )
+
+
+def test_prebound_skg_snapshot_without_provenance_cannot_replay_after_replacement(tmp_path) -> None:
+    """A stale pre-bound identity must not authorize a frozen cache replay."""
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path, version_id=12, fiscal_value=1.35)
+    ctx_first = _build_ctx(tmp_path, run_id="R_phase15_snapshot_unverified")
+    graph_ref = persist_causal_graph_model(
+        ctx_first.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+
+    def _state() -> ExperimentState:
+        return ExperimentState(
+            run_id="R_phase15_snapshot_unverified",
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        )
+
+    workflow = WorkflowSpec(
+        workflow_id="resolve_parameters_snapshot_unverified",
+        nodes=[
+            NodeInvocation(
+                alias="resolve_parameters",
+                node_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),
+            )
+        ],
+    )
+    registry = NodeRegistry()
+    registry.register(ResolveParametersNode())
+    first_state = _bind_owner_snapshot(_state(), db_path)
+    result_first = WorkflowExecutor(ctx_first, registry).execute(workflow, first_state)
+    assert result_first.report.status == "ok"
+
+    db_path.unlink()
+    _seed_skg(db_path, version_id=13, fiscal_value=2.4)
+    stale_state = _state()
+    stale_state.params["skg_snapshot_ref"] = first_state.params["skg_snapshot_ref"]
+    stale_state.params["skg_version_id"] = first_state.params["skg_version_id"]
+    ctx_after = _build_ctx(tmp_path, run_id="R_phase15_snapshot_unverified")
+    result_after = WorkflowExecutor(ctx_after, registry).execute(workflow, stale_state)
+
+    assert result_after.report.nodes[0].status != "ok" or (
+        (bundle_after := _snapshot_bundle(ctx_after, result_after)).skg_version_id == 13
+        and bundle_after.parameters["fiscal_multiplier"].value == 2.4
+    )

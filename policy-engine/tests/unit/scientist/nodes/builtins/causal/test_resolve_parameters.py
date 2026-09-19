@@ -5,7 +5,10 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+import duckdb
 import pytest
+
+import polisyos.scientist.nodes.builtins.causal.resolve_parameters as resolve_parameters_module
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType, persist_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.parameters import (
@@ -20,6 +23,36 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
 from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+
+
+def _seed_reusable_skg(db_path) -> None:
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            """
+            CREATE TABLE ac_skg_parameters (
+                param_id VARCHAR,
+                canonical_name VARCHAR,
+                openalex_id VARCHAR,
+                parameter_json VARCHAR,
+                context_json VARCHAR
+            )
+            """
+        )
+        con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
+        con.execute("INSERT INTO ac_skg_versions VALUES (12)")
+        con.execute(
+            "INSERT INTO ac_skg_parameters VALUES (?, ?, ?, ?, ?)",
+            [
+                "p_cee",
+                "fiscal_multiplier",
+                "W_CEE",
+                '{"name":"fiscal_multiplier","value":1.35,"parameter_type":"quantitative","evidence_strength":"observational"}',
+                '{"context_id":"PL","income_level":"lower_middle","institutional_quality":0.45,"post_communist":true}',
+            ],
+        )
+    finally:
+        con.close()
 
 
 def test_skip_when_missing_target_context(execution_context, minimal_state):
@@ -128,6 +161,56 @@ def test_existing_bundle_ref_does_not_short_circuit_changed_request(
     outcome = ResolveParametersNode().execute(execution_context, state)
 
     assert outcome.status != "ok"
+
+
+def test_valid_existing_bundle_reuses_without_expensive_selector(
+    execution_context, minimal_state, monkeypatch: pytest.MonkeyPatch, tmp_path
+):
+    """A matching persisted bundle is a real reuse path, not presence-only compatibility."""
+    db_path = tmp_path / "skg.duckdb"
+    _seed_reusable_skg(db_path)
+    graph_ref = persist_causal_graph_model(
+        execution_context.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+    state.params.update(
+        {
+            "target_context": {
+                "context_id": "UA",
+                "income_level": "lower_middle",
+                "institutional_quality": 0.4,
+                "post_communist": True,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        }
+    )
+    first = ResolveParametersNode().execute(execution_context, state)
+    assert first.status == "ok"
+    first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+
+    selector_calls: list[str] = []
+    real_selector = resolve_parameters_module.ParameterSelector
+
+    class RecordingSelector(real_selector):
+        def __init__(self, skg_query):
+            selector_calls.append("construct")
+            super().__init__(skg_query)
+
+        def select_for_context(self, *args, **kwargs):
+            selector_calls.append("select")
+            return super().select_for_context(*args, **kwargs)
+
+    monkeypatch.setattr(resolve_parameters_module, "ParameterSelector", RecordingSelector)
+    replay = ResolveParametersNode().execute(execution_context, first.state.model_copy(deep=True))
+
+    assert replay.status == "ok"
+    assert replay.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == first_ref
+    assert selector_calls == []
 
 
 def test_target_context_assertion_is_not_swallowed(

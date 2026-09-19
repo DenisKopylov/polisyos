@@ -451,11 +451,22 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                 has_more = cursor is not None
 
         duration_ms = (time.monotonic() - start) * 1000
+        fetched_at = datetime.now(UTC)
+        parsed_last_modified = _parse_http_datetime(
+            last_modified if not last_modified_mismatch else None
+        )
         version = self._build_version(
             content_hash=streaming_hash(payload_chunks, prefix=True),
             etag=etag if not etag_mismatch else None,
             last_modified=last_modified if not last_modified_mismatch else None,
-            fetched_at=datetime.now(UTC),
+            fetched_at=fetched_at,
+        )
+        source_updated_at = (
+            parsed_last_modified
+            if version.strategy is VersionStrategy.TIMESTAMP
+            and parsed_last_modified is not None
+            and version.timestamp == parsed_last_modified
+            else None
         )
 
         return FetchResult(
@@ -464,7 +475,8 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             schema_id=make_schema_id(self.connector_id, request.dataset_id),
             schema_version="1.0.0",
             version=version,
-            fetched_at=datetime.now(UTC),
+            fetched_at=fetched_at,
+            source_updated_at=source_updated_at,
             completeness=1.0,
             quality_tier=QualityTier.SILVER,
             fetch_duration_ms=round(duration_ms, 2),
@@ -501,13 +513,11 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             )
 
         parsed_last_modified = _parse_http_datetime(last_modified)
-        if last_modified:
-            timestamp = parsed_last_modified or fetched_at
-            value = parsed_last_modified.isoformat() if parsed_last_modified else last_modified
+        if parsed_last_modified is not None:
             return DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
-                value=value,
-                timestamp=timestamp,
+                value=parsed_last_modified.isoformat(),
+                timestamp=parsed_last_modified,
                 content_hash=content_hash,
             )
 

@@ -603,7 +603,7 @@ class TestBatchIncremental:
         assert cursor.watermark_value != fetched_at.isoformat()
 
     def test_incremental_promotes_native_rest_last_modified_version(self, tmp_path: Path):
-        """A REST Last-Modified version is a valid source boundary without source_updated_at."""
+        """A REST Last-Modified version is valid with its explicit source marker."""
         from polisyos.fabric.connectors.reference.rest_json import GenericRESTConnector
 
         cas_root = tmp_path / ".polisyos"
@@ -617,7 +617,7 @@ class TestBatchIncremental:
             fetched_at=fetched_at,
         )
         fetch_result = _typed_fetch_result(
-            source_updated_at=None,
+            source_updated_at=version.timestamp,
             fetched_at=fetched_at,
             version=version,
         )
@@ -655,6 +655,175 @@ class TestBatchIncremental:
         assert cursor is not None
         assert cursor.watermark_value == version.value
         assert cursor.watermark_value != fetched_at.isoformat()
+
+    def test_incremental_accepts_marked_rest_version_equal_to_fetched_at(
+        self,
+        tmp_path: Path,
+    ):
+        """A marked source version may equal fetch time without using fetch time as proof."""
+        from polisyos.fabric.connectors.reference.rest_json import GenericRESTConnector
+
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        evidence_ref = _make_evidence_bundle(store)
+        fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+        version = GenericRESTConnector()._build_version(
+            content_hash=f"sha256:{'e' * 64}",
+            etag=None,
+            last_modified="Mon, 01 Jan 2024 00:00:00 GMT",
+            fetched_at=fetched_at,
+        )
+        assert version.value == fetched_at.isoformat()
+        fetch_result = _typed_fetch_result(
+            source_updated_at=fetched_at,
+            fetched_at=fetched_at,
+            version=version,
+        )
+        connector = _RecordingConnector(
+            fetch_result,
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(evidence_bundle_ref=evidence_ref, datasets_fetched=1)
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="rest.json",
+                dataset_id="dataset",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest={
+                    "datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]
+                },
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        cursor = CursorStore(store).find_latest_cursor("rest.json", "dataset")
+        assert result.cursor_ref is not None
+        assert cursor is not None
+        assert cursor.watermark_value == fetched_at.isoformat()
+
+    def test_incremental_rejects_legacy_timestamp_version_without_source_marker(
+        self,
+        tmp_path: Path,
+    ):
+        """A legacy timestamp version without a source marker cannot promote."""
+        from polisyos.fabric.connectors.reference.rest_json import GenericRESTConnector
+
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        evidence_ref = _make_evidence_bundle(store)
+        fetched_at = datetime(2026, 9, 19, 12, tzinfo=UTC)
+        version = GenericRESTConnector()._build_version(
+            content_hash=f"sha256:{'f' * 64}",
+            etag=None,
+            last_modified="Wed, 02 Oct 2002 13:00:00 GMT",
+            fetched_at=fetched_at,
+        )
+        connector = _RecordingConnector(
+            _typed_fetch_result(
+                source_updated_at=None,
+                fetched_at=fetched_at,
+                version=version,
+            ),
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(evidence_bundle_ref=evidence_ref, datasets_fetched=1)
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="rest.json",
+                dataset_id="dataset",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest={
+                    "datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]
+                },
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        assert result.cursor_ref is None
+        assert CursorStore(store).find_latest_cursor("rest.json", "dataset") is None
+
+    def test_incremental_rejects_invalid_source_marker_with_consistent_version(
+        self,
+        tmp_path: Path,
+    ):
+        """An invalid source marker cannot be replaced by an internally consistent version."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        evidence_ref = _make_evidence_bundle(store)
+        fetched_at = datetime(2026, 9, 19, 12, tzinfo=UTC)
+        source_version = datetime(2002, 10, 2, 13, tzinfo=UTC)
+        version = DataVersion(
+            strategy=VersionStrategy.TIMESTAMP,
+            value=source_version.isoformat(),
+            timestamp=source_version,
+        )
+        fetch_result = FetchResult.model_construct(
+            data=[{"value": "row"}],
+            row_count=1,
+            schema_id="test.schema",
+            schema_version="1.0",
+            version=version,
+            fetched_at=fetched_at,
+            source_updated_at="invalid-last-modified",
+            completeness=1.0,
+            has_more=False,
+            next_page_token=None,
+        )
+        connector = _RecordingConnector(
+            fetch_result,
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+        mock_result = IngestionResult(evidence_bundle_ref=evidence_ref, datasets_fetched=1)
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="rest.json",
+                dataset_id="dataset",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest={
+                    "datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]
+                },
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        assert result.cursor_ref is None
+        assert CursorStore(store).find_latest_cursor("rest.json", "dataset") is None
 
     def test_incremental_rejects_native_rest_version_disagreeing_with_fetch_time(
         self,

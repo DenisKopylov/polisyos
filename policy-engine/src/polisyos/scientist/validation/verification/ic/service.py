@@ -21,7 +21,9 @@ from polisyos.core.contracts.ic_verification import (
     ICVerificationResult,
     IncentiveCompatibilityCertificate,
 )
-from polisyos.foundry.methods.catalog.mechanism.families import get_mechanism_family_spec
+from polisyos.foundry.methods.catalog.mechanism.families import (
+    get_mechanism_family_spec,
+)
 from polisyos.ir.analytics.mechanism_design import (
     IncentiveCertificateStatus as MechanismCertificateStatus,
 )

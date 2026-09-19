@@ -25,9 +25,9 @@ from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.compile.randomization import build_treasury_plan
 from polisyos.foundry.methods.cost_model import CostBudget, CostModel
 from polisyos.foundry.validation.conflict_checker import CompileTimeConflictChecker
+from polisyos.ir.kernel.slots import build_slot_layout
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.linker.reports import LinkSeverity
-from polisyos.ir.kernel.slots import build_slot_layout
 from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 

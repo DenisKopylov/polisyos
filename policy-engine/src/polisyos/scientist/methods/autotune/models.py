@@ -9,7 +9,12 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Protocol, Self, TypeVar, cast
 
-from pydantic import ConfigDict, Field
+from pydantic import (
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+)
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
@@ -209,6 +214,16 @@ class PromotionPolicy(_PydanticBaseModel):
     min_improvement: float = 0.0
     min_sample_count: int = Field(default=0, ge=0)
     required_guardrails: list[str] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _serialize_canonical_policy(
+        self, handler: SerializerFunctionWrapHandler
+    ) -> dict[str, Any]:
+        """Preserve the historical policy shape while retaining explicit units."""
+        payload = handler(self)
+        if self.unit is None:
+            payload.pop("unit", None)
+        return payload
 
 
 class ChampionPointer(_PydanticBaseModel):

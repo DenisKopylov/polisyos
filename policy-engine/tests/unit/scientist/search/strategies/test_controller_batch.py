@@ -12,8 +12,6 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.stopping import (
     CostBudgetStopping,
     MaxIterations,
-    StoppingCondition,
-    StoppingCriterion,
 )
 
 
@@ -206,31 +204,21 @@ def test_controller_reports_typed_exhaustion_for_persistent_empty_generation() -
         def generate_batch(self, history, current_best, context, batch_size):
             del history, current_best, context, batch_size
             self.calls += 1
+            if self.calls > 3:
+                raise AssertionError(
+                    "persistent-empty watchdog: controller requested a fourth batch"
+                )
             return []
 
     generator = PersistentEmptyGenerator()
 
-    class TestAttemptBoundedStop(StoppingCriterion):
-        @property
-        def name(self):
-            return "test_attempt_bound"
-
-        def check(self, history, state):
-            del history, state
-            if generator.calls >= 3:
-                return StoppingCondition(
-                    should_stop=True,
-                    reason="generation_exhausted",
-                    details={"generation_attempts": generator.calls},
-                )
-            return StoppingCondition(should_stop=False)
-
     controller = SearchController(
         config=SearchConfig(
-            stopping=TestAttemptBoundedStop(),
+            stopping=MaxIterations(1),
             objective=CompositeObjective([SimpleObjective()]),
             batch_size=2,
             max_iterations_hard_limit=1,
+            max_empty_generation_attempts=3,
         ),
         candidate_generator=generator,
         stage_a_evaluator=lambda candidate, context: (0.0, True),

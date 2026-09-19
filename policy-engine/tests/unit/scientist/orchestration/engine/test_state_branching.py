@@ -78,6 +78,24 @@ def test_branch_state_uses_copy_on_write_overlay_for_nested_pydantic_models() ->
     assert base_holder.nested.untouched == {"shared": ["keep-shared"]}
 
 
+# Production mutation caught: a declared mutable leaf must be deeply isolated
+# so edits to nested elements cannot leak into the base or a sibling branch.
+def test_branch_state_deeply_isolates_nested_elements_of_declared_leaf() -> None:
+    base_state = ExperimentState(
+        run_id="R_nested_leaf",
+        params={"config": {"rows": [{"value": "base"}]}},
+    )
+
+    branch = branch_state(
+        base_state,
+        write_paths=("params.config.rows",),
+    ).state
+    branch.params["config"]["rows"][0]["value"] = "branch"
+
+    assert branch.params["config"]["rows"] == [{"value": "branch"}]
+    assert base_state.params["config"]["rows"] == [{"value": "base"}]
+
+
 def test_snapshot_state_deep_clones_mutable_state_surfaces() -> None:
     base_state = ExperimentState(
         run_id="R_snapshot",

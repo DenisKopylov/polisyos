@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.state_merge import (
     MergeConflictPolicy,
     merge_parallel_outcomes,
@@ -156,3 +157,75 @@ class TestMergeParallelOutcomes:
         )
         assert result.applied is False
         assert result.conflict_details[0].path == "params.bucket"
+
+    # Production mutation caught: replay must consume the branch's recorded
+    # writes instead of diffing a cached post-state against the current base.
+    def test_replay_preserves_unrelated_changes_and_reapplies_same_value_write(self, base_state):
+        original = base_state.model_copy(
+            update={"params": {"unrelated": "old", "y": 4}},
+        )
+        branch = branch_state(original, write_paths=("params",)).state
+        branch.params["y"] = 4
+        branch.params["written"] = True
+
+        current = base_state.model_copy(
+            update={"params": {"unrelated": "new", "y": 9}},
+        )
+        result = merge_parallel_outcomes(
+            current,
+            {"node_a": _ok_outcome(branch)},
+            {"node_a": ["params"]},
+        )
+
+        assert result.state.params == {
+            "unrelated": "new",
+            "y": 4,
+            "written": True,
+        }
+        assert result.applied_paths == ["params.written", "params.y"]
+
+    # Production mutation caught: merge must carry an explicit delete operation
+    # and must not confuse deletion with a null write or with no write.
+    def test_replay_distinguishes_delete_null_and_no_write(self, base_state):
+        original = base_state.model_copy(update={"params": {"stale": 1, "keep": 2}})
+
+        delete_branch = branch_state(original, write_paths=("params",)).state
+        del delete_branch.params["stale"]
+        null_branch = branch_state(original, write_paths=("params",)).state
+        null_branch.params["stale"] = None
+        no_write_branch = branch_state(original, write_paths=("params",)).state
+
+        deleted = merge_parallel_outcomes(
+            original,
+            {"delete": _ok_outcome(delete_branch)},
+            {"delete": ["params"]},
+        )
+        set_null = merge_parallel_outcomes(
+            original,
+            {"null": _ok_outcome(null_branch)},
+            {"null": ["params"]},
+        )
+        untouched = merge_parallel_outcomes(
+            original,
+            {"none": _ok_outcome(no_write_branch)},
+            {"none": ["params"]},
+        )
+
+        assert "stale" not in deleted.state.params
+        assert deleted.state.params["keep"] == 2
+        assert set_null.state.params["stale"] is None
+        assert untouched.state.params == {"stale": 1, "keep": 2}
+
+    # Production mutation caught: evidence/index roots must reject physical
+    # deletion instead of silently treating it as an omitted output key.
+    def test_replay_rejects_deletion_from_protected_index(self, base_state):
+        original = base_state.model_copy(update={"artifacts_index": {"evidence": "ref"}})
+        branch = branch_state(original, write_paths=("artifacts_index",)).state
+        del branch.artifacts_index["evidence"]
+
+        with pytest.raises(ValueError, match="deletion forbidden"):
+            merge_parallel_outcomes(
+                original,
+                {"node_a": _ok_outcome(branch)},
+                {"node_a": ["artifacts_index"]},
+            )

@@ -174,6 +174,7 @@ class StreamingSourceSession:
         self._subscription: Any = None
         self._paused = False
         self._closed = False
+        self._stream_close_complete = False
         self._last_chunk: DataChunk[Any] | None = None
         self._prefetched_chunk: DataChunk[Any] | None = None
 
@@ -218,16 +219,30 @@ class StreamingSourceSession:
         connector, handle = await self.pool.acquire_with_connector()
         self.connector = connector
         self.handle = handle
-        if hasattr(connector, "subscribe_stream"):
-            self._subscription = await cast(
-                "Any",
-                connector,
-            ).subscribe_stream(handle, self.request)
-        else:
-            stream = cast("Any", connector).fetch_stream(handle, self.request)
-            if hasattr(stream, "__await__"):
-                stream = await stream
-            self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
+        try:
+            if hasattr(connector, "subscribe_stream"):
+                self._subscription = await cast(
+                    "Any",
+                    connector,
+                ).subscribe_stream(handle, self.request)
+            else:
+                stream = cast("Any", connector).fetch_stream(handle, self.request)
+                if hasattr(stream, "__await__"):
+                    stream = await stream
+                self._generator = cast("AsyncIterator[DataChunk[Any]]", stream)
+        except BaseException as exc:
+            try:
+                await self.pool.release(handle)
+                await self.pool.close_all()
+            except BaseException as cleanup_exc:
+                exc.add_note(f"stream subscription cleanup failed: {cleanup_exc!r}")
+            finally:
+                self.connector = None
+                self.handle = None
+                self._generator = None
+                self._subscription = None
+                self._closed = True
+            raise
 
     async def poll(self) -> DataChunk[Any] | None:
         """Read the next stream chunk."""
@@ -355,7 +370,6 @@ class StreamingSourceSession:
         """Release the current stream handle and close owned pool resources."""
         if self._closed:
             return
-        self._closed = True
         if (
             self.connector is not None
             and self.handle is not None
@@ -363,11 +377,18 @@ class StreamingSourceSession:
                 self.connector,
                 "close_stream",
             )
+            and not self._stream_close_complete
         ):
             await self.connector.close_stream(self.handle)
+            self._stream_close_complete = True
+        elif self.connector is None or self.handle is None:
+            self._stream_close_complete = True
         if self.handle is not None:
             await self.pool.release(self.handle)
+            self.connector = None
+            self.handle = None
         await self.pool.close_all()
+        self._closed = True
         self.connector = None
         self.handle = None
         self._generator = None
@@ -381,6 +402,7 @@ class StreamingSourceSession:
         self._generator = None
         self._subscription = None
         self._prefetched_chunk = None
+        self._stream_close_complete = False
         await self.subscribe()
 
     @property
@@ -863,15 +885,22 @@ async def process_stream_dataset(
         maxlen=max(1, int(processing_contract.idempotency.max_dedupe_keys))
     )
     dedupe_seen: set[str] = set()
-    latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
-        connector_id,
-        dataset_id,
-        partition_key=options.partition_key,
-    )
-    if latest_checkpoint is not None:
-        dedupe_keys.extend(latest_checkpoint.dedupe_keys)
-        dedupe_seen.update(latest_checkpoint.dedupe_keys)
-        await session.rewind(latest_checkpoint)
+    try:
+        latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
+            connector_id,
+            dataset_id,
+            partition_key=options.partition_key,
+        )
+        if latest_checkpoint is not None:
+            dedupe_keys.extend(latest_checkpoint.dedupe_keys)
+            dedupe_seen.update(latest_checkpoint.dedupe_keys)
+            await session.rewind(latest_checkpoint)
+    except BaseException as exc:
+        try:
+            await session.close()
+        except BaseException as cleanup_exc:
+            exc.add_note(f"stream setup cleanup failed: {cleanup_exc!r}")
+        raise
 
     previous_schema: tuple[str, ...] | None = (
         tuple(str(field) for field in latest_checkpoint.metadata.get("schema_fields", ()))
@@ -879,6 +908,7 @@ async def process_stream_dataset(
         else None
     )
 
+    primary_error: BaseException | None = None
     try:
         while True:
             buffered_rows = accumulator.buffered_rows()
@@ -1164,7 +1194,8 @@ async def process_stream_dataset(
             str(checkpoint_ref.artifact_id) if checkpoint_ref is not None else None
         )
         return result
-    except Exception as exc:
+    except BaseException as exc:
+        primary_error = exc
         if session.last_chunk is not None:
             checkpoint = session.checkpoint(
                 dedupe_keys=tuple(dedupe_keys),
@@ -1189,7 +1220,12 @@ async def process_stream_dataset(
             result.final_checkpoint_ref = str(checkpoint_ref.artifact_id)
         raise
     finally:
-        await session.close()
+        try:
+            await session.close()
+        except BaseException as cleanup_exc:
+            if primary_error is None:
+                raise
+            primary_error.add_note(f"stream close cleanup failed: {cleanup_exc!r}")
 
 
 async def _persist_stream_chunk_async(

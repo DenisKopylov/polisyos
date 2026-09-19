@@ -76,6 +76,7 @@ class PooledConnection:
     consecutive_failures: int = 0
     use_count: int = 0
     closed: bool = False
+    closing: bool = False
 
     @property
     def age_seconds(self) -> float:
@@ -251,6 +252,7 @@ class ConnectionPool(Generic[ConnectorT]):
         self._lock = asyncio.Lock()
         self._semaphore = asyncio.Semaphore(self._config.max_size)
         self._closed = False
+        self._generation = 0
         self._backpressure_lock = threading.Lock()
         self._backpressure_signals: OrderedDict[str, BackpressureSignal] = OrderedDict()
 
@@ -296,120 +298,112 @@ class ConnectionPool(Generic[ConnectorT]):
             PoolExhaustedError: If no connection available within timeout
             PoolClosedError: If pool has been closed
         """
-        if self._circuit_breaker is not None and self._circuit_breaker.is_open():
-            from polisyos.fabric.connectors.resilience import CircuitOpenError
-
-            opened_at = self._circuit_breaker.opened_at or datetime.now(UTC)
-            raise CircuitOpenError(
-                self._circuit_breaker.circuit_id,
-                opened_at,
-                self._circuit_breaker.config.timeout_seconds,
-            )
-
-        start_time = datetime.now(UTC)
-
-        try:
-            # Wait for available slot with timeout
-            acquired = await asyncio.wait_for(
-                self._semaphore.acquire(),
-                timeout=self._config.acquire_timeout_seconds,
-            )
-            if not acquired:
-                raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
-        except TimeoutError as exc:
-            raise PoolExhaustedError(
-                self._pool_id,
-                self._config.acquire_timeout_seconds,
-            ) from exc
-
-        try:
-            async with self._lock:
-                if self._closed:
-                    self._semaphore.release()
-                    raise PoolClosedError(self._pool_id)
-
-                # Try to get an idle connection
-                pooled = await self._get_idle_connection()
-
-                if pooled is None:
-                    # Create new connection
-                    pooled = await self._create_connection()
-
-                # Mark as in-use
-                pooled.mark_used()
-                self._in_use[pooled.handle.session_id] = pooled
-                self._released_session_ids.pop(pooled.handle.session_id, None)
-
-                # Update statistics
-                with self._stats_lock:
-                    self._total_acquires += 1
-                    elapsed = datetime.now(UTC) - start_time
-                    self._acquire_wait_time_total_ms += elapsed.total_seconds() * 1000
-
-                logger.debug(
-                    "Connection acquired",
-                    pool_id=self._pool_id,
-                    session_id=pooled.handle.session_id,
-                    idle_count=len(self._idle),
-                    in_use_count=len(self._in_use),
-                )
-
-                return pooled.handle
-        except Exception:
-            # Release semaphore if we failed to get a connection
-            self._semaphore.release()
-            raise
+        self._raise_if_circuit_open()
+        _connector, handle = await self._acquire_owned()
+        return handle
 
     async def acquire_with_connector(self) -> tuple[SourceConnector, ConnectionHandle]:
         """Acquire a connection and return both connector instance and handle."""
-        if self._circuit_breaker is not None and self._circuit_breaker.is_open():
-            from polisyos.fabric.connectors.resilience import CircuitOpenError
+        self._raise_if_circuit_open()
+        return await self._acquire_owned()
 
-            opened_at = self._circuit_breaker.opened_at or datetime.now(UTC)
-            raise CircuitOpenError(
-                self._circuit_breaker.circuit_id,
-                opened_at,
-                self._circuit_breaker.config.timeout_seconds,
-            )
+    def _raise_if_circuit_open(self) -> None:
+        """Raise before reserving a pool permit when the circuit is open."""
+        if self._circuit_breaker is None or not self._circuit_breaker.is_open():
+            return
 
+        from polisyos.fabric.connectors.resilience import CircuitOpenError
+
+        opened_at = self._circuit_breaker.opened_at or datetime.now(UTC)
+        raise CircuitOpenError(
+            self._circuit_breaker.circuit_id,
+            opened_at,
+            self._circuit_breaker.config.timeout_seconds,
+        )
+
+    async def _acquire_owned(self) -> tuple[SourceConnector, ConnectionHandle]:
+        """Reserve one permit, prepare a connection outside the metadata lock, and publish it."""
         start_time = datetime.now(UTC)
+        permit_acquired = False
+        published = False
+        pooled: PooledConnection | None = None
 
         try:
-            acquired = await asyncio.wait_for(
-                self._semaphore.acquire(),
-                timeout=self._config.acquire_timeout_seconds,
-            )
+            try:
+                acquired = await asyncio.wait_for(
+                    self._semaphore.acquire(),
+                    timeout=self._config.acquire_timeout_seconds,
+                )
+            except TimeoutError as exc:
+                raise PoolExhaustedError(
+                    self._pool_id,
+                    self._config.acquire_timeout_seconds,
+                ) from exc
             if not acquired:
                 raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
-        except TimeoutError as exc:
-            raise PoolExhaustedError(
-                self._pool_id,
-                self._config.acquire_timeout_seconds,
-            ) from exc
+            permit_acquired = True
 
-        try:
-            async with self._lock:
-                if self._closed:
-                    self._semaphore.release()
-                    raise PoolClosedError(self._pool_id)
+            while True:
+                async with self._lock:
+                    if self._closed:
+                        raise PoolClosedError(self._pool_id)
+                    generation = self._generation
+                    pooled = self._idle.popleft() if self._idle else None
 
-                pooled = await self._get_idle_connection()
                 if pooled is None:
+                    # Connector I/O is deliberately outside the metadata lock. The semaphore
+                    # remains the physical-capacity reservation while this operation is pending.
                     pooled = await self._create_connection()
+                elif self._should_retire(pooled):
+                    await self._finish_cleanup(pooled)
+                    pooled = None
+                    continue
+                elif self._config.validate_on_acquire:
+                    # Health checks are connector I/O and must not serialize other handles.
+                    healthy = await self._validate_connection(pooled)
+                    if not healthy:
+                        await self._finish_cleanup(pooled)
+                        pooled = None
+                        continue
 
-                pooled.mark_used()
-                self._in_use[pooled.handle.session_id] = pooled
-                self._released_session_ids.pop(pooled.handle.session_id, None)
+                async with self._lock:
+                    if self._closed or generation != self._generation:
+                        publish_allowed = False
+                    else:
+                        assert pooled is not None
+                        pooled.mark_used()
+                        self._in_use[pooled.handle.session_id] = pooled
+                        self._released_session_ids.pop(pooled.handle.session_id, None)
 
-                with self._stats_lock:
-                    self._total_acquires += 1
-                    elapsed = datetime.now(UTC) - start_time
-                    self._acquire_wait_time_total_ms += elapsed.total_seconds() * 1000
+                        with self._stats_lock:
+                            self._total_acquires += 1
+                            elapsed = datetime.now(UTC) - start_time
+                            self._acquire_wait_time_total_ms += elapsed.total_seconds() * 1000
 
-                return pooled.connector, pooled.handle
-        except Exception:
-            self._semaphore.release()
+                        logger.debug(
+                            "Connection acquired",
+                            pool_id=self._pool_id,
+                            session_id=pooled.handle.session_id,
+                            idle_count=len(self._idle),
+                            in_use_count=len(self._in_use),
+                        )
+                        publish_allowed = True
+
+                if publish_allowed:
+                    assert pooled is not None
+                    published = True
+                    return pooled.connector, pooled.handle
+
+                await self._finish_cleanup(pooled)
+                pooled = None
+                raise PoolClosedError(self._pool_id)
+        except BaseException:
+            if pooled is not None and not published:
+                await self._finish_cleanup(pooled)
             raise
+        finally:
+            if permit_acquired and not published:
+                self._semaphore.release()
 
     async def release(self, handle: ConnectionHandle) -> None:
         """
@@ -421,75 +415,110 @@ class ConnectionPool(Generic[ConnectorT]):
         Args:
             handle: ConnectionHandle to release
         """
-        async with self._lock:
-            pooled = self._in_use.pop(handle.session_id, None)
+        pooled: PooledConnection | None = None
+        permit_owned = False
+        generation = 0
 
-            if pooled is None:
-                if handle.session_id not in self._released_session_ids:
-                    logger.warning(
-                        "Released unknown connection",
+        try:
+            async with self._lock:
+                pooled = self._in_use.pop(handle.session_id, None)
+
+                if pooled is None:
+                    if handle.session_id not in self._released_session_ids:
+                        logger.warning(
+                            "Released unknown connection",
+                            pool_id=self._pool_id,
+                            session_id=handle.session_id,
+                        )
+                    return
+
+                permit_owned = True
+                generation = self._generation
+                self._remember_session_id(self._released_session_ids, handle.session_id)
+
+                with self._stats_lock:
+                    self._total_releases += 1
+
+                should_close = self._closed or self._should_retire(pooled)
+
+            # Retirement, validation, and disconnect are connector operations. They must not
+            # hold the metadata lock, so another handle can be released independently.
+            if should_close:
+                await self._finish_cleanup(pooled)
+                pooled = None
+                return
+
+            if self._config.validate_on_release:
+                healthy = await self._validate_connection(pooled)
+                if not healthy:
+                    await self._finish_cleanup(pooled)
+                    pooled = None
+                    return
+
+            async with self._lock:
+                if self._closed or generation != self._generation:
+                    publish_idle = False
+                else:
+                    self._idle.append(pooled)
+                    publish_idle = True
+                    logger.debug(
+                        "Connection released to pool",
                         pool_id=self._pool_id,
                         session_id=handle.session_id,
+                        idle_count=len(self._idle),
                     )
-                return
 
-            self._remember_session_id(self._released_session_ids, handle.session_id)
-
-            with self._stats_lock:
-                self._total_releases += 1
-
-            if self._closed:
-                await self._close_connection(pooled)
+            if not publish_idle:
+                await self._finish_cleanup(pooled)
+                pooled = None
+        except BaseException:
+            if pooled is not None and permit_owned:
+                await self._finish_cleanup(pooled)
+            raise
+        finally:
+            if permit_owned:
                 self._semaphore.release()
-                return
 
-            # Check if connection should be retired
-            if self._should_retire(pooled):
-                await self._retire_connection(pooled)
-            else:
-                # Optionally validate before returning to pool
-                if self._config.validate_on_release:
-                    healthy = await self._validate_connection(pooled)
-                    if not healthy:
-                        await self._retire_connection(pooled)
-                        self._semaphore.release()
-                        return
+    async def _finish_cleanup(self, pooled: PooledConnection) -> None:
+        """Finish one physical cleanup even when the caller is cancelled."""
+        cleanup_task = asyncio.create_task(self._close_connection(pooled))
+        cancelled = False
+        while not cleanup_task.done():
+            try:
+                await asyncio.shield(cleanup_task)
+            except asyncio.CancelledError:
+                cancelled = True
 
-                # Return to idle pool
-                self._idle.append(pooled)
-                logger.debug(
-                    "Connection released to pool",
-                    pool_id=self._pool_id,
-                    session_id=handle.session_id,
-                    idle_count=len(self._idle),
-                )
+        try:
+            await cleanup_task
+        except asyncio.CancelledError:
+            cancelled = True
 
-            self._semaphore.release()
+        if cancelled:
+            raise asyncio.CancelledError
 
     async def _get_idle_connection(self) -> PooledConnection | None:
         """
-        Get a valid idle connection from the pool.
+        Get one valid idle connection from the pool.
 
-        Evicts stale connections and validates before returning.
+        Validation and retirement are deliberately performed by the caller outside the
+        metadata lock because both may await connector I/O.
         """
-        while self._idle:
-            pooled = self._idle.popleft()
+        while True:
+            async with self._lock:
+                if self._closed or not self._idle:
+                    return None
+                pooled = self._idle.popleft()
 
-            # Check if connection should be retired
             if self._should_retire(pooled):
-                await self._retire_connection(pooled)
+                await self._finish_cleanup(pooled)
                 continue
-
-            # Optionally validate the connection
             if self._config.validate_on_acquire:
                 healthy = await self._validate_connection(pooled)
                 if not healthy:
-                    await self._retire_connection(pooled)
+                    await self._finish_cleanup(pooled)
                     continue
-
             return pooled
-
-        return None
 
     async def _create_connection(self) -> PooledConnection:
         """Create a new connection via the connector factory."""
@@ -597,21 +626,33 @@ class ConnectionPool(Generic[ConnectorT]):
 
     async def _close_connection(self, pooled: PooledConnection) -> None:
         """Close a pooled connection using its connector instance."""
-        if pooled.closed or pooled.handle.session_id in self._closed_session_ids:
+        if (
+            pooled.closed
+            or pooled.closing
+            or pooled.handle.session_id in self._closed_session_ids
+        ):
             return
-        pooled.closed = True
-        self._remember_session_id(self._closed_session_ids, pooled.handle.session_id)
+        pooled.closing = True
         try:
             await pooled.connector.disconnect(pooled.handle)
-            with self._stats_lock:
-                self._total_closes += 1
+        except asyncio.CancelledError:
+            pooled.closing = False
+            raise
         except Exception as e:
+            pooled.closing = False
             logger.warning(
                 "Error closing connection",
                 pool_id=self._pool_id,
                 session_id=pooled.handle.session_id,
                 error=str(e),
             )
+            return
+
+        pooled.closed = True
+        pooled.closing = False
+        self._remember_session_id(self._closed_session_ids, pooled.handle.session_id)
+        with self._stats_lock:
+            self._total_closes += 1
 
     async def _close_connection_handle(self, handle: ConnectionHandle) -> None:
         """Close a connection handle using a fresh connector instance."""
@@ -642,6 +683,7 @@ class ConnectionPool(Generic[ConnectorT]):
             if self._closed:
                 return
             self._closed = True
+            self._generation += 1
             idle_to_close: list[PooledConnection] = []
             in_use_to_close: list[PooledConnection] = []
 
@@ -653,12 +695,20 @@ class ConnectionPool(Generic[ConnectorT]):
                 self._remember_session_id(self._released_session_ids, pooled.handle.session_id)
             self._in_use.clear()
 
+        cancelled = False
         for pooled in idle_to_close:
-            await self._close_connection(pooled)
+            try:
+                await self._finish_cleanup(pooled)
+            except asyncio.CancelledError:
+                cancelled = True
 
         for pooled in in_use_to_close:
-            await self._close_connection(pooled)
-            self._semaphore.release()
+            try:
+                await self._finish_cleanup(pooled)
+            except asyncio.CancelledError:
+                cancelled = True
+            finally:
+                self._semaphore.release()
 
         logger.info(
             "Connection pool closed",
@@ -666,6 +716,8 @@ class ConnectionPool(Generic[ConnectorT]):
             total_creates=self._total_creates,
             total_closes=self._total_closes,
         )
+        if cancelled:
+            raise asyncio.CancelledError
 
     async def __aenter__(self) -> ConnectionPool[ConnectorT]:
         """Async context manager entry."""

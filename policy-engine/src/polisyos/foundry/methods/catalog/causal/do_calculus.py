@@ -106,9 +106,7 @@ def apply_rule1(
 
     g_x_bar = remove_incoming_edges(graph, X)
     cond_set = X | W
-    # Check both directions: m-separation is symmetric but the Bayes Ball
-    # implementation is directional. AND ensures we never fire incorrectly.
-    if not (m_separation(g_x_bar, Y, z, cond_set) and m_separation(g_x_bar, z, Y, cond_set)):
+    if not m_separation(g_x_bar, Y, z, cond_set):
         return None  # Y not ⊥ Z | X,W in G_{X̄}
 
     new_ref = dist_ref.model_copy(update={"conditioning": tuple(sorted(W))})
@@ -164,10 +162,7 @@ def apply_rule2(
     g_x_bar = remove_incoming_edges(graph, X)
     g_xbar_z_under = remove_outgoing_edges(g_x_bar, z)
     cond_set = X | W
-    if not (
-        m_separation(g_xbar_z_under, Y, z, cond_set)
-        and m_separation(g_xbar_z_under, z, Y, cond_set)
-    ):
+    if not m_separation(g_xbar_z_under, Y, z, cond_set):
         return None  # Y not ⊥ Z | X,W in G_{X̄Z̲}
 
     new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z))
@@ -238,10 +233,7 @@ def apply_rule3(
 
     g_xbar_zw_bar = remove_incoming_edges(g_x_bar, z_w)
     cond_set = X | W
-    if not (
-        m_separation(g_xbar_zw_bar, Y, z_w, cond_set)
-        and m_separation(g_xbar_zw_bar, z_w, Y, cond_set)
-    ):
+    if not m_separation(g_xbar_zw_bar, Y, z_w, cond_set):
         return None  # Y not ⊥ Z(W) | X,W in G_{X̄Z̄(W)}
 
     new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z_w))

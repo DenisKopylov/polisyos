@@ -19,6 +19,7 @@ from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
     ParameterApplicability,
+    load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
 )
 from polisyos.ir.artifacts import InputRef
@@ -50,6 +51,9 @@ _SPEC = NodeSpec(
         "params.required_parameters",
         "params.skg_db_path",
         "params.skg_index_dir",
+        "params.skg_snapshot_ref",
+        "params.skg_version_id",
+        "params.domain",
         "params.phase15_runtime_backend",
         "params.phase15_runtime_draws",
         "params.phase15_runtime_seed",
@@ -69,6 +73,8 @@ _SPEC = NodeSpec(
 )
 
 _RESOLVE_PARAMETERS_LOAD_ERRORS = (
+    AttributeError,
+    KeyError,
     OSError,
     RuntimeError,
     TypeError,
@@ -90,17 +96,27 @@ class ResolveParametersNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF in state.artifacts_index:
-            return NodeOutcome(status="ok", state=state)
+        existing_bundle_ref = state.artifacts_index.get(
+            ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+        )
 
         target_context = _resolve_target_context(state)
+        required_parameters = _resolve_required_parameters(state)
+        simulation_domain = str(state.params.get("domain", "unknown"))
+        # Preserve the historical no-request reuse path. Once a new request is
+        # present, the existing ref is only a candidate and must be validated.
+        if (
+            existing_bundle_ref is not None
+            and target_context is None
+            and not required_parameters
+        ):
+            return NodeOutcome(status="ok", state=state)
         if target_context is None:
             return _skip(
                 state,
                 "Missing params.target_context; parameter resolution skipped.",
             )
 
-        required_parameters = _resolve_required_parameters(state)
         if not required_parameters:
             return _skip(
                 state,
@@ -144,6 +160,29 @@ class ResolveParametersNode:
 
         skg_query = SKGQuery(db_path=db_path, index_dir=index_dir)
         try:
+            skg_version_id = skg_query.latest_skg_version_id()
+            skg_snapshot_ref = skg_query.skg_snapshot_ref(version_id=skg_version_id) or ""
+            if not _requested_snapshot_matches_owner(
+                state,
+                owner_snapshot_ref=skg_snapshot_ref,
+                owner_version_id=skg_version_id,
+            ):
+                return _skip(
+                    state,
+                    "Requested SKG snapshot is unavailable or no longer matches the owner.",
+                )
+            if existing_bundle_ref is not None and _bundle_matches_request(
+                ctx,
+                existing_bundle_ref,
+                target_context=target_context,
+                simulation_domain=simulation_domain,
+                required_parameters=required_parameters,
+                graph_ref=graph_ref,
+                skg_snapshot_ref=skg_snapshot_ref,
+                skg_version_id=skg_version_id,
+            ):
+                return NodeOutcome(status="ok", state=state)
+
             selector = ParameterSelector(skg_query)
             for parameter_name in required_parameters:
                 parameter, appl = selector.select_for_context(
@@ -158,14 +197,12 @@ class ResolveParametersNode:
                     continue
                 parameters[parameter_name] = parameter
 
-            skg_version_id = skg_query.latest_skg_version_id()
-            skg_snapshot_ref = skg_query.skg_snapshot_ref(version_id=skg_version_id) or ""
         finally:
             skg_query.close()
 
         bundle = ContextAdaptiveParameterBundle(
             target_context=target_context,
-            simulation_domain=str(state.params.get("domain", "unknown")),
+            simulation_domain=simulation_domain,
             parameters=parameters,
             applicability=applicability,
             unsupported_parameters=unsupported,
@@ -242,6 +279,71 @@ def _resolve_required_parameters(state: ExperimentState) -> list[str]:
         return []
     values = [str(item).strip() for item in raw if str(item).strip()]
     return sorted(set(values))
+
+
+def _requested_snapshot_matches_owner(
+    state: ExperimentState,
+    *,
+    owner_snapshot_ref: str,
+    owner_version_id: int | None,
+) -> bool:
+    requested_ref = state.params.get("skg_snapshot_ref")
+    requested_version = state.params.get("skg_version_id")
+    if requested_ref in (None, "") and requested_version is None:
+        return True
+    if not isinstance(requested_ref, str) or not requested_ref.strip():
+        return False
+    if requested_version is not None:
+        if isinstance(requested_version, bool):
+            return False
+        try:
+            requested_version = int(requested_version)
+        except (TypeError, ValueError):
+            return False
+        if requested_version != owner_version_id:
+            return False
+    return requested_ref == owner_snapshot_ref
+
+
+def _bundle_matches_request(
+    ctx: ExecutionContext,
+    bundle_ref: Any,
+    *,
+    target_context: ContextProfile,
+    simulation_domain: str,
+    required_parameters: list[str],
+    graph_ref: CausalGraphModelRef,
+    skg_snapshot_ref: str,
+    skg_version_id: int | None,
+) -> bool:
+    try:
+        bundle = load_context_adaptive_parameter_bundle(ctx.store, bundle_ref)
+        manifest = ctx.store.get_manifest(bundle_ref.artifact_id)
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
+        return False
+
+    if (
+        manifest.kind != "ir.context_adaptive_parameter_bundle"
+        or manifest.artifact_schema is None
+        or (manifest.artifact_schema.name, manifest.artifact_schema.version)
+        != ("ir.context_adaptive_parameter_bundle", "1.0")
+    ):
+        return False
+    if bundle.target_context != target_context:
+        return False
+    if bundle.simulation_domain != simulation_domain:
+        return False
+    if not skg_snapshot_ref or skg_version_id is None:
+        return False
+    covered_parameters = set(bundle.parameters) | set(bundle.unsupported_parameters)
+    if not set(required_parameters).issubset(covered_parameters):
+        return False
+    if bundle.skg_snapshot_ref != skg_snapshot_ref:
+        return False
+    if bundle.skg_version_id != skg_version_id:
+        return False
+    graph_artifact_id = str(graph_ref.artifact_id)
+    return any(str(input_ref.artifact_id) == graph_artifact_id for input_ref in manifest.inputs)
 
 
 def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | None:

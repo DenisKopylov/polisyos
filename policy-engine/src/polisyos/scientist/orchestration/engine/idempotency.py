@@ -67,6 +67,11 @@ _JOURNAL_PROOF_CANON = CanonSpec(
     forbid_floats=False,
 )
 
+_RESOLVE_PARAMETERS_NODE_ID = "scientist.node_resolve_parameters@1.0.0"
+_DATA_PLANE_GATE_NODE_ID = "scientist.node_run_data_plane_gate@1.0.0"
+_SKG_SNAPSHOT_REF_PATH = "params.skg_snapshot_ref"
+_SKG_VERSION_ID_PATH = "params.skg_version_id"
+
 
 class NodeCacheEntry(BaseModel):
     """Artifact record linking a run-scoped idempotency key to a cached node outcome."""
@@ -150,14 +155,83 @@ def _resolve_path(state: ExperimentState, path: str) -> Any:
     return current
 
 
+def _owner_skg_snapshot_identity(state: ExperimentState) -> dict[str, Any]:
+    """Resolve the SKG owner identity when the effective input is not pre-bound."""
+    snapshot_ref = state.params.get("skg_snapshot_ref")
+    version_id = state.params.get("skg_version_id")
+    if snapshot_ref not in (None, "") or version_id is not None:
+        return {
+            key: value
+            for key, value in (
+                (_SKG_SNAPSHOT_REF_PATH, snapshot_ref),
+                (_SKG_VERSION_ID_PATH, version_id),
+            )
+            if value not in (None, "")
+        }
+
+    db_path_raw = state.params.get("skg_db_path")
+    if not isinstance(db_path_raw, str) or not db_path_raw.strip():
+        return {}
+    db_path = Path(db_path_raw)
+    if not db_path.exists():
+        return {}
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    index_dir_raw = state.params.get("skg_index_dir")
+    index_dir = Path(str(index_dir_raw)) if index_dir_raw else db_path.parent
+    skg_query = SKGQuery(db_path=db_path, index_dir=index_dir)
+    try:
+        owner_version = skg_query.latest_skg_version_id()
+        owner_ref = skg_query.skg_snapshot_ref(version_id=owner_version)
+    finally:
+        skg_query.close()
+    identity: dict[str, Any] = {}
+    if owner_ref:
+        identity[_SKG_SNAPSHOT_REF_PATH] = owner_ref
+    if owner_version is not None:
+        identity[_SKG_VERSION_ID_PATH] = owner_version
+    return identity
+
+
+def _effective_state_read_value(
+    state: ExperimentState,
+    read_path: str,
+    *,
+    node_id: str | None,
+    owner_skg_identity: dict[str, Any],
+) -> Any:
+    """Apply only the concrete consumer defaults and owner bindings we know."""
+    value = _resolve_path(state, read_path)
+    if node_id == _RESOLVE_PARAMETERS_NODE_ID:
+        if read_path in {_SKG_SNAPSHOT_REF_PATH, _SKG_VERSION_ID_PATH} and value in (None, ""):
+            return owner_skg_identity.get(read_path)
+    if (
+        node_id == _DATA_PLANE_GATE_NODE_ID
+        and read_path == "params.tenant_tier"
+        and "tenant_tier" not in state.params
+    ):
+        return "shared"
+    return value
+
+
 def extract_state_slice(
     state: ExperimentState,
     state_reads: list[str],
+    *,
+    node_id: str | None = None,
 ) -> dict[str, Any]:
     """Capture the declared state-read paths that participate in a node idempotency hash."""
     slice_data: dict[str, Any] = {}
+    owner_skg_identity = (
+        _owner_skg_snapshot_identity(state) if node_id == _RESOLVE_PARAMETERS_NODE_ID else {}
+    )
     for read_path in sorted(state_reads):
-        value = _resolve_path(state, read_path)
+        value = _effective_state_read_value(
+            state,
+            read_path,
+            node_id=node_id,
+            owner_skg_identity=owner_skg_identity,
+        )
         slice_data[read_path] = to_python_data(value, sort_keys=True)
     return slice_data
 
@@ -178,7 +252,11 @@ def compute_idempotency_payload(
         "scope": "run",
         "run_id": state.run_id,
         "node_id": str(spec.metadata.component_id),
-        "state_reads_snapshot": extract_state_slice(state, spec.state_reads),
+        "state_reads_snapshot": extract_state_slice(
+            state,
+            spec.state_reads,
+            node_id=str(spec.metadata.component_id),
+        ),
         "bind_params": _normalize_bind_params(bind_params),
     }
 

@@ -13,6 +13,7 @@ delegate directly to ``node.execute()`` with minimal overhead.
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import logging
 import multiprocessing as mp
 import queue
@@ -185,6 +186,43 @@ def _apply_bounded_liveness_retry_ceiling(
     return retry_policy.model_copy(update={"max_retries": resolved.retry_ceiling})
 
 
+def _resolve_effective_timeout(
+    *,
+    alias: str,
+    timeout_s: float | None,
+    liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None,
+) -> float | None:
+    """Resolve one governed deadline for the complete retry operation."""
+    if liveness_config is None:
+        return timeout_s
+    resolved = bounded_liveness_config_from_mapping(liveness_config).resolve(
+        f"scientist.node.{alias}",
+        requested_deadline_s=timeout_s,
+    )
+    return resolved.deadline_s
+
+
+def _remaining_timeout(deadline_at: float | None, *, alias: str) -> float | None:
+    """Return the remaining operation budget or raise when it is exhausted."""
+    if deadline_at is None:
+        return None
+    remaining = deadline_at - time.monotonic()
+    if remaining <= 0:
+        raise NodeTimeoutError(f"Node {alias} exceeded its effective deadline")
+    return remaining
+
+
+def _sleep_for_retry(
+    delay: float,
+    *,
+    deadline_at: float | None,
+    alias: str,
+) -> None:
+    """Sleep within the one operation deadline, never extending its budget."""
+    remaining = _remaining_timeout(deadline_at, alias=alias)
+    time.sleep(delay if remaining is None else min(delay, remaining))
+
+
 def execute_with_retry_sync(
     node: Any,
     ctx: ExecutionContext,
@@ -207,8 +245,18 @@ def execute_with_retry_sync(
         retry_policy=retry_policy,
         liveness_config=liveness_config,
     )
+    effective_timeout_s = _resolve_effective_timeout(
+        alias=alias,
+        timeout_s=timeout_s,
+        liveness_config=liveness_config,
+    )
+    deadline_at = (
+        None
+        if effective_timeout_s is None
+        else time.monotonic() + effective_timeout_s
+    )
     # Fast path — no retry, no timeout
-    if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
+    if retry_policy.max_retries == 0 and effective_timeout_s is None and circuit_breaker is None:
         return node.execute(ctx, state)
 
     last_outcome: NodeOutcome | None = None
@@ -222,8 +270,14 @@ def execute_with_retry_sync(
             )
 
         try:
-            if timeout_s is not None:
-                outcome = _execute_with_timeout_sync(node, ctx, state, timeout_s=timeout_s)
+            attempt_timeout_s = _remaining_timeout(deadline_at, alias=alias)
+            if attempt_timeout_s is not None:
+                outcome = _execute_with_timeout_sync(
+                    node,
+                    ctx,
+                    state,
+                    timeout_s=attempt_timeout_s,
+                )
             else:
                 outcome = node.execute(ctx, state)
 
@@ -251,7 +305,7 @@ def execute_with_retry_sync(
                     "NODE_RETRY",
                     metrics={"attempt": attempt + 1, "delay_s": delay},
                 )
-                time.sleep(delay)
+                _sleep_for_retry(delay, deadline_at=deadline_at, alias=alias)
                 continue
 
             return outcome
@@ -277,7 +331,7 @@ def execute_with_retry_sync(
                     "NODE_RETRY",
                     metrics={"attempt": attempt + 1, "delay_s": delay},
                 )
-                time.sleep(delay)
+                _sleep_for_retry(delay, deadline_at=deadline_at, alias=alias)
                 continue
 
             dlq_ref = _persist_dead_letter(
@@ -316,7 +370,12 @@ def _execute_with_timeout_sync(
     if _can_use_forked_timeout_worker():
         return _execute_with_timeout_process(node, ctx, state, timeout_s=timeout_s)
 
-    future = get_shared_executor().submit(node.execute, ctx, state)
+    # A timeout only stops waiting; the worker may still finish. Give it a
+    # detached state so completion after the wait cannot mutate caller-owned
+    # state or retain authority to publish a late write.
+    worker_state = state.model_copy(deep=True)
+    context = contextvars.copy_context()
+    future = get_shared_executor().submit(context.run, node.execute, ctx, worker_state)
     try:
         return future.result(timeout=timeout_s)
     except FuturesTimeoutError:
@@ -463,6 +522,16 @@ async def execute_with_retry_async(
         retry_policy=retry_policy,
         liveness_config=liveness_config,
     )
+    effective_timeout_s = _resolve_effective_timeout(
+        alias=alias,
+        timeout_s=timeout_s,
+        liveness_config=liveness_config,
+    )
+    deadline_at = (
+        None
+        if effective_timeout_s is None
+        else time.monotonic() + effective_timeout_s
+    )
     # Detect real execute_async (not MagicMock auto-generated attributes).
     # Check the class dict to avoid MagicMock's __getattr__ false positives.
     _has_async = "execute_async" in type(node).__dict__ or (
@@ -470,32 +539,42 @@ async def execute_with_retry_async(
         and any("execute_async" in getattr(klass, "__dict__", {}) for klass in type(node).__mro__)
     )
 
-    async def _invoke() -> NodeOutcome:
+    async def _invoke(attempt_timeout_s: float | None) -> NodeOutcome:
         if _has_async:
-            return await node.execute_async(ctx, state)
-        if timeout_s is not None:
-            if _can_use_forked_timeout_worker():
+            if attempt_timeout_s is None:
+                return await node.execute_async(ctx, state)
+            try:
+                return await asyncio.wait_for(
+                    node.execute_async(ctx, state),
+                    timeout=attempt_timeout_s,
+                )
+            except TimeoutError:
+                raise NodeTimeoutError(
+                    f"Node {alias} exceeded timeout of {attempt_timeout_s}s",
+                ) from None
+        if attempt_timeout_s is not None:
+            if timeout_s is not None and _can_use_forked_timeout_worker():
                 return await _execute_with_timeout_process_async(
                     node,
                     ctx,
                     state,
-                    timeout_s=timeout_s,
+                    timeout_s=attempt_timeout_s,
                 )
             return await run_blocking_async(
                 _execute_with_timeout_sync,
                 node,
                 ctx,
                 state,
-                timeout_s=timeout_s,
-                timeout_seconds=timeout_s,
+                timeout_s=attempt_timeout_s,
+                timeout_seconds=attempt_timeout_s,
             )
         return await run_blocking_async(node.execute, ctx, state)
 
     # Fast path
-    if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
+    if retry_policy.max_retries == 0 and effective_timeout_s is None and circuit_breaker is None:
         if retry_stats is not None:
             retry_stats["attempts"] = 1
-        return await _invoke()
+        return await _invoke(None)
 
     last_outcome: NodeOutcome | None = None
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
@@ -508,16 +587,8 @@ async def execute_with_retry_async(
             )
 
         try:
-            if timeout_s is not None and _has_async:
-                coro = _invoke()
-                try:
-                    outcome = await asyncio.wait_for(coro, timeout=timeout_s)
-                except TimeoutError:
-                    raise NodeTimeoutError(
-                        f"Node exceeded timeout of {timeout_s}s",
-                    ) from None
-            else:
-                outcome = await _invoke()
+            attempt_timeout_s = _remaining_timeout(deadline_at, alias=alias)
+            outcome = await _invoke(attempt_timeout_s)
 
             if outcome.status != "fail":
                 if circuit_breaker is not None:
@@ -539,7 +610,8 @@ async def execute_with_retry_async(
                     retry_policy.max_retries,
                     delay,
                 )
-                await asyncio.sleep(delay)
+                remaining = _remaining_timeout(deadline_at, alias=alias)
+                await asyncio.sleep(delay if remaining is None else min(delay, remaining))
                 continue
 
             if retry_stats is not None:
@@ -563,7 +635,8 @@ async def execute_with_retry_async(
                     retry_policy.max_retries,
                     exc,
                 )
-                await asyncio.sleep(delay)
+                remaining = _remaining_timeout(deadline_at, alias=alias)
+                await asyncio.sleep(delay if remaining is None else min(delay, remaining))
                 continue
 
             if retry_stats is not None:

@@ -54,6 +54,13 @@ def get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
     return _get_shared_executor()
 
 
+def _is_shared_executor_worker(
+    executor: concurrent.futures.ThreadPoolExecutor,
+) -> bool:
+    """Return whether the caller is already running on the shared executor."""
+    return threading.current_thread() in getattr(executor, "_threads", ())
+
+
 def _normalize_timeout(timeout_seconds: float | None) -> float:
     timeout = _DEFAULT_TIMEOUT_SECONDS if timeout_seconds is None else float(timeout_seconds)
     if timeout <= 0:
@@ -103,13 +110,19 @@ def run_coro_sync[T](coro: Awaitable[T], *, timeout_seconds: float | None = None
         loop = None
 
     if loop and loop.is_running():
+        executor = _get_shared_executor()
+        if _is_shared_executor_worker(executor):
+            close = getattr(coro, "close", None)
+            if callable(close):
+                close()
+            raise RuntimeError("sync-over-async re-entry into the shared executor is unsupported")
         context = contextvars.copy_context()
         call = functools.partial(
             _run_coro_in_fresh_loop,
             coro,
             timeout_seconds=timeout,
         )
-        future = _get_shared_executor().submit(context.run, call)
+        future = executor.submit(context.run, call)
         try:
             return future.result(timeout=timeout + 1.0)
         except concurrent.futures.TimeoutError as exc:
@@ -133,7 +146,10 @@ async def run_blocking_async[T](
     loop = asyncio.get_running_loop()
     call = functools.partial(func, *args, **kwargs)
     context = contextvars.copy_context()
-    future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+    executor = _get_shared_executor()
+    if _is_shared_executor_worker(executor):
+        raise RuntimeError("async bridge re-entry into the shared executor is unsupported")
+    future = loop.run_in_executor(executor, context.run, call)
     try:
         return await asyncio.wait_for(future, timeout=timeout)
     except TimeoutError as exc:

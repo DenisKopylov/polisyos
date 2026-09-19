@@ -332,8 +332,8 @@ class TestExecuteWithRetrySync:
         assert result.status == "ok"
         assert len(fake_executor.submissions) == 1
         submitted_fn, submitted_args = fake_executor.submissions[0]
-        assert submitted_fn == node.execute
-        assert submitted_args == (ctx, state)
+        assert submitted_args[0] == node.execute
+        assert submitted_args[1:] == (ctx, state)
 
     def test_default_policy_zero_retries_no_retry(self, ctx, state):
         node = MagicMock()
@@ -370,7 +370,7 @@ class TestExecuteWithRetrySync:
         assert len(retry_calls) == 1
         assert retry_calls[0][1]["metrics"]["attempt"] == 1
 
-    def test_bounded_liveness_config_clamps_retry_ceiling(self, ctx, state):
+    def test_bounded_liveness_config_clamps_retry_ceiling(self, ctx, state, monkeypatch):
         node = MagicMock()
         node.execute.side_effect = [
             _fail_outcome(state, code="node.exception"),
@@ -390,6 +390,10 @@ class TestExecuteWithRetrySync:
             promotion_evidence_ref="artifact://bounded-liveness/evidence",
         )
 
+        monkeypatch.setattr(
+            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
+            lambda: False,
+        )
         with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"):
             result = execute_with_retry_sync(
                 node,

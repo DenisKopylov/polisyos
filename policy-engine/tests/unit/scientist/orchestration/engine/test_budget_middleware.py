@@ -8,7 +8,11 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
-from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 

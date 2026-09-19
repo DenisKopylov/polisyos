@@ -8,13 +8,13 @@ import os
 import socket
 import tempfile
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Iterator, Literal, Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 

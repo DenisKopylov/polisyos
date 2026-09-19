@@ -164,6 +164,100 @@ class TestOptimizationFlow:
         assert result.iterations_completed == 5
         assert "Maximum iterations" in result.stopping_reason
 
+    def test_repeated_runs_are_fresh_and_returned_snapshots_stay_stable(
+        self,
+        quadratic_objective,
+    ):
+        """A controller run owns its state and returns a stable result snapshot."""
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": 10.0, "semantic": {"interventions": []}}
+
+        def stage_a(candidate, context):
+            del candidate, context
+            return 0.0, True
+
+        def stage_b(candidate, context):
+            del context
+            return {
+                "simulation_results": {"x": candidate["x"]},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+                initial_evaluations=[],
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=stage_a,
+            stage_b_evaluator=stage_b,
+        )
+
+        first_candidate = {"x": 1.0, "semantic": {"interventions": []}}
+        first = controller.run({"request": "first"}, initial_candidate=first_candidate)
+        first_candidate["x"] = 99.0
+
+        second = controller.run(
+            {"request": "second"},
+            initial_candidate={"x": 2.0, "semantic": {"interventions": []}},
+        )
+
+        assert second.search_id != first.search_id
+        assert second.stage_a_evaluations == 1
+        assert second.stage_b_evaluations == 1
+        assert len(second.history) == 1
+        assert second.history[0].candidate["x"] == 2.0
+        assert second.best_candidate is not None
+        assert second.best_candidate["x"] == 2.0
+
+        assert len(first.history) == 1
+        assert first.history[0].candidate["x"] == 1.0
+        assert first.best_candidate is not None
+        assert first.best_candidate["x"] == 1.0
+        assert first.stage_a_evaluations == 1
+        assert first.stage_b_evaluations == 1
+
+        sentinel = controller.run(
+            {"request": "sentinel"},
+            initial_candidate={
+                "x": 3.0,
+                "semantic": {"interventions": []},
+                "__sentinel__": {"sentinel_id": "ctl-01"},
+            },
+        )
+        assert sentinel.history == []
+        assert sentinel.best_candidate is None
+        assert sentinel.stage_a_evaluations == 1
+        assert sentinel.stage_b_evaluations == 1
+        assert sentinel.telemetry["sentinel_evaluations"] == 1
+
+        warm_evaluation = {
+            "candidate": {"x": 0.5, "semantic": {"interventions": []}},
+            "objective_value": 0.5,
+        }
+        warm_controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(2),
+                objective=quadratic_objective,
+                initial_evaluations=[warm_evaluation],
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=stage_a,
+            stage_b_evaluator=stage_b,
+        )
+        warm = warm_controller.run(
+            {"request": "compatible-warm-start"},
+            initial_candidate={"x": 4.0, "semantic": {"interventions": []}},
+        )
+        warm_evaluation["candidate"]["x"] = 8.0
+
+        assert warm.history[0].iteration == -1
+        assert warm.history[0].candidate["x"] == 0.5
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test: Stopping Criteria

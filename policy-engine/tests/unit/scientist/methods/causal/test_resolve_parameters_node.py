@@ -6,6 +6,7 @@ import logging
 import duckdb
 
 import polisyos.data_forge.read_api.academic as academic_read_api
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import ComponentId
 from polisyos.core.registry import build_default_registry_bundle
@@ -22,6 +23,7 @@ from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.idempotency import compute_idempotency_key
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import mutation_journal_for_state
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveParametersNode
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -196,6 +198,82 @@ def test_resolve_parameters_node_persists_bundle_and_bridge_payload(tmp_path) ->
         ]
     )
     assert any(event.code == "PARAMS_WITHOUT_EVIDENCE" for event in outcome.events)
+
+
+def test_context_bundle_ref_survives_native_cache_round_trip_as_typed_ref(tmp_path) -> None:
+    """Persisted bundle replay keeps a core ref that the real loader can consume."""
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path, scalar_parameter=False)
+    run_id = "R_phase15_bundle_ref_cache"
+    ctx_first = _build_ctx(tmp_path, run_id=run_id)
+    graph_ref = persist_causal_graph_model(
+        ctx_first.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    state = _bind_owner_snapshot(
+        ExperimentState(
+            run_id=run_id,
+            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+            params={
+                "target_context": {
+                    "context_id": "UA",
+                    "income_level": "lower_middle",
+                    "institutional_quality": 0.4,
+                    "post_communist": True,
+                },
+                "required_parameters": ["fiscal_multiplier"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "domain": "fiscal",
+            },
+        ),
+        db_path,
+    )
+    workflow = WorkflowSpec(
+        workflow_id="resolve_parameters_bundle_ref_cache",
+        nodes=[
+            NodeInvocation(
+                alias="resolve_parameters",
+                node_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),
+            )
+        ],
+    )
+    registry = NodeRegistry()
+    registry.register(ResolveParametersNode())
+
+    result_first = WorkflowExecutor(ctx_first, registry).execute(workflow, state)
+    assert result_first.report.status == "ok"
+    first_ref = result_first.state.artifacts_index[
+        ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+    ]
+    assert isinstance(first_ref, ArtifactRef)
+    first_journal = mutation_journal_for_state(result_first.state)
+    assert first_journal is not None
+    ref_mutations = [
+        operation
+        for operation in first_journal.operations
+        if operation.path
+        == f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}"
+    ]
+    assert len(ref_mutations) == 1
+    assert ref_mutations[0].value_kind == "artifact_ref"
+    first_bundle = load_context_adaptive_parameter_bundle(ctx_first.store, first_ref)
+    first_events = _trace_events(ctx_first)
+    assert any(event.get("event") == "NODE_CACHE_STORE" for event in first_events)
+
+    ctx_replay = _build_ctx(tmp_path, run_id=run_id)
+    result_replay = WorkflowExecutor(ctx_replay, registry).execute(
+        workflow,
+        state.model_copy(deep=True),
+    )
+    assert result_replay.report.status == "ok"
+    replay_events = _trace_events(ctx_replay)
+    assert any(event.get("event") == "NODE_CACHE_HIT" for event in replay_events)
+    replay_ref = result_replay.state.artifacts_index[
+        ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+    ]
+    assert isinstance(replay_ref, ArtifactRef)
+    assert load_context_adaptive_parameter_bundle(ctx_replay.store, replay_ref) == first_bundle
 
 
 def test_resolve_parameters_node_skips_on_missing_inputs(tmp_path) -> None:

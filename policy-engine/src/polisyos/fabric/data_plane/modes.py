@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import math
 from collections import Counter
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -21,11 +22,12 @@ from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
 )
-from polisyos.core.contracts.cursor import CursorState, WindowStrategy
+from polisyos.core.contracts.cursor import CursorState, WatermarkType, WindowStrategy
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
 )
+from polisyos.ir.connectors import DataVersion, FetchRequest, VersionStrategy
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
@@ -118,6 +120,144 @@ def _non_finite_fields(row: dict[str, Any]) -> list[str]:
     return fields
 
 
+class _CursorAwareConnector:
+    """Add one stored incremental version at the connector request boundary."""
+
+    def __init__(
+        self,
+        connector: Any,
+        connector_id: str,
+        cursor_versions: dict[tuple[str, str], DataVersion],
+    ) -> None:
+        self._connector = connector
+        self._connector_id = connector_id
+        self._cursor_versions = cursor_versions
+
+    def fetch(self, handle: Any, request: Any) -> Any:
+        """Fetch with the stored version when the request has no cursor."""
+        if isinstance(request, FetchRequest) and request.incremental_since is None:
+            version = self._cursor_versions.get((self._connector_id, request.dataset_id))
+            if version is not None:
+                request = replace(request, incremental_since=version)
+        return self._connector.fetch(handle, request)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._connector, name)
+
+
+class _CursorAwareRegistry:
+    """Delegate registry operations while wrapping fetched connectors."""
+
+    def __init__(
+        self,
+        registry: Any,
+        cursor_versions: dict[tuple[str, str], DataVersion],
+    ) -> None:
+        self._registry = registry
+        self._cursor_versions = cursor_versions
+
+    def get(self, connector_id: str, *args: Any, **kwargs: Any) -> Any:
+        """Resolve and wrap one connector from the underlying registry."""
+        connector = self._registry.get(connector_id, *args, **kwargs)
+        return _CursorAwareConnector(
+            connector,
+            str(connector_id),
+            self._cursor_versions,
+        )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._registry, name)
+
+
+def _cursor_version(cursor: CursorState) -> DataVersion | None:
+    """Convert a compatible persisted cursor to the connector version contract."""
+    strategy_by_watermark = {
+        WatermarkType.TIMESTAMP: VersionStrategy.TIMESTAMP,
+        WatermarkType.ETAG: VersionStrategy.ETAG,
+        WatermarkType.REVISION: VersionStrategy.REVISION,
+    }
+    strategy = strategy_by_watermark.get(cursor.watermark_type)
+    if strategy is None or not cursor.watermark_value.strip():
+        return None
+    try:
+        return DataVersion(
+            strategy=strategy,
+            value=cursor.watermark_value,
+            timestamp=cursor.created_at,
+        )
+    except (TypeError, ValueError):
+        logger.warning(
+            "batch_incremental: ignoring incompatible cursor %s",
+            cursor.cursor_id,
+        )
+        return None
+
+
+def _cursor_aware_dependencies(
+    dependencies: IngestionDependencies | None,
+    cursor_versions: dict[tuple[str, str], DataVersion],
+) -> IngestionDependencies:
+    """Build ingestion dependencies whose registry injects supported cursors."""
+    if dependencies is None:
+        from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+
+        dependencies = resolve_ingestion_dependencies()
+    return replace(
+        dependencies,
+        registry=_CursorAwareRegistry(dependencies.registry, cursor_versions),
+    )
+
+
+def _cursor_result_ref(value: Any) -> str | None:
+    """Return an artifact id from a fetch or aggregate evidence reference."""
+    artifact_id = getattr(value, "artifact_id", None)
+    return str(artifact_id) if artifact_id is not None else None
+
+
+def _save_confirmed_cursors(
+    *,
+    cursor_store: CursorStore,
+    datasets: list[tuple[str, str]],
+    confirmed_results: dict[tuple[str, str], Any],
+    result: Any,
+) -> None:
+    """Persist cursors only for per-dataset fetch results observed at the sink."""
+    from polisyos.fabric.data_plane.watermark import resolve_watermark_policy
+
+    manifest_datasets = set(datasets)
+    for (connector_id, dataset_id), fetch_result in confirmed_results.items():
+        if (connector_id, dataset_id) not in manifest_datasets:
+            continue
+
+        connector_family = connector_id.split(".", 1)[0] if connector_id else ""
+        policy = resolve_watermark_policy(connector_family)
+        watermark_value = policy.extract(fetch_result)
+        if watermark_value is None:
+            continue
+
+        created_at = getattr(fetch_result, "fetched_at", None)
+        if not isinstance(created_at, datetime):
+            created_at = datetime.now(UTC)
+        elif created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=UTC)
+
+        evidence_bundle_ref = _cursor_result_ref(getattr(fetch_result, "evidence_ref", None))
+        if evidence_bundle_ref is None:
+            evidence_bundle_ref = _cursor_result_ref(getattr(result, "evidence_bundle_ref", None))
+
+        cursor_state = CursorState(
+            cursor_id=f"{connector_id}:{dataset_id}",
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            watermark_type=policy.watermark_type,
+            watermark_value=str(watermark_value),
+            created_at=created_at,
+            evidence_bundle_ref=evidence_bundle_ref,
+        )
+        cursor_ref = cursor_store.save_cursor(cursor_state)
+        result.cursor_ref = str(cursor_ref.artifact_id)
+
+
 def run_batch_incremental(
     *,
     connector_manifest: Any,
@@ -142,37 +282,38 @@ def run_batch_incremental(
     store = _build_filesystem_store(cas_root)
     cursor_store = CursorStore(store, index_root=cas_root)
 
-    # Look up prior cursors for each dataset
-    incremental_cursors: dict[str, str] = {}
-    datasets = []
-    if hasattr(connector_manifest, "datasets"):
-        datasets = connector_manifest.datasets
-    elif isinstance(connector_manifest, dict):
-        datasets = connector_manifest.get("datasets", [])
-
-    connector_id = ""
-    for ds in datasets:
-        ds_connector_id = (
-            getattr(ds, "connector_id", "") or ds.get("connector_id", "")
-            if isinstance(ds, dict)
-            else ""
-        )
-        ds_dataset_id = (
-            getattr(ds, "dataset_id", "") or ds.get("dataset_id", "")
-            if isinstance(ds, dict)
-            else ""
-        )
-        if ds_connector_id:
-            connector_id = ds_connector_id
-        cursor = cursor_store.find_latest_cursor(ds_connector_id, ds_dataset_id)
+    datasets = _extract_datasets(connector_manifest)
+    cursor_versions: dict[tuple[str, str], DataVersion] = {}
+    for connector_id, dataset_id in datasets:
+        cursor = cursor_store.find_latest_cursor(connector_id, dataset_id)
         if cursor is not None:
-            incremental_cursors[ds_dataset_id] = cursor.watermark_value
+            version = _cursor_version(cursor)
+            if version is None:
+                continue
+            cursor_versions[(connector_id, dataset_id)] = version
             logger.info(
                 "batch_incremental: cursor found for %s:%s → %s",
-                ds_connector_id,
-                ds_dataset_id,
+                connector_id,
+                dataset_id,
                 cursor.watermark_value,
             )
+
+    confirmed_results: dict[tuple[str, str], Any] = {}
+
+    def _capture_result(
+        connector_id: str,
+        dataset_id: str,
+        request: Any,
+        fetch_result: Any,
+    ) -> None:
+        del request
+        confirmed_results[(str(connector_id), str(dataset_id))] = fetch_result
+
+    effective_dependencies = (
+        _cursor_aware_dependencies(ingestion_dependencies, cursor_versions)
+        if cursor_versions
+        else ingestion_dependencies
+    )
 
     # Run normal orchestrated ingestion
     result = run_orchestrated_ingestion(
@@ -182,40 +323,16 @@ def run_batch_incremental(
         cas_root=cas_root,
         connection_config=connection_config,
         produce_snapshot=produce_snapshot,
-        ingestion_dependencies=ingestion_dependencies,
+        ingestion_dependencies=effective_dependencies,
+        raw_result_sink=_capture_result,
     )
 
-    # Save new cursor based on ingestion result
-    if result.datasets_fetched > 0:
-        from polisyos.fabric.data_plane.watermark import resolve_watermark_policy
-
-        connector_family = connector_id.split(".")[0] if connector_id else ""
-        policy = resolve_watermark_policy(connector_family)
-        now = datetime.now(UTC)
-
-        for ds in datasets:
-            ds_connector_id = getattr(ds, "connector_id", "") or (
-                ds.get("connector_id", "") if isinstance(ds, dict) else ""
-            )
-            ds_dataset_id = getattr(ds, "dataset_id", "") or (
-                ds.get("dataset_id", "") if isinstance(ds, dict) else ""
-            )
-
-            cursor_state = CursorState(
-                cursor_id=f"{ds_connector_id}:{ds_dataset_id}",
-                connector_id=ds_connector_id,
-                dataset_id=ds_dataset_id,
-                watermark_type=policy.watermark_type,
-                watermark_value=now.isoformat(),
-                created_at=now,
-                evidence_bundle_ref=(
-                    str(result.evidence_bundle_ref.artifact_id)
-                    if result.evidence_bundle_ref
-                    else None
-                ),
-            )
-            cursor_ref = cursor_store.save_cursor(cursor_state)
-            result.cursor_ref = str(cursor_ref.artifact_id)
+    _save_confirmed_cursors(
+        cursor_store=cursor_store,
+        datasets=datasets,
+        confirmed_results=confirmed_results,
+        result=result,
+    )
 
     return result
 
@@ -371,7 +488,6 @@ def run_replay_mode(
     import tempfile
 
     from polisyos.core.artifacts.manifest import ArtifactID
-    from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
     from polisyos.fabric.data_plane.replay_store import ReplayStore
 
     store = _build_filesystem_store(cas_root)
@@ -416,25 +532,7 @@ def run_replay_mode(
                     dependencies=ingestion_dependencies,
                 )
 
-        try:
-            evidence_ref = run_coro_sync(_replay_ingestion())
-        except Exception:
-            logger.debug(
-                "Async replay ingestion failed, falling back to sync path",
-                exc_info=True,
-            )
-            # Fallback to standard orchestrated ingestion (simulator is async)
-            result = run_orchestrated_ingestion(
-                connector_manifest=connector_manifest,
-                source=source,
-                license_name=license_name,
-                cas_root=cas_root,
-                connection_config=connection_config,
-                produce_snapshot=produce_snapshot,
-                ingestion_dependencies=ingestion_dependencies,
-            )
-            result.mode_effective = "replay"
-            return result
+        evidence_ref = run_coro_sync(_replay_ingestion())
 
         from polisyos.fabric.data_plane.orchestrator import IngestionResult
 
@@ -935,21 +1033,24 @@ async def _run_legacy_stream_dataset_from_fetch_async(
 
 def _extract_datasets(connector_manifest: Any) -> list[tuple[str, str]]:
     """Extract (connector_id, dataset_id) pairs from a manifest."""
-    datasets = []
-    raw = []
+    datasets: list[tuple[str, str]] = []
+    raw: Any = []
     if hasattr(connector_manifest, "datasets"):
         raw = connector_manifest.datasets
     elif isinstance(connector_manifest, dict):
         raw = connector_manifest.get("datasets", [])
 
     for ds in raw:
-        cid = getattr(ds, "connector_id", "") or (
-            ds.get("connector_id", "") if isinstance(ds, dict) else ""
-        )
-        did = getattr(ds, "dataset_id", "") or (
-            ds.get("dataset_id", "") if isinstance(ds, dict) else ""
-        )
-        datasets.append((cid, did))
+        if isinstance(ds, dict):
+            connector_id = ds.get("connector_id", "")
+            dataset_id = ds.get("dataset_id", "")
+        else:
+            connector_id = getattr(ds, "connector_id", "")
+            dataset_id = getattr(ds, "dataset_id", "")
+        connector_id = str(connector_id or "")
+        dataset_id = str(dataset_id or "")
+        if connector_id and dataset_id:
+            datasets.append((connector_id, dataset_id))
     return datasets
 
 

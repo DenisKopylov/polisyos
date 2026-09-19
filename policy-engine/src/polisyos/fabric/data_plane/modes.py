@@ -31,6 +31,7 @@ from polisyos.ir.connectors import DataVersion, FetchRequest, VersionStrategy
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.ingestion import IngestionDependencies
 
 logger = get_logger(__name__)

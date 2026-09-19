@@ -4,6 +4,11 @@ import pytest
 from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import (
+    ParameterBounds,
+    ParameterType,
+    PolicyCandidate,
+)
 
 from .conftest import make_evaluation
 
@@ -50,6 +55,33 @@ def test_bayesian_state_roundtrip_without_deps(simple_space: SearchSpace) -> Non
     restored = BayesianOptimizer(simple_space, BayesianConfig(n_initial=1, seed=999))
     restored.set_state(state)
     assert restored.get_state().iteration == state.iteration
+
+
+def test_duplicate_detection_uses_canonical_integer_and_category_execution() -> None:
+    space = SearchSpace(
+        bounds=[
+            ParameterBounds(name="budget_steps", lower=0, upper=1, dtype=ParameterType.INTEGER),
+            ParameterBounds(
+                name="regime",
+                dtype=ParameterType.CATEGORICAL,
+                categories=("A", "B"),
+            ),
+        ]
+    )
+    strategy = BayesianOptimizer(space, BayesianConfig(seed=13))
+    pending = PolicyCandidate(
+        candidate_id="replica-a",
+        params={"budget_steps": 0, "regime": "A"},
+        params_normalized=(0.12, 0.80, 0.20),
+    )
+    proposal = PolicyCandidate(
+        candidate_id="replica-b",
+        params={"budget_steps": 0, "regime": "A"},
+        params_normalized=(0.24, 0.60, 0.40),
+    )
+
+    assert proposal.params_normalized != pending.params_normalized
+    assert strategy._is_duplicate(proposal, [pending])
 
 
 @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")

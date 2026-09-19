@@ -5,9 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .models import (
     BenchmarkEvaluation,
@@ -17,17 +17,53 @@ from .models import (
 )
 
 
+def _canonical_coordinate_id(
+    *,
+    metric: str,
+    split: BenchmarkSplit,
+    unit_state: Literal["absent", "present"],
+    unit: str | None,
+    direction: MetricDirection,
+) -> str:
+    """Return the content-bound id for one typed coordinate tuple."""
+    identity = {
+        "direction": direction.value,
+        "metric": metric,
+        "split": split.value,
+        "unit": unit,
+        "unit_state": unit_state,
+    }
+    encoded = json.dumps(identity, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return "pareto-coordinate.v1:" + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 class ParetoCoordinate(BaseModel):
     """Typed identity for one normalized Pareto coordinate."""
 
     model_config = ConfigDict(extra="forbid")
 
     coordinate_id: str
-    metric: str
+    metric: str = Field(..., min_length=1, max_length=128)
     split: BenchmarkSplit
     unit_state: Literal["absent", "present"]
-    unit: str | None = None
+    unit: str | None = Field(default=None, min_length=1, max_length=64)
     direction: MetricDirection
+
+    @model_validator(mode="after")
+    def _validate_content_bound_identity(self) -> Self:
+        """Reject ids or unit states that do not describe this typed tuple."""
+        if (self.unit_state == "present") != (self.unit is not None):
+            raise ValueError("coordinate unit_state does not match unit")
+        expected_id = _canonical_coordinate_id(
+            metric=self.metric,
+            split=self.split,
+            unit_state=self.unit_state,
+            unit=self.unit,
+            direction=self.direction,
+        )
+        if self.coordinate_id != expected_id:
+            raise ValueError("coordinate_id is not bound to its typed coordinate")
+        return self
 
 
 class ParetoCoordinateSchema(BaseModel):
@@ -36,7 +72,16 @@ class ParetoCoordinateSchema(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     version: Literal["pareto-coordinate.v1"] = "pareto-coordinate.v1"
+    status: Literal["complete", "incomplete", "legacy_limited"]
     coordinates: list[ParetoCoordinate] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_unique_coordinates(self) -> Self:
+        """Reject duplicate content identities in one coordinate artifact."""
+        coordinate_ids = [coordinate.coordinate_id for coordinate in self.coordinates]
+        if len(set(coordinate_ids)) != len(coordinate_ids):
+            raise ValueError("coordinate schema contains duplicate coordinate ids")
+        return self
 
 
 class ParetoMember(BaseModel):
@@ -58,29 +103,79 @@ class ParetoFront(BaseModel):
     members: list[ParetoMember] = Field(default_factory=list)
     hypervolume: float = 0.0
     reference_point: dict[str, float] = Field(default_factory=dict)
-    coordinate_schema: ParetoCoordinateSchema = Field(
-        default_factory=ParetoCoordinateSchema
+    coordinate_schema: ParetoCoordinateSchema | None = Field(
+        default_factory=lambda: ParetoCoordinateSchema(status="legacy_limited")
     )
     coordinate_reference_point: dict[str, float] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_coordinate_artifact(self) -> Self:
+        """Admit only complete, content-bound v1 coordinate artifacts."""
+        _validate_coordinate_artifact(self)
+        return self
 
     @property
     def size(self) -> int:
         return len(self.members)
 
 
+def _validate_coordinate_artifact(front: ParetoFront) -> None:
+    """Validate the shared schema, values, and reference-point key sets."""
+    schema = front.coordinate_schema
+    if schema is None or schema.status == "legacy_limited":
+        return
+    if schema.status == "incomplete":
+        if (
+            front.members
+            or front.reference_point
+            or front.coordinate_reference_point
+            or not math.isfinite(front.hypervolume)
+            or front.hypervolume != 0.0
+        ):
+            raise ValueError("incomplete coordinate schema cannot carry v1 values")
+        return
+
+    coordinate_ids = {coordinate.coordinate_id for coordinate in schema.coordinates}
+    if not coordinate_ids or not front.members:
+        raise ValueError("complete coordinate schema requires members and coordinates")
+    if set(front.coordinate_reference_point) != coordinate_ids:
+        raise ValueError("coordinate reference keys do not match the coordinate schema")
+    if any(not math.isfinite(value) for value in front.coordinate_reference_point.values()):
+        raise ValueError("coordinate reference point contains a non-finite value")
+    if not math.isfinite(front.hypervolume):
+        raise ValueError("complete coordinate artifact has a non-finite hypervolume")
+
+    display_keys: set[str] | None = None
+    for member in front.members:
+        if set(member.coordinate_values) != coordinate_ids:
+            raise ValueError("member coordinate keys do not match the coordinate schema")
+        if any(not math.isfinite(value) for value in member.coordinate_values.values()):
+            raise ValueError("member coordinate values contain a non-finite value")
+        current_display_keys = set(member.objectives)
+        if not current_display_keys:
+            raise ValueError("complete coordinate artifact requires display objectives")
+        if display_keys is None:
+            display_keys = current_display_keys
+        elif current_display_keys != display_keys:
+            raise ValueError("member display keys are not consistent")
+        if any(not math.isfinite(value) for value in member.objectives.values()):
+            raise ValueError("member display objectives contain a non-finite value")
+
+    if display_keys is None or set(front.reference_point) != display_keys:
+        raise ValueError("display reference keys do not match member objectives")
+    if any(not math.isfinite(value) for value in front.reference_point.values()):
+        raise ValueError("display reference point contains a non-finite value")
+
+
 def _coordinate_for_policy(policy: PromotionPolicy) -> ParetoCoordinate:
     """Build a collision-safe coordinate identity from all policy dimensions."""
     unit_state = "present" if policy.unit is not None else "absent"
-    identity = {
-        "direction": policy.direction.value,
-        "metric": policy.primary_metric,
-        "split": policy.compare_split.value,
-        "unit": policy.unit,
-        "unit_state": unit_state,
-    }
-    encoded = json.dumps(identity, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    coordinate_id = (
-        "pareto-coordinate.v1:" + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+    coordinate_id = _canonical_coordinate_id(
+        metric=policy.primary_metric,
+        split=policy.compare_split,
+        unit_state=unit_state,
+        unit=policy.unit,
+        direction=policy.direction,
     )
     return ParetoCoordinate(
         coordinate_id=coordinate_id,
@@ -120,14 +215,26 @@ class ParetoPromoter:
             display_names.append("::".join(coordinate))
 
         self._coordinates = tuple(coordinates)
-        self._coordinate_schema = ParetoCoordinateSchema(coordinates=coordinates)
+        self._coordinate_schema = ParetoCoordinateSchema(
+            status="complete",
+            coordinates=coordinates,
+        )
         self._objective_names = tuple(coordinate_ids)
         self._display_objective_names = tuple(display_names)
+
+    def _incomplete_front(self) -> ParetoFront:
+        """Return an empty result that retains the known coordinate contract."""
+        return ParetoFront(
+            coordinate_schema=ParetoCoordinateSchema(
+                status="incomplete",
+                coordinates=list(self._coordinates),
+            )
+        )
 
     def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
         """Compute the Pareto front from a set of evaluations."""
         if not evaluations:
-            return ParetoFront()
+            return self._incomplete_front()
 
         valid_evaluations: list[BenchmarkEvaluation] = []
         objective_vectors: list[tuple[float, ...]] = []
@@ -138,7 +245,7 @@ class ParetoPromoter:
             valid_evaluations.append(evaluation)
             objective_vectors.append(vector)
         if not objective_vectors:
-            return ParetoFront()
+            return self._incomplete_front()
         non_dominated_indices = self._find_non_dominated(objective_vectors)
 
         members = [
@@ -175,13 +282,16 @@ class ParetoPromoter:
         if not front.members:
             return False
 
+        schema = front.coordinate_schema
+        if schema is None or schema.status != "complete":
+            raise ValueError("v1 dominance requires a complete coordinate schema")
+        _validate_coordinate_artifact(front)
+
         cand_obj = self._eval_objectives(candidate)
         if cand_obj is None:
             return False
         for member in front.members:
-            if member.coordinate_values and self._dominates(
-                member.coordinate_values, cand_obj
-            ):
+            if self._dominates(member.coordinate_values, cand_obj):
                 return True
         return False
 

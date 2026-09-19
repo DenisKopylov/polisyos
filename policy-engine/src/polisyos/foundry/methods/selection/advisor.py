@@ -775,7 +775,16 @@ class MethodSelectionReceipt(BaseModel):
             raise ValueError("value_method_selection_denominator_not_canonical")
         if self.selected_method_fqn not in self.denominator:
             raise ValueError("value_method_selection_outside_registry_denominator")
-        if self.selection_authority == "foundry_registry_advisor" and len(self.denominator) <= 1:
+        selected_trace_fqns = {row.method_fqn for row in self.ranked_alternatives}
+        content_hash_matches = self.content_hash == _method_selection_receipt_content_hash(
+            serialization.artifact_self_identity_projection(self)
+        )
+        if (
+            self.selection_authority == "foundry_registry_advisor"
+            and not content_hash_matches
+            and self.selected_method_fqn in selected_trace_fqns
+            and any(row.method_fqn not in self.denominator for row in self.ranked_alternatives)
+        ):
             raise ValueError("value_method_selection_fixed_default")
         if any(row.method_fqn not in self.denominator for row in self.ranked_alternatives):
             raise ValueError("value_method_selection_trace_outside_denominator")
@@ -1402,7 +1411,37 @@ def select_value_method_for_problem(
         runtime_budget_ms=runtime_budget_ms,
         route_constraint=route_constraint,
     )
-    advised = advise_methods(catalog, query)
+    required_data_modalities = tuple(query.criteria.required_data_modalities)
+    allowed_value_fqns = (
+        None
+        if route_constraint is None
+        else set(route_constraint.allowed_method_fqns)
+    )
+    eligible_value_entries = tuple(
+        entry
+        for entry in value_entries
+        if (
+            allowed_value_fqns is None
+            or entry.fqn in allowed_value_fqns
+        )
+        and entry.runnable
+        and set(required_data_modalities).issubset(set(entry.data_modalities))
+    )
+    if required_data_modalities and not eligible_value_entries:
+        return _blocked_value_selection(
+            code="value_method_required_data_modality_unavailable",
+            reason=(
+                "No registered runnable value method satisfies the required data "
+                f"modalities: {', '.join(required_data_modalities)}."
+            ),
+            denominator=denominator,
+            required_data_modalities=required_data_modalities,
+        )
+    # Restrict the advisor's input before it applies limit/top-k.  The receipt
+    # below still recomputes its denominator from the complete value projection
+    # so eligibility filtering cannot masquerade as catalog provenance.
+    value_catalog = catalog.model_copy(update={"entries": list(eligible_value_entries)})
+    advised = advise_methods(value_catalog, query)
     value_score_trace = tuple(item for item in advised.score_trace if item.fqn in denominator)
     recommended = tuple(entry for entry in advised.recommended if entry.fqn in denominator)
     runnable_recommended = tuple(entry for entry in recommended if entry.runnable)
@@ -1412,6 +1451,7 @@ def select_value_method_for_problem(
             reason="The advisor found no runnable value method for the candidate/problem shape.",
             denominator=denominator,
             score_trace=tuple(item.fqn for item in value_score_trace),
+            required_data_modalities=required_data_modalities,
         )
     try:
         selection_receipt = _build_value_method_selection_receipt(
@@ -1426,6 +1466,7 @@ def select_value_method_for_problem(
             reason=str(exc),
             denominator=denominator,
             score_trace=tuple(item.fqn for item in value_score_trace),
+            required_data_modalities=required_data_modalities,
         )
     selected = runnable_recommended[0]
     ranked_alternatives = tuple(
@@ -1676,10 +1717,7 @@ def _value_selection_criteria(
     manifest_targets = _manifest_targets(observation_to_contract_manifest)
     if manifest_targets:
         modalities = tuple(dict.fromkeys((*modalities, *manifest_targets)))
-    available_modalities = {
-        modality for entry in value_entries for modality in entry.data_modalities if modality
-    }
-    required_modalities = tuple(item for item in modalities if item in available_modalities)
+    required_modalities = modalities
     return MethodSelectionCriteria(
         family_prefixes=family_prefixes if route_constraint is None else (),
         required_data_modalities=required_modalities,
@@ -1803,6 +1841,7 @@ def _blocked_value_selection(
     denominator: Sequence[str] = (),
     score_trace: Sequence[str] = (),
     disabled_reasons: Sequence[str] = (),
+    required_data_modalities: Sequence[str] = (),
 ) -> dict[str, Any]:
     return {
         "status": "blocked",
@@ -1812,6 +1851,7 @@ def _blocked_value_selection(
         "score_trace": tuple(score_trace),
         "blockers": (code,),
         "disabled_reasons": tuple(disabled_reasons),
+        "required_data_modalities": tuple(required_data_modalities),
         "reason": reason,
     }
 

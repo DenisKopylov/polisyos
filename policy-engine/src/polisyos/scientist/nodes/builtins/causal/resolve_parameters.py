@@ -9,6 +9,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.data_forge.read_api.academic import ParameterSelector, SKGQuery
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
@@ -217,6 +218,7 @@ class ResolveParametersNode:
             bundle,
             inputs=input_refs,
         )
+        bundle_ref = ArtifactRef.model_validate(bundle_ref.model_dump(mode="json"))
         bridge_payload = ParameterTransfer.pure_step(
             ParameterTransferData(parameter_bundle=bundle),
             params={

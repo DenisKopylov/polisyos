@@ -147,4 +147,7 @@ def test_shared_executor_saturation_does_not_turn_inner_work_into_timeout(
         monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
 
     for index, outcome in enumerate(outcomes):
-        assert outcome == index or isinstance(outcome, RuntimeError)
+        if outcome == index:
+            continue
+        assert type(outcome) is RuntimeError
+        assert str(outcome) == "async bridge re-entry into the shared executor is unsupported"

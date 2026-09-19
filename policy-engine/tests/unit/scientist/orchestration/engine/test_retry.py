@@ -486,13 +486,39 @@ class TestExecuteWithRetrySync:
         release = threading.Event()
         completed = threading.Event()
 
-        class _LateWriteNode:
-            def execute(self, _ctx, passed_state):
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.put_json_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+            def put_json(self, *args: object, **kwargs: object) -> object:
+                self.put_json_calls.append((args, kwargs))
+                return object()
+
+        class _RecordingRun:
+            def __init__(self) -> None:
+                self.emit_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+            def emit(self, *args: object, **kwargs: object) -> None:
+                self.emit_calls.append((args, kwargs))
+
+        recording_store = _RecordingStore()
+        recording_run = _RecordingRun()
+        ctx.store = recording_store
+        ctx.run = recording_run
+
+        class _LateAuthorityNode:
+            def execute(self, passed_ctx, passed_state):
                 started.set()
                 release.wait(timeout=1.0)
-                passed_state.params["late_write"] = "unauthorised"
-                completed.set()
-                return _ok_outcome(passed_state)
+                try:
+                    passed_state.params["late_write"] = "unauthorised"
+                    try:
+                        passed_ctx.store.put_json({"late": "write"}, object())
+                    finally:
+                        passed_ctx.run.emit("late-authority", "LATE_WRITE")
+                    return _ok_outcome(passed_state)
+                finally:
+                    completed.set()
 
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         monkeypatch.setattr(
@@ -507,7 +533,7 @@ class TestExecuteWithRetrySync:
         try:
             with pytest.raises(NodeTimeoutError):
                 execute_with_retry_sync(
-                    _LateWriteNode(),
+                    _LateAuthorityNode(),
                     ctx,
                     state,
                     retry_policy=RetryPolicy(),
@@ -521,7 +547,18 @@ class TestExecuteWithRetrySync:
             release.set()
             executor.shutdown(wait=True, cancel_futures=True)
 
-        assert "late_write" not in state.params
+        # One revocation property covers every authoritative sink and caller
+        # state; it is not a per-node or per-write patch.
+        late_authority_effects = {
+            "state": "late_write" in state.params,
+            "artifact": bool(recording_store.put_json_calls),
+            "event": bool(recording_run.emit_calls),
+        }
+        assert late_authority_effects == {
+            "state": False,
+            "artifact": False,
+            "event": False,
+        }
 
     def test_one_effective_deadline_passes_remaining_budget_to_each_retry(
         self, ctx, state, monkeypatch

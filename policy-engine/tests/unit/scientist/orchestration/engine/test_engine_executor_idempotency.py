@@ -30,6 +30,22 @@ _CACHED_SPEC = NodeSpec(
     state_writes=["params.cached_counter"],
 )
 
+_BROAD_CACHED_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse("scientist.node_broad_cached_counter@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
+    display_name="Broad Cached Counter",
+    description="Test node for exact replay writes under a broad declaration",
+    tags=["test"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_BROAD_CACHED_SPEC = NodeSpec(
+    metadata=_BROAD_CACHED_METADATA,
+    state_reads=["params.seed"],
+    state_writes=["params"],
+)
+
 _FAIL_METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_always_fail@1.0.0"),
     kind=ComponentKind.SCIENTIST_NODE,
@@ -72,6 +88,20 @@ class CachedCounterNode:
         return NodeOutcome(status="ok", state=new_state)
 
 
+class BroadCachedCounterNode:
+    calls = 0
+
+    @property
+    def spec(self) -> NodeSpec:
+        return _BROAD_CACHED_SPEC
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        BroadCachedCounterNode.calls += 1
+        new_state = state.model_copy(deep=True)
+        new_state.params["cached_counter"] = BroadCachedCounterNode.calls
+        return NodeOutcome(status="ok", state=new_state)
+
+
 class AlwaysFailNode:
     calls = 0
 
@@ -108,6 +138,7 @@ def _build_context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext,
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("idempotency_test"))
     registry = NodeRegistry()
     registry.register(CachedCounterNode())
+    registry.register(BroadCachedCounterNode())
     registry.register(AlwaysFailNode())
     return ctx, registry
 
@@ -148,6 +179,47 @@ def test_executor_cache_hit_after_restart_same_run_id(tmp_path) -> None:
     events = _load_trace_events(store, ctx_b)
     hit_events = [evt for evt in events if evt.get("event") == "NODE_CACHE_HIT"]
     assert len(hit_events) == 1
+
+
+# Production mutation caught: a cache hit must replay only actual writes, not
+# restore unrelated values from the historical full outcome state.
+def test_executor_cache_hit_preserves_unrelated_current_state(tmp_path) -> None:
+    BroadCachedCounterNode.calls = 0
+    store = FileSystemCAS(tmp_path)
+    workflow = WorkflowSpec(
+        workflow_id="broad_cache_replay",
+        nodes=[
+            NodeInvocation(
+                alias="cached",
+                node_id=ComponentId.parse("scientist.node_broad_cached_counter@1.0.0"),
+            ),
+        ],
+    )
+
+    ctx_a, registry_a = _build_context(store, "R_broad_cache_replay")
+    result_a = WorkflowExecutor(ctx_a, registry_a).execute(
+        workflow,
+        ExperimentState(
+            run_id="R_broad_cache_replay",
+            params={"seed": 7, "unrelated": "old"},
+        ),
+    )
+    assert result_a.report.status == "ok"
+    assert BroadCachedCounterNode.calls == 1
+
+    ctx_b, registry_b = _build_context(store, "R_broad_cache_replay")
+    result_b = WorkflowExecutor(ctx_b, registry_b).execute(
+        workflow,
+        ExperimentState(
+            run_id="R_broad_cache_replay",
+            params={"seed": 7, "unrelated": "new"},
+        ),
+    )
+
+    assert result_b.report.status == "ok"
+    assert BroadCachedCounterNode.calls == 1
+    assert result_b.state.params["unrelated"] == "new"
+    assert result_b.state.params["cached_counter"] == 1
 
 
 def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path) -> None:

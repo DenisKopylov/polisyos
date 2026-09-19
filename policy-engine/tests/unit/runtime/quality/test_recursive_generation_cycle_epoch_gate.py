@@ -1157,6 +1157,24 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
 
     assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
     assert compiled.recursive_run.root_design_problem_ref == substrate_context.design_problem_ref
+    leaf = compiled.recursive_run.leaf_nodes[0]
+    assert leaf.cycle_run is not None
+    leaf_simulation = leaf.cycle_run.simulation
+    assert leaf_simulation.world_model_record is substrate_context.world_model_record
+    assert leaf_simulation.world_model_record.content_hash == (
+        substrate_context.world_model_record_content_hash
+    )
+    assert leaf_simulation.world_model_record.world_model_record_id == (
+        substrate_context.world_model_record.world_model_record_id
+    )
+    assert leaf_simulation.k_world_ref_before == substrate_context.world_model_record_content_hash
+    assert leaf_simulation.k_world_ref_after == substrate_context.world_model_record_content_hash
+    assert leaf_simulation.diagnostics["world_model_record_id"] == (
+        substrate_context.world_model_record.world_model_record_id
+    )
+    assert leaf_simulation.diagnostics["world_model_record_content_hash"] == (
+        substrate_context.world_model_record_content_hash
+    )
 
     foreign_problem = problem.model_copy(
         update={"design_problem_id": "foreign_http_recursive_problem"}

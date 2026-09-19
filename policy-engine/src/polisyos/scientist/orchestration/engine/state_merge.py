@@ -401,6 +401,14 @@ _PROTECTED_DELETE_ROOTS = frozenset({"inputs", "artifacts_index", "reports_index
 
 
 def _apply_staged_write(root: ExperimentState, write: _StagedWrite) -> None:
+    if (
+        write.operation in {"delete", "pop", "remove", "clear", "delete_index", "delete_slice"}
+        and write.parts
+        and write.parts[0] in _PROTECTED_DELETE_ROOTS
+    ):
+        raise ValueError(
+            f"state deletion forbidden for protected root {write.parts[0]!r}"
+        )
     if write.operation == "set":
         _set_path(root, write.parts, deepcopy(write.value))
         return

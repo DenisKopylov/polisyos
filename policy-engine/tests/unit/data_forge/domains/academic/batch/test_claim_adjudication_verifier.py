@@ -10,6 +10,10 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
     ClaimAdjudicationVerifier,
     ClaimEvaluatorAppointment,
+    read_claim_promotion_predecessor,
+)
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
+    claim_promotion_policy,
 )
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
     materialize_claim_adjudication_result,
@@ -60,6 +64,12 @@ def runtime(f):
 @pytest.mark.parametrize("positive", [True, False])
 async def test_signed_observations_drive_runtime_and_direct_materialization(tmp_path, positive):
     config, f = setup_evidence(tmp_path, positive=positive)
+    pointer = f.registry.get("claim_adjudication")
+    assert pointer is not None
+    assert pointer.metadata["promoted_by_policy"] == claim_promotion_policy()
+    assert "unit" not in pointer.metadata["promoted_by_policy"]
+    replayed_pointer = f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+    assert replayed_pointer == pointer.model_dump(mode="json")
     outcome = await runtime(f).adjudicate(
         f.raw_ref, client=_FakeClient(f.client_payload), model="fixture"
     )
@@ -238,6 +248,14 @@ def test_retained_promotion_basis_requires_actual_incumbent_observations(tmp_pat
         benchmark_prediction_positive=False,
         candidate_note="better",
     )
+    successor_pointer = successor.registry.get("claim_adjudication")
+    assert successor_pointer is not None
+    predecessor = read_claim_promotion_predecessor(
+        tmp_path / "registry", successor_pointer.model_dump(mode="json")
+    )
+    assert predecessor is not None
+    assert predecessor["metadata"]["promoted_by_policy"] == claim_promotion_policy()
+    assert "unit" not in predecessor["metadata"]["promoted_by_policy"]
     with pytest.raises(ValueError, match="observation_incumbent_binding_mismatch"):
         successor.verifier.replay_champion(str(successor.evaluation_receipt_ref.artifact_id))
     observations = {

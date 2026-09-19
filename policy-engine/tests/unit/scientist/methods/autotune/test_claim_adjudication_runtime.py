@@ -6,6 +6,9 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
+    claim_promotion_policy,
+)
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
     produce_claim_adjudication_input,
 )
@@ -190,6 +193,10 @@ async def test_promoted_champion_executes_and_publishes_strong_fulltext(tmp_path
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
     evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
+    pointer = registry.get("claim_adjudication")
+    assert pointer is not None
+    assert pointer.metadata["promoted_by_policy"] == claim_promotion_policy()
+    assert "unit" not in pointer.metadata["promoted_by_policy"]
 
     outcome = await ClaimAdjudicationRuntime(
         store=store,

@@ -3,9 +3,17 @@ from __future__ import annotations
 import gc
 import time
 
+import pytest
+
 import polisyos.foundry.methods.catalog.causal.admg_ops as admg_ops
 from polisyos.foundry.methods.catalog.causal.id_engine import id_algorithm
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    EdgeSource,
+    GraphType,
+)
 
 
 def _make_graph(nodes: list[str], edges: list[CausalEdge]) -> CausalGraphModel:
@@ -81,6 +89,63 @@ def test_cached_adjacency_eviction() -> None:
     assert key not in admg_ops._ADJ_CACHE
     assert key not in admg_ops._CC_CACHE
     assert key not in admg_ops._GRAPH_REFS
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "nodes_append",
+        "edges_clear",
+        "edge_sources_append",
+        "edge_metadata_nested_append",
+        "graph_metadata_nested_append",
+    ],
+)
+def test_published_graph_rejects_nested_topology_mutation(mutation: str) -> None:
+    """Frozen publication rejects hostile mutations of every topology container."""
+    graph = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["A", "B"],
+        edges=[
+            CausalEdge(
+                src="A",
+                dst="B",
+                sources=[EdgeSource.DATA],
+                metadata={"lineage": {"tags": ["source"]}},
+            )
+        ],
+        metadata={"lineage": {"tags": ["source"]}},
+    )
+    mutations = {
+        "nodes_append": lambda: graph.nodes.append("C"),
+        "edges_clear": graph.edges.clear,
+        "edge_sources_append": lambda: graph.edges[0].sources.append(EdgeSource.EXPERT),
+        "edge_metadata_nested_append": lambda: graph.edges[0].metadata["lineage"]["tags"].append(
+            "hostile"
+        ),
+        "graph_metadata_nested_append": lambda: graph.metadata["lineage"]["tags"].append(
+            "hostile"
+        ),
+    }
+
+    with pytest.raises((AttributeError, TypeError)):
+        mutations[mutation]()
+
+
+def test_warmed_derived_rows_are_not_reused_after_copy_update() -> None:
+    """A new graph version has cold export rows and cold read-only adjacency state."""
+    _reset_caches()
+    graph = _make_graph(
+        nodes=["A", "B"],
+        edges=[CausalEdge(src="A", dst="B")],
+    )
+    assert graph.kuzu_edge_rows[0]["src"] == "A"
+
+    updated = graph.model_copy(update={"edges": []})
+
+    assert updated.kuzu_edge_rows == ()
+    assert admg_ops.extract_directed_edges(updated) == frozenset()
+    assert admg_ops.ancestors(updated, frozenset({"B"})) == frozenset({"B"})
 
 
 def test_c_components_memoized() -> None:

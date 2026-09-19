@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from itertools import permutations
+
 import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_graph import (
@@ -26,6 +28,43 @@ def _minimal_dag() -> CausalGraphModel:
         ],
         discovery_method="manual",
     )
+
+
+def _mixed_edge_variants(order: tuple[str, ...]) -> list[CausalEdge]:
+    """Build adversarial same-endpoint edge variants without using production logic."""
+    by_kind = {
+        "directed": CausalEdge(
+            src="X",
+            dst="Y",
+            mark_src=EdgeMark.TAIL,
+            mark_dst=EdgeMark.ARROW,
+            metadata={"relation": "directed"},
+        ),
+        "bidirected": CausalEdge(
+            src="X",
+            dst="Y",
+            mark_src=EdgeMark.ARROW,
+            mark_dst=EdgeMark.ARROW,
+            metadata={"relation": "bidirected"},
+        ),
+        "lag1": CausalEdge(
+            src="X",
+            dst="Y",
+            mark_src=EdgeMark.TAIL,
+            mark_dst=EdgeMark.ARROW,
+            lag=1,
+            metadata={"relation": "lag1"},
+        ),
+        "lag2": CausalEdge(
+            src="X",
+            dst="Y",
+            mark_src=EdgeMark.TAIL,
+            mark_dst=EdgeMark.ARROW,
+            lag=2,
+            metadata={"relation": "lag2"},
+        ),
+    }
+    return [by_kind[kind] for kind in order]
 
 
 def test_causal_graph_valid_dag_cpdag_pag() -> None:
@@ -94,6 +133,64 @@ def test_causal_graph_accepts_lagged_reciprocal_edges_in_dag() -> None:
     )
     assert graph.graph_type is GraphType.DAG
     assert len(graph.edges) == 2
+
+
+@pytest.mark.parametrize(
+    "edge_order",
+    [
+        *permutations(("directed", "bidirected")),
+        *permutations(("lag1", "lag2")),
+    ],
+    ids=(
+        "directed-before-bidirected",
+        "bidirected-before-directed",
+        "lag1-before-lag2",
+        "lag2-before-lag1",
+    ),
+)
+def test_causal_graph_networkx_preserves_mixed_edge_identity(
+    edge_order: tuple[str, ...],
+) -> None:
+    """Each same-endpoint relation survives export independent of insertion order."""
+    graph = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "Y"],
+        edges=_mixed_edge_variants(edge_order),
+    )
+
+    exported = graph.to_networkx()
+    if exported.is_multigraph():
+        observed = {
+            (
+                src,
+                dst,
+                data["mark_src"],
+                data["mark_dst"],
+                data["lag"],
+                data["metadata"]["relation"],
+            )
+            for src, dst, _key, data in exported.edges(keys=True, data=True)
+        }
+    else:
+        observed = {
+            (
+                src,
+                dst,
+                data["mark_src"],
+                data["mark_dst"],
+                data["lag"],
+                data["metadata"]["relation"],
+            )
+            for src, dst, data in exported.edges(data=True)
+        }
+
+    expected_by_kind = {
+        "directed": ("X", "Y", "tail", "arrow", None, "directed"),
+        "bidirected": ("X", "Y", "arrow", "arrow", None, "bidirected"),
+        "lag1": ("X", "Y", "tail", "arrow", 1, "lag1"),
+        "lag2": ("X", "Y", "tail", "arrow", 2, "lag2"),
+    }
+    assert observed == {expected_by_kind[kind] for kind in edge_order}
 
 
 def test_causal_graph_rejects_contemporaneous_cycle_even_with_lagged_edges() -> None:

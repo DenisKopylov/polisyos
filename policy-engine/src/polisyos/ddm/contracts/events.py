@@ -10,7 +10,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Literal, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 
 class MetricDirection(StrEnum):
@@ -87,6 +87,7 @@ class DDMApplicabilityProjection(BaseModel):
     invalidation_reasons: list[str] = Field(default_factory=list)
     invalidation_triggers: list[str] = Field(default_factory=list)
     observed_invalidation_triggers: list[str] = Field(default_factory=list)
+    identity_reasons: list[str] = Field(default_factory=list)
     observation_window: ObservationWindowStatus = ObservationWindowStatus.NOT_ESTABLISHED
     effective_at: AwareDatetime | None = None
     identity_bound: bool = False
@@ -296,21 +297,6 @@ class ReadinessStateEvent(BaseModel):
     required_actions: list[str] = Field(default_factory=list)
     expires_at: AwareDatetime | None = None
     promotion_allowed: bool
-
-    _applicability_projection: DDMApplicabilityProjection | None = PrivateAttr(default=None)
-
-    @property
-    def applicability(self) -> DDMApplicabilityProjection | None:
-        """Return the in-memory applicability projection for this event."""
-
-        return self._applicability_projection
-
-    def attach_applicability(self, projection: DDMApplicabilityProjection) -> Self:
-        """Bind the typed projection without changing the readiness wire shape."""
-
-        self._applicability_projection = projection
-        return self
-
 
 class CalibrationAudit(BaseModel):
     """False-positive certification under a declared stationarity regime."""

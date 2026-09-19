@@ -11,6 +11,7 @@ from polisyos.ddm.contracts.events import (
     ApplicabilityStatus,
     CalibrationAudit,
     DataQualitySignal,
+    DDMApplicabilityProjection,
     DEFAULT_READINESS_POLICY_ID,
     DEFAULT_READINESS_POLICY_VERSION,
     IncidentPayload,
@@ -28,9 +29,10 @@ from polisyos.ddm.integration.incident import (
 )
 from polisyos.ddm.integration.model_registry import (
     ModelRegistryReadinessRecord,
+    bind_applicability_projection,
     build_model_registry_record,
 )
-from polisyos.ddm.readiness.readiness_mapper import map_readiness
+from polisyos.ddm.readiness.readiness_mapper import map_readiness_with_applicability
 
 if TYPE_CHECKING:
     from polisyos.ddm.calibration.calibrate import CalibrationReport
@@ -57,6 +59,7 @@ class DDMWindowResult(BaseModel):
     readiness_event: ReadinessStateEvent
     root_cause_bundle: RootCauseBundle
     incident_payload: IncidentPayload
+    applicability: DDMApplicabilityProjection
     registry_record: ModelRegistryReadinessRecord | None = None
 
 
@@ -87,6 +90,7 @@ class DriftAndDegradationMonitor:
 
         effective_timestamp = timestamp or datetime.now(UTC)
         shift_risks = [adapt_shift_event(event) for event in shift_events or []]
+        report_identity_reasons: list[str] = []
         if calibration_audit is not None and calibration_report is not None:
             from polisyos.ddm.calibration.audit import check_calibration_validity
 
@@ -96,30 +100,15 @@ class DriftAndDegradationMonitor:
                 now=effective_timestamp,
                 observed_invalidation_triggers=observed_invalidation_triggers,
             )
-            report_binding_reasons: list[str] = []
             if calibration_audit.detector_id != calibration_report.detector_id:
-                report_binding_reasons.append("calibration_report_detector_id")
+                report_identity_reasons.append("calibration_report_detector_id")
             if (
                 calibration_audit.stationarity_regime_id
                 != calibration_report.stationarity_regime_id
             ):
-                report_binding_reasons.append("calibration_report_stationarity_regime_id")
-            validity_reasons = list(status.reasons)
-            for reason in report_binding_reasons:
-                if reason not in validity_reasons:
-                    validity_reasons.append(reason)
+                report_identity_reasons.append("calibration_report_stationarity_regime_id")
             calibration_audit = calibration_audit.model_copy(
                 update={
-                    "model_id": (
-                        model_id
-                        if calibration_audit.model_id is None
-                        else calibration_audit.model_id
-                    ),
-                    "model_version": (
-                        model_version
-                        if calibration_audit.model_version is None
-                        else calibration_audit.model_version
-                    ),
                     "valid_until": calibration_report.expiration.valid_until,
                     "invalidation_triggers": list(
                         calibration_report.expiration.invalidation_triggers
@@ -129,14 +118,14 @@ class DriftAndDegradationMonitor:
                     ),
                     "validity": (
                         ApplicabilityStatus.VALID
-                        if status.valid and not report_binding_reasons
+                        if status.valid
                         else ApplicabilityStatus.INVALID
                     ),
-                    "validity_reasons": validity_reasons,
+                    "validity_reasons": list(status.reasons),
                     "validity_checked_at": status.evaluated_at,
                 }
             )
-        readiness = map_readiness(
+        mapped = map_readiness_with_applicability(
             model_id=model_id,
             model_version=model_version,
             degradation_event=degradation_event,
@@ -150,6 +139,16 @@ class DriftAndDegradationMonitor:
             observation_window_available=observation_window_available,
             timestamp=effective_timestamp,
         )
+        readiness = mapped.readiness_event
+        applicability = mapped.applicability
+        if report_identity_reasons:
+            applicability = applicability.model_copy(
+                update={
+                    "identity_reasons": sorted(
+                        set(applicability.identity_reasons).union(report_identity_reasons)
+                    )
+                }
+            )
         enriched_degradation = _attach_readiness(degradation_event, readiness)
         root_cause = build_root_cause_bundle(
             model_id=model_id,
@@ -166,10 +165,17 @@ class DriftAndDegradationMonitor:
         )
         registry_record = None
         if calibration_audit is not None and metric_budget is not None:
+            applicability = bind_applicability_projection(
+                projection=applicability,
+                calibration_audit=calibration_audit,
+                metric_budget=metric_budget,
+                last_shift_event=None if not shift_risks else shift_risks[-1],
+            )
             registry_record = build_model_registry_record(
                 readiness_event=readiness,
                 calibration_audit=calibration_audit,
                 metric_budget=metric_budget,
+                applicability=applicability,
                 last_shift_event=None if not shift_risks else shift_risks[-1],
                 last_degradation_event=enriched_degradation,
                 active_incident_id=active_incident_id,
@@ -180,6 +186,7 @@ class DriftAndDegradationMonitor:
             readiness_event=readiness,
             root_cause_bundle=root_cause,
             incident_payload=incident,
+            applicability=applicability,
             registry_record=registry_record,
         )
 

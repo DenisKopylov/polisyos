@@ -26,8 +26,10 @@ from polisyos.ddm.contracts.metric_budget import MetricBudgetPolicy
 __all__ = [
     "DEFAULT_READINESS_POLICY",
     "MetricBudgetPolicy",
+    "ReadinessMappingResult",
     "ReadinessPolicy",
     "map_readiness",
+    "map_readiness_with_applicability",
     "metric_budget_used",
 ]
 
@@ -46,6 +48,15 @@ class ReadinessPolicy(BaseModel):
 
 
 DEFAULT_READINESS_POLICY = ReadinessPolicy()
+
+
+class ReadinessMappingResult(BaseModel):
+    """Readiness wire event plus its explicit in-memory applicability handoff."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    readiness_event: ReadinessStateEvent
+    applicability: DDMApplicabilityProjection
 
 
 def metric_budget_used(
@@ -82,7 +93,7 @@ def metric_budget_used(
     return _clip(raw_budget_used)
 
 
-def map_readiness(
+def map_readiness_with_applicability(
     *,
     model_id: str,
     model_version: str,
@@ -95,8 +106,8 @@ def map_readiness(
     policy_version: str = DEFAULT_READINESS_POLICY_VERSION,
     observation_window_available: bool | None = None,
     timestamp: datetime | None = None,
-) -> ReadinessStateEvent:
-    """Convert drift, degradation, and data-quality evidence into registry state."""
+) -> ReadinessMappingResult:
+    """Map readiness and return the typed applicability handoff explicitly."""
 
     effective_policy = policy or DEFAULT_READINESS_POLICY
     effective_timestamp = timestamp or datetime.now(UTC)
@@ -182,7 +193,41 @@ def map_readiness(
         expires_at=effective_timestamp + timedelta(days=effective_policy.state_ttl_days),
         promotion_allowed=promotion_allowed,
     )
-    return readiness_event.attach_applicability(applicability)
+    return ReadinessMappingResult(
+        readiness_event=readiness_event,
+        applicability=applicability,
+    )
+
+
+def map_readiness(
+    *,
+    model_id: str,
+    model_version: str,
+    degradation_event: PerformanceDegradationEvent | None = None,
+    shift_events: list[ShiftRiskEvent] | None = None,
+    data_quality_signals: list[DataQualitySignal] | None = None,
+    critical_slice_budget_used: float | None = None,
+    policy: ReadinessPolicy | None = None,
+    policy_id: str = DEFAULT_READINESS_POLICY_ID,
+    policy_version: str = DEFAULT_READINESS_POLICY_VERSION,
+    observation_window_available: bool | None = None,
+    timestamp: datetime | None = None,
+) -> ReadinessStateEvent:
+    """Convert evidence into the stable readiness wire event surface."""
+
+    return map_readiness_with_applicability(
+        model_id=model_id,
+        model_version=model_version,
+        degradation_event=degradation_event,
+        shift_events=shift_events,
+        data_quality_signals=data_quality_signals,
+        critical_slice_budget_used=critical_slice_budget_used,
+        policy=policy,
+        policy_id=policy_id,
+        policy_version=policy_version,
+        observation_window_available=observation_window_available,
+        timestamp=timestamp,
+    ).readiness_event
 
 
 def _state_and_reason(

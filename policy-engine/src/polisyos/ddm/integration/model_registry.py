@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ddm.contracts.events import (
     ApplicabilityStatus,
@@ -44,8 +44,6 @@ class ModelRegistryReadinessRecord(BaseModel):
     active_incident_id: str | None = None
     promotion_allowed: bool
 
-    _applicability_projection: DDMApplicabilityProjection | None = PrivateAttr(default=None)
-
 
 class RegistryGateDecision(BaseModel):
     """Decision returned by the model-registry promotion gate."""
@@ -64,18 +62,13 @@ def build_model_registry_record(
     readiness_event: ReadinessStateEvent,
     calibration_audit: CalibrationAudit,
     metric_budget: MetricBudgetPolicy,
+    applicability: DDMApplicabilityProjection | None = None,
     last_shift_event: ShiftRiskEvent | None = None,
     last_degradation_event: PerformanceDegradationEvent | None = None,
     active_incident_id: str | None = None,
 ) -> ModelRegistryReadinessRecord:
     """Build the durable registry state described by the Phase 5 plan."""
 
-    applicability = _resolve_applicability_projection(
-        readiness_event=readiness_event,
-        calibration_audit=calibration_audit,
-        metric_budget=metric_budget,
-        last_shift_event=last_shift_event,
-    )
     record = ModelRegistryReadinessRecord(
         model_id=readiness_event.model_id,
         model_version=readiness_event.model_version,
@@ -99,15 +92,11 @@ def build_model_registry_record(
         ),
         active_incident_id=active_incident_id,
         promotion_allowed=(
-            readiness_event.promotion_allowed
-            and applicability.validity is ApplicabilityStatus.VALID
-            and applicability.observation_window is ObservationWindowStatus.OBSERVED
-            and applicability.identity_bound
-            and applicability.policy_id == DEFAULT_READINESS_POLICY_ID
-            and applicability.policy_version == DEFAULT_READINESS_POLICY_VERSION
+            applicability is not None
+            and readiness_event.promotion_allowed
+            and applicability.is_authority_ready()
         ),
     )
-    record._applicability_projection = applicability
     return record
 
 
@@ -119,7 +108,6 @@ def evaluate_registry_gate(
 ) -> RegistryGateDecision:
     """Evaluate registry-promotion eligibility from DDM-15.7 state."""
 
-    projection = applicability or record._applicability_projection
     if not record.empirical_fp_certificate:
         return RegistryGateDecision(
             model_id=record.model_id,
@@ -128,7 +116,7 @@ def evaluate_registry_gate(
             reason="calibration_fp_certificate_failed",
             required_actions=["recalibrate_detector"],
         )
-    if projection is None:
+    if applicability is None:
         return RegistryGateDecision(
             model_id=record.model_id,
             model_version=record.model_version,
@@ -136,6 +124,7 @@ def evaluate_registry_gate(
             reason="applicability_not_established",
             required_actions=["reconcile_applicability_projection"],
         )
+    projection = applicability
     if (
         projection.policy_id != DEFAULT_READINESS_POLICY_ID
         or projection.policy_version != DEFAULT_READINESS_POLICY_VERSION
@@ -152,17 +141,6 @@ def evaluate_registry_gate(
         projection.validity is not ApplicabilityStatus.VALID
         or projection.validity_provenance is not GatePredicateProvenance.RECOMPUTED
         or projection.effective_at is None
-        or (
-            projection.valid_until is not None
-            and projection.effective_at is not None
-            and projection.effective_at > projection.valid_until
-        )
-        or bool(
-            set(projection.observed_invalidation_triggers)
-            - set(projection.invalidation_triggers)
-        )
-        or bool(projection.observed_invalidation_triggers)
-        or bool(projection.invalidation_reasons)
     ):
         return RegistryGateDecision(
             model_id=record.model_id,
@@ -194,6 +172,7 @@ def evaluate_registry_gate(
         or projection.stationarity_regime_id != record.stationarity_regime_id
         or projection.calibration_id != record.calibration_id
         or not projection.identity_bound
+        or bool(projection.identity_reasons)
         or projection.identity_provenance is not GatePredicateProvenance.INDEPENDENTLY_RECONCILED
     ):
         return RegistryGateDecision(
@@ -247,72 +226,38 @@ def evaluate_registry_gate(
     )
 
 
-def _resolve_applicability_projection(
+def bind_applicability_projection(
     *,
-    readiness_event: ReadinessStateEvent,
+    projection: DDMApplicabilityProjection,
     calibration_audit: CalibrationAudit,
     metric_budget: MetricBudgetPolicy,
     last_shift_event: ShiftRiskEvent | None,
 ) -> DDMApplicabilityProjection:
-    """Reconcile one runtime applicability projection at the registry boundary."""
+    """Bind checked calibration and budget identities without recomputing validity."""
 
-    inherited = readiness_event.applicability
-    projection = inherited or DDMApplicabilityProjection(
-        model_id=readiness_event.model_id,
-        model_version=readiness_event.model_version,
-        observation_window=ObservationWindowStatus.OBSERVED,
-        effective_at=readiness_event.timestamp,
-        policy_provenance=GatePredicateProvenance.RECOMPUTED,
-        observation_provenance=GatePredicateProvenance.RECOMPUTED,
-    )
-    reasons = list(projection.invalidation_reasons)
-    validity = calibration_audit.validity
-    observed_triggers = list(calibration_audit.observed_invalidation_triggers)
-    declared_triggers = list(calibration_audit.invalidation_triggers)
-    unknown_triggers = sorted(set(observed_triggers) - set(declared_triggers))
-    matched_triggers = sorted(set(observed_triggers) & set(declared_triggers))
-    if unknown_triggers:
-        validity = ApplicabilityStatus.INVALID
-        if "invalidation_trigger_binding_unknown" not in reasons:
-            reasons.append("invalidation_trigger_binding_unknown")
-    if matched_triggers:
-        validity = ApplicabilityStatus.INVALID
-        for trigger in matched_triggers:
-            if trigger not in reasons:
-                reasons.append(trigger)
-    effective_at = calibration_audit.validity_checked_at or readiness_event.timestamp
-    if projection.effective_at is not None and projection.effective_at > effective_at:
-        effective_at = projection.effective_at
-    if calibration_audit.valid_until is not None and effective_at > calibration_audit.valid_until:
-        validity = ApplicabilityStatus.INVALID
-        if "calibration_expired" not in reasons:
-            reasons.append("calibration_expired")
-    if validity is ApplicabilityStatus.NOT_ESTABLISHED:
-        validity = ApplicabilityStatus.VALID
-    if validity is ApplicabilityStatus.INVALID:
-        for reason in calibration_audit.validity_reasons:
-            if reason not in reasons:
-                reasons.append(reason)
-
-    identity_reasons: list[str] = []
+    identity_reasons = list(projection.identity_reasons)
+    if calibration_audit.model_id is None:
+        identity_reasons.append("calibration_model_binding_not_established")
     if (
         calibration_audit.model_id is not None
-        and calibration_audit.model_id != readiness_event.model_id
+        and calibration_audit.model_id != projection.model_id
     ):
         identity_reasons.append("calibration_model_id")
+    if calibration_audit.model_version is None:
+        identity_reasons.append("calibration_model_binding_not_established")
     if (
         calibration_audit.model_version is not None
-        and calibration_audit.model_version != readiness_event.model_version
+        and calibration_audit.model_version != projection.model_version
     ):
         identity_reasons.append("calibration_model_version")
-    if metric_budget.model_id != readiness_event.model_id:
+    if metric_budget.model_id != projection.model_id:
         identity_reasons.append("metric_budget_model_id")
-    if metric_budget.model_version != readiness_event.model_version:
+    if metric_budget.model_version != projection.model_version:
         identity_reasons.append("metric_budget_model_version")
     if last_shift_event is not None:
-        if last_shift_event.model_id != readiness_event.model_id:
+        if last_shift_event.model_id != projection.model_id:
             identity_reasons.append("model_id")
-        if last_shift_event.model_version != readiness_event.model_version:
+        if last_shift_event.model_version != projection.model_version:
             identity_reasons.append("model_version")
         if last_shift_event.detector_id != calibration_audit.detector_id:
             identity_reasons.append("detector_id")
@@ -320,21 +265,10 @@ def _resolve_applicability_projection(
             identity_reasons.append("stationarity_regime_id")
         if last_shift_event.calibration_id != calibration_audit.calibration_id:
             identity_reasons.append("calibration_id")
-    for reason in identity_reasons:
-        if reason not in reasons:
-            reasons.append(reason)
-
-    policy_known = (
-        projection.policy_id == DEFAULT_READINESS_POLICY_ID
-        and projection.policy_version == DEFAULT_READINESS_POLICY_VERSION
-    )
-    identity_bound = not identity_reasons
-    identity_provenance = GatePredicateProvenance.INDEPENDENTLY_RECONCILED
-    validity_provenance = GatePredicateProvenance.RECOMPUTED
+    identity_reasons = sorted(set(identity_reasons))
+    validity = calibration_audit.validity
     return projection.model_copy(
         update={
-            "model_id": readiness_event.model_id,
-            "model_version": readiness_event.model_version,
             "detector_id": calibration_audit.detector_id,
             "stationarity_regime_id": calibration_audit.stationarity_regime_id,
             "calibration_id": calibration_audit.calibration_id,
@@ -342,30 +276,24 @@ def _resolve_applicability_projection(
             "metric_budget_model_id": metric_budget.model_id,
             "metric_budget_model_version": metric_budget.model_version,
             "valid_until": calibration_audit.valid_until,
-            "effective_at": effective_at,
-            "validity": validity,
-            "invalidation_reasons": reasons,
-            "invalidation_triggers": declared_triggers,
-            "observed_invalidation_triggers": observed_triggers,
-            "identity_bound": identity_bound,
-            "baseline_allowed": readiness_event.promotion_allowed,
-            "persisted_veto": (
-                readiness_event.readiness_state in {ReadinessState.R4, ReadinessState.R3}
-                and not readiness_event.promotion_allowed
+            "invalidation_reasons": list(calibration_audit.validity_reasons),
+            "invalidation_triggers": list(calibration_audit.invalidation_triggers),
+            "observed_invalidation_triggers": list(
+                calibration_audit.observed_invalidation_triggers
             ),
-            "policy_provenance": (
+            "validity": validity,
+            "effective_at": calibration_audit.validity_checked_at,
+            "validity_provenance": (
                 GatePredicateProvenance.RECOMPUTED
-                if policy_known
+                if (
+                    calibration_audit.validity_checked_at is not None
+                    and validity is not ApplicabilityStatus.NOT_ESTABLISHED
+                )
                 else GatePredicateProvenance.NOT_ESTABLISHED
             ),
-            "validity_provenance": validity_provenance,
-            "identity_provenance": identity_provenance,
-            "observation_provenance": (
-                projection.observation_provenance
-                if projection.observation_provenance
-                is not GatePredicateProvenance.NOT_ESTABLISHED
-                else GatePredicateProvenance.RECOMPUTED
-            ),
+            "identity_reasons": identity_reasons,
+            "identity_bound": not identity_reasons,
+            "identity_provenance": GatePredicateProvenance.INDEPENDENTLY_RECONCILED,
         }
     )
 

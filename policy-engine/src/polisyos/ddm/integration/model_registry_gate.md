@@ -15,15 +15,17 @@ Required registry fields:
 | `active_incident_id` | Linked incident or `null` |
 | `promotion_allowed` | Registry promotion gate |
 
-The mapper, registry builder, and final evaluator consume one typed
-applicability projection. The projection is attached to the in-memory
-readiness event and carried as a typed private handoff on the registry record;
-it is not serialized into an untyped budget dictionary. Its policy identity is
+The mapper, monitor, registry builder, and final evaluator consume one typed
+applicability projection passed as an explicit in-memory value. It is never
+attached through a private model attribute or serialized into an untyped
+budget dictionary. Its policy identity is
 `ddm_15_7_default_readiness_policy_v1` / `v1`; an unknown policy identity or
 version is not authority. The serialized registry shape is unchanged: the
 projection is reduced to the existing certificate and promotion fields, while
 identity, validity, observation-window, and policy failures reduce permission
-to `false`.
+to `false`. A deserialized registry record has no positive applicability
+authority; the evaluator therefore fails closed until the typed projection is
+re-established explicitly.
 
 Precedence is structural and fail-closed:
 
@@ -39,6 +41,17 @@ Precedence is structural and fail-closed:
 `owner_signoff` is an external institutional assertion and is accepted only at
 the R2 boundary; it is never used to launder certificate, identity, validity,
 observation, policy-version, or R1/R0 failures.
+
+`check_calibration_validity` is the sole owner of current expiration and
+invalidation-trigger evaluation. The mapper and registry layers carry its
+typed status and provenance; they do not compare timestamps or trigger sets to
+re-decide validity. `not_established` remains a veto and is never promoted to
+`valid` merely because a calibration certificate passed historically.
+
+The current registry schema does not persist the complete typed positive
+projection. Durable positive re-evaluation is consequently a bounded residual
+requiring a future schema/public-contract amendment; this implementation does
+not widen that schema or launder the projection through an untyped field.
 
 Promotion rules:
 

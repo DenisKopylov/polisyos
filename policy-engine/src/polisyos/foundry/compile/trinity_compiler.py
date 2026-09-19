@@ -22,7 +22,7 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
-from polisyos.foundry.mechanisms import build_treasury_plan
+from polisyos.foundry.compile.randomization import build_treasury_plan
 from polisyos.foundry.methods.cost_model import CostBudget, CostModel
 from polisyos.foundry.methods.layout import build_slot_layout
 from polisyos.foundry.validation.conflict_checker import CompileTimeConflictChecker

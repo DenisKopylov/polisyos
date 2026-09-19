@@ -10,7 +10,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Literal, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 
 class MetricDirection(StrEnum):
@@ -28,6 +28,91 @@ class ReadinessState(StrEnum):
     R2 = "R2"
     R1 = "R1"
     R0 = "R0"
+
+
+DEFAULT_READINESS_POLICY_ID = "ddm_15_7_default_readiness_policy_v1"
+DEFAULT_READINESS_POLICY_VERSION = "v1"
+OBSERVATION_WINDOW_UNAVAILABLE = "observation_window_unavailable"
+
+
+class ApplicabilityStatus(StrEnum):
+    """Status of the calibration/report applicability predicate."""
+
+    VALID = "valid"
+    INVALID = "invalid"
+    NOT_ESTABLISHED = "not_established"
+
+
+class ObservationWindowStatus(StrEnum):
+    """Whether the observation window was actually delivered and observed."""
+
+    OBSERVED = "observed"
+    UNAVAILABLE = "unavailable"
+    NOT_ESTABLISHED = "not_established"
+
+
+class GatePredicateProvenance(StrEnum):
+    """Provenance class for a predicate used by a promotion gate."""
+
+    RECOMPUTED = "recomputed"
+    INDEPENDENTLY_RECONCILED = "independently_reconciled"
+    CONSUMER_ASSERTED = "consumer_asserted"
+    INSTITUTIONALLY_SUPPLIED = "institutionally_supplied"
+    NOT_ESTABLISHED = "not_established"
+
+
+class DDMApplicabilityProjection(BaseModel):
+    """Shared typed applicability and precedence projection.
+
+    This is an in-memory decision artifact. The registry record deliberately
+    keeps its existing serialized shape; the final boolean fields are derived
+    from this projection and therefore remain safe to persist without hiding
+    authority in an untyped dictionary.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(default=DEFAULT_READINESS_POLICY_ID, min_length=1)
+    policy_version: str = Field(default=DEFAULT_READINESS_POLICY_VERSION, min_length=1)
+    model_id: str = Field(min_length=1)
+    model_version: str = Field(min_length=1)
+    detector_id: str | None = None
+    stationarity_regime_id: str | None = None
+    calibration_id: str | None = None
+    metric: str | None = None
+    metric_budget_model_id: str | None = None
+    metric_budget_model_version: str | None = None
+    valid_until: AwareDatetime | None = None
+    validity: ApplicabilityStatus = ApplicabilityStatus.NOT_ESTABLISHED
+    invalidation_reasons: list[str] = Field(default_factory=list)
+    invalidation_triggers: list[str] = Field(default_factory=list)
+    observed_invalidation_triggers: list[str] = Field(default_factory=list)
+    observation_window: ObservationWindowStatus = ObservationWindowStatus.NOT_ESTABLISHED
+    effective_at: AwareDatetime | None = None
+    identity_bound: bool = False
+    baseline_allowed: bool = False
+    persisted_veto: bool = False
+    policy_provenance: GatePredicateProvenance = GatePredicateProvenance.NOT_ESTABLISHED
+    validity_provenance: GatePredicateProvenance = GatePredicateProvenance.NOT_ESTABLISHED
+    identity_provenance: GatePredicateProvenance = GatePredicateProvenance.NOT_ESTABLISHED
+    observation_provenance: GatePredicateProvenance = GatePredicateProvenance.NOT_ESTABLISHED
+
+    def is_authority_ready(self) -> bool:
+        """Return whether all load-bearing predicates are established."""
+
+        return (
+            self.policy_id == DEFAULT_READINESS_POLICY_ID
+            and self.policy_version == DEFAULT_READINESS_POLICY_VERSION
+            and self.validity is ApplicabilityStatus.VALID
+            and self.observation_window is ObservationWindowStatus.OBSERVED
+            and self.effective_at is not None
+            and self.identity_bound
+            and self.policy_provenance is GatePredicateProvenance.RECOMPUTED
+            and self.validity_provenance is GatePredicateProvenance.RECOMPUTED
+            and self.identity_provenance
+            is GatePredicateProvenance.INDEPENDENTLY_RECONCILED
+            and self.observation_provenance is GatePredicateProvenance.RECOMPUTED
+        )
 
 
 class MonitoringWindow(BaseModel):
@@ -212,6 +297,20 @@ class ReadinessStateEvent(BaseModel):
     expires_at: AwareDatetime | None = None
     promotion_allowed: bool
 
+    _applicability_projection: DDMApplicabilityProjection | None = PrivateAttr(default=None)
+
+    @property
+    def applicability(self) -> DDMApplicabilityProjection | None:
+        """Return the in-memory applicability projection for this event."""
+
+        return self._applicability_projection
+
+    def attach_applicability(self, projection: DDMApplicabilityProjection) -> Self:
+        """Bind the typed projection without changing the readiness wire shape."""
+
+        self._applicability_projection = projection
+        return self
+
 
 class CalibrationAudit(BaseModel):
     """False-positive certification under a declared stationarity regime."""
@@ -219,6 +318,8 @@ class CalibrationAudit(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     calibration_id: str = Field(min_length=1)
+    model_id: str | None = Field(default=None, min_length=1)
+    model_version: str | None = Field(default=None, min_length=1)
     detector_id: str = Field(min_length=1)
     stationarity_regime_id: str = Field(min_length=1)
     horizon: str = Field(min_length=1)
@@ -227,6 +328,12 @@ class CalibrationAudit(BaseModel):
     empirical_fp_rate: float = Field(ge=0.0, le=1.0)
     empirical_fp_upper_95: float = Field(ge=0.0, le=1.0)
     pass_: bool = Field(alias="pass")
+    valid_until: AwareDatetime | None = None
+    invalidation_triggers: list[str] = Field(default_factory=list)
+    observed_invalidation_triggers: list[str] = Field(default_factory=list)
+    validity: ApplicabilityStatus = ApplicabilityStatus.NOT_ESTABLISHED
+    validity_reasons: list[str] = Field(default_factory=list)
+    validity_checked_at: AwareDatetime | None = None
 
 
 class RootCauseBundle(BaseModel):

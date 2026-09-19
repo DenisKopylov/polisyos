@@ -1,4 +1,19 @@
 policy_id: ddm_15_7_default_readiness_policy_v1
+policy_version: v1
+observation_window:
+  unavailable: fail_closed
+  observed_empty: eligible_for_r4_if_other_predicates_hold
+promotion_precedence:
+  independent_vetoes:
+    - failed_empirical_certificate
+    - invalid_or_expired_calibration
+    - observed_invalidation_trigger
+    - foreign_identity_binding
+    - unavailable_observation_window
+    - unknown_policy_version
+  persisted_r4_r3_veto: binding
+  r2_signoff: limited_override_only
+  r1_r0_signoff: forbidden
 readiness_states:
   R4:
     name: Ready

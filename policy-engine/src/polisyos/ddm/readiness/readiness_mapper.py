@@ -7,8 +7,15 @@ from datetime import UTC, datetime, timedelta
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ddm.contracts.events import (
+    ApplicabilityStatus,
     DataQualitySignal,
+    DDMApplicabilityProjection,
+    DEFAULT_READINESS_POLICY_ID,
+    DEFAULT_READINESS_POLICY_VERSION,
+    GatePredicateProvenance,
     MetricDirection,
+    OBSERVATION_WINDOW_UNAVAILABLE,
+    ObservationWindowStatus,
     PerformanceDegradationEvent,
     ReadinessState,
     ReadinessStateEvent,
@@ -84,6 +91,9 @@ def map_readiness(
     data_quality_signals: list[DataQualitySignal] | None = None,
     critical_slice_budget_used: float | None = None,
     policy: ReadinessPolicy | None = None,
+    policy_id: str = DEFAULT_READINESS_POLICY_ID,
+    policy_version: str = DEFAULT_READINESS_POLICY_VERSION,
+    observation_window_available: bool | None = None,
     timestamp: datetime | None = None,
 ) -> ReadinessStateEvent:
     """Convert drift, degradation, and data-quality evidence into registry state."""
@@ -92,6 +102,14 @@ def map_readiness(
     effective_timestamp = timestamp or datetime.now(UTC)
     shifts = [event for event in shift_events or [] if not event.diagnostic_only]
     quality_signals = list(data_quality_signals or [])
+    observation_window = _observation_window_status(
+        quality_signals,
+        explicit=observation_window_available,
+    )
+    known_policy = (
+        policy_id == DEFAULT_READINESS_POLICY_ID
+        and policy_version == DEFAULT_READINESS_POLICY_VERSION
+    )
 
     performance_budget = 0.0 if degradation_event is None else degradation_event.budget_used
     critical_budget = _clip(critical_slice_budget_used or 0.0)
@@ -113,8 +131,11 @@ def map_readiness(
         has_shift=bool(shifts),
         high_risk_shift=high_risk_shift,
         hard_data_quality_failure=hard_data_quality_failure,
+        observation_unavailable=observation_window is ObservationWindowStatus.UNAVAILABLE,
         policy=effective_policy,
     )
+    if not known_policy:
+        state, reason = ReadinessState.R1, "readiness_policy_version_unknown"
     actions = _actions_for_state(state)
     active_signals = _active_signals(
         degradation_event=degradation_event,
@@ -122,7 +143,32 @@ def map_readiness(
         data_quality_signals=quality_signals,
     )
 
-    return ReadinessStateEvent(
+    promotion_allowed = (
+        known_policy
+        and observation_window is ObservationWindowStatus.OBSERVED
+        and state in {ReadinessState.R4, ReadinessState.R3}
+    )
+    applicability = DDMApplicabilityProjection(
+        policy_id=policy_id,
+        policy_version=policy_version,
+        model_id=model_id,
+        model_version=model_version,
+        validity=ApplicabilityStatus.NOT_ESTABLISHED,
+        observation_window=observation_window,
+        effective_at=effective_timestamp,
+        baseline_allowed=promotion_allowed,
+        persisted_veto=(
+            state in {ReadinessState.R4, ReadinessState.R3} and not promotion_allowed
+        ),
+        policy_provenance=(
+            GatePredicateProvenance.RECOMPUTED
+            if known_policy
+            else GatePredicateProvenance.NOT_ESTABLISHED
+        ),
+        observation_provenance=GatePredicateProvenance.RECOMPUTED,
+    )
+
+    readiness_event = ReadinessStateEvent(
         event_id=f"readiness-{model_id}-{model_version}-{effective_timestamp.isoformat()}",
         timestamp=effective_timestamp,
         model_id=model_id,
@@ -134,8 +180,9 @@ def map_readiness(
         affected_slices=_affected_slices(shifts),
         required_actions=actions,
         expires_at=effective_timestamp + timedelta(days=effective_policy.state_ttl_days),
-        promotion_allowed=state in {ReadinessState.R4, ReadinessState.R3},
+        promotion_allowed=promotion_allowed,
     )
+    return readiness_event.attach_applicability(applicability)
 
 
 def _state_and_reason(
@@ -145,10 +192,13 @@ def _state_and_reason(
     has_shift: bool,
     high_risk_shift: bool,
     hard_data_quality_failure: bool,
+    observation_unavailable: bool,
     policy: ReadinessPolicy,
 ) -> tuple[ReadinessState, str]:
     if hard_data_quality_failure:
         return ReadinessState.R0, "hard_data_contract_failure"
+    if observation_unavailable:
+        return ReadinessState.R1, OBSERVATION_WINDOW_UNAVAILABLE
     if performance_budget >= policy.exhausted_threshold:
         return ReadinessState.R0, f"metric_budget_exhausted_{performance_budget:.2f}"
     if critical_budget >= policy.exhausted_threshold:
@@ -196,6 +246,25 @@ def _active_signals(
     if data_quality_signals:
         signals.add("data_quality")
     return sorted(signals)
+
+
+def _observation_window_status(
+    data_quality_signals: list[DataQualitySignal],
+    *,
+    explicit: bool | None,
+) -> ObservationWindowStatus:
+    """Normalize observation delivery into the shared applicability projection."""
+
+    if any(
+        OBSERVATION_WINDOW_UNAVAILABLE in signal.violations
+        for signal in data_quality_signals
+    ):
+        return ObservationWindowStatus.UNAVAILABLE
+    if explicit is False:
+        return ObservationWindowStatus.UNAVAILABLE
+    if explicit is True:
+        return ObservationWindowStatus.OBSERVED
+    return ObservationWindowStatus.OBSERVED
 
 
 def _affected_slices(shift_events: list[ShiftRiskEvent]) -> list[str]:

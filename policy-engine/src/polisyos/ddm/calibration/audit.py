@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from contextvars import ContextVar
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
-from polisyos.ddm.integration.events import CalibrationAudit
+from polisyos.ddm.contracts.events import ApplicabilityStatus, CalibrationAudit
 
 if TYPE_CHECKING:
     from polisyos.ddm.calibration.calibrate import CalibrationReport
@@ -23,6 +24,13 @@ class CalibrationInvalidationStatus(BaseModel):
     invalidated: bool
     valid: bool
     reasons: list[str] = Field(default_factory=list)
+    observed_invalidation_triggers: list[str] = Field(default_factory=list)
+    evaluated_at: AwareDatetime | None = None
+
+
+_LAST_VALIDITY: ContextVar[
+    tuple[int, str, CalibrationInvalidationStatus] | None
+] = ContextVar("ddm_last_calibration_validity", default=None)
 
 
 def build_calibration_audit(
@@ -31,6 +39,11 @@ def build_calibration_audit(
     report: CalibrationReport,
 ) -> CalibrationAudit:
     """Project a calibration report into the runtime audit output."""
+
+    cached = _LAST_VALIDITY.get()
+    validity = None
+    if cached is not None and cached[0] == id(report) and cached[1] == calibration_id:
+        validity = cached[2]
 
     return CalibrationAudit(
         calibration_id=calibration_id,
@@ -42,6 +55,22 @@ def build_calibration_audit(
         empirical_fp_rate=report.empirical_stationary_holdout.empirical_fp_rate,
         empirical_fp_upper_95=report.empirical_stationary_holdout.confidence_interval_95[1],
         pass_=report.empirical_stationary_holdout.pass_,
+        valid_until=report.expiration.valid_until,
+        invalidation_triggers=list(report.expiration.invalidation_triggers),
+        observed_invalidation_triggers=(
+            [] if validity is None else validity.observed_invalidation_triggers
+        ),
+        validity=(
+            ApplicabilityStatus.NOT_ESTABLISHED
+            if validity is None
+            else (
+                ApplicabilityStatus.VALID
+                if validity.valid
+                else ApplicabilityStatus.INVALID
+            )
+        ),
+        validity_reasons=[] if validity is None else list(validity.reasons),
+        validity_checked_at=None if validity is None else validity.evaluated_at,
     )
 
 
@@ -63,10 +92,14 @@ def check_calibration_validity(
     if expired:
         reasons.append("calibration_expired")
     reasons.extend(matched_triggers)
-    return CalibrationInvalidationStatus(
+    status = CalibrationInvalidationStatus(
         calibration_id=calibration_id,
         expired=expired,
         invalidated=bool(matched_triggers),
         valid=not expired and not matched_triggers,
         reasons=reasons,
+        observed_invalidation_triggers=matched_triggers,
+        evaluated_at=effective_now,
     )
+    _LAST_VALIDITY.set((id(report), calibration_id, status))
+    return status

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import pytest
 
 from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
@@ -161,8 +163,27 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
             score=float(index),
             space=simple_space,
         )
-        for index in range(7)
+        for index in range(6)
     ]
+    warm[2].provenance_ref = "origin/run-1/evaluation-2"
+    warm[2].metadata = {"replicate_id": "replica-1", "seed": 1}
+    duplicate = make_evaluation(
+        candidate_id="warm-2",
+        params={"x": -1.5},
+        score=2.0,
+        space=simple_space,
+    )
+    duplicate.provenance_ref = "origin/run-1/evaluation-2"
+    duplicate.metadata = {"replicate_id": "replica-1", "seed": 1}
+    independent_replica = make_evaluation(
+        candidate_id="warm-2-replica",
+        params={"x": -1.5},
+        score=2.25,
+        space=simple_space,
+    )
+    independent_replica.provenance_ref = "origin/run-1/evaluation-2/replica-2"
+    independent_replica.metadata = {"replicate_id": "replica-2", "seed": 2}
+    warm.extend([duplicate, independent_replica])
     malformed = make_evaluation(
         candidate_id="warm-foreign-basis",
         params={"x": 4.5},
@@ -181,17 +202,57 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     ]
 
     strategy.warm_start(warm)
-    observed_shapes: list[tuple[int, int]] = []
+    observed_corpus: list[tuple[tuple[tuple[float, ...], ...], tuple[float, ...]]] = []
+    observed_ids: list[tuple[str, ...]] = []
+    original_prepare = strategy._prepare_training_data
+
+    def observe_prepare(evaluations):
+        observed_ids.append(tuple(evaluation.candidate_id for evaluation in evaluations))
+        return original_prepare(evaluations)
+
     original_fit = strategy._fit_gp
 
     def observe_fit(X, y_bo):
-        observed_shapes.append((int(X.shape[0]), int(y_bo.shape[0])))
+        x_rows = tuple(
+            tuple(float(value) for value in row)
+            for row in X.detach().cpu().tolist()
+        )
+        y_rows = tuple(float(row[0]) for row in y_bo.detach().cpu().tolist())
+        observed_corpus.append((x_rows, y_rows))
         return original_fit(X, y_bo)
 
+    monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
     monkeypatch.setattr(strategy, "_fit_gp", observe_fit)
-    strategy.suggest(current)
+    candidate = strategy.suggest(current)
 
-    assert observed_shapes == [(8, 8)]
+    assert len(observed_ids) == 1
+    expected_ids = [evaluation.candidate_id for evaluation in warm[:6]] + [
+        "warm-2-replica",
+        "current-0",
+    ]
+    assert sorted(observed_ids[0]) == sorted(expected_ids)
+    assert "warm-foreign-basis" not in observed_ids[0]
+    assert len(observed_corpus) == 1
+    observed_x, observed_y = observed_corpus[0]
+    expected_by_id = {
+        evaluation.candidate_id: evaluation for evaluation in [*warm, *current]
+    }
+    expected_evaluations = [expected_by_id[candidate_id] for candidate_id in observed_ids[0]]
+    expected_x = tuple(
+        tuple(float(value) for value in evaluation.params_normalized)
+        for evaluation in expected_evaluations
+    )
+    expected_y = tuple(-float(evaluation.scalar_score) for evaluation in expected_evaluations)
+    for actual_row, expected_row in zip(observed_x, expected_x, strict=True):
+        assert actual_row == pytest.approx(expected_row)
+    assert observed_y == pytest.approx(expected_y)
+    assert candidate.source_strategy == "bayesian_acquisition"
+    assert candidate.acquisition_value is not None
+    assert candidate.predicted_mean is not None
+    assert candidate.predicted_std is not None
+    assert math.isfinite(candidate.acquisition_value)
+    assert math.isfinite(candidate.predicted_mean)
+    assert math.isfinite(candidate.predicted_std)
 
 
 @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
@@ -225,6 +286,13 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
         name: parameter.detach().clone()
         for name, parameter in model_before.named_parameters()
     }
+    transform_state_before = {}
+    for attribute in ("input_transform", "outcome_transform"):
+        transform = getattr(model_before, attribute, None)
+        assert transform is not None
+        transform_state_before[attribute] = {
+            name: value.detach().clone() for name, value in transform.state_dict().items()
+        }
 
     expanded = initial + [
         make_evaluation(
@@ -237,9 +305,27 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     strategy.suggest(expanded)
 
     assert strategy._model is not None
-    assert strategy._train_X is not None
-    assert int(strategy._train_X.shape[0]) == 9
+    model_train_X = strategy._model.train_inputs[0]
+    model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])
+    actual_train_rows = tuple(
+        tuple(float(value) for value in row)
+        for row in model_train_X.detach().cpu().tolist()
+    )
+    expected_train_rows = tuple(
+        tuple(float(value) for value in evaluation.params_normalized)
+        for evaluation in expanded
+    )
+    assert len(actual_train_rows) == len(expected_train_rows) == 9
+    for actual_row, expected_row in zip(actual_train_rows, expected_train_rows, strict=True):
+        assert actual_row == pytest.approx(expected_row)
     learned_after = dict(strategy._model.named_parameters())
     assert set(learned_before).issubset(learned_after)
     for name, parameter in learned_before.items():
         assert strategy._torch.equal(parameter, learned_after[name].detach())
+    for attribute, before_state in transform_state_before.items():
+        transform_after = getattr(strategy._model, attribute, None)
+        assert transform_after is not None
+        after_state = transform_after.state_dict()
+        assert set(after_state) == set(before_state)
+        for name, value in before_state.items():
+            assert strategy._torch.equal(value, after_state[name].detach())

@@ -22,6 +22,7 @@ try:
         DataComposer,
         FederationPlanner,
         RankingWeights,
+        SchemaIncompatibilityError,
         SourceRanker,
         build_composite_evidence_bundle,
     )
@@ -234,6 +235,209 @@ def test_join_duplicate_column_uses_resolver():
     assert merge_log
     assert merge_log[0].source_a_id == meta_a.connector_id
     assert merge_log[0].source_b_id == meta_b.connector_id
+
+
+def test_join_preserves_cell_lineage_across_three_sources():
+    source_a = pd.DataFrame({"key": [1, 2], "value": [10, None]})
+    source_b = pd.DataFrame({"key": [1, 2], "value": [None, 20]})
+    source_c = pd.DataFrame({"key": [1, 2], "value": [100, 200]})
+
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at)
+    meta_b = _make_source_metadata("source_b", TrustLevel.LOW, fetched_at)
+    meta_c = _make_source_metadata("source_c", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.lineage",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        audit_level=AuditLevel.FULL,
+    )
+
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    result, merge_log = composer.compose(
+        sources=[(source_a, meta_a), (source_b, meta_b), (source_c, meta_c)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    assert result.set_index("key")["value"].to_dict() == {1: 10, 2: 200}
+    row_two = [entry for entry in merge_log if entry.row_key == {"key": 2}]
+    assert row_two
+    assert row_two[-1].source_a_id == meta_b.connector_id
+    assert row_two[-1].source_b_id == meta_c.connector_id
+
+
+def test_join_rejects_undeclared_many_to_many_before_materialization():
+    left = pd.DataFrame({"key": [1, 1], "left_value": [10, 20]})
+    right = pd.DataFrame({"key": [1, 1], "right_value": [100, 200]})
+
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.cardinality",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        audit_level=AuditLevel.NONE,
+    )
+
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    with pytest.raises(SchemaIncompatibilityError, match="many|cardinality|multiplicity"):
+        composer.compose(
+            sources=[(left, meta_left), (right, meta_right)],
+            strategy=request.strategy,
+            request=request,
+        )
+
+
+def test_join_does_not_match_unknown_null_keys():
+    left = pd.DataFrame({"key": [None], "left_value": [10]})
+    right = pd.DataFrame({"key": [None], "right_value": [20]})
+
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.unknown-key",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        audit_level=AuditLevel.NONE,
+    )
+
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    result, _ = composer.compose(
+        sources=[(left, meta_left), (right, meta_right)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    assert result.empty
+
+
+def test_union_preserves_user_source_id_column():
+    source = pd.DataFrame(
+        {"key": [1], "__source_id": ["original-label"], "value": [10]}
+    )
+    metadata = _make_source_metadata(
+        "connector",
+        TrustLevel.HIGH,
+        datetime(2024, 1, 1, tzinfo=UTC),
+    )
+    request = CompositionRequest(
+        dataset_pattern="test.internal-name",
+        strategy=CompositionStrategy.UNION,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        key_columns=["key"],
+        audit_level=AuditLevel.NONE,
+    )
+
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    result, _ = composer.compose(
+        sources=[(source, metadata)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    assert result["__source_id"].tolist() == ["original-label"]
+
+
+def test_join_preserves_user_suffix_like_column_names():
+    left = pd.DataFrame({"key": [1], "value": [10], "value_left": [777]})
+    right = pd.DataFrame({"key": [1], "value": [20]})
+
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.internal-suffix",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        audit_level=AuditLevel.NONE,
+    )
+
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    result, _ = composer.compose(
+        sources=[(left, meta_left), (right, meta_right)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    assert result["value"].tolist() == [10]
+    assert result["value_left"].tolist() == [777]
+
+
+def test_consensus_strict_rejects_non_finite_candidates():
+    source_a = pd.DataFrame({"key": [1], "value": [10.0]})
+    source_b = pd.DataFrame({"key": [1], "value": [float("inf")]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at)
+    meta_b = _make_source_metadata("source_b", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.consensus-finite",
+        strategy=CompositionStrategy.CONSENSUS,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        key_columns=["key"],
+        aggregation_func="median",
+        strict_conflicts=True,
+        audit_level=AuditLevel.NONE,
+    )
+
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.MEDIAN))
+
+    with pytest.raises(ConflictResolutionError, match="non-finite"):
+        composer.compose(
+            sources=[(source_a, meta_a), (source_b, meta_b)],
+            strategy=request.strategy,
+            request=request,
+        )
+
+
+def test_consensus_strict_rejects_invalid_numeric_candidates():
+    source_a = pd.DataFrame({"key": [1], "value": [10.0]})
+    source_b = pd.DataFrame({"key": [1], "value": ["bad"]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at)
+    meta_b = _make_source_metadata("source_b", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.consensus-invalid",
+        strategy=CompositionStrategy.CONSENSUS,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        key_columns=["key"],
+        aggregation_func="median",
+        strict_conflicts=True,
+        audit_level=AuditLevel.NONE,
+    )
+
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.MEDIAN))
+
+    with pytest.raises(ConflictResolutionError, match="non-numeric|non-finite|invalid"):
+        composer.compose(
+            sources=[(source_a, meta_a), (source_b, meta_b)],
+            strategy=request.strategy,
+            request=request,
+        )
 
 
 def test_full_audit_is_truncated_with_summary_metadata():

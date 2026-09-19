@@ -29,7 +29,11 @@ def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
     return real_import(name, globals, locals, fromlist, level)
 
 builtins.__import__ = guarded_import
-importlib.import_module("polisyos.ddm.contracts.events")
+contracts = importlib.import_module("polisyos.ddm.contracts.events")
+assert not blocked.intersection(sys.modules)
+integration = importlib.import_module("polisyos.ddm.integration")
+assert integration.MonitoringWindow is contracts.MonitoringWindow
+assert integration.ShiftDetectedEvent is contracts.ShiftDetectedEvent
 assert not blocked.intersection(sys.modules)
 print("contract-only")
 """
@@ -111,5 +115,7 @@ def test_event_contract_preserves_validators_and_json_aliases() -> None:
 
 
 def test_ddm_facade_imports_canonical_package() -> None:
+    import polisyos.ddm as ddm
+
     assert ddm.DriftAndDegradationMonitor.__module__.startswith("polisyos.ddm.")
     assert "DriftAndDegradationMonitor" in ddm.__all__

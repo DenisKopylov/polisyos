@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from copy import deepcopy
-import json
 from enum import Enum
 from functools import cached_property
 from typing import Any, ClassVar, Self

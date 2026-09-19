@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 from unittest.mock import MagicMock, patch
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -273,3 +274,20 @@ class TestMergeNotes:
     def test_merge_notes_empty(self) -> None:
         result = _merge_notes([], [])
         assert result == []
+
+
+def test_trinity_compiler_binds_slot_layout_to_ir_owner() -> None:
+    """The compiler must not resolve layout through the compatibility facade."""
+    compiler = importlib.import_module("polisyos.foundry.compile.trinity_compiler")
+    foundry_facade = importlib.import_module("polisyos.foundry.methods.layout")
+    ir_slots = importlib.import_module("polisyos.ir.kernel.slots")
+    original = foundry_facade.build_slot_layout
+    sentinel = object()
+
+    try:
+        foundry_facade.build_slot_layout = sentinel
+        reloaded = importlib.reload(compiler)
+        assert reloaded.build_slot_layout is ir_slots.build_slot_layout
+    finally:
+        foundry_facade.build_slot_layout = original
+        importlib.reload(compiler)

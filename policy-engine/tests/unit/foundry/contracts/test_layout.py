@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+
 from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, SlotScope
 from polisyos.ir.kernel.slots import build_slot_family_manifest
 
@@ -38,3 +40,20 @@ def test_foundry_layout_reexports_ir_slot_family_manifest_builder() -> None:
     )
 
     assert foundry_build_slot_family_manifest is build_slot_family_manifest
+
+
+def test_foundry_layout_facade_binds_ir_owner_without_compiler_hop() -> None:
+    """The stable Foundry facade must bind directly to the IR owner."""
+    compiler_facade = importlib.import_module("polisyos.foundry.methods.compiler.layout")
+    foundry_facade = importlib.import_module("polisyos.foundry.methods.layout")
+    ir_slots = importlib.import_module("polisyos.ir.kernel.slots")
+    original = compiler_facade.build_slot_layout
+    sentinel = object()
+
+    try:
+        compiler_facade.build_slot_layout = sentinel
+        reloaded = importlib.reload(foundry_facade)
+        assert reloaded.build_slot_layout is ir_slots.build_slot_layout
+    finally:
+        compiler_facade.build_slot_layout = original
+        importlib.reload(foundry_facade)

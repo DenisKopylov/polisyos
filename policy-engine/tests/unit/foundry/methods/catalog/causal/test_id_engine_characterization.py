@@ -39,6 +39,7 @@ _causal_graph = importlib.import_module("polisyos.ir.analytics.causal_graph")
 IdentificationStatus = _id_contracts.IdentificationStatus
 id_algorithm = _id_engine.id_algorithm
 idc_algorithm = _id_engine.idc_algorithm
+z_id_algorithm = _id_engine.z_id_algorithm
 CausalEdge = _causal_graph.CausalEdge
 CausalGraphModel = _causal_graph.CausalGraphModel
 EdgeMark = _causal_graph.EdgeMark
@@ -151,6 +152,20 @@ def test_id_algorithm_hedge_certificate_characterization_snapshot() -> None:
     assert certificate.required_data.missing_distributions == ()
     assert certificate.required_data.suggested_experiment is None
     assert "NOT identifiable" in certificate.description
+
+
+def test_z_id_does_not_promote_an_unblocked_non_descendant_to_direct_transport() -> None:
+    graph = _dag([("U", "X"), ("U", "Y"), ("X", "Y"), ("Z", "Y")])
+
+    result = z_id_algorithm(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        z_interventions=frozenset({"Z"}),
+        graph=graph,
+    )
+
+    assert result.status is IdentificationStatus.IDENTIFIED
+    assert all(step.rule_name != "Z_TRANSPORT" for step in result.proof_steps)
 
 
 def test_idc_algorithm_ratio_characterization_snapshot() -> None:

@@ -205,6 +205,8 @@ def _dispatch(
 
 
 def test_all_methods_registered():
+    from polisyos.foundry.methods.catalog.causal.interference import NetworkAIPWEstimator
+
     ensure_causal_methods_registered()
     reg = MethodRegistry.get_instance()
     fqns = [
@@ -215,6 +217,7 @@ def test_all_methods_registered():
     ]
     for fqn in fqns:
         assert reg.get(fqn) is not None, f"Method not registered: {fqn}"
+    assert reg.get("causal.interference.network_aipw@1.0.0") is NetworkAIPWEstimator
 
 
 # ──────────────────────────────────────────────────────────────────────────────

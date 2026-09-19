@@ -17,7 +17,6 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.methods.search.frontier import (
     FrontierPoint,
     dominates,
@@ -28,15 +27,16 @@ from polisyos.scientist.methods.search.objective import CompositeObjective, Obje
 from polisyos.scientist.methods.search.run_state import GenerationTransition, SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 from polisyos.scientist.methods.search.stopping import StoppingCriterion
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
+    from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
     from polisyos.scientist.policy_design.objectives import (
         ObjectiveStack,
         PolicyEvaluationVector,
     )
-    from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
 
 logger = get_logger(__name__)
 
@@ -299,7 +299,7 @@ class SearchController:
     @property
     def _status(self) -> SearchStatus:
         """Compatibility view onto the current run-state status."""
-        return cast(SearchStatus, self._run_state.status)
+        return cast("SearchStatus", self._run_state.status)
 
     @_status.setter
     def _status(self, value: SearchStatus) -> None:
@@ -502,7 +502,7 @@ class SearchController:
 
         return SearchResult(
             search_id=snapshot.search_id,
-            status=cast(SearchStatus, snapshot.status),
+            status=cast("SearchStatus", snapshot.status),
             best_candidate=deepcopy(snapshot.best_candidate),
             best_objective=snapshot.best_objective,
             iterations_completed=snapshot.evaluation_iterations,
@@ -549,7 +549,9 @@ class SearchController:
         effective_context = context
         if self._diversity_enabled:
             try:
-                from polisyos.scientist.methods.search.diversity import enrich_context_with_diversity
+                from polisyos.scientist.methods.search.diversity import (
+                    enrich_context_with_diversity,
+                )
             except _IMPORT_ERRORS as exc:
                 _search_degraded(
                     operation="enrich_diversity_context",
@@ -905,7 +907,9 @@ class SearchController:
         registry = self._config.pareto_registry
         if policy_evaluation is not None and registry is not None:
             try:
-                from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
+                from polisyos.scientist.methods.search.transfer_context import (
+                    resolve_transfer_context,
+                )
             except _IMPORT_ERRORS as exc:
                 _search_degraded(
                     operation="update_frontier",

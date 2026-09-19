@@ -165,6 +165,8 @@ def test_z_id_does_not_promote_an_unblocked_non_descendant_to_direct_transport()
     )
 
     assert result.status is IdentificationStatus.IDENTIFIED
+    assert result.estimand_ast is not None
+    assert result.estimand_ast.identification_method != "z_transport"
     assert all(step.rule_name != "Z_TRANSPORT" for step in result.proof_steps)
 
 

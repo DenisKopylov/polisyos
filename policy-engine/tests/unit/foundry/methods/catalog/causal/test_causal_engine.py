@@ -431,6 +431,8 @@ class TestCausalEngineIdentify:
         result = self.engine.identify("X", "Y", graph, z_interventions=frozenset({"Z"}))
 
         assert isinstance(result, IdentificationResult)
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.identification_method != "z_transport"
         assert all(step.rule_name != "Z_TRANSPORT" for step in result.proof_steps)
 
     def test_identify_with_conditions(self):

@@ -210,12 +210,15 @@ class TestBatchIncremental:
             observed_requests: list[FetchRequest] = []
 
             class _Connector:
+                def __init__(self, observed_requests: list[FetchRequest]) -> None:
+                    self._observed_requests = observed_requests
+
                 def fetch(self, handle: object, request: FetchRequest) -> object:
                     del handle
-                    observed_requests.append(request)
+                    self._observed_requests.append(request)
                     return _fetch_result("2024-01-02T00:00:00+00:00")
 
-            dependencies = _test_dependencies(_Connector())
+            dependencies = _test_dependencies(_Connector(observed_requests))
             evidence_ref = _make_evidence_bundle(store)
             mock_result = IngestionResult(
                 evidence_bundle_ref=evidence_ref,

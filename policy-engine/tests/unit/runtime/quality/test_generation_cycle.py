@@ -2165,7 +2165,7 @@ def test_joint_port_builds_real_n5_input_and_preserves_numeric_cas_readback(
         for atom in captured.intervention_atoms
     )
     assert captured.selected_outcomes == (problem.outcome_of_interest.target_variable,)
-    assert captured.horizon.model_dump(mode="json") == horizon
+    assert captured.horizon.model_dump(mode="json", exclude_unset=True) == horizon
     assert captured.budget_ref == budget_ref
     assert captured.engine_plan[0].engine_kind == problem.runtime_hints[
         "joint_simulation_resource"

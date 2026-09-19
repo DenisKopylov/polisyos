@@ -2049,14 +2049,28 @@ def test_joint_port_builds_real_n5_input_and_preserves_numeric_cas_readback(
 ) -> None:
     """A bound cycle must reach N5 without a ready request or zero fallback."""
 
-    from polisyos.runtime.quality.intervention_atom_binding import intervention_atom_content_hash
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
+        JointSimulationRequest,
         JointSimulationResult,
     )
     from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
-    problem = _problem(f"cyc_n5_builder_{uuid4().hex}")
+    budget_ref = f"budget://cyc-01/{uuid4().hex}/n5"
+    horizon = {"start": 0, "end": 3, "step": 1}
+    problem = _problem(f"cyc_n5_builder_{uuid4().hex}").model_copy(
+        update={
+            "runtime_hints": {
+                "joint_simulation_budget_ref": budget_ref,
+                "joint_simulation_horizon": horizon,
+                "joint_simulation_resource": "ncm_parallel_worlds",
+            }
+        }
+    )
     registry = _lane0_registry(
         domain=problem.domain,
         source_id="l2_cyc:serializable_n5_builder.duckdb",
@@ -2087,35 +2101,88 @@ def test_joint_port_builds_real_n5_input_and_preserves_numeric_cas_readback(
         substrate_input_content_hash=substrate_input_hash,
     )
 
-    # The helper constructs the production JointSimulationRequest and strict
-    # InterventionAtomBinding DTOs in memory; it is not an owner/source bundle.
-    request = _request(record=world, world_model_record_ref=world.world_model_record_id)
-    atom = request.intervention_atoms[0].model_copy(update={"problem_frame_ref": problem_ref})
-    atom = atom.model_copy(update={"content_hash": intervention_atom_content_hash(atom)})
-    candidate = SimpleNamespace(candidate_id=atom.intervention_id, atom=atom)
-
-    numeric = JointSimulationHorizonController().run(request)
-    store = FileSystemCAS(tmp_path / "cas")
-    result_ref = store.put_json(
-        numeric,
-        ArtifactWriteOptions(
-            kind="runtime.n5.joint_simulation_result",
-            media_type="application/json",
-        ),
+    # The helper constructs strict InterventionAtomBinding DTOs in memory; it
+    # is not an owner/source bundle and its ready request never enters the port.
+    expected = _request(record=world, world_model_record_ref=world.world_model_record_id)
+    atoms = []
+    for atom in expected.intervention_atoms:
+        rebound = atom.model_copy(update={"problem_frame_ref": problem_ref})
+        rebound = rebound.model_copy(
+            update={"content_hash": intervention_atom_content_hash(rebound)}
+        )
+        atoms.append(InterventionAtomBinding.model_validate(rebound.model_dump(mode="python")))
+    atoms = tuple(atoms)
+    candidate = SimpleNamespace(
+        candidate_id="candidate_cyc_n5_builder",
+        atom=atoms[0],
+        intervention_atoms=atoms,
     )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    recorded: list[tuple[JointSimulationRequest, str]] = []
+    real_n5 = JointSimulationHorizonController()
+
+    class _RecordingN5Controller:
+        def run(self, concrete_request: JointSimulationRequest) -> JointSimulationResult:
+            assert isinstance(concrete_request, JointSimulationRequest)
+            numeric = real_n5.run(concrete_request)
+            result_ref = store.put_json(
+                numeric,
+                ArtifactWriteOptions(
+                    kind="runtime.n5.joint_simulation_result",
+                    media_type="application/json",
+                ),
+            )
+            recorded.append((concrete_request, result_ref.artifact_id))
+            return numeric
+
+    # No ready request or factory is supplied: the production builder must
+    # assemble the request from the candidate and the bound context before the
+    # real controller sees it.  The recorder proves that boundary call rather
+    # than treating an independently-run N5 result as port evidence.
+    port = JointSimulationPort(
+        controller=_RecordingN5Controller(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )
+    observation = port(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert len(recorded) == 1
+    captured, result_artifact_id = recorded[0]
+    assert captured.world_model_record is context.world_model_record
+    assert captured.world_model_record_ref == context.world_model_record.world_model_record_id
+    assert captured.intervention_atoms == candidate.intervention_atoms
+    assert all(
+        atom.problem_frame_ref == context.design_problem_ref
+        for atom in captured.intervention_atoms
+    )
+    assert all(
+        atom.world_model_record_ref
+        in {
+            context.world_model_record.world_model_record_id,
+            context.world_model_record.content_hash,
+        }
+        for atom in captured.intervention_atoms
+    )
+    assert captured.selected_outcomes == (problem.outcome_of_interest.target_variable,)
+    assert captured.horizon.model_dump(mode="json") == horizon
+    assert captured.budget_ref == budget_ref
+    assert captured.engine_plan[0].engine_kind == problem.runtime_hints[
+        "joint_simulation_resource"
+    ]
+
     replayed = JointSimulationResult.model_validate(
-        canon.from_canonical_bytes(store.get_bytes(result_ref.artifact_id))
+        canon.from_canonical_bytes(store.get_bytes(result_artifact_id))
     )
     joint = replayed.trajectory_for(
         "joint",
-        tuple(item.intervention_id for item in request.intervention_atoms),
+        tuple(item.intervention_id for item in captured.intervention_atoms),
     )
     assert joint.points[-1].outcomes["firm_survival"] == pytest.approx(11.0)
     assert joint.points[-1].outcomes["firm_survival"] != pytest.approx(0.0)
 
-    port = JointSimulationPort(repo_root=REPO_ROOT, cycle_substrate_context=context)
-    observation = port(candidate=candidate, problem=problem, cycle_index=0)
     assert observation.status == "joint_simulated"
+    assert observation.simulation_ref == replayed.receipt.payload_hash
     assert observation.k_world_ref_before == context.world_model_record.content_hash
     assert observation.k_world_ref_after == context.world_model_record.content_hash
 

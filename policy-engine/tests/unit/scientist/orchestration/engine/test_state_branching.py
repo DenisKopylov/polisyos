@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
 
@@ -15,6 +16,14 @@ class _BranchNestedModel(BaseModel):
 
 class _BranchHolderModel(BaseModel):
     nested: _BranchNestedModel
+
+
+def _artifact_ref(tag: str = "a") -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=f"sha256:{tag * 64}",
+        kind="test.ref",
+        media_type="application/json",
+    )
 
 
 def test_branch_state_isolates_declared_nested_write_path() -> None:
@@ -95,6 +104,21 @@ def test_branch_state_deeply_isolates_nested_elements_of_declared_leaf() -> None
 
     assert branch.params["config"]["rows"] == [{"value": "branch"}]
     assert base_state.params["config"]["rows"] == [{"value": "base"}]
+
+
+# Production mutation caught: declared top-level scalar/ref writes must be
+# installed as journaled setters instead of being silently unobservable.
+def test_branch_state_records_top_level_scalar_ref_assignment() -> None:
+    base_state = ExperimentState(run_id="R_top_level_ref")
+    branch = branch_state(base_state, write_paths=("preflight_report_ref",))
+    report_ref = _artifact_ref()
+
+    branch.state.preflight_report_ref = report_ref
+
+    assert [(item.path, item.operation) for item in branch.journal.operations] == [
+        ("preflight_report_ref", "set"),
+    ]
+    assert branch.journal.operations[0].value == report_ref
 
 
 def test_snapshot_state_deep_clones_mutable_state_surfaces() -> None:

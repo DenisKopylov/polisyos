@@ -202,11 +202,11 @@ class TestBatchIncremental:
             assert second_cursor is not None
             assert second_cursor.watermark_value >= first_value
 
-    def test_incremental_passes_legacy_cursor_to_typed_and_dict_dataset_requests(
+    def test_incremental_does_not_pass_unproven_legacy_cursor_to_requests(
         self,
         tmp_path: Path,
     ):
-        """Typed and mapping manifests both pass the stored cursor to FetchRequest."""
+        """Legacy cursors without admitted provenance remain in full mode."""
         for manifest_index, manifest in enumerate((_make_manifest(), _make_dict_manifest())):
             cas_root = tmp_path / f".polisyos-{manifest_index}"
             store = FileSystemCAS(cas_root)
@@ -262,11 +262,7 @@ class TestBatchIncremental:
                 )
 
             assert len(observed_requests) == 1
-            assert observed_requests[0].incremental_since is not None
-            assert observed_requests[0].incremental_since.value == (
-                "2024-01-01T00:00:00+00:00"
-            )
-            assert observed_requests[0].incremental_since.strategy is VersionStrategy.TIMESTAMP
+            assert observed_requests[0].incremental_since is None
 
     def test_incremental_advances_only_confirmed_dataset_boundaries(self, tmp_path: Path):
         """An aggregate success advances only datasets with a confirmed fetch result."""
@@ -982,6 +978,64 @@ class TestBatchIncremental:
         )
         dependencies = _test_dependencies(connector)
         mock_result = IngestionResult(evidence_bundle_ref=None, datasets_fetched=1)
+
+        with patch(
+            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+            side_effect=partial(
+                _orchestrate_one_fetch,
+                connector_id="rest.json",
+                dataset_id="dataset",
+                mock_result=mock_result,
+            ),
+        ):
+            from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+            result = run_batch_incremental(
+                connector_manifest={
+                    "datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]
+                },
+                source="test",
+                license_name="open",
+                cas_root=cas_root,
+                produce_snapshot=False,
+                ingestion_dependencies=dependencies,
+            )
+
+        assert result.cursor_ref is None
+        assert CursorStore(store).find_latest_cursor("rest.json", "dataset") is None
+
+    @pytest.mark.parametrize("evidence_case", ["malformed", "nonexistent", "stale"])
+    def test_incremental_rejects_unverified_evidence_reference(
+        self,
+        tmp_path: Path,
+        evidence_case: str,
+    ):
+        """A present evidence reference must resolve and bind before promotion."""
+        cas_root = tmp_path / ".polisyos"
+        store = FileSystemCAS(cas_root)
+        source_boundary = datetime(2024, 1, 2, tzinfo=UTC)
+        fetched_at = datetime(2026, 9, 19, 12, tzinfo=UTC)
+        fetch_result = _typed_fetch_result(
+            source_updated_at=source_boundary,
+            fetched_at=fetched_at,
+        )
+        connector = _RecordingConnector(
+            fetch_result,
+            capabilities=ConnectorCapability.FULL_FETCH | ConnectorCapability.INCREMENTAL_FETCH,
+        )
+        dependencies = _test_dependencies(connector)
+
+        if evidence_case == "malformed":
+            evidence_ref = SimpleNamespace(artifact_id="not-a-cas-reference")
+        elif evidence_case == "nonexistent":
+            evidence_ref = SimpleNamespace(artifact_id=f"sha256:{'0' * 64}")
+        else:
+            evidence_ref = _make_evidence_bundle(store)
+
+        mock_result = IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=1,
+        )
 
         with patch(
             "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",

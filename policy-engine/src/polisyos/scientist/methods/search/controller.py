@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
+from functools import wraps
+from threading import Lock
 from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import uuid4
 
@@ -120,6 +122,24 @@ class SearchResult:
     telemetry: dict[str, Any] = field(default_factory=dict)
 
 
+def _non_reentrant_run(
+    method: Callable[..., SearchResult],
+) -> Callable[..., SearchResult]:
+    """Guard one controller lifecycle against overlapping invocations."""
+
+    @wraps(method)
+    def guarded(self: Any, *args: Any, **kwargs: Any) -> SearchResult:
+        run_lock = self._run_lock
+        if not run_lock.acquire(blocking=False):
+            raise RuntimeError("SearchController.run is not reentrant")
+        try:
+            return method(self, *args, **kwargs)
+        finally:
+            run_lock.release()
+
+    return guarded
+
+
 class CandidateGenerator(Protocol):
     """Generate the next candidate proposal from search history and context."""
 
@@ -193,6 +213,8 @@ class SearchController:
     Candidate generation is delegated to `CandidateGenerator`, evaluator feedback
     is captured in `SearchIteration`, optional transfer/Pareto/diversity state is
     injected into generation context, and stopping criteria terminate the loop.
+    `run()` is intentionally non-reentrant; overlapping calls on one controller
+    raise a deterministic `RuntimeError` before replacing run state.
     """
 
     def __init__(
@@ -219,6 +241,7 @@ class SearchController:
         self._stage_a = stage_a_evaluator
         self._stage_b = stage_b_evaluator
 
+        self._run_lock = Lock()
         self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)
         self._metrics = metrics if metrics is not None else _default_metrics()
         self._diversity_enabled = _as_bool(
@@ -226,18 +249,25 @@ class SearchController:
             default=False,
         )
         self._diversity_tracker = None
-        if self._diversity_enabled:
-            try:
-                from polisyos.scientist.methods.search.diversity import DiversityTracker
-            except _IMPORT_ERRORS as exc:
-                _search_degraded(
-                    operation="initialize_diversity_tracker",
-                    reason="optional_dependency_unavailable",
-                    exc=exc,
-                )
-                self._diversity_enabled = False
-            else:
-                self._diversity_tracker = DiversityTracker()
+        self._reset_diversity_tracker(operation="initialize_diversity_tracker")
+
+    def _reset_diversity_tracker(self, *, operation: str) -> None:
+        """Allocate fresh optional diversity telemetry for one lifecycle."""
+        if not self._diversity_enabled:
+            self._diversity_tracker = None
+            return
+        try:
+            from polisyos.scientist.methods.search.diversity import DiversityTracker
+        except _IMPORT_ERRORS as exc:
+            _search_degraded(
+                operation=operation,
+                reason="optional_dependency_unavailable",
+                exc=exc,
+            )
+            self._diversity_enabled = False
+            self._diversity_tracker = None
+        else:
+            self._diversity_tracker = DiversityTracker()
 
     @property
     def _history(self) -> list[SearchIteration]:
@@ -329,6 +359,7 @@ class SearchController:
     def _sentinel_evaluations(self, value: int) -> None:
         self._run_state.sentinel_evaluations = value
 
+    @_non_reentrant_run
     def run(
         self,
         initial_context: dict[str, Any],
@@ -347,6 +378,7 @@ class SearchController:
         """
         search_id = str(uuid4())[:8]
         start_time = datetime.now(UTC)
+        self._reset_diversity_tracker(operation="reset_diversity_tracker")
         self._run_state = SearchRunState(
             search_id=search_id,
             status=SearchStatus.RUNNING,

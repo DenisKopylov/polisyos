@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from importlib import import_module
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from polisyos.ddm.contracts.events import (
     AffectedFeature,

@@ -49,16 +49,16 @@ class _FakeOpener:
 @pytest.mark.asyncio
 async def test_fetch_open_page_extracts_text_and_uses_cache(monkeypatch, tmp_path):
     calls = 0
+    html = b"""
+    <html><head><title>Gov Report</title><script>ignore()</script></head>
+    <body>Child benefit increased employment.</body></html>
+    """
 
     def _fake_urlopen(request, timeout):
         nonlocal calls
         calls += 1
         assert timeout == 5
         assert request.full_url == "https://example.gov/report"
-        html = b"""
-        <html><head><title>Gov Report</title><script>ignore()</script></head>
-        <body>Child benefit increased employment.</body></html>
-        """
         return _FakeResponse(html)
 
     monkeypatch.setattr(
@@ -152,7 +152,7 @@ async def test_fetch_open_page_blocks_private_redirect_targets(monkeypatch):
 
     result = await fetch_open_page(
         "https://example.gov/report",
-        constraints=SearchConstraints(allowed_domains=["example.gov"]),
+        constraints=SearchConstraints(),
         timeout_s=5,
     )
 
@@ -313,7 +313,8 @@ async def test_fetch_open_page_preserves_mime_guard_failure(monkeypatch):
 async def test_fetch_open_page_preserves_timeout_failure(monkeypatch):
     class _TimeoutOpener:
         def open(self, request, timeout):
-            del request, timeout
+            del request
+            assert timeout == 5
             raise TimeoutError("response timed out")
 
     monkeypatch.setattr(
@@ -328,7 +329,7 @@ async def test_fetch_open_page_preserves_timeout_failure(monkeypatch):
     result = await fetch_open_page(
         "https://example.gov/report",
         constraints=SearchConstraints(allowed_domains=["example.gov"]),
-        timeout_s=1,
+        timeout_s=5,
     )
 
     assert result.status == "error"

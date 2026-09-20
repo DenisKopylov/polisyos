@@ -70,6 +70,53 @@ class QuadraticObjective:
         )
 
 
+class ScalarObjective:
+    """Minimal lower-tail objective used by the stress-report witnesses."""
+
+    @property
+    def name(self) -> str:
+        return "utility"
+
+    @property
+    def direction(self) -> OptimizationDirection:
+        return OptimizationDirection.MINIMIZE
+
+    def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
+        return ObjectiveValue(
+            name=self.name,
+            raw_value=float(results["utility"]),
+            direction=self.direction,
+        )
+
+
+def _run_scalar_stress(*, values: tuple[float, ...], collect_top_k: int):
+    """Run a bounded public stress sweep with deterministic scalar outcomes."""
+    parameter_count = 4 if len(values) == 10 else 1
+    plan = AdversarialPlan(
+        parameter_specs=[
+            ParameterSpec(name=f"p{index}", lower_bound=-1.0, upper_bound=1.0)
+            for index in range(parameter_count)
+        ],
+        strategy=AdversarialStrategy.GRID_EXTREME,
+        max_iterations=len(values),
+        vulnerability_threshold=0.0,
+        stop_on_first_vulnerability=False,
+        collect_top_k=collect_top_k,
+    )
+    outcomes = iter(values)
+
+    def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        del candidate, context
+        return {"simulation_results": {"utility": next(outcomes)}}
+
+    return run_stress_test(
+        adversarial_plan=plan,
+        base_objective=CompositeObjective([ScalarObjective()]),
+        stage_b_evaluator=stage_b,
+        context={},
+    )
+
+
 def test_negated_objective_inverts_sign() -> None:
     base = CompositeObjective([QuadraticObjective()])
     negated = NegatedCompositeObjective(base)
@@ -109,6 +156,27 @@ def test_run_stress_test_grid_extreme_reports_worst_case() -> None:
     assert report.worst_case_objective is not None
     assert report.worst_case_objective >= 2.0
     assert report.vulnerabilities
+
+
+def test_run_stress_test_top_k_does_not_change_ten_violation_score() -> None:
+    values = tuple(float(value) for value in range(-10, 0))
+
+    top_one = _run_scalar_stress(values=values, collect_top_k=1)
+    top_ten = _run_scalar_stress(values=values, collect_top_k=10)
+
+    assert top_one.total_scenarios_evaluated == 10
+    assert top_ten.total_scenarios_evaluated == 10
+    assert len(top_one.vulnerabilities) == 1
+    assert len(top_ten.vulnerabilities) == 10
+    assert top_one.robustness_score == top_ten.robustness_score
+
+
+def test_run_stress_test_lower_tail_selects_negative_worst_case() -> None:
+    report = _run_scalar_stress(values=(10.0, -5.0), collect_top_k=10)
+
+    assert report.total_scenarios_evaluated == 2
+    assert len(report.vulnerabilities) == 1
+    assert report.worst_case_objective == -5.0
 
 
 def test_platform_meta_evaluator_passes_healthy_sentinel_injection() -> None:

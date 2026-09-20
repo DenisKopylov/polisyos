@@ -23,6 +23,7 @@ from polisyos.scientist.methods.doe.stress_report import (
 )
 from polisyos.scientist.methods.search.controller import SearchIteration
 from polisyos.scientist.methods.search.objective import (
+    BaseObjective,
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
@@ -428,12 +429,15 @@ class VulnerabilityFound(StoppingCriterion):
 def _resolve_adversarial_direction(base_objective: object) -> OptimizationDirection:
     """Resolve the raw direction used by the adversarial severity transform.
 
-    ``CompositeObjective`` is the established stress API and exposes its scalar
-    result in the lower-tail convention used by the existing stress reports.
-    Direct objective adapters retain their declared raw metric direction so a
-    minimize-cost metric reverses the bad tail.
+    Typed ``CompositeObjective`` members already contribute normalized values,
+    so the composite's declared minimization direction makes high costs worse.
+    A legacy duck-typed composite remains on the established lower-tail stress
+    convention for compatibility; it is not used to define typed objective
+    semantics. Direct objective adapters retain their declared raw direction.
     """
     if isinstance(base_objective, CompositeObjective):
+        if all(isinstance(item, BaseObjective) for item in base_objective.objectives):
+            return base_objective.direction
         return OptimizationDirection.MAXIMIZE
     return base_objective.direction  # type: ignore[attr-defined]
 
@@ -474,6 +478,45 @@ def _is_worse_objective(
     return not math.isfinite(incumbent_badness) or candidate_badness > incumbent_badness
 
 
+def _evaluate_stress_result(
+    *,
+    base_objective: CompositeObjective,
+    result: object,
+) -> tuple[dict[str, Any], float, list[ObjectiveValue]]:
+    """Validate one evaluator result before it enters stress-search state."""
+    if not isinstance(result, dict):
+        raise TypeError("stage_b_result_missing_or_not_mapping")
+    simulation_results = result.get("simulation_results")
+    if not isinstance(simulation_results, dict):
+        raise TypeError("stage_b_simulation_results_missing_or_not_mapping")
+
+    evaluated = base_objective.evaluate(simulation_results)
+    objective = float(evaluated.raw_value)
+    if not math.isfinite(objective):
+        raise ValueError("objective_value_missing_non_numeric_or_non_finite")
+
+    details = list(base_objective.evaluate_detailed(simulation_results))
+    if any(not math.isfinite(float(item.raw_value)) for item in details):
+        raise ValueError("objective_detail_missing_non_numeric_or_non_finite")
+    return result, objective, details
+
+
+def _numerical_vulnerability(
+    *,
+    vulnerability_id: str,
+    parameters: dict[str, float],
+    error: Exception,
+) -> Vulnerability:
+    """Represent an evaluator failure as a typed critical stress finding."""
+    return Vulnerability(
+        vulnerability_id=vulnerability_id,
+        vulnerability_type=VulnerabilityType.NUMERICAL_INSTABILITY,
+        severity="critical",
+        parameter_values=parameters,
+        description=f"Objective evaluation was not admitted: {error}",
+    )
+
+
 def run_stress_test(
     *,
     adversarial_plan: AdversarialPlan,
@@ -495,24 +538,26 @@ def run_stress_test(
     worst_case_objective = float("nan")
     worst_case_parameters: dict[str, float] = {}
     total_evaluated = 0
+    invalid_evaluation_count = 0
+    evaluation_unverified = False
 
     for idx, sample in enumerate(initial_samples):
         parameters = {name: float(value) for name, value in zip(param_names, sample)}
         candidate = {"semantic": {"interventions": []}, **parameters}
         total_evaluated += 1
         try:
-            result = stage_b_evaluator(candidate, runtime_context)
-            objective = float(
-                base_objective.evaluate(result.get("simulation_results", {})).raw_value
+            _, objective, _ = _evaluate_stress_result(
+                base_objective=base_objective,
+                result=stage_b_evaluator(candidate, runtime_context),
             )
         except Exception as exc:
+            invalid_evaluation_count += 1
+            evaluation_unverified = True
             vulnerabilities.append(
-                Vulnerability(
+                _numerical_vulnerability(
                     vulnerability_id=f"vuln_numerical_{idx}",
-                    vulnerability_type=VulnerabilityType.NUMERICAL_INSTABILITY,
-                    severity="critical",
-                    parameter_values=parameters,
-                    description=str(exc),
+                    parameters=parameters,
+                    error=exc,
                 )
             )
             if adversarial_plan.stop_on_first_vulnerability:
@@ -541,6 +586,7 @@ def run_stress_test(
         and hasattr(candidate_generator, "generate")
         and total_evaluated < adversarial_plan.max_iterations
         and (not vulnerabilities or not adversarial_plan.stop_on_first_vulnerability)
+        and not evaluation_unverified
     ):
         remaining = max(1, adversarial_plan.max_iterations - total_evaluated)
         stopping_criteria: list[StoppingCriterion] = [MaxIterations(remaining)]
@@ -566,45 +612,52 @@ def run_stress_test(
         best_search_objective = float("nan")
         for idx in range(remaining):
             candidate = candidate_generator.generate(history, best_candidate, runtime_context)  # type: ignore[attr-defined]
-            result = stage_b_evaluator(candidate, runtime_context)
-            objective = float(
-                base_objective.evaluate(result.get("simulation_results", {})).raw_value
-            )
+            candidate_parameters = {
+                key: float(value)
+                for key, value in candidate.items()
+                if key in param_names and isinstance(value, (int, float))
+            }
+            total_evaluated += 1
+            try:
+                result, objective, objective_details = _evaluate_stress_result(
+                    base_objective=base_objective,
+                    result=stage_b_evaluator(candidate, runtime_context),
+                )
+            except Exception as exc:
+                invalid_evaluation_count += 1
+                evaluation_unverified = True
+                vulnerabilities.append(
+                    _numerical_vulnerability(
+                        vulnerability_id=f"vuln_numerical_search_{idx}",
+                        parameters=candidate_parameters,
+                        error=exc,
+                    )
+                )
+                break
             history.append(
                 SearchIteration(
                     iteration=idx,
                     candidate=dict(candidate),
                     objective_value=objective,
-                    objective_details=list(
-                        base_objective.evaluate_detailed(result.get("simulation_results", {}))
-                    ),
+                    objective_details=objective_details,
                     is_promising=True,
                     stage_a_passed=True,
                     stage_b_result=result,
                     duration_seconds=0.0,
                 )
             )
-            total_evaluated += 1
             if _is_worse_objective(objective, best_search_objective, objective_direction):
                 best_search_objective = objective
                 best_candidate = dict(candidate)
             if _is_worse_objective(objective, worst_case_objective, objective_direction):
                 worst_case_objective = objective
-                worst_case_parameters = {
-                    key: float(value)
-                    for key, value in candidate.items()
-                    if key in param_names and isinstance(value, (int, float))
-                }
+                worst_case_parameters = candidate_parameters
             if adversarial_plan.vulnerability_threshold is not None:
                 vuln = _detect_objective_vulnerability(
                     objective=objective,
                     threshold=adversarial_plan.vulnerability_threshold,
                     direction=objective_direction,
-                    parameters={
-                        key: float(value)
-                        for key, value in candidate.items()
-                        if key in param_names and isinstance(value, (int, float))
-                    },
+                    parameters=candidate_parameters,
                     vuln_id=f"vuln_search_{idx}",
                 )
                 if vuln is not None:
@@ -624,7 +677,12 @@ def run_stress_test(
     if not math.isfinite(worst_case_objective):
         worst_case_objective = float("nan")
 
-    robustness_score = 1.0 - (len(observed_vulnerabilities) / max(total_evaluated, 1))
+    evaluation_status = "unverified" if evaluation_unverified else None
+    robustness_score = (
+        0.0
+        if evaluation_unverified
+        else 1.0 - (len(observed_vulnerabilities) / max(total_evaluated, 1))
+    )
     report = StressTestReport(
         report_id=stable_world_id_from_canon(
             prefix="stress.report",
@@ -633,6 +691,8 @@ def run_stress_test(
                     "plan": adversarial_plan.model_dump(mode="json"),
                     "total_evaluated": total_evaluated,
                     "worst_case_objective": worst_case_objective,
+                    "invalid_evaluation_count": invalid_evaluation_count,
+                    "evaluation_status": evaluation_status,
                 }
             ),
         ),
@@ -644,12 +704,16 @@ def run_stress_test(
         high_count=sum(1 for item in observed_vulnerabilities if item.severity == "high"),
         medium_count=sum(1 for item in observed_vulnerabilities if item.severity == "medium"),
         robustness_score=robustness_score,
+        set_adequacy_status=evaluation_status,
         decision_packet_ref=decision_packet_ref,
         metadata={
             "strategy": adversarial_plan.strategy.value,
             "stop_on_first_vulnerability": adversarial_plan.stop_on_first_vulnerability,
             "objective_direction": objective_direction.value,
             "source_objective_direction": source_objective_direction.value,
+            "evaluation_status": evaluation_status or "verified",
+            "invalid_evaluation_count": invalid_evaluation_count,
+            "valid_evaluation_count": total_evaluated - invalid_evaluation_count,
             "observed_vulnerability_count": len(observed_vulnerabilities),
             "unique_vulnerability_count": len(unique_vulnerabilities),
             "presented_vulnerability_count": len(vulnerabilities),

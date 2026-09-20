@@ -29,6 +29,7 @@ from polisyos.scientist import run_experiment
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.masking import OutcomeMasker
 from polisyos.scientist.methods.backtesting.plan import (
+    ForecastProfileContract,
     HistoricalValidationPlan,
     PredictionSource,
 )
@@ -219,6 +220,16 @@ class BacktestOrchestrator:
             naive["degraded_reasons"] = [reason]
             return naive
 
+        if not self._has_declared_temporal_boundary(plan):
+            reason = "scientist_historical_cutoff_missing"
+            warnings.append("scientist historical cutoff missing; using naive fallback")
+            naive = self._predict_with_naive(plan, masked_data)
+            naive["warnings"] = warnings + naive.get("warnings", [])
+            naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
+            naive["degraded"] = True
+            naive["degraded_reasons"] = [reason]
+            return naive
+
         state_payload = dict(plan.scientist_state)
         params = dict(state_payload.get("params", {}))
         if plan.random_seed is not None:
@@ -252,10 +263,14 @@ class BacktestOrchestrator:
                 metrics_payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
                 values = metrics_payload.get("values", metrics_payload)
                 if isinstance(values, dict):
-                    constant_profile = self._is_constant_forecast(metrics_payload)
                     for metric in plan.target_metrics:
                         raw = values.get(metric)
                         horizon = len(plan.ground_truth_outcomes.get(metric, []))
+                        constant_profile = self._is_constant_forecast(
+                            metrics_payload,
+                            artifact_id,
+                            horizon,
+                        )
                         if isinstance(raw, list):
                             if len(raw) != horizon:
                                 warnings.append(
@@ -339,7 +354,10 @@ class BacktestOrchestrator:
                             parsed,
                         )
                 elif isinstance(ci, (list, tuple)) and len(ci) == 2:
-                    if not self._is_constant_forecast(env_payload) and horizon != 1:
+                    if (
+                        not self._is_constant_forecast(env_payload, env_id, horizon)
+                        and horizon != 1
+                    ):
                         continue
                     parsed_interval = self._parse_interval(ci)
                     if parsed_interval is not None:
@@ -348,10 +366,36 @@ class BacktestOrchestrator:
                 continue
         return intervals
 
+    def _is_constant_forecast(
+        self,
+        payload: Any,
+        artifact_id: ArtifactID,
+        horizon: int,
+    ) -> bool:
+        """Require a typed, producer-bound contract for constant trajectories."""
+        if not isinstance(payload, dict) or payload.get("forecast_profile") != "constant_forecast":
+            return False
+        try:
+            contract = ForecastProfileContract.model_validate(payload.get("forecast_contract"))
+            manifest = self._store.get_manifest(artifact_id)
+        except Exception:
+            return False
+        producer = manifest.producer
+        if producer is None or contract.horizon != horizon:
+            return False
+        return (
+            str(producer.component) == contract.producer.component
+            and producer.version == contract.producer.version
+        )
+
     @staticmethod
-    def _is_constant_forecast(payload: Any) -> bool:
-        """Return whether a producer explicitly declares a constant trajectory."""
-        return isinstance(payload, dict) and payload.get("forecast_profile") == "constant_forecast"
+    def _has_declared_temporal_boundary(plan: HistoricalValidationPlan) -> bool:
+        """Return whether a Scientist replay has an explicit bounded cutoff."""
+        return (
+            plan.intervention_step is not None
+            or plan.pre_intervention_periods is not None
+            or bool(plan.intervention_date)
+        )
 
     @staticmethod
     def _parse_interval(value: Any) -> tuple[float, float] | None:

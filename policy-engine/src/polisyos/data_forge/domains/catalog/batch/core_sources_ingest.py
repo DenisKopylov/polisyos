@@ -66,6 +66,7 @@ __TARGET_LEAF_COMPATIBILITY_NAMES: dict[ModuleType, frozenset[str]] = {
             "_normalize_observation_row",
             "_shard_countries",
             "_to_iso3",
+            "_wvs_bulk_csv_path",
         }
     ),
     _validators: frozenset(

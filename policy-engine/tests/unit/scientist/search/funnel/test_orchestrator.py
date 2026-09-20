@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from unittest.mock import MagicMock
 
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -23,6 +24,7 @@ from polisyos.scientist.methods.search.funnel.types import (
 )
 from polisyos.scientist.methods.search.lessons import LessonRegistry
 from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:
@@ -298,6 +300,132 @@ class TestFunnelOrchestrator:
         assert cached_ticket is ticket_v1
         assert cached_ticket.submitted_via_cache is True
         assert stage.evaluate.call_count == 2
+
+    def test_freeze_mode_continuation_preserves_partial_progress(self):
+        class _Tracker:
+            mode = "normal"
+
+            def routing_mode(self) -> str:
+                return self.mode
+
+            def compute_metrics(self) -> dict[str, object]:
+                return {"routing_mode": self.mode}
+
+        stages = [
+            _make_stage(0, "L0"),
+            _make_stage(1, "L1"),
+            _make_stage(
+                2,
+                "L2",
+                cheap_signal=CheapSignalVector(expected_value_proxy=0.8),
+            ),
+            _make_stage(3, "L3"),
+        ]
+        for stage, cost in zip(stages[:3], (0.1, 0.2, 0.3), strict=True):
+            stage.evaluate.return_value.compute_actual_usd = cost
+        stages[3].estimated_cost_usd = 1.0
+        tracker = _Tracker()
+        budget = BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.5"))}
+        )
+        orch = FunnelOrchestrator(
+            stages,
+            budget_state=budget,
+            correlation_tracker=tracker,
+        )
+        candidate = {"candidate_id": "freeze-continuation"}
+        context = {"dataset_version": "dataset-v1"}
+
+        ticket = orch.submit(candidate, context)
+        outcome = orch.advance(ticket, policy="full")
+
+        assert outcome.final_action == "defer"
+        assert ticket.last_scheduling_decision is not None
+        assert ticket.last_scheduling_decision.recommended_action == "defer"
+        prior_stage_results = dict(ticket.stage_results)
+        prior_trace = list(ticket.trace)
+        prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
+
+        tracker.mode = "freeze_frontier"
+        successor = orch.submit(candidate, context)
+
+        assert successor is not ticket
+        assert successor.parent_ticket_id == ticket.ticket_id
+        assert successor.lineage[:-1] == ticket.lineage
+        assert successor.continuation_reason is not None
+        assert successor.stage_results == prior_stage_results
+        assert successor.trace == prior_trace
+        assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
+
+    def test_retry_cheaper_continuation_preserves_partial_progress(self):
+        stages = [
+            _make_stage(0, "L0"),
+            _make_stage(1, "L1"),
+            _make_stage(
+                2,
+                "L2",
+                cheap_signal=CheapSignalVector(expected_value_proxy=0.8),
+            ),
+            _make_stage(4, "L4"),
+        ]
+        for stage, cost in zip(stages[:3], (0.1, 0.2, 0.3), strict=True):
+            stage.evaluate.return_value.compute_actual_usd = cost
+        stages[2].evaluate.return_value.feedback["timeout_risk"] = 0.9
+        budget = BudgetState(spent={"run": Decimal("0")})
+        orch = FunnelOrchestrator(stages, budget_state=budget)
+        candidate = {"candidate_id": "retry-continuation"}
+        context = {"dataset_version": "dataset-v1"}
+
+        ticket = orch.submit(candidate, context)
+        outcome = orch.advance(ticket, policy="full")
+
+        assert outcome.final_action == "retry_cheaper"
+        assert ticket.last_scheduling_decision is not None
+        assert ticket.last_scheduling_decision.recommended_action == "retry_cheaper"
+        prior_stage_results = dict(ticket.stage_results)
+        prior_trace = list(ticket.trace)
+        prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
+
+        budget.record_spend("run", Decimal("0.01"))
+        successor = orch.submit(candidate, context)
+
+        assert successor is not ticket
+        assert successor.parent_ticket_id == ticket.ticket_id
+        assert successor.lineage[:-1] == ticket.lineage
+        assert successor.continuation_reason is not None
+        assert successor.stage_results == prior_stage_results
+        assert successor.trace == prior_trace
+        assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
+
+    def test_stage_defer_continuation_without_scheduler_decision(self):
+        stages = [_make_stage(0, "L0"), _make_stage(1, "L1"), _make_stage(2, "L2")]
+        for stage, cost in zip(stages[:2], (0.1, 0.2), strict=True):
+            stage.evaluate.return_value.compute_actual_usd = cost
+        stages[1].evaluate.return_value.terminal_action = "defer"
+        budget = BudgetState(spent={"run": Decimal("0")})
+        orch = FunnelOrchestrator(stages, budget_state=budget)
+        candidate = {"candidate_id": "stage-defer-continuation"}
+        context = {"dataset_version": "dataset-v1"}
+
+        ticket = orch.submit(candidate, context)
+        outcome = orch.advance(ticket, policy="full")
+
+        assert outcome.final_action == "defer"
+        assert ticket.last_scheduling_decision is None
+        prior_stage_results = dict(ticket.stage_results)
+        prior_trace = list(ticket.trace)
+        prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
+
+        budget.record_spend("run", Decimal("0.01"))
+        successor = orch.submit(candidate, context)
+
+        assert successor is not ticket
+        assert successor.parent_ticket_id == ticket.ticket_id
+        assert successor.lineage[:-1] == ticket.lineage
+        assert successor.continuation_reason is not None
+        assert successor.stage_results == prior_stage_results
+        assert successor.trace == prior_trace
+        assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
 
     def test_burn_in_policy_bypasses_cheap_rejection_until_level4(self):
         reject_signal = CheapSignalVector(structural_validity=0.3)

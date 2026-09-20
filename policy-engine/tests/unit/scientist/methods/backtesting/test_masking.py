@@ -34,3 +34,22 @@ def test_masking_raises_when_intervention_step_exceeds_metric_horizon(tmp_path) 
 
     with pytest.raises(MaskingValidationError, match="outside metric"):
         OutcomeMasker().mask({"metric": [1.0, 2.0, 3.0]}, plan)
+
+
+def test_masking_uses_declared_pre_intervention_periods_when_step_is_missing(tmp_path) -> None:
+    plan = _plan(
+        tmp_path,
+        intervention_step=None,
+        intervention_date="t2",
+        pre_intervention_periods=2,
+    )
+    data = {
+        "metric": [1.0, 2.0, 900.0, 901.0],
+        "time_index": ["t0", "t1", "t2", "t3"],
+    }
+
+    masked = OutcomeMasker().mask(data, plan)
+
+    assert masked["metric"] == [1.0, 2.0]
+    assert masked["time_index"] == ["t0", "t1"]
+    assert data["metric"] == [1.0, 2.0, 900.0, 901.0]

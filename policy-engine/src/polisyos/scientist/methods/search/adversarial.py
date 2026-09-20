@@ -387,8 +387,13 @@ class NegatedCompositeObjective:
 class VulnerabilityFound(StoppingCriterion):
     """Stop criterion used when caller wants first critical vulnerability only."""
 
-    def __init__(self, threshold: float):
+    def __init__(
+        self,
+        threshold: float,
+        direction: OptimizationDirection = OptimizationDirection.MINIMIZE,
+    ):
         self._threshold = float(threshold)
+        self._direction = direction
 
     @property
     def name(self) -> str:
@@ -398,27 +403,62 @@ class VulnerabilityFound(StoppingCriterion):
         del state
         if not history:
             return StoppingCondition(should_stop=False)
-        real_objective = -float(history[-1].get("objective_value", float("inf")))
-        if real_objective <= self._threshold:
+        raw_objective = float(history[-1].get("objective_value", float("nan")))
+        if _is_objective_vulnerable(
+            raw_objective,
+            threshold=self._threshold,
+            direction=self._direction,
+        ):
             return StoppingCondition(
                 should_stop=True,
                 reason=(
-                    f"Vulnerability objective {real_objective:.6f} <= "
+                    f"Vulnerability objective {raw_objective:.6f} violates "
                     f"threshold {self._threshold:.6f}"
                 ),
                 details={
-                    "objective": real_objective,
+                    "objective": raw_objective,
+                    "badness": _objective_badness(raw_objective, self._direction),
+                    "direction": self._direction.value,
                     "threshold": self._threshold,
                 },
             )
         return StoppingCondition(should_stop=False)
 
 
-def _objective_sentinel(direction: OptimizationDirection) -> float:
-    """Return the initial incumbent for a direction-aware worst-case search."""
-    if direction is OptimizationDirection.MINIMIZE:
-        return float("inf")
-    return float("-inf")
+def _resolve_adversarial_direction(base_objective: object) -> OptimizationDirection:
+    """Resolve the raw direction used by the adversarial severity transform.
+
+    ``CompositeObjective`` is the established stress API and exposes its scalar
+    result in the lower-tail convention used by the existing stress reports.
+    Direct objective adapters retain their declared raw metric direction so a
+    minimize-cost metric reverses the bad tail.
+    """
+    if isinstance(base_objective, CompositeObjective):
+        return OptimizationDirection.MAXIMIZE
+    return base_objective.direction  # type: ignore[attr-defined]
+
+
+def _objective_badness(raw_objective: float, direction: OptimizationDirection) -> float:
+    """Map a finite raw objective to one scalar where larger means worse."""
+    if not math.isfinite(raw_objective):
+        return float("nan")
+    if direction is OptimizationDirection.MAXIMIZE:
+        return -raw_objective
+    return raw_objective
+
+
+def _is_objective_vulnerable(
+    raw_objective: float,
+    *,
+    threshold: float | None,
+    direction: OptimizationDirection,
+) -> bool:
+    """Apply the canonical badness transform to a threshold check."""
+    if threshold is None:
+        return False
+    badness = _objective_badness(raw_objective, direction)
+    threshold_badness = _objective_badness(float(threshold), direction)
+    return math.isfinite(badness) and badness >= threshold_badness
 
 
 def _is_worse_objective(
@@ -426,12 +466,12 @@ def _is_worse_objective(
     incumbent: float,
     direction: OptimizationDirection,
 ) -> bool:
-    """Return whether ``candidate`` is worse under the objective direction."""
-    if not math.isfinite(candidate):
+    """Return whether ``candidate`` has greater canonical adversarial badness."""
+    candidate_badness = _objective_badness(candidate, direction)
+    if not math.isfinite(candidate_badness):
         return False
-    if direction is OptimizationDirection.MINIMIZE:
-        return candidate < incumbent
-    return candidate > incumbent
+    incumbent_badness = _objective_badness(incumbent, direction)
+    return not math.isfinite(incumbent_badness) or candidate_badness > incumbent_badness
 
 
 def run_stress_test(
@@ -448,10 +488,11 @@ def run_stress_test(
     runtime_context = context or {}
     param_names = [item.name for item in adversarial_plan.parameter_specs]
     initial_samples = generate_adversarial_samples(adversarial_plan)
-    objective_direction = base_objective.direction
+    objective_direction = _resolve_adversarial_direction(base_objective)
+    source_objective_direction = base_objective.direction
 
     vulnerabilities: list[Vulnerability] = []
-    worst_case_objective = _objective_sentinel(objective_direction)
+    worst_case_objective = float("nan")
     worst_case_parameters: dict[str, float] = {}
     total_evaluated = 0
 
@@ -485,6 +526,7 @@ def run_stress_test(
         vuln = _detect_objective_vulnerability(
             objective=objective,
             threshold=adversarial_plan.vulnerability_threshold,
+            direction=objective_direction,
             parameters=parameters,
             vuln_id=f"vuln_objective_{idx}",
         )
@@ -506,7 +548,12 @@ def run_stress_test(
             adversarial_plan.stop_on_first_vulnerability
             and adversarial_plan.vulnerability_threshold is not None
         ):
-            stopping_criteria.append(VulnerabilityFound(adversarial_plan.vulnerability_threshold))
+            stopping_criteria.append(
+                VulnerabilityFound(
+                    adversarial_plan.vulnerability_threshold,
+                    direction=objective_direction,
+                )
+            )
 
         stopping: StoppingCriterion
         if len(stopping_criteria) == 1:
@@ -516,19 +563,18 @@ def run_stress_test(
 
         history: list[SearchIteration] = []
         best_candidate: dict[str, Any] | None = None
-        best_search_objective = _objective_sentinel(objective_direction)
+        best_search_objective = float("nan")
         for idx in range(remaining):
             candidate = candidate_generator.generate(history, best_candidate, runtime_context)  # type: ignore[attr-defined]
             result = stage_b_evaluator(candidate, runtime_context)
             objective = float(
                 base_objective.evaluate(result.get("simulation_results", {})).raw_value
             )
-            negated_objective = -objective
             history.append(
                 SearchIteration(
                     iteration=idx,
                     candidate=dict(candidate),
-                    objective_value=negated_objective,
+                    objective_value=objective,
                     objective_details=list(
                         base_objective.evaluate_detailed(result.get("simulation_results", {}))
                     ),
@@ -553,6 +599,7 @@ def run_stress_test(
                 vuln = _detect_objective_vulnerability(
                     objective=objective,
                     threshold=adversarial_plan.vulnerability_threshold,
+                    direction=objective_direction,
                     parameters={
                         key: float(value)
                         for key, value in candidate.items()
@@ -566,7 +613,7 @@ def run_stress_test(
                         break
             stop_check = stopping.check(
                 [{"objective_value": item.objective_value} for item in history],
-                {"iteration": idx + 1, "best_objective": -best_search_objective},
+                {"iteration": idx + 1, "best_objective": best_search_objective},
             )
             if stop_check.should_stop:
                 break
@@ -602,6 +649,7 @@ def run_stress_test(
             "strategy": adversarial_plan.strategy.value,
             "stop_on_first_vulnerability": adversarial_plan.stop_on_first_vulnerability,
             "objective_direction": objective_direction.value,
+            "source_objective_direction": source_objective_direction.value,
             "observed_vulnerability_count": len(observed_vulnerabilities),
             "unique_vulnerability_count": len(unique_vulnerabilities),
             "presented_vulnerability_count": len(vulnerabilities),
@@ -626,20 +674,29 @@ def _detect_objective_vulnerability(
     *,
     objective: float,
     threshold: float | None,
+    direction: OptimizationDirection,
     parameters: dict[str, float],
     vuln_id: str,
 ) -> Vulnerability | None:
-    if threshold is None:
+    if not _is_objective_vulnerable(
+        objective,
+        threshold=threshold,
+        direction=direction,
+    ):
         return None
-    if objective > threshold:
-        return None
+    badness = _objective_badness(objective, direction)
+    threshold_badness = _objective_badness(float(threshold), direction)
     return Vulnerability(
         vulnerability_id=vuln_id,
         vulnerability_type=VulnerabilityType.OBJECTIVE_COLLAPSE,
         severity="high",
         parameter_values=parameters,
         objective_value=objective,
-        description=f"Objective {objective:.6f} is below threshold {threshold:.6f}",
+        description=(
+            f"Objective {objective:.6f} violates threshold {threshold:.6f} "
+            f"(badness {badness:.6f} >= {threshold_badness:.6f}; "
+            f"direction {direction.value})"
+        ),
     )
 
 

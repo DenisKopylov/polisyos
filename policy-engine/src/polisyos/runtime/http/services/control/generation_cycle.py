@@ -505,6 +505,12 @@ async def compile_and_run_recursive_generation_cycle(
     # checkout to establish a CycleSubstrateContext.  Preserve that bounded
     # absence and let the recursive controller's canonical ports emit typed
     # pending/blocked observations; do not mint caller-owned context or WMR.
+    if cycle_substrate_context is None and root_n4_generation_port is not None:
+        raise DesignProblemAuthorityError(
+            "cycle_substrate_context_not_established",
+            "The HTTP composition rejects an explicit N4 producer without one "
+            "owner-bound CycleSubstrateContext.",
+        )
     if (
         cycle_substrate_context is not None
         and cycle_substrate_context.design_problem_ref != problem_ref

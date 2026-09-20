@@ -478,9 +478,10 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
 
     # This is the ordinary HTTP boundary: no CycleSubstrateContext or
     # EvaluationExecutionContext is supplied by the caller.  N4 is deliberately
-    # not replaced with a fixture bundle; the expected RED is the early
-    # EvalSafety gate before the real compiler/N6 route is reached.
-    await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+    # not replaced with a fixture bundle.  If the canonical owner producer is
+    # unavailable in this checkout, the existing recursive ports must preserve
+    # typed blocked observations instead of raising at the HTTP boundary.
+    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
         raw_request=problem.nl_provenance.raw_request,
         context={},
         model_name="fixture-model",
@@ -499,6 +500,12 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
     )
 
     assert compiler_calls == 1
+    assert compiled.recursive_run.leaf_nodes
+    if compiled.cycle_substrate_context_ref is None:
+        leaf = compiled.recursive_run.leaf_nodes[0]
+        assert leaf.cycle_run is not None
+        assert leaf.cycle_run.simulation.status == "simulation_blocked"
+        assert leaf.cycle_run.value_port.status == "value_blocked"
 
 
 @pytest.mark.asyncio

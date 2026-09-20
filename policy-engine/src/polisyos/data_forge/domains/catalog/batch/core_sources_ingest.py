@@ -54,7 +54,6 @@ _IMPLEMENTATION_MODULES: tuple[ModuleType, ...] = (
 __TARGET_LEAF_COMPATIBILITY_NAMES: dict[ModuleType, frozenset[str]] = {
     _loaders: frozenset(
         {
-            "_WVSObservationAccumulator",
             "_as_float",
             "_as_int",
             "_country_to_numeric",

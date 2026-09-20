@@ -71,3 +71,31 @@ def test_adapter_batch_generation(simple_space: SearchSpace) -> None:
     assert len(batch) == 4
     ids = [item["_strategy_metadata"]["candidate_id"] for item in batch]
     assert len(set(ids)) == 4
+
+
+def test_adapter_exposes_raw_directional_score_not_negated_search_score(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = RandomSearchStrategy(space=simple_space, seed=23)
+    adapter = StrategyAdapter(strategy=strategy, space=simple_space)
+    iteration = SearchIteration(
+        iteration=0,
+        candidate={"x": 0.5, "semantic": {"interventions": []}},
+        objective_value=5.0,
+        objective_details=[
+            ObjectiveValue(
+                name="utility",
+                raw_value=-5.0,
+                direction=OptimizationDirection.MAXIMIZE,
+            )
+        ],
+        is_promising=True,
+        stage_a_passed=True,
+        stage_b_result={"simulation_results": {"utility": -5.0}},
+        duration_seconds=0.1,
+        timestamp=datetime.utcnow(),
+    )
+
+    adapter.generate(history=[iteration], current_best=None, context={})
+
+    assert adapter._evaluations[0].scalar_score == -5.0

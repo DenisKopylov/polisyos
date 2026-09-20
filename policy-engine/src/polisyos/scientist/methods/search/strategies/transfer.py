@@ -31,9 +31,11 @@ class RunFingerprint(BaseModel):
     run_id: str
     space_hash: str = Field(..., min_length=1)
     objective_names: list[str]
+    bounds: dict[str, Any] = Field(default_factory=dict)
     split: str | None = None
     units: dict[str, Any] = Field(default_factory=dict)
     origin: str | None = None
+    tenant_id: str | None = None
     objective_directions: dict[str, str] = Field(default_factory=dict)
     embedding: list[float] = Field(default_factory=list)
     best_params: dict[str, Any] | None = None
@@ -87,9 +89,11 @@ class TransferLearningManager:
                 "run_id": fingerprint.run_id,
                 "space_hash": fingerprint.space_hash,
                 "objective_names": fingerprint.objective_names,
+                "bounds": fingerprint.bounds,
                 "split": fingerprint.split,
                 "units": fingerprint.units,
                 "origin": fingerprint.origin,
+                "tenant_id": fingerprint.tenant_id,
                 "objective_directions": fingerprint.objective_directions,
                 "evaluations": eval_dicts,
                 "best_score": fingerprint.best_score,
@@ -109,9 +113,11 @@ class TransferLearningManager:
                 metadata={
                     "space_hash": fingerprint.space_hash,
                     "objective_names": fingerprint.objective_names,
+                    "bounds": fingerprint.bounds,
                     "split": fingerprint.split,
                     "units": fingerprint.units,
                     "origin": fingerprint.origin,
+                    "tenant_id": fingerprint.tenant_id,
                     "objective_directions": fingerprint.objective_directions,
                     "best_score": fingerprint.best_score,
                     "artifact_id": ref.artifact_id,
@@ -151,9 +157,11 @@ class TransferLearningManager:
                     run_id=key,
                     space_hash=meta.get("space_hash", ""),
                     objective_names=obj_names,
+                    bounds=meta.get("bounds", {}),
                     split=meta.get("split"),
                     units=meta.get("units", {}),
                     origin=meta.get("origin"),
+                    tenant_id=meta.get("tenant_id"),
                     objective_directions=meta.get("objective_directions", {}),
                     best_score=meta.get("best_score"),
                 ),
@@ -164,9 +172,11 @@ class TransferLearningManager:
                     run_id=key,
                     space_hash=meta.get("space_hash", ""),
                     objective_names=obj_names,
+                    bounds=meta.get("bounds", {}),
                     split=meta.get("split"),
                     units=meta.get("units", {}),
                     origin=meta.get("origin"),
+                    tenant_id=meta.get("tenant_id"),
                     objective_directions=meta.get("objective_directions", {}),
                     best_score=meta.get("best_score"),
                 )
@@ -261,9 +271,11 @@ class TransferLearningManager:
             bool(target.space_hash)
             and target.space_hash == source.space_hash
             and set(target.objective_names) == set(source.objective_names)
+            and target.bounds == source.bounds
             and target.split == source.split
             and target.units == source.units
             and target.origin == source.origin
+            and target.tenant_id == source.tenant_id
             and target.objective_directions == source.objective_directions
         )
 

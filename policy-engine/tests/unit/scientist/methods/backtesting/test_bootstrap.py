@@ -71,6 +71,18 @@ class TestBootstrapMetric:
                 seed=42,
             )
 
+    def test_callable_exception_type_is_preserved(self):
+        def raising_statistic(_values):
+            raise TypeError("caller-owned statistic failure")
+
+        with pytest.raises(TypeError, match="caller-owned statistic failure"):
+            bootstrap_metric(
+                [1.0, 2.0],
+                statistic=raising_statistic,
+                n_bootstrap=1,
+                seed=42,
+            )
+
 
 class TestBootstrapScenarioMetrics:
     def test_produces_mae_and_rmse(self):

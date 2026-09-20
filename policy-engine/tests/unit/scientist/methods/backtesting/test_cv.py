@@ -42,6 +42,9 @@ class TestForwardChainingSplits:
             (1001, 1, 3),
             (2, 1, 0),
             (2, 1, -1),
+            (True, 1, 3),
+            (2, True, 3),
+            (2, 1, True),
         ],
     )
     def test_invalid_cv_parameters_are_rejected_before_loop(
@@ -65,29 +68,47 @@ class TestForwardChainingSplits:
                     max_folds=max_folds,
                 )
 
+    def test_numpy_integer_parameters_remain_valid(self):
+        splits = forward_chaining_splits(
+            np.int64(10),
+            min_train_size=np.int64(2),
+            step_size=np.int64(2),
+            max_folds=np.int64(2),
+        )
+
+        assert [(len(train), test) for train, test in splits] == [
+            (2, [2, 3]),
+            (8, [8, 9]),
+        ]
+
 
 class TestRunForwardChainingCV:
     def test_max_folds_limits_preparation_before_cv_evaluator(self, monkeypatch):
         real_range = builtins.range
         materialized_items = 0
 
-        def bounded_range(*args):
-            nonlocal materialized_items
-            requested = real_range(*args)
-            materialized_items += len(requested)
-            if materialized_items > 1504:
-                raise AssertionError("discarded folds were materialized")
-            return requested
-
         data = np.arange(1000, dtype=float)
         observed_shapes = []
 
-        def evaluator(train, test):
-            observed_shapes.append((len(train), len(test)))
-            return {"test_size": float(len(test))}
-
         with monkeypatch.context() as scoped:
+            def bounded_range(*args):
+                nonlocal materialized_items
+                requested = real_range(*args)
+                materialized_items += len(requested)
+                if materialized_items > 1504:
+                    raise AssertionError("discarded folds were materialized")
+                return requested
+
             scoped.setattr(builtins, "range", bounded_range)
+
+            def evaluator(train, test):
+                observed_shapes.append((len(train), len(test)))
+                if len(observed_shapes) == 3:
+                    # Stop observing after the selected folds have reached the
+                    # evaluator; NumPy's later metric reduction also uses range.
+                    scoped.undo()
+                return {"test_size": float(len(test))}
+
             result = run_forward_chaining_cv(
                 data,
                 evaluator,

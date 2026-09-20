@@ -326,6 +326,11 @@ class FunnelOrchestrator:
 
         candidate_hash = _stable_candidate_hash(candidate)
         sentinel_meta = extract_sentinel_metadata(candidate) or {}
+        ticket_context = dict(context)
+        if sentinel_meta:
+            ticket_context.update(sentinel_meta)
+            ticket_context["is_sentinel"] = True
+        continuation_key = self._continuation_context_key(candidate, ticket_context)
         routing_mode = self._routing_mode()
         cache_key = self._ticket_cache_key(
             candidate,
@@ -347,10 +352,6 @@ class FunnelOrchestrator:
 
         previous_ticket = self._latest_ticket(candidate_hash)
         ticket_id = str(uuid4())
-        ticket_context = dict(context)
-        if sentinel_meta:
-            ticket_context.update(sentinel_meta)
-            ticket_context["is_sentinel"] = True
         ticket = FunnelTicket(
             ticket_id=ticket_id,
             candidate_hash=candidate_hash,
@@ -363,7 +364,11 @@ class FunnelOrchestrator:
         if previous_ticket is not None:
             ticket.parent_ticket_id = previous_ticket.ticket_id
             ticket.lineage = (*previous_ticket.lineage, ticket_id)
-            if self._can_reuse_continuation(previous_ticket, cache_key):
+            if self._can_reuse_continuation(
+                previous_ticket,
+                continuation_key,
+                routing_mode=routing_mode,
+            ):
                 self._carry_forward_continuation(previous_ticket, ticket)
             elif (
                 previous_ticket.is_terminal
@@ -677,6 +682,20 @@ class FunnelOrchestrator:
             }
         )
 
+    @staticmethod
+    def _continuation_context_key(
+        candidate: dict[str, Any],
+        context: Mapping[str, Any],
+    ) -> str:
+        """Identify the effective evaluation context independently of routing mode."""
+
+        return _stable_payload_hash(
+            {
+                "candidate": strip_internal_candidate_metadata(candidate),
+                "context": _stable_context_identity(context),
+            }
+        )
+
     def _cached_ticket_for_key(
         self,
         cache_key: str,
@@ -689,10 +708,7 @@ class FunnelOrchestrator:
         ticket = self._tickets[cached_ticket_id]
         if (
             ticket.is_terminal
-            and ticket.final_action == "defer"
-            and ticket.degradation_mode != "freeze_frontier"
-            and ticket.last_scheduling_decision is not None
-            and ticket.last_scheduling_decision.recommended_action == "defer"
+            and ticket.final_action in _CONTINUABLE_ACTIONS
             and ticket.terminal_basis is not None
             and ticket.terminal_basis
             != self._continuation_basis(ticket, routing_mode=routing_mode)
@@ -706,17 +722,21 @@ class FunnelOrchestrator:
             return None
         return self._tickets.get(ticket_id)
 
-    def _can_reuse_continuation(self, ticket: FunnelTicket, cache_key: str) -> bool:
-        decision = ticket.last_scheduling_decision
+    def _can_reuse_continuation(
+        self,
+        ticket: FunnelTicket,
+        continuation_key: str,
+        *,
+        routing_mode: DegradationMode,
+    ) -> bool:
         return bool(
             ticket.is_terminal
-            and ticket.final_action == "defer"
-            and decision is not None
-            and decision.recommended_action == "defer"
-            and ticket.cache_key == cache_key
+            and ticket.final_action in _CONTINUABLE_ACTIONS
+            and self._continuation_context_key(ticket.candidate, ticket.context)
+            == continuation_key
             and ticket.terminal_basis is not None
             and ticket.terminal_basis
-            != self._continuation_basis(ticket, routing_mode=ticket.degradation_mode)
+            != self._continuation_basis(ticket, routing_mode=routing_mode)
         )
 
     @staticmethod

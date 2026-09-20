@@ -112,6 +112,19 @@ class OutcomeMasker:
     ) -> int | None:
         """Resolve the cutoff from the plan's declared temporal contract."""
         t0 = plan.intervention_step
+        if (
+            plan.intervention_step is not None
+            and plan.pre_intervention_periods is not None
+            and plan.intervention_step != plan.pre_intervention_periods
+        ):
+            raise MaskingValidationError(
+                "intervention_step and pre-intervention periods disagree",
+                code="intervention_cutoff_mismatch",
+                details={
+                    "intervention_step": plan.intervention_step,
+                    "pre_intervention_periods": plan.pre_intervention_periods,
+                },
+            )
         if t0 is None and plan.pre_intervention_periods is not None:
             t0 = plan.pre_intervention_periods
 
@@ -123,15 +136,14 @@ class OutcomeMasker:
                     if value == plan.intervention_date or str(value) == plan.intervention_date:
                         date_matches.append(index)
             if len(date_matches) != 1:
-                if t0 is None:
-                    raise MaskingValidationError(
-                        "intervention_date requires one matching time_index value",
-                        code="intervention_date_unresolved",
-                        details={
-                            "intervention_date": plan.intervention_date,
-                            "matches": date_matches,
-                        },
-                    )
+                raise MaskingValidationError(
+                    "intervention_date requires one matching time_index value",
+                    code="intervention_date_unresolved",
+                    details={
+                        "intervention_date": plan.intervention_date,
+                        "matches": date_matches,
+                    },
+                )
             elif t0 is None:
                 t0 = date_matches[0]
             elif t0 != date_matches[0]:

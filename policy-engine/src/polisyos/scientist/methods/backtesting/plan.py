@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -22,6 +22,35 @@ class PredictionSource(str, Enum):
     PROVIDED = "provided"
     SCIENTIST = "scientist"
     NAIVE = "naive"
+
+
+class ForecastProducerBinding(BaseModel):
+    """Producer identity bound to a forecast profile artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    component: str = Field(min_length=1)
+    version: str = Field(min_length=1)
+
+
+class ForecastProfileContract(BaseModel):
+    """Typed contract authorizing a constant forecast trajectory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile: Literal["constant_forecast"]
+    producer: ForecastProducerBinding
+    estimand: Literal["outcome_trajectory"]
+    horizon: int = Field(ge=1)
+    time_index: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_time_index(self) -> ForecastProfileContract:
+        if len(self.time_index) != self.horizon:
+            raise ValueError("forecast profile time_index must match horizon")
+        if len(set(self.time_index)) != len(self.time_index):
+            raise ValueError("forecast profile time_index must be unique")
+        return self
 
 
 class HistoricalValidationPlan(BaseModel):
@@ -75,4 +104,10 @@ class HistoricalValidationPlan(BaseModel):
         return self
 
 
-__all__ = ["HistoricalValidationPlan", "MaskingStrategy", "PredictionSource"]
+__all__ = [
+    "ForecastProducerBinding",
+    "ForecastProfileContract",
+    "HistoricalValidationPlan",
+    "MaskingStrategy",
+    "PredictionSource",
+]

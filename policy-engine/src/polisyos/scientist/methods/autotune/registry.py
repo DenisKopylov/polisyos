@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 import os
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
@@ -15,6 +18,7 @@ from polisyos.data_forge.read_api import academic
 
 from .models import (
     BenchmarkEvaluation,
+    BenchmarkSuite,
     ChampionPointer,
     MetricDirection,
     MutationArtifact,
@@ -57,20 +61,21 @@ class ChampionRegistry:
         suite_version: str = "1.0",
         metadata: dict[str, Any] | None = None,
     ) -> ChampionPointer:
-        existing = self.get(loop_id)
-        if existing is not None:
-            return existing
-        pointer = ChampionPointer(
-            loop_id=loop_id,
-            candidate_ref=candidate_ref,
-            evaluation_ref=evaluation_ref,
-            metrics={},
-            suite_version=suite_version,
-            search_space_version=self._search_space_version(candidate_ref),
-            metadata={"seeded_baseline": True, **(metadata or {})},
-        )
-        self._write_pointer(loop_id, pointer)
-        return pointer
+        with self._promotion_lock(loop_id):
+            existing = self.get(loop_id)
+            if existing is not None:
+                return existing
+            pointer = ChampionPointer(
+                loop_id=loop_id,
+                candidate_ref=candidate_ref,
+                evaluation_ref=evaluation_ref,
+                metrics={},
+                suite_version=suite_version,
+                search_space_version=self._search_space_version(candidate_ref),
+                metadata={"seeded_baseline": True, **(metadata or {})},
+            )
+            self._write_pointer(loop_id, pointer)
+            return pointer
 
     def consider_promotion(
         self,
@@ -79,12 +84,91 @@ class ChampionRegistry:
         evaluation_ref: ArtifactRef,
         policy: PromotionPolicy,
         *,
+        suite_ref: ArtifactRef | None = None,
         pareto_promoter: Any | None = None,
     ) -> PromotionDecision:
         evaluation = load_model_artifact(self._store, evaluation_ref, BenchmarkEvaluation)
         if not isinstance(evaluation, BenchmarkEvaluation):
             raise TypeError("Expected BenchmarkEvaluation")
-        current = self.get(loop_id)
+        with self._promotion_lock(loop_id):
+            current = self.get(loop_id)
+            rejection = self._promotion_binding_failure(
+                loop_id=loop_id,
+                candidate_ref=candidate_ref,
+                evaluation=evaluation,
+                evaluation_ref=evaluation_ref,
+                policy=policy,
+                suite_ref=suite_ref,
+            )
+            if rejection is not None:
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason=rejection,
+                    champion=current,
+                    previous_champion=current,
+                )
+            return self._consider_promotion_locked(
+                loop_id=loop_id,
+                candidate_ref=candidate_ref,
+                evaluation=evaluation,
+                evaluation_ref=evaluation_ref,
+                policy=policy,
+                suite_ref=suite_ref,
+                current=current,
+            )
+
+    def _promotion_binding_failure(
+        self,
+        *,
+        loop_id: str,
+        candidate_ref: ArtifactRef,
+        evaluation: BenchmarkEvaluation,
+        evaluation_ref: ArtifactRef,
+        policy: PromotionPolicy,
+        suite_ref: ArtifactRef | None,
+    ) -> str | None:
+        if policy.loop_id != loop_id:
+            return "policy_loop_mismatch"
+        if evaluation.loop_id != loop_id:
+            return "evaluation_loop_mismatch"
+        if evaluation.candidate_ref.artifact_id != candidate_ref.artifact_id:
+            return "evaluation_candidate_mismatch"
+        if (
+            evaluation.runtime_split_type is not None
+            and evaluation.runtime_split_type is not policy.compare_split
+        ):
+            return "runtime_split_mismatch"
+        if suite_ref is None:
+            return None
+
+        suite = load_model_artifact(self._store, suite_ref, BenchmarkSuite)
+        if not isinstance(suite, BenchmarkSuite):
+            raise TypeError("Expected BenchmarkSuite")
+        if evaluation.suite_id != suite.suite_id:
+            return "suite_mismatch"
+        if evaluation.suite_version != suite.suite_version:
+            return "suite_version_mismatch"
+        for artifact_ref in (candidate_ref, evaluation_ref):
+            manifest = self._store.get_manifest(artifact_ref.artifact_id)
+            if not any(
+                item.role == "benchmark_suite" and item.artifact_id == suite_ref.artifact_id
+                for item in manifest.inputs
+            ):
+                return "suite_basis_mismatch"
+        return None
+
+    def _consider_promotion_locked(
+        self,
+        *,
+        loop_id: str,
+        candidate_ref: ArtifactRef,
+        evaluation: BenchmarkEvaluation,
+        evaluation_ref: ArtifactRef,
+        policy: PromotionPolicy,
+        suite_ref: ArtifactRef | None,
+        current: ChampionPointer | None,
+    ) -> PromotionDecision:
         if loop_id == "claim_adjudication":
             if policy.model_dump(mode="json") != claim_promotion_policy():
                 return PromotionDecision(
@@ -99,6 +183,33 @@ class ChampionRegistry:
                 read_claim_promotion_predecessor(self._root, current.model_dump(mode="json"))
             elif basis_path.exists():
                 raise ValueError("claim_adjudication_promotion_basis_current_pointer_missing")
+        if current is not None and suite_ref is not None:
+            current_suite_id = current.metadata.get("suite_id")
+            if current_suite_id is not None and current_suite_id != evaluation.suite_id:
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason="champion_suite_mismatch",
+                    champion=current,
+                    previous_champion=current,
+                )
+            if current.suite_version != evaluation.suite_version:
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason="champion_suite_version_mismatch",
+                    champion=current,
+                    previous_champion=current,
+                )
+            current_suite_ref = current.metadata.get("suite_ref")
+            if current_suite_ref is not None and current_suite_ref != str(suite_ref.artifact_id):
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason="champion_suite_basis_mismatch",
+                    champion=current,
+                    previous_champion=current,
+                )
         if current is not None:
             if (
                 current.candidate_ref.artifact_id == candidate_ref.artifact_id
@@ -187,6 +298,14 @@ class ChampionRegistry:
             metadata={
                 "promoted_by_policy": policy.model_dump(mode="json"),
                 "compare_split": policy.compare_split.value,
+                **(
+                    {
+                        "suite_id": evaluation.suite_id,
+                        "suite_ref": str(suite_ref.artifact_id),
+                    }
+                    if suite_ref is not None
+                    else {}
+                ),
             },
         )
         if loop_id == "claim_adjudication":
@@ -223,6 +342,18 @@ class ChampionRegistry:
             previous_champion=current,
         )
 
+    @contextmanager
+    def _promotion_lock(self, loop_id: str) -> Iterator[None]:
+        """Serialize one loop's read/compare/publish transition across processes."""
+        lock_path = self._root / loop_id / "champion.lock"
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        with lock_path.open("a+b") as lock_file:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
     def _search_space_version(self, candidate_ref: ArtifactRef) -> str:
         payload = load_json_artifact(self._store, candidate_ref)
         if isinstance(payload, dict):
@@ -253,7 +384,8 @@ class ChampionRegistry:
     def write_pointer(self, loop_id: str, pointer: ChampionPointer) -> None:
         if loop_id == "claim_adjudication":
             raise ValueError("claim_adjudication_manual_pointer_transition_unverified")
-        self._write_pointer(loop_id, pointer)
+        with self._promotion_lock(loop_id):
+            self._write_pointer(loop_id, pointer)
 
     def _write_pointer(self, loop_id: str, pointer: ChampionPointer) -> None:
         path = self._pointer_path(loop_id)

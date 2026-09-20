@@ -414,6 +414,26 @@ class VulnerabilityFound(StoppingCriterion):
         return StoppingCondition(should_stop=False)
 
 
+def _objective_sentinel(direction: OptimizationDirection) -> float:
+    """Return the initial incumbent for a direction-aware worst-case search."""
+    if direction is OptimizationDirection.MINIMIZE:
+        return float("inf")
+    return float("-inf")
+
+
+def _is_worse_objective(
+    candidate: float,
+    incumbent: float,
+    direction: OptimizationDirection,
+) -> bool:
+    """Return whether ``candidate`` is worse under the objective direction."""
+    if not math.isfinite(candidate):
+        return False
+    if direction is OptimizationDirection.MINIMIZE:
+        return candidate < incumbent
+    return candidate > incumbent
+
+
 def run_stress_test(
     *,
     adversarial_plan: AdversarialPlan,
@@ -428,9 +448,10 @@ def run_stress_test(
     runtime_context = context or {}
     param_names = [item.name for item in adversarial_plan.parameter_specs]
     initial_samples = generate_adversarial_samples(adversarial_plan)
+    objective_direction = base_objective.direction
 
     vulnerabilities: list[Vulnerability] = []
-    worst_case_objective = float("-inf")
+    worst_case_objective = _objective_sentinel(objective_direction)
     worst_case_parameters: dict[str, float] = {}
     total_evaluated = 0
 
@@ -457,7 +478,7 @@ def run_stress_test(
                 break
             continue
 
-        if objective > worst_case_objective:
+        if _is_worse_objective(objective, worst_case_objective, objective_direction):
             worst_case_objective = objective
             worst_case_parameters = parameters
 
@@ -495,7 +516,7 @@ def run_stress_test(
 
         history: list[SearchIteration] = []
         best_candidate: dict[str, Any] | None = None
-        best_negated_objective = float("inf")
+        best_search_objective = _objective_sentinel(objective_direction)
         for idx in range(remaining):
             candidate = candidate_generator.generate(history, best_candidate, runtime_context)  # type: ignore[attr-defined]
             result = stage_b_evaluator(candidate, runtime_context)
@@ -518,10 +539,10 @@ def run_stress_test(
                 )
             )
             total_evaluated += 1
-            if negated_objective < best_negated_objective:
-                best_negated_objective = negated_objective
+            if _is_worse_objective(objective, best_search_objective, objective_direction):
+                best_search_objective = objective
                 best_candidate = dict(candidate)
-            if objective > worst_case_objective:
+            if _is_worse_objective(objective, worst_case_objective, objective_direction):
                 worst_case_objective = objective
                 worst_case_parameters = {
                     key: float(value)
@@ -545,18 +566,18 @@ def run_stress_test(
                         break
             stop_check = stopping.check(
                 [{"objective_value": item.objective_value} for item in history],
-                {"iteration": idx + 1, "best_objective": best_negated_objective},
+                {"iteration": idx + 1, "best_objective": -best_search_objective},
             )
             if stop_check.should_stop:
                 break
 
-    vulnerabilities = _deduplicate_vulnerabilities(vulnerabilities)[
-        : adversarial_plan.collect_top_k
-    ]
-    if worst_case_objective == float("-inf"):
+    observed_vulnerabilities = list(vulnerabilities)
+    unique_vulnerabilities = _deduplicate_vulnerabilities(observed_vulnerabilities)
+    vulnerabilities = unique_vulnerabilities[: adversarial_plan.collect_top_k]
+    if not math.isfinite(worst_case_objective):
         worst_case_objective = float("nan")
 
-    robustness_score = 1.0 - (len(vulnerabilities) / max(total_evaluated, 1))
+    robustness_score = 1.0 - (len(observed_vulnerabilities) / max(total_evaluated, 1))
     report = StressTestReport(
         report_id=stable_world_id_from_canon(
             prefix="stress.report",
@@ -572,14 +593,18 @@ def run_stress_test(
         worst_case_parameters=worst_case_parameters,
         worst_case_objective=worst_case_objective if math.isfinite(worst_case_objective) else None,
         vulnerabilities=vulnerabilities,
-        critical_count=sum(1 for item in vulnerabilities if item.severity == "critical"),
-        high_count=sum(1 for item in vulnerabilities if item.severity == "high"),
-        medium_count=sum(1 for item in vulnerabilities if item.severity == "medium"),
+        critical_count=sum(1 for item in observed_vulnerabilities if item.severity == "critical"),
+        high_count=sum(1 for item in observed_vulnerabilities if item.severity == "high"),
+        medium_count=sum(1 for item in observed_vulnerabilities if item.severity == "medium"),
         robustness_score=robustness_score,
         decision_packet_ref=decision_packet_ref,
         metadata={
             "strategy": adversarial_plan.strategy.value,
             "stop_on_first_vulnerability": adversarial_plan.stop_on_first_vulnerability,
+            "objective_direction": objective_direction.value,
+            "observed_vulnerability_count": len(observed_vulnerabilities),
+            "unique_vulnerability_count": len(unique_vulnerabilities),
+            "presented_vulnerability_count": len(vulnerabilities),
         },
     )
 

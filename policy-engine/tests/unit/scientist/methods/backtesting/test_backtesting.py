@@ -5,7 +5,7 @@ from typing import Any
 
 import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
 from polisyos.ir.analytics.backtest import BacktestScenario
-from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import StorePutOptions, get_json_artifact, normalize_artifact_ref
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
@@ -137,15 +137,24 @@ def _put_backtest_artifact(
     orchestrator: BacktestOrchestrator,
     payload: Any,
     kind: str,
+    *,
+    include_producer: bool = True,
 ) -> dict[str, str]:
-    return put_json_artifact(
-        orchestrator._store,
+    ref = orchestrator._store.put_json(
         payload,
-        kind=kind,
-        schema_name=kind,
-        schema_version="1.0",
+        StorePutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema={"name": kind, "version": "1.0"},
+            producer=(
+                {"component": "test.bkt01", "version": "1.0"}
+                if include_producer
+                else None
+            ),
+        ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    return normalize_artifact_ref(ref)
 
 
 def _scientist_result_with_artifacts(
@@ -154,11 +163,13 @@ def _scientist_result_with_artifacts(
     *,
     metrics_payload: dict[str, Any],
     envelope_payload: dict[str, Any] | None = None,
+    include_producer: bool = True,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     metrics_ref = _put_backtest_artifact(
         orchestrator,
         metrics_payload,
         "scientist.backtest.metrics",
+        include_producer=include_producer,
     )
     artifacts: dict[str, Any] = {"metrics_ref": metrics_ref}
     if envelope_payload is not None:
@@ -166,6 +177,7 @@ def _scientist_result_with_artifacts(
             orchestrator,
             envelope_payload,
             "scientist.backtest.envelope",
+            include_producer=include_producer,
         )
         simulation_ref = _put_backtest_artifact(
             orchestrator,
@@ -290,10 +302,24 @@ def test_explicit_constant_profile_preserves_constant_forecast_and_interval(
         metrics_payload={
             "values": {"metric": 7.0},
             "forecast_profile": "constant_forecast",
+            "forecast_contract": {
+                "profile": "constant_forecast",
+                "producer": {"component": "test.bkt01", "version": "1.0"},
+                "estimand": "outcome_trajectory",
+                "horizon": 3,
+                "time_index": ["t0", "t1", "t2"],
+            },
         },
         envelope_payload={
             "confidence_interval": [6.0, 8.0],
             "forecast_profile": "constant_forecast",
+            "forecast_contract": {
+                "profile": "constant_forecast",
+                "producer": {"component": "test.bkt01", "version": "1.0"},
+                "estimand": "outcome_trajectory",
+                "horizon": 3,
+                "time_index": ["t0", "t1", "t2"],
+            },
         },
     )
 
@@ -312,6 +338,58 @@ def test_explicit_constant_profile_preserves_constant_forecast_and_interval(
     without_profile = orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
     assert without_profile["prediction_mode_effective"] == PredictionSource.NAIVE.value
     assert "scientist_predictions_missing" in without_profile["degraded_reasons"]
+
+
+def test_forged_constant_profile_without_producer_is_degraded(monkeypatch, tmp_path) -> None:
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+    plan = _scientist_plan(tmp_path)
+    profile = {
+        "profile": "constant_forecast",
+        "producer": {"component": "test.bkt01", "version": "1.0"},
+        "estimand": "outcome_trajectory",
+        "horizon": 3,
+        "time_index": ["t0", "t1", "t2"],
+    }
+    _artifacts, _captured = _scientist_result_with_artifacts(
+        monkeypatch,
+        orchestrator,
+        metrics_payload={
+            "values": {"metric": 7.0},
+            "forecast_profile": "constant_forecast",
+            "forecast_contract": profile,
+        },
+        envelope_payload={
+            "confidence_interval": [6.0, 8.0],
+            "forecast_profile": "constant_forecast",
+            "forecast_contract": profile,
+        },
+        include_producer=False,
+    )
+
+    result = orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
+
+    assert result["prediction_mode_effective"] == PredictionSource.NAIVE.value
+    assert result["degraded"] is True
+    assert "scientist_predictions_missing" in result["degraded_reasons"]
+
+
+def test_scientist_without_temporal_boundary_is_degraded(monkeypatch, tmp_path) -> None:
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+    plan = _scientist_plan(tmp_path, intervention_step=None, pre_intervention_periods=None)
+
+    def _unexpected_run(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
+        raise AssertionError("unbounded Scientist replay must not dispatch")
+
+    monkeypatch.setattr(orchestrator_module, "run_experiment", _unexpected_run)
+
+    result = orchestrator._predict_with_scientist(
+        plan,
+        {"metric": [1.0, 2.0, 900.0, 901.0]},
+    )
+
+    assert result["prediction_mode_effective"] == PredictionSource.NAIVE.value
+    assert result["degraded"] is True
+    assert "scientist_historical_cutoff_missing" in result["degraded_reasons"]
 
 
 def test_provided_predictions_do_not_dispatch_scientist(monkeypatch, tmp_path) -> None:

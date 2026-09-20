@@ -501,6 +501,12 @@ async def compile_and_run_recursive_generation_cycle(
             problem_ref=problem_ref,
             repo_root=repo_root,
         )
+    if cycle_substrate_context is None:
+        raise DesignProblemAuthorityError(
+            "cycle_substrate_context_not_established",
+            "The HTTP composition requires one owner-bound CycleSubstrateContext "
+            "before recursive execution.",
+        )
     if (
         cycle_substrate_context is not None
         and cycle_substrate_context.design_problem_ref != problem_ref

@@ -1377,21 +1377,53 @@ class JointSimulationPort:
                 )
             except (TypeError, ValueError, WorldModelRecordError) as exc:
                 code = str(getattr(exc, "code", None) or "joint_simulation_request_invalid")
+                blocked_world_model_record: WorldModelRecord | None = None
+                if self._cycle_substrate_context is not None:
+                    try:
+                        blocked_world_model_record = self._context_world_model_record(
+                            candidate=candidate,
+                            problem=problem,
+                        )
+                    except (TypeError, ValueError):
+                        blocked_world_model_record = None
+                blocked_diagnostics: dict[str, Any] = {
+                    "port": "N5",
+                    "reason": code,
+                    "world_model_source": (
+                        "cycle_substrate_context"
+                        if self._cycle_substrate_context is not None
+                        else "real_substrate_registry_boundary"
+                    ),
+                    "request_builder": "runtime_quality_joint_simulation_port",
+                    "request_builder_error": str(exc),
+                }
+                if blocked_world_model_record is not None:
+                    blocked_diagnostics.update(
+                        {
+                            "world_model_record_id": (
+                                blocked_world_model_record.world_model_record_id
+                            ),
+                            "world_model_record_content_hash": (
+                                blocked_world_model_record.content_hash
+                            ),
+                        }
+                    )
                 return SimulationPortObservation(
                     candidate_id=candidate_id,
                     status="simulation_blocked",
                     authority_blockers=(code,),
-                    diagnostics={
-                        "port": "N5",
-                        "reason": code,
-                        "world_model_source": (
-                            "cycle_substrate_context"
-                            if self._cycle_substrate_context is not None
-                            else "real_substrate_registry_boundary"
-                        ),
-                        "request_builder": "runtime_quality_joint_simulation_port",
-                        "request_builder_error": str(exc),
-                    },
+                    diagnostics=blocked_diagnostics,
+                    k_world_ref_before=(
+                        blocked_world_model_record.content_hash
+                        if blocked_world_model_record is not None
+                        else None
+                    ),
+                    k_world_ref_after=(
+                        blocked_world_model_record.content_hash
+                        if blocked_world_model_record is not None
+                        else None
+                    ),
+                    world_model_record=blocked_world_model_record,
                 )
         if request is None:
             world_record = None

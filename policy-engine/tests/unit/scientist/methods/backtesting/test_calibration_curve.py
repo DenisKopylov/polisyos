@@ -2,7 +2,23 @@
 
 from __future__ import annotations
 
-from polisyos.calibration import compute_calibration_curve
+import pytest
+
+from polisyos.calibration import (
+    CalibrationPoint,
+    CalibrationResult,
+    compute_calibration_curve,
+)
+from polisyos.calibration.curve import (
+    CalibrationPoint as CurveCalibrationPoint,
+    CalibrationResult as CurveCalibrationResult,
+    compute_calibration_curve as curve_compute_calibration_curve,
+)
+from polisyos.scientist.methods.backtesting.calibration_curve import (
+    CalibrationPoint as ScientistCalibrationPoint,
+    CalibrationResult as ScientistCalibrationResult,
+    compute_calibration_curve as scientist_compute_calibration_curve,
+)
 
 
 class TestCalibrationCurve:
@@ -41,5 +57,57 @@ class TestCalibrationCurve:
 
     def test_empty_intervals(self):
         result = compute_calibration_curve([1.0, 2.0], [], levels=[])
-        assert result.ece == 0.0
+        assert result.points == []
+        assert result.ece is None
+        assert result.max_ce is None
+        assert result.is_well_calibrated is False
+        assert result.evaluation_status == "not_evaluated"
+        assert result.n_comparisons == 0
+
+    def test_ninety_five_of_one_hundred_observations_are_covered(self):
+        y_true = [float(index) for index in range(100)]
+        intervals = [
+            (value - 0.1, value + 0.1) for value in y_true[:95]
+        ] + [(-1000.0, -999.0)] * 5
+
+        result = compute_calibration_curve(y_true, [intervals], levels=[0.95])
+
+        assert result.evaluation_status == "evaluated"
+        assert result.n_comparisons == 1
+        assert result.points[0].empirical_coverage == pytest.approx(0.95)
+        assert result.ece == pytest.approx(0.0)
         assert result.is_well_calibrated is True
+
+    def test_zero_coverage_is_measured_as_miscalibration(self):
+        y_true = [1.0, 2.0, 3.0]
+        intervals = [(-100.0, -99.0)] * len(y_true)
+
+        result = compute_calibration_curve(y_true, [intervals], levels=[0.95])
+
+        assert result.evaluation_status == "evaluated"
+        assert result.n_comparisons == 1
+        assert result.points[0].empirical_coverage == 0.0
+        assert result.ece == pytest.approx(0.95)
+        assert result.is_well_calibrated is False
+
+    def test_mismatched_levels_and_intervals_are_not_silently_truncated(self):
+        with pytest.raises(ValueError, match="levels and interval sets"):
+            compute_calibration_curve(
+                [1.0, 2.0],
+                [[(0.0, 3.0), (0.0, 3.0)]],
+                levels=[0.5, 0.95],
+            )
+
+    def test_misaligned_interval_observations_are_not_silently_skipped(self):
+        with pytest.raises(ValueError, match="interval set must align"):
+            compute_calibration_curve(
+                [1.0, 2.0],
+                [[(0.0, 3.0)]],
+                levels=[0.5],
+            )
+
+    def test_canonical_and_compatibility_exports_preserve_identity(self):
+        assert CalibrationPoint is CurveCalibrationPoint is ScientistCalibrationPoint
+        assert CalibrationResult is CurveCalibrationResult is ScientistCalibrationResult
+        assert compute_calibration_curve is curve_compute_calibration_curve
+        assert compute_calibration_curve is scientist_compute_calibration_curve

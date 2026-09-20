@@ -81,7 +81,7 @@ def test_adapter_exposes_raw_directional_score_not_negated_search_score(
     iteration = SearchIteration(
         iteration=0,
         candidate={"x": 0.5, "semantic": {"interventions": []}},
-        objective_value=5.0,
+        objective_value=-5.0,
         objective_details=[
             ObjectiveValue(
                 name="utility",

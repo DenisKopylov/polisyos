@@ -16,6 +16,10 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveValue,
     OptimizationDirection,
 )
+from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import ParameterBounds, PolicyCandidate
 from polisyos.scientist.methods.search.sentinels import (
     SentinelCandidate,
     SentinelKind,
@@ -114,11 +118,37 @@ class DirectionalScalarObjective:
         return [self.evaluate(results)]
 
 
-class SequenceCandidateGenerator:
-    """Deterministic candidate generator proving the adaptive SEARCH_LOOP path."""
+class RecordingStrategy(RandomSearchStrategy):
+    """Deterministic strategy that retains adapter-visible updates and suggestions."""
 
-    def __init__(self) -> None:
-        self.calls = 0
+    def __init__(self, space: SearchSpace) -> None:
+        super().__init__(space=space, seed=23)
+        self.seen_updates: list[Any] = []
+        self.seen_suggestions: list[list[Any]] = []
+
+    def suggest(
+        self,
+        evaluations: list[Any],
+        pending: list[PolicyCandidate] | None = None,
+    ) -> PolicyCandidate:
+        del pending
+        self.seen_suggestions.append(list(evaluations))
+        return PolicyCandidate(
+            params={"p0": float(len(evaluations) + 1)},
+            source_strategy="recording",
+        )
+
+    def update(self, evaluation: Any) -> None:
+        self.seen_updates.append(evaluation)
+
+
+class RecordingStrategyAdapter(StrategyAdapter):
+    """Capture the bridge inputs while retaining the real StrategyAdapter path."""
+
+    def __init__(self, strategy: RecordingStrategy, space: SearchSpace) -> None:
+        super().__init__(strategy=strategy, space=space)
+        self.seen_histories: list[list[Any]] = []
+        self.seen_current_bests: list[dict[str, Any] | None] = []
 
     def generate(
         self,
@@ -126,9 +156,9 @@ class SequenceCandidateGenerator:
         current_best: dict[str, Any] | None,
         context: dict[str, Any],
     ) -> dict[str, Any]:
-        del history, current_best, context
-        self.calls += 1
-        return {"p0": float(self.calls)}
+        self.seen_histories.append(list(history))
+        self.seen_current_bests.append(current_best)
+        return super().generate(history, current_best, context)
 
 
 def _run_scalar_stress(*, values: tuple[float, ...], collect_top_k: int):
@@ -169,13 +199,15 @@ def _run_adaptive_scalar_stress(
     plan = AdversarialPlan(
         parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
         strategy=AdversarialStrategy.SEARCH_LOOP,
-        max_iterations=33,
+        max_iterations=len(values),
         vulnerability_threshold=0.0,
         stop_on_first_vulnerability=stop_on_first_vulnerability,
         collect_top_k=10,
     )
     outcomes = iter(values)
-    generator = SequenceCandidateGenerator()
+    space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+    strategy = RecordingStrategy(space)
+    adapter = RecordingStrategyAdapter(strategy, space)
 
     def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         del candidate, context
@@ -185,10 +217,10 @@ def _run_adaptive_scalar_stress(
         adversarial_plan=plan,
         base_objective=DirectionalScalarObjective(direction),
         stage_b_evaluator=stage_b,
-        candidate_generator=generator,
+        candidate_generator=adapter,
         context={},
     )
-    return report, generator
+    return report, adapter, strategy
 
 
 def test_negated_objective_inverts_sign() -> None:
@@ -255,44 +287,55 @@ def test_run_stress_test_lower_tail_selects_negative_worst_case() -> None:
 
 
 def test_run_stress_test_search_loop_tracks_lower_tail_through_adaptive_step() -> None:
-    values = (10.0, -5.0, *([10.0] * 30), -7.0)
+    values = (*([10.0] * 32), 8.0, -5.0)
 
-    report, generator = _run_adaptive_scalar_stress(
+    report, adapter, strategy = _run_adaptive_scalar_stress(
         values=values,
         direction=OptimizationDirection.MAXIMIZE,
         stop_on_first_vulnerability=False,
     )
 
-    assert report.total_scenarios_evaluated == 33
-    assert generator.calls == 1
-    assert report.worst_case_objective == -7.0
-    assert [item.objective_value for item in report.vulnerabilities] == [-5.0, -7.0]
+    assert report.total_scenarios_evaluated == 34
+    assert len(adapter.seen_histories) == 2
+    assert [len(history) for history in adapter.seen_histories] == [0, 1]
+    assert adapter.seen_current_bests[0] is None
+    assert adapter.seen_current_bests[1] is not None
+    assert adapter.seen_current_bests[1]["p0"] == 1.0
+    assert len(strategy.seen_updates) == 1
+    assert strategy.seen_updates[0].scalar_score == 8.0
+    assert adapter.seen_histories[1][0].objective_value == 8.0
+    assert adapter.seen_histories[1][0].objective_details[0].raw_value == 8.0
+    assert report.worst_case_objective == -5.0
+    assert [item.objective_value for item in report.vulnerabilities] == [-5.0]
 
 
 def test_run_stress_test_search_loop_stops_on_first_lower_tail_vulnerability() -> None:
-    report, generator = _run_adaptive_scalar_stress(
-        values=(10.0, -5.0),
+    report, adapter, _strategy = _run_adaptive_scalar_stress(
+        values=(*([10.0] * 32), -5.0),
         direction=OptimizationDirection.MAXIMIZE,
         stop_on_first_vulnerability=True,
     )
 
-    assert report.total_scenarios_evaluated == 2
-    assert generator.calls == 0
+    assert report.total_scenarios_evaluated == 33
+    assert len(adapter.seen_histories) == 1
+    assert len(adapter.seen_histories[0]) == 0
+    assert adapter.seen_current_bests == [None]
     assert report.worst_case_objective == -5.0
     assert [item.objective_value for item in report.vulnerabilities] == [-5.0]
 
 
 def test_run_stress_test_search_loop_reverses_order_for_minimize_cost() -> None:
-    values = (10.0, *([-5.0] * 32))
+    values = (*([-5.0] * 32), -4.0, 10.0)
 
-    report, generator = _run_adaptive_scalar_stress(
+    report, adapter, _strategy = _run_adaptive_scalar_stress(
         values=values,
         direction=OptimizationDirection.MINIMIZE,
-        stop_on_first_vulnerability=False,
+        stop_on_first_vulnerability=True,
     )
 
-    assert report.total_scenarios_evaluated == 33
-    assert generator.calls == 1
+    assert report.total_scenarios_evaluated == 34
+    assert len(adapter.seen_histories) == 2
+    assert [len(history) for history in adapter.seen_histories] == [0, 1]
     assert report.worst_case_objective == 10.0
     assert [item.objective_value for item in report.vulnerabilities] == [10.0]
 

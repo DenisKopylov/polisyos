@@ -164,6 +164,7 @@ class ConvergenceDetector:
         self._history: list[float] = []
         self._iteration = 0
         self._text_embeddings: list[list[float]] = []
+        self._text_embedding_iterations: list[int] = []
         self._validate_budget_configuration()
 
     @property
@@ -193,6 +194,7 @@ class ConvergenceDetector:
             try:
                 emb = self._embedder.embed([text])[0]
                 self._text_embeddings.append(emb)
+                self._text_embedding_iterations.append(self._iteration + 1)
             except (AttributeError, IndexError, RuntimeError, TypeError, ValueError) as exc:
                 emit_degraded_path(
                     component="engine.convergence",
@@ -209,6 +211,7 @@ class ConvergenceDetector:
         """Reset detector state for reuse."""
         self._history.clear()
         self._text_embeddings.clear()
+        self._text_embedding_iterations.clear()
         self._iteration = 0
 
     def _validate_budget_configuration(self) -> None:
@@ -337,13 +340,22 @@ class ConvergenceDetector:
 
     def _check_embedding_cosine(self) -> bool:
         """Converged when consecutive text embeddings have high similarity."""
-        if len(self._text_embeddings) < 2:
+        if not self._has_current_embedding_pair():
             return False
         sim = _cosine_similarity(
             self._text_embeddings[-1],
             self._text_embeddings[-2],
         )
         return sim >= self._config.threshold
+
+    def _has_current_embedding_pair(self) -> bool:
+        """Return whether the last two embeddings belong to adjacent iterations."""
+        if len(self._text_embeddings) < 2 or len(self._text_embedding_iterations) < 2:
+            return False
+        return (
+            self._text_embedding_iterations[-1] == self._iteration
+            and self._text_embedding_iterations[-2] == self._iteration - 1
+        )
 
     def _check_statistical_plateau(self) -> bool:
         """Converged when the coefficient of variation in the window is small.
@@ -411,7 +423,7 @@ class ConvergenceDetector:
 
         # Semantic signal
         semantic_signal = 0.0
-        if len(self._text_embeddings) >= 2:
+        if self._has_current_embedding_pair():
             semantic_signal = max(
                 0.0,
                 _cosine_similarity(

@@ -149,11 +149,15 @@ class ImprovementPlateau(StoppingCriterion):
 
         best_recent = min(recent_values)
         best_historical = min(historical_values)
+        signed_improvement = best_historical - best_recent
 
         if abs(best_historical) < 1e-10:
-            improvement = 0.0 if abs(best_recent) < 1e-10 else float("inf")
+            # A zero baseline has no meaningful relative denominator.  Keep
+            # the signed gain in the objective's absolute scale so a positive
+            # loss remains a regression instead of becoming infinite progress.
+            improvement = signed_improvement
         else:
-            improvement = (best_historical - best_recent) / abs(best_historical)
+            improvement = signed_improvement / abs(best_historical)
 
         if improvement < self._min_improvement:
             return StoppingCondition(

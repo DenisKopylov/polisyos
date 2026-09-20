@@ -277,6 +277,7 @@ class ConflictResolver:
         numeric_values: list[float] = []
         numeric_candidates: list[ConflictCandidate] = []
         skipped_non_finite = 0
+        skipped_non_numeric = 0
 
         for candidate in candidates:
             try:
@@ -287,11 +288,17 @@ class ConflictResolver:
                 else:
                     skipped_non_finite += 1
             except (TypeError, ValueError):
-                continue
+                skipped_non_numeric += 1
 
-        if skipped_non_finite and context.request.strict_conflicts:
+        if (skipped_non_finite or skipped_non_numeric) and context.request.strict_conflicts:
+            reasons = []
+            if skipped_non_finite:
+                reasons.append("non-finite")
+            if skipped_non_numeric:
+                reasons.append("non-numeric")
             raise ConflictResolutionError(
-                f"MEDIAN policy cannot resolve non-finite data for column {context.column}"
+                "MEDIAN policy cannot resolve "
+                f"{', '.join(reasons)} data for column {context.column}"
             )
 
         if not numeric_values:
@@ -305,11 +312,13 @@ class ConflictResolver:
             )
             return self._resolve_by_trust(candidates, context)
 
-        if skipped_non_finite:
+        if skipped_non_finite or skipped_non_numeric:
             logger.warning(
-                "MEDIAN policy ignored non-finite candidates",
+                "MEDIAN policy ignored invalid candidates",
                 column=context.column,
-                skipped=skipped_non_finite,
+                skipped=skipped_non_finite + skipped_non_numeric,
+                non_finite=skipped_non_finite,
+                non_numeric=skipped_non_numeric,
             )
 
         median_value = float(np.median(numeric_values))

@@ -100,6 +100,19 @@ class CompositionRequest:
     max_primary_sources: int | None = None
     max_fallback_sources: int = 2
 
+    # JOIN safety controls.  These fields are appended after the historical
+    # positional request surface so existing callers retain their signature.
+    # ``many_to_one`` is the safe enrichment default; a many-to-many expansion
+    # is never inferred from duplicate input keys.
+    join_validate: Literal["one_to_one", "one_to_many", "many_to_one", "many_to_many"] | None = (
+        "many_to_one"
+    )
+    # Unknown identifiers do not match by default.  Matching missing keys is
+    # an explicit contract because pandas otherwise treats nulls as equal.
+    join_nulls_match: bool = False
+    # Optional pre-materialization resource admission for a JOIN result.
+    join_max_rows: int | None = None
+
 
 @dataclass(frozen=True)
 class CoverageProfile:

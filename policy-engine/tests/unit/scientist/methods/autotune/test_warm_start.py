@@ -4,23 +4,44 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+from polisyos.scientist.methods.autotune.models import BenchmarkSplit
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.methods.search.strategies.transfer import RunFingerprint
+from polisyos.scientist.methods.search.strategies.transfer import (
+    RunFingerprint,
+    TransferLearningManager,
+)
 from polisyos.scientist.methods.search.strategies.types import Evaluation, EvaluationStatus
 
 
-def _make_eval(candidate_id: str, score: float, run_id: str = "") -> Evaluation:
+def _artifact_id(letter: str) -> str:
+    return f"sha256:{letter * 64}"
+
+
+def _make_eval(
+    candidate_id: str,
+    score: float,
+    run_id: str = "",
+    *,
+    raw_score: float | None = None,
+    direction: OptimizationDirection = OptimizationDirection.MINIMIZE,
+    provenance_ref: str | None = None,
+) -> Evaluation:
     return Evaluation(
         candidate_id=candidate_id,
         params={"x": 0.5},
         params_normalized=(0.5,),
         objectives=[
-            ObjectiveValue(name="score", raw_value=score, direction=OptimizationDirection.MINIMIZE)
+            ObjectiveValue(
+                name="score",
+                raw_value=score if raw_score is None else raw_score,
+                direction=direction,
+            )
         ],
         scalar_score=score,
         stage_a_passed=True,
         status=EvaluationStatus.SUCCESS,
+        provenance_ref=provenance_ref,
         metadata={"source_run_id": run_id},
     )
 
@@ -32,6 +53,38 @@ def _fingerprint(run_id: str = "new_run") -> RunFingerprint:
         objective_names=["score"],
         embedding=[0.1, 0.2, 0.3],
     )
+
+
+def _stored_eval(
+    candidate_id: str,
+    score: float,
+    run_id: str,
+    *,
+    provenance_ref: str | None = None,
+) -> dict[str, object]:
+    return {
+        "candidate_id": candidate_id,
+        "params": {"x": 0.5},
+        "params_normalized": [0.5],
+        "scalar_score": score,
+        "stage_a_passed": True,
+        "status": EvaluationStatus.SUCCESS.value,
+        "objectives": [
+            {
+                "name": "score",
+                "raw_value": score,
+                "direction": OptimizationDirection.MINIMIZE.value,
+            }
+        ],
+        "provenance_ref": provenance_ref or _artifact_id("p"),
+        "metadata": {"source_run_id": run_id},
+    }
+
+
+def _manager_with_cache(rows_by_run: dict[str, list[dict[str, object]]]) -> TransferLearningManager:
+    manager = object.__new__(TransferLearningManager)
+    manager._eval_cache = rows_by_run
+    return manager
 
 
 class TestWarmStartBridge:
@@ -69,13 +122,171 @@ class TestWarmStartBridge:
         assert len(evals) == 1
 
     def test_evaluations_to_benchmarks(self):
-        evals = [_make_eval("c1", 0.8, "run1")]
+        candidate_id = _artifact_id("c")
+        provenance_ref = _artifact_id("e")
+        evals = [_make_eval(candidate_id, 0.8, "run1", provenance_ref=provenance_ref)]
         benchmarks = WarmStartBridge.evaluations_to_benchmarks(
             evals,
             loop_id="loop1",
             primary_metric="score",
         )
         assert len(benchmarks) == 1
-        assert benchmarks[0].loop_id == "loop1"
-        assert benchmarks[0].holdout_metrics["score"] == 0.8
-        assert benchmarks[0].status == "warm_start"
+        benchmark = benchmarks[0]
+        assert benchmark.loop_id == "loop1"
+        assert str(benchmark.candidate_ref.artifact_id) == candidate_id
+        assert benchmark.selection_metrics == {"score": 0.8}
+        assert benchmark.holdout_metrics == {}
+        assert benchmark.runtime_split_type is BenchmarkSplit.SELECTION
+        assert benchmark.promotable is False
+        assert benchmark.status == "warm_start_limited"
+        assert benchmark.metadata["params"] == {"x": 0.5}
+        assert benchmark.metadata["source_candidate_id"] == candidate_id
+        assert benchmark.metadata["provenance_ref"] == provenance_ref
+
+    def test_evaluations_to_benchmarks_preserves_raw_maximize_value(self):
+        candidate_id = _artifact_id("m")
+        evaluation = _make_eval(
+            candidate_id,
+            -0.8,
+            "run1",
+            raw_score=0.8,
+            direction=OptimizationDirection.MAXIMIZE,
+        )
+
+        benchmark = WarmStartBridge.evaluations_to_benchmarks(
+            [evaluation],
+            loop_id="loop1",
+            primary_metric="score",
+        )[0]
+
+        assert benchmark.selection_metrics == {"score": 0.8}
+        assert benchmark.metadata["direction"] == OptimizationDirection.MAXIMIZE.value
+
+
+class TestTransferLearningManagerWarmStart:
+    def test_rehydrates_native_objective_and_provenance(self):
+        candidate_id = _artifact_id("a")
+        provenance_ref = _artifact_id("b")
+        manager = _manager_with_cache(
+            {
+                "old1": [
+                    _stored_eval(
+                        candidate_id,
+                        0.8,
+                        "old1",
+                        provenance_ref=provenance_ref,
+                    )
+                ]
+            }
+        )
+
+        evaluations = manager.get_warm_start_evaluations(
+            [RunFingerprint(run_id="old1", space_hash="x", objective_names=["score"])],
+            max_evals=1,
+        )
+
+        assert len(evaluations) == 1
+        evaluation = evaluations[0]
+        assert evaluation.candidate_id == candidate_id
+        assert evaluation.provenance_ref == provenance_ref
+        assert evaluation.metadata["source_run_id"] == "old1"
+        assert evaluation.objectives[0].name == "score"
+        assert evaluation.objectives[0].raw_value == 0.8
+        assert evaluation.objectives[0].direction is OptimizationDirection.MINIMIZE
+
+    def test_selects_lowest_normalized_score_first(self):
+        lower_id = _artifact_id("l")
+        higher_id = _artifact_id("h")
+        manager = _manager_with_cache(
+            {
+                "old1": [
+                    _stored_eval(higher_id, 9.0, "old1"),
+                    _stored_eval(lower_id, 1.0, "old1"),
+                ]
+            }
+        )
+
+        evaluations = manager.get_warm_start_evaluations(
+            [RunFingerprint(run_id="old1", space_hash="x", objective_names=["score"])],
+            max_evals=1,
+        )
+
+        assert [evaluation.candidate_id for evaluation in evaluations] == [lower_id]
+
+    def test_redistributes_unused_per_run_quota(self):
+        first_id = _artifact_id("1")
+        second_id = _artifact_id("2")
+        third_id = _artifact_id("3")
+        fourth_id = _artifact_id("4")
+        manager = _manager_with_cache(
+            {
+                "short": [_stored_eval(first_id, 1.0, "short")],
+                "long": [
+                    _stored_eval(second_id, 2.0, "long"),
+                    _stored_eval(third_id, 3.0, "long"),
+                    _stored_eval(fourth_id, 4.0, "long"),
+                ],
+            }
+        )
+
+        evaluations = manager.get_warm_start_evaluations(
+            [
+                RunFingerprint(run_id="short", space_hash="x", objective_names=["score"]),
+                RunFingerprint(run_id="long", space_hash="x", objective_names=["score"]),
+            ],
+            max_evals=4,
+        )
+
+        assert len(evaluations) == 4
+        assert {evaluation.candidate_id for evaluation in evaluations} == {
+            first_id,
+            second_id,
+            third_id,
+            fourth_id,
+        }
+
+    def test_malformed_row_is_reported_instead_of_silently_dropped(self):
+        candidate_id = _artifact_id("r")
+        malformed = _stored_eval(candidate_id, 0.8, "old1")
+        malformed["objectives"] = [{"name": "score", "raw_value": 0.8}]
+        manager = _manager_with_cache({"old1": [malformed]})
+
+        evaluations = manager.get_warm_start_evaluations(
+            [RunFingerprint(run_id="old1", space_hash="x", objective_names=["score"])],
+            max_evals=1,
+        )
+
+        assert len(evaluations) == 1
+        assert evaluations[0].is_valid is False
+        assert evaluations[0].metadata["transfer_status"] == "rejected"
+        assert evaluations[0].metadata["source_candidate_id"] == candidate_id
+
+    def test_similar_objectives_do_not_override_space_binding(self):
+        manager = object.__new__(TransferLearningManager)
+
+        class Index:
+            dim = 1
+
+            def query(self, embedding, top_k):
+                del embedding, top_k
+                return [
+                    (
+                        "old1",
+                        0.01,
+                        {
+                            "space_hash": "old-bounds",
+                            "objective_names": ["score"],
+                            "best_score": 0.1,
+                        },
+                    )
+                ]
+
+        manager._index = Index()
+        target = RunFingerprint(
+            run_id="new1",
+            space_hash="new-bounds",
+            objective_names=["score"],
+            embedding=[0.1],
+        )
+
+        assert manager.find_similar_runs(target) == []

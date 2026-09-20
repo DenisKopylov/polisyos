@@ -504,8 +504,12 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
     if compiled.cycle_substrate_context_ref is None:
         leaf = compiled.recursive_run.leaf_nodes[0]
         assert leaf.cycle_run is not None
-        assert leaf.cycle_run.simulation.status == "simulation_blocked"
-        assert leaf.cycle_run.value_port.status == "value_blocked"
+        assert leaf.cycle_run.cycles
+        cycle = leaf.cycle_run.cycles[0]
+        assert cycle.simulation.status == "simulation_blocked"
+        assert cycle.simulation.simulation_ref is None
+        assert cycle.value_port.status == "value_blocked"
+        assert cycle.value_port.value_ref is None
 
 
 @pytest.mark.asyncio

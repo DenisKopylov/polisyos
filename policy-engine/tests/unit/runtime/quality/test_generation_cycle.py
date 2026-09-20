@@ -3799,6 +3799,7 @@ def test_phase5_value_port_configuration_preserves_manifest_omission() -> None:
         )
 
 
+@_requires_owner_catalog
 def test_default_value_port_binds_the_actual_n5_context(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

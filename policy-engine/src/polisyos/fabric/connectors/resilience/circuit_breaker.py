@@ -128,6 +128,8 @@ class CircuitAttemptLease:
     circuit_id: str
     state: CircuitState
     token: str | None = None
+    generation: int | None = None
+    lease_id: str | None = None
 
     @property
     def owns_half_open_slot(self) -> bool:
@@ -158,6 +160,11 @@ class CircuitBreaker:
         self._opened_at: datetime | None = None
         self._opened_at_monotonic: float | None = None
         self._half_open_leases: set[str] = set()
+        self._active_attempts: set[str] = set()
+        self._generation = 0
+        self._finalized_lease_ids: set[str] = set()
+        self._finalized_lease_order: deque[str] = deque()
+        self._finalized_lease_limit = max(self.config.half_open_max_calls * 2, 16)
         self._last_failure_at: datetime | None = None
 
         # Sliding window (monotonic timestamps)
@@ -265,6 +272,7 @@ class CircuitBreaker:
                 "circuit.to_state": CircuitState.HALF_OPEN.value,
             },
         ):
+            self._generation += 1
             self._state = CircuitState.HALF_OPEN
             self._success_count = 0
             self._half_open_leases.clear()
@@ -286,6 +294,7 @@ class CircuitBreaker:
                 "circuit.to_state": CircuitState.OPEN.value,
             },
         ):
+            self._generation += 1
             self._state = CircuitState.OPEN
             self._success_count = 0
             self._opened_at = _utc_now()
@@ -310,6 +319,7 @@ class CircuitBreaker:
                 "circuit.to_state": CircuitState.CLOSED.value,
             },
         ):
+            self._generation += 1
             self._state = CircuitState.CLOSED
             self._success_count = 0
             self._opened_at = None
@@ -329,11 +339,71 @@ class CircuitBreaker:
             return None
         token = uuid4().hex
         self._half_open_leases.add(token)
+        self._active_attempts.add(token)
         return CircuitAttemptLease(
             circuit_id=self.circuit_id,
             state=CircuitState.HALF_OPEN,
             token=token,
+            generation=self._generation,
+            lease_id=token,
         )
+
+    def _lease_is_stale(self, lease: CircuitAttemptLease | None) -> bool:
+        if lease is None or lease.generation is None:
+            return False
+        return lease.circuit_id != self.circuit_id or lease.generation != self._generation
+
+    def _lease_key(self, lease: CircuitAttemptLease | None) -> str | None:
+        if lease is None:
+            return None
+        return lease.lease_id or lease.token
+
+    def _remember_finalized_lease(self, lease_id: str) -> None:
+        if lease_id in self._finalized_lease_ids:
+            return
+        self._finalized_lease_ids.add(lease_id)
+        self._finalized_lease_order.append(lease_id)
+        while len(self._finalized_lease_order) > self._finalized_lease_limit:
+            retired = self._finalized_lease_order.popleft()
+            self._finalized_lease_ids.discard(retired)
+
+    def _retire_lease_locked(
+        self,
+        lease: CircuitAttemptLease | None,
+        *,
+        finalized: bool,
+    ) -> None:
+        lease_id = self._lease_key(lease)
+        if lease_id is None:
+            return
+        self._active_attempts.discard(lease_id)
+        if finalized:
+            self._remember_finalized_lease(lease_id)
+
+    def _was_finalized(self, lease: CircuitAttemptLease | None) -> bool:
+        lease_id = self._lease_key(lease)
+        return lease_id is not None and lease_id in self._finalized_lease_ids
+
+    def _validate_lease_locked(self, lease: CircuitAttemptLease | None) -> None:
+        if lease is None:
+            return
+        if lease.circuit_id != self.circuit_id:
+            raise CircuitLeaseError(
+                f"Circuit '{self.circuit_id}' received a lease for '{lease.circuit_id}'"
+            )
+        lease_id = self._lease_key(lease)
+        if lease.generation is None or lease_id is None:
+            raise CircuitLeaseError(
+                f"Circuit '{self.circuit_id}' requires an issued lease identity"
+            )
+        if self._was_finalized(lease):
+            raise CircuitLeaseError(
+                f"Circuit '{self.circuit_id}' lease '{lease_id}' was finalized twice"
+            )
+        if lease_id not in self._active_attempts:
+            raise CircuitLeaseError(
+                f"Circuit '{self.circuit_id}' lease '{lease_id}' is not owned"
+            )
 
     def _release_half_open_lease_locked(self, lease: CircuitAttemptLease | None) -> None:
         if lease is None or not lease.owns_half_open_slot or lease.token is None:
@@ -345,13 +415,16 @@ class CircuitBreaker:
                 f"Circuit '{self.circuit_id}' half-open lease '{lease.token}' is not owned"
             )
         self._half_open_leases.remove(lease.token)
+        self._retire_lease_locked(lease, finalized=True)
 
     def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
-        if lease is None or not lease.owns_half_open_slot or lease.token is None:
+        if lease is None:
             return
         with self._lock:
-            if lease.token in self._half_open_leases:
-                self._half_open_leases.remove(lease.token)
+            self._validate_lease_locked(lease)
+            if lease.token is not None:
+                self._half_open_leases.discard(lease.token)
+            self._retire_lease_locked(lease, finalized=True)
 
     def acquire_attempt(self) -> CircuitAttemptLease | None:
         """Acquire an execution-boundary attempt lease if the circuit allows it."""
@@ -364,14 +437,36 @@ class CircuitBreaker:
             if self._state == CircuitState.HALF_OPEN:
                 return self._acquire_half_open_lease_locked()
 
+            lease_id = uuid4().hex
+            self._active_attempts.add(lease_id)
             return CircuitAttemptLease(
                 circuit_id=self.circuit_id,
                 state=CircuitState.CLOSED,
+                generation=self._generation,
+                lease_id=lease_id,
+            )
+
+    def is_quiescent(self) -> bool:
+        """Return whether eviction can no longer change admission semantics."""
+        with self._lock:
+            self._check_timeout()
+            now = _monotonic()
+            self._evict_old(now)
+            return (
+                self._state == CircuitState.CLOSED
+                and not self._half_open_leases
+                and not self._active_attempts
+                and not self._failure_timestamps
+                and not self._call_timestamps
             )
 
     def record_success(self, lease: CircuitAttemptLease | None = None) -> None:
         """Record a successful operation."""
         with self._lock:
+            self._validate_lease_locked(lease)
+            if self._lease_is_stale(lease):
+                self._retire_lease_locked(lease, finalized=True)
+                return
             now = _monotonic()
             self._record_call(now)
 
@@ -388,10 +483,16 @@ class CircuitBreaker:
 
                 if self._success_count >= self.config.success_threshold:
                     self._transition_to_closed()
+            elif self._state == CircuitState.CLOSED:
+                self._retire_lease_locked(lease, finalized=True)
 
     def record_failure(self, lease: CircuitAttemptLease | None = None) -> None:
         """Record a failed operation."""
         with self._lock:
+            self._validate_lease_locked(lease)
+            if self._lease_is_stale(lease):
+                self._retire_lease_locked(lease, finalized=True)
+                return
             now = _monotonic()
             self._record_call(now)
             self._last_failure_at = _utc_now()
@@ -402,6 +503,7 @@ class CircuitBreaker:
                 return
 
             if self._state == CircuitState.CLOSED:
+                self._retire_lease_locked(lease, finalized=True)
                 self._failure_timestamps.append(now)
                 self._evict_old(now)
 
@@ -462,10 +564,6 @@ class CircuitBreaker:
         ) as span:
             try:
                 result = await func(*args, **kwargs)
-                self.record_success(lease)
-                span.set_status(Status(StatusCode.OK))
-                return result
-
             except asyncio.CancelledError:
                 # Do not count cancellations as failures
                 self._release_cancelled_lease(lease)
@@ -473,10 +571,22 @@ class CircuitBreaker:
                 raise
 
             except Exception as error:
-                self.record_failure(lease)
+                try:
+                    self.record_failure(lease)
+                except CircuitLeaseError as bookkeeping_error:
+                    raise error from bookkeeping_error
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 span.record_exception(error)
                 raise
+
+            try:
+                self.record_success(lease)
+            except CircuitLeaseError as bookkeeping_error:
+                span.set_status(Status(StatusCode.ERROR, str(bookkeeping_error)))
+                span.record_exception(bookkeeping_error)
+                raise
+            span.set_status(Status(StatusCode.OK))
+            return result
 
     def get_stats(self) -> dict[str, Any]:
         """Get current circuit statistics."""

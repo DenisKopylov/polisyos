@@ -15,6 +15,7 @@ import numpy as np
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store, ensure_ir_artifact_store
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -22,6 +23,8 @@ from polisyos.ir.analytics.backtest import (
     SystematicBias,
     persist_backtest_report,
 )
+from polisyos.ir.artifacts import InputRef, put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.scientist import run_experiment
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.masking import OutcomeMasker
@@ -220,7 +223,14 @@ class BacktestOrchestrator:
         params = dict(state_payload.get("params", {}))
         if plan.random_seed is not None:
             params["random_seed"] = plan.random_seed
+        params["n_simulation_runs"] = plan.n_simulation_runs
         state_payload["params"] = params
+        inputs = state_payload.get("inputs", {})
+        if not isinstance(inputs, dict):
+            raise ValueError("scientist_state.inputs must be an object when provided")
+        inputs = dict(inputs)
+        inputs["data_snapshot_ref"] = self._persist_masked_view(plan, masked_data)
+        state_payload["inputs"] = inputs
 
         result = run_experiment(state_payload)
         artifacts = result.get("artifacts_index", {}) if isinstance(result, dict) else {}
@@ -242,18 +252,38 @@ class BacktestOrchestrator:
                 metrics_payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
                 values = metrics_payload.get("values", metrics_payload)
                 if isinstance(values, dict):
+                    constant_profile = self._is_constant_forecast(metrics_payload)
                     for metric in plan.target_metrics:
                         raw = values.get(metric)
                         horizon = len(plan.ground_truth_outcomes.get(metric, []))
                         if isinstance(raw, list):
-                            predictions[metric] = [float(item) for item in raw[:horizon]]
-                        elif isinstance(raw, (int, float)):
+                            if len(raw) != horizon:
+                                warnings.append(
+                                    f"scientist trajectory for '{metric}' has length "
+                                    f"{len(raw)}; expected {horizon}"
+                                )
+                                continue
+                            try:
+                                predictions[metric] = [float(item) for item in raw]
+                            except (TypeError, ValueError):
+                                warnings.append(
+                                    f"scientist trajectory for '{metric}' is not numeric"
+                                )
+                        elif (
+                            isinstance(raw, (int, float))
+                            and not isinstance(raw, bool)
+                            and constant_profile
+                        ):
                             predictions[metric] = [float(raw)] * horizon
+                        elif isinstance(raw, (int, float)) and not isinstance(raw, bool):
+                            warnings.append(
+                                f"scientist scalar for '{metric}' lacks constant_forecast profile"
+                            )
             except Exception as exc:
                 warnings.append(f"failed to parse scientist metrics output: {exc}")
 
         intervals = self._extract_intervals_from_simulation_result(artifacts, plan)
-        if not predictions:
+        if set(predictions) != set(plan.target_metrics):
             reason = "scientist_predictions_missing"
             warnings.append("scientist predictions missing; using naive fallback")
             naive = self._predict_with_naive(plan, masked_data)
@@ -297,17 +327,97 @@ class BacktestOrchestrator:
             try:
                 env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
                 env_payload = from_canonical_bytes(self._store.get_bytes(env_id))
-                ci = env_payload.get("confidence_interval")
-                if isinstance(ci, (list, tuple)) and len(ci) == 2:
-                    lo = float(ci[0])
-                    hi = float(ci[1])
-                    if lo > hi:
-                        lo, hi = hi, lo
-                    horizon = len(plan.ground_truth_outcomes.get(metric, []))
-                    intervals[metric] = [(lo, hi)] * horizon
+                horizon = len(plan.ground_truth_outcomes.get(metric, []))
+                ci = env_payload.get("confidence_intervals", env_payload.get("confidence_interval"))
+                if isinstance(ci, (list, tuple)) and ci and isinstance(ci[0], (list, tuple)):
+                    if len(ci) != horizon:
+                        continue
+                    parsed = [self._parse_interval(item) for item in ci]
+                    if all(item is not None for item in parsed):
+                        intervals[metric] = cast(
+                            "list[tuple[float, float]]",
+                            parsed,
+                        )
+                elif isinstance(ci, (list, tuple)) and len(ci) == 2:
+                    if not self._is_constant_forecast(env_payload) and horizon != 1:
+                        continue
+                    parsed_interval = self._parse_interval(ci)
+                    if parsed_interval is not None:
+                        intervals[metric] = [parsed_interval] * horizon
             except (TypeError, ValueError, KeyError):
                 continue
         return intervals
+
+    @staticmethod
+    def _is_constant_forecast(payload: Any) -> bool:
+        """Return whether a producer explicitly declares a constant trajectory."""
+        return isinstance(payload, dict) and payload.get("forecast_profile") == "constant_forecast"
+
+    @staticmethod
+    def _parse_interval(value: Any) -> tuple[float, float] | None:
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            return None
+        if isinstance(value[0], bool) or isinstance(value[1], bool):
+            return None
+        try:
+            lo = float(value[0])
+            hi = float(value[1])
+        except (TypeError, ValueError):
+            return None
+        if lo > hi:
+            lo, hi = hi, lo
+        return lo, hi
+
+    def _persist_masked_view(
+        self,
+        plan: HistoricalValidationPlan,
+        masked_data: dict[str, Any],
+    ) -> dict[str, str]:
+        """Persist and bind the immutable masked view consumed by Scientist."""
+        canon_spec = IRCanonSpec(forbid_floats=False, forbid_nan_inf=False)
+        data_ref = put_json_artifact(
+            self._store,
+            masked_data,
+            kind="scientist.backtest.masked_historical_view",
+            schema_name="polisyos.scientist.backtesting.MaskedHistoricalView",
+            schema_version="1.0",
+            canon_spec=canon_spec,
+        )
+        lineage_inputs = [InputRef(artifact_id=data_ref["artifact_id"], role="masked_data")]
+        if plan.historical_data_ref:
+            try:
+                lineage_inputs.append(
+                    InputRef(artifact_id=plan.historical_data_ref, role="historical_data")
+                )
+            except ValueError:
+                pass
+
+        metadata = masked_data.get("_backtest_metadata", {})
+        snapshot_stats: dict[str, int | str] = {}
+        if isinstance(metadata, dict):
+            strategy = metadata.get("masking_strategy")
+            step = metadata.get("intervention_step")
+            if isinstance(strategy, str):
+                snapshot_stats["masking_strategy"] = strategy
+            if isinstance(step, int):
+                snapshot_stats["intervention_step"] = step
+        snapshot = DataSnapshot(
+            data_ref=data_ref,
+            stats=snapshot_stats,
+            notes=[
+                "scientist.backtest.masked_historical_view",
+                f"plan_id:{plan.plan_id}",
+            ],
+        )
+        return put_json_artifact(
+            self._store,
+            snapshot.model_dump(mode="json"),
+            kind="fabric.data_snapshot",
+            schema_name="polisyos.core.DataSnapshot",
+            schema_version="0.2.0",
+            inputs=lineage_inputs,
+            canon_spec=canon_spec,
+        )
 
     def _predict_with_naive(
         self,

@@ -58,6 +58,7 @@ class PredictableDummyEvaluator:
             },
             guardrails={"score_present": True},
             promotable=True,
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
         )
 
 
@@ -101,7 +102,7 @@ def _persist_evaluation(
     selection_metrics: dict[str, float] | None = None,
     holdout_metrics: dict[str, float] | None = None,
     sample_counts: dict[str, int] | None = None,
-    runtime_split_type: BenchmarkSplit | None = None,
+    runtime_split_type: BenchmarkSplit | None = BenchmarkSplit.HOLDOUT,
 ):
     evaluation = BenchmarkEvaluation(
         loop_id=loop_id,
@@ -221,37 +222,65 @@ def test_search_loop_runner_promotes_and_runtime_loader_reads_champion(tmp_path)
 def test_champion_registry_is_idempotent_for_same_candidate_and_evaluation(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
-    candidate_ref = persist_mutation_artifact(store, DummyMutationConfig(value=3))
-    evaluation = BenchmarkEvaluation(
-        loop_id="dummy_loop",
-        suite_id="dummy_suite",
-        suite_version="1.0",
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+    )
+    candidate_ref = _persist_candidate(store, value=3, suite_ref=suite_ref)
+    evaluation_ref = _persist_evaluation(
+        store,
         candidate_ref=candidate_ref,
-        selection_metrics={"score": 3.0},
-        holdout_metrics={"score": 3.0},
-        sample_counts={
-            BenchmarkSplit.SELECTION.value: 1,
-            BenchmarkSplit.HOLDOUT.value: 1,
-        },
-        guardrails={"score_present": True},
-        promotable=True,
+        suite_ref=suite_ref,
+        score=3.0,
     )
-    evaluation_ref = persist_benchmark_evaluation(store, evaluation)
-    policy = PromotionPolicy(
-        loop_id="dummy_loop",
-        primary_metric="score",
-        direction=MetricDirection.MAXIMIZE,
-        compare_split=BenchmarkSplit.HOLDOUT,
-        min_sample_count=1,
-        required_guardrails=["score_present"],
-    )
+    policy = _promotion_policy()
 
-    first = registry.consider_promotion("dummy_loop", candidate_ref, evaluation_ref, policy)
-    second = registry.consider_promotion("dummy_loop", candidate_ref, evaluation_ref, policy)
+    first = registry.consider_promotion(
+        "dummy_loop",
+        candidate_ref,
+        evaluation_ref,
+        policy,
+        suite_ref=suite_ref,
+    )
+    second = registry.consider_promotion(
+        "dummy_loop",
+        candidate_ref,
+        evaluation_ref,
+        policy,
+        suite_ref=suite_ref,
+    )
 
     assert first.promoted is True
     assert second.promoted is False
     assert second.reason == "already_champion"
+
+
+def test_champion_registry_rejects_omitted_suite_binding(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="foreign_suite", suite_version="1.0"),
+    )
+    candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
+    evaluation_ref = _persist_evaluation(
+        store,
+        candidate_ref=candidate_ref,
+        suite_ref=suite_ref,
+        score=7.0,
+        suite_id="foreign_suite",
+    )
+
+    decision = registry.consider_promotion(
+        "dummy_loop",
+        candidate_ref,
+        evaluation_ref,
+        _promotion_policy(),
+    )
+
+    assert decision.promoted is False
+    assert decision.reason == "suite_ref_required"
+    assert registry.get("dummy_loop") is None
 
 
 def test_champion_registry_rejects_evaluation_for_different_candidate(tmp_path) -> None:
@@ -414,6 +443,48 @@ def test_champion_registry_rejects_evaluation_from_different_suite_basis(tmp_pat
     assert registry.get("dummy_loop") is None
 
 
+def test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+    )
+    baseline_candidate = _persist_candidate(store, value=1, suite_ref=suite_ref)
+    baseline_evaluation = _persist_evaluation(
+        store,
+        candidate_ref=baseline_candidate,
+        suite_ref=suite_ref,
+        score=1.0,
+    )
+    registry.seed_baseline(
+        "dummy_loop",
+        candidate_ref=baseline_candidate,
+        evaluation_ref=baseline_evaluation,
+    )
+    challenger = _persist_candidate(store, value=7, suite_ref=suite_ref)
+    challenger_evaluation = _persist_evaluation(
+        store,
+        candidate_ref=challenger,
+        suite_ref=suite_ref,
+        score=7.0,
+    )
+
+    decision = registry.consider_promotion(
+        "dummy_loop",
+        challenger,
+        challenger_evaluation,
+        _promotion_policy(),
+        suite_ref=suite_ref,
+    )
+
+    assert decision.promoted is False
+    assert decision.reason == "champion_suite_basis_unknown"
+    champion = registry.get("dummy_loop")
+    assert champion is not None
+    assert champion.candidate_ref.artifact_id == baseline_candidate.artifact_id
+
+
 def test_champion_registry_rejects_wrong_comparison_split(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
@@ -428,6 +499,37 @@ def test_champion_registry_rejects_wrong_comparison_split(tmp_path) -> None:
         suite_ref=suite_ref,
         score=7.0,
         runtime_split_type=BenchmarkSplit.SELECTION,
+    )
+
+    decision = registry.consider_promotion(
+        "dummy_loop",
+        candidate_ref,
+        evaluation_ref,
+        _promotion_policy(compare_split=BenchmarkSplit.HOLDOUT),
+        suite_ref=suite_ref,
+    )
+
+    assert decision.promoted is False
+    assert decision.reason == "runtime_split_mismatch"
+    assert registry.get("dummy_loop") is None
+
+
+def test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0"),
+    )
+    candidate_ref = _persist_candidate(store, value=7, suite_ref=suite_ref)
+    evaluation_ref = _persist_evaluation(
+        store,
+        candidate_ref=candidate_ref,
+        suite_ref=suite_ref,
+        score=7.0,
+        runtime_split_type=None,
     )
 
     decision = registry.consider_promotion(

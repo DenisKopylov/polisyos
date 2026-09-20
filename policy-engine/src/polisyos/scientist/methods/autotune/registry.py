@@ -134,13 +134,28 @@ class ChampionRegistry:
             return "evaluation_loop_mismatch"
         if evaluation.candidate_ref.artifact_id != candidate_ref.artifact_id:
             return "evaluation_candidate_mismatch"
+        if suite_ref is None:
+            if loop_id != "claim_adjudication":
+                return "suite_ref_required"
+            # The claim-adjudication producer predates the generic split binding
+            # and is independently replayed by its verifier. Keep that narrow
+            # compatibility path explicit; ordinary loops remain fail-closed.
+            if evaluation.runtime_split_type is not None and (
+                evaluation.runtime_split_type != policy.compare_split
+            ):
+                return "runtime_split_mismatch"
+            return None
+
+        resolved_split = evaluation.runtime_split_type
+        if resolved_split is None:
+            resolved_split = evaluation.resolved_runtime_split_type()
+        if resolved_split != policy.compare_split and loop_id != "claim_adjudication":
+            return "runtime_split_mismatch"
         if (
             evaluation.runtime_split_type is not None
-            and evaluation.runtime_split_type is not policy.compare_split
+            and evaluation.runtime_split_type != policy.compare_split
         ):
             return "runtime_split_mismatch"
-        if suite_ref is None:
-            return None
 
         suite = load_model_artifact(self._store, suite_ref, BenchmarkSuite)
         if not isinstance(suite, BenchmarkSuite):
@@ -184,6 +199,17 @@ class ChampionRegistry:
             elif basis_path.exists():
                 raise ValueError("claim_adjudication_promotion_basis_current_pointer_missing")
         if current is not None and suite_ref is not None:
+            if loop_id != "claim_adjudication" and (
+                current.metadata.get("suite_id") is None
+                or current.metadata.get("suite_ref") is None
+            ):
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason="champion_suite_basis_unknown",
+                    champion=current,
+                    previous_champion=current,
+                )
             current_suite_id = current.metadata.get("suite_id")
             if current_suite_id is not None and current_suite_id != evaluation.suite_id:
                 return PromotionDecision(

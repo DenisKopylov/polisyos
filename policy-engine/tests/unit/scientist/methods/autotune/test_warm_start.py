@@ -94,7 +94,7 @@ class _MemoryArtifactStore:
         self._payloads: dict[str, bytes] = {}
 
     def put_json(self, payload: dict[str, object], _options: object) -> SimpleNamespace:
-        artifact_id = _artifact_id("h")
+        artifact_id = _artifact_id("1")
         self._payloads[artifact_id] = json.dumps(payload).encode("utf-8")
         return SimpleNamespace(artifact_id=artifact_id)
 
@@ -194,7 +194,7 @@ class TestWarmStartBridge:
         assert benchmarks[1].holdout_metrics == {}
 
     def test_evaluations_to_benchmarks_preserves_raw_maximize_value(self):
-        candidate_id = _artifact_id("m")
+        candidate_id = _artifact_id("9")
         evaluation = _make_eval(
             candidate_id,
             -0.8,

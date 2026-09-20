@@ -4,6 +4,7 @@ Verification tests for Phase 17: Search Loop + Two-Stage + Engine Abstraction.
 
 from __future__ import annotations
 
+import math
 from threading import Event, Thread
 from typing import Any
 from unittest.mock import MagicMock
@@ -510,6 +511,24 @@ class TestStoppingCriteria:
         result = criterion.check(history, {})
         assert result.should_stop
         assert "plateau" in result.reason.lower()
+
+    def test_improvement_plateau_stops_after_zero_then_positive_loss(self):
+        """A positive loss after a zero minimum is not infinite improvement."""
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+
+        result = criterion.check(
+            [
+                {"objective_value": 0.0},
+                {"objective_value": 1.0},
+                {"objective_value": 1.0},
+            ],
+            {},
+        )
+
+        assert result.should_stop
+        improvement = result.details["improvement"]
+        assert math.isfinite(improvement)
+        assert improvement == pytest.approx(-1.0)
 
     def test_composite_stops_on_first_trigger(self):
         """Composite should stop when ANY criterion triggers."""

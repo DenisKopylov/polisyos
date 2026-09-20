@@ -56,6 +56,23 @@ class ConstantEmbedder:
         return 4
 
 
+class FailOnThirdEmbedder:
+    """Return the same vector twice, then fail the current measurement."""
+
+    def __init__(self) -> None:
+        self._call_count = 0
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        self._call_count += 1
+        if self._call_count == 3:
+            raise RuntimeError("current embedding unavailable")
+        return [[1.0, 0.0, 0.0, 0.0]] * len(texts)
+
+    @property
+    def dim(self) -> int:
+        return 4
+
+
 # ---------------------------------------------------------------------------
 # Cosine similarity
 # ---------------------------------------------------------------------------
@@ -179,6 +196,21 @@ class TestEmbeddingCosine:
         d.check(1.0)
         state = d.check(1.0)
         # No text -> no embeddings -> not converged
+        assert not state.converged
+
+    def test_current_embedding_failure_does_not_reuse_previous_pair(self):
+        """A failed current measurement cannot converge from stale embeddings."""
+        cfg = ConvergenceConfig(
+            strategy=ConvergenceStrategy.EMBEDDING_COSINE,
+            threshold=0.99,
+            min_iterations=3,
+            window_size=2,
+        )
+        d = ConvergenceDetector(cfg, embedder=FailOnThirdEmbedder())
+        d.check_with_text(1.0, "same text")
+        d.check_with_text(1.0, "same text")
+        state = d.check_with_text(1.0, "current text unavailable")
+
         assert not state.converged
 
 

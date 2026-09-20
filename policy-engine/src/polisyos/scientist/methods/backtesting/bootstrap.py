@@ -155,8 +155,9 @@ def _resolve_statistic(statistic: str | StatisticFn) -> StatisticFn:
 
 def _evaluate_statistic(stat_fn: StatisticFn, values: np.ndarray) -> float:
     """Evaluate a statistic and reject non-scalar or non-finite results."""
+    raw_result = stat_fn(values)
     try:
-        result = float(stat_fn(values))
+        result = float(raw_result)
     except (OverflowError, TypeError, ValueError) as exc:
         raise BootstrapValidationError(
             "bootstrap statistic must return a finite scalar",

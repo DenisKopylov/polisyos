@@ -86,6 +86,8 @@ def forward_chaining_splits(
 
 def _coerce_index(value: int, name: str) -> int:
     """Return an integer parameter or raise a domain validation error."""
+    if isinstance(value, (bool, np.bool_)):
+        raise ValueError(f"{name} must be an integer")
     try:
         return int(index(value))
     except TypeError as exc:

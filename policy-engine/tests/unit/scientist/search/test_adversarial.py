@@ -89,6 +89,48 @@ class ScalarObjective:
         )
 
 
+class DirectionalScalarObjective:
+    """Scalar objective that exposes the direction used by adaptive search."""
+
+    def __init__(self, direction: OptimizationDirection) -> None:
+        self._direction = direction
+
+    @property
+    def name(self) -> str:
+        return "scalar"
+
+    @property
+    def direction(self) -> OptimizationDirection:
+        return self._direction
+
+    def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
+        return ObjectiveValue(
+            name=self.name,
+            raw_value=float(results["utility"]),
+            direction=self.direction,
+        )
+
+    def evaluate_detailed(self, results: dict[str, Any]) -> list[ObjectiveValue]:
+        return [self.evaluate(results)]
+
+
+class SequenceCandidateGenerator:
+    """Deterministic candidate generator proving the adaptive SEARCH_LOOP path."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def generate(
+        self,
+        history: list[Any],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        del history, current_best, context
+        self.calls += 1
+        return {"p0": float(self.calls)}
+
+
 def _run_scalar_stress(*, values: tuple[float, ...], collect_top_k: int):
     """Run a bounded public stress sweep with deterministic scalar outcomes."""
     parameter_count = 4 if len(values) == 10 else 1
@@ -115,6 +157,38 @@ def _run_scalar_stress(*, values: tuple[float, ...], collect_top_k: int):
         stage_b_evaluator=stage_b,
         context={},
     )
+
+
+def _run_adaptive_scalar_stress(
+    *,
+    values: tuple[float, ...],
+    direction: OptimizationDirection,
+    stop_on_first_vulnerability: bool,
+):
+    """Run a bounded SEARCH_LOOP sweep with a deterministic adaptive continuation."""
+    plan = AdversarialPlan(
+        parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+        strategy=AdversarialStrategy.SEARCH_LOOP,
+        max_iterations=33,
+        vulnerability_threshold=0.0,
+        stop_on_first_vulnerability=stop_on_first_vulnerability,
+        collect_top_k=10,
+    )
+    outcomes = iter(values)
+    generator = SequenceCandidateGenerator()
+
+    def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        del candidate, context
+        return {"simulation_results": {"utility": next(outcomes)}}
+
+    report = run_stress_test(
+        adversarial_plan=plan,
+        base_objective=DirectionalScalarObjective(direction),
+        stage_b_evaluator=stage_b,
+        candidate_generator=generator,
+        context={},
+    )
+    return report, generator
 
 
 def test_negated_objective_inverts_sign() -> None:
@@ -178,6 +252,49 @@ def test_run_stress_test_lower_tail_selects_negative_worst_case() -> None:
     assert report.total_scenarios_evaluated == 2
     assert len(report.vulnerabilities) == 1
     assert report.worst_case_objective == -5.0
+
+
+def test_run_stress_test_search_loop_tracks_lower_tail_through_adaptive_step() -> None:
+    values = (10.0, -5.0, *([10.0] * 30), -7.0)
+
+    report, generator = _run_adaptive_scalar_stress(
+        values=values,
+        direction=OptimizationDirection.MAXIMIZE,
+        stop_on_first_vulnerability=False,
+    )
+
+    assert report.total_scenarios_evaluated == 33
+    assert generator.calls == 1
+    assert report.worst_case_objective == -7.0
+    assert [item.objective_value for item in report.vulnerabilities] == [-5.0, -7.0]
+
+
+def test_run_stress_test_search_loop_stops_on_first_lower_tail_vulnerability() -> None:
+    report, generator = _run_adaptive_scalar_stress(
+        values=(10.0, -5.0),
+        direction=OptimizationDirection.MAXIMIZE,
+        stop_on_first_vulnerability=True,
+    )
+
+    assert report.total_scenarios_evaluated == 2
+    assert generator.calls == 0
+    assert report.worst_case_objective == -5.0
+    assert [item.objective_value for item in report.vulnerabilities] == [-5.0]
+
+
+def test_run_stress_test_search_loop_reverses_order_for_minimize_cost() -> None:
+    values = (10.0, *([-5.0] * 32))
+
+    report, generator = _run_adaptive_scalar_stress(
+        values=values,
+        direction=OptimizationDirection.MINIMIZE,
+        stop_on_first_vulnerability=False,
+    )
+
+    assert report.total_scenarios_evaluated == 33
+    assert generator.calls == 1
+    assert report.worst_case_objective == 10.0
+    assert [item.objective_value for item in report.vulnerabilities] == [10.0]
 
 
 def test_platform_meta_evaluator_passes_healthy_sentinel_injection() -> None:

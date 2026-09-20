@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.methods.backtesting.calibration_curve import (
-    compute_calibration_curve,
-)
+from polisyos.calibration import compute_calibration_curve
 
 
 class TestCalibrationCurve:

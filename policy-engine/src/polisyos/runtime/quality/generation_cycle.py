@@ -1599,7 +1599,12 @@ class JointSimulationPort:
             plan_values = dict(raw_plan)
         else:
             raise WorldModelRecordError("joint_simulation_engine_plan_invalid")
-        if resource == "ncm_parallel_worlds" and "ncm_spec" not in plan_values:
+        if resource == "ncm_parallel_worlds":
+            # Caller-provided plan payloads are not an authority source.  The
+            # only admissible NCM is the one resolved from the bound WMR's
+            # owner-issued sha256 ref; this also preserves the future path
+            # once that ref is present while blocking unverified overrides.
+            plan_values.pop("ncm_spec", None)
             plan_values["ncm_spec"] = self._resolve_joint_simulation_ncm(
                 problem=problem,
                 world_record=world_record,
@@ -1703,14 +1708,8 @@ class JointSimulationPort:
     ) -> object:
         """Resolve an owner-provided NCM, refusing an absent model."""
 
-        from polisyos.ir.analytics.ncm import NCMSpec, load_ncm_spec
+        from polisyos.ir.analytics.ncm import load_ncm_spec
 
-        raw = problem.runtime_hints.get("joint_simulation_ncm_spec")
-        if raw is not None:
-            try:
-                return raw if isinstance(raw, NCMSpec) else NCMSpec.model_validate(raw)
-            except (TypeError, ValueError) as exc:
-                raise WorldModelRecordError("joint_simulation_ncm_spec_invalid", str(exc)) from exc
         refs = tuple(world_record.simulation_model_ref.ncm_refs)
         if len(refs) != 1 or not refs[0].startswith("sha256:"):
             raise WorldModelRecordError("joint_simulation_ncm_spec_missing")

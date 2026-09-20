@@ -985,7 +985,18 @@ class DataComposer:
                 exclusions[row_id] = row_exclusions
 
             if request.strict_conflicts and row_exclusions:
-                reasons = ", ".join(sorted({item["reason"] for item in row_exclusions}))
+                display_reasons = {
+                    "non_finite": "non-finite",
+                    "non_numeric": "non-numeric",
+                }
+                reasons = ", ".join(
+                    sorted(
+                        {
+                            display_reasons.get(item["reason"], item["reason"])
+                            for item in row_exclusions
+                        }
+                    )
+                )
                 raise ConflictResolutionError(
                     f"CONSENSUS {agg_func} rejected {reasons} value(s) "
                     f"for column {column} at row {row_key}"

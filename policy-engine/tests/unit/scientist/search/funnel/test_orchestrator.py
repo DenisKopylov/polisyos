@@ -254,6 +254,51 @@ class TestFunnelOrchestrator:
         for stage in stages:
             stage.evaluate.assert_called_once()
 
+    def test_submit_cache_is_scoped_to_effective_context(self):
+        stage = _make_stage(0, "L0")
+
+        def evaluate(candidate, context):
+            dataset_scores = {"dataset-v1": 1.0, "dataset-v2": 2.0}
+            return FunnelStageResult(
+                policy_candidate=dict(candidate),
+                objective_value=dataset_scores[context["dataset_version"]],
+                is_promising=True,
+                stage_name="L0",
+                uncertainty_envelope=UncertaintyEnvelope.deterministic(),
+                fidelity_level=0,
+            )
+
+        stage.evaluate.side_effect = evaluate
+        orch = FunnelOrchestrator([stage])
+        candidate = {"candidate_id": "same-candidate"}
+        context_v1 = {
+            "dataset_version": "dataset-v1",
+            "model_version": "model-v1",
+            "evaluation_role": "ordinary",
+        }
+        context_v2 = {
+            "dataset_version": "dataset-v2",
+            "model_version": "model-v1",
+            "evaluation_role": "ordinary",
+        }
+
+        ticket_v1 = orch.submit(candidate, context_v1)
+        outcome_v1 = orch.advance(ticket_v1, policy="full")
+        ticket_v2 = orch.submit(candidate, context_v2)
+        outcome_v2 = orch.advance(ticket_v2, policy="full")
+
+        assert ticket_v2 is not ticket_v1
+        assert outcome_v2.ticket_id != outcome_v1.ticket_id
+        assert outcome_v1.final_result is not None
+        assert outcome_v2.final_result is not None
+        assert outcome_v1.final_result.objective_value == 1.0
+        assert outcome_v2.final_result.objective_value == 2.0
+
+        cached_ticket = orch.submit(candidate, context_v1)
+        assert cached_ticket is ticket_v1
+        assert cached_ticket.submitted_via_cache is True
+        assert stage.evaluate.call_count == 2
+
     def test_burn_in_policy_bypasses_cheap_rejection_until_level4(self):
         reject_signal = CheapSignalVector(structural_validity=0.3)
         stages = [

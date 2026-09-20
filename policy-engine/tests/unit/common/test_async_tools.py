@@ -70,6 +70,17 @@ def test_run_blocking_async_times_out() -> None:
     assert time.monotonic() - started < 0.5
 
 
+def test_run_blocking_async_preserves_inner_timeout_message() -> None:
+    def _raise_inner_timeout() -> None:
+        raise TimeoutError("inner worker timeout")
+
+    async def _exercise() -> None:
+        await run_blocking_async(_raise_inner_timeout, timeout_seconds=5.0)
+
+    with pytest.raises(TimeoutError, match="^inner worker timeout$"):
+        asyncio.run(_exercise())
+
+
 def test_run_blocking_async_reuses_shared_executor_soak_smoke() -> None:
     async def _exercise() -> set[int]:
         executor_ids: set[int] = set()

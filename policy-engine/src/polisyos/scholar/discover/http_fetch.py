@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
 from polisyos.fabric.docs import DocSourceSpec
+from polisyos.scholar.discover.transport import RawFetchSizeError, fetch_raw
 from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
 from polisyos.scholar.search.models import SearchConstraints
 from polisyos.scholar.search.security import validate_content_type, validate_fetch_url
@@ -73,18 +73,22 @@ def fetch_url(
             details={"url": request_url},
         ) from exc
 
-    request = Request(request_url, headers={"User-Agent": user_agent})
     try:
-        with urlopen(request, timeout=timeout_s) as response:
-            limit = max_bytes + 1 if max_bytes is not None else -1
-            raw_bytes = response.read(limit)
-            if max_bytes is not None and len(raw_bytes) > max_bytes:
-                raise ScholarAcquireError(
-                    "URL payload exceeds max_bytes_per_doc",
-                    source_identity=canonical_url,
-                    details={"bytes": len(raw_bytes), "max_bytes": max_bytes},
-                )
-            content_type = response.headers.get("Content-Type")
+        raw = fetch_raw(
+            request_url,
+            constraints=constraints or SearchConstraints(),
+            timeout_s=timeout_s,
+            user_agent=user_agent,
+            max_bytes=max_bytes,
+        )
+        raw_bytes = raw.raw_bytes
+        content_type = raw.content_type
+    except RawFetchSizeError as exc:
+        raise ScholarAcquireError(
+            "URL payload exceeds max_bytes_per_doc",
+            source_identity=canonical_url,
+            details={"bytes": exc.observed_bytes, "max_bytes": exc.max_bytes},
+        ) from exc
     except HTTPError as exc:
         raise ScholarAcquireError(
             f"HTTP error while fetching URL: {exc.code}",
@@ -94,6 +98,12 @@ def fetch_url(
     except URLError as exc:
         raise ScholarAcquireError(
             f"URL fetch failed: {exc}",
+            source_identity=canonical_url,
+            details={"url": request_url},
+        ) from exc
+    except ValueError as exc:
+        raise ScholarAcquireError(
+            f"blocked URL fetch: {exc}",
             source_identity=canonical_url,
             details={"url": request_url},
         ) from exc

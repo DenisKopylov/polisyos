@@ -126,14 +126,24 @@ async def test_find_in_page_returns_stable_spans(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_fetch_open_page_blocks_private_redirect_targets(monkeypatch):
-    class _RedirectingHandler:
+    class _RedirectingOpener:
+        def __init__(self, handlers):
+            self._handler = handlers[0]
+
         def open(self, request, timeout):
-            del request, timeout
-            raise ValueError("private network address blocked")
+            del timeout
+            return self._handler.redirect_request(
+                request,
+                None,
+                302,
+                "Found",
+                {},
+                "http://internal.service.localhost/private",
+            )
 
     monkeypatch.setattr(
         "polisyos.scholar.discover.transport.urllib.request.build_opener",
-        lambda *handlers: _RedirectingHandler(),
+        lambda *handlers: _RedirectingOpener(handlers),
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",

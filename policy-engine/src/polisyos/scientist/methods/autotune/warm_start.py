@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import logging
+import math
 from typing import TYPE_CHECKING
 
-from .models import BenchmarkEvaluation
+from .models import BenchmarkEvaluation, BenchmarkSplit
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,11 @@ class WarmStartBridge:
             logger.info("WarmStartBridge: no similar runs found for %s", fingerprint.run_id)
             return []
 
-        evals = self._manager.get_warm_start_evaluations(similar, max_evals=self._max_evals)
+        evals = self._manager.get_warm_start_evaluations(
+            similar,
+            max_evals=self._max_evals,
+            target_fingerprint=fingerprint,
+        )
         logger.info(
             "WarmStartBridge: loaded %d warm-start evaluations from %d similar runs",
             len(evals),
@@ -66,23 +71,60 @@ class WarmStartBridge:
 
         results: list[BenchmarkEvaluation] = []
         for ev in evaluations:
-            ref_id = f"sha256:{'0' * 64}"
-            ref = ArtifactRef(artifact_id=ref_id, kind="warm_start", media_type="application/json")
+            try:
+                ref = ArtifactRef(
+                    artifact_id=ev.candidate_id,
+                    kind="search.candidate",
+                    media_type="application/json",
+                )
+            except (TypeError, ValueError) as exc:
+                logger.warning(
+                    "WarmStartBridge: skipping candidate without an artifact reference %s: %s",
+                    ev.candidate_id,
+                    exc,
+                )
+                continue
 
-            metrics = dict(ev.params) if ev.params else {}
-            metrics[primary_metric] = ev.scalar_score
+            metrics: dict[str, float] = {}
+            directions: dict[str, str] = {}
+            for objective in ev.objectives:
+                if not math.isfinite(objective.raw_value):
+                    continue
+                metrics[objective.name] = objective.raw_value
+                directions[objective.name] = objective.direction.value
+            if primary_metric not in metrics:
+                logger.warning(
+                    "WarmStartBridge: skipping candidate %s without measured %s",
+                    ev.candidate_id,
+                    primary_metric,
+                )
+                continue
+
+            source_run_id = ev.metadata.get("source_run_id", "unknown")
+            metadata = {
+                "warm_start": True,
+                "source_candidate_id": ev.candidate_id,
+                "params": dict(ev.params),
+                "directions": directions,
+                "direction": directions[primary_metric],
+            }
+            if source_run_id != "unknown":
+                metadata["source_run_id"] = source_run_id
+            if ev.provenance_ref is not None:
+                metadata["provenance_ref"] = ev.provenance_ref
 
             results.append(
                 BenchmarkEvaluation(
                     loop_id=loop_id,
                     suite_id=suite_id,
                     candidate_ref=ref,
-                    holdout_metrics=metrics,
                     selection_metrics=metrics,
+                    holdout_metrics={},
                     promotable=False,
-                    status="warm_start",
-                    notes=[f"transferred from {ev.metadata.get('source_run_id', 'unknown')}"],
-                    metadata={"warm_start": True, "source_candidate_id": ev.candidate_id},
+                    status="warm_start_limited",
+                    notes=[f"transferred from {source_run_id}"],
+                    runtime_split_type=BenchmarkSplit.SELECTION,
+                    metadata=metadata,
                 )
             )
         return results

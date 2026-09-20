@@ -118,3 +118,8 @@ def test_search_controller_excludes_sentinels_from_history() -> None:
     result = controller.run({"user_request": "sentinel exclusion"})
     assert len(result.history) == 3
     assert result.telemetry["sentinel_evaluations"] == 1
+    assert result.telemetry["training_evaluations"] == 0
+    assert result.telemetry["history_size"] == 3
+    assert result.telemetry["new_evaluations"] == 3
+    assert result.telemetry["evaluation_count"] == 4
+    assert result.telemetry["scientific_evaluations"] == 3

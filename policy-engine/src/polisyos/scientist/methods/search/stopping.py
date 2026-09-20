@@ -5,6 +5,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
+from math import isfinite
 from typing import Any
 
 
@@ -217,14 +219,50 @@ class CostBudgetStopping(StoppingCriterion):
         return "cost_budget"
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
-        cost = state.get(self._cost_key, 0.0)
+        del history
+        raw_cost = state.get(self._cost_key)
+        if not isinstance(raw_cost, (int, float, Decimal)) or isinstance(raw_cost, bool):
+            return StoppingCondition(
+                should_stop=True,
+                reason=f"Cost budget unavailable for key {self._cost_key!r}",
+                details={
+                    "budget": self._max_cost,
+                    "cost_key": self._cost_key,
+                    "budget_available": False,
+                },
+            )
+        cost = float(raw_cost)
+        if not isfinite(cost):
+            return StoppingCondition(
+                should_stop=True,
+                reason=f"Cost budget unavailable for key {self._cost_key!r}",
+                details={
+                    "budget": self._max_cost,
+                    "cost": raw_cost,
+                    "cost_key": self._cost_key,
+                    "budget_available": False,
+                },
+            )
         if cost >= self._max_cost:
             return StoppingCondition(
                 should_stop=True,
                 reason=f"Cost budget ({self._max_cost} USD) exhausted",
-                details={"cost": cost, "budget": self._max_cost},
+                details={
+                    "cost": cost,
+                    "budget": self._max_cost,
+                    "cost_key": self._cost_key,
+                    "budget_available": True,
+                },
             )
-        return StoppingCondition(should_stop=False)
+        return StoppingCondition(
+            should_stop=False,
+            details={
+                "cost": cost,
+                "budget": self._max_cost,
+                "cost_key": self._cost_key,
+                "budget_available": True,
+            },
+        )
 
     def state_keys(self) -> tuple[str, ...]:
         """Return the exact budget key this criterion reads."""

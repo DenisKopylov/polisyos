@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
 from functools import wraps
+from math import isfinite
 from threading import Lock
 from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import uuid4
@@ -107,6 +108,17 @@ class SearchIteration:
     duration_seconds: float
     policy_evaluation: Any | None = None
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    policy_evaluation_status: str = "missing"
+    policy_evaluation_error: str | None = None
+
+
+@dataclass(frozen=True)
+class _PolicyEvaluationResolution:
+    """Keep absent, valid, and invalid typed results distinct at the consumer."""
+
+    value: Any | None
+    status: str
+    reason: str | None = None
 
 
 @dataclass
@@ -389,7 +401,8 @@ class SearchController:
             status=SearchStatus.RUNNING,
         )
         self._config.stopping.reset()
-        self._update_budget_spent(initial_context)
+        self._refresh_budget_snapshot(initial_context)
+        self._run_state.training_evaluations = len(self._config.initial_evaluations)
 
         logger.info(f"Starting search {search_id}")
 
@@ -415,9 +428,10 @@ class SearchController:
         initial_candidate_pending = initial_candidate is not None
 
         while self._run_state.evaluation_iterations < self._config.max_iterations_hard_limit:
+            self._refresh_budget_snapshot(initial_context)
             stop_check = self._config.stopping.check(
                 [self._to_history_dict(h) for h in self._history],
-                self._stopping_state(initial_context),
+                self._stopping_state(),
             )
             if stop_check.should_stop:
                 stopping_reason = stop_check.reason
@@ -434,10 +448,10 @@ class SearchController:
             initial_candidate_pending = False
             if generated:
                 self._run_state.generation_attempts += 1
-                self._update_budget_spent(initial_context)
+                self._refresh_budget_snapshot(initial_context)
                 generation_stop = self._config.stopping.check(
                     [self._to_history_dict(h) for h in self._history],
-                    self._stopping_state(initial_context),
+                    self._stopping_state(),
                 )
                 if generation_stop.should_stop:
                     stopping_reason = generation_stop.reason
@@ -470,7 +484,7 @@ class SearchController:
                     context=initial_context,
                 )
                 self._run_state.apply_evaluation_transition(transition)
-                self._update_budget_spent(initial_context)
+                self._refresh_budget_snapshot(initial_context)
 
                 if (
                     transition.disposition is _EvaluationDisposition.SENTINEL
@@ -482,7 +496,7 @@ class SearchController:
 
                 stop_check = self._config.stopping.check(
                     [self._to_history_dict(h) for h in self._history],
-                    self._stopping_state(initial_context),
+                    self._stopping_state(),
                 )
                 if stop_check.should_stop:
                     stopping_reason = stop_check.reason
@@ -501,14 +515,26 @@ class SearchController:
 
         total_duration = (datetime.now(UTC) - start_time).total_seconds()
         snapshot = self._run_state.snapshot()
-        telemetry: dict[str, Any] = {}
+        telemetry: dict[str, Any] = {
+            "history_size": snapshot.history_size,
+            "training_evaluations": snapshot.training_evaluations,
+            "new_evaluations": snapshot.new_evaluations,
+            "evaluation_count": snapshot.evaluation_count,
+            "scientific_evaluations": snapshot.scientific_evaluations,
+            "sentinel_evaluations": snapshot.sentinel_evaluations,
+            "policy_evaluation_errors": snapshot.policy_evaluation_errors,
+            "budget_required": bool(self._config.stopping.state_keys()),
+            "budget_available": snapshot.budget_available,
+            "budget_snapshot": deepcopy(snapshot.budget_snapshot),
+            "budget_spent": (
+                snapshot.budget_spent if snapshot.budget_available else None
+            ),
+        }
         if self._diversity_tracker is not None:
             telemetry["diversity_unique_mechanisms_total"] = (
                 self._diversity_tracker.unique_mechanisms_total
             )
             telemetry["diversity_ratio"] = self._diversity_tracker.diversity_ratio
-        if snapshot.sentinel_evaluations:
-            telemetry["sentinel_evaluations"] = snapshot.sentinel_evaluations
         transition_payload = snapshot.generation_transition_payload()
         if transition_payload is not None:
             telemetry["generation_transition"] = transition_payload
@@ -528,7 +554,7 @@ class SearchController:
             telemetry=deepcopy(telemetry),
         )
 
-    def _stopping_state(self, context: dict[str, Any]) -> dict[str, Any]:
+    def _stopping_state(self) -> dict[str, Any]:
         """Build stopping input from run counters and declared budget owners."""
         state = {
             "iteration": self._run_state.evaluation_iterations,
@@ -538,17 +564,35 @@ class SearchController:
             "best_objective": self._best_objective,
             "budget_spent": self._run_state.budget_spent,
         }
-        for key in self._config.stopping.state_keys():
-            if key in context:
-                state[key] = context[key]
+        state.update(self._run_state.budget_snapshot)
         return state
 
-    def _update_budget_spent(self, context: dict[str, Any]) -> None:
-        """Refresh budget telemetry from the declared stopping owner."""
-        for key in self._config.stopping.state_keys():
+    def _refresh_budget_snapshot(self, context: dict[str, Any]) -> None:
+        """Capture one detached snapshot from the declared budget owner.
+
+        The controller never forwards the mutable evaluator context directly to
+        stopping criteria.  Only keys explicitly requested by the criterion are
+        copied into the run-owned snapshot, so both stopping checkpoints and the
+        final report observe the same owner contract without creating a ledger.
+        """
+        required_keys = self._config.stopping.state_keys()
+        snapshot: dict[str, float] = {}
+        for key in required_keys:
             value = context.get(key)
             if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
-                self._run_state.budget_spent = float(value)
+                numeric_value = float(value)
+                if isfinite(numeric_value):
+                    snapshot[key] = numeric_value
+        self._run_state.budget_snapshot = snapshot
+        self._run_state.budget_available = bool(required_keys) and all(
+            key in snapshot for key in required_keys
+        )
+        if "cumulative_cost_usd" in snapshot:
+            self._run_state.budget_spent = snapshot["cumulative_cost_usd"]
+        elif snapshot:
+            self._run_state.budget_spent = next(iter(snapshot.values()))
+        else:
+            self._run_state.budget_spent = 0.0
 
     def _generate_candidates(
         self,
@@ -637,6 +681,7 @@ class SearchController:
         objective_value = float("inf")
         objective_details: list[ObjectiveValue] = []
         policy_evaluation = None
+        policy_resolution = _PolicyEvaluationResolution(value=None, status="missing")
         iter_duration = 0.0
 
         if stage_a_passed:
@@ -649,8 +694,14 @@ class SearchController:
                 stage_b_result = self._stage_b(candidate, context)
 
             sim_results = stage_b_result.get("simulation_results", {})
-            policy_evaluation = self._resolve_policy_evaluation(candidate, stage_b_result)
-            if policy_evaluation is not None:
+            policy_resolution = self._resolve_policy_evaluation_with_status(
+                candidate,
+                stage_b_result,
+            )
+            policy_evaluation = policy_resolution.value
+            if policy_resolution.status == "invalid":
+                self._run_state.policy_evaluation_errors += 1
+            elif policy_evaluation is not None:
                 objective_value = policy_evaluation.legacy_scalar_proxy
                 objective_details = policy_evaluation.as_legacy_objectives()
             else:
@@ -658,12 +709,16 @@ class SearchController:
                 objective_value = obj_eval.raw_value
                 objective_details = self._config.objective.evaluate_detailed(sim_results)
 
-            if not is_sentinel and objective_value < self._best_objective:
+            if (
+                policy_resolution.status != "invalid"
+                and not is_sentinel
+                and objective_value < self._best_objective
+            ):
                 self._best_objective = objective_value
                 self._best_candidate = deepcopy(candidate)
                 logger.info(f"Iteration {iteration}: New best objective = {objective_value:.6f}")
 
-            if not is_sentinel:
+            if not is_sentinel and policy_resolution.status != "invalid":
                 self._update_policy_or_legacy_frontier(
                     candidate=candidate,
                     objective_details=objective_details,
@@ -678,11 +733,15 @@ class SearchController:
             objective_value=objective_value,
             objective_details=deepcopy(objective_details),
             is_promising=stage_a_passed
+            and policy_resolution.status != "invalid"
+            and (policy_evaluation is None or policy_evaluation.feasible)
             and (stage_b_result or {}).get("feedback", {}).get("verdict") == "APPROVE",
             stage_a_passed=stage_a_passed,
             stage_b_result=deepcopy(stage_b_result),
             duration_seconds=iter_duration,
             policy_evaluation=deepcopy(policy_evaluation),
+            policy_evaluation_status=policy_resolution.status,
+            policy_evaluation_error=policy_resolution.reason,
         )
         if not is_sentinel and self._diversity_tracker is not None:
             self._diversity_tracker.record_iteration(candidate)
@@ -799,8 +858,26 @@ class SearchController:
         candidate: dict[str, Any],
         stage_b_result: dict[str, Any] | None,
     ) -> PolicyEvaluationVector | None:
+        """Resolve a typed evaluation while preserving the legacy private API."""
+        resolution = self._resolve_policy_evaluation_with_status(candidate, stage_b_result)
+        return cast("PolicyEvaluationVector | None", resolution.value)
+
+    def _resolve_policy_evaluation_with_status(
+        self,
+        candidate: dict[str, Any],
+        stage_b_result: dict[str, Any] | None,
+    ) -> _PolicyEvaluationResolution:
+        """Resolve typed evaluation input without conflating absent and invalid data."""
         if not stage_b_result:
-            return None
+            return _PolicyEvaluationResolution(value=None, status="missing")
+
+        typed_vector_present = "policy_evaluation" in stage_b_result
+        typed_bundle_present = (
+            "policy_evaluation_bundle" in stage_b_result
+            or "_policy_evaluation_bundle" in stage_b_result
+        )
+        if not typed_vector_present and not typed_bundle_present:
+            return _PolicyEvaluationResolution(value=None, status="missing")
 
         try:
             from polisyos.scientist.policy_design.objectives import (
@@ -814,39 +891,65 @@ class SearchController:
                 reason="policy_objective_stack_unavailable",
                 exc=exc,
             )
-            return None
+            return _PolicyEvaluationResolution(
+                value=None,
+                status="invalid",
+                reason="policy_objective_stack_unavailable",
+            )
 
-        raw_vector = stage_b_result.get("policy_evaluation")
-        if isinstance(raw_vector, PolicyEvaluationVector):
-            return raw_vector
-        if hasattr(raw_vector, "model_dump"):
-            try:
-                raw_vector = raw_vector.model_dump(mode="python")
-            except _SEARCH_DEGRADED_ERRORS as exc:
+        typed_error_reason: str | None = None
+        if typed_vector_present:
+            raw_vector = stage_b_result.get("policy_evaluation")
+            if isinstance(raw_vector, PolicyEvaluationVector):
+                return _PolicyEvaluationResolution(value=raw_vector, status="valid")
+            if hasattr(raw_vector, "model_dump"):
+                try:
+                    raw_vector = raw_vector.model_dump(mode="python")
+                except _SEARCH_DEGRADED_ERRORS as exc:
+                    typed_error_reason = "policy_evaluation_normalization_failed"
+                    _search_degraded(
+                        operation="resolve_policy_evaluation",
+                        reason=typed_error_reason,
+                        exc=exc,
+                    )
+            if isinstance(raw_vector, dict):
+                try:
+                    return _PolicyEvaluationResolution(
+                        value=PolicyEvaluationVector.model_validate(raw_vector),
+                        status="valid",
+                    )
+                except _SEARCH_DEGRADED_ERRORS as exc:
+                    typed_error_reason = "policy_evaluation_parse_failed"
+                    _search_degraded(
+                        operation="resolve_policy_evaluation",
+                        reason=typed_error_reason,
+                        exc=exc,
+                    )
+            elif typed_error_reason is None:
+                typed_error_reason = "policy_evaluation_parse_failed"
                 _search_degraded(
                     operation="resolve_policy_evaluation",
-                    reason="policy_evaluation_normalization_failed",
-                    exc=exc,
-                )
-        if isinstance(raw_vector, dict):
-            try:
-                return PolicyEvaluationVector.model_validate(raw_vector)
-            except _SEARCH_DEGRADED_ERRORS as exc:
-                _search_degraded(
-                    operation="resolve_policy_evaluation",
-                    reason="policy_evaluation_parse_failed",
-                    exc=exc,
+                    reason=typed_error_reason,
+                    exc=ValueError("policy_evaluation must be a typed vector or mapping"),
                 )
 
         objective_stack = self._config.policy_objective_stack
         if objective_stack is None:
-            return None
+            return _PolicyEvaluationResolution(
+                value=None,
+                status="invalid",
+                reason=typed_error_reason or "policy_evaluation_stack_unavailable",
+            )
 
-        raw_bundle = stage_b_result.get("policy_evaluation_bundle") or stage_b_result.get(
-            "_policy_evaluation_bundle"
-        )
+        raw_bundle = stage_b_result.get("policy_evaluation_bundle")
         if raw_bundle is None:
-            return None
+            raw_bundle = stage_b_result.get("_policy_evaluation_bundle")
+        if raw_bundle is None:
+            return _PolicyEvaluationResolution(
+                value=None,
+                status="invalid",
+                reason=typed_error_reason or "policy_evaluation_bundle_missing",
+            )
         try:
             if isinstance(raw_bundle, PolicyEvaluationBundle):
                 bundle = raw_bundle
@@ -860,7 +963,11 @@ class SearchController:
                 reason="policy_evaluation_bundle_parse_failed",
                 exc=exc,
             )
-            return None
+            return _PolicyEvaluationResolution(
+                value=None,
+                status="invalid",
+                reason="policy_evaluation_bundle_parse_failed",
+            )
 
         if bundle.candidate is None:
             candidate_schema = stage_b_result.get("_policy_candidate_schema") or stage_b_result.get(
@@ -903,14 +1010,25 @@ class SearchController:
                     )
 
         try:
-            return objective_stack.evaluate(bundle)
+            evaluation = objective_stack.evaluate(bundle)
+            if not isinstance(evaluation, PolicyEvaluationVector):
+                return _PolicyEvaluationResolution(
+                    value=None,
+                    status="invalid",
+                    reason="objective_stack_returned_untyped_result",
+                )
+            return _PolicyEvaluationResolution(value=evaluation, status="valid")
         except _SEARCH_DEGRADED_ERRORS as exc:
             _search_degraded(
                 operation="resolve_policy_evaluation",
                 reason="objective_stack_evaluation_failed",
                 exc=exc,
             )
-            return None
+            return _PolicyEvaluationResolution(
+                value=None,
+                status="invalid",
+                reason="objective_stack_evaluation_failed",
+            )
 
     def _update_policy_or_legacy_frontier(
         self,

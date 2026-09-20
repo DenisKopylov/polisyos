@@ -33,10 +33,13 @@ class TestCostBudgetStopping:
         result = s.check([], {"cumulative_cost_usd": 7.0})
         assert result.should_stop
 
-    def test_missing_cost_key_does_not_stop(self):
+    def test_missing_cost_key_is_unavailable_and_stops(self):
         s = CostBudgetStopping(max_cost_usd=10.0)
         result = s.check([], {})
-        assert not result.should_stop
+        assert result.should_stop
+        assert result.details["budget_available"] is False
+        assert result.details["cost_key"] == "cumulative_cost_usd"
+        assert "unavailable" in result.reason.lower()
 
     def test_custom_cost_key(self):
         s = CostBudgetStopping(max_cost_usd=5.0, cost_key="my_cost")

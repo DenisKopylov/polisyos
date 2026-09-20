@@ -23,7 +23,9 @@ Strategies:
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 from enum import Enum
+from hashlib import sha256
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -111,6 +113,18 @@ class ConvergenceState(BaseModel):
     reason: str = ""
 
 
+@dataclass(frozen=True, slots=True)
+class _EmbeddingRecord:
+    """Internal embedding observation bound to its measurement provenance."""
+
+    iteration: int
+    input_ref: str
+    model_ref: str
+    model_version: str
+    dimension: int
+    vector: tuple[float, ...]
+
+
 # ---------------------------------------------------------------------------
 # Pure-Python cosine similarity (avoids numpy dependency)
 # ---------------------------------------------------------------------------
@@ -118,6 +132,8 @@ class ConvergenceState(BaseModel):
 
 def _cosine_similarity(a: list[float], b: list[float]) -> float:
     """Cosine similarity between two vectors."""
+    if len(a) != len(b):
+        return 0.0
     dot = sum(x * y for x, y in zip(a, b, strict=False))
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(x * x for x in b))
@@ -163,8 +179,7 @@ class ConvergenceDetector:
         self._embedder = embedder
         self._history: list[float] = []
         self._iteration = 0
-        self._text_embeddings: list[list[float]] = []
-        self._text_embedding_iterations: list[int] = []
+        self._text_embeddings: list[_EmbeddingRecord] = []
         self._validate_budget_configuration()
 
     @property
@@ -192,9 +207,19 @@ class ConvergenceDetector:
         """
         if text is not None and self._embedder is not None:
             try:
+                model_ref, model_version = self._embedding_provenance()
                 emb = self._embedder.embed([text])[0]
-                self._text_embeddings.append(emb)
-                self._text_embedding_iterations.append(self._iteration + 1)
+                vector = tuple(float(value) for value in emb)
+                self._text_embeddings.append(
+                    _EmbeddingRecord(
+                        iteration=self._iteration + 1,
+                        input_ref=sha256(text.encode("utf-8")).hexdigest(),
+                        model_ref=model_ref,
+                        model_version=model_version,
+                        dimension=len(vector),
+                        vector=vector,
+                    )
+                )
             except (AttributeError, IndexError, RuntimeError, TypeError, ValueError) as exc:
                 emit_degraded_path(
                     component="engine.convergence",
@@ -211,8 +236,23 @@ class ConvergenceDetector:
         """Reset detector state for reuse."""
         self._history.clear()
         self._text_embeddings.clear()
-        self._text_embedding_iterations.clear()
         self._iteration = 0
+
+    def _embedding_provenance(self) -> tuple[str, str]:
+        """Return stable model and version references for the current embedder."""
+        embedder = self._embedder
+        model_ref = getattr(embedder, "model_id", None)
+        if model_ref is None:
+            model_ref = getattr(embedder, "model_name", None)
+        if model_ref is None:
+            embedder_type = type(embedder)
+            model_ref = f"{embedder_type.__module__}.{embedder_type.__qualname__}"
+
+        model_version = getattr(embedder, "model_version", None)
+        if model_version is None:
+            model_version = getattr(embedder, "version", None)
+
+        return str(model_ref), "" if model_version is None else str(model_version)
 
     def _validate_budget_configuration(self) -> None:
         if self._config.budget_key is None:
@@ -340,22 +380,33 @@ class ConvergenceDetector:
 
     def _check_embedding_cosine(self) -> bool:
         """Converged when consecutive text embeddings have high similarity."""
-        if not self._has_current_embedding_pair():
+        pair = self._current_embedding_pair()
+        if pair is None:
             return False
+        previous, current = pair
         sim = _cosine_similarity(
-            self._text_embeddings[-1],
-            self._text_embeddings[-2],
+            list(current.vector),
+            list(previous.vector),
         )
         return sim >= self._config.threshold
 
-    def _has_current_embedding_pair(self) -> bool:
-        """Return whether the last two embeddings belong to adjacent iterations."""
-        if len(self._text_embeddings) < 2 or len(self._text_embedding_iterations) < 2:
-            return False
-        return (
-            self._text_embedding_iterations[-1] == self._iteration
-            and self._text_embedding_iterations[-2] == self._iteration - 1
-        )
+    def _current_embedding_pair(self) -> tuple[_EmbeddingRecord, _EmbeddingRecord] | None:
+        """Return the latest compatible pair or ``None`` when it is stale."""
+        if len(self._text_embeddings) < 2:
+            return None
+        previous, current = self._text_embeddings[-2:]
+        if current.iteration != self._iteration or previous.iteration != self._iteration - 1:
+            return None
+        if not previous.input_ref or not current.input_ref:
+            return None
+        if (previous.model_ref, previous.model_version) != (
+            current.model_ref,
+            current.model_version,
+        ):
+            return None
+        if previous.dimension != current.dimension:
+            return None
+        return previous, current
 
     def _check_statistical_plateau(self) -> bool:
         """Converged when the coefficient of variation in the window is small.
@@ -423,12 +474,14 @@ class ConvergenceDetector:
 
         # Semantic signal
         semantic_signal = 0.0
-        if self._has_current_embedding_pair():
+        pair = self._current_embedding_pair()
+        if pair is not None:
+            previous, current = pair
             semantic_signal = max(
                 0.0,
                 _cosine_similarity(
-                    self._text_embeddings[-1],
-                    self._text_embeddings[-2],
+                    list(current.vector),
+                    list(previous.vector),
                 ),
             )
 

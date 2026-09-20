@@ -17,6 +17,7 @@ import zipfile
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from importlib import import_module
 from itertools import islice
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -81,8 +82,63 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import _execute_source_fetch
+    from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
+        _as_float,
+        _as_int,
+        _country_to_numeric,
+        _extract_year,
+        _filters_to_tuple,
+        _load_json_dict,
+        _normalize_country_code,
+        _normalize_observation_row,
+        _shard_countries,
+        _to_iso3,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
+        _WVSObservationAccumulator,
+    )
 
 logger = get_logger(__name__)
+
+__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+
+
+def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+    """Resolve a split-module dependency without facade-global injection."""
+    override = globals().get(name)
+    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+        return override
+    module = import_module(f"{__package__}.{owner}")
+    return getattr(module, name)
+
+
+def __make_implementation_proxy(name: str, owner: str) -> Any:
+    """Create a lazy, owner-bound compatibility callable for a split module."""
+
+    def __proxy(*args: Any, **kwargs: Any) -> Any:
+        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+
+    return __proxy
+
+
+for __dependency_name, __dependency_owner in (
+    ("_WVSObservationAccumulator", "writers"),
+    ("_as_float", "transformers"),
+    ("_as_int", "transformers"),
+    ("_country_to_numeric", "transformers"),
+    ("_execute_source_fetch", "api"),
+    ("_extract_year", "transformers"),
+    ("_filters_to_tuple", "transformers"),
+    ("_load_json_dict", "transformers"),
+    ("_normalize_country_code", "transformers"),
+    ("_normalize_observation_row", "transformers"),
+    ("_shard_countries", "transformers"),
+    ("_to_iso3", "transformers"),
+):
+    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
+    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
+    globals().setdefault(__dependency_name, __proxy)
 
 _TRANSPORT_SOURCES = frozenset(
     {
@@ -1204,7 +1260,10 @@ def _bulk_country_values(source: str, country_codes: tuple[str, ...]) -> list[st
     if source == "eurostat":
         return normalized
     if source == "ilo":
-        return [_to_iso3(code) for code in normalized]
+        return [
+            __resolve_implementation_dependency("_to_iso3", "transformers")(code)
+            for code in normalized
+        ]
     return normalized
 
 
@@ -1758,7 +1817,7 @@ async def _fetch_who_observations(
     start_year: int,
     end_year: int,
 ) -> list[dict[str, Any]]:
-    iso3 = _to_iso3(country_code)
+    iso3 = __resolve_implementation_dependency("_to_iso3", "transformers")(country_code)
     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
     params = {
         "$filter": f"SpatialDim eq '{iso3}' and TimeDim ge {int(start_year)} and TimeDim le {int(end_year)}",
@@ -1796,7 +1855,9 @@ async def _fetch_uis_observations(
     url = "https://api.uis.unesco.org/api/public/data/indicators"
     params = {
         "indicator": indicator_id,
-        "geoUnit": _to_iso3(country_code),
+        "geoUnit": __resolve_implementation_dependency("_to_iso3", "transformers")(
+            country_code
+        ),
         "start": int(start_year),
         "end": int(end_year),
     }

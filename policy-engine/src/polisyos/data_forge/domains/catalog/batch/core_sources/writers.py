@@ -17,6 +17,7 @@ import zipfile
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from importlib import import_module
 from itertools import islice
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -81,8 +82,67 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import _resolve_profile_config
+    from polisyos.data_forge.domains.catalog.batch.core_sources.loaders import (
+        _existing_observation_ids,
+        _iter_chunked_values,
+        _load_wvs_bulk_duckdb,
+        _load_wvs_bulk_rows,
+        _merge_observation_stats,
+        _records_from_payload,
+        _wvs_legacy_indicators,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.registry import (
+        _ensure_observation_index_compatibility,
+        _ensure_observation_provenance_columns,
+        _upsert_catalog_alignments,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
+        _normalize_observation_row,
+        _observation_id,
+    )
 
 logger = get_logger(__name__)
+
+__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+
+
+def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+    """Resolve a split-module dependency without facade-global injection."""
+    override = globals().get(name)
+    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+        return override
+    module = import_module(f"{__package__}.{owner}")
+    return getattr(module, name)
+
+
+def __make_implementation_proxy(name: str, owner: str) -> Any:
+    """Create a lazy, owner-bound compatibility callable for a split module."""
+
+    def __proxy(*args: Any, **kwargs: Any) -> Any:
+        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+
+    return __proxy
+
+
+for __dependency_name, __dependency_owner in (
+    ("_ensure_observation_index_compatibility", "registry"),
+    ("_ensure_observation_provenance_columns", "registry"),
+    ("_existing_observation_ids", "loaders"),
+    ("_iter_chunked_values", "loaders"),
+    ("_load_wvs_bulk_duckdb", "loaders"),
+    ("_load_wvs_bulk_rows", "loaders"),
+    ("_merge_observation_stats", "loaders"),
+    ("_normalize_observation_row", "transformers"),
+    ("_observation_id", "transformers"),
+    ("_records_from_payload", "loaders"),
+    ("_resolve_profile_config", "api"),
+    ("_upsert_catalog_alignments", "registry"),
+    ("_wvs_legacy_indicators", "loaders"),
+):
+    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
+    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
+    globals().setdefault(__dependency_name, __proxy)
 
 _TRANSPORT_SOURCES = frozenset(
     {
@@ -1110,7 +1170,9 @@ def _insert_generic_observations(
     unique_rows: dict[str, tuple] = {}
     multi_slice_groups: dict[tuple[str, int | None], set[str]] = {}
     for row in rows:
-        normalized = _normalize_observation_row(row)
+        normalized = __resolve_implementation_dependency(
+            "_normalize_observation_row", "transformers"
+        )(row)
         if normalized is None:
             continue
         attempted += 1

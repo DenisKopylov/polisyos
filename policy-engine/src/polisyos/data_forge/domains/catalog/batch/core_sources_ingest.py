@@ -46,6 +46,68 @@ _IMPLEMENTATION_MODULES: tuple[ModuleType, ...] = (
     _transformers,
     _api,
 )
+
+# The translated leaf group is no longer a recipient of arbitrary facade
+# globals.  These are the existing compatibility seams that may still be
+# overridden by facade-level monkeypatches while each leaf resolves its
+# canonical owner when no override is present.
+__TARGET_LEAF_COMPATIBILITY_NAMES: dict[ModuleType, frozenset[str]] = {
+    _loaders: frozenset(
+        {
+            "_WVSObservationAccumulator",
+            "_as_float",
+            "_as_int",
+            "_country_to_numeric",
+            "_execute_source_fetch",
+            "_extract_year",
+            "_filters_to_tuple",
+            "_load_json_dict",
+            "_normalize_country_code",
+            "_normalize_observation_row",
+            "_shard_countries",
+            "_to_iso3",
+        }
+    ),
+    _validators: frozenset(
+        {
+            "_build_observation_shards_from_sketches",
+            "_build_support_sketches",
+            "_canonicalize_observation_request_filters",
+            "_eurostat_filters_for_countries",
+            "_execute_source_fetch",
+            "_filters_to_tuple",
+            "_is_explicit_unsupported_error",
+            "_load_json_dict",
+            "_observation_frequency_rank",
+            "_planner_error_status_code",
+            "_policy_attr",
+            "_policy_bool_attr",
+            "_policy_int_attr",
+            "_records_from_payload",
+            "_resolve_source_execution_policy",
+            "_sdmx_filters_for_countries",
+            "_strip_geo_filters",
+            "_to_iso3",
+        }
+    ),
+    _writers: frozenset(
+        {
+            "_ensure_observation_index_compatibility",
+            "_ensure_observation_provenance_columns",
+            "_existing_observation_ids",
+            "_iter_chunked_values",
+            "_load_wvs_bulk_duckdb",
+            "_load_wvs_bulk_rows",
+            "_merge_observation_stats",
+            "_normalize_observation_row",
+            "_observation_id",
+            "_records_from_payload",
+            "_resolve_profile_config",
+            "_upsert_catalog_alignments",
+            "_wvs_legacy_indicators",
+        }
+    ),
+}
 _DELEGATES: dict[str, Callable[..., Any]] = {}
 _INTERNAL_NAMES = {
     "Any",
@@ -68,7 +130,13 @@ def _sync_implementation_globals() -> None:
         if name not in _INTERNAL_NAMES and not name.startswith("__")
     }
     for module in _IMPLEMENTATION_MODULES:
-        module.__dict__.update(public_state)
+        allowed = __TARGET_LEAF_COMPATIBILITY_NAMES.get(module)
+        if allowed is None:
+            module.__dict__.update(public_state)
+            continue
+        module.__dict__.update(
+            {name: public_state[name] for name in allowed if name in public_state}
+        )
 
 
 def _make_delegate(name: str, target: Callable[..., Any]) -> Callable[..., Any]:

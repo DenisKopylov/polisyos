@@ -303,6 +303,16 @@ def test_explicit_constant_profile_preserves_constant_forecast_and_interval(
     assert result["predictions"]["metric"] == [7.0, 7.0, 7.0]
     assert result["intervals"]["metric"] == [(6.0, 8.0)] * 3
 
+    _artifacts, _captured = _scientist_result_with_artifacts(
+        monkeypatch,
+        orchestrator,
+        metrics_payload={"values": {"metric": 7.0}},
+        envelope_payload={"confidence_interval": [6.0, 8.0]},
+    )
+    without_profile = orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
+    assert without_profile["prediction_mode_effective"] == PredictionSource.NAIVE.value
+    assert "scientist_predictions_missing" in without_profile["degraded_reasons"]
+
 
 def test_provided_predictions_do_not_dispatch_scientist(monkeypatch, tmp_path) -> None:
     history_path = tmp_path / "provided-history.json"

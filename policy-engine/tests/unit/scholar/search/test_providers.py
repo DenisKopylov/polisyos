@@ -41,6 +41,32 @@ class _WorkingProvider:
         ][:max_results]
 
 
+class _EmptyProvider:
+    name = "empty"
+
+    def __init__(self, calls: list[str]) -> None:
+        self._calls = calls
+
+    async def search(self, query, *, constraints, max_results, timeout_s):
+        del query, constraints, max_results, timeout_s
+        self._calls.append(self.name)
+        return []
+
+
+class _RecordingWorkingProvider(_WorkingProvider):
+    def __init__(self, calls: list[str]) -> None:
+        self._calls = calls
+
+    async def search(self, query, *, constraints, max_results, timeout_s):
+        self._calls.append(self.name)
+        return await super().search(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+
+
 @pytest.mark.asyncio
 async def test_provider_failover_policy_returns_secondary_hits():
     policy = ProviderFailoverPolicy([_FailingProvider(), _WorkingProvider()])
@@ -56,6 +82,26 @@ async def test_provider_failover_policy_returns_secondary_hits():
     assert error is None
     assert len(hits) == 1
     assert str(hits[0].url) == "https://example.gov/report"
+
+
+@pytest.mark.asyncio
+async def test_provider_failover_policy_continues_after_empty_response():
+    calls: list[str] = []
+    policy = ProviderFailoverPolicy(
+        [_EmptyProvider(calls), _RecordingWorkingProvider(calls)],
+    )
+
+    provider_name, hits, error = await policy.search(
+        "minimum wage",
+        constraints=SearchConstraints(source_types=["government"]),
+        max_results=5,
+        timeout_s=5,
+    )
+
+    assert calls == ["empty", "working"]
+    assert provider_name == "working"
+    assert error is None
+    assert len(hits) == 1
 
 
 @pytest.mark.asyncio

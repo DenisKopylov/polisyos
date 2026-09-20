@@ -47,8 +47,37 @@ class SearchRunState:
     generation_attempts: int = 0
     empty_generation_attempts: int = 0
     evaluation_iterations: int = 0
+    training_evaluations: int = 0
     budget_spent: float = 0.0
+    budget_available: bool = False
+    budget_snapshot: dict[str, float] = field(default_factory=dict)
+    policy_evaluation_errors: int = 0
     generation_transition: GenerationTransition | None = None
+
+    @property
+    def history_size(self) -> int:
+        """Return the number of records available to surrogate consumers."""
+        return len(self.history)
+
+    @property
+    def new_evaluations(self) -> int:
+        """Return ordinary evaluations from the current run.
+
+        Warm-start records and sentinel checks are intentionally not part of
+        this stopping counter.  The existing ``evaluation_iterations`` field
+        remains the source of truth so a second mutable ledger is not created.
+        """
+        return self.evaluation_iterations
+
+    @property
+    def evaluation_count(self) -> int:
+        """Return every Stage B evaluation, including sentinels."""
+        return self.stage_b_evaluations
+
+    @property
+    def scientific_evaluations(self) -> int:
+        """Return non-sentinel Stage B evaluations used by the search signal."""
+        return max(0, self.stage_b_evaluations - self.sentinel_evaluations)
 
     def generation_transition_payload(self) -> dict[str, Any] | None:
         """Return a detached, typed transition payload for a public result."""
@@ -59,6 +88,13 @@ class SearchRunState:
             "generation_attempts": self.generation_attempts,
             "evaluation_iterations": self.evaluation_iterations,
             "budget_spent": self.budget_spent,
+            "budget_available": self.budget_available,
+            "history_size": self.history_size,
+            "training_evaluations": self.training_evaluations,
+            "new_evaluations": self.new_evaluations,
+            "evaluation_count": self.evaluation_count,
+            "scientific_evaluations": self.scientific_evaluations,
+            "sentinel_evaluations": self.sentinel_evaluations,
         }
 
     def apply_evaluation_transition(self, transition: _EvaluationTransition) -> None:

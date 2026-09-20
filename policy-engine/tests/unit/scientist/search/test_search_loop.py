@@ -25,6 +25,7 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.stages import CheapStage, ExpensiveStage
 from polisyos.scientist.methods.search.stopping import (
     CompositeStoppingCriterion,
+    CostBudgetStopping,
     ImprovementPlateau,
     MaxIterations,
     MaxWallTime,
@@ -258,6 +259,121 @@ class TestOptimizationFlow:
 
         assert warm.history[0].iteration == -1
         assert warm.history[0].candidate["x"] == 0.5
+        assert warm.telemetry["training_evaluations"] == 1
+        assert warm.telemetry["history_size"] == 3
+        assert warm.telemetry["new_evaluations"] == 2
+        assert warm.telemetry["evaluation_count"] == 2
+        assert warm.telemetry["scientific_evaluations"] == 2
+
+    def test_cost_budget_snapshot_stops_after_owner_spend_and_is_reported(
+        self,
+        quadratic_objective,
+    ):
+        """The owner spend is shared by both stopping checks and the result report."""
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": 1.0, "semantic": {"interventions": []}}
+
+        context = {"cumulative_cost_usd": 0.0}
+
+        def stage_b(candidate, stage_context):
+            del candidate
+            stage_context["cumulative_cost_usd"] += 1.0
+            return {
+                "simulation_results": {"x": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=CostBudgetStopping(max_cost_usd=1.0),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=lambda candidate, stage_context: (0.0, True),
+            stage_b_evaluator=stage_b,
+        )
+
+        result = controller.run(context)
+
+        assert result.iterations_completed == 1
+        assert result.stage_b_evaluations == 1
+        assert result.telemetry["budget_available"] is True
+        assert result.telemetry["budget_snapshot"] == {"cumulative_cost_usd": 1.0}
+        assert result.telemetry["budget_spent"] == 1.0
+        assert "Cost budget" in result.stopping_reason
+
+    def test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective(
+        self,
+        quadratic_objective,
+    ):
+        """A present invalid typed result remains blocked at the consumer boundary."""
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": 1.0, "semantic": {"interventions": []}}
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": -10.0},
+                "feedback": {"verdict": "APPROVE"},
+                "policy_evaluation": {"unexpected": "typed payload"},
+            },
+        )
+
+        result = controller.run({"user_request": "malformed typed"})
+
+        assert result.best_candidate is None
+        assert result.history[0].objective_value == float("inf")
+        assert result.history[0].policy_evaluation is None
+        assert result.history[0].policy_evaluation_status == "invalid"
+        assert result.history[0].policy_evaluation_error == "policy_evaluation_parse_failed"
+        assert result.history[0].is_promising is False
+        assert result.telemetry["policy_evaluation_errors"] == 1
+
+    def test_valid_infeasible_typed_evaluation_remains_typed(self, quadratic_objective):
+        """A valid blocking vector is not converted into the legacy scalar path."""
+        from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+        class StaticGenerator:
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": -10.0, "semantic": {"interventions": []}}
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=StaticGenerator(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": -10.0},
+                "feedback": {"verdict": "REJECT"},
+                "policy_evaluation": PolicyEvaluationVector(
+                    feasible=False,
+                    blocking_reasons=["budget_constraint"],
+                ),
+            },
+        )
+
+        result = controller.run({"user_request": "infeasible typed"})
+
+        evaluation = result.history[0].policy_evaluation
+        assert evaluation is not None
+        assert evaluation.feasible is False
+        assert result.history[0].policy_evaluation_status == "valid"
+        assert result.history[0].is_promising is False
+        assert result.history[0].objective_value >= 1_000_000.0
 
     def test_concurrent_runs_are_rejected_as_non_reentrant(self, quadratic_objective):
         """One mutable controller rejects a second run while the first is active."""

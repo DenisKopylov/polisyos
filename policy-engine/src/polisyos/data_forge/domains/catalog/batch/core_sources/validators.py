@@ -17,6 +17,7 @@ import zipfile
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from importlib import import_module
 from itertools import islice
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -81,8 +82,77 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
+        _execute_source_fetch,
+        _is_explicit_unsupported_error,
+        _planner_error_status_code,
+        _policy_attr,
+        _policy_bool_attr,
+        _policy_int_attr,
+        _resolve_source_execution_policy,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.loaders import _records_from_payload
+    from polisyos.data_forge.domains.catalog.batch.core_sources.registry import (
+        _build_observation_shards_from_sketches,
+        _build_support_sketches,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.transformers import (
+        _canonicalize_observation_request_filters,
+        _eurostat_filters_for_countries,
+        _filters_to_tuple,
+        _load_json_dict,
+        _observation_frequency_rank,
+        _sdmx_filters_for_countries,
+        _strip_geo_filters,
+        _to_iso3,
+    )
 
 logger = get_logger(__name__)
+
+__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+
+
+def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+    """Resolve a split-module dependency without facade-global injection."""
+    override = globals().get(name)
+    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+        return override
+    module = import_module(f"{__package__}.{owner}")
+    return getattr(module, name)
+
+
+def __make_implementation_proxy(name: str, owner: str) -> Any:
+    """Create a lazy, owner-bound compatibility callable for a split module."""
+
+    def __proxy(*args: Any, **kwargs: Any) -> Any:
+        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+
+    return __proxy
+
+
+for __dependency_name, __dependency_owner in (
+    ("_build_observation_shards_from_sketches", "registry"),
+    ("_build_support_sketches", "registry"),
+    ("_canonicalize_observation_request_filters", "transformers"),
+    ("_eurostat_filters_for_countries", "transformers"),
+    ("_execute_source_fetch", "api"),
+    ("_filters_to_tuple", "transformers"),
+    ("_is_explicit_unsupported_error", "api"),
+    ("_load_json_dict", "transformers"),
+    ("_observation_frequency_rank", "transformers"),
+    ("_planner_error_status_code", "api"),
+    ("_policy_attr", "api"),
+    ("_policy_bool_attr", "api"),
+    ("_policy_int_attr", "api"),
+    ("_records_from_payload", "loaders"),
+    ("_resolve_source_execution_policy", "api"),
+    ("_sdmx_filters_for_countries", "transformers"),
+    ("_strip_geo_filters", "transformers"),
+    ("_to_iso3", "transformers"),
+):
+    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
+    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
+    globals().setdefault(__dependency_name, __proxy)
 
 _TRANSPORT_SOURCES = frozenset(
     {
@@ -659,7 +729,7 @@ def _shard_supported_by_capability(
         )
         for country_code in requested_countries:
             iso2 = str(country_code or "").strip().upper()
-            iso3 = _to_iso3(iso2)
+            iso3 = __resolve_implementation_dependency("_to_iso3", "transformers")(iso2)
             numeric = iso2_to_numeric(iso2) or ""
             allowed = {str(value).strip().upper() for value in allowed_geo if str(value).strip()}
             if iso2 not in allowed and iso3 not in allowed and numeric not in allowed:

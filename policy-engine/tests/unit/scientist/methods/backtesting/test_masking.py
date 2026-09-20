@@ -79,8 +79,10 @@ def test_masking_rejects_unresolved_or_ambiguous_intervention_date(
 def test_masking_rejects_disagreeing_step_and_pre_periods(tmp_path) -> None:
     plan = _plan(tmp_path, intervention_step=1, pre_intervention_periods=2)
 
-    with pytest.raises(MaskingValidationError, match="cutoff"):
+    with pytest.raises(MaskingValidationError) as exc_info:
         OutcomeMasker().mask(
             {"metric": [1.0, 2.0, 900.0, 901.0]},
             plan,
         )
+
+    assert exc_info.value.code == "intervention_cutoff_mismatch"

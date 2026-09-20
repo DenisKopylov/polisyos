@@ -624,6 +624,10 @@ async def compile_and_run_recursive_generation_cycle(
                 raise PublicExportRedactionError("open_world_projection_duplicate")
             seen_vector_refs.add(vector_key)
             limitations.append(limitation)
+    recursive_run_payload = recursive_run.model_dump(
+        mode="json",
+        exclude={"leaf_nodes"},
+    )
     payload = {
         "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
         "design_problem_ref": problem_ref,
@@ -631,17 +635,21 @@ async def compile_and_run_recursive_generation_cycle(
         "cycle_substrate_context_ref": (
             cycle_substrate_context.content_hash if cycle_substrate_context is not None else None
         ),
-        "recursive_run": recursive_run.model_dump(
-            mode="json",
-            exclude={"leaf_nodes"},
-        ),
+        "recursive_run": recursive_run_payload,
     }
     if limitations:
         payload["open_world_risk_limitations"] = tuple(
             row.model_dump(mode="json") for row in limitations
         )
     return CompiledRecursiveGenerationCycleRun.model_validate(
-        {**payload, "content_hash": gy_content_hash(payload)}
+        {
+            **payload,
+            # Preserve the live recursive object so its leaf simulation keeps
+            # the exact owner WMR internal provenance handle.  The JSON
+            # projection above remains the content-hash/public-artifact view.
+            "recursive_run": recursive_run,
+            "content_hash": gy_content_hash(payload),
+        }
     )
 
 

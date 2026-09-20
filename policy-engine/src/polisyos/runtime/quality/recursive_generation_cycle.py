@@ -813,6 +813,7 @@ class RecursiveGenerationCycleController:
 
         root = await route(recursive_graph.root_design_ref)
         ordered_nodes = tuple(node_results[node_ref] for node_ref in node_refs)
+        node_payloads = tuple(node.model_dump(mode="json") for node in ordered_nodes)
         payload = {
             "schema_version": RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
             "run_id": f"recursive:{recursive_graph.graph_id}",
@@ -829,11 +830,18 @@ class RecursiveGenerationCycleController:
             ),
             "recursive_budget": recursive_budget.model_dump(mode="json"),
             "observed_max_depth": max(depths.values()),
-            "nodes": tuple(node.model_dump(mode="json") for node in ordered_nodes),
+            "nodes": node_payloads,
             "terminal": root.terminal.model_dump(mode="json"),
         }
         return RecursiveGenerationCycleRun.model_validate(
-            {**payload, "content_hash": gy_content_hash(payload)}
+            {
+                **payload,
+                # Keep the already-validated leaf objects on the live route.
+                # Their SimulationPortObservation carries the exact owner WMR
+                # as an internal provenance handle excluded from JSON output.
+                "nodes": ordered_nodes,
+                "content_hash": gy_content_hash(payload),
+            }
         )
 
 

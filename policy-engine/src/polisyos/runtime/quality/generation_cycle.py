@@ -1460,6 +1460,23 @@ class JointSimulationPort:
                         "world_model_error": str(exc),
                     }
                 )
+                if self._cycle_substrate_context is not None:
+                    try:
+                        from polisyos.runtime.quality.cycle_substrate import (
+                            revalidate_cycle_substrate_context,
+                        )
+
+                        revalidate_cycle_substrate_context(self._cycle_substrate_context)
+                        world_record = self._cycle_substrate_context.world_model_record
+                        diagnostics.update(
+                            {
+                                "world_model_record_id": world_record.world_model_record_id,
+                                "world_model_record_content_hash": world_record.content_hash,
+                                "world_model_source": "cycle_substrate_context",
+                            }
+                        )
+                    except (TypeError, ValueError):
+                        world_record = None
             return SimulationPortObservation(
                 candidate_id=candidate_id,
                 status=(

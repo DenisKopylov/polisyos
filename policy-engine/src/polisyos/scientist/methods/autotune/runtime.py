@@ -273,6 +273,7 @@ class SearchLoopRunner:
             candidate_ref,
             evaluation_ref,
             spec.promotion_policy,
+            suite_ref=suite_ref,
         )
         metrics = evaluation.metrics_for_split(spec.promotion_policy.compare_split)
         primary_value = metrics.get(spec.promotion_policy.primary_metric, 0.0)

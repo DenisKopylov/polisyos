@@ -64,6 +64,11 @@ def bootstrap_metric(
             "bootstrap_metric requires at least one observed value",
             code="empty_values",
         )
+    if not np.isfinite(arr).all():
+        raise BootstrapValidationError(
+            "bootstrap_metric requires finite observed values",
+            code="non_finite_values",
+        )
     if n_bootstrap <= 0:
         raise BootstrapValidationError(
             "n_bootstrap must be greater than zero",
@@ -77,18 +82,23 @@ def bootstrap_metric(
             details={"confidence_level": confidence_level},
         )
 
-    rng = np.random.default_rng(seed)
     stat_fn = _resolve_statistic(statistic)
-    point = float(stat_fn(arr))
+    point = _evaluate_statistic(stat_fn, arr)
 
+    rng = np.random.default_rng(seed)
     boot_stats = np.empty(n_bootstrap)
     for i in range(n_bootstrap):
         sample = rng.choice(arr, size=arr.size, replace=True)
-        boot_stats[i] = stat_fn(sample)
+        boot_stats[i] = _evaluate_statistic(stat_fn, sample)
 
     alpha = 1.0 - confidence_level
     lower = float(np.percentile(boot_stats, 100 * alpha / 2))
     upper = float(np.percentile(boot_stats, 100 * (1 - alpha / 2)))
+    if not np.isfinite([lower, upper]).all():
+        raise BootstrapValidationError(
+            "bootstrap confidence interval must be finite",
+            code="non_finite_interval",
+        )
 
     return BootstrapCI(
         metric=metric,
@@ -134,7 +144,30 @@ def bootstrap_scenario_metrics(
 def _resolve_statistic(statistic: str | StatisticFn) -> StatisticFn:
     if callable(statistic):
         return statistic
-    return _STAT_FNS.get(statistic, np.mean)
+    if isinstance(statistic, str) and statistic in _STAT_FNS:
+        return _STAT_FNS[statistic]
+    raise BootstrapValidationError(
+        f"Unknown bootstrap statistic: {statistic!r}",
+        code="unknown_statistic",
+        details={"statistic": repr(statistic)},
+    )
+
+
+def _evaluate_statistic(stat_fn: StatisticFn, values: np.ndarray) -> float:
+    """Evaluate a statistic and reject non-scalar or non-finite results."""
+    try:
+        result = float(stat_fn(values))
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise BootstrapValidationError(
+            "bootstrap statistic must return a finite scalar",
+            code="invalid_statistic_result",
+        ) from exc
+    if not np.isfinite(result):
+        raise BootstrapValidationError(
+            "bootstrap statistic must return a finite result",
+            code="non_finite_statistic",
+        )
+    return result
 
 
 def _rmse_statistic(values: np.ndarray) -> float:

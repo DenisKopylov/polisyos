@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import math
 from typing import Any
+
+import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy, ParameterSpec
+from polisyos.scientist.methods.doe.stress_report import VulnerabilityType
 from polisyos.scientist.methods.search.adversarial import (
     NegatedCompositeObjective,
     PlatformMetaEvaluationInput,
@@ -12,6 +16,7 @@ from polisyos.scientist.methods.search.adversarial import (
     run_stress_test,
 )
 from polisyos.scientist.methods.search.objective import (
+    BudgetDeficitObjective,
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
@@ -338,6 +343,90 @@ def test_run_stress_test_search_loop_reverses_order_for_minimize_cost() -> None:
     assert [len(history) for history in adapter.seen_histories] == [0, 1]
     assert report.worst_case_objective == 10.0
     assert [item.objective_value for item in report.vulnerabilities] == [10.0]
+
+
+def test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case() -> None:
+    """Use the real composite cost objective rather than a direction surrogate."""
+    plan = AdversarialPlan(
+        parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+        strategy=AdversarialStrategy.GRID_EXTREME,
+        max_iterations=2,
+        stop_on_first_vulnerability=False,
+    )
+    costs = iter((1.0, 10.0))
+
+    def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        del candidate, context
+        return {"simulation_results": {"budget_deficit": next(costs)}}
+
+    report = run_stress_test(
+        adversarial_plan=plan,
+        base_objective=CompositeObjective([BudgetDeficitObjective()]),
+        stage_b_evaluator=stage_b,
+        context={},
+    )
+
+    assert report.total_scenarios_evaluated == 2
+    assert report.worst_case_objective == 10.0
+
+
+@pytest.mark.parametrize(
+    "invalid_result",
+    [
+        pytest.param(None, id="missing"),
+        pytest.param(
+            {"simulation_results": {"budget_deficit": "not-a-number"}},
+            id="non_numeric",
+        ),
+        pytest.param(
+            {"simulation_results": {"budget_deficit": math.nan}},
+            id="nan",
+        ),
+        pytest.param(
+            {"simulation_results": {"budget_deficit": math.inf}},
+            id="inf",
+        ),
+    ],
+)
+def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
+    invalid_result: object,
+) -> None:
+    """Invalid adaptive feedback cannot become a positive robustness claim."""
+    plan = AdversarialPlan(
+        parameter_specs=[ParameterSpec(name="p0", lower_bound=-1.0, upper_bound=1.0)],
+        strategy=AdversarialStrategy.SEARCH_LOOP,
+        max_iterations=33,
+        stop_on_first_vulnerability=False,
+    )
+    space = SearchSpace([ParameterBounds(name="p0", lower=-1.0, upper=1.0)])
+    strategy = RecordingStrategy(space)
+    adapter = RecordingStrategyAdapter(strategy, space)
+    calls = 0
+
+    def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+        nonlocal calls
+        del candidate, context
+        calls += 1
+        if calls == 33:
+            return invalid_result
+        return {"simulation_results": {"budget_deficit": 1.0}}
+
+    report = run_stress_test(
+        adversarial_plan=plan,
+        base_objective=CompositeObjective([BudgetDeficitObjective()]),
+        stage_b_evaluator=stage_b,
+        candidate_generator=adapter,
+        context={},
+    )
+
+    assert calls == 33
+    assert report.total_scenarios_evaluated == 33
+    assert report.set_adequacy_status == "unverified"
+    assert report.robustness_score is None or report.robustness_score <= 0.0
+    assert any(
+        item.vulnerability_type == VulnerabilityType.NUMERICAL_INSTABILITY
+        for item in report.vulnerabilities
+    )
 
 
 def test_platform_meta_evaluator_passes_healthy_sentinel_injection() -> None:

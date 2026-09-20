@@ -312,6 +312,7 @@ class FunnelOrchestrator:
         self._tickets: dict[str, FunnelTicket] = {}
         self._ticket_cache: dict[str, str] = {}
         self._latest_ticket_by_candidate: dict[str, str] = {}
+        self._latest_ticket_by_context: dict[str, str] = {}
 
     @property
     def stages(self) -> list[FunnelStage]:
@@ -350,7 +351,7 @@ class FunnelOrchestrator:
                 ticket.context["is_sentinel"] = True
             return ticket
 
-        previous_ticket = self._latest_ticket(candidate_hash)
+        previous_ticket = self._latest_ticket(candidate_hash, continuation_key=continuation_key)
         ticket_id = str(uuid4())
         ticket = FunnelTicket(
             ticket_id=ticket_id,
@@ -377,6 +378,7 @@ class FunnelOrchestrator:
                 ticket.continuation_reason = "effective_context_changed"
         self._tickets[ticket.ticket_id] = ticket
         self._latest_ticket_by_candidate[candidate_hash] = ticket.ticket_id
+        self._latest_ticket_by_context[continuation_key] = ticket.ticket_id
         self._ticket_cache[cache_key] = ticket.ticket_id
         return ticket
 
@@ -716,8 +718,19 @@ class FunnelOrchestrator:
             return None
         return ticket
 
-    def _latest_ticket(self, candidate_hash: str) -> FunnelTicket | None:
-        ticket_id = self._latest_ticket_by_candidate.get(candidate_hash)
+    def _latest_ticket(
+        self,
+        candidate_hash: str,
+        *,
+        continuation_key: str | None = None,
+    ) -> FunnelTicket | None:
+        ticket_id = (
+            self._latest_ticket_by_context.get(continuation_key)
+            if continuation_key is not None
+            else None
+        )
+        if ticket_id is None:
+            ticket_id = self._latest_ticket_by_candidate.get(candidate_hash)
         if ticket_id is None:
             return None
         return self._tickets.get(ticket_id)

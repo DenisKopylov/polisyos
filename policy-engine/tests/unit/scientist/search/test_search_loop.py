@@ -530,6 +530,36 @@ class TestStoppingCriteria:
         assert math.isfinite(improvement)
         assert improvement == pytest.approx(-1.0)
 
+    def test_improvement_plateau_preserves_negative_gain_after_zero(self):
+        """A negative objective after zero remains a real improvement."""
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+
+        result = criterion.check(
+            [
+                {"objective_value": 0.0},
+                {"objective_value": -1.0},
+                {"objective_value": -1.0},
+            ],
+            {},
+        )
+
+        assert not result.should_stop
+
+    def test_improvement_plateau_keeps_real_progress_open(self):
+        """A normal positive relative gain still prevents an early stop."""
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+
+        result = criterion.check(
+            [
+                {"objective_value": 2.0},
+                {"objective_value": 1.0},
+                {"objective_value": 1.0},
+            ],
+            {},
+        )
+
+        assert not result.should_stop
+
     def test_composite_stops_on_first_trigger(self):
         """Composite should stop when ANY criterion triggers."""
         composite = CompositeStoppingCriterion(

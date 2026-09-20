@@ -73,6 +73,28 @@ class FailOnThirdEmbedder:
         return 4
 
 
+class DimensionChangingEmbedder:
+    """Return compatible data once, then a vector with another dimension."""
+
+    def __init__(self) -> None:
+        self._call_count = 0
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        self._call_count += 1
+        vector = [1.0, 0.0] if self._call_count == 1 else [1.0, 0.0, 0.0]
+        return [vector.copy() for _ in texts]
+
+
+class VersionedEmbedder:
+    """Return a stable vector while exposing mutable model provenance."""
+
+    def __init__(self) -> None:
+        self.model_version = "v1"
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        return [[1.0, 0.0, 0.0, 0.0] for _ in texts]
+
+
 # ---------------------------------------------------------------------------
 # Cosine similarity
 # ---------------------------------------------------------------------------
@@ -212,6 +234,51 @@ class TestEmbeddingCosine:
         state = d.check_with_text(1.0, "current text unavailable")
 
         assert not state.converged
+
+    def test_adjacent_embeddings_with_different_dimensions_do_not_converge(self):
+        """Cosine convergence rejects an adjacent pair with incompatible shape."""
+        cfg = ConvergenceConfig(
+            strategy=ConvergenceStrategy.EMBEDDING_COSINE,
+            threshold=0.99,
+            min_iterations=2,
+            window_size=2,
+        )
+        d = ConvergenceDetector(cfg, embedder=DimensionChangingEmbedder())
+        d.check_with_text(1.0, "first input")
+        state = d.check_with_text(1.0, "second input")
+
+        assert not state.converged
+
+    def test_model_version_change_does_not_compare_embeddings(self):
+        """Embedding similarity is invalid when model provenance changes."""
+        embedder = VersionedEmbedder()
+        cfg = ConvergenceConfig(
+            strategy=ConvergenceStrategy.EMBEDDING_COSINE,
+            threshold=0.99,
+            min_iterations=2,
+            window_size=2,
+        )
+        d = ConvergenceDetector(cfg, embedder=embedder)
+        d.check_with_text(1.0, "same input")
+        embedder.model_version = "v2"
+        state = d.check_with_text(1.0, "same input")
+
+        assert not state.converged
+
+    def test_adjacent_compatible_embeddings_still_converge(self):
+        """Current adjacent records with compatible provenance may converge."""
+        embedder = VersionedEmbedder()
+        cfg = ConvergenceConfig(
+            strategy=ConvergenceStrategy.EMBEDDING_COSINE,
+            threshold=0.99,
+            min_iterations=2,
+            window_size=2,
+        )
+        d = ConvergenceDetector(cfg, embedder=embedder)
+        d.check_with_text(1.0, "same input")
+        state = d.check_with_text(1.0, "same input")
+
+        assert state.converged
 
 
 # ---------------------------------------------------------------------------

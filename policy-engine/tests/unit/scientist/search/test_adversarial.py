@@ -168,7 +168,8 @@ def test_run_stress_test_top_k_does_not_change_ten_violation_score() -> None:
     assert top_ten.total_scenarios_evaluated == 10
     assert len(top_one.vulnerabilities) == 1
     assert len(top_ten.vulnerabilities) == 10
-    assert top_one.robustness_score == top_ten.robustness_score
+    assert top_one.robustness_score == top_ten.robustness_score == 0.0
+    assert top_one.worst_case_objective == top_ten.worst_case_objective == -10.0
 
 
 def test_run_stress_test_lower_tail_selects_negative_worst_case() -> None:

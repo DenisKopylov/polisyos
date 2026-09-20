@@ -58,6 +58,23 @@ def evaluate_continuous(
         intervals=interval_sets,
         levels=list(level_values),
     )
+    if curve_result.evaluation_status != "evaluated":
+        issue_code = (
+            "CALIB_INTERVAL_INCOMPLETE"
+            if curve_result.evaluation_status == "incomplete"
+            else "CALIB_INTERVAL_NOT_EVALUATED"
+        )
+        issues.append(
+            CalibrationDiagnosticIssue(
+                code=issue_code,
+                message="No complete interval-coverage comparison was evaluated.",
+                severity=ValidationSeverity.ERROR,
+                path="calibration.curves.interval_coverage",
+                expected=">=1 measured interval comparison",
+                actual=curve_result.n_comparisons,
+                context={"evaluation_status": curve_result.evaluation_status},
+            )
+        )
     deviations = np.asarray(
         [point.empirical_coverage - point.nominal_level for point in curve_result.points],
         dtype=float,
@@ -73,10 +90,14 @@ def evaluate_continuous(
         )
         for point in curve_result.points
     ]
-    rmsce = float(math.sqrt(np.mean(deviations**2))) if deviations.size else 0.0
+    rmsce = float(math.sqrt(np.mean(deviations**2))) if deviations.size else None
 
     metric_intervals: dict[str, CalibrationMetricInterval] = {}
-    if uncertainty and int(uncertainty.get("bootstrap", 0) or 0) > 0:
+    if (
+        curve_result.evaluation_status == "evaluated"
+        and uncertainty
+        and int(uncertainty.get("bootstrap", 0) or 0) > 0
+    ):
         curve_bins, metric_intervals = _attach_interval_bootstrap(
             y_true=y_arr,
             levels=level_values,
@@ -137,8 +158,8 @@ def evaluate_continuous(
         target_type="predictive_distribution" if sample_arr is not None else "interval_set",
         metrics=CalibrationMetrics(
             n_obs=int(y_arr.size),
-            ece=float(curve_result.ece),
-            mce=float(curve_result.max_ce),
+            ece=None if curve_result.ece is None else float(curve_result.ece),
+            mce=None if curve_result.max_ce is None else float(curve_result.max_ce),
             rmsce=rmsce,
             ence=ence,
             intervals=metric_intervals,
@@ -148,7 +169,13 @@ def evaluate_continuous(
         warnings=tuple(warnings),
         primary_curve="interval_coverage",
         recommended_action=_recommended_action(deviations),
-        metadata=metadata,
+        metadata={
+            **metadata,
+            "interval_coverage": {
+                "status": curve_result.evaluation_status,
+                "n_comparisons": curve_result.n_comparisons,
+            },
+        },
     )
 
 
@@ -188,6 +215,12 @@ def _prepare_interval_sets(
         ordered = sorted((float(level), interval_set) for level, interval_set in intervals.items())
         level_values = tuple(level for level, _ in ordered)
         interval_sets = [list(interval_set) for _, interval_set in ordered]
+        if levels is not None:
+            requested_levels = tuple(float(level) for level in levels)
+            if len(requested_levels) != len(level_values) or set(requested_levels) != set(
+                level_values
+            ):
+                raise ValueError("levels must match interval mapping keys")
     else:
         if levels is None:
             raise ValueError("levels are required when intervals are passed as a sequence")
@@ -199,7 +232,7 @@ def _prepare_interval_sets(
     for level, interval_set in zip(level_values, interval_sets, strict=True):
         if level <= 0.0 or level >= 1.0:
             raise ValueError("continuous interval levels must stay inside (0, 1)")
-        if len(interval_set) != y_true.size:
+        if interval_set and len(interval_set) != y_true.size:
             raise ValueError("each interval set must align with y_true length")
         for lower, upper in interval_set:
             if not math.isfinite(float(lower)) or not math.isfinite(float(upper)):
@@ -255,6 +288,8 @@ def _attach_interval_bootstrap(
             [point.empirical_coverage - point.nominal_level for point in result.points],
             dtype=float,
         )
+        if result.ece is None or result.max_ce is None:
+            raise ValueError("bootstrap requires evaluated interval-coverage comparisons")
         metric_samples["ece"].append(float(result.ece))
         metric_samples["mce"].append(float(result.max_ce))
         metric_samples["rmsce"].append(

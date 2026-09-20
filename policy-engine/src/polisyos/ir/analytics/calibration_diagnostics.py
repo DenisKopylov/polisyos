@@ -158,6 +158,13 @@ class CalibrationDiagnosticsReport(BaseModel):
         if self.has_errors():
             runtime_tier = TruthfulnessTier.UNVERIFIED
             degradation_reasons.append("fatal_calibration_issue")
+        issue_codes = {issue.code for issue in self.issues}
+        if "CALIB_INTERVAL_NOT_EVALUATED" in issue_codes:
+            runtime_tier = TruthfulnessTier.UNVERIFIED
+            degradation_reasons.append("interval_coverage_not_evaluated")
+        elif "CALIB_INTERVAL_INCOMPLETE" in issue_codes:
+            runtime_tier = TruthfulnessTier.UNVERIFIED
+            degradation_reasons.append("interval_coverage_incomplete")
         if n_obs < 30:
             runtime_tier = TruthfulnessTier.UNVERIFIED
             degradation_reasons.append("insufficient_holdout_sample")
@@ -181,6 +188,7 @@ class CalibrationDiagnosticsReport(BaseModel):
             "ece": ece,
             "mce": self.metrics.mce,
             "warnings": list(self.warnings),
+            "issues": sorted(issue_codes),
             "has_errors": self.has_errors(),
             "rejected_tests": list(rejected_tests),
             "recommended_action": self.recommended_action,

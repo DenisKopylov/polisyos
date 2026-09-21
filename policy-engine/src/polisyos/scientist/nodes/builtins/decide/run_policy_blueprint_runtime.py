@@ -574,11 +574,13 @@ class RunPolicyBlueprintRuntimeNode:
             if existing_evidence is not None and existing_evidence.governance_report_ref is not None
             else state.reports_index.get("governance_report_ref")
         )
+        calibration_report = load_funnel_calibration_report(ctx.store, calibration_ref)
         degradation_mode = _resolve_degradation_mode(
             state,
             hidden_holdout_ref=hidden_holdout_ref,
             replay_bundle_ref=replay_bundle_ref,
             governance_ref=governance_ref,
+            calibration_report=calibration_report,
         )
         missing_benchmark_requirements = benchmark_registry.require_promotion_evidence(
             family=benchmark_scope["artifact_family"],
@@ -591,7 +593,6 @@ class RunPolicyBlueprintRuntimeNode:
         )
         if missing_benchmark_requirements and degradation_mode == "normal":
             degradation_mode = "no_promotion"
-        calibration_report = load_funnel_calibration_report(ctx.store, calibration_ref)
 
         evidence_bundle = PromotionEvidenceBundle(
             run_id=state.run_id,
@@ -663,7 +664,10 @@ class RunPolicyBlueprintRuntimeNode:
             "causal_effect_report": causal_report,
             "distributional_report": distributional_report,
             "cross_graph_profile": cross_graph_profile,
-            "correlation_metrics": dict(state.params.get("correlation_metrics") or {}),
+            "correlation_metrics": _resolve_runtime_correlation_metrics(
+                state,
+                calibration_report,
+            ),
             "funnel_degradation_mode": degradation_mode,
             "promotion_evidence_bundle_ref": evidence_ref,
             "calibration_report_ref": calibration_ref,
@@ -680,7 +684,7 @@ class RunPolicyBlueprintRuntimeNode:
         )
         predictive_voi.update_calibration_state(
             {
-                **dict(state.params.get("correlation_metrics") or {}),
+                **_resolve_runtime_correlation_metrics(state, calibration_report),
                 "routing_mode": degradation_mode,
             }
         )
@@ -741,10 +745,20 @@ class RunPolicyBlueprintRuntimeNode:
                         candidate_ref,
                         context,
                     ),
+                    promotion_owner_recheck=lambda _candidate, context: (
+                        _policy_promotion_owner_recheck(
+                            ctx,
+                            state,
+                            candidate_ref,
+                            context,
+                        )
+                    ),
                     store=ctx.store,
                 ),
             ],
-            correlation_tracker=CorrelationTracker(),
+            correlation_tracker=_resolve_runtime_correlation_tracker(
+                calibration_report,
+            ),
             lesson_registry=LessonRegistry(
                 root=Path(ctx.store.root) / "search_registry" / "lessons",
                 store=ctx.store,
@@ -920,6 +934,18 @@ class RunPolicyBlueprintRuntimeNode:
                 new_state.artifacts_index[ARTIFACT_DECISION_READINESS_CONTRACT_REF] = (
                     promotion_payload.readiness_ref
                 )
+        elif isinstance(promotion_payload, Mapping):
+            new_state.params["policy_promotion_result"] = dict(promotion_payload)
+            if isinstance(promotion_payload.get("judge_verdict"), Mapping):
+                new_state.params["judge_verdict"] = dict(promotion_payload["judge_verdict"])
+            if isinstance(promotion_payload.get("readiness_contract"), Mapping):
+                new_state.params["decision_readiness_contract"] = dict(
+                    promotion_payload["readiness_contract"]
+                )
+            if isinstance(promotion_payload.get("promotion_decision"), Mapping):
+                new_state.params["promotion_decision"] = dict(
+                    promotion_payload["promotion_decision"]
+                )
         elif isinstance(promotion_feedback, dict):
             if "judge_verdict" in promotion_feedback:
                 new_state.params["judge_verdict"] = promotion_feedback["judge_verdict"]
@@ -1050,19 +1076,76 @@ def _ensure_calibration_report(
     if (ref := state.inputs.get(INPUT_CALIBRATION_REPORT_REF)) is not None:
         return ref
     report = build_calibration_report()
-    if isinstance(state.params.get("correlation_metrics"), dict):
+    state_metrics = _resolve_runtime_correlation_metrics(state, None)
+    if state_metrics:
         report = report.model_copy(
             update={
                 "current_mode": str(
-                    state.params["correlation_metrics"].get("routing_mode", report.current_mode)
+                    state_metrics.get("routing_mode", report.current_mode)
                 ),
                 "routing_health": {
                     **report.routing_health,
-                    **dict(state.params["correlation_metrics"]),
+                    **state_metrics,
                 },
             }
         )
     return persist_funnel_calibration_report(ctx.store, report)
+
+
+def _resolve_runtime_correlation_metrics(
+    state: ExperimentState,
+    calibration_report: Any | None,
+) -> dict[str, Any]:
+    """Reuse the current calibration projection already attached to the run."""
+
+    state_metrics = state.params.get("correlation_metrics")
+    if isinstance(state_metrics, Mapping) and state_metrics:
+        metrics = dict(state_metrics)
+        raw_sample_count = metrics.get("sample_count")
+        try:
+            sample_count = int(raw_sample_count) if raw_sample_count is not None else None
+        except (TypeError, ValueError):
+            sample_count = None
+        if sample_count == 0:
+            # Preserve the existing projection, but do not let an old
+            # ``normal`` default turn an empty corpus into measured health.
+            metrics["calibration_state"] = "not_established"
+            metrics["routing_mode"] = "no_promotion"
+            metrics["promotion_ban_active"] = False
+        elif sample_count is not None and sample_count > 0:
+            metrics.setdefault("calibration_state", "observed")
+        return metrics
+    if calibration_report is None:
+        return {}
+    metrics = dict(getattr(calibration_report, "routing_health", {}) or {})
+    sample_count = int(metrics.get("sample_count", 0) or 0)
+    metrics.setdefault("promotion_ban_active", False)
+    metrics["calibration_state"] = "not_established" if sample_count == 0 else "observed"
+    metrics["routing_mode"] = str(
+        getattr(calibration_report, "current_mode", None) or "no_promotion"
+    )
+    return metrics
+
+
+def _resolve_runtime_correlation_tracker(
+    calibration_report: Any | None,
+) -> CorrelationTracker | None:
+    """Restore a real tracker snapshot when present; otherwise keep projections read-only."""
+
+    snapshot: Any = None
+    if calibration_report is not None:
+        metadata = getattr(calibration_report, "metadata", {}) or {}
+        if isinstance(metadata, Mapping):
+            snapshot = metadata.get("correlation_tracker_snapshot")
+    if isinstance(snapshot, Mapping):
+        try:
+            return CorrelationTracker.from_snapshot(dict(snapshot))
+        except (TypeError, ValueError):
+            return None
+    # There is no existing runtime state key for a tracker snapshot.  Do not
+    # invent one or silently create a fresh empty tracker: the node consumes
+    # the persisted report/state projection until a real snapshot is supplied.
+    return None
 
 
 def _persist_runtime_strategic_artifacts(
@@ -1918,6 +2001,11 @@ def _policy_promotion_runner(
                 "degradation_mode": provenance["degradation_mode"],
             }
         evidence_bundle = evidence_bundle.model_copy(update={"evaluation_ref": evaluation_ref})
+        if not _policy_promotion_owner_recheck(ctx, state, candidate_ref, context):
+            return {
+                "decision": "defer_to_human",
+                "reason": "promotion_owner_recheck_failed",
+            }
         return run_promotion_with_evidence(
             ctx=ctx,
             state=state,
@@ -1933,6 +2021,36 @@ def _policy_promotion_runner(
             "decision": "reject",
             "reason": str(exc),
         }
+
+
+def _policy_promotion_owner_recheck(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    candidate_ref: ArtifactRef,
+    context: Mapping[str, Any],
+) -> bool:
+    """Revalidate current owner inputs immediately before promotion writes."""
+
+    if str(context.get("funnel_degradation_mode") or "normal") in {
+        "no_promotion",
+        "reduced_judge",
+        "auto_cap",
+    }:
+        return False
+    if context.get("promotion_write_allowed") is False:
+        return False
+    context_candidate_ref = context.get("policy_candidate_ref")
+    if isinstance(context_candidate_ref, ArtifactRef) and context_candidate_ref != candidate_ref:
+        return False
+    evidence_ref = context.get("promotion_evidence_bundle_ref")
+    if not isinstance(evidence_ref, ArtifactRef):
+        return False
+    try:
+        evidence_bundle = load_promotion_evidence_bundle(ctx.store, evidence_ref)
+        evidence_bundle.assert_compatible_with_run(state.run_id)
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        return False
+    return evidence_bundle.candidate_ref == candidate_ref
 
 
 def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
@@ -1998,14 +2116,22 @@ def _resolve_degradation_mode(
     hidden_holdout_ref: ArtifactRef | None | object = _UNSET,
     replay_bundle_ref: ArtifactRef | None | object = _UNSET,
     governance_ref: ArtifactRef | None | object = _UNSET,
+    calibration_report: Any | None = None,
 ) -> str:
-    correlation_metrics = state.params.get("correlation_metrics")
-    if isinstance(correlation_metrics, dict):
+    correlation_metrics = _resolve_runtime_correlation_metrics(state, calibration_report)
+    if correlation_metrics:
         routing_mode = str(correlation_metrics.get("routing_mode") or "").strip()
         if bool(correlation_metrics.get("promotion_ban_active")):
             return "no_promotion"
         if routing_mode:
             return routing_mode
+    if calibration_report is not None:
+        report_health = getattr(calibration_report, "routing_health", {}) or {}
+        if bool(report_health.get("promotion_ban_active")):
+            return "no_promotion"
+        report_mode = str(getattr(calibration_report, "current_mode", "") or "").strip()
+        if report_mode:
+            return report_mode
     if (
         hidden_holdout_ref is not _UNSET
         or replay_bundle_ref is not _UNSET

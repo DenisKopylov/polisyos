@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Literal
@@ -334,7 +334,7 @@ class FunnelOrchestrator:
             ticket_context.update(sentinel_meta)
             ticket_context["is_sentinel"] = True
         continuation_key = self._continuation_context_key(candidate, ticket_context)
-        routing_mode = self._routing_mode()
+        routing_mode = self._routing_mode(ticket_context)
         cache_key = self._ticket_cache_key(
             candidate,
             context,
@@ -394,7 +394,7 @@ class FunnelOrchestrator:
 
         resolved_ticket = self._resolve_ticket(ticket)
         execution_target = self._resolve_target_level(target_level, policy)
-        resolved_ticket.degradation_mode = self._routing_mode()
+        resolved_ticket.degradation_mode = self._routing_mode(resolved_ticket.context)
         burn_in_calibration = (
             policy == "burn_in"
             and str(resolved_ticket.context.get("burn_in_cohort", "")) == "calibration"
@@ -582,12 +582,27 @@ class FunnelOrchestrator:
         if not envelopes:
             uncertainty_envelope = UncertaintyEnvelope.unknown()
 
+        outcome_stage_results = dict(resolved_ticket.stage_results)
+        final_result = resolved_ticket.last_result
+        if final_result is not None:
+            # Keep the existing historical max on FunnelOutcome while making
+            # the latest same-ticket/same-context estimate explicit to readers.
+            current_uncertainty = UncertaintyEnvelope.current(envelopes)
+            feedback = dict(final_result.feedback or {})
+            feedback["uncertainty_current"] = current_uncertainty.model_dump(mode="json")
+            feedback["uncertainty_historical_max"] = uncertainty_envelope.model_dump(mode="json")
+            final_result = replace(final_result, feedback=feedback)
+            for level, result in outcome_stage_results.items():
+                if result is resolved_ticket.last_result:
+                    outcome_stage_results[level] = final_result
+                    break
+
         return FunnelOutcome(
             ticket_id=resolved_ticket.ticket_id,
             candidate_hash=resolved_ticket.candidate_hash,
             trace=list(resolved_ticket.trace),
-            stage_results=dict(resolved_ticket.stage_results),
-            final_result=resolved_ticket.last_result,
+            stage_results=outcome_stage_results,
+            final_result=final_result,
             failure_cards=failure_cards,
             uncertainty_envelope=uncertainty_envelope,
             compute_actual_usd=sum(step.compute_actual_usd for step in resolved_ticket.trace),
@@ -647,7 +662,7 @@ class FunnelOrchestrator:
             context: dict[str, Any],
         ) -> dict[str, Any]:
             sentinel_meta = extract_sentinel_metadata(candidate) or {}
-            routing_mode = self._routing_mode()
+            routing_mode = self._routing_mode(context)
             cache_key = self._ticket_cache_key(
                 candidate,
                 context,
@@ -935,8 +950,36 @@ class FunnelOrchestrator:
             context["correlation_metrics"] = self._correlation_tracker.compute_metrics()
         return context
 
-    def _routing_mode(self) -> DegradationMode:
+    def _routing_mode(self, context: Mapping[str, Any] | None = None) -> DegradationMode:
         if self._correlation_tracker is None:
+            # A persisted calibration projection can be authoritative even
+            # when no mutable tracker snapshot is available for this run.
+            candidate_mode = context.get("funnel_degradation_mode") if context else None
+            if candidate_mode in {
+                "normal",
+                "conservative_routing",
+                "no_promotion",
+                "reduced_judge",
+                "freeze_frontier",
+                "prior_free",
+                "auto_cap",
+            }:
+                return candidate_mode
+            candidate_metrics = context.get("correlation_metrics") if context else None
+            if isinstance(candidate_metrics, Mapping):
+                if bool(candidate_metrics.get("promotion_ban_active")):
+                    return "no_promotion"
+                candidate_mode = candidate_metrics.get("routing_mode")
+                if candidate_mode in {
+                    "normal",
+                    "conservative_routing",
+                    "no_promotion",
+                    "reduced_judge",
+                    "freeze_frontier",
+                    "prior_free",
+                    "auto_cap",
+                }:
+                    return candidate_mode
             return "normal"
         if hasattr(self._correlation_tracker, "routing_mode"):
             mode = self._correlation_tracker.routing_mode()

@@ -19,6 +19,7 @@ from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 logger = get_logger(__name__)
 
 _PromotionRunner = Callable[[dict[str, Any], dict[str, Any]], Any]
+_PromotionOwnerRecheck = Callable[[dict[str, Any], dict[str, Any]], Any]
 
 
 class Level6PromotionStage(FunnelStage):
@@ -31,12 +32,14 @@ class Level6PromotionStage(FunnelStage):
         estimated_cost_usd: float = 0.05,
         cost_per_second_usd: float = 0.002,
         allow_noop_complete: bool = False,
+        promotion_owner_recheck: _PromotionOwnerRecheck | None = None,
         store=None,
     ) -> None:
         self._promotion_runner = promotion_runner
         self._estimated_cost_usd = float(estimated_cost_usd)
         self._cost_per_second_usd = float(cost_per_second_usd)
         self._allow_noop_complete = bool(allow_noop_complete)
+        self._promotion_owner_recheck = promotion_owner_recheck
         self._store = store
 
     @property
@@ -60,16 +63,39 @@ class Level6PromotionStage(FunnelStage):
         prior_result = _prior_result(context)
         objective_value = float(prior_result.objective_value) if prior_result is not None else 0.0
         promotion_payload = context.get("promotion_result")
-        if promotion_payload is None and self._promotion_runner is not None:
-            promotion_payload = self._promotion_runner(candidate, context)
-
         failure_cards: list[TypedFailureCard] = []
         terminal_action = "complete"
         audit_refs = list(getattr(prior_result, "audit_refs", []))
         feedback = dict(getattr(prior_result, "feedback", {}) or {})
         degradation_mode = str(context.get("funnel_degradation_mode", "normal"))
+        preflight_blocked = degradation_mode in {"no_promotion", "reduced_judge", "auto_cap"}
 
-        if degradation_mode in {"no_promotion", "reduced_judge", "auto_cap"}:
+        owner_recheck = self._promotion_owner_recheck
+        if owner_recheck is None:
+            candidate_owner_recheck = context.get("promotion_owner_recheck")
+            if callable(candidate_owner_recheck):
+                owner_recheck = candidate_owner_recheck
+
+        if (
+            promotion_payload is None
+            and self._promotion_runner is not None
+            and not preflight_blocked
+        ):
+            if owner_recheck is not None:
+                try:
+                    owner_allows_write = _owner_recheck_allows_write(
+                        owner_recheck(candidate, context)
+                    )
+                except Exception as exc:  # pragma: no cover - defensive owner boundary
+                    owner_allows_write = False
+                    feedback["promotion_owner_recheck_error"] = type(exc).__name__
+                if not owner_allows_write:
+                    terminal_action = "defer_to_human"
+                    failure_cards.append(_owner_recheck_failure_card())
+            if terminal_action == "complete":
+                promotion_payload = self._promotion_runner(candidate, context)
+
+        if preflight_blocked:
             terminal_action = "defer_to_human"
             failure_cards.append(
                 TypedFailureCard(
@@ -81,10 +107,16 @@ class Level6PromotionStage(FunnelStage):
                     ),
                 )
             )
-            promotion_payload = None
 
         if terminal_action != "complete":
             feedback["promotion_mode"] = "degraded_cap"
+            if failure_cards and any(
+                card.failure_type == "promotion_owner_recheck_failed" for card in failure_cards
+            ):
+                feedback["promotion_mode"] = "owner_recheck_failed"
+            if promotion_payload is not None:
+                feedback["promotion_result"] = _promotion_payload_for_feedback(promotion_payload)
+                feedback["promotion_result_read_only"] = True
         elif _looks_like_policy_promotion_result(promotion_payload):
             judge_verdict = promotion_payload.judge_verdict
             promotion_decision = promotion_payload.promotion_decision
@@ -111,6 +143,7 @@ class Level6PromotionStage(FunnelStage):
                 audit_refs.append(readiness_ref)
             feedback.update(
                 {
+                    "promotion_result": _promotion_payload_for_feedback(promotion_payload),
                     "promotion_reason": promotion_decision.reason,
                     "judge_verdict": judge_verdict.model_dump(mode="json"),
                     "decision_readiness_contract": readiness_contract.model_dump(mode="json"),
@@ -143,6 +176,7 @@ class Level6PromotionStage(FunnelStage):
                     )
                 )
             feedback.update(dict(promotion_payload))
+            feedback["promotion_result"] = dict(promotion_payload)
         elif promotion_payload is None:
             if self._allow_noop_complete:
                 terminal_action = "complete"
@@ -265,6 +299,40 @@ def _looks_like_policy_promotion_result(value: Any) -> bool:
             "readiness_contract",
         )
     )
+
+
+def _owner_recheck_allows_write(value: Any) -> bool:
+    """Normalize the owner callback without treating a missing result as allow."""
+
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"allow", "allowed", "authorized", "ok", "true"}
+    return bool(value)
+
+
+def _owner_recheck_failure_card() -> TypedFailureCard:
+    return TypedFailureCard(
+        judge_name="L6_promotion",
+        failure_type="promotion_owner_recheck_failed",
+        severity=FailureSeverity.WARNING,
+        description="Promotion owner did not confirm write permission at commit boundary.",
+        remediation_hint="Refresh the current owner permission and retry promotion.",
+    )
+
+
+def _promotion_payload_for_feedback(value: Any) -> Any:
+    """Expose an existing payload as data without invoking a new producer."""
+
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        try:
+            return model_dump(mode="json")
+        except (AttributeError, TypeError, ValueError):
+            return model_dump()
+    if isinstance(value, dict):
+        return dict(value)
+    return value
 
 
 __all__ = ["Level6PromotionStage"]

@@ -21,7 +21,7 @@ Sol и Luna — выбранные пользователем роли; доку
 | I2/preparers | 2 | число меняется по готовому буферу |
 | I1 broker | 1 | единственный владелец общей вычислительной очереди |
 | Integration writer | 1 | последовательная запись integration branch |
-| **Прямые leaf workers (target)** | **15** | **текущий observed cap: 14 direct leaves + Sol; пятнадцатая роль ротируется; без субагентов** |
+| **Прямые leaf workers (confirmed target)** | **15** | **не считая Sol; при меньшей фактической ёмкости роли эластично перераспределяются; без субагентов** |
 
 Sol диспетчеризует одну очередь B+LA, утверждает write-set, решения о совместимости и приёмку. Исполнитель получает один умеренный пакет и отдельный branch/worktree/base SHA; следующий пакет можно передать новому агенту без огромного накопленного контекста. Если runtime даёт меньше seats, используется максимум доступных с сохранением review independence/write isolation, а предел записывается. Subagents — leaf workers, новых своих агентов не создают. Нет 127 одновременно открытых worktree.
 
@@ -98,7 +98,7 @@ I2 может сузить заранее заданное ребро при у�
 
 ## 10. Приёмка пакета и статусы
 
-Для B: актуальность механизма → различающая регрессия → минимальный patch → положительный/негативный control → независимый review → targeted consumer check на принимаемом SHA. Для LA: scope/caller characterization → перенесённый/единый owner либо честный профиль → нужный behavioral fix → actual consumer cutover → проверенный retirement или точный остаток.
+Для B: актуальность механизма → различающая регрессия → минимальный patch → положительный/негативный control → независимый review → targeted consumer check на принимаемом SHA. Fixed-SHA tests и первый содержательный review начинаются параллельно; consumer check следует после принятия обоих результатов. Для LA: scope/caller characterization → перенесённый/единый owner либо честный профиль → нужный behavioral fix → actual consumer cutover → проверенный retirement или точный остаток.
 
 Рабочие состояния: `planned → active → patch_ready → reviewed → merged_local → accepted_checkpoint`. `merged_local` — только integration branch, не release. Возможные отдельные исходы: `already_resolved`, `not_reproduced`, `conditional_not_used`, `blocked_environment`, `decision_needed`, `deferred_native`, `resolved_by_explicit_limitation`, `compatibility_pending`, `bridge_pending`. У source records внутри пакета отдельные статусы. Для многоэтапной LA closure owner проверяет **все required_bundles**; источник не объявляется исправленным только потому, что один packet merged.
 

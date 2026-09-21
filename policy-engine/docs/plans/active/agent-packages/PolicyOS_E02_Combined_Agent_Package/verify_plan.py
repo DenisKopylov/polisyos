@@ -61,6 +61,8 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
     require('LA-057' in bm['RUN-01']['legacy_cards'] and 'LA-045' in bm['REQ-01']['legacy_cards'], 'Exact cleanup owners lost')
     require(len(m['evolution']) == 8 and {e['source_direction'] for e in m['evolution']} == {f'S{x:02d}' for x in range(1,9)}, 'S directions not preserved')
     r = m['local_execution']
+    ledger_resource_profile = load(root, 'templates/run_ledger.json')['resource_profile']
+    require(ledger_resource_profile == r, 'Ledger resource profile drift')
     require(
         r['light_max_jobs'] == 7
         and r['light_equivalent_budget'] == 7
@@ -95,11 +97,11 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
             'measured_medium_max': 3,
         }
         and r['requested_direct_leaves'] == 15
-        and r['effective_runtime_direct_leaves'] == 14
-        and r['effective_runtime_cap_includes_sol'] is True
+        and r['effective_runtime_direct_leaves'] == 15
+        and r['effective_runtime_cap_includes_sol'] is False
         and r['runtime_cap_observed'] is True
-        and r['runtime_cap_basis'] == 'observed_current_platform'
-        and r['fifteenth_role_rotation'] is True
+        and r['runtime_cap_basis'] == 'observed_current_platform_2026-09-21'
+        and r['fifteenth_role_rotation'] is False
         and r['review_backlog_soft_target'] == 4
         and r['review_backlog_is_executor_cap'] is False
         and r['small_excess_global_stop'] is False
@@ -126,7 +128,7 @@ def verify(root: Path, check_hashes: bool = True) -> dict:
     require(
         r['executor_min'] <= r['executors'] <= r['executor_max']
         and r['reviewer_min'] <= r['reviewers'] <= r['reviewer_max']
-        and r['effective_runtime_direct_leaves'] + 1 == r['requested_direct_leaves']
+        and r['effective_runtime_direct_leaves'] == r['requested_direct_leaves']
         and r['executors'] + r['reviewers'] + r['preparers'] + r['brokers'] + r['integrators']
         == r['requested_direct_workers'],
         'Elastic staffing projection mismatch',

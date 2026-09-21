@@ -197,14 +197,14 @@ notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
 id = "dynamic-91fa7a3392e8"
-pattern = "polisyos.runtime.replay"
+pattern = "polisyos.scientist.replay.deterministic"
 source_file = "src/polisyos/core/components/_cli_replay.py"
 line = 25
 call = "importlib.import_module"
 owner = "team-architecture"
-target = "polisyos.runtime.replay"
+target = "polisyos.scientist.replay.deterministic"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = ["polisyos.runtime.replay"]
+allowed_targets = ["polisyos.scientist.replay.deterministic"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]

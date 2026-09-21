@@ -21,7 +21,7 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
-import polisyos.runtime.replay as runtime_replay  # noqa: E402
+import polisyos.scientist.replay.deterministic as scientist_replay  # noqa: E402
 from benchmarks.advanced.manifests import (  # noqa: E402
     ManifestBundle,
     ManifestCase,
@@ -1025,7 +1025,7 @@ def _cold_start_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
     targets = [
         ("judge_stack", "polisyos.scientist.methods.search.judge_stack"),
         ("benchmark_registry", "polisyos.scientist.methods.search.benchmark_registry"),
-        ("runtime_replay", "polisyos.runtime.replay"),
+        ("runtime_replay", "polisyos.scientist.replay.deterministic"),
         ("suite_registry", "benchmarks.suite_registry"),
     ]
     preflight, _mode, _tier, _spec_obj = _build_preflight_for_suite(
@@ -1196,7 +1196,7 @@ def _replay_lineage_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 "input_bindings_ref": "sha256:" + "c" * 64,
             }
         }
-        strategy = runtime_replay.determine_replay_strategy(_replay_payload)
+        strategy = scientist_replay.determine_replay_strategy(_replay_payload)
         passed = str(strategy.value) in {"foundry", "scientist"}
         return {
             "passed": passed,

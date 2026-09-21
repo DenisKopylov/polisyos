@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any as _Any
 
 if TYPE_CHECKING:
     from pathlib import Path as _Path
-
     from polisyos.data_forge.domains.ukraine.manifests import (
         ArtifactRecord as _ArtifactRecord,
         ValidationFinding as _ValidationFinding,

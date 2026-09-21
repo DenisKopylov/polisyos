@@ -31,10 +31,8 @@ from polisyos.data_forge.domains.ukraine.models import (
     StageId,
 )
 from polisyos.data_forge.kernel.io import ensure_dirs
-from polisyos.ir.observation.contracts import (
-    ObservationFamily,
-)
 from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir.observation.contracts import ObservationFamily
 
 from .contracts import StageBuildResult as _StageBuildResult
 

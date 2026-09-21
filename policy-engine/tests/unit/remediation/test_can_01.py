@@ -53,7 +53,7 @@ _CORE_EXTRA_TAGS = [
 
 @pytest.mark.parametrize(
     "module",
-    [(core_canon,), (ir_canon,)],
+    [core_canon, ir_canon],
     ids=("core", "ir"),
 )
 def test_ordinary_golden_payload_preserves_bytes_and_round_trips(module: ModuleType) -> None:
@@ -79,7 +79,7 @@ def test_ordinary_golden_payload_has_content_hash_parity() -> None:
 
 @pytest.mark.parametrize(
     "module",
-    [(core_canon,), (ir_canon,)],
+    [core_canon, ir_canon],
     ids=("core", "ir"),
 )
 def test_malformed_unknown_tag_and_depth_errors_keep_canon_boundary(module: ModuleType) -> None:
@@ -108,7 +108,7 @@ def test_core_preserves_extended_typed_tag_profile(payload: bytes, expected: obj
     assert core_canon.from_canonical_bytes(payload) == expected
 
 
-@pytest.mark.parametrize("payload", [(payload,) for payload, _ in _CORE_EXTRA_TAGS])
+@pytest.mark.parametrize("payload", [payload for payload, _ in _CORE_EXTRA_TAGS])
 def test_ir_rejects_core_only_typed_tags(payload: bytes) -> None:
     """IR remains strict and does not silently widen its 0.2.0 decoder."""
 
@@ -155,7 +155,7 @@ def test_core_and_ir_public_facades_remain_separate() -> None:
 
 @pytest.mark.parametrize(
     "module",
-    [(core_canon,), (ir_canon,)],
+    [core_canon, ir_canon],
     ids=("core", "ir"),
 )
 def test_explicit_sha1_keeps_deprecated_legacy_hash_identity(module: ModuleType) -> None:

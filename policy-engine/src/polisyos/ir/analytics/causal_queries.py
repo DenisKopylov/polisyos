@@ -304,7 +304,9 @@ class CausalQueryResult(BaseModel):
         if not isinstance(value, Mapping):
             return value
         payload = dict(value)
-        source_version = str(payload.get("schema_version") or _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION)
+        if payload.get("schema_version") is None:
+            return payload
+        source_version = str(payload["schema_version"])
         if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
             metadata = dict(payload.get("metadata") or {})
             metadata.setdefault("source_schema_version", source_version)

@@ -1,26 +1,15 @@
 from __future__ import annotations
 
+import importlib
+import importlib.util
 from pathlib import Path
+from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 from polisyos.lex import NormImpactAnalyzer as RootNormImpactAnalyzer
-from polisyos.lex.legal_evaluation.impact_diff import (
-    AffectedKPI,
-    ComplianceDelta,
-    ComplianceTransition,
-    NormImpactAnalyzer,
-    NormImpactReport,
-)
-from polisyos.lex.normpack.diff import (
-    FieldDelta,
-    NormChange,
-    NormChangeType,
-    NormDiff,
-    diff_norm_packs,
-)
 from polisyos.lex.simulator import NormImpactAnalyzer as SimulatorNormImpactAnalyzer
 from polisyos.lex.simulator.cli import render_impact_markdown
 from polisyos.lex.simulator.diff import (
@@ -40,6 +29,19 @@ from polisyos.lex.simulator.report import (
     NormImpactReport as SimulatorNormImpactReport,
 )
 from polisyos.runtime.quality.authority import authority_surface_decision
+
+
+def _canonical_move21_modules() -> tuple[Any, Any]:
+    diff_module_name = "polisyos.lex.normpack.diff"
+    impact_module_name = "polisyos.lex.legal_evaluation.impact_diff"
+    diff_spec = importlib.util.find_spec(diff_module_name)
+    impact_spec = importlib.util.find_spec(impact_module_name)
+    assert diff_spec is not None, f"missing MOVE-21 owner: {diff_module_name}"
+    assert impact_spec is not None, f"missing MOVE-21 owner: {impact_module_name}"
+    return (
+        importlib.import_module(diff_module_name),
+        importlib.import_module(impact_module_name),
+    )
 
 
 def _rule(
@@ -73,14 +75,15 @@ def _pack_pair() -> tuple[NormPack, NormPack]:
     return old_pack, new_pack
 
 
-def _candidate_topic_report() -> NormImpactReport:
-    return NormImpactReport(
+def _candidate_topic_report() -> Any:
+    _, impact_module = _canonical_move21_modules()
+    return impact_module.NormImpactReport(
         report_id="lex.impact_report.test",
         old_pack_id="normpack.old",
         new_pack_id="normpack.new",
         jurisdiction="ua",
         affected_kpis=[
-            AffectedKPI(
+            impact_module.AffectedKPI(
                 kpi_id="compliance_cost",
                 description="Candidate impact topic inferred from an obligation rule type.",
                 affected_norm_ids=["n.obligation"],
@@ -91,6 +94,22 @@ def _candidate_topic_report() -> NormImpactReport:
 
 def test_move21_legacy_simulator_addresses_alias_canonical_owners_and_behavior() -> None:
     """MOVE-21 keeps old imports identical while moving real owners to Lex packages."""
+    _canonical_move21_modules()
+    from polisyos.lex.legal_evaluation.impact_diff import (
+        AffectedKPI,
+        ComplianceDelta,
+        ComplianceTransition,
+        NormImpactAnalyzer,
+        NormImpactReport,
+    )
+    from polisyos.lex.normpack.diff import (
+        FieldDelta,
+        NormChange,
+        NormChangeType,
+        NormDiff,
+        diff_norm_packs,
+    )
+
     assert SimulatorFieldDelta is FieldDelta
     assert SimulatorNormChange is NormChange
     assert SimulatorNormChangeType is NormChangeType
@@ -125,10 +144,13 @@ def test_move21_legacy_simulator_addresses_alias_canonical_owners_and_behavior()
 
 def test_move21_persisted_report_binds_diff_ref_without_self_reference(tmp_path: Path) -> None:
     """The report bytes carry the persisted diff ref, not an impossible CAS self-ref."""
+    _, impact_module = _canonical_move21_modules()
     cas = FileSystemCAS(tmp_path / ".polisyos")
     old_pack, new_pack = _pack_pair()
 
-    report = NormImpactAnalyzer(cas=cas, passes=("legal",)).analyze(old_pack, new_pack)
+    report = impact_module.NormImpactAnalyzer(cas=cas, passes=("legal",)).analyze(
+        old_pack, new_pack
+    )
 
     assert report.norm_diff_ref is not None
     assert report.cas_artifact_id is not None

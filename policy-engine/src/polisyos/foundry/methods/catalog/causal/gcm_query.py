@@ -919,7 +919,13 @@ def _simulate_samples(
     condition_override: Mapping[str, float] | None = None,
     precomputed_abduced_noises: dict[str, float] | None = None,
     allow_declared_hypothesis: bool = False,
-) -> tuple[np.ndarray, dict[str, np.ndarray], _AbductionDiagnostic]:
+    # Existing remediation consumers unpack two values; provenance is opt-in
+    # for the owning GCM query path rather than a breaking helper change.
+    return_diagnostic: bool = False,
+) -> (
+    tuple[np.ndarray, dict[str, np.ndarray]]
+    | tuple[np.ndarray, dict[str, np.ndarray], _AbductionDiagnostic]
+):
     order = _topological_order(scm_spec)
     parents_map = _parents_by_node(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
@@ -1032,7 +1038,9 @@ def _simulate_samples(
         outcome_values[index] = assignment[query.outcome_variable]
 
     samples_by_node = {node: np.asarray(values, dtype=float) for node, values in by_node.items()}
-    return outcome_values, samples_by_node, abduction_diagnostic
+    if return_diagnostic:
+        return outcome_values, samples_by_node, abduction_diagnostic
+    return outcome_values, samples_by_node
 
 
 def _percentile_ci(samples: np.ndarray, confidence_level: float) -> tuple[float, float]:
@@ -1105,7 +1113,7 @@ def _build_dowhy_comparison(
                 "treatment_value": None,
             }
         )
-        _, node_samples, _ = _simulate_samples(
+        _, node_samples = _simulate_samples(
             scm_spec=scm_spec,
             query=obs_query,
             n_samples=n_obs,
@@ -1149,7 +1157,7 @@ def _build_dowhy_comparison(
                 "condition": {},
             }
         )
-        treated_outcomes, _, _ = _simulate_samples(
+        treated_outcomes, _ = _simulate_samples(
             scm_spec=scm_spec,
             query=treat_query,
             n_samples=query.n_samples,
@@ -1158,7 +1166,7 @@ def _build_dowhy_comparison(
             intervention_override=treat_query.intervention_spec,
             condition_override={},
         )
-        control_outcomes, _, _ = _simulate_samples(
+        control_outcomes, _ = _simulate_samples(
             scm_spec=scm_spec,
             query=control_query,
             n_samples=query.n_samples,
@@ -1301,6 +1309,7 @@ class GCMQuery:
                 intervention_override=intervention,
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
+                return_diagnostic=True,
             )
             baseline, _, baseline_abduction = _simulate_samples(
                 scm_spec=scm_spec,
@@ -1311,6 +1320,7 @@ class GCMQuery:
                 intervention_override=None,
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
+                return_diagnostic=True,
             )
             samples = treated - baseline
             abduction_diagnostic = (
@@ -1327,6 +1337,7 @@ class GCMQuery:
                 warnings=warnings,
                 intervention_override=_effective_intervention(query),
                 allow_declared_hypothesis=allow_declared_hypothesis,
+                return_diagnostic=True,
             )
 
         result_mean = float(np.mean(samples))

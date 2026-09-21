@@ -216,10 +216,16 @@ def test_three_atom_controller_reports_real_higher_order_residual_and_order(
 ) -> None:
     """B26: a real three-atom run exposes order-three non-additivity."""
 
+    expected_joint = {
+        "income_delta": 1.0,
+        "balance_delta": 1.0,
+        "labor_count_delta": 1.0,
+    }
+
     def triple_only(state: Any, params: Any) -> dict[str, Any]:
         del params
         query = state["ncm_query_data"]
-        value = 1.0 if len(query.interventions[0]) == 3 else 0.0
+        value = 1.0 if query.interventions == [expected_joint] else 0.0
         return {
             "counterfactual_result": {
                 "world_summaries": [
@@ -233,14 +239,30 @@ def test_three_atom_controller_reports_real_higher_order_residual_and_order(
     world_ref = request.world_model_record.world_model_record_id
     third = _atom(
         intervention_id="third_atom",
-        causal_variable="agents.income",
-        engine_variable="income_delta",
+        causal_variable="firms.labor_count",
+        engine_variable="labor_count_delta",
         value=1.0,
         world_model_record_ref=world_ref,
+        mechanism_kind="labor_market",
+        mechanism_variables=(
+            "agents.employer_id",
+            "agents.is_employed",
+            "agents.income",
+            "firms.labor_count",
+        ),
+    )
+    plan = request.engine_plan[0].model_copy(
+        update={
+            "variable_map": {
+                **request.engine_plan[0].variable_map,
+                "firms.labor_count": "labor_count_delta",
+            }
+        }
     )
     request = request.model_copy(
         update={
             "intervention_atoms": (*request.intervention_atoms, third),
+            "engine_plan": (plan,),
             "baseline_state": {"firm_survival": 0.0},
         }
     )

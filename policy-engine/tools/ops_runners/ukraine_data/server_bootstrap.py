@@ -12,20 +12,23 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from polisyos.data_forge.domains.ukraine.models import (
-    BuildRootConfig,
-    PipelineConfig,
-    ServerConfig,
+from polisyos.data_forge.domains.ukraine.orchestrator import (
+    UkraineDataOrchestrator,
+    load_pipeline_config,
 )
 from polisyos.data_forge.domains.ukraine.server import (
     build_bootstrap_script,
     probe_local_server_capabilities,
 )
-from polisyos.data_forge.domains.ukraine.orchestrator import (
-    UkraineDataOrchestrator,
-    load_pipeline_config,
-)
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.ukraine.models import (
+        BuildRootConfig,
+        PipelineConfig,
+        ServerConfig,
+    )
 
 __all__ = [
     "build_bootstrap_script",

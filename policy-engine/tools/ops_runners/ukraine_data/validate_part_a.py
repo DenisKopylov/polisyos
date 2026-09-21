@@ -8,12 +8,12 @@ import json
 import os
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.data_forge.domains.ukraine.manifests import (
     PartAGateManifest,
     utc_now_iso,
 )
-from polisyos.data_forge.domains.ukraine.models import PipelineConfig, ServerConfig
 from polisyos.data_forge.domains.ukraine.orchestrator import (
     UkraineDataOrchestrator,
     load_pipeline_config,
@@ -21,8 +21,13 @@ from polisyos.data_forge.domains.ukraine.orchestrator import (
 from polisyos.data_forge.domains.ukraine.server import (
     PartAGateRunner,
     is_repository_checkout,
+)
+from polisyos.data_forge.domains.ukraine.server import (
     run_part_a_gate as _run_gate_with_runner,
 )
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.ukraine.models import PipelineConfig, ServerConfig
 
 
 def _run_repository_gate(config: ServerConfig, workspace_root: Path | None) -> PartAGateManifest:

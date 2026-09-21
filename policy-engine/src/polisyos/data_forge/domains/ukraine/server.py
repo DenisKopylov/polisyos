@@ -20,7 +20,6 @@ from polisyos.data_forge.domains.ukraine.manifests import (
 from polisyos.data_forge.domains.ukraine.models import BuildRootConfig, ServerConfig
 from polisyos.data_forge.domains.ukraine.resources import free_disk_gib, total_ram_gib
 
-
 PartAGateRunner = Callable[[ServerConfig, Path | None], PartAGateManifest]
 BootstrapScriptRenderer = Callable[[ServerConfig, BuildRootConfig], str]
 ServerCapabilityProbe = Callable[[ServerConfig], ServerCapabilityManifest]
@@ -203,8 +202,8 @@ def run_part_a_gate(
 
 
 __all__ = [
-    "LocalExecutionBlockedError",
     "BootstrapScriptRenderer",
+    "LocalExecutionBlockedError",
     "PartAGateRunner",
     "ServerCapabilityProbe",
     "assert_server_execution_allowed",

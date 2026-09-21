@@ -105,7 +105,7 @@ async def run_dataset_pipeline(
 ) -> PipelineStats:
     """Run selected stages sequentially (used by `run` CLI wrapper)."""
     from polisyos.data_forge.domains.catalog.batch.benchmark import run_benchmark
-    from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
         run_core_sources_ingest_async,
     )
     from polisyos.data_forge.domains.catalog.batch.dedup import merge_and_dedup

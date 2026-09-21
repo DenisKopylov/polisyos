@@ -17,6 +17,7 @@ import zipfile
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from importlib import import_module
 from itertools import islice
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -200,6 +201,55 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
         "STU",
     }
 )
+
+
+__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+
+
+def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+    """Resolve a split-module dependency without facade-global injection."""
+    override = globals().get(name)
+    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+        return override
+    module = import_module(f"{__package__}.{owner}")
+    return getattr(module, name)
+
+
+def __make_implementation_proxy(name: str, owner: str) -> Any:
+    """Create a lazy, owner-bound compatibility callable for this module."""
+
+    def __proxy(*args: Any, **kwargs: Any) -> Any:
+        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+
+    return __proxy
+
+
+for __dependency_name, __dependency_owner in (
+    ("_capability_dimension_values", "validators"),
+    ("_capability_snapshot_cache_key", "writers"),
+    ("_eurostat_filters_for_countries", "transformers"),
+    ("_infer_dimension_order_for_plan", "writers"),
+    ("_load_json_dict", "transformers"),
+    ("_normalize_dimension_order", "writers"),
+    ("_observation_countries", "transformers"),
+    ("_observation_frequency_rank", "transformers"),
+    ("_observation_shard_id", "validators"),
+    ("_observation_time_window_years", "validators"),
+    ("_policy_attr", "api"),
+    ("_policy_bool_attr", "api"),
+    ("_policy_int_attr", "api"),
+    ("_policy_optional_int_attr", "api"),
+    ("_policy_str_attr", "api"),
+    ("_sdmx_filters_for_countries", "transformers"),
+    ("_shard_prefers_async_fetch", "validators"),
+    ("_support_sketch_id", "writers"),
+    ("_to_iso3", "transformers"),
+    ("_tokenize", "transformers"),
+    ("_year_windows", "validators"),
+):
+    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
+    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
+    globals().setdefault(__dependency_name, __proxy)
 
 
 

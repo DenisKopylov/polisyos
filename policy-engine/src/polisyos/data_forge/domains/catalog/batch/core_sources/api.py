@@ -17,6 +17,7 @@ import zipfile
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from importlib import import_module
 from itertools import islice
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -42,6 +43,11 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     WriterFlushState,
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
+    _ConnectorSessionCache,
+    _ObservationCapabilityCache,
+    _ObservationFetchDeduper,
 )
 from polisyos.data_forge.domains.catalog.batch.checkpoints import load_json, write_json
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
@@ -200,6 +206,108 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
         "STU",
     }
 )
+
+
+__OWNER_BOUND_PROXIES: dict[str, Any] = {}
+
+
+def __resolve_implementation_dependency(name: str, owner: str) -> Any:
+    """Resolve a split-module dependency without facade-global injection."""
+    override = globals().get(name)
+    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
+        return override
+    module = import_module(f"{__package__}.{owner}")
+    return getattr(module, name)
+
+
+def __make_implementation_proxy(name: str, owner: str) -> Any:
+    """Create a lazy, owner-bound compatibility callable for this module."""
+
+    def __proxy(*args: Any, **kwargs: Any) -> Any:
+        return __resolve_implementation_dependency(name, owner)(*args, **kwargs)
+
+    return __proxy
+
+
+for __dependency_name, __dependency_owner in (
+    ("_append_shard_result", "validators"),
+    ("_apply_dimension_order_to_snapshot", "transformers"),
+    ("_build_catalog_alignments", "registry"),
+    ("_build_catalog_observation_plans", "registry"),
+    ("_build_observation_shards", "validators"),
+    ("_build_observation_shards_from_sketches", "registry"),
+    ("_build_support_sketches", "registry"),
+    ("_canonicalize_observation_request_filters", "transformers"),
+    ("_capability_failure_supports_fallback", "validators"),
+    ("_capability_failures_by_source", "validators"),
+    ("_capability_snapshot_cache_key", "writers"),
+    ("_capability_snapshot_fresh", "writers"),
+    ("_chunked_observation_requests", "validators"),
+    ("_configure_observation_writer_connection", "writers"),
+    ("_deserialize_async_fetch_lease", "writers"),
+    ("_deserialize_writer_state", "validators"),
+    ("_empty_result_proves_unsupported", "validators"),
+    ("_empty_signature_cache_hit", "validators"),
+    ("_ensure_registry_tables", "registry"),
+    ("_fetch_remote_bulk_rows", "loaders"),
+    ("_filter_wvs_bulk_rows", "transformers"),
+    ("_filters_to_tuple", "transformers"),
+    ("_hydrate_support_sketch_dimension_orders", "writers"),
+    ("_hydrate_work_package_dimension_orders", "writers"),
+    ("_insert_generic_observations", "writers"),
+    ("_iter_observation_write_item_batches", "writers"),
+    ("_legacy_ingest_observations", "writers"),
+    ("_load_capability_snapshot_state", "writers"),
+    ("_load_catalog_transport_datasets", "registry"),
+    ("_load_observation_checkpoint_state", "validators"),
+    ("_load_source_budget_windows", "validators"),
+    ("_load_support_sketch_state", "writers"),
+    ("_load_work_package_state", "writers"),
+    ("_log_rate_limited_warning", "writers"),
+    ("_merge_observation_stats", "loaders"),
+    ("_observation_mode_phases", "registry"),
+    ("_observation_payload_row_limit", "transformers"),
+    ("_planner_split_shard_from_capability", "validators"),
+    ("_prune_expired_capability_failures", "validators"),
+    ("_prune_expired_support_cache", "validators"),
+    ("_record_shard_result", "validators"),
+    ("_records_from_payload", "loaders"),
+    ("_rewrite_sdmx_requests_with_dimension_key", "transformers"),
+    ("_seed_alignments_path", "loaders"),
+    ("_serialize_async_fetch_lease", "writers"),
+    ("_serialize_capability_failure", "validators"),
+    ("_serialize_capability_snapshot_state", "writers"),
+    ("_serialize_source_budget_windows", "validators"),
+    ("_serialize_support_sketch_state", "writers"),
+    ("_serialize_work_package_state", "writers"),
+    ("_serialize_writer_state", "validators"),
+    ("_shard_completed", "validators"),
+    ("_shard_countries", "transformers"),
+    ("_shard_prefers_async_fetch", "validators"),
+    ("_shard_supported_by_capability", "validators"),
+    ("_source_completion_pct_by_phase", "validators"),
+    ("_source_runtime_lane_count", "registry"),
+    ("_split_shard_for_retry", "validators"),
+    ("_split_shard_for_retry_async", "validators"),
+    ("_store_shard_result", "validators"),
+    ("_strip_geo_filters", "transformers"),
+    ("_support_cache_key", "validators"),
+    ("_support_cache_proves_unsupported", "validators"),
+    ("_support_sketch_id", "writers"),
+    ("_update_support_cache", "validators"),
+    ("_update_unsupported_signature_cache", "validators"),
+    ("_upsert_alignment_audit", "registry"),
+    ("_upsert_catalog_alignments", "registry"),
+    ("_upsert_catalog_registry_datasets", "registry"),
+    ("_upsert_legacy_registry_datasets", "writers"),
+    ("_upsert_seed_alignments", "writers"),
+    ("_write_core_ingest_stage_progress", "validators"),
+    ("_write_observation_checkpoint_state", "validators"),
+    ("_write_observation_ingest_manifests", "writers"),
+):
+    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
+    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
+    globals().setdefault(__dependency_name, __proxy)
 
 
 

@@ -55,6 +55,28 @@ class TestMonteCarloPropagator:
         actual_half_width = ci_width / 2.0
         npt.assert_allclose(actual_half_width, 1.96 * expected_std, rtol=0.25)
 
+    def test_mc_preserves_fixed_nominal_parameters_across_samples(self) -> None:
+        """Every sampled call retains nominal parameters outside the envelope."""
+        calls: list[dict[str, float]] = []
+
+        def scaled_sim(**params: float) -> dict[str, float]:
+            calls.append(params)
+            return {"y": params["x"] * params["scale"]}
+
+        result = MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=100, mc_batch_size=100, mc_seed=42)
+        ).propagate(
+            scaled_sim,
+            {"x": 10.0, "scale": 2.0},
+            {"x": _normal_env(10.0, 1.0)},
+            ["y"],
+        )[0]
+
+        assert result.diagnostics["n_failed"] == 0
+        assert result.envelope.distribution_family == DistributionFamily.BOOTSTRAP
+        assert result.envelope.point_estimate == pytest.approx(20.0, abs=1.0)
+        assert {call.get("scale") for call in calls} == {2.0}
+
     def test_mc_seed_determinism(self) -> None:
         config = PropagationConfig(mc_n_samples=500, mc_seed=123)
         envelopes = {"x": _normal_env(1.0, 0.5)}

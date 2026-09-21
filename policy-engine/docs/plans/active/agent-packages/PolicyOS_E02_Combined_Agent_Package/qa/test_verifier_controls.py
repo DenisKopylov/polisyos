@@ -28,6 +28,8 @@ def run():
           ('dependency_cycle','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:next(b for b in x['bundles'] if b['id']=='CYC-01')['depends_on'].append('CYC-02')),'cycle'),
           ('source_changed','source/LA_r09_original.md',lambda r:(r/'source/LA_r09_original.md').write_bytes((r/'source/LA_r09_original.md').read_bytes()+b'\nCHANGED\n'),'source integrity'),
           ('first_dispatch_promoted','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x.__setitem__('first_dispatch_status','active_queue')),'historical seed'),
+          ('runtime_cap_unbound','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('effective_runtime_direct_leaves',15)),'Adaptive admission'),
+          ('review_backlog_hard_barrier','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('review_backlog_is_executor_cap',True)),'Adaptive admission'),
           ('excess_parallel_tests','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('max_resource_processes',8)),'Mac resource'),
           ('excess_weighted_budget','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:x['local_execution'].__setitem__('light_equivalent_budget',8)),'Mac resource'),
           ('DDM_schema_protection_removed','bundle_manifest.json',lambda r:json_change(r,'bundle_manifest.json',lambda x:[b['protected_controls'].remove('LK35') for b in x['bundles'] if 'LK35' in b['protected_controls']]),'Protected LK'),

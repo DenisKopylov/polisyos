@@ -25,4 +25,6 @@
 
 ## Ресурсы и прогресс
 
+> **Историческая запись, не действующая политика.** Следующие значения `14=9+3+2` и `2L или1N/C` сохранены как E01-era history. Они superseded by `E02-ADAPTIVE-ORCHESTRATION-AMENDMENT-20260921` and must not be used for current dispatch, admission, or stop decisions.
+
 14=9+3+2 по умолчанию;12/16 варианты прежние. Test budget не вырос:2L или1N/C. Старые активные K1–K6 переименованы CP1–CP6, sourceK01–36 обозначены LK при планировании. Предыдущий kit сохранён как parent, но запускать нужно только E02. Существующий progress переносится по actual source-ID/commit/evidence, не сбрасывается.

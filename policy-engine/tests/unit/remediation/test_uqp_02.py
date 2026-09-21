@@ -14,6 +14,7 @@ from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    ParametricFitCarrier,
     PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
@@ -48,9 +49,13 @@ def _empirical_env(
     *,
     sample_axis: str = "row",
     weights: tuple[float, ...] | None = None,
+    joint_id: str | None = "uqp-test-shared-rows",
     metadata: dict[str, object] | None = None,
 ) -> UncertaintyEnvelope:
     """Build a small empirical carrier whose row axis is part of the contract."""
+    envelope_metadata = dict(metadata or {})
+    if joint_id is not None:
+        envelope_metadata.setdefault("joint_sample_id", joint_id)
     return UncertaintyEnvelope(
         point_estimate=float(np.mean(samples)),
         confidence_interval=(float(min(samples)), float(max(samples))),
@@ -66,7 +71,35 @@ def _empirical_env(
         ),
         sample_size=len(samples),
         gate_eligible=True,
-        metadata=metadata or {},
+        metadata=envelope_metadata,
+    )
+
+
+def _parametric_normal_env(
+    *,
+    envelope_point: float = 0.0,
+    envelope_std: float = 1.0,
+    fit_mean: float = 42.0,
+    fit_std: float = 0.25,
+) -> UncertaintyEnvelope:
+    """Build a normal envelope whose typed fit intentionally differs from its interval."""
+    return UncertaintyEnvelope(
+        point_estimate=envelope_point,
+        confidence_interval=(
+            envelope_point - 1.96 * envelope_std,
+            envelope_point + 1.96 * envelope_std,
+        ),
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.NORMAL,
+        source=UncertaintySource.CALIBRATION,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": fit_mean, "std": fit_std},
+        ),
+        gate_eligible=True,
+        metadata={},
     )
 
 
@@ -380,6 +413,26 @@ def test_mixed_empirical_and_parametric_inputs_are_not_assumed_independent() -> 
     assert result.metadata["failure"] == "incompatible_joint_law"
 
 
+def test_default_empirical_draws_without_shared_identity_are_not_coupled() -> None:
+    """Matching free-form axes cannot establish a shared row identity by themselves."""
+    envelopes = {
+        "a": _empirical_env((-1.0, 0.0, 1.0), joint_id=None),
+        "b": _empirical_env((-1.0, 0.0, 1.0), joint_id=None),
+    }
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+    ).propagate(
+        lambda **params: {"y": params["a"] - params["b"]},
+        {"a": 0.0, "b": 0.0},
+        envelopes,
+        ["y"],
+    )[0].envelope
+
+    assert result.distribution_family is DistributionFamily.UNKNOWN
+    assert result.gate_eligible is False
+    assert result.metadata["failure"] == "unestablished_joint_law"
+
+
 def test_unknown_dependency_does_not_fall_back_to_independent_normal() -> None:
     """An explicit unknown dependency must fail closed in every backend."""
     envelopes = {
@@ -406,3 +459,53 @@ def test_unknown_dependency_does_not_fall_back_to_independent_normal() -> None:
     assert result.gate_eligible is False
     assert result.metadata["failure"] == "unknown_dependency"
     assert calls == []
+
+
+def test_random_mc_uses_normal_parametric_fit_payload() -> None:
+    """Random sampling must consume a typed normal fit, not reconstruct CI moments."""
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=128,
+            mc_batch_size=128,
+            mc_min_valid_samples=20,
+            mc_seed=11,
+            mc_sampling_method="random",
+        )
+    ).propagate(
+        lambda **params: {"y": params["a"]},
+        {"a": 0.0},
+        {"a": _parametric_normal_env()},
+        ["y"],
+    )[0]
+
+    payload = result.envelope.distribution_payload
+    assert isinstance(payload, PosteriorSamplesCarrier)
+    assert result.envelope.point_estimate == pytest.approx(42.0, abs=0.2)
+    assert all(40.0 < sample < 44.0 for sample in payload.samples)
+    assert result.envelope.metadata["parametric_fit_payload_used"] is True
+
+
+def test_qmc_uses_normal_parametric_fit_payload() -> None:
+    """QMC inverse CDF must consume typed fit parameters instead of the envelope CI."""
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=128,
+            mc_batch_size=128,
+            mc_min_valid_samples=20,
+            mc_seed=11,
+            mc_sampling_method="sobol",
+            mc_qmc_scramble=False,
+            mc_qmc_replicates=1,
+        )
+    ).propagate(
+        lambda **params: {"y": params["a"]},
+        {"a": 0.0},
+        {"a": _parametric_normal_env()},
+        ["y"],
+    )[0]
+
+    payload = result.envelope.distribution_payload
+    assert isinstance(payload, PosteriorSamplesCarrier)
+    assert result.envelope.point_estimate == pytest.approx(42.0, abs=0.2)
+    assert all(40.0 < sample < 44.0 for sample in payload.samples)
+    assert result.envelope.metadata["parametric_fit_payload_used"] is True

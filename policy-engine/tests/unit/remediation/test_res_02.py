@@ -60,10 +60,12 @@ def _executor(
 ) -> AsyncWorkflowExecutor:
     ctx = _context()
     registry = MagicMock(spec=NodeRegistry)
-    registry.get.side_effect = lambda node_id: _node(
-        node_id=str(node_id),
-        write_path=f"params.{str(node_id).split('.')[-1].split('@')[0]}",
-    )
+
+    def _get_node(node_id: object) -> MagicMock:
+        label = str(node_id).split("@", 1)[0].rsplit(".", 1)[-1]
+        return _node(node_id=str(node_id), write_path=f"params.{label.removeprefix('node_')}")
+
+    registry.get.side_effect = _get_node
     executor = AsyncWorkflowExecutor(ctx, registry, checkpoint_hook=hook, max_parallelism=2)
 
     async def _persist_workflow_spec(workflow_spec: WorkflowSpec) -> ArtifactRef:

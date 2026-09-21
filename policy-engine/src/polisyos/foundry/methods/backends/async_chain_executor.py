@@ -53,6 +53,7 @@ from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
+    _build_node_param_payload,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
@@ -312,9 +313,8 @@ class AsyncChainExecutor:
         method_class = registry.get(node.method_fqn)
         signature = chain.get_signature(node_id)
 
-        # Merge node-level params with chain-level params
-        node_params = dict(node.params)
-        node_params.update(params)
+        # Reuse the sequential static -> dynamic -> override payload contract.
+        node_params = _build_node_param_payload(node, {node_id: params})
         node_params.setdefault("seed", seed)
 
         bound_inputs: dict[str, Any] = {}

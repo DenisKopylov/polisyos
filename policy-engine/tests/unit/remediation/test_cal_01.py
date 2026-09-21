@@ -235,7 +235,7 @@ def test_empty_target_with_explicit_steps_is_not_an_observable_zero_series() -> 
     target = _target(align=TargetAlignConfig(steps=3, fill_value=0.0))
     config = _config(target)
 
-    with pytest.raises(ValueError, match="empty|observ"):
+    with pytest.raises(ValueError, match=r"empty|observ"):
         prepare_targets(
             config,
             raw_targets={target.target_id: np.asarray([], dtype=float)},

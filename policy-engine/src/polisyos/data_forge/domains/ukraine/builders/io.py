@@ -17,7 +17,6 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
@@ -26,6 +25,7 @@ from polisyos.data_forge.kernel.io import atomic_write_bytes, atomic_write_text,
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from polisyos.core.artifacts.manifest import ArtifactRef
 
 
 def _json_default(value: object) -> object:

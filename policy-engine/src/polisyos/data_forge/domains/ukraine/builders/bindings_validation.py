@@ -9,9 +9,6 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pandas as pd
 
-from polisyos.data_forge.domains.ukraine.models import BuildRootConfig
-from polisyos.ir.observation.contracts import ObservationFamily
-
 from .common import (
     _coerce_string_series,
     _ensure_agent_numeric_columns,
@@ -21,6 +18,8 @@ from .io import _read_parquet_frame
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from polisyos.data_forge.domains.ukraine.models import BuildRootConfig
+    from polisyos.ir.observation.contracts import ObservationFamily
 
 
 def _normalize_identity_key(value: object) -> str:
@@ -82,7 +81,7 @@ def _normalize_name_key(value: object) -> str | None:
     if not text:
         return None
     replacements = {
-        "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ": "ТОВ",
+        "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ": "ТОВ",  # noqa: RUF001
         "ПРИВАТНЕ ПІДПРИЄМСТВО": "ПП",
         "ФІЗИЧНА ОСОБА ПІДПРИЄМЕЦЬ": "ФОП",
         "ФІЗИЧНА ОСОБА-ПІДПРИЄМЕЦЬ": "ФОП",
@@ -93,7 +92,7 @@ def _normalize_name_key(value: object) -> str | None:
     for src, dst in replacements.items():
         text = text.replace(src, dst)
     text = re.sub(r"[\"'`«»“”„]+", " ", text)
-    text = re.sub(r"[^0-9A-ZА-ЯІЇЄҐ ]+", " ", text)
+    text = re.sub(r"[^0-9A-ZА-ЯІЇЄҐ ]+", " ", text)  # noqa: RUF001
     text = re.sub(r"\s+", " ", text).strip()
     return text or None
 

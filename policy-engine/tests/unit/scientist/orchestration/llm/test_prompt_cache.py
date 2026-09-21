@@ -341,6 +341,76 @@ class TestCachingLLMClient:
         assert first.content == second.content
         assert len(base_client.calls) == 1
         assert client._cache.stats()["hits"] == 1
+        forwarded_metadata = base_client.calls[0][1]["metadata"]
+        assert "content" not in forwarded_metadata["cache_reuse"]["snapshot"]
+        assert forwarded_metadata["cache_reuse"]["snapshot"]["content_hash"].startswith(
+            "sha256:"
+        )
+
+    @pytest.mark.asyncio
+    async def test_changed_snapshot_bytes_or_hash_cannot_hit(self):
+        base_client = _FakeLLMClient()
+        cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
+        client = CachingLLMClient(base_client, cache=cache, model="m", ttl_s=3600)
+
+        original = _frozen_snapshot_metadata(content=b"original")
+        changed = _frozen_snapshot_metadata(content=b"changed")
+        stale_hash = _frozen_snapshot_metadata(content=b"changed")
+        stale_hash["cache_reuse"]["snapshot"]["content_hash"] = original["cache_reuse"][
+            "snapshot"
+        ]["content_hash"]
+
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=original,
+            temperature=0.0,
+        )
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=changed,
+            temperature=0.0,
+        )
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=stale_hash,
+            temperature=0.0,
+        )
+
+        assert len(base_client.calls) == 3
+        assert cache.size == 2
+
+    @pytest.mark.asyncio
+    async def test_lost_permission_and_model_change_cannot_hit(self):
+        base_client = _FakeLLMClient()
+        cache = InMemoryPromptCache(maxsize=10, default_ttl_s=3600)
+        client = CachingLLMClient(base_client, cache=cache, model="m", ttl_s=3600)
+        other_model = CachingLLMClient(
+            base_client,
+            cache=cache,
+            model="other-model",
+            ttl_s=3600,
+        )
+        allowed = _frozen_snapshot_metadata()
+        lost_permission = _frozen_snapshot_metadata()
+        lost_permission["cache_reuse"]["permission"]["allowed"] = False
+
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=allowed,
+            temperature=0.0,
+        )
+        await client.generate(
+            user="Use https://example.org/frozen report",
+            metadata=lost_permission,
+            temperature=0.0,
+        )
+        await other_model.generate(
+            user="Use https://example.org/frozen report",
+            metadata=allowed,
+            temperature=0.0,
+        )
+
+        assert len(base_client.calls) == 3
 
     @pytest.mark.asyncio
     async def test_live_url_without_snapshot_skips(self):

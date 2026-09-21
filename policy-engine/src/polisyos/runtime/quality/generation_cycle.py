@@ -5369,7 +5369,12 @@ def _build_s10_forecast_inputs(
     report = _method_report(method_result)
     evidence = dict(calibration_evidence or {})
     temporal_roles = _bound_s10_temporal_roles(evidence)
-    calibration_bound = calibration_status is not None and temporal_roles is not None
+    calibration_refs = _bound_s10_calibration_evidence_refs(evidence)
+    calibration_bound = (
+        calibration_status is not None
+        and temporal_roles is not None
+        and calibration_refs is not None
+    )
     effective_forecast_tier = forecast_tier
     if calibration_status is not None and not calibration_bound:
         effective_forecast_tier = "blocked"
@@ -5399,10 +5404,14 @@ def _build_s10_forecast_inputs(
             forecast_support_ref=f"s10://n8/{report_ref}/forecast-support",
             observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
             prediction_ref=f"forecast://n8/{report_ref}",
-            observed_outcome_ref=f"outcome://{outcome}/observed",
-            historical_implementation_ref=f"implementation://{world_record.world_model_record_id}",
-            evaluation_design_ref=f"eval://{selected_method_fqn}",
-            credible_evaluation_evidence_ref=f"evidence://{report_ref}",
+            observed_outcome_ref=str(calibration_refs["observed_outcome_ref"]),
+            historical_implementation_ref=str(
+                calibration_refs["historical_implementation_ref"]
+            ),
+            evaluation_design_ref=str(calibration_refs["evaluation_design_ref"]),
+            credible_evaluation_evidence_ref=str(
+                calibration_refs["credible_evaluation_evidence_ref"]
+            ),
             counterfactual_credibility=str(
                 evidence.get("counterfactual_credibility") or "insufficient_history"
             ),
@@ -5416,13 +5425,15 @@ def _build_s10_forecast_inputs(
             denominator=int(evidence.get("denominator") or 0),
             numerator=int(evidence.get("numerator") or 0),
             pass_rate=float(evidence.get("pass_rate") or 0.0),
-            calibration_threshold_ref="repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
+            calibration_threshold_ref=(
+                "repo://architecture/policy_design_case/layer2_floor_governance.toml#s10"
+            ),
             floor_passed=bool(evidence.get("floor_passed", False)),
             calibration_status=calibration_status,
             interval_coverage_metric=evidence.get("interval_coverage_metric"),
             calibration_error_metric=evidence.get("calibration_error_metric"),
-            source_lineage_refs=[f"lineage://{world_record.world_model_record_id}/substrate"],
-            method_lineage_refs=[f"lineage://{selected_method_fqn}"],
+            source_lineage_refs=list(calibration_refs["source_lineage_refs"]),
+            method_lineage_refs=list(calibration_refs["method_lineage_refs"]),
             floor_id="s10_calibration",
             authority_boundary=authority,
             may_not_use_for=authority["may_not_use_for"],
@@ -5637,6 +5648,38 @@ _S10_TEMPORAL_ROLE_KEYS: tuple[str, ...] = (
     "calibration_window_start",
     "calibration_window_end",
 )
+
+
+_S10_CALIBRATION_EVIDENCE_REF_KEYS: tuple[str, ...] = (
+    "observed_outcome_ref",
+    "historical_implementation_ref",
+    "evaluation_design_ref",
+    "credible_evaluation_evidence_ref",
+    "source_lineage_refs",
+    "method_lineage_refs",
+)
+
+
+def _bound_s10_calibration_evidence_refs(
+    evidence: Mapping[str, object],
+) -> dict[str, object] | None:
+    """Return explicit S10 evidence refs without manufacturing an evidence bridge."""
+
+    refs: dict[str, object] = {}
+    for key in _S10_CALIBRATION_EVIDENCE_REF_KEYS[:4]:
+        value = _optional_text(evidence.get(key))
+        if value is None:
+            return None
+        refs[key] = value
+    for key in _S10_CALIBRATION_EVIDENCE_REF_KEYS[4:]:
+        raw = evidence.get(key)
+        if isinstance(raw, str | bytes | bytearray) or not isinstance(raw, Sequence):
+            return None
+        values = tuple(_optional_text(item) for item in raw)
+        if not values or any(value is None for value in values):
+            return None
+        refs[key] = tuple(str(value) for value in values)
+    return refs
 
 
 def _bound_s10_temporal_roles(

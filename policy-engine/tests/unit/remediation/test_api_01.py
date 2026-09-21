@@ -83,6 +83,13 @@ def test_interference_characterization_preserves_leaf_identity() -> None:
     assert runtime.InterferenceAugmentedGraph is contracts.InterferenceAugmentedGraph
     assert runtime.InterferenceIdentificationResult is contracts.InterferenceIdentificationResult
     for name in (
+        "_ReductionErrorBoundPlan",
+        "_SimplicialSupportGate",
+        "_TopologyCertificatePlan",
+    ):
+        assert getattr(runtime, name) is getattr(contracts, name)
+        assert name not in runtime.__all__
+    for name in (
         "build_block_stratified_network_causal_data",
         "build_interference_topology_contracts",
         "identify_interference_effect",
@@ -164,4 +171,48 @@ def test_interference_incidental_leaf_import_does_not_expand_api(
     finally:
         monkeypatch.undo()
         runtime.__dict__.pop(incidental_name, None)
+        importlib.reload(runtime)
+
+
+@pytest.mark.parametrize(
+    ("module_name", "required_bindings"),
+    (
+        (
+            CAUSAL_ENGINE_MODULE,
+            (
+                "CausalEngine",
+                "DataReadinessBlockedError",
+                *REQUIRED_MONKEYPATCH_BINDINGS,
+                "_make_dummy_identification_result",
+            ),
+        ),
+        (
+            INTERFERENCE_MODULE,
+            (
+                "InterferenceAugmentedGraph",
+                "InterferenceIdentificationResult",
+                "_ReductionErrorBoundPlan",
+                "_SimplicialSupportGate",
+                "_TopologyCertificatePlan",
+            ),
+        ),
+    ),
+)
+def test_facade_reload_purges_stale_injected_names(
+    module_name: str,
+    required_bindings: tuple[str, ...],
+) -> None:
+    """Reloading a facade must not retain names from its previous module dict."""
+    runtime = importlib.import_module(module_name)
+    stale_name = "API_01_STALE_INJECTED_NAME"
+    runtime.__dict__[stale_name] = object()
+
+    try:
+        reloaded = importlib.reload(runtime)
+        assert not hasattr(reloaded, stale_name)
+        assert stale_name not in reloaded.__all__
+        for name in required_bindings:
+            assert hasattr(reloaded, name)
+    finally:
+        runtime.__dict__.pop(stale_name, None)
         importlib.reload(runtime)

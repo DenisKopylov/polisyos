@@ -6,7 +6,7 @@ import math
 import re
 import time
 from collections import deque
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any, ClassVar
 
 import numpy as np
@@ -139,6 +139,79 @@ def _linear_predict(
     return intercept + contribution
 
 
+def _polynomial_predict(
+    mechanism: NodeMechanism,
+    parent_values: Mapping[str, float],
+) -> float | None:
+    """Evaluate the simple stored polynomial payload, when it is complete.
+
+    ``HybridSCMFit``/legacy payloads use a per-parent power expansion without
+    cross terms.  A payload is only treated as polynomial when it explicitly
+    declares ``fit_mode=additive_noise_poly``; otherwise the historical linear
+    parameters remain the intentional fallback for that mechanism family.
+    """
+    params = mechanism.family_params
+    if params.get("fit_mode") != "additive_noise_poly":
+        return None
+    raw_coefficients = params.get("poly_coefficients")
+    if not isinstance(raw_coefficients, Mapping):
+        return None
+    try:
+        degree = int(params.get("poly_degree", 0))
+        if degree < 1:
+            return None
+        value = float(raw_coefficients.get("__intercept__", 0.0))
+        for parent in mechanism.parents:
+            parent_value = float(parent_values[parent])
+            for power in range(1, degree + 1):
+                value += float(raw_coefficients.get(f"{parent}^{power}", 0.0)) * (
+                    parent_value**power
+                )
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _mechanism_predict(
+    mechanism: NodeMechanism,
+    parent_values: Mapping[str, float],
+) -> float:
+    """Evaluate the declared deterministic part of a supported mechanism."""
+    if mechanism.family is MechanismFamily.ADDITIVE_NOISE:
+        polynomial = _polynomial_predict(mechanism, parent_values)
+        if polynomial is not None:
+            return polynomial
+    return _linear_predict(mechanism, parent_values)
+
+
+def _observed_root_samples(
+    mechanisms: Mapping[str, NodeMechanism],
+) -> dict[str, Sequence[float]]:
+    """Return aligned empirical root rows carried by fitted mechanisms."""
+    samples: dict[str, Sequence[float]] = {}
+    for variable, mechanism in mechanisms.items():
+        if mechanism.parents or mechanism.family is not MechanismFamily.EMPIRICAL:
+            continue
+        raw_samples = mechanism.family_params.get("observed_samples")
+        if not isinstance(raw_samples, Sequence) or isinstance(raw_samples, (str, bytes)):
+            continue
+        if raw_samples and all(isinstance(value, (int, float)) for value in raw_samples):
+            samples[variable] = raw_samples
+    return samples
+
+
+def _joint_root_sample_index(
+    observed_samples: Mapping[str, Sequence[float]],
+    rng: np.random.Generator,
+) -> int | None:
+    lengths = [len(values) for values in observed_samples.values() if values]
+    if not lengths:
+        return None
+    # Fitted roots share the same SCMFitData row order.  If a hand-authored
+    # payload does not, keep each root's own modulo handling below explicit.
+    return int(rng.integers(max(lengths)))
+
+
 def _linear_noise_std(mechanism: NodeMechanism) -> float:
     params = mechanism.family_params
     try:
@@ -241,11 +314,14 @@ def _sample_node_value(
     rng: np.random.Generator,
     warnings: list[str],
     linear_noise_override: float | None = None,
+    sample_index: int | None = None,
+    observed_root_samples: Mapping[str, Sequence[float]] | None = None,
 ) -> float:
     if mechanism is None:
         _append_warning(
             warnings,
-            "missing mechanism for node; fallback to standard normal root sampler",
+            "missing mechanism for node; using a declared hypothesis only "
+            "(standard normal root sampler is not a fitted law)",
         )
         return float(rng.normal())
 
@@ -259,6 +335,14 @@ def _sample_node_value(
         return float(mean + rng.normal(scale=std))
 
     if mechanism.family is MechanismFamily.EMPIRICAL:
+        if (
+            sample_index is not None
+            and observed_root_samples is not None
+            and mechanism.variable in observed_root_samples
+            and observed_root_samples[mechanism.variable]
+        ):
+            values = observed_root_samples[mechanism.variable]
+            return float(values[sample_index % len(values)])
         mean = float(mechanism.family_params.get("mean", 0.0))
         std = float(mechanism.family_params.get("std", 1.0))
         if not math.isfinite(mean):
@@ -291,8 +375,29 @@ def _sample_node_value(
         std = std if math.isfinite(std) and std > 0.0 else 1.0
         return float(rng.normal(loc=mean, scale=std))
 
+    if mechanism.family is MechanismFamily.ADDITIVE_NOISE:
+        polynomial = _polynomial_predict(mechanism, parent_values)
+        if polynomial is not None:
+            if linear_noise_override is not None:
+                return float(polynomial + linear_noise_override)
+            std = _linear_noise_std(mechanism)
+            return float(polynomial + rng.normal(scale=std)) if std > 0.0 else float(polynomial)
+        _append_warning(
+            warnings,
+            "mechanism family 'additive_noise' lacks a valid polynomial payload; "
+            "using its explicit linear surrogate",
+        )
+        return _sample_node_value(
+            mechanism=mechanism.model_copy(update={"family": MechanismFamily.LINEAR}),
+            parent_values=parent_values,
+            rng=rng,
+            warnings=warnings,
+            linear_noise_override=linear_noise_override,
+            sample_index=sample_index,
+            observed_root_samples=observed_root_samples,
+        )
+
     if mechanism.family in {
-        MechanismFamily.ADDITIVE_NOISE,
         MechanismFamily.POST_NONLINEAR,
         MechanismFamily.CLASSIFIER,
     }:
@@ -310,6 +415,8 @@ def _sample_node_value(
                 rng=rng,
                 warnings=warnings,
                 linear_noise_override=linear_noise_override,
+                sample_index=sample_index,
+                observed_root_samples=observed_root_samples,
             )
         return _sample_node_value(
             mechanism=mechanism.model_copy(update={"family": MechanismFamily.EMPIRICAL}),
@@ -317,6 +424,8 @@ def _sample_node_value(
             rng=rng,
             warnings=warnings,
             linear_noise_override=linear_noise_override,
+            sample_index=sample_index,
+            observed_root_samples=observed_root_samples,
         )
 
     raise ValueError(f"unsupported mechanism family: {mechanism.family.value}")
@@ -341,23 +450,29 @@ def _abduce_linear_noises(
             mechanism = mechanisms.get(node)
             if mechanism is None:
                 pseudo_observed[node] = 0.0
-            elif mechanism.family is MechanismFamily.LINEAR and all(
+            elif mechanism.family in {
+                MechanismFamily.LINEAR,
+                MechanismFamily.ADDITIVE_NOISE,
+            } and all(
                 parent in pseudo_observed for parent in parents_map.get(node, [])
             ):
                 parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
-                pseudo_observed[node] = _linear_predict(mechanism, parent_values)
+                pseudo_observed[node] = _mechanism_predict(mechanism, parent_values)
             else:
                 pseudo_observed[node] = 0.0
 
         mechanism = mechanisms.get(node)
         if (
             mechanism is not None
-            and mechanism.family is MechanismFamily.LINEAR
+            and mechanism.family in {
+                MechanismFamily.LINEAR,
+                MechanismFamily.ADDITIVE_NOISE,
+            }
             and node in query.condition
             and all(parent in pseudo_observed for parent in parents_map.get(node, []))
         ):
             parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
-            mean = _linear_predict(mechanism, parent_values)
+            mean = _mechanism_predict(mechanism, parent_values)
             noise[node] = float(query.condition[node] - mean)
     return noise
 
@@ -416,7 +531,7 @@ def _abduce_noises_unified(
                 MechanismFamily.ADDITIVE_NOISE,
             ) and all(parent in pseudo_observed for parent in parents_map.get(node, [])):
                 parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
-                pseudo_observed[node] = _linear_predict(mechanism, parent_values)
+                pseudo_observed[node] = _mechanism_predict(mechanism, parent_values)
             elif mechanism.family is MechanismFamily.PARAMETRIC_PRIOR and all(
                 parent in pseudo_observed for parent in parents_map.get(node, [])
             ):
@@ -445,7 +560,7 @@ def _abduce_noises_unified(
         parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
 
         if mechanism.family in (MechanismFamily.LINEAR, MechanismFamily.ADDITIVE_NOISE):
-            mean = _linear_predict(mechanism, parent_values)
+            mean = _mechanism_predict(mechanism, parent_values)
             noise[node] = float(condition[node]) - mean
 
         elif mechanism.family is MechanismFamily.PARAMETRIC_PRIOR:
@@ -500,6 +615,7 @@ def _simulate_samples(
     order = _topological_order(scm_spec)
     parents_map = _parents_by_node(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
+    observed_root_samples = _observed_root_samples(mechanisms)
     condition = (
         dict(condition_override) if condition_override is not None else dict(query.condition)
     )
@@ -528,6 +644,7 @@ def _simulate_samples(
 
     for index in range(n_samples):
         assignment: dict[str, float] = {}
+        root_sample_index = _joint_root_sample_index(observed_root_samples, rng)
         for node in order:
             parent_values = {parent: assignment[parent] for parent in parents_map.get(node, [])}
 
@@ -551,6 +668,8 @@ def _simulate_samples(
                     rng=rng,
                     warnings=warnings,
                     linear_noise_override=noise_override,
+                    sample_index=root_sample_index,
+                    observed_root_samples=observed_root_samples,
                 )
 
             if node == query.treatment_variable and intervention is not None:

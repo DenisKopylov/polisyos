@@ -39,8 +39,10 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.catalog.causal.gcm_query import (
     _abduce_noises_unified,
     _apply_intervention,
-    _linear_predict,
+    _joint_root_sample_index,
+    _mechanism_predict,
     _mechanism_map,
+    _observed_root_samples,
     _parents_by_node,
     _percentile_ci,
     _topological_order,
@@ -67,6 +69,8 @@ from polisyos.ir.analytics.uncertainty import (
 def _sample_node_noise(
     mechanism: NodeMechanism | None,
     rng: np.random.Generator,
+    *,
+    observed_root_value: float | None = None,
 ) -> float:
     """Pre-sample exogenous noise U for a single node.
 
@@ -74,6 +78,8 @@ def _sample_node_noise(
     This noise is then reused in both twin worlds (shared U realisation).
     """
     if mechanism is None:
+        if observed_root_value is not None:
+            return float(observed_root_value)
         return float(rng.normal())
 
     if mechanism.family is MechanismFamily.LINEAR:
@@ -87,6 +93,11 @@ def _sample_node_noise(
         return float(rng.normal(scale=std)) if std > 0.0 else 0.0
 
     if mechanism.family is MechanismFamily.EMPIRICAL:
+        if observed_root_value is not None:
+            mean = float(mechanism.family_params.get("mean", 0.0))
+            if not math.isfinite(mean):
+                mean = 0.0
+            return float(observed_root_value - mean)
         std = float(mechanism.family_params.get("std", 1.0))
         if not math.isfinite(std) or std < 0.0:
             std = 1.0
@@ -125,7 +136,7 @@ def _apply_node_noise(
         return float(noise)
 
     if mechanism.family is MechanismFamily.LINEAR:
-        mean = _linear_predict(mechanism, parent_values)
+        mean = _mechanism_predict(mechanism, parent_values)
         return float(mean + noise)
 
     if mechanism.family is MechanismFamily.EMPIRICAL:
@@ -150,7 +161,11 @@ def _apply_node_noise(
             mean = 0.0
         return float(mean + noise)
 
-    # ADDITIVE_NOISE, POST_NONLINEAR, CLASSIFIER: linear fallback with warning
+    if mechanism.family is MechanismFamily.ADDITIVE_NOISE:
+        mean = _mechanism_predict(mechanism, parent_values)
+        return float(mean + noise)
+
+    # POST_NONLINEAR, CLASSIFIER: linear fallback with warning
     if not any(
         w.startswith(f"twin-network: mechanism family '{mechanism.family.value}'") for w in warnings
     ):
@@ -159,7 +174,7 @@ def _apply_node_noise(
             f"'{mechanism.variable}' not fully supported; using linear fallback"
         )
     if mechanism.parents:
-        mean = _linear_predict(mechanism, parent_values)
+        mean = _mechanism_predict(mechanism, parent_values)
         return float(mean + noise)
     mean = float(mechanism.family_params.get("mean", 0.0))
     if not math.isfinite(mean):
@@ -193,6 +208,7 @@ def _twin_simulate_samples(
     order = _topological_order(scm_spec)
     parents_map = _parents_by_node(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
+    observed_root_samples = _observed_root_samples(mechanisms)
 
     po_factual = np.zeros(n_samples, dtype=float)
     po_counter = np.zeros(n_samples, dtype=float)
@@ -200,11 +216,34 @@ def _twin_simulate_samples(
     for i in range(n_samples):
         # ── Step 1: pre-sample shared exogenous noise ──────────────────────────
         shared_noise: dict[str, float] = {}
+        root_sample_index = _joint_root_sample_index(observed_root_samples, rng)
         for node in order:
             if node in abduced_noises:
                 shared_noise[node] = abduced_noises[node]
             else:
-                shared_noise[node] = _sample_node_noise(mechanisms.get(node), rng)
+                mechanism = mechanisms.get(node)
+                if mechanism is None:
+                    message = (
+                        f"twin-network: missing mechanism for node '{node}'; using a declared "
+                        "hypothesis only (standard normal root sampler is not a fitted law)"
+                    )
+                    if message not in warnings:
+                        warnings.append(message)
+                observed_root_value: float | None = None
+                if (
+                    mechanism is not None
+                    and not mechanism.parents
+                    and root_sample_index is not None
+                    and mechanism.variable in observed_root_samples
+                ):
+                    values = observed_root_samples[mechanism.variable]
+                    if values:
+                        observed_root_value = float(values[root_sample_index % len(values)])
+                shared_noise[node] = _sample_node_noise(
+                    mechanism,
+                    rng,
+                    observed_root_value=observed_root_value,
+                )
 
         # ── Step 2: forward-simulate FACTUAL world (do(X=x₀)) ─────────────────
         factual: dict[str, float] = {}

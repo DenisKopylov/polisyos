@@ -1904,6 +1904,10 @@ def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
         legacy_embeddings_path=academic_root / "ac_work_embeddings.npz",
         legacy_index_path=academic_root / "ac_work_index.hnsw",
     )
+    selector = json.loads(
+        (academic_root / "embedding_generation.json").read_text(encoding="utf-8")
+    )
+    generation_id = selector["generation_id"]
     seed = g2.Layer3G2SearchRecallSeed(
         seed_id="g2-recall-seed:fixture-semantic-edge",
         cause="policy.credit_access",
@@ -1933,6 +1937,19 @@ def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
     assert coverage["hnsw_assets_status"] == "fail"
     assert freshness["hnsw_freshness_status"] == "fail"
     assert quality["hnsw_index_backed_status"] == "fail"
+    emitted_refs = [
+        record["artifact_ref"] for record in freshness["freshness_records"]
+    ] + list(quality["index_refs"])
+    assert emitted_refs
+    assert not any(
+        ref.endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz"))
+        for ref in emitted_refs
+    )
+    assert any(
+        f"embedding_generations/{generation_id}/" in ref
+        or ref.endswith("embedding_generation.json")
+        for ref in emitted_refs
+    )
 
 
 def test_g2_semantic_retrieval_records_query_vector_and_post_hnsw_validation(

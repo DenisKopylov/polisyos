@@ -29,7 +29,12 @@ class _FakeBundle:
 
     def __init__(self, theta: object = 0.0) -> None:
         self.theta = jnp.asarray(theta)
-        self.nodes = [SimpleNamespace(node_id="synthetic")]
+        self.nodes = [
+            SimpleNamespace(
+                node_id="synthetic",
+                mechanism=SimpleNamespace(),
+            )
+        ]
         self.trainables = [
             TrainableHandle(
                 node_index=0,

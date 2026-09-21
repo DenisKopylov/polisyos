@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.coupling.estimation import (
     calibrate_coupled_smm,
     estimate_queue_mle,

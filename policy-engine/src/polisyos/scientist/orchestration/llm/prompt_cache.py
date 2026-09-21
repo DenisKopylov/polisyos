@@ -543,7 +543,7 @@ def _provider_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
 
     normalized = dict(kwargs)
     metadata = kwargs.get("metadata")
-    if _cache_reuse_context(metadata) is not None:
+    if isinstance(metadata, Mapping) and "cache_reuse" in metadata:
         normalized["metadata"] = _normalize_cache_metadata(metadata)
     return normalized
 
@@ -580,8 +580,14 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
 
     ref = snapshot.get("ref")
     version = snapshot.get("version")
-    tenant = metadata.get("tenant")
-    scope = metadata.get("scope")
+    tenant = raw_context.get("tenant")
+    scope = raw_context.get("scope")
+    outer_tenant = metadata.get("tenant")
+    outer_scope = metadata.get("scope")
+    if (outer_tenant is not None and outer_tenant != tenant) or (
+        outer_scope is not None and outer_scope != scope
+    ):
+        return None
     if not all(isinstance(value, str) and value for value in (ref, version, tenant, scope)):
         return None
     if permission.get("allowed") is not True:
@@ -645,6 +651,8 @@ def _normalize_cache_metadata(value: Any) -> Any:
         return [_normalize_cache_metadata(item) for item in value]
     if isinstance(value, tuple):
         return [_normalize_cache_metadata(item) for item in value]
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        return "sha256:" + hashlib.sha256(bytes(value)).hexdigest()
     return value
 
 

@@ -3184,9 +3184,15 @@ def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
         original_occurrence.candidate_occurrence_ref
         != changed_occurrence.candidate_occurrence_ref
     )
+    original_occurrence_record = runtime.context_repository.resolve_occurrence(
+        occurrence_ref=original_occurrence.candidate_occurrence_ref
+    )
+    changed_occurrence_record = runtime.context_repository.resolve_occurrence(
+        occurrence_ref=changed_occurrence.candidate_occurrence_ref
+    )
     assert (
-        original_occurrence.candidate_occurrence_content_hash
-        != changed_occurrence.candidate_occurrence_content_hash
+        core_contracts.c4_semantic_digest("candidate_occurrence", original_occurrence_record)
+        != core_contracts.c4_semantic_digest("candidate_occurrence", changed_occurrence_record)
     )
 
 

@@ -888,8 +888,18 @@ def _graph_arrays_from_edges(
     period_col: str = "period_id",
     node_ids: Sequence[str] | None = None,
 ) -> dict[str, Any]:
+    if period_col not in frame.columns:
+        frame = frame.copy()
+        frame[period_col] = pd.Series(pd.NA, index=frame.index, dtype="string")
+    period_start, period_end = _observation._period_series_to_iso_bounds(
+        frame[period_col],
+        time_grain=TimeFrequency.MONTH,
+    )
+    valid_period_mask = period_start.notna() & period_end.notna()
     edges = (
-        frame[[src_col, dst_col, weight_col, period_col]].dropna(subset=[src_col, dst_col]).copy()
+        frame.loc[valid_period_mask, [src_col, dst_col, weight_col, period_col]]
+        .dropna(subset=[src_col, dst_col])
+        .copy()
     )
     edges[src_col] = edges[src_col].astype(str)
     edges[dst_col] = edges[dst_col].astype(str)
@@ -1222,4 +1232,10 @@ def _cas_put_json(store: FileSystemCAS, payload: Any, *, kind: str):
     )
 
 
-__all__ = tuple(name for name in globals() if not name.startswith("__"))
+__all__ = (
+    "MONTHLY_END_MONTH",
+    "OBSERVATION_FRAME_COLUMNS",
+    "MemoryAwareScheduler",
+    "ScheduledTask",
+    "StageBuildResult",
+)

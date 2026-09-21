@@ -101,6 +101,7 @@ def test_part_a_gate_records_command_cwd_env_exit_and_skip(
     manifest = server.run_part_a_gate(config.server, repo_root)
 
     assert len(calls) == 1
+    assert manifest.server_only is True
     call = calls[0]
     assert call["command"] == [
         "uv",
@@ -141,6 +142,7 @@ def test_part_a_gate_reports_typed_unavailable_without_checkout(
 
     manifest = server.run_part_a_gate(config.server, installed_root)
 
+    assert manifest.server_only is True
     assert manifest.status == "unavailable"
     assert manifest.passed is False
     assert manifest.skipped is False

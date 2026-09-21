@@ -9,8 +9,9 @@ from unittest.mock import MagicMock
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import ComponentId
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+from polisyos.scientist.orchestration.engine.checkpoint import CheckpointWriteResult
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
@@ -24,16 +25,16 @@ def _ref(tag: str, *, kind: str = "scientist.node_cache_entry") -> ArtifactRef:
     )
 
 
-def _context() -> ExecutionContext:
+def _context(*, audit: Any | None = None) -> ExecutionContext:
     store = MagicMock()
     run = MagicMock()
     run.trace_path = None
     run.finalize.return_value = _ref("f", kind="scientist.run")
-    return ExecutionContext(store=store, run=run, logger=MagicMock())
+    return ExecutionContext(store=store, run=run, logger=MagicMock(), audit=audit)
 
 
 def _node(*, node_id: str, write_path: str) -> MagicMock:
-    node = MagicMock(spec=NodeSpec)
+    node = MagicMock()
     node.spec.state_writes = [write_path]
     node.spec.state_reads = []
     node.spec.node_id = node_id
@@ -52,13 +53,40 @@ class _RecordingCheckpointHook:
         self.tier_calls.append(kwargs)
 
 
+class _AsyncOnlyLegacyCheckpointHook:
+    def __init__(self) -> None:
+        self.node_calls: list[dict[str, Any]] = []
+        self._sequence = 0
+
+    async def on_node_complete_async(self, **kwargs: Any) -> CheckpointWriteResult:
+        self.node_calls.append(kwargs)
+        result = CheckpointWriteResult(
+            checkpoint_ref=_ref(str(9 + self._sequence), kind="scientist.checkpoint"),
+            sequence_number=self._sequence,
+            duration_ms=1,
+            snapshot_mode="full",
+        )
+        self._sequence += 1
+        return result
+
+
+class _RecordingAudit:
+    def __init__(self) -> None:
+        self.entries: list[dict[str, Any]] = []
+
+    def append(self, **kwargs: Any) -> None:
+        self.entries.append(kwargs)
+
+
 def _executor(
     workflow: WorkflowSpec,
     outcomes: dict[str, NodeOutcome],
     cache_refs: dict[str, ArtifactRef | None],
-    hook: _RecordingCheckpointHook,
+    hook: Any,
+    *,
+    audit: Any | None = None,
 ) -> AsyncWorkflowExecutor:
-    ctx = _context()
+    ctx = _context(audit=audit)
     registry = MagicMock(spec=NodeRegistry)
 
     def _get_node(node_id: object) -> MagicMock:
@@ -229,3 +257,38 @@ def test_continue_checkpoints_successes_and_preserves_their_outputs() -> None:
     assert hook.tier_calls[0]["completed_nodes"] == ["left"]
     assert hook.tier_calls[0]["cache_entry_refs"] == [_ref("6")]
     assert result.report.nodes[0].artifacts == [output]
+
+
+def test_parallel_tier_supports_async_only_legacy_checkpoint_hook() -> None:
+    state = ExperimentState(run_id="res-02-async-only-legacy")
+    hook = _AsyncOnlyLegacyCheckpointHook()
+    audit = _RecordingAudit()
+    workflow = _workflow("left", "right")
+    executor = _executor(
+        workflow,
+        {
+            "left": NodeOutcome(
+                status="ok",
+                state=state.model_copy(update={"params": {"left": 1}}),
+            ),
+            "right": NodeOutcome(
+                status="ok",
+                state=state.model_copy(update={"params": {"right": 2}}),
+            ),
+        },
+        {"left": _ref("7"), "right": _ref("8")},
+        hook,
+        audit=audit,
+    )
+
+    result = asyncio.run(executor.execute(workflow, state))
+
+    assert result.report.status == "ok"
+    assert [call["alias"] for call in hook.node_calls] == ["left", "right"]
+    assert [call["completed_nodes"] for call in hook.node_calls] == [["left"], ["right"]]
+    assert [call["cache_entry_ref"] for call in hook.node_calls] == [_ref("7"), _ref("8")]
+    checkpoint_entries = [
+        entry for entry in audit.entries if entry["action"] == "CHECKPOINT_CREATED"
+    ]
+    assert checkpoint_entries
+    assert all("tier_atomic" not in entry["metadata"] for entry in checkpoint_entries)

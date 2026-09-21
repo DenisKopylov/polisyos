@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import inspect
 import json
@@ -260,11 +261,17 @@ class CachingLLMClient:
         cache: PromptCacheProtocol,
         model: str,
         ttl_s: float = 300.0,
+        inflight_timeout_s: float | None = None,
     ) -> None:
         self._client = client
         self._cache = cache
         self._model = model
         self._ttl_s = max(float(ttl_s), 0.0)
+        configured_timeout = inflight_timeout_s
+        if configured_timeout is None:
+            configured_timeout = getattr(client, "timeout_s", None)
+        self._inflight_timeout_s = _coerce_timeout(configured_timeout)
+        self._inflight: dict[str, asyncio.Task[Any]] = {}
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -325,12 +332,69 @@ class CachingLLMClient:
                 return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
             return cached
 
-        response = await _maybe_await(self._client.generate(*args, **kwargs))
+        provider_kwargs = _provider_kwargs(kwargs)
+        owner_task = self._inflight.get(cache_key)
+        is_owner = owner_task is None
+        if is_owner:
+            owner_task = asyncio.create_task(
+                self._produce(
+                    cache_key,
+                    args,
+                    provider_kwargs,
+                )
+            )
+            self._inflight[cache_key] = owner_task
+            owner_task.add_done_callback(_consume_task_exception)
+
+        response = await asyncio.shield(owner_task)
+        if is_owner:
+            return response
+
+        # Followers receive a detached cache snapshot and the same provenance
+        # marker as an ordinary cache hit.  They must not share the producer's
+        # mutable response object or charge LLM-01 accounting as a miss.
+        cached = self._cache.get(cache_key)
+        if cached is not None:
+            if isinstance(cached, GatewayLLMResponse):
+                _mark_cache_response(cached, status="hit", cache_key=cache_key)
+                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
+            return cached
         if isinstance(response, GatewayLLMResponse):
-            _mark_cache_response(response, status="miss", cache_key=cache_key)
-        self._cache.put(cache_key, response, ttl_s=self._ttl_s)
-        logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
+            return _CacheReuseGatewayResponse(response, cache_key=cache_key)
         return response
+
+    async def _produce(
+        self,
+        cache_key: str,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
+        """Produce and publish one cache miss, always releasing its flight."""
+
+        current_task = asyncio.current_task()
+        try:
+            response = await self._call_provider(args, kwargs)
+            if isinstance(response, GatewayLLMResponse):
+                _mark_cache_response(response, status="miss", cache_key=cache_key)
+            self._cache.put(cache_key, response, ttl_s=self._ttl_s)
+            logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
+            return response
+        finally:
+            if self._inflight.get(cache_key) is current_task:
+                self._inflight.pop(cache_key, None)
+
+    async def _call_provider(
+        self,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
+        """Run one provider call under the configured in-flight deadline."""
+
+        provider_call = _maybe_await(self._client.generate(*args, **kwargs))
+        timeout = _coerce_timeout(kwargs.get("timeout")) or self._inflight_timeout_s
+        if timeout is None:
+            return await provider_call
+        return await asyncio.wait_for(provider_call, timeout=timeout)
 
 
 def _normalize_prompt_call(
@@ -397,9 +461,12 @@ def _cache_skip_reason(
         except (TypeError, ValueError):
             return "non_deterministic_temperature"
     metadata = kwargs.get("metadata")
-    if isinstance(metadata, dict):
+    reuse_context = _cache_reuse_context(metadata)
+    if isinstance(metadata, Mapping):
         if metadata.get("cacheable") is False:
             return "cache_disabled_by_metadata"
+        if "cache_reuse" in metadata and reuse_context is None:
+            return "invalid_cache_reuse_context"
         if any(
             key in metadata
             for key in (
@@ -431,7 +498,7 @@ def _cache_skip_reason(
             "uncertainty_notes",
             "recency_days",
         )
-    ):
+    ) and reuse_context is None:
         return "retrieval_freshness_guard"
     return None
 
@@ -445,6 +512,139 @@ def _record_cache_skip(cache: PromptCacheProtocol, reason: str) -> None:
 async def _maybe_await(value: Any) -> Any:
     if inspect.isawaitable(value):
         return await value
+    return value
+
+
+def _coerce_timeout(value: Any) -> float | None:
+    """Return a positive timeout, treating absent/non-positive values as unset."""
+
+    if value is None:
+        return None
+    try:
+        timeout = float(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
+
+
+def _consume_task_exception(task: asyncio.Task[Any]) -> None:
+    """Consume an unobserved producer exception after all waiters cancel."""
+
+    if task.cancelled():
+        return
+    try:
+        task.exception()
+    except asyncio.CancelledError:
+        return
+
+
+def _provider_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Prepare provider kwargs without forwarding snapshot content bytes."""
+
+    normalized = dict(kwargs)
+    metadata = kwargs.get("metadata")
+    if _cache_reuse_context(metadata) is not None:
+        normalized["metadata"] = _normalize_cache_metadata(metadata)
+    return normalized
+
+
+def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
+    """Recompute and return a bounded immutable-snapshot reuse identity.
+
+    The cache admission contract deliberately requires the actual snapshot
+    bytes, their declared digest, and an explicit permission context.  A
+    provider-supplied ``cacheable`` flag or a URI alone cannot establish this
+    identity.  The returned value excludes bytes so it is safe for cache keys
+    and provider payloads while retaining every substantive identity field.
+    """
+
+    if not isinstance(metadata, Mapping):
+        return None
+    raw_context = metadata.get("cache_reuse")
+    if not isinstance(raw_context, Mapping):
+        return None
+    snapshot = raw_context.get("snapshot")
+    permission = raw_context.get("permission")
+    if not isinstance(snapshot, Mapping) or not isinstance(permission, Mapping):
+        return None
+
+    content = snapshot.get("content")
+    if not isinstance(content, (bytes, bytearray, memoryview)):
+        return None
+    content_bytes = bytes(content)
+    expected_hash = "sha256:" + hashlib.sha256(content_bytes).hexdigest()
+    if snapshot.get("content_hash") != expected_hash:
+        return None
+    if snapshot.get("immutable") is not True:
+        return None
+
+    ref = snapshot.get("ref")
+    version = snapshot.get("version")
+    tenant = metadata.get("tenant")
+    scope = metadata.get("scope")
+    if not all(isinstance(value, str) and value for value in (ref, version, tenant, scope)):
+        return None
+    if permission.get("allowed") is not True:
+        return None
+    if permission.get("tenant") != tenant or permission.get("scope") != scope:
+        return None
+
+    normalized_snapshot = {
+        str(key): _normalize_cache_identity_value(value)
+        for key, value in snapshot.items()
+        if key != "content"
+    }
+    normalized_snapshot["content_hash"] = expected_hash
+    normalized_permission = {
+        str(key): _normalize_cache_identity_value(value)
+        for key, value in permission.items()
+    }
+    normalized_context = {
+        str(key): _normalize_cache_identity_value(value)
+        for key, value in raw_context.items()
+        if key not in {"snapshot", "permission"}
+    }
+    normalized_context["snapshot"] = normalized_snapshot
+    normalized_context["permission"] = normalized_permission
+    return normalized_context
+
+
+def _normalize_cache_identity_value(value: Any) -> Any:
+    """Make substantive identity values deterministic without retaining bytes."""
+
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        return "sha256:" + hashlib.sha256(bytes(value)).hexdigest()
+    if isinstance(value, Mapping):
+        return {
+            str(key): _normalize_cache_identity_value(item) for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_normalize_cache_identity_value(item) for item in value]
+    return value
+
+
+def _normalize_cache_metadata(value: Any) -> Any:
+    """Normalize a valid reuse proof recursively, preserving other metadata."""
+
+    if isinstance(value, Mapping):
+        if "cache_reuse" in value:
+            context = _cache_reuse_context(value)
+            if context is not None:
+                return {
+                    str(key): (
+                        context
+                        if key == "cache_reuse"
+                        else _normalize_cache_metadata(item)
+                    )
+                    for key, item in value.items()
+                }
+        return {
+            str(key): _normalize_cache_metadata(item) for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_normalize_cache_metadata(item) for item in value]
+    if isinstance(value, tuple):
+        return [_normalize_cache_metadata(item) for item in value]
     return value
 
 
@@ -522,7 +722,7 @@ def _deserialize_payload(payload: bytes | None) -> Any:
 
 
 def _sanitize_cache_metadata(value: Any) -> Any:
-    normalized = to_python_data(value, sort_keys=True)
+    normalized = to_python_data(_normalize_cache_metadata(value), sort_keys=True)
     return _strip_volatile_cache_metadata(normalized)
 
 

@@ -236,6 +236,7 @@ def create_traced_gateway_client(
             ),
             model=model_name,
             ttl_s=cfg.cache_ttl_s,
+            inflight_timeout_s=cfg.timeout_s,
         )
     prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
     return TracedLLMClient(

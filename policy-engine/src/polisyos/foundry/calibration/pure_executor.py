@@ -572,11 +572,14 @@ def apply_nodes(
             )
         elif concrete_active is False:
             # A statically inactive node must not invoke the emitter at all.
-            patch_map, next_key = _neutral_patch_map(
-                visible_state,
-                node,
-                bundle=bundle,
-            ), cur_key
+            patch_map, next_key = (
+                _neutral_patch_map(
+                    visible_state,
+                    node,
+                    bundle=bundle,
+                ),
+                cur_key,
+            )
         else:
             # Under scan/JIT ``active`` is a tracer.  Passing state and key as
             # operands keeps the emitter tracer-safe while ``lax.cond``

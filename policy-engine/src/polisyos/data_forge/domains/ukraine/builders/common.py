@@ -39,6 +39,8 @@ from polisyos.ir.observation.contracts import (
 )
 from polisyos.ir.model_layer.types import TimeFrequency
 
+from .contracts import StageBuildResult
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
@@ -99,17 +101,6 @@ class ScheduledTask:
     task_id: str
     memory_gib_hint: float
     run: Callable[[], dict[str, Any]]
-
-
-@dataclass
-class StageBuildResult:
-    """Structured stage output returned to the orchestrator."""
-
-    outputs: dict[str, ArtifactRecord] = field(default_factory=dict)
-    findings: list[ValidationFinding] = field(default_factory=list)
-    warnings: list[str] = field(default_factory=list)
-    metrics: dict[str, Any] = field(default_factory=dict)
-    manifest_paths: list[Path] = field(default_factory=list)
 
 
 class MemoryAwareScheduler:

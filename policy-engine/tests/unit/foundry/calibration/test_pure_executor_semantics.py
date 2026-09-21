@@ -11,7 +11,11 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
     ProgramNode,
 )
-from polisyos.foundry.calibration.pure_executor import apply_nodes, compile_program
+from polisyos.foundry.calibration.pure_executor import (
+    apply_nodes,
+    compile_program,
+    run_pure_scan,
+)
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute._internal.numeric import is_jax_tracer
 from polisyos.ir.kernel import (
@@ -420,3 +424,144 @@ def test_apply_nodes_keeps_active_refusal_on_invalid_input(monkeypatch) -> None:
             bundle=bundle,
             t=jnp.array(1, dtype=jnp.int32),
         )
+
+
+def test_apply_nodes_vmap_preserves_neutral_patch_structure(monkeypatch) -> None:
+    class _ScheduledLog:
+        def emit_patches(self, state, key, *, target_mask=None):
+            del target_mask
+            return {
+                "agents.income": [{"delta": jnp.log(state.agents.income)}]
+            }, key
+
+    monkeypatch.setattr(
+        "polisyos.foundry.calibration.pure_executor.create_mechanism_from_spec",
+        lambda mechanism_type, params, **kwargs: _ScheduledLog(),
+    )
+    graph, plan = _build_graph_and_plan(
+        [
+            ProgramNode(
+                node_id="scheduled-log",
+                node_kind="mechanism",
+                mechanism_type="scheduled_log",
+                outputs=["agents.income"],
+            )
+        ],
+        max_steps=2,
+    )
+    bundle = compile_program(
+        graph,
+        plan,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        base_state=GlobalState.empty(n_agents=2, n_firms=1),
+        parameter_loader=lambda _: {
+            "params": {},
+            "schedule": {"start_step": 1, "duration_steps": 1},
+        },
+    )
+    base_state = GlobalState.empty(n_agents=2, n_firms=1)
+    key = jax.random.PRNGKey(11)
+
+    def run_one(income, t):
+        state = base_state.replace(agents=base_state.agents.replace(income=income))
+        return apply_nodes(state, key, bundle=bundle, t=t)[0].agents.income
+
+    # eval_shape traces both conditional branches and therefore pins their
+    # patch-map structure before the vectorized execution is admitted.
+    output_shape = jax.eval_shape(
+        run_one,
+        jax.ShapeDtypeStruct((2,), jnp.float32),
+        jax.ShapeDtypeStruct((), jnp.int32),
+    )
+    assert output_shape.shape == (2,)
+
+    # Vectorize over independent state rows with one scalar schedule per job;
+    # mixed per-row schedules would turn the scalar merge masks into a
+    # different batched contract and are outside this native witness.
+    def run_inactive(income):
+        return run_one(income, jnp.array(0, dtype=jnp.int32))
+
+    def run_active(income):
+        return run_one(income, jnp.array(1, dtype=jnp.int32))
+
+    inactive_result = jax.vmap(run_inactive)(jnp.zeros((2, 2), dtype=jnp.float32))
+    assert inactive_result.shape == (2, 2)
+    assert jnp.all(jnp.isfinite(inactive_result))
+    assert jnp.allclose(inactive_result, jnp.zeros((2, 2), dtype=jnp.float32))
+
+    active_result = jax.vmap(run_active)(jnp.full((2, 2), 2.0, dtype=jnp.float32))
+    assert active_result.shape == (2, 2)
+    assert jnp.all(jnp.isfinite(active_result))
+    assert jnp.allclose(
+        active_result,
+        jnp.full((2, 2), 2.0 + jnp.log(2.0), dtype=jnp.float32),
+    )
+
+
+def test_run_pure_scan_preserves_inactive_gradient_path(monkeypatch) -> None:
+    class _ScheduledLog:
+        def emit_patches(self, state, key, *, target_mask=None):
+            del target_mask
+            return {
+                "agents.income": [{"delta": jnp.log(state.agents.income)}]
+            }, key
+
+    monkeypatch.setattr(
+        "polisyos.foundry.calibration.pure_executor.create_mechanism_from_spec",
+        lambda mechanism_type, params, **kwargs: _ScheduledLog(),
+    )
+    graph, plan = _build_graph_and_plan(
+        [
+            ProgramNode(
+                node_id="scheduled-log",
+                node_kind="mechanism",
+                mechanism_type="scheduled_log",
+                outputs=["agents.income"],
+            )
+        ],
+        max_steps=3,
+    )
+    bundle = compile_program(
+        graph,
+        plan,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        base_state=GlobalState.empty(n_agents=2, n_firms=1),
+        parameter_loader=lambda _: {
+            "params": {},
+            "schedule": {"start_step": 2, "duration_steps": 1},
+        },
+    )
+    key = jax.random.PRNGKey(13)
+    initial = GlobalState.empty(n_agents=2, n_firms=1)
+    initial = initial.replace(
+        agents=initial.agents.replace(income=jnp.full((2,), 2.0, dtype=jnp.float32))
+    )
+
+    final_state, _ = run_pure_scan(
+        initial,
+        steps=3,
+        root_key=key,
+        bundle=bundle,
+    )
+    assert jnp.allclose(
+        final_state.agents.income,
+        jnp.full((2,), 2.0 + jnp.log(2.0), dtype=jnp.float32),
+    )
+
+    def scan_objective(income):
+        state = initial.replace(agents=initial.agents.replace(income=income))
+        final, _ = run_pure_scan(
+            state,
+            steps=3,
+            root_key=key,
+            bundle=bundle,
+        )
+        return jnp.sum(final.agents.income)
+
+    gradient = jax.grad(scan_objective)(jnp.full((2,), 2.0, dtype=jnp.float32))
+    assert jnp.all(jnp.isfinite(gradient))
+    assert jnp.allclose(gradient, jnp.full((2,), 1.5, dtype=jnp.float32))

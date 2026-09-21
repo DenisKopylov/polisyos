@@ -241,17 +241,19 @@ def test_verify_batch_keeps_pending_window_bounded_for_large_iterable(
     store = FileSystemCAS(tmp_path / "cas")
     artifact_ids = _synthetic_ids(40)
     pending_window = 4
-    yielded: list[ArtifactID] = []
+    submitted: list[ArtifactID] = []
+    completed = 0
+    state_lock = threading.Lock()
     first_started = threading.Event()
-    first_finished = threading.Event()
     release_first = threading.Event()
     overfed = threading.Event()
 
     def artifact_stream():
         for artifact_id in artifact_ids:
-            if len(yielded) >= pending_window and not first_finished.is_set():
-                overfed.set()
-            yielded.append(artifact_id)
+            with state_lock:
+                if len(submitted) - completed >= pending_window:
+                    overfed.set()
+                submitted.append(artifact_id)
             yield artifact_id
 
     def fake_verify(
@@ -260,11 +262,13 @@ def test_verify_batch_keeps_pending_window_bounded_for_large_iterable(
         *,
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
+        nonlocal completed
         del strict_identity
         if artifact_id == artifact_ids[0]:
             first_started.set()
-            release_first.wait(timeout=2)
-            first_finished.set()
+        release_first.wait(timeout=2)
+        with state_lock:
+            completed += 1
         return _valid_result(artifact_id)
 
     def release_after_observation() -> None:
@@ -353,15 +357,11 @@ def test_default_batch_path_stops_lazy_inventory_on_cancellation(
     ]
     cancel_event = threading.Event()
     yielded: list[ArtifactID] = []
-    delayed = threading.Event()
     original_inventory = store._iter_artifact_ids_lazy
 
-    def delayed_inventory():
-        for index, artifact_id in enumerate(original_inventory()):
+    def lazy_inventory():
+        for artifact_id in original_inventory():
             yielded.append(artifact_id)
-            if index == 1:
-                delayed.set()
-                cancel_event.wait(timeout=2)
             yield artifact_id
 
     def fake_verify(
@@ -374,7 +374,7 @@ def test_default_batch_path_stops_lazy_inventory_on_cancellation(
         cancel_event.set()
         return _valid_result(artifact_id)
 
-    monkeypatch.setattr(store, "_iter_artifact_ids_lazy", delayed_inventory)
+    monkeypatch.setattr(store, "_iter_artifact_ids_lazy", lazy_inventory)
     monkeypatch.setattr(store, "verify_signature", fake_verify)
 
     report = store.verify_all_signatures(
@@ -384,8 +384,7 @@ def test_default_batch_path_stops_lazy_inventory_on_cancellation(
         cancel_event=cancel_event,
     )
 
-    assert delayed.is_set()
-    assert len(yielded) < len(refs)
+    assert 0 < len(yielded) < len(refs)
     assert report.valid < report.total
     assert report.errors >= 1
     assert any(

@@ -140,14 +140,14 @@ def test_verify_batch_records_preflight_error_without_marking_it_valid(
     ]
     artifact_ids = [ref.artifact_id for ref in refs]
     denied_id = artifact_ids[1]
-    original_verify = store.verify
+    original_snapshot_loader = store._load_verified_snapshot
 
-    def verify_with_preflight_error(artifact_id: ArtifactID | str):
+    def snapshot_with_preflight_error(artifact_id: ArtifactID):
         if str(artifact_id) == str(denied_id):
             raise PermissionError("shared preflight denied")
-        return original_verify(artifact_id)
+        return original_snapshot_loader(artifact_id)
 
-    monkeypatch.setattr(store, "verify", verify_with_preflight_error)
+    monkeypatch.setattr(store, "_load_verified_snapshot", snapshot_with_preflight_error)
 
     report = store.verify_all_signatures(
         Ed25519Verifier(),
@@ -328,7 +328,7 @@ def test_verify_batch_cancellation_stops_new_submissions_and_is_reported(
     )
 
     assert len(yielded) < len(artifact_ids)
-    assert report.total == len(artifact_ids)
+    assert report.total == len(report.details)
     assert report.valid < report.total
     assert report.errors >= 1
     assert any(

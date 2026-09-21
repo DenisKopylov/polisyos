@@ -16,6 +16,12 @@ from ._integrity_ops import (
     ArtifactIntegrityError,
 )
 from ._integrity_ops import (
+    load_verified_artifact_snapshot as _load_verified_artifact_snapshot,
+)
+from ._integrity_ops import (
+    VerifiedArtifactSnapshot as _VerifiedArtifactSnapshot,
+)
+from ._integrity_ops import (
     VerificationReport as VerificationReport,
 )
 from ._integrity_ops import (
@@ -556,6 +562,7 @@ class FileSystemCAS:
             read_blob=self.get_bytes,
             read_manifest_bytes=self.get_manifest_bytes,
             write_signature=self.put_signature,
+            load_snapshot=self._load_verified_snapshot,
         )
 
     def verify_signature(
@@ -574,6 +581,7 @@ class FileSystemCAS:
             load_signature=self.get_signature,
             read_blob=self.get_bytes,
             read_manifest_bytes=self.get_manifest_bytes,
+            load_snapshot=self._load_verified_snapshot,
         )
 
     def sign_all_artifacts(
@@ -584,6 +592,8 @@ class FileSystemCAS:
         signer_identity: str | None = None,
         only_unsigned: bool = True,
         max_workers: int = 8,
+        pending_window: int | None = None,
+        cancel_event: threading.Event | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
         ids = artifact_ids if artifact_ids is not None else self.iter_artifact_ids()
@@ -597,6 +607,9 @@ class FileSystemCAS:
             read_blob=self.get_bytes,
             read_manifest_bytes=self.get_manifest_bytes,
             write_signature=self.put_signature,
+            pending_window=pending_window,
+            cancel_event=cancel_event,
+            load_snapshot=self._load_verified_snapshot,
         )
 
     def verify_all_signatures(
@@ -606,6 +619,8 @@ class FileSystemCAS:
         artifact_ids: Iterable[ArtifactID] | None = None,
         max_workers: int = 8,
         strict_identity: bool | None = None,
+        pending_window: int | None = None,
+        cancel_event: threading.Event | None = None,
     ) -> BulkVerificationReport:
         """Verify many artifact signatures concurrently and summarize verifier outcomes."""
         ids = artifact_ids if artifact_ids is not None else self.iter_artifact_ids()
@@ -619,6 +634,8 @@ class FileSystemCAS:
                 v,
                 strict_identity=strict,
             ),
+            pending_window=pending_window,
+            cancel_event=cancel_event,
         )
 
     def _put_blob_and_manifest_once(
@@ -892,5 +909,16 @@ class FileSystemCAS:
             artifact_id,
             blob_path,
             load_manifest=self.get_manifest,
+            record_integrity_failure=self._record_integrity_failure,
+        )
+
+    def _load_verified_snapshot(self, artifact_id: ArtifactID) -> _VerifiedArtifactSnapshot:
+        """Load one owned, integrity-checked bytes/manifest snapshot."""
+        self._require_artifact_owner(artifact_id, operation="verify")
+        blob, manifest = self._paths(artifact_id)
+        return _load_verified_artifact_snapshot(
+            artifact_id,
+            blob_path=blob,
+            manifest_path=manifest,
             record_integrity_failure=self._record_integrity_failure,
         )

@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol, cast
 
 from pydantic import ValidationError
 
@@ -40,6 +40,14 @@ logger = get_logger(__name__)
 
 _PROPAGATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _PROPAGATION_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
+
+
+class _PropagationFunction(Protocol):
+    """Callable response carrying its resolved sensitivity map."""
+
+    _sensitivity_map: dict[str, dict[str, float]]
+
+    def __call__(self, **current_params: Any) -> dict[str, Any]: ...
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_propagate_uncertainty@1.0.0"),
@@ -300,7 +308,7 @@ def _build_propagation_fn(
     *,
     base_metric_values: Mapping[str, float],
     nominal_params: Mapping[str, float],
-) -> tuple[Any, set[str]]:
+) -> tuple[_PropagationFunction, set[str]]:
     frozen = dict(base_metric_values)
     nominal = dict(nominal_params)
     metric_ids = sorted(frozen.keys())
@@ -334,8 +342,10 @@ def _build_propagation_fn(
             )
         return result
 
-    _fn._sensitivity_map = sensitivity_map
-    return _fn, mapped_params
+    propagation_fn = cast("_PropagationFunction", _fn)
+    # This private attribute is an intentional metadata bridge for the local node.
+    propagation_fn._sensitivity_map = sensitivity_map  # pyright: ignore[reportPrivateUsage]
+    return propagation_fn, mapped_params
 
 
 def _resolve_sensitivity_map(

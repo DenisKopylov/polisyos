@@ -15,6 +15,7 @@ from .source_modules import (
     CatalogRunLane,
     CatalogRunProfile,
     CatalogSourceModuleSpec,
+    _resolve_catalog_source_dependencies,
 )
 
 
@@ -111,32 +112,11 @@ class CatalogSourceRegistrySpec(DataForgeModel):
             and (wave is None or source.wave.upper() == wave.upper())
             and source.included_in_run_profile(run_profile)
         ]
-        return self._with_seed_dependencies(selected)
+        return _resolve_catalog_source_dependencies(self.sources, selected)
 
     def to_module_specs(self) -> tuple[CatalogSourceModuleSpec, ...]:
         """Return source-module specs for all registry entries."""
         return tuple(source.to_module_spec() for source in self.sources)
-
-    def _with_seed_dependencies(
-        self,
-        selected: list[CatalogSourceRegistryEntry],
-    ) -> tuple[CatalogSourceRegistryEntry, ...]:
-        selected_ids = {source.source_id for source in selected}
-        by_id = {source.source_id: source for source in self.sources if source.enabled}
-        queue = list(selected)
-        while queue:
-            source = queue.pop()
-            if not source.seed_from or source.seed_from in selected_ids:
-                continue
-            seed = by_id.get(source.seed_from)
-            if seed is None:
-                continue
-            selected_ids.add(seed.source_id)
-            queue.append(seed)
-        return tuple(
-            source for source in self.sources if source.enabled and source.source_id in selected_ids
-        )
-
 
 def default_catalog_source_registry_path() -> Path:
     """Return the checked-in Data Forge source registry file."""

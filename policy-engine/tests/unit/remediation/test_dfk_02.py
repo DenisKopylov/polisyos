@@ -5,6 +5,8 @@ from collections.abc import Callable
 import pytest
 
 from polisyos.data_forge.domains.catalog.registry import (
+    CatalogSourceRegistryEntry,
+    CatalogSourceRegistrySpec,
     catalog_source_modules_from_registry,
     load_catalog_source_registry,
 )
@@ -52,6 +54,23 @@ def _assert_typed_dependency_failure(
     assert caught.value.code == expected_code
 
 
+def _registry_entry(
+    source_id: str,
+    *,
+    enabled: bool = True,
+    seed_from: str | None = None,
+) -> CatalogSourceRegistryEntry:
+    return CatalogSourceRegistryEntry(
+        source_id=source_id,
+        family="fixture",
+        wave="A",
+        endpoint="https://example.invalid/catalog",
+        connector_id="fixture.connector",
+        enabled=enabled,
+        seed_from=seed_from,
+    )
+
+
 def test_source_selection_distinguishes_none_default_from_explicit_empty() -> None:
     registry = load_catalog_source_registry()
     default_selection = select_catalog_source_modules(None, run_profile="prod_full")
@@ -96,6 +115,48 @@ def test_source_selection_fails_closed_for_cyclic_seeds() -> None:
 
     _assert_typed_dependency_failure(
         lambda: select_catalog_source_modules(modules, run_profile="prod_full"),
+        expected_code="dependency_cycle",
+    )
+
+
+def test_registry_selection_fails_closed_for_disabled_mandatory_seed() -> None:
+    registry = CatalogSourceRegistrySpec(
+        version=1,
+        sources=(
+            _registry_entry("seed", enabled=False),
+            _registry_entry("exec", seed_from="seed"),
+        ),
+    )
+
+    _assert_typed_dependency_failure(
+        lambda: registry.enabled_sources(run_profile="prod_full"),
+        expected_code="dependency_disabled",
+    )
+
+
+def test_registry_selection_fails_closed_for_missing_seed() -> None:
+    registry = CatalogSourceRegistrySpec(
+        version=1,
+        sources=(_registry_entry("exec", seed_from="missing"),),
+    )
+
+    _assert_typed_dependency_failure(
+        lambda: registry.enabled_sources(run_profile="prod_full"),
+        expected_code="dependency_missing",
+    )
+
+
+def test_registry_selection_fails_closed_for_cyclic_seeds() -> None:
+    registry = CatalogSourceRegistrySpec(
+        version=1,
+        sources=(
+            _registry_entry("first", seed_from="second"),
+            _registry_entry("second", seed_from="first"),
+        ),
+    )
+
+    _assert_typed_dependency_failure(
+        lambda: registry.enabled_sources(run_profile="prod_full"),
         expected_code="dependency_cycle",
     )
 

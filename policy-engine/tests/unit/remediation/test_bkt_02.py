@@ -281,7 +281,7 @@ def test_non_default_nominal_confidence_survives_orchestrator_and_persisted_repo
 
 def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_path) -> None:
     history_path = tmp_path / "history.json"
-    history_path.write_text("{}", encoding="utf-8")
+    history_path.write_text('{"metric": [0.0, 0.0, 0.0]}', encoding="utf-8")
     orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
 
     def put_artifact(payload: dict, kind: str) -> dict[str, str]:
@@ -384,7 +384,10 @@ def test_invalid_persisted_interval_metadata_is_degraded_and_unscored(
     envelope_payloads,
 ) -> None:
     history_path = tmp_path / "history.json"
-    history_path.write_text("{}", encoding="utf-8")
+    history_path.write_text(
+        '{"metric_0": [0.0, 0.0], "metric_1": [0.0, 0.0]}',
+        encoding="utf-8",
+    )
     orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
 
     def put_artifact(payload: dict, kind: str) -> dict[str, str]:

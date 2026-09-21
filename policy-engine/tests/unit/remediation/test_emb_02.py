@@ -514,7 +514,6 @@ def test_catalog_empty_generation_reader_does_not_reuse_legacy_files(
         build_catalog_hnsw_index(
             db_path=db_path,
             index_dir=index_dir,
-            embedding_dimension=4,
         )
         == 0
     )

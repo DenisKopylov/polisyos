@@ -18,6 +18,7 @@ import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,
@@ -33,7 +34,6 @@ from polisyos.fabric.connectors.federation.types import (
     SchemaIncompatibilityError,
     SourceMetadata,
 )
-from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.numerics.finite import is_finite_number
 
 logger = get_logger(__name__)

@@ -7,13 +7,6 @@ import json
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.data_forge.domains.ukraine.builders import (
-    build_d4_stage as facade_build_d4_stage,
-)
-from polisyos.data_forge.domains.ukraine.builders import calibration, contracts
-from polisyos.data_forge.domains.ukraine.builders.governance_handoff import (
-    build_d4_stage as canonical_build_d4_stage,
-)
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,
@@ -48,15 +41,39 @@ EXPECTED_D4_PAYLOAD = {
 }
 
 
+def _load_d4_builder_surface():
+    """Load canonical D4 modules during test execution, not collection."""
+
+    try:
+        from polisyos.data_forge.domains.ukraine import builders
+        from polisyos.data_forge.domains.ukraine.builders import (
+            calibration,
+            contracts,
+            governance_handoff,
+        )
+    except ImportError as exc:
+        raise AssertionError(
+            "UDF-01 canonical D4 owner/contracts must import during test execution"
+        ) from exc
+    return builders.build_d4_stage, calibration, contracts, governance_handoff
+
+
 def _build_d4_fixture(root: Path):
+    _, _, contracts, governance_handoff = _load_d4_builder_surface()
     config = build_default_pipeline_config(root=root / "ukraine")
-    result = canonical_build_d4_stage(config)
+    result = governance_handoff.build_d4_stage(config)
     output_path = config.build_root.calibration_dir / "d4" / D4_OUTPUT
-    return config, result, output_path
+    return config, result, output_path, contracts, governance_handoff
 
 
 def test_canonical_d4_owner_preserves_exact_bytes_and_artifact_contract(tmp_path: Path) -> None:
-    config, result, output_path = _build_d4_fixture(tmp_path)
+    (
+        config,
+        result,
+        output_path,
+        contracts,
+        governance_handoff,
+    ) = _build_d4_fixture(tmp_path)
 
     actual_bytes = output_path.read_bytes()
     expected_bytes = json.dumps(
@@ -67,7 +84,7 @@ def test_canonical_d4_owner_preserves_exact_bytes_and_artifact_contract(tmp_path
     ).encode("utf-8")
     record = result.outputs[D4_OUTPUT]
 
-    assert canonical_build_d4_stage.__module__ == (
+    assert governance_handoff.build_d4_stage.__module__ == (
         "polisyos.data_forge.domains.ukraine.builders.governance_handoff"
     )
     assert actual_bytes == expected_bytes
@@ -85,8 +102,14 @@ def test_canonical_d4_owner_preserves_exact_bytes_and_artifact_contract(tmp_path
 
 
 def test_calibration_alias_and_package_facade_share_the_canonical_owner() -> None:
-    assert calibration.build_d4_stage is canonical_build_d4_stage
-    assert facade_build_d4_stage is canonical_build_d4_stage
+    (
+        facade_build_d4_stage,
+        calibration,
+        _,
+        governance_handoff,
+    ) = _load_d4_builder_surface()
+    assert calibration.build_d4_stage is governance_handoff.build_d4_stage
+    assert facade_build_d4_stage is governance_handoff.build_d4_stage
     assert calibration.build_d4_stage.__module__ == (
         "polisyos.data_forge.domains.ukraine.builders.governance_handoff"
     )
@@ -97,12 +120,11 @@ def test_calibration_alias_and_package_facade_share_the_canonical_owner() -> Non
 
 
 def test_d4_contract_and_handoff_namespaces_do_not_leak_common_builders() -> None:
+    _, _, contracts, governance_handoff = _load_d4_builder_surface()
     assert contracts.StageBuildResult.__module__ == (
         "polisyos.data_forge.domains.ukraine.builders.contracts"
     )
     assert contracts.__all__ == ("StageBuildResult",)
-
-    from polisyos.data_forge.domains.ukraine.builders import governance_handoff
 
     assert governance_handoff.__all__ == ("build_d4_stage",)
     assert not hasattr(governance_handoff, "build_d0_p0_stage")
@@ -114,7 +136,7 @@ def test_d4_contract_and_handoff_namespaces_do_not_leak_common_builders() -> Non
 def test_d4_handoff_reaches_existing_read_api_and_scientist_consumer(
     tmp_path: Path,
 ) -> None:
-    config, result, output_path = _build_d4_fixture(tmp_path)
+    config, result, output_path, _, _ = _build_d4_fixture(tmp_path)
     manifest_path = config.build_root.manifests_dir / "build_run_d4.json"
     write_manifest(
         manifest_path,

@@ -7,6 +7,7 @@ import re
 import time
 from collections import deque
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Any, ClassVar
 
 import numpy as np
@@ -617,6 +618,147 @@ def _abduce_noises_unified(
     return noise
 
 
+@dataclass(frozen=True)
+class _LinearGaussianPosterior:
+    """Conditional distribution of exogenous noises for a linear SCM."""
+
+    node_order: tuple[str, ...]
+    mean: np.ndarray
+    covariance: np.ndarray
+
+
+def _linear_gaussian_posterior(
+    *,
+    condition: Mapping[str, float],
+    order: list[str],
+    parents_map: Mapping[str, list[str]],
+    mechanisms: Mapping[str, NodeMechanism],
+) -> _LinearGaussianPosterior | None:
+    """Build ``P(U | observed nodes)`` for a supported linear-Gaussian SCM.
+
+    Each node is represented as an affine function of independent structural
+    noises.  Conditioning the observed rows of that affine system avoids
+    treating an unobserved parent as if its prior mean were factual evidence.
+    ``None`` means that the model is outside this deliberately small supported
+    posterior profile; callers retain the existing limited fallback then.
+    """
+    if not condition or not order:
+        return None
+
+    node_count = len(order)
+    node_index = {node: index for index, node in enumerate(order)}
+    intercepts = np.zeros(node_count, dtype=float)
+    affine = np.zeros((node_count, node_count), dtype=float)
+    variances = np.zeros(node_count, dtype=float)
+
+    for node in order:
+        mechanism = mechanisms.get(node)
+        if mechanism is None or mechanism.family not in {
+            MechanismFamily.LINEAR,
+            MechanismFamily.ADDITIVE_NOISE,
+        }:
+            return None
+        if mechanism.family_params.get("fit_mode") == "additive_noise_poly":
+            return None
+
+        params = mechanism.family_params
+        raw_posterior = params.get("posterior_mean")
+        if raw_posterior is not None and not isinstance(raw_posterior, Mapping):
+            return None
+        coefficients = (
+            raw_posterior
+            if isinstance(raw_posterior, Mapping)
+            else params.get("coefficients", {})
+        )
+        if not isinstance(coefficients, Mapping):
+            coefficients = {}
+        try:
+            intercept = float(
+                coefficients.get("__intercept__", params.get("intercept", 0.0))
+            )
+            for parent in parents_map.get(node, []):
+                if parent not in node_index:
+                    return None
+                coefficient = float(coefficients.get(parent, 0.0))
+                parent_index = node_index[parent]
+                intercept += coefficient * intercepts[parent_index]
+                affine[node_index[node]] += coefficient * affine[parent_index]
+            std = _linear_noise_std(mechanism)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if not math.isfinite(intercept) or not math.isfinite(std):
+            return None
+        intercepts[node_index[node]] = intercept
+        affine[node_index[node], node_index[node]] += 1.0
+        variances[node_index[node]] = std**2
+
+    observed_nodes = [node for node in order if node in condition]
+    if not observed_nodes:
+        return None
+    observed_indices = [node_index[node] for node in observed_nodes]
+    observation_matrix = affine[observed_indices, :]
+    prior_covariance = np.diag(variances)
+    residual = np.asarray(
+        [float(condition[node]) - intercepts[node_index[node]] for node in observed_nodes],
+        dtype=float,
+    )
+    if not np.isfinite(residual).all():
+        return None
+
+    observation_covariance = observation_matrix @ prior_covariance @ observation_matrix.T
+    try:
+        observation_pseudoinverse = np.linalg.pinv(observation_covariance, hermitian=True)
+    except (TypeError, ValueError, np.linalg.LinAlgError):
+        return None
+
+    projected_residual = observation_covariance @ observation_pseudoinverse @ residual
+    if not np.allclose(projected_residual, residual, atol=1.0e-8, rtol=1.0e-8):
+        return None
+
+    gain = prior_covariance @ observation_matrix.T @ observation_pseudoinverse
+    posterior_mean = gain @ residual
+    posterior_covariance = prior_covariance - gain @ observation_matrix @ prior_covariance
+    posterior_covariance = (posterior_covariance + posterior_covariance.T) / 2.0
+    try:
+        eigenvalues, eigenvectors = np.linalg.eigh(posterior_covariance)
+    except np.linalg.LinAlgError:
+        return None
+    if np.any(eigenvalues < -1.0e-8):
+        return None
+    posterior_covariance = (
+        eigenvectors @ np.diag(np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
+    )
+    if not np.isfinite(posterior_mean).all() or not np.isfinite(posterior_covariance).all():
+        return None
+    return _LinearGaussianPosterior(
+        node_order=tuple(order),
+        mean=posterior_mean,
+        covariance=posterior_covariance,
+    )
+
+
+def _draw_linear_gaussian_noises(
+    posterior: _LinearGaussianPosterior,
+    rng: np.random.Generator,
+) -> dict[str, float]:
+    """Draw one jointly conditioned structural-noise realization."""
+    if np.allclose(posterior.covariance, 0.0, atol=1.0e-12, rtol=0.0):
+        draw = posterior.mean
+    else:
+        draw = rng.multivariate_normal(
+            posterior.mean,
+            posterior.covariance,
+            check_valid="raise",
+        )
+    return {
+        node: float(value)
+        for node, value in zip(posterior.node_order, draw, strict=True)
+    }
+
+
+_INTERVENTION_UNSET = object()
+
+
 def _effective_intervention(query: CausalQuery) -> InterventionSpec | None:
     if query.intervention_spec is not None:
         return query.intervention_spec
@@ -657,7 +799,7 @@ def _simulate_samples(
     n_samples: int,
     rng: np.random.Generator,
     warnings: list[str],
-    intervention_override: InterventionSpec | None = None,
+    intervention_override: InterventionSpec | None | object = _INTERVENTION_UNSET,
     condition_override: Mapping[str, float] | None = None,
     precomputed_abduced_noises: dict[str, float] | None = None,
     allow_declared_hypothesis: bool = False,
@@ -671,29 +813,45 @@ def _simulate_samples(
     )
     descendants = _descendants_of_treatment(scm_spec, query.treatment_variable)
 
+    linear_gaussian_posterior: _LinearGaussianPosterior | None = None
     if precomputed_abduced_noises is not None:
         # Caller provided pre-computed noises (e.g. from twin-network query)
         abduced_noises = precomputed_abduced_noises
     elif query.query_type is QueryType.COUNTERFACTUAL:
-        abduced_noises = _abduce_linear_noises(
-            query=query.model_copy(update={"condition": condition}),
+        linear_gaussian_posterior = _linear_gaussian_posterior(
+            condition=condition,
             order=order,
             parents_map=parents_map,
             mechanisms=mechanisms,
         )
+        abduced_noises = {}
+        if linear_gaussian_posterior is None:
+            abduced_noises = _abduce_linear_noises(
+                query=query.model_copy(update={"condition": condition}),
+                order=order,
+                parents_map=parents_map,
+                mechanisms=mechanisms,
+            )
     else:
         abduced_noises = {}
 
     intervention = (
-        intervention_override
-        if intervention_override is not None
-        else _effective_intervention(query)
+        _effective_intervention(query)
+        if intervention_override is _INTERVENTION_UNSET
+        else intervention_override
     )
+    if intervention is not None and not isinstance(intervention, InterventionSpec):
+        raise TypeError("intervention_override must be an InterventionSpec or None")
     by_node: dict[str, list[float]] = {node: [] for node in order}
     outcome_values = np.zeros(n_samples, dtype=float)
 
     for index in range(n_samples):
         assignment: dict[str, float] = {}
+        sample_abduced_noises = (
+            _draw_linear_gaussian_noises(linear_gaussian_posterior, rng)
+            if linear_gaussian_posterior is not None
+            else abduced_noises
+        )
         root_sample_index = _joint_root_sample_index(observed_root_samples, rng)
         for node in order:
             parent_values = {parent: assignment[parent] for parent in parents_map.get(node, [])}
@@ -708,7 +866,7 @@ def _simulate_samples(
             else:
                 mechanism = mechanisms.get(node)
                 noise_override = (
-                    abduced_noises.get(node)
+                    sample_abduced_noises.get(node)
                     if query.query_type is QueryType.COUNTERFACTUAL
                     else None
                 )

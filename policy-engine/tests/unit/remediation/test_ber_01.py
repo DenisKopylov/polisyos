@@ -23,7 +23,6 @@ from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
 from polisyos.berl.contracts.schema import generated_explanation_bundle_schema
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
 
-
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 PERSISTED_SCHEMA_PATH = (
     POLICY_ENGINE_ROOT

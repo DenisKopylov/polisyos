@@ -11,6 +11,17 @@ driven by the observable controller boundary:
 The tests deliberately include positive controls for an explicit zero and an
 identical assignment.  They are expected to be RED on the current
 integration base until the corresponding production contract is repaired.
+
+Resource classification is ``N/C-exclusive`` for this candidate: the shared
+request fixture is imported from the native joint-simulation test module and
+transitively imports JAX.  It must not consume one of the seven L permits
+until that fixture is decoupled and an L classification is proven.
+
+Bounded residual: this witness exercises the NCM output boundary, atom
+composition, and the method-registry temporal runner.  The corresponding
+``coupled_des_abm`` queue fallback, system-dynamics stock fallback, and
+program-graph/program-override horizon branches remain explicitly uncovered;
+they require their own address-specific witness before SIM-02 acceptance.
 """
 
 from __future__ import annotations
@@ -75,18 +86,45 @@ def _request_with_same_target_assignments(
 
 
 @pytest.mark.parametrize(
-    "world_summary",
+    ("world_summaries", "selected_outcomes", "expected_code"),
     [
-        {},
-        {"firm_survival": {}},
-        {"firm_survival": {"mean": float("nan")}},
-        {"firm_survival": {"mean": float("inf")}},
+        pytest.param(
+            [],
+            ("firm_survival",),
+            "ncm_world_summaries_missing",
+            id="empty-world-summaries",
+        ),
+        pytest.param(
+            [{"world_index": 0}],
+            ("firm_survival",),
+            "ncm_outcome_missing",
+            id="missing-selected-outcome",
+        ),
+        pytest.param(
+            [{"world_index": 0, "firm_survival": {"mean": 2.0}}],
+            ("firm_survival", "missing_outcome"),
+            "ncm_outcome_missing",
+            id="mixed-valid-and-missing-selected-outcome",
+        ),
+        pytest.param(
+            [{"world_index": 0, "firm_survival": {"mean": float("nan")}}],
+            ("firm_survival",),
+            "ncm_outcome_non_finite",
+            id="nan-selected-outcome",
+        ),
+        pytest.param(
+            [{"world_index": 0, "firm_survival": {"mean": float("inf")}}],
+            ("firm_survival",),
+            "ncm_outcome_non_finite",
+            id="infinite-selected-outcome",
+        ),
     ],
-    ids=("empty-world", "missing-outcome", "nan-outcome", "infinite-outcome"),
 )
 def test_ncm_selected_outcome_missing_or_nonfinite_fails_closed(
     monkeypatch: pytest.MonkeyPatch,
-    world_summary: dict[str, Any],
+    world_summaries: list[dict[str, Any]],
+    selected_outcomes: tuple[str, ...],
+    expected_code: str,
 ) -> None:
     """B18: absence and invalid numbers must not become an observed zero."""
 
@@ -94,14 +132,19 @@ def test_ncm_selected_outcome_missing_or_nonfinite_fails_closed(
         del state, params
         return {
             "counterfactual_result": {
-                "world_summaries": [{"world_index": 0, **world_summary}],
+                "world_summaries": world_summaries,
             }
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fake_pure_step))
+    request = _request().model_copy(update={"selected_outcomes": selected_outcomes})
 
-    with pytest.raises(JointSimulationControllerError):
-        JointSimulationHorizonController().run(_request())
+    with pytest.raises(JointSimulationControllerError) as raised:
+        JointSimulationHorizonController().run(request)
+
+    # The typed code is the concrete fail-closed signal; no result means no
+    # numeric trajectory can be mistaken for a measured zero.
+    assert raised.value.code == expected_code
 
 
 def test_ncm_explicit_zero_is_preserved_as_a_real_outcome(
@@ -228,7 +271,23 @@ def test_short_trajectory_is_not_silently_extended_by_final_value() -> None:
     registry = MethodRegistry._create_fresh()
     method_fqn = registry.register(_ShortTrajectoryMethod)
 
-    with pytest.raises(JointSimulationControllerError):
-        JointSimulationHorizonController(method_registry=registry).run(
+    try:
+        result = JointSimulationHorizonController(method_registry=registry).run(
             _short_trajectory_request(method_fqn)
         )
+    except JointSimulationControllerError as raised:
+        assert raised.code == "trajectory_coverage_incomplete"
+        return
+
+    # A permitted partial result has only the point the method actually
+    # emitted.  It must carry an explicit status and cannot expose final_stocks
+    # as a silent hold-last reconstruction for steps 1 and 2.
+    joint = result.trajectory_for(
+        "joint",
+        ("income_subsidy", "balance_grant"),
+    )
+    assert [point.step for point in joint.points] == [0]
+    assert [point.outcomes for point in joint.points] == [{"stock0": 10.0}]
+    assert joint.diagnostics.get("coverage_status") == "partial"
+    assert tuple(joint.diagnostics.get("covered_steps", ())) == (0,)
+    assert joint.diagnostics.get("hold_last", False) is False

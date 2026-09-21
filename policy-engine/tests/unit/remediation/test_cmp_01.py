@@ -56,6 +56,9 @@ def _make_method_class(
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
         requires=requires,
     )
 
@@ -128,6 +131,9 @@ def test_async_wrapper_survives_both_fresh_import_orders() -> None:
                 fidelity=FidelityLevel.LOW,
                 complexity=ComplexityClass.O_N,
                 backend=ComputeBackend.NUMPY,
+                supports_jit=False,
+                supports_vmap=False,
+                supports_grad=False,
                 requires=frozenset(requires),
             )
 

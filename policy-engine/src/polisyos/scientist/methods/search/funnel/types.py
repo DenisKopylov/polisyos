@@ -44,7 +44,15 @@ def statistical_uncertainty_from_ci_width(
         )
 
     raw_width = bootstrap.get("ci_width")
-    if raw_width is None or isinstance(raw_width, bool):
+    if raw_width is None:
+        return UncertaintyEstimate(
+            level=1.0,
+            source=f"{source}; confidence-interval width missing",
+            quantification_method="ci_width_missing",
+            is_reducible=True,
+            recommended_action=recommended_action,
+        )
+    if isinstance(raw_width, bool):
         return UncertaintyEstimate(
             level=1.0,
             source=f"{source}; confidence-interval width invalid",

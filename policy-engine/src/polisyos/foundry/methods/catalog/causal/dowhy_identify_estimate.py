@@ -99,6 +99,14 @@ def _extract_confidence_interval(estimate: Any) -> tuple[float, float] | None:
     return lower, upper
 
 
+def _extract_identified_estimand_type(identified: Any) -> str | None:
+    """Read the backend's declared estimand type when its DTO exposes one."""
+    value = getattr(identified, "estimand_type", None)
+    if value is None:
+        return None
+    return str(getattr(value, "value", value))
+
+
 def _json_serializable(value: Any) -> bool:
     try:
         json.dumps(value)
@@ -272,6 +280,36 @@ def _run_dowhy(
             estimand_type=estimand_type,
             proceed_when_unidentifiable=False,
         )
+
+        identified_type = _extract_identified_estimand_type(identified)
+        if identified_type is not None and identified_type != estimand_type:
+            reason = (
+                "DoWhy returned a different estimand type: "
+                f"requested={estimand_type!r}, identified={identified_type!r}"
+            )
+            report = build_failure_report(
+                method=causal_method,
+                status=EstimationStatus.ASSUMPTION_FAILED,
+                reason=reason,
+                estimand=estimand_type,
+                sample_size=sample_size,
+                n_treated=n_treated,
+                n_control=n_control,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(assumptions),
+                confidence_level=None,
+                method_params=method_params,
+                identified_estimand=str(identified),
+                estimand_type=estimand_type,
+                graph_ref=data.graph_ref,
+                metadata={
+                    "capability": "estimand_binding_mismatch",
+                    "requested_estimand_type": estimand_type,
+                    "identified_estimand_type": identified_type,
+                },
+            )
+            return wrap_causal_output(report, warnings=[reason])
     except Exception as exc:
         report = build_failure_report(
             method=causal_method,

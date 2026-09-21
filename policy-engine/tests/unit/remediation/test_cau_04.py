@@ -55,8 +55,9 @@ class _Estimate:
 
 
 class _Identified:
-    def __init__(self, label: str) -> None:
+    def __init__(self, label: str, estimand_type: str) -> None:
         self.label = label
+        self.estimand_type = estimand_type
 
     def __str__(self) -> str:
         return self.label
@@ -65,16 +66,18 @@ class _Identified:
 class _RecorderModel:
     instances: list[_RecorderModel] = []
     estimate = _Estimate()
+    identified_type: str | None = None
 
     def __init__(self, **kwargs: Any) -> None:
         self.constructor_kwargs = kwargs
         self.identify_kwargs: dict[str, Any] | None = None
         self.estimate_kwargs: dict[str, Any] | None = None
-        self.identified = _Identified("identified")
+        self.identified = _Identified("identified", "nonparametric-ate")
         type(self).instances.append(self)
 
     def identify_effect(self, **kwargs: Any) -> _Identified:
         self.identify_kwargs = kwargs
+        self.identified.estimand_type = type(self).identified_type or kwargs["estimand_type"]
         return self.identified
 
     def estimate_effect(self, identified: _Identified, **kwargs: Any) -> _Estimate:
@@ -97,6 +100,7 @@ class _RecorderPandas:
 def _reset_recorder() -> None:
     _RecorderModel.instances.clear()
     _RecorderModel.estimate = _Estimate()
+    _RecorderModel.identified_type = None
 
 
 def _load_recorders() -> tuple[_RecorderDoWhy, _RecorderPandas]:
@@ -162,6 +166,25 @@ def test_requested_estimand_is_bound_to_model_and_identification(monkeypatch) ->
     assert model.estimate_kwargs is not None
     assert model.estimate_kwargs["method_name"] == "backdoor.linear_regression"
     assert model.estimate_kwargs["confidence_intervals"] is True
+
+
+def test_backend_estimand_mismatch_is_not_relabelled(monkeypatch) -> None:
+    _RecorderModel.identified_type = "nonparametric-ate"
+    monkeypatch.setattr(dowhy_module, "_load_dowhy_dependencies", _load_recorders)
+
+    output = DoWhyIdentifyEstimate.pure_step(
+        _data(),
+        {
+            "estimand_type": "nonparametric-nie",
+            "method_name": "backdoor.linear_regression",
+        },
+    )
+    report = output["report"]
+
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.point_estimate is None
+    assert report.metadata["capability"] == "estimand_binding_mismatch"
+    assert report.metadata["identified_estimand_type"] == "nonparametric-ate"
 
 
 def test_unsupported_estimand_is_an_explicit_capability_result(monkeypatch) -> None:

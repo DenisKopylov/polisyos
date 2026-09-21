@@ -7,13 +7,13 @@ import json
 import shutil
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
-from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     CalibrationBundleManifest,
@@ -23,8 +23,8 @@ from polisyos.data_forge.domains.ukraine.manifests import (
 )
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, SourceConfig, StageId
 from polisyos.data_forge.kernel.io import ensure_dirs
-from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
     ContractCompatibilityTarget,
     ObservationContractArtifact,
@@ -89,6 +89,9 @@ from .common import (
     _write_npz,
 )
 from .observation import _period_series_to_iso_bounds
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 _PANEL_OBSERVATIONAL_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
 _DYNAMIC_TREATMENT_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
@@ -1086,9 +1089,7 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
             "trade_graph_nnz": outputs["trade_graph_sparse.npz"].nnz,
             "distress_graph_nnz": outputs["distress_graph_sparse.npz"].nnz,
             "public_service_graph_nnz": outputs["public_service_graph_sparse.npz"].nnz,
-            "proxy_identified_channels": sum(
-                1 for item in proxy_checks.values() if item["status"] == "identified"
-            ),
+            "proxy_declared_channels": len(proxy_bundle.proxy_channels),
             "full_node_count": full_node_count,
             "contract_node_count": len(contract_node_ids),
         },

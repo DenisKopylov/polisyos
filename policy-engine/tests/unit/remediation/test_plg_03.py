@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+from decimal import Decimal
 from pathlib import Path
 
 import jax
 import jax.numpy as jnp
 import pytest
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 
 from polisyos.foundry.agent_sim import ActorCritic, TrainingConfig, build_temporal_observations
 from polisyos.foundry.plugins.api import PolisySimulator, TrainingResult
@@ -107,6 +110,15 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert result.loss_history
     assert all(jnp.isfinite(jnp.asarray(result.loss_history)))
     assert _tree_delta(initial_policy, result.trained_policy) > 0.0
+
+    manifest_payload = from_canonical_bytes(
+        FileSystemCAS(tmp_path / "training-output" / "artifacts").get_bytes(
+            result.artifact_refs[1].artifact_id
+        )
+    )
+    assert isinstance(manifest_payload, dict)
+    assert isinstance(manifest_payload["metrics"]["final_loss"], Decimal)
+    assert isinstance(manifest_payload["metrics"]["learning_rate"], Decimal)
 
     before_action, _ = result.trained_policy(obs, deterministic=True)
     assert jnp.all(jnp.isfinite(before_action))

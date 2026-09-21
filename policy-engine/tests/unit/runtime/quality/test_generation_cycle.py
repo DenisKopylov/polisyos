@@ -389,6 +389,40 @@ class _CounterexampleAwareGenerator:
         )
 
 
+class _SameCandidateNewBasisGenerator:
+    """Return one candidate identity with a distinct content occurrence per cycle."""
+
+    def __init__(self) -> None:
+        self.problems: list[DesignProblem] = []
+
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> _GenerationResult:
+        self.problems.append(problem)
+        candidate = _Candidate(
+            candidate_id="candidate_same_subject",
+            atom=_Atom(
+                "candidate_same_subject",
+                "sha256:" + ("1" if cycle_index == 0 else "2") * 64,
+            ),
+            diversity_key=("grant", "firms", "same_subject", f"cycle_{cycle_index}"),
+        )
+        return _GenerationResult(
+            status="generated",
+            candidates=(candidate,),
+            surrogate_rankings=(
+                _Ranking(
+                    candidate_id=candidate.candidate_id,
+                    score=0.93 if cycle_index == 0 else 0.31,
+                    voi_estimate=0.82 if cycle_index == 0 else 0.41,
+                ),
+            ),
+        )
+
+
 class _AlwaysLowGrounding:
     def __call__(
         self,
@@ -3060,6 +3094,102 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     assert validate_generation_cycle_run(run) == ()
 
 
+@pytest.mark.asyncio
+async def test_same_candidate_new_basis_preserves_history_and_current_front() -> None:
+    """A changed basis is a new occurrence, not a second current-front row."""
+
+    generator = _SameCandidateNewBasisGenerator()
+    problem = _problem("same_subject_new_basis")
+    run = await GenerationCycleController(
+        generation_port=generator,
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+    ).run(
+        problem,
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=2,
+    )
+
+    assert len(run.candidate_summaries) == 2
+    assert tuple(summary.candidate_id for summary in run.candidate_summaries) == (
+        "candidate_same_subject",
+        "candidate_same_subject",
+    )
+    assert tuple(summary.content_hash for summary in run.candidate_summaries) == (
+        "sha256:" + "1" * 64,
+        "sha256:" + "2" * 64,
+    )
+    assert len(
+        {
+            (summary.candidate_id, summary.content_hash, summary.cycle_index)
+            for summary in run.candidate_summaries
+        }
+    ) == 2
+    assert tuple(
+        cycle.revision_request.revised_problem.design_problem_id for cycle in run.cycles
+    ) == (problem.design_problem_id, problem.design_problem_id)
+    assert run.cycles[0].design_problem_ref != run.cycles[1].design_problem_ref
+    front_ids = tuple(
+        candidate_id
+        for candidate_ids in run.fronts.candidate_ids_by_front().values()
+        for candidate_id in candidate_ids
+    )
+    assert front_ids == ("candidate_same_subject",)
+    assert validate_generation_cycle_run(run) == ()
+
+
+def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
+    tmp_path: Path,
+) -> None:
+    """A population/model change must not reuse the prior promotion basis."""
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("changed_basis_owner")
+    summary = _open_world_summary("changed_basis_candidate")
+    original = runtime._prepare_completed_generation(problem=problem, summaries=(summary,))
+    assert hasattr(original, "contexts")
+
+    changed_problem = problem.model_copy(
+        update={
+            "model_spec_ref": "sha256:" + "9" * 64,
+            "stakeholders": [
+                DesignStakeholder(
+                    stakeholder_id="large_firms",
+                    name="Large firms",
+                    role="target_population",
+                )
+            ],
+        }
+    )
+    changed = runtime._prepare_completed_generation(
+        problem=changed_problem,
+        summaries=(summary,),
+    )
+    assert hasattr(changed, "contexts")
+
+    original_statement = original.contexts.aggregate_context.statement
+    changed_statement = changed.contexts.aggregate_context.statement
+    assert (
+        original_statement.design_problem_binding_ref
+        != changed_statement.design_problem_binding_ref
+    )
+    assert (
+        original_statement.design_problem_binding_content_hash
+        != changed_statement.design_problem_binding_content_hash
+    )
+    original_occurrence = original.contexts.ordered_bound_members[0].statement
+    changed_occurrence = changed.contexts.ordered_bound_members[0].statement
+    assert (
+        original_occurrence.candidate_occurrence_ref
+        != changed_occurrence.candidate_occurrence_ref
+    )
+    assert (
+        original_occurrence.candidate_occurrence_content_hash
+        != changed_occurrence.candidate_occurrence_content_hash
+    )
+
+
 def test_no_retry_without_new_grammar_blocks_same_candidate_retry() -> None:
     with pytest.raises(GenerationCycleError, match="no_retry_without_new_grammar"):
         enforce_no_retry_without_new_grammar(
@@ -3128,6 +3258,50 @@ async def test_controller_refuses_live_retry_without_new_grammar() -> None:
     terminal = generation_cycle_terminal_state(run)
     assert terminal.kind.value == "recursive_blocked"
     assert terminal.blocking_obligations == ["no_retry_without_new_grammar"]
+
+
+@pytest.mark.asyncio
+async def test_uuid_and_timestamp_only_revision_is_blocked_as_no_progress() -> None:
+    """Fresh technical identifiers do not launder an unchanged research basis."""
+
+    class _IdentifierOnlyRevision:
+        def __call__(self, **kwargs: Any) -> Any:
+            prior_cycle = kwargs["prior_cycle"]
+            problem = kwargs["problem"]
+            default = kwargs["default_revision"]
+            revised_problem = problem.model_copy(
+                update={
+                    "runtime_hints": {
+                        **problem.runtime_hints,
+                        "research_attempt_uuid": uuid4().hex,
+                        "research_attempt_at": "2026-09-21T00:00:00Z",
+                    }
+                }
+            )
+            return default.model_copy(
+                update={
+                    "next_candidate_ref": f"candidate://technical-retry/{uuid4().hex}",
+                    "new_grammar_elements": (),
+                    "next_grammar_elements": prior_cycle.revision_request.previous_grammar_elements,
+                    "revised_problem": revised_problem,
+                }
+            )
+
+    run = await GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AlwaysLowGrounding(),
+        value_port=PendingN8ValuePort(),
+        revision_policy=_IdentifierOnlyRevision(),
+    ).run(
+        _problem("technical_identifier_retry"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=3,
+    )
+
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "no_retry_without_new_grammar"
+    assert len(run.cycles) == 1
 
 
 @pytest.mark.asyncio

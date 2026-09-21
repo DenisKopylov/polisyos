@@ -1405,6 +1405,63 @@ async def test_http_recursive_route_without_owner_context_fails_closed_before_bo
     assert n4_port.calls == 0
 
 
+@pytest.mark.asyncio
+async def test_recursive_leaf_preserves_history_and_current_problem_binding() -> None:
+    """A leaf retains prior cycles while its current binding follows the leaf head."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _AlwaysLowGrounding,
+        _CounterexampleAwareGenerator,
+        _budget,
+        _problem,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        PendingN8ValuePort,
+    )
+
+    problem = _problem("recursive_leaf_history_current")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    generator = _CounterexampleAwareGenerator()
+
+    def leaf_controller(_node_ref: str, _problem: object) -> GenerationCycleController:
+        return GenerationCycleController(
+            generation_port=generator,
+            grounding_port=_AlwaysLowGrounding(),
+            value_port=PendingN8ValuePort(),
+        )
+
+    controller = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=leaf_controller,
+        repo_root=Path(__file__).resolve().parents[4],
+    )
+    run = await controller.run(
+        graph,
+        problems_by_node={root_ref: problem},
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=2,
+            max_cycles_per_leaf=2,
+        ),
+    )
+
+    leaf = run.leaf_nodes[0]
+    assert leaf.cycle_run is not None
+    assert len(leaf.cycle_run.cycles) == 2
+    assert leaf.cycle_run.design_problem_ref == leaf.design_problem_ref
+    assert leaf.cycle_run.cycles[0].design_problem_ref == leaf.design_problem_ref
+    assert leaf.cycle_run.cycles[-1].design_problem_ref == leaf.design_problem_ref
+
+
 def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     git_paths, filesystem_paths = _production_python_paths(repo_root)

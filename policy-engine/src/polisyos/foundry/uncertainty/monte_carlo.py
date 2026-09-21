@@ -20,6 +20,7 @@ from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     ExactnessKind,
     IntervalSemantics,
+    ParametricFitCarrier,
     PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
@@ -28,7 +29,7 @@ from polisyos.ir.analytics.uncertainty import (
 )
 
 from .config import PropagationConfig
-from .covariance import extract_std
+from .covariance import extract_std, has_unknown_dependency
 from .protocol import PropagationResult
 
 logger = get_logger(__name__)
@@ -46,6 +47,161 @@ class _QMCExecutionSummary:
     method: str
     scrambled: bool
     replicate_count: int
+
+
+@dataclass(frozen=True)
+class _EmpiricalJointSpec:
+    """Describe an aligned empirical law shared by input carriers."""
+
+    names: tuple[str, ...]
+    sample_axis: str
+    sample_count: int
+    samples: Mapping[str, np.ndarray]
+    probabilities: np.ndarray
+
+
+def _build_empirical_joint_spec(
+    param_names: list[str],
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+) -> tuple[_EmpiricalJointSpec | None, str | None]:
+    """Validate carrier alignment before treating rows as one joint law."""
+    carriers: dict[str, PosteriorSamplesCarrier] = {}
+    for name in param_names:
+        envelope = input_envelopes[name]
+        payload = envelope.distribution_payload
+        if isinstance(payload, PosteriorSamplesCarrier):
+            carriers[name] = payload
+            continue
+        if (
+            isinstance(payload, ParametricFitCarrier)
+            and envelope.distribution_family is DistributionFamily.NORMAL
+        ):
+            continue
+        if payload is not None:
+            return None, "unsupported_distribution_payload"
+        if envelope.distribution_family not in {
+            DistributionFamily.NORMAL,
+            DistributionFamily.UNIFORM,
+            DistributionFamily.TRIANGULAR,
+        }:
+            return None, "unsupported_distribution_family"
+
+    if not carriers:
+        return None, None
+    if len(carriers) != len(param_names):
+        return None, "incompatible_joint_law"
+
+    first = next(iter(carriers.values()))
+    axis = first.sample_axis.strip()
+    if not axis:
+        return None, "incompatible_joint_law"
+    sample_count = len(first.samples)
+    if sample_count < 1:
+        return None, "incompatible_joint_law"
+
+    normalized_weights: list[np.ndarray] = []
+    for carrier in carriers.values():
+        if carrier.sample_axis.strip() != axis or len(carrier.samples) != sample_count:
+            return None, "incompatible_joint_law"
+        weights = (
+            np.ones(sample_count, dtype=np.float64)
+            if carrier.weights is None
+            else np.asarray(carrier.weights, dtype=np.float64)
+        )
+        if (
+            weights.shape != (sample_count,)
+            or not np.all(np.isfinite(weights))
+            or np.any(weights < 0.0)
+        ):
+            return None, "incompatible_joint_law"
+        total = float(np.sum(weights))
+        if not math.isfinite(total) or total <= 0.0:
+            return None, "incompatible_joint_law"
+        normalized_weights.append(weights / total)
+
+    probabilities = normalized_weights[0]
+    if any(
+        not np.allclose(probabilities, weights, rtol=0.0, atol=1e-12)
+        for weights in normalized_weights[1:]
+    ):
+        return None, "incompatible_joint_law"
+
+    return (
+        _EmpiricalJointSpec(
+            names=tuple(carriers),
+            sample_axis=axis,
+            sample_count=sample_count,
+            samples={
+                name: np.asarray(carrier.samples, dtype=np.float64)
+                for name, carrier in carriers.items()
+            },
+            probabilities=probabilities,
+        ),
+        None,
+    )
+
+
+def _unknown_joint_results(
+    output_metric_ids: list[str],
+    *,
+    input_param_names: list[str],
+    failure: str,
+) -> list[PropagationResult]:
+    """Return non-authoritative results when sampling law is not established."""
+    return [
+        PropagationResult(
+            metric_id=metric_id,
+            envelope=UncertaintyEnvelope(
+                point_estimate=0.0,
+                confidence_interval=(-1.0, 1.0),
+                confidence_level=None,
+                distribution_family=DistributionFamily.UNKNOWN,
+                source=UncertaintySource.ENSEMBLE,
+                propagation_method=PropagationMethod.MONTE_CARLO,
+                interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+                is_heuristic_ci=True,
+                gate_eligible=False,
+                metadata={
+                    "failure": failure,
+                    "input_param_names": input_param_names,
+                },
+            ),
+            input_envelopes_used=input_param_names,
+            method_used=PropagationMethod.MONTE_CARLO,
+            diagnostics={failure: True},
+        )
+        for metric_id in output_metric_ids
+    ]
+
+
+def _qmc_dimension_names(
+    param_names: list[str],
+    empirical_spec: _EmpiricalJointSpec | None,
+) -> tuple[str, ...]:
+    """Return one QMC dimension per independent sampling coordinate."""
+    if empirical_spec is None:
+        return tuple(param_names)
+    first_empirical = True
+    dimensions: list[str] = []
+    for name in param_names:
+        if name in empirical_spec.names:
+            if first_empirical:
+                dimensions.append(name)
+                first_empirical = False
+            continue
+        dimensions.append(name)
+    return tuple(dimensions)
+
+
+def _empirical_indices_from_uniform(
+    uniform_samples: np.ndarray,
+    probabilities: np.ndarray,
+) -> np.ndarray:
+    """Map one QMC coordinate to aligned empirical row indices."""
+    clipped = np.clip(np.asarray(uniform_samples, dtype=np.float64), 1e-10, 1.0 - 1e-10)
+    cumulative = np.cumsum(np.asarray(probabilities, dtype=np.float64))
+    indices = np.searchsorted(cumulative, clipped, side="right")
+    return np.minimum(indices, len(probabilities) - 1)
 
 
 class MonteCarloPropagator:
@@ -69,6 +225,22 @@ class MonteCarloPropagator:
             return []
 
         param_names = sorted(input_envelopes.keys())
+        if has_unknown_dependency(input_envelopes):
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unknown_dependency",
+            )
+        empirical_spec, empirical_failure = _build_empirical_joint_spec(
+            param_names,
+            input_envelopes,
+        )
+        if empirical_failure is not None:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure=empirical_failure,
+            )
         level = self._config.confidence_level
         alpha = 1.0 - level
 
@@ -106,6 +278,7 @@ class MonteCarloPropagator:
                 adaptive,
                 alpha,
                 missing_outputs,
+                empirical_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
         else:
@@ -121,6 +294,7 @@ class MonteCarloPropagator:
                 adaptive,
                 alpha,
                 missing_outputs,
+                empirical_spec,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
 
@@ -139,6 +313,7 @@ class MonteCarloPropagator:
             alpha,
             missing_outputs=missing_outputs,
             qmc_summary=qmc_summary,
+            sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
         )
 
     # ------------------------------------------------------------------
@@ -157,6 +332,7 @@ class MonteCarloPropagator:
         adaptive: Any,
         alpha: float,
         missing_outputs: dict[str, int],
+        empirical_spec: _EmpiricalJointSpec | None,
     ) -> tuple[int, int, _QMCExecutionSummary]:
         batch_size = min(self._config.mc_batch_size, n_samples)
         failed = 0
@@ -166,12 +342,13 @@ class MonteCarloPropagator:
         requested_replicates = self._config.mc_qmc_replicates if scrambled else 1
         replicate_sizes = _split_evenly(n_samples, requested_replicates)
         actual_replicates = 0
+        qmc_dimension_names = _qmc_dimension_names(param_names, empirical_spec)
 
         for replicate_idx, replicate_size in enumerate(replicate_sizes):
             if replicate_size <= 0:
                 continue
             sampler_state = self._create_qmc_sampler_state_with_seed(
-                len(param_names),
+                len(qmc_dimension_names),
                 seed=self._config.mc_seed + replicate_idx,
             )
             generated_this_replicate = 0
@@ -189,6 +366,8 @@ class MonteCarloPropagator:
                     uniform_samples,
                     param_names,
                     input_envelopes,
+                    empirical_spec=empirical_spec,
+                    dimension_names=qmc_dimension_names,
                 )
 
                 for row_idx in range(uniform_samples.shape[0]):
@@ -253,6 +432,7 @@ class MonteCarloPropagator:
         adaptive: Any,
         alpha: float,
         missing_outputs: dict[str, int],
+        empirical_spec: _EmpiricalJointSpec | None,
     ) -> tuple[int, int]:
         rng = jrandom.PRNGKey(self._config.mc_seed)
         generated = 0
@@ -261,9 +441,25 @@ class MonteCarloPropagator:
         while generated < n_samples:
             this_batch = min(batch_size, n_samples - generated)
             batch_samples: dict[str, jnp.ndarray] = {}
+            shared_indices: jnp.ndarray | None = None
+            if empirical_spec is not None:
+                rng, shared_key = jrandom.split(rng)
+                shared_indices = jrandom.choice(
+                    shared_key,
+                    empirical_spec.sample_count,
+                    shape=(this_batch,),
+                    p=jnp.asarray(empirical_spec.probabilities, dtype=jnp.float32),
+                )
             for name in param_names:
-                rng, subkey = jrandom.split(rng)
                 env = input_envelopes[name]
+                if empirical_spec is not None and name in empirical_spec.names:
+                    assert shared_indices is not None
+                    batch_samples[name] = jnp.asarray(
+                        empirical_spec.samples[name],
+                        dtype=jnp.float32,
+                    )[shared_indices]
+                    continue
+                rng, subkey = jrandom.split(rng)
                 batch_samples[name] = self._sample_from_envelope(subkey, env, this_batch)
 
             for i in range(this_batch):
@@ -393,6 +589,7 @@ class MonteCarloPropagator:
         *,
         missing_outputs: Mapping[str, int],
         qmc_summary: _QMCExecutionSummary | None,
+        sample_axis: str = "draw",
     ) -> list[PropagationResult]:
         from .sensitivity import compute_first_order_indices
 
@@ -518,6 +715,7 @@ class MonteCarloPropagator:
                 point = float(jnp.mean(valid))
                 distribution_payload = PosteriorSamplesCarrier(
                     samples=tuple(float(value) for value in np.asarray(valid, dtype=np.float64)),
+                    sample_axis=sample_axis,
                 )
                 if qmc_method is not None and not qmc_has_full_certificate:
                     lo = float(jnp.min(valid))
@@ -546,6 +744,10 @@ class MonteCarloPropagator:
                 if qmc_method is not None:
                     metadata["qmc_scrambled"] = qmc_scrambled
                     metadata["qmc_replicates"] = qmc_replicates
+                if sample_axis != "draw":
+                    metadata["input_sample_axis"] = sample_axis
+                    metadata["empirical_joint_law"] = "axis_length_weight_compatible"
+                    metadata["empirical_source_weights_applied"] = True
 
                 if stopped_early:
                     metadata["adaptive_stopped_early"] = True
@@ -601,6 +803,16 @@ class MonteCarloPropagator:
                     notes["missing_output_count"] = missing_count
                 if qmc_method is not None and not qmc_has_full_certificate:
                     notes["restricted_scope"] = "expectation_bv"
+                if sample_axis != "draw":
+                    notes["empirical_joint_law"] = "axis_length_weight_compatible"
+                    notes["empirical_source_weights_applied"] = True
+                assumptions = ["empirical_push_forward"]
+                if sample_axis != "draw":
+                    assumptions.append("axis_length_weight_compatible_rows")
+                if qmc_has_full_certificate:
+                    assumptions.append("rqmc_replicates")
+                elif qmc_method is not None:
+                    assumptions.append("restricted_qmc_scope")
                 envelope = UncertaintyEnvelope(
                     point_estimate=point,
                     confidence_interval=(lo, hi),
@@ -630,15 +842,7 @@ class MonteCarloPropagator:
                         replicate_count=qmc_replicates if qmc_method is not None else None,
                         qmc_method=qmc_method,
                         scrambled=qmc_scrambled if qmc_method is not None else None,
-                        assumptions=(
-                            ("empirical_push_forward", "rqmc_replicates")
-                            if qmc_has_full_certificate
-                            else (
-                                ("empirical_push_forward", "restricted_qmc_scope")
-                                if qmc_method is not None
-                                else ("empirical_push_forward",)
-                            )
-                        ),
+                        assumptions=tuple(assumptions),
                         notes=notes,
                     ),
                 )
@@ -724,21 +928,45 @@ class MonteCarloPropagator:
             right = hi - jnp.sqrt((1.0 - u) * (hi - lo) * (hi - mode))
             return jnp.where(u < frac, left, right)
 
-        std = max((hi - lo) / 4.0, 1e-12)
-        return point + std * jrandom.normal(rng, shape=(n,))
+        raise ValueError(f"unsupported distribution family: {env.distribution_family}")
 
     @staticmethod
     def _transform_qmc_samples(
         uniform_samples: np.ndarray,
         param_names: list[str],
         input_envelopes: Mapping[str, UncertaintyEnvelope],
+        *,
+        empirical_spec: _EmpiricalJointSpec | None = None,
+        dimension_names: tuple[str, ...] | None = None,
     ) -> dict[str, np.ndarray]:
         """Inverse CDF transform of uniform QMC samples per envelope distribution."""
         from scipy.stats import norm as sp_norm
 
         result: dict[str, np.ndarray] = {}
-        for dim_idx, name in enumerate(param_names):
-            u = uniform_samples[:, dim_idx]
+        if empirical_spec is None:
+            empirical_spec, failure = _build_empirical_joint_spec(
+                param_names,
+                input_envelopes,
+            )
+            if failure is not None:
+                raise ValueError(failure)
+        if dimension_names is None:
+            dimension_names = _qmc_dimension_names(param_names, empirical_spec)
+        if empirical_spec is not None:
+            empirical_anchor_idx = dimension_names.index(empirical_spec.names[0])
+            shared_indices = _empirical_indices_from_uniform(
+                uniform_samples[:, empirical_anchor_idx],
+                empirical_spec.probabilities,
+            )
+        else:
+            shared_indices = None
+
+        for name in param_names:
+            if empirical_spec is not None and name in empirical_spec.names:
+                assert shared_indices is not None
+                result[name] = empirical_spec.samples[name][shared_indices]
+                continue
+            u = uniform_samples[:, dimension_names.index(name)]
             # Clip to avoid infinities at 0 and 1
             u = np.clip(u, 1e-10, 1.0 - 1e-10)
             env = input_envelopes[name]
@@ -759,9 +987,7 @@ class MonteCarloPropagator:
 
                     result[name] = triang.ppf(u, c, loc=lo, scale=hi - lo)
             else:
-                # Fallback: normal approximation
-                std = max((hi - lo) / 4.0, 1e-12)
-                result[name] = sp_norm.ppf(u, loc=point, scale=std)
+                raise ValueError(f"unsupported distribution family: {env.distribution_family}")
         return result
 
     def _create_qmc_sampler_state(self, n_dims: int) -> dict[str, Any]:

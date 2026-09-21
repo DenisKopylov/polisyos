@@ -10,12 +10,17 @@ import jax.numpy as jnp
 from polisyos.common.logger import get_logger
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
+    IntervalSemantics,
+    ParametricFitCarrier,
+    PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
+    UncertaintySource,
 )
 
 from .analytical import AnalyticalPropagator
 from .config import PropagationConfig
+from .covariance import build_covariance_matrix, has_unknown_dependency
 from .delta import DeltaMethodPropagator
 from .monte_carlo import MonteCarloPropagator
 from .protocol import PropagationResult
@@ -45,6 +50,44 @@ class PropagationDispatcher:
         if not input_envelopes or not output_metric_ids:
             return []
 
+        param_names = sorted(input_envelopes)
+        if has_unknown_dependency(input_envelopes):
+            return _blocked_dependency_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unknown_dependency",
+            )
+
+        if _requires_monte_carlo_sampling(input_envelopes):
+            return self._mc.propagate(
+                simulation_fn,
+                nominal_params,
+                input_envelopes,
+                output_metric_ids,
+            )
+
+        if (
+            self._config.delta_use_full_covariance
+            and all(env.distribution_family == DistributionFamily.NORMAL for env in input_envelopes.values())
+            and any(
+                "covariance_row" in env.metadata or "covariance_params" in env.metadata
+                for env in input_envelopes.values()
+            )
+        ):
+            try:
+                build_covariance_matrix(
+                    param_names,
+                    input_envelopes,
+                    use_full_covariance=True,
+                    jitter=self._config.delta_covariance_jitter,
+                )
+            except ValueError:
+                return _blocked_dependency_results(
+                    output_metric_ids,
+                    input_param_names=param_names,
+                    failure="incompatible_dependency",
+                )
+
         method = self._resolve_method(
             simulation_fn,
             nominal_params,
@@ -57,12 +100,21 @@ class PropagationDispatcher:
         if method == PropagationMethod.ANALYTICAL:
             if weights and AnalyticalPropagator.is_applicable(input_envelopes):
                 try:
+                    param_names = sorted(input_envelopes)
+                    covariance = build_covariance_matrix(
+                        param_names,
+                        input_envelopes,
+                        use_full_covariance=self._config.delta_use_full_covariance,
+                        jitter=self._config.delta_covariance_jitter,
+                    )
                     return [
                         self._analytical.propagate_linear_combination(
                             weights=weights,
                             input_envelopes=input_envelopes,
                             output_metric_id=mid,
                             confidence_level=self._config.confidence_level,
+                            covariance=covariance,
+                            use_full_covariance=self._config.delta_use_full_covariance,
                         )
                         for mid in output_metric_ids
                     ]
@@ -192,3 +244,58 @@ class PropagationDispatcher:
         except Exception as exc:
             logger.info("Delta dry-run failed; fallback to Monte Carlo: %s", exc)
             return False
+
+
+def _requires_monte_carlo_sampling(
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+) -> bool:
+    """Route empirical/unsupported families away from analytical or delta paths."""
+    for envelope in input_envelopes.values():
+        payload = envelope.distribution_payload
+        if isinstance(payload, PosteriorSamplesCarrier):
+            return True
+        if payload is not None and not (
+            envelope.distribution_family is DistributionFamily.NORMAL
+            and isinstance(payload, ParametricFitCarrier)
+        ):
+            return True
+        if envelope.distribution_family in {
+            DistributionFamily.BOOTSTRAP,
+            DistributionFamily.BAYESIAN,
+            DistributionFamily.UNKNOWN,
+        }:
+            return True
+    return False
+
+
+def _blocked_dependency_results(
+    output_metric_ids: list[str],
+    *,
+    input_param_names: list[str],
+    failure: str,
+) -> list[PropagationResult]:
+    """Return a typed limitation without entering any propagation backend."""
+    return [
+        PropagationResult(
+            metric_id=metric_id,
+            envelope=UncertaintyEnvelope(
+                point_estimate=0.0,
+                confidence_interval=(-1.0, 1.0),
+                confidence_level=None,
+                distribution_family=DistributionFamily.UNKNOWN,
+                source=UncertaintySource.ENSEMBLE,
+                propagation_method=PropagationMethod.NONE,
+                interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
+                is_heuristic_ci=True,
+                gate_eligible=False,
+                metadata={
+                    "failure": failure,
+                    "input_param_names": input_param_names,
+                },
+            ),
+            input_envelopes_used=input_param_names,
+            method_used=PropagationMethod.NONE,
+            diagnostics={failure: True},
+        )
+        for metric_id in output_metric_ids
+    ]

@@ -80,6 +80,8 @@ def _rewrite_tar(
     destination: Path,
     *,
     replace_member: str | None = None,
+    replace_payload: tuple[str, bytes] | None = None,
+    rename_member: tuple[str, str] | None = None,
     append_member: tuple[str, bytes] | None = None,
 ) -> None:
     """Rewrite a small test archive with one controlled mutation or extra member."""
@@ -96,7 +98,11 @@ def _rewrite_tar(
             payload = extracted.read()
             if member.name == replace_member:
                 payload = b"cas-02-corrupted-import"
+            if replace_payload is not None and member.name == replace_payload[0]:
+                payload = replace_payload[1]
             copied = copy.copy(member)
+            if rename_member is not None and member.name == rename_member[0]:
+                copied.name = rename_member[1]
             copied.size = len(payload)
             output_tar.addfile(copied, io.BytesIO(payload))
 
@@ -256,3 +262,191 @@ def test_signed_export_round_trip_preserves_signature_binding(tmp_path: Path) ->
     assert report.verification_failed == []
     assert result.status == SignatureVerificationStatus.VALID
     assert result.ok
+
+
+def test_import_rejects_same_bytes_with_different_manifest_profile(tmp_path: Path) -> None:
+    """An immutable blob cannot silently acquire a different manifest profile."""
+    source = FileSystemCAS(tmp_path / "source")
+    target = FileSystemCAS(tmp_path / "target")
+    source_ref = source.put_bytes(PAYLOAD_A, _options())
+    target_opts = PutOptions(
+        kind="tests.cas02.other-profile",
+        media_type="application/octet-stream",
+        schema=SchemaInfo(name="tests.cas02.transfer", version="1"),
+        producer=ProducerInfo(component="tests.cas02", version="1"),
+    )
+    target_ref = target.put_bytes(PAYLOAD_A, target_opts)
+    prior_manifest = target.get_manifest_bytes(target_ref.artifact_id)
+    export = source.export_subgraph(
+        [source_ref.artifact_id],
+        tmp_path / "profile-conflict.tar.gz",
+    )
+
+    with pytest.raises(ValueError, match="manifest profile conflict"):
+        target.import_subgraph(export.output_path, verify_integrity=True)
+
+    assert target.get_manifest_bytes(target_ref.artifact_id) == prior_manifest
+    assert target.get_bytes(target_ref.artifact_id) == PAYLOAD_A
+
+
+def test_import_enforces_existing_tenant_ownership(tmp_path: Path) -> None:
+    """A tenant cannot import over an artifact owned by another tenant."""
+    source = FileSystemCAS(tmp_path / "source")
+    source_ref = source.put_bytes(PAYLOAD_A, _options())
+    export = source.export_subgraph(
+        [source_ref.artifact_id],
+        tmp_path / "tenant.tar.gz",
+    )
+
+    shared_root = tmp_path / "shared"
+    tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+    tenant_a.put_bytes(PAYLOAD_A, _options())
+    tenant_b = FileSystemCAS(shared_root, tenant_id="tenant-b")
+
+    with pytest.raises(PermissionError, match="not owned by tenant"):
+        tenant_b.import_subgraph(export.output_path, verify_integrity=True)
+
+
+def test_import_rejects_symlinked_parent_without_touching_external_target(
+    tmp_path: Path,
+) -> None:
+    """A symlinked CAS parent is rejected before any external path is written."""
+    source = FileSystemCAS(tmp_path / "source")
+    source_ref = source.put_bytes(PAYLOAD_A, _options())
+    export = source.export_subgraph(
+        [source_ref.artifact_id],
+        tmp_path / "symlink-parent.tar.gz",
+    )
+    target = FileSystemCAS(tmp_path / "target")
+    external = tmp_path / "external"
+    external.mkdir()
+    sentinel = external / "sentinel.txt"
+    sentinel.write_text("keep", encoding="utf-8")
+    symlinked_parent = target.root / "artifacts" / "sha256" / source_ref.artifact_id.hex[:2]
+    symlinked_parent.symlink_to(external, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="symlink"):
+        target.import_subgraph(export.output_path, verify_integrity=True)
+
+    assert sentinel.read_text("utf-8") == "keep"
+    assert not target.has(source_ref.artifact_id)
+
+
+def test_import_rejects_symlinked_owned_member_without_unlinking_external_file(
+    tmp_path: Path,
+) -> None:
+    """An owned member symlink is never replaced or unlinked by import."""
+    source = FileSystemCAS(tmp_path / "source")
+    source_ref = source.put_bytes(PAYLOAD_A, _options())
+    export = source.export_subgraph(
+        [source_ref.artifact_id],
+        tmp_path / "symlink-member.tar.gz",
+    )
+    target = FileSystemCAS(tmp_path / "target")
+    blob_path, _ = target.get_paths(source_ref.artifact_id)
+    blob_path.parent.mkdir(parents=True, exist_ok=True)
+    external = tmp_path / "external-blob.txt"
+    external.write_bytes(b"keep-external")
+    blob_path.symlink_to(external)
+
+    with pytest.raises(ValueError, match="symlink"):
+        target.import_subgraph(export.output_path, verify_integrity=True)
+
+    assert external.read_bytes() == b"keep-external"
+    assert blob_path.is_symlink()
+
+
+def test_import_accepts_canonicalized_tar_manifest_marker(tmp_path: Path) -> None:
+    """Tar marker lookup canonicalizes ``./export_manifest.json`` before comparison."""
+    source = FileSystemCAS(tmp_path / "source")
+    source_ref = source.put_bytes(PAYLOAD_A, _options())
+    export = source.export_subgraph(
+        [source_ref.artifact_id],
+        tmp_path / "canonical-marker.tar.gz",
+    )
+    canonicalized = tmp_path / "canonicalized.tar.gz"
+    _rewrite_tar(
+        export.output_path,
+        canonicalized,
+        rename_member=("export_manifest.json", "./export_manifest.json"),
+    )
+
+    target = FileSystemCAS(tmp_path / "target")
+    report = target.import_subgraph(canonicalized, verify_integrity=True)
+
+    assert report.verification_failed == []
+    assert target.has(source_ref.artifact_id)
+
+
+@pytest.mark.parametrize("mutation", ["malformed", "mismatched"])
+def test_import_rejects_malformed_or_mismatched_signature(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    """A detached signature must parse and bind before any CAS publication."""
+    source = FileSystemCAS(tmp_path / "source")
+    key_pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key_pair.private_pem())
+    artifact = source.put_bytes(PAYLOAD_A, _options())
+    source.sign_artifact(artifact.artifact_id, signer, signer_identity="cas02-test")
+    export = source.export_subgraph(
+        [artifact.artifact_id],
+        tmp_path / f"signature-{mutation}.tar.gz",
+    )
+    signature_member = next(
+        member
+        for member in _artifact_member_paths(source, artifact.artifact_id)
+        if member.endswith(".sig")
+    )
+    if mutation == "malformed":
+        replacement = b"not-json"
+    else:
+        signature = source.get_signature(artifact.artifact_id)
+        assert signature is not None
+        payload = signature.model_dump(mode="json")
+        payload["statement"]["blob_sha256"] = "0" * 64
+        replacement = json.dumps(payload, sort_keys=True).encode("utf-8")
+    mutated = tmp_path / f"mutated-{mutation}.tar.gz"
+    _rewrite_tar(
+        export.output_path,
+        mutated,
+        replace_payload=(signature_member, replacement),
+    )
+
+    target = FileSystemCAS(tmp_path / f"target-{mutation}")
+    with pytest.raises(ValueError, match="Invalid detached signature"):
+        target.import_subgraph(mutated, verify_integrity=True)
+
+    assert not target.has(artifact.artifact_id)
+
+
+def test_import_rolls_back_new_generation_on_mid_publication_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A failed write cannot leave a partially accepted multi-artifact generation."""
+    source = FileSystemCAS(tmp_path / "source")
+    first = source.put_bytes(PAYLOAD_A, _options())
+    second = source.put_bytes(PAYLOAD_B, _options())
+    export = source.export_subgraph(
+        [first.artifact_id, second.artifact_id],
+        tmp_path / "mid-publication.tar.gz",
+    )
+    target = FileSystemCAS(tmp_path / "target")
+    original_write_once = target._files.write_once
+    writes = 0
+
+    def fail_on_third_write(path: Path, data: bytes) -> bool:
+        nonlocal writes
+        writes += 1
+        if writes == 3:
+            raise OSError("injected mid-publication failure")
+        return original_write_once(path, data)
+
+    monkeypatch.setattr(target._files, "write_once", fail_on_third_write)
+
+    with pytest.raises(OSError, match="mid-publication"):
+        target.import_subgraph(export.output_path, verify_integrity=True)
+
+    assert not target.has(first.artifact_id)
+    assert not target.has(second.artifact_id)

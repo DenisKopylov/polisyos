@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
+from pathlib import Path
 import re
 import threading
 import time
@@ -95,7 +97,6 @@ from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from pathlib import Path
 
     from ..observability import MetricsRegistry, PolicyOSTracer
     from .backends.config import ArtifactStoreConfig
@@ -811,6 +812,251 @@ class FileSystemCAS:
                 span.set_attribute("cas.byte_size", report.byte_size)
             return report
 
+    def _verify_staged_artifact(
+        self,
+        artifact_id: ArtifactID,
+        staging_root: Path,
+    ) -> VerificationReport:
+        """Verify one staged pair while retaining this store's failure telemetry."""
+        blob, manifest = self._paths(artifact_id)
+        staged_blob = staging_root / blob.relative_to(self.root)
+        staged_manifest = staging_root / manifest.relative_to(self.root)
+        report = _verify_filesystem_artifact(
+            artifact_id,
+            blob_path=staged_blob,
+            manifest_path=staged_manifest,
+        )
+        if not report.ok:
+            self._record_integrity_failure(reason=report.error or "verification_failed")
+        return report
+
+    def _prepare_import_destination(self, path: Path, *, member: str) -> None:
+        """Create safe parent components and reject symlinked CAS paths."""
+        if self.root.is_symlink():
+            raise ArtifactIntegrityError("CAS root must not be a symlink")
+        try:
+            relative = path.relative_to(self.root)
+        except ValueError as exc:
+            raise ArtifactIntegrityError(f"CAS member escapes root: {member}") from exc
+
+        current = self.root
+        for component in relative.parts[:-1]:
+            current = current / component
+            if current.is_symlink():
+                raise ArtifactIntegrityError(f"CAS member crosses a symlink: {member}")
+            if current.exists():
+                if not current.is_dir():
+                    raise ArtifactIntegrityError(f"CAS member parent is not a directory: {member}")
+            else:
+                current.mkdir()
+                if current.is_symlink() or not current.is_dir():
+                    raise ArtifactIntegrityError(f"CAS member parent is unsafe: {member}")
+
+        if path.is_symlink():
+            raise ArtifactIntegrityError(f"CAS member must not be a symlink: {member}")
+        if path.exists() and not path.is_file():
+            raise ArtifactIntegrityError(f"CAS member is not a regular file: {member}")
+
+    @staticmethod
+    def _import_manifest_profile(manifest: ArtifactManifest) -> dict[str, object]:
+        """Return immutable manifest profile fields, excluding identity/time fields."""
+        return manifest.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude={"artifact_id", "byte_size", "created_at", "integrity"},
+        )
+
+    def _publish_staged_import(
+        self,
+        staging_root: Path,
+        members: set[str],
+        artifact_refs: set[str],
+    ) -> None:
+        """Publish one verified import generation through store ownership/locks."""
+        staged_by_artifact: dict[str, set[str]] = {}
+        for member in sorted(members):
+            safe_path = _safe_member_path(member)
+            if safe_path is None or safe_path.as_posix() != member:
+                raise ArtifactIntegrityError(f"Unsafe staged member: {member}")
+            artifact_id = _artifact_id_from_member(member)
+            if artifact_id is None:
+                raise ArtifactIntegrityError(f"Staged member is not a CAS artifact: {member}")
+            staged_by_artifact.setdefault(str(artifact_id), set()).add(member)
+
+        if set(staged_by_artifact) != set(artifact_refs):
+            raise ArtifactIntegrityError("Staged artifact set does not match transfer inventory")
+
+        locks: dict[int, threading.Lock] = {}
+        for artifact_ref in sorted(artifact_refs):
+            lock = self._artifact_lock(ArtifactID.model_validate(artifact_ref))
+            locks[id(lock)] = lock
+
+        created: list[tuple[Path, bytes]] = []
+        plans: list[dict[str, object]] = []
+        new_artifacts: list[ArtifactID] = []
+
+        def write_once_owned(path: Path, data: bytes, *, member: str) -> None:
+            self._prepare_import_destination(path, member=member)
+            won = self._files.write_once(path, data)
+            if won:
+                created.append((path, data))
+                return
+            if path.is_symlink() or not path.is_file() or path.read_bytes() != data:
+                raise ArtifactIntegrityError(f"Concurrent CAS write conflicts with {member}")
+
+        def rollback() -> None:
+            for path, data in reversed(created):
+                try:
+                    if (
+                        path.is_file()
+                        and not path.is_symlink()
+                        and path.read_bytes() == data
+                    ):
+                        path.unlink()
+                except OSError:
+                    continue
+
+        with ExitStack() as stack:
+            for lock in sorted(locks.values(), key=id):
+                stack.enter_context(lock)
+
+            for artifact_ref in sorted(artifact_refs):
+                artifact_id = ArtifactID.model_validate(artifact_ref)
+                artifact_members = staged_by_artifact[artifact_ref]
+                blob_member = (
+                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
+                    f"/{artifact_id.hex}.blob"
+                )
+                manifest_member = (
+                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
+                    f"/{artifact_id.hex}.manifest.json"
+                )
+                signature_member = (
+                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
+                    f"/{artifact_id.hex}.sig"
+                )
+                if not {blob_member, manifest_member}.issubset(artifact_members):
+                    raise ArtifactIntegrityError(
+                        f"Transfer is missing an immutable pair for {artifact_id}"
+                    )
+
+                staged_blob = staging_root / Path(*blob_member.split("/"))
+                staged_manifest = staging_root / Path(*manifest_member.split("/"))
+                staged_blob_data = staged_blob.read_bytes()
+                staged_manifest_data = staged_manifest.read_bytes()
+                staged_manifest_model = ArtifactManifest.model_validate_json(staged_manifest_data)
+                _validate_manifest_identity(artifact_id, staged_manifest_model)
+                _validate_read_integrity(
+                    artifact_id,
+                    staged_blob_data,
+                    staged_manifest_model,
+                )
+
+                blob, manifest = self._paths(artifact_id)
+                signature = self._sig_path(artifact_id)
+                self._prepare_import_destination(blob, member=blob_member)
+                self._prepare_import_destination(manifest, member=manifest_member)
+                self._prepare_import_destination(signature, member=signature_member)
+                blob_exists = blob.exists()
+                manifest_exists = manifest.exists()
+                if blob_exists != manifest_exists:
+                    raise ArtifactIntegrityError(
+                        f"Existing CAS generation is incomplete for {artifact_id}"
+                    )
+
+                existing_signature = signature.read_bytes() if signature.exists() else None
+                staged_signature = (
+                    staging_root / Path(*signature_member.split("/"))
+                    if signature_member in artifact_members
+                    else None
+                )
+                staged_signature_data = (
+                    staged_signature.read_bytes() if staged_signature is not None else None
+                )
+                if existing_signature is not None and staged_signature_data is not None:
+                    if existing_signature != staged_signature_data:
+                        raise ValueError(
+                            f"Existing detached signature conflicts for {artifact_id}"
+                        )
+
+                if blob_exists:
+                    self._require_artifact_owner(artifact_id, operation="import")
+                    existing_data = blob.read_bytes()
+                    existing_manifest = self._manifests.read(manifest)
+                    _validate_read_integrity(artifact_id, existing_data, existing_manifest)
+                    if self._import_manifest_profile(existing_manifest) != (
+                        self._import_manifest_profile(staged_manifest_model)
+                    ):
+                        raise ValueError(
+                            f"Existing artifact manifest profile conflict for {artifact_id}"
+                        )
+                elif self._ownership_enforced:
+                    self._resolve_owner(required=self._ownership_requires_scope)
+
+                plans.append(
+                    {
+                        "artifact_id": artifact_id,
+                        "blob": blob,
+                        "manifest": manifest,
+                        "signature": signature,
+                        "blob_data": staged_blob_data,
+                        "manifest_data": staged_manifest_data,
+                        "signature_data": staged_signature_data,
+                        "existing": blob_exists,
+                    }
+                )
+                if not blob_exists:
+                    new_artifacts.append(artifact_id)
+
+            try:
+                for plan in plans:
+                    artifact_id = plan["artifact_id"]
+                    if not isinstance(artifact_id, ArtifactID):
+                        raise ArtifactIntegrityError("Invalid staged artifact identity")
+                    blob = plan["blob"]
+                    manifest = plan["manifest"]
+                    signature = plan["signature"]
+                    if not isinstance(blob, Path) or not isinstance(manifest, Path):
+                        raise ArtifactIntegrityError("Invalid staged artifact paths")
+                    if not isinstance(signature, Path):
+                        raise ArtifactIntegrityError("Invalid staged signature path")
+                    blob_data = plan["blob_data"]
+                    manifest_data = plan["manifest_data"]
+                    signature_data = plan["signature_data"]
+                    if not isinstance(blob_data, bytes) or not isinstance(manifest_data, bytes):
+                        raise ArtifactIntegrityError("Invalid staged artifact bytes")
+                    if not plan["existing"]:
+                        write_once_owned(
+                            blob,
+                            blob_data,
+                            member=(
+                                f"artifacts/sha256/{artifact_id.hex[:2]}"
+                                f"/{artifact_id.hex[2:4]}/{artifact_id.hex}.blob"
+                            ),
+                        )
+                        write_once_owned(
+                            manifest,
+                            manifest_data,
+                            member=(
+                                f"artifacts/sha256/{artifact_id.hex[:2]}"
+                                f"/{artifact_id.hex[2:4]}/{artifact_id.hex}.manifest.json"
+                            ),
+                        )
+                    if isinstance(signature_data, bytes) and not signature.exists():
+                        write_once_owned(
+                            signature,
+                            signature_data,
+                            member=(
+                                f"artifacts/sha256/{artifact_id.hex[:2]}"
+                                f"/{artifact_id.hex[2:4]}/{artifact_id.hex}.sig"
+                            ),
+                        )
+                for artifact_id in new_artifacts:
+                    self._record_write_owner(artifact_id)
+            except Exception:
+                rollback()
+                raise
+
     def _atomic_write(self, path: Path, data: bytes) -> None:
         self._files.write_atomic(path, data)
 
@@ -870,7 +1116,8 @@ class FileSystemCAS:
         """Import a CAS export from a directory/tarball and optionally re-verify integrity."""
         return _import_subgraph(
             root=self.root,
-            verify_artifact=self.verify,
+            verify_artifact=self._verify_staged_artifact,
+            publish_staged=self._publish_staged_import,
             source=source,
             verify_integrity=verify_integrity,
         )

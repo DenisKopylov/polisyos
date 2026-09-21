@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
 import shutil
 import tarfile
@@ -17,6 +16,12 @@ from typing import TYPE_CHECKING, Protocol
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
 from .ids import ArtifactID
+from .signing import (
+    DetachedSignature,
+    SIGNATURE_ALGORITHM,
+    SIGNATURE_FORMAT_VERSION,
+    SIGNATURE_STATEMENT_TYPE,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -180,6 +185,7 @@ def _prepare_directory_export(target: Path) -> None:
     }
     for member in previous_members:
         path = target / Path(*PurePosixPath(member).parts)
+        _reject_symlink_components(path, target, member=member)
         if path.is_symlink() or not path.is_file():
             raise ValueError(f"Owned export member is missing: {member}")
         if previous_bindings[member] != _member_digest(path):
@@ -194,6 +200,21 @@ def _prepare_directory_export(target: Path) -> None:
     for path in owned_paths | {marker}:
         if path.is_file() or path.is_symlink():
             path.unlink()
+
+
+def _reject_symlink_components(path: Path, root: Path, *, member: str) -> None:
+    """Reject a member whose parent or final path crosses a symlink."""
+    try:
+        relative = path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f"Member escapes owned root: {member}") from exc
+    current = root
+    if current.is_symlink():
+        raise ValueError(f"Member root must not be a symlink: {member}")
+    for component in relative.parts:
+        current = current / component
+        if current.is_symlink():
+            raise ValueError(f"Member crosses a symlink: {member}")
 
 
 def _stage_member(
@@ -230,23 +251,6 @@ def _stage_member(
     artifact_id = artifact_id_from_member(member)
     if artifact_id is not None:
         imported_artifacts.add(str(artifact_id))
-
-
-def _publish_staged_members(
-    *,
-    staging_root: Path,
-    root: Path,
-    members: set[str],
-) -> None:
-    """Publish a verified closed member set from owned staging into the CAS root."""
-    for member in sorted(members):
-        safe_path = safe_member_path(member)
-        if safe_path is None:
-            raise ValueError(f"Unsafe staged member: {member}")
-        source = staging_root / Path(*safe_path.parts)
-        destination = root / Path(*safe_path.parts)
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        os.replace(source, destination)
 
 
 def normalize_archive_path(path: Path) -> Path:
@@ -287,6 +291,53 @@ def artifact_id_from_member(path: str) -> ArtifactID | None:
     if not re.fullmatch(r"[0-9a-f]{64}", hex64):
         return None
     return ArtifactID.from_sha256_hex(hex64)
+
+
+def _validate_staged_signatures(
+    staging_root: Path,
+    imported_artifacts: set[str],
+    staged_members: set[str],
+) -> None:
+    """Fail closed when an imported signature is malformed or misbound."""
+    for artifact_ref in sorted(imported_artifacts):
+        artifact_id = ArtifactID.model_validate(artifact_ref)
+        sig_member = (
+            f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
+            f"/{artifact_id.hex}.sig"
+        )
+        if sig_member not in staged_members:
+            continue
+        sig_path = staging_root / Path(*PurePosixPath(sig_member).parts)
+        blob_path = staging_root / Path(
+            *PurePosixPath(sig_member.removesuffix(".sig") + ".blob").parts
+        )
+        manifest_path = staging_root / Path(
+            *PurePosixPath(sig_member.removesuffix(".sig") + ".manifest.json").parts
+        )
+        try:
+            signature = DetachedSignature.model_validate_json(sig_path.read_text("utf-8"))
+            if signature.version != SIGNATURE_FORMAT_VERSION:
+                raise ValueError(f"unsupported signature version: {signature.version}")
+            if signature.algorithm != SIGNATURE_ALGORITHM:
+                raise ValueError(f"unsupported signature algorithm: {signature.algorithm}")
+            if signature.statement.type != SIGNATURE_STATEMENT_TYPE:
+                raise ValueError(
+                    f"unsupported signature statement type: {signature.statement.type}"
+                )
+            if signature.artifact_id != str(artifact_id):
+                raise ValueError("signature artifact_id does not match member path")
+            if not blob_path.is_file() or blob_path.is_symlink():
+                raise ValueError("signature blob binding target is missing")
+            if not manifest_path.is_file() or manifest_path.is_symlink():
+                raise ValueError("signature manifest binding target is missing")
+            blob_sha = hashlib.sha256(blob_path.read_bytes()).hexdigest()
+            manifest_sha = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+            if signature.statement.blob_sha256 != blob_sha:
+                raise ValueError("signature blob_sha256 does not match staged blob")
+            if signature.statement.manifest_sha256 != manifest_sha:
+                raise ValueError("signature manifest_sha256 does not match staged manifest")
+        except (OSError, UnicodeDecodeError, TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid detached signature for {artifact_id}: {exc}") from exc
 
 
 def export_subgraph(
@@ -410,7 +461,8 @@ def export_subgraph(
 def import_subgraph(
     *,
     root: Path,
-    verify_artifact: Callable[[ArtifactID], IntegrityVerificationReport],
+    verify_artifact: Callable[[ArtifactID, Path], IntegrityVerificationReport],
+    publish_staged: Callable[[Path, set[str], set[str]], None],
     source: Path,
     verify_integrity: bool = False,
 ) -> ImportReport:
@@ -422,12 +474,16 @@ def import_subgraph(
     staged_members: set[str] = set()
     seen_members: set[str] = set()
     total_bytes = [0]
+    if root.is_symlink():
+        raise ValueError("CAS root must not be a symlink")
     root.mkdir(parents=True, exist_ok=True)
     staging_root = Path(tempfile.mkdtemp(prefix=".cas-import-", dir=root))
 
     try:
         inventory_data: bytes | None = None
         if source.is_dir():
+            if source.is_symlink():
+                raise ValueError("Transfer directory must not be a symlink")
             manifest_path = source / "export_manifest.json"
             if manifest_path.is_file() and not manifest_path.is_symlink():
                 inventory_data = manifest_path.read_bytes()
@@ -436,7 +492,11 @@ def import_subgraph(
                 manifest_members = [
                     member
                     for member in tar.getmembers()
-                    if member.name == "export_manifest.json" and member.isfile()
+                    if (
+                        member.isfile()
+                        and safe_member_path(member.name)
+                        == PurePosixPath("export_manifest.json")
+                    )
                 ]
                 if len(manifest_members) > 1:
                     raise ValueError("Transfer contains duplicate export manifests")
@@ -486,12 +546,12 @@ def import_subgraph(
         else:
             with tarfile.open(source, "r:*") as tar:
                 for member in tar.getmembers():
-                    if member.name == "export_manifest.json":
+                    safe_path = safe_member_path(member.name)
+                    if safe_path == PurePosixPath("export_manifest.json"):
                         continue
                     if not member.isfile():
                         skipped_entries.append(member.name)
                         continue
-                    safe_path = safe_member_path(member.name)
                     if safe_path is None:
                         skipped_entries.append(member.name)
                         continue
@@ -527,23 +587,9 @@ def import_subgraph(
                 )
 
         if verify_integrity:
-            from ._integrity_ops import verify_filesystem_artifact
-
             for artifact_ref in sorted(imported_artifacts):
                 artifact_id = ArtifactID.model_validate(artifact_ref)
-                blob_path = staging_root / Path(*safe_member_path(
-                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-                    f"/{artifact_id.hex}.blob"
-                ).parts)
-                manifest_path = staging_root / Path(*safe_member_path(
-                    f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}"
-                    f"/{artifact_id.hex}.manifest.json"
-                ).parts)
-                report = verify_filesystem_artifact(
-                    artifact_id,
-                    blob_path=blob_path,
-                    manifest_path=manifest_path,
-                )
+                report = verify_artifact(artifact_id, staging_root)
                 if not report.ok:
                     verification_failed.append(artifact_ref)
 
@@ -558,11 +604,8 @@ def import_subgraph(
                 verification_failed=verification_failed,
             )
 
-        _publish_staged_members(
-            staging_root=staging_root,
-            root=root,
-            members=staged_members,
-        )
+        _validate_staged_signatures(staging_root, imported_artifacts, staged_members)
+        publish_staged(staging_root, staged_members, imported_artifacts)
         return ImportReport(
             imported_files=len(staged_members),
             imported_artifacts=len(imported_artifacts),

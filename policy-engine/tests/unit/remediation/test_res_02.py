@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -19,7 +20,7 @@ from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
 
 def _ref(tag: str, *, kind: str = "scientist.node_cache_entry") -> ArtifactRef:
     return ArtifactRef(
-        artifact_id=f"sha256:{tag * 64}",
+        artifact_id=f"sha256:{hashlib.sha256(tag.encode('utf-8')).hexdigest()}",
         kind=kind,
         media_type="application/json",
     )

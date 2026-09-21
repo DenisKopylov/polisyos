@@ -46,20 +46,24 @@ def _assert_typed_dependency_failure(
     expected_code: str,
 ) -> None:
     """Assert the source-selection owner reports a typed fail-closed reason."""
-    with pytest.raises(Exception) as caught:
+    with pytest.raises(catalog_read_api.CatalogSelectionError) as caught:
         operation()
 
-    error = caught.value
-    assert error.__class__.__name__ == "CatalogSourceSelectionError"
-    assert getattr(error, "code", None) == expected_code
+    assert caught.value.code == expected_code
 
 
 def test_source_selection_distinguishes_none_default_from_explicit_empty() -> None:
+    registry = load_catalog_source_registry()
     default_selection = select_catalog_source_modules(None, run_profile="prod_full")
-
-    assert tuple(item.source_id for item in default_selection) == tuple(
-        item.source_id for item in CORE_CATALOG_SOURCE_MODULES
+    default_ids = tuple(item.source_id for item in default_selection)
+    expected_default_ids = tuple(
+        item.source_id for item in registry.enabled_sources(run_profile="prod_full")
     )
+
+    assert default_ids == expected_default_ids
+    assert {
+        item.source_id for item in registry.sources if not item.enabled
+    }.isdisjoint(default_ids)
     assert select_catalog_source_modules((), run_profile="prod_full") == ()
 
 

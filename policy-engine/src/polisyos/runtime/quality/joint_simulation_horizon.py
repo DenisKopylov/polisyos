@@ -9,7 +9,7 @@ implement a parallel simulator beside Foundry engines.
 from __future__ import annotations
 
 import itertools
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Literal, Protocol
@@ -227,6 +227,7 @@ class JointSimulationRequest(_StrictModel):
     horizon: HorizonSpec
     engine_plan: tuple[EnginePlan, ...] = Field(min_length=1)
     baseline_state: dict[str, float] = Field(default_factory=dict)
+    evidence_state: dict[str, float] = Field(default_factory=dict)
     comparator_refs: tuple[str, ...] = ()
     coupling_graph: CouplingGraph | None = None
     budget_ref: str | None = None
@@ -281,6 +282,216 @@ class SimulationTrajectory(_StrictModel):
     diagnostics: dict[str, Any] = Field(default_factory=dict)
 
 
+def _higher_order_residuals(
+    trajectories: Sequence[SimulationTrajectory],
+    selected_outcomes: Sequence[str],
+) -> dict[str, dict[int, float]]:
+    """Return joint residuals after individual and pairwise effects.
+
+    Pairwise zero is not a proof of global additivity.  For a joint run with
+    three or more atoms, this residual keeps the higher-order component visible
+    without enumerating any additional powerset of interventions.
+    """
+
+    individual = {
+        trajectory.atom_ids[0]: trajectory
+        for trajectory in trajectories
+        if trajectory.run_level == "individual" and len(trajectory.atom_ids) == 1
+    }
+    pairwise = [
+        trajectory
+        for trajectory in trajectories
+        if trajectory.run_level == "pairwise" and len(trajectory.atom_ids) == 2
+    ]
+    joint_candidates = [
+        trajectory
+        for trajectory in trajectories
+        if trajectory.run_level == "joint" and len(trajectory.atom_ids) >= 3
+    ]
+    if not joint_candidates:
+        return {}
+    joint = max(joint_candidates, key=lambda trajectory: len(trajectory.atom_ids))
+    residuals: dict[str, dict[int, float]] = {}
+    for outcome in selected_outcomes:
+        by_step: dict[int, float] = {}
+        for point in joint.points:
+            pairwise_sum = 0.0
+            for pair in pairwise:
+                if not set(pair.atom_ids).issubset(joint.atom_ids):
+                    continue
+                pair_point = next((item for item in pair.points if item.step == point.step), None)
+                if pair_point is None:
+                    continue
+                pair_effect = pair_point.effect[outcome]
+                pair_individual_sum = sum(
+                    next(
+                        item.effect[outcome]
+                        for item in individual[atom_id].points
+                        if item.step == point.step
+                    )
+                    for atom_id in pair.atom_ids
+                    if atom_id in individual
+                )
+                pairwise_sum += pair_effect - pair_individual_sum
+            individual_sum = sum(
+                next(
+                    item.effect[outcome]
+                    for item in individual[atom_id].points
+                    if item.step == point.step
+                )
+                for atom_id in joint.atom_ids
+                if atom_id in individual
+            )
+            by_step[point.step] = float(
+                point.effect[outcome] - individual_sum - pairwise_sum
+            )
+        residuals[outcome] = by_step
+    return residuals
+
+
+def _replication_seeds(request: JointSimulationRequest) -> tuple[int, ...]:
+    """Derive one deterministic, distinct seed for every requested replicate."""
+
+    return tuple(int(request.seed) + index for index in range(int(request.replications)))
+
+
+def _physical_run_ref(
+    request: JointSimulationRequest,
+    plan: EnginePlan,
+    decision: EngineDecision,
+    subset: Sequence[InterventionAtomBinding],
+) -> str:
+    """Content-bind the physical run specification used by role reuse."""
+
+    runtime_refs = {
+        name: str(getattr(plan, name))
+        for name in ("program_graph_ref", "exec_plan_ref", "program_base_ref")
+        if getattr(plan, name) is not None
+    }
+    payload = {
+        "world_model_record_ref": request.world_model_record_ref,
+        "world_model_record_content_hash": request.world_model_record.content_hash,
+        "engine_kind": decision.engine_kind,
+        "method_fqn": decision.method_fqn,
+        "objective_ref": plan.objective_ref,
+        "horizon": request.horizon.model_dump(mode="json"),
+        "selected_outcomes": list(request.selected_outcomes),
+        "seed": int(request.seed),
+        "replications": int(request.replications),
+        "plan": plan.model_dump(mode="json"),
+        "runtime_refs": runtime_refs,
+        "atoms": [
+            {
+                "intervention_id": atom.intervention_id,
+                "causal_do_expr": atom.causal_do_expr.model_dump(mode="json"),
+            }
+            for atom in subset
+        ],
+    }
+    return gy_content_hash(payload)
+
+
+def _aggregate_replicated_trajectory(
+    trajectories: Sequence[SimulationTrajectory],
+    seeds: Sequence[int],
+    physical_run_ref: str,
+) -> SimulationTrajectory:
+    """Average equal-shaped replicate trajectories while preserving diagnostics."""
+
+    if not trajectories:
+        raise JointSimulationControllerError("simulation_replications_missing")
+    first = trajectories[0]
+    if any(
+        trajectory.atom_ids != first.atom_ids
+        or trajectory.engine_kind != first.engine_kind
+        or trajectory.method_fqn != first.method_fqn
+        or len(trajectory.points) != len(first.points)
+        for trajectory in trajectories[1:]
+    ):
+        raise JointSimulationControllerError("simulation_replication_shape_mismatch")
+
+    points: list[TrajectoryPoint] = []
+    for point_index, first_point in enumerate(first.points):
+        replicated_points = [trajectory.points[point_index] for trajectory in trajectories]
+        if any(point.step != first_point.step for point in replicated_points):
+            raise JointSimulationControllerError("simulation_replication_step_mismatch")
+        outcomes = {
+            outcome: float(np.mean([point.outcomes[outcome] for point in replicated_points]))
+            for outcome in first_point.outcomes
+        }
+        effects = {
+            outcome: float(np.mean([point.effect[outcome] for point in replicated_points]))
+            for outcome in first_point.effect
+        }
+        points.append(
+            TrajectoryPoint(
+                step=first_point.step,
+                outcomes=outcomes,
+                effect=effects,
+                engine_state={
+                    "replication_count": len(replicated_points),
+                    "replication_seeds": list(seeds),
+                    "replication_engine_states": [
+                        _json_ready(point.engine_state) for point in replicated_points
+                    ],
+                },
+            )
+        )
+    diagnostics = {
+        **first.diagnostics,
+        "requested_replications": len(seeds),
+        "actual_replications": len(trajectories),
+        "replication_seeds": list(seeds),
+        "physical_run_ref": physical_run_ref,
+    }
+    return first.model_copy(update={"points": tuple(points), "diagnostics": diagnostics})
+
+
+def _run_cached_replicates(
+    request: JointSimulationRequest,
+    plan: EnginePlan,
+    decision: EngineDecision,
+    run_once: Callable[
+        [RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory
+    ],
+) -> list[SimulationTrajectory]:
+    """Run each physical specification once and project it to all requested roles."""
+
+    cache: dict[str, SimulationTrajectory] = {}
+    output: list[SimulationTrajectory] = []
+    seeds = _replication_seeds(request)
+    for run_level, raw_subset in _atom_subsets(request.intervention_atoms):
+        subset = tuple(raw_subset)
+        physical_ref = _physical_run_ref(request, plan, decision, subset)
+        reused = physical_ref in cache
+        if not reused:
+            replicated = tuple(
+                run_once(run_level, subset, seed)
+                for seed in seeds
+            )
+            cache[physical_ref] = _aggregate_replicated_trajectory(
+                replicated,
+                seeds,
+                physical_ref,
+            )
+        cached = cache[physical_ref]
+        output.append(
+            cached.model_copy(
+                update={
+                    "run_level": run_level,
+                    "atom_ids": tuple(atom.intervention_id for atom in subset),
+                    "diagnostics": {
+                        **cached.diagnostics,
+                        "physical_run_ref": physical_ref,
+                        "physical_run_reused": reused,
+                        "role": run_level,
+                    },
+                }
+            )
+        )
+    return output
+
+
 class InteractionTerm(_StrictModel):
     """Real interaction term computed from actual trajectories."""
 
@@ -296,6 +507,7 @@ class FeedbackClassification(_StrictModel):
     """Feedback/shared-resource posture from S5 plus numeric interaction evidence."""
 
     numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"]
+    higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
     coupling_classes: tuple[BoundaryCouplingKind, ...] = ()
     coupling_regime: str | None = None
     coupling_gate_verdict: str | None = None
@@ -349,6 +561,7 @@ class JointSimulationResult(_StrictModel):
     marginal_effects: dict[str, dict[int, dict[str, float]]]
     interaction_terms: tuple[InteractionTerm, ...]
     feedback_classification: FeedbackClassification
+    higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
     uncertainty_kind: Literal["K_sim"] = "K_sim"
     world_credal_state_before: dict[str, Any] = Field(default_factory=dict)
     world_credal_state_after: dict[str, Any] = Field(default_factory=dict)
@@ -543,6 +756,8 @@ class JointSimulationHorizonController:
         """Run individual, pairwise, and joint horizons or fail closed."""
 
         self._validate_world_model_record(request)
+        for outcome in request.selected_outcomes:
+            _baseline_value(request, outcome)
         world_input = consume_world_model_record_for_simulation(request.world_model_record)
         for atom in request.intervention_atoms:
             resolve_intervention_atom_world_binding(atom, request.world_model_record)
@@ -567,6 +782,7 @@ class JointSimulationHorizonController:
         trajectories: tuple[SimulationTrajectory, ...] = ()
         marginal_effects: dict[str, dict[int, dict[str, float]]] = {}
         interaction_terms: tuple[InteractionTerm, ...] = ()
+        higher_order_residuals: dict[str, dict[int, float]] = {}
         diagnostics: dict[str, Any] = {
             "world_model_record_id": request.world_model_record.world_model_record_id,
             "world_model_record_content_hash": request.world_model_record.content_hash,
@@ -582,6 +798,14 @@ class JointSimulationHorizonController:
             "coupling_gate_disabled": self._settings.disable_coupling_gate,
             "coupling_support_status": coupling_support.support_status,
             "coupling_support_blockers": list(coupling_support.blockers),
+            "comparator_refs": list(request.comparator_refs),
+            "evidence_source": (
+                "explicit_evidence_state"
+                if request.evidence_state
+                else "legacy_baseline_state_compat"
+            ),
+            "requested_replications": int(request.replications),
+            "replication_seeds": list(_replication_seeds(request)),
             "engine_run_claimed": False,
         }
 
@@ -598,12 +822,17 @@ class JointSimulationHorizonController:
         if trajectories:
             marginal_effects = _marginal_effects(trajectories)
             interaction_terms = tuple(_interaction_terms(trajectories, request.selected_outcomes))
+            higher_order_residuals = _higher_order_residuals(
+                trajectories,
+                request.selected_outcomes,
+            )
             if self._settings.fabricate_interaction_terms:
                 interaction_terms = _contract_testing_fabricated_interactions(interaction_terms)
 
         feedback = _feedback_classification(
             request=request,
             interaction_terms=interaction_terms,
+            higher_order_residuals=higher_order_residuals,
             unsupported=decision.decision != "selected",
             coupling_support=coupling_support,
         )
@@ -634,6 +863,7 @@ class JointSimulationHorizonController:
             "trajectories": [item.model_dump(mode="json") for item in trajectories],
             "marginal_effects": _json_ready(marginal_effects),
             "interaction_terms": [item.model_dump(mode="json") for item in interaction_terms],
+            "higher_order_residuals": _json_ready(higher_order_residuals),
             "feedback_classification": feedback.model_dump(mode="json"),
             "uncertainty_kind": "K_sim",
             "world_credal_state_before": _json_ready(request.world_credal_state_before),
@@ -976,9 +1206,12 @@ class JointSimulationHorizonController:
     ) -> list[SimulationTrajectory]:
         if decision.method_fqn is None:
             return []
-        atoms = tuple(request.intervention_atoms)
-        trajectories: list[SimulationTrajectory] = []
-        for run_level, subset in _atom_subsets(atoms):
+
+        def run_once(
+            run_level: RunLevel,
+            subset: tuple[InterventionAtomBinding, ...],
+            replication_seed: int,
+        ) -> SimulationTrajectory:
             current_state = plan.program_base_state
             points: list[TrajectoryPoint] = []
             state_delta_refs: list[str] = []
@@ -995,7 +1228,7 @@ class JointSimulationHorizonController:
                     selector_field_registry=plan.selector_field_registry,
                     constraint_registry=plan.constraint_registry,
                     step=step,
-                    seed=int(request.seed) + int(step),
+                    seed=int(replication_seed) + int(step),
                     base_ref=plan.program_base_ref,
                     parameter_overrides=_program_parameter_overrides(subset, plan),
                 )
@@ -1018,8 +1251,7 @@ class JointSimulationHorizonController:
                         step=step,
                         outcomes=outcomes,
                         effect={
-                            outcome: float(outcomes[outcome])
-                            - float(request.baseline_state.get(outcome, 0.0))
+                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
                             for outcome in request.selected_outcomes
                         },
                         engine_state={
@@ -1028,23 +1260,22 @@ class JointSimulationHorizonController:
                         },
                     )
                 )
-            trajectories.append(
-                SimulationTrajectory(
-                    run_level=run_level,
-                    atom_ids=tuple(atom.intervention_id for atom in subset),
-                    engine_kind=decision.engine_kind,
-                    method_fqn=decision.method_fqn,
-                    objective_ref=plan.objective_ref,
-                    points=tuple(points),
-                    diagnostics={
-                        "engine": "execute_program_graph",
-                        "horizon_loop": True,
-                        "state_delta_refs": state_delta_refs,
-                        "metrics_ref_count": len(metrics_refs),
-                    },
-                )
+            return SimulationTrajectory(
+                run_level=run_level,
+                atom_ids=tuple(atom.intervention_id for atom in subset),
+                engine_kind=decision.engine_kind,
+                method_fqn=decision.method_fqn,
+                objective_ref=plan.objective_ref,
+                points=tuple(points),
+                diagnostics={
+                    "engine": "execute_program_graph",
+                    "horizon_loop": True,
+                    "state_delta_refs": state_delta_refs,
+                    "metrics_ref_count": len(metrics_refs),
+                },
             )
-        return trajectories
+
+        return _run_cached_replicates(request, plan, decision, run_once)
 
     def _run_ncm_horizon(
         self,
@@ -1055,14 +1286,17 @@ class JointSimulationHorizonController:
         if plan.ncm_spec is None or decision.method_fqn is None:
             return []
         method = self._registry.get(decision.method_fqn)
-        atoms = tuple(request.intervention_atoms)
-        trajectories: list[SimulationTrajectory] = []
-        for run_level, subset in _atom_subsets(atoms):
+
+        def run_once(
+            run_level: RunLevel,
+            subset: tuple[InterventionAtomBinding, ...],
+            replication_seed: int,
+        ) -> SimulationTrajectory:
             intervention = _ncm_intervention(subset, plan)
-            points: list[TrajectoryPoint] = []
+            evidence_state = request.evidence_state or request.baseline_state
             evidence = {
                 _engine_variable(variable, plan): float(value)
-                for variable, value in request.baseline_state.items()
+                for variable, value in evidence_state.items()
             }
             step = request.horizon.start
             output = method.pure_step(
@@ -1078,37 +1312,33 @@ class JointSimulationHorizonController:
                         n_samples=1,
                     )
                 },
-                {"__seed__": int(request.seed)},
+                {"__seed__": int(replication_seed)},
             )
             outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
-            points.append(
-                TrajectoryPoint(
-                    step=step,
-                    outcomes=outcomes,
-                    effect={
-                        outcome: float(outcomes[outcome])
-                        - float(request.baseline_state.get(outcome, 0.0))
-                        for outcome in request.selected_outcomes
-                    },
-                    engine_state={"intervention": dict(intervention)},
-                )
+            point = TrajectoryPoint(
+                step=step,
+                outcomes=outcomes,
+                effect={
+                    outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
+                    for outcome in request.selected_outcomes
+                },
+                engine_state={"intervention": dict(intervention)},
             )
-            trajectories.append(
-                SimulationTrajectory(
-                    run_level=run_level,
-                    atom_ids=tuple(atom.intervention_id for atom in subset),
-                    engine_kind=decision.engine_kind,
-                    method_fqn=decision.method_fqn,
-                    objective_ref=plan.objective_ref,
-                    points=tuple(points),
-                    diagnostics={
-                        "engine": "NCMEngineMethod",
-                        "horizon_loop": False,
-                        "temporal_capability": "static",
-                    },
-                )
+            return SimulationTrajectory(
+                run_level=run_level,
+                atom_ids=tuple(atom.intervention_id for atom in subset),
+                engine_kind=decision.engine_kind,
+                method_fqn=decision.method_fqn,
+                objective_ref=plan.objective_ref,
+                points=(point,),
+                diagnostics={
+                    "engine": "NCMEngineMethod",
+                    "horizon_loop": False,
+                    "temporal_capability": "static",
+                },
             )
-        return trajectories
+
+        return _run_cached_replicates(request, plan, decision, run_once)
 
     def _run_coupled_horizon(
         self,
@@ -1119,12 +1349,15 @@ class JointSimulationHorizonController:
         if decision.method_fqn is None:
             return []
         method = self._registry.get(decision.method_fqn)
-        atoms = tuple(request.intervention_atoms)
-        trajectories: list[SimulationTrajectory] = []
-        for run_level, subset in _atom_subsets(atoms):
+
+        def run_once(
+            run_level: RunLevel,
+            subset: tuple[InterventionAtomBinding, ...],
+            replication_seed: int,
+        ) -> SimulationTrajectory:
             params = _coupled_params_for_subset(plan, subset)
             params["n_steps"] = max(1, len(request.horizon.steps()) - 1)
-            params.setdefault("seed", int(request.seed))
+            params["seed"] = int(replication_seed)
             output = method.pure_step(plan.coupled_state, params)
             result = output.get("result", {})
             points: list[TrajectoryPoint] = []
@@ -1135,8 +1368,7 @@ class JointSimulationHorizonController:
                         step=step,
                         outcomes=outcomes,
                         effect={
-                            outcome: float(outcomes[outcome])
-                            - float(request.baseline_state.get(outcome, 0.0))
+                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
                             for outcome in request.selected_outcomes
                         },
                         engine_state={
@@ -1145,22 +1377,21 @@ class JointSimulationHorizonController:
                         },
                     )
                 )
-            trajectories.append(
-                SimulationTrajectory(
-                    run_level=run_level,
-                    atom_ids=tuple(atom.intervention_id for atom in subset),
-                    engine_kind=decision.engine_kind,
-                    method_fqn=decision.method_fqn,
-                    objective_ref=plan.objective_ref,
-                    points=tuple(points),
-                    diagnostics={
-                        "engine": "CoupledPolicySimulationEstimator",
-                        "horizon_loop": True,
-                        "temporal_capability": "multi_period",
-                    },
-                )
+            return SimulationTrajectory(
+                run_level=run_level,
+                atom_ids=tuple(atom.intervention_id for atom in subset),
+                engine_kind=decision.engine_kind,
+                method_fqn=decision.method_fqn,
+                objective_ref=plan.objective_ref,
+                points=tuple(points),
+                diagnostics={
+                    "engine": "CoupledPolicySimulationEstimator",
+                    "horizon_loop": True,
+                    "temporal_capability": "multi_period",
+                },
             )
-        return trajectories
+
+        return _run_cached_replicates(request, plan, decision, run_once)
 
     def _run_system_dynamics_horizon(
         self,
@@ -1171,15 +1402,19 @@ class JointSimulationHorizonController:
         if decision.method_fqn is None:
             return []
         method = self._registry.get(decision.method_fqn)
-        atoms = tuple(request.intervention_atoms)
-        trajectories: list[SimulationTrajectory] = []
-        for run_level, subset in _atom_subsets(atoms):
+
+        def run_once(
+            run_level: RunLevel,
+            subset: tuple[InterventionAtomBinding, ...],
+            replication_seed: int,
+        ) -> SimulationTrajectory:
             state = _system_dynamics_state_for_subset(plan, subset)
             params = {
                 **plan.system_dynamics_params,
                 "n_steps": max(1, len(request.horizon.steps()) - 1),
             }
             params.setdefault("dt", float(request.horizon.step))
+            params["seed"] = int(replication_seed)
             output = method.pure_step(state, params)
             result = output.get("result", {})
             stock_trajectory = result.get("trajectory", [])
@@ -1201,8 +1436,7 @@ class JointSimulationHorizonController:
                         step=step,
                         outcomes=outcomes,
                         effect={
-                            outcome: float(outcomes[outcome])
-                            - float(request.baseline_state.get(outcome, 0.0))
+                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
                             for outcome in request.selected_outcomes
                         },
                         engine_state={
@@ -1211,22 +1445,21 @@ class JointSimulationHorizonController:
                         },
                     )
                 )
-            trajectories.append(
-                SimulationTrajectory(
-                    run_level=run_level,
-                    atom_ids=tuple(atom.intervention_id for atom in subset),
-                    engine_kind=decision.engine_kind,
-                    method_fqn=decision.method_fqn,
-                    objective_ref=plan.objective_ref,
-                    points=tuple(points),
-                    diagnostics={
-                        "engine": "StockFlowSystemDynamicsEstimator",
-                        "horizon_loop": True,
-                        "temporal_capability": "multi_period",
-                    },
-                )
+            return SimulationTrajectory(
+                run_level=run_level,
+                atom_ids=tuple(atom.intervention_id for atom in subset),
+                engine_kind=decision.engine_kind,
+                method_fqn=decision.method_fqn,
+                objective_ref=plan.objective_ref,
+                points=tuple(points),
+                diagnostics={
+                    "engine": "StockFlowSystemDynamicsEstimator",
+                    "horizon_loop": True,
+                    "temporal_capability": "multi_period",
+                },
             )
-        return trajectories
+
+        return _run_cached_replicates(request, plan, decision, run_once)
 
     def _run_registry_method_horizon(
         self,
@@ -1237,15 +1470,19 @@ class JointSimulationHorizonController:
         if decision.method_fqn is None:
             return []
         method = self._registry.get(decision.method_fqn)
-        atoms = tuple(request.intervention_atoms)
-        trajectories: list[SimulationTrajectory] = []
-        for run_level, subset in _atom_subsets(atoms):
+
+        def run_once(
+            run_level: RunLevel,
+            subset: tuple[InterventionAtomBinding, ...],
+            replication_seed: int,
+        ) -> SimulationTrajectory:
             state = _method_state_for_subset(plan, subset)
             params = {
                 **plan.system_dynamics_params,
                 "n_steps": max(1, len(request.horizon.steps()) - 1),
             }
             params.setdefault("dt", float(request.horizon.step))
+            params["seed"] = int(replication_seed)
             output = method.pure_step(state, params)
             result = output.get("result", {})
             raw_trajectory = result.get("trajectory")
@@ -1286,8 +1523,7 @@ class JointSimulationHorizonController:
                         step=step,
                         outcomes=outcomes,
                         effect={
-                            outcome: float(outcomes[outcome])
-                            - float(request.baseline_state.get(outcome, 0.0))
+                            outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
                             for outcome in request.selected_outcomes
                         },
                         engine_state={
@@ -1296,28 +1532,27 @@ class JointSimulationHorizonController:
                         },
                     )
                 )
-            trajectories.append(
-                SimulationTrajectory(
-                    run_level=run_level,
-                    atom_ids=tuple(atom.intervention_id for atom in subset),
-                    engine_kind=decision.engine_kind,
-                    method_fqn=decision.method_fqn,
-                    objective_ref=plan.objective_ref,
-                    points=tuple(points),
-                    diagnostics={
-                        "engine": decision.method_fqn,
-                        "horizon_loop": True,
-                        "temporal_capability": "multi_period",
-                        "coverage_status": (
-                            "complete" if covered_count == len(requested_steps) else "partial"
-                        ),
-                        "covered_steps": requested_steps[:covered_count],
-                        "requested_steps": requested_steps,
-                        "hold_last": False,
-                    },
-                )
+            return SimulationTrajectory(
+                run_level=run_level,
+                atom_ids=tuple(atom.intervention_id for atom in subset),
+                engine_kind=decision.engine_kind,
+                method_fqn=decision.method_fqn,
+                objective_ref=plan.objective_ref,
+                points=tuple(points),
+                diagnostics={
+                    "engine": decision.method_fqn,
+                    "horizon_loop": True,
+                    "temporal_capability": "multi_period",
+                    "coverage_status": (
+                        "complete" if covered_count == len(requested_steps) else "partial"
+                    ),
+                    "covered_steps": requested_steps[:covered_count],
+                    "requested_steps": requested_steps,
+                    "hold_last": False,
+                },
             )
-        return trajectories
+
+        return _run_cached_replicates(request, plan, decision, run_once)
 
 
 def _unsupported(
@@ -1776,6 +2011,33 @@ def _marginal_effects(
     return out
 
 
+def _baseline_value(request: JointSimulationRequest, outcome: str) -> float:
+    """Resolve an explicit finite comparator value for one selected outcome."""
+
+    if outcome not in request.baseline_state:
+        raise JointSimulationControllerError(
+            "baseline_state_missing_for_outcome",
+            outcome,
+        )
+    value = float(request.baseline_state[outcome])
+    if not np.isfinite(value):
+        raise JointSimulationControllerError(
+            "baseline_state_nonfinite_for_outcome",
+            outcome,
+        )
+    return value
+
+
+def _effect_for_outcome(
+    request: JointSimulationRequest,
+    outcome: str,
+    value: float,
+) -> float:
+    """Compute an effect only against the request's explicit comparator."""
+
+    return float(value) - _baseline_value(request, outcome)
+
+
 def _interaction_terms(
     trajectories: Sequence[SimulationTrajectory],
     selected_outcomes: Sequence[str],
@@ -1816,6 +2078,7 @@ def _feedback_classification(
     *,
     request: JointSimulationRequest,
     interaction_terms: Sequence[InteractionTerm],
+    higher_order_residuals: Mapping[str, Mapping[int, float]],
     unsupported: bool,
     coupling_support: _CouplingSupportDecision,
 ) -> FeedbackClassification:
@@ -1840,6 +2103,10 @@ def _feedback_classification(
     if unsupported:
         return FeedbackClassification(
             numeric_interaction="unsupported",
+            higher_order_residuals={
+                str(outcome): {int(step): float(value) for step, value in by_step.items()}
+                for outcome, by_step in higher_order_residuals.items()
+            },
             coupling_classes=coupling_support.coupling_classes,
             coupling_regime=classification.coupling_regime if classification is not None else None,
             coupling_gate_verdict=coupling_verdict,
@@ -1854,9 +2121,17 @@ def _feedback_classification(
         )
     any_nonzero = any(
         abs(value) > 1e-12 for term in interaction_terms for value in term.by_step.values()
+    ) or any(
+        abs(value) > 1e-12
+        for by_step in higher_order_residuals.values()
+        for value in by_step.values()
     )
     return FeedbackClassification(
         numeric_interaction="non_additive" if any_nonzero else "additive",
+        higher_order_residuals={
+            str(outcome): {int(step): float(value) for step, value in by_step.items()}
+            for outcome, by_step in higher_order_residuals.items()
+        },
         coupling_classes=coupling_support.coupling_classes,
         coupling_regime=classification.coupling_regime if classification is not None else None,
         coupling_gate_verdict=coupling_verdict,

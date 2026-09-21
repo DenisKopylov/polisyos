@@ -56,7 +56,7 @@ class PairedMonteCarloResult:
     """Common-random-number policy effect summary."""
 
     mean_effects: dict[str, float]
-    standard_errors: dict[str, float]
+    standard_errors: dict[str, float | None]
     paired_differences: tuple[dict[str, float], ...]
     n_replications: int
 
@@ -166,21 +166,34 @@ def summary_distance(
     observed: Mapping[str, float],
     *,
     weights: Mapping[str, float] | None = None,
+    required_moment_names: Sequence[str] | None = None,
 ) -> float:
-    """Weighted squared distance between simulated and observed summary moments."""
+    """Weighted squared distance over one declared set of summary moments.
+
+    A candidate that omits a required moment is not comparable to the observed
+    summary.  It fails closed instead of receiving a deceptively small loss
+    from the moments that happen to overlap.
+    """
+
+    required = tuple(required_moment_names or observed.keys())
+    if not required:
+        raise ValueError("required_moment_names must not be empty")
+    if len(set(required)) != len(required):
+        raise ValueError("required_moment_names must be unique")
+    missing = tuple(
+        name for name in required if name not in simulated or name not in observed
+    )
+    if missing:
+        raise ValueError(f"required summary moments missing: {', '.join(missing)}")
+
     total = 0.0
-    used = 0
-    for name, observed_value in observed.items():
-        if name not in simulated:
-            continue
+    for name in required:
+        observed_value = observed[name]
         weight = 1.0 if weights is None else float(weights.get(name, 1.0))
         if weight < 0.0 or not np.isfinite(weight):
             return float("inf")
         diff = float(simulated[name]) - float(observed_value)
         total += weight * diff * diff
-        used += 1
-    if used == 0:
-        raise ValueError("No overlapping summary moments between simulated and observed")
     return float(total)
 
 
@@ -191,14 +204,32 @@ def calibrate_coupled_smm(
     *,
     weights: Mapping[str, float] | None = None,
     seeds: Sequence[int | None] = (None,),
+    required_moment_names: Sequence[str] | None = None,
 ) -> SMMResult:
-    """Grid-search SMM/indirect-inference adapter for coupled simulator outputs."""
+    """Grid-search SMM over a fixed, explicitly declared moment set.
+
+    Missing required moments make a candidate incomparable and therefore give
+    it an infinite loss.  The evaluation record retains per-moment counts and
+    missing names so that partial simulations remain visible for diagnosis.
+    """
+
     if not parameter_grid:
         raise ValueError("parameter_grid must not be empty")
     names = tuple(parameter_grid.keys())
     values = tuple(tuple(float(item) for item in parameter_grid[name]) for name in names)
     if any(not value for value in values):
         raise ValueError("each parameter_grid entry must contain at least one value")
+    required = tuple(required_moment_names or observed_summary.keys())
+    if not required:
+        raise ValueError("required_moment_names must not be empty")
+    if len(set(required)) != len(required):
+        raise ValueError("required_moment_names must be unique")
+    if any(name not in observed_summary for name in required):
+        missing_observed = tuple(name for name in required if name not in observed_summary)
+        raise ValueError(
+            "required summary moments missing from observed summary: "
+            + ", ".join(missing_observed)
+        )
 
     evaluated: list[dict[str, Any]] = []
     best_params: dict[str, float] | None = None
@@ -208,9 +239,32 @@ def calibrate_coupled_smm(
         params = dict(zip(names, combination, strict=True))
         summaries = [runner(params, seed) for seed in seeds]
         averaged = _average_summaries(summaries)
-        loss = summary_distance(averaged, observed_summary, weights=weights)
-        evaluated.append({"params": params, "loss": loss, "summary": averaged})
-        if loss < best_loss:
+        moment_counts = {
+            name: sum(1 for summary in summaries if name in summary) for name in required
+        }
+        missing_moments = tuple(
+            name for name in required if moment_counts[name] != len(summaries)
+        )
+        if missing_moments:
+            loss = float("inf")
+        else:
+            loss = summary_distance(
+                averaged,
+                observed_summary,
+                weights=weights,
+                required_moment_names=required,
+            )
+        evaluated.append(
+            {
+                "params": params,
+                "loss": loss,
+                "summary": averaged,
+                "required_moments": required,
+                "moment_counts": moment_counts,
+                "missing_moments": missing_moments,
+            }
+        )
+        if best_params is None or loss < best_loss:
             best_loss = loss
             best_params = params
             best_summary = averaged
@@ -292,27 +346,33 @@ def paired_monte_carlo_effect(
         raise ValueError("seeds must not be empty")
     if not metric_names:
         raise ValueError("metric_names must not be empty")
+    normalized_seeds = tuple(int(seed) for seed in seeds)
+    if len(set(normalized_seeds)) != len(normalized_seeds):
+        raise ValueError("seeds must be unique")
+    normalized_metrics = tuple(str(name) for name in metric_names)
+    if len(set(normalized_metrics)) != len(normalized_metrics):
+        raise ValueError("metric_names must be unique")
     diffs: list[dict[str, float]] = []
-    for seed in seeds:
-        baseline = baseline_runner(int(seed))
-        policy = policy_runner(int(seed))
+    for seed in normalized_seeds:
+        baseline = baseline_runner(seed)
+        policy = policy_runner(seed)
         diffs.append(
             {
                 name: float(policy[name]) - float(baseline[name])
-                for name in metric_names
+                for name in normalized_metrics
                 if name in policy and name in baseline
             }
         )
-    if any(set(diff) != set(metric_names) for diff in diffs):
+    if any(set(diff) != set(normalized_metrics) for diff in diffs):
         raise ValueError("runner outputs are missing requested metric_names")
 
     mean_effects: dict[str, float] = {}
-    standard_errors: dict[str, float] = {}
-    for name in metric_names:
+    standard_errors: dict[str, float | None] = {}
+    for name in normalized_metrics:
         values = np.asarray([diff[name] for diff in diffs], dtype=np.float64)
         mean_effects[name] = float(np.mean(values))
         if values.size <= 1:
-            standard_errors[name] = 0.0
+            standard_errors[name] = None
         else:
             standard_errors[name] = float(np.std(values, ddof=1) / sqrt(values.size))
     return PairedMonteCarloResult(

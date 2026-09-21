@@ -37,15 +37,16 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal.gcm_query import (
+    _AbductionDiagnostic,
     _LinearGaussianPosterior,
     _abduce_noises_unified,
     _apply_intervention,
     _draw_linear_gaussian_noises,
     _joint_root_sample_index,
-    _linear_gaussian_posterior,
     _mechanism_map,
     _mechanism_predict,
     _observed_root_samples,
+    _prepare_linear_gaussian_abduction,
     _parents_by_node,
     _percentile_ci,
     _topological_order,
@@ -460,12 +461,14 @@ class TwinNetworkQuery:
 
         abduced_noises: dict[str, float] = {}
         abduction_posterior: _LinearGaussianPosterior | None = None
+        abduction_diagnostic = _AbductionDiagnostic(profile="not_requested")
         if payload.factual_condition:
-            abduction_posterior = _linear_gaussian_posterior(
+            abduction_posterior, abduction_diagnostic = _prepare_linear_gaussian_abduction(
                 condition=payload.factual_condition,
                 order=order,
                 parents_map=parents_map,
                 mechanisms=mechanisms,
+                treatment_variable=payload.treatment_variable,
             )
             if abduction_posterior is None:
                 abduced_noises = _abduce_noises_unified(
@@ -475,6 +478,9 @@ class TwinNetworkQuery:
                     mechanisms=mechanisms,
                     warnings=warnings,
                 )
+                abduction_diagnostic = abduction_diagnostic.with_noise_nodes(abduced_noises)
+            if abduction_diagnostic.limitation is not None:
+                warnings.append(f"limited abduction: {abduction_diagnostic.limitation}")
 
         # ── ACTION: build ATOMIC InterventionSpecs ────────────────────────────
         factual_intervention = InterventionSpec(
@@ -548,10 +554,11 @@ class TwinNetworkQuery:
             metadata={
                 "n_samples": n_samples,
                 "confidence_level": confidence_level,
-                "n_abduced_nodes": len(abduced_noises),
+                "n_abduced_nodes": len(abduction_diagnostic.noise_nodes),
                 "factual_treatment_value": payload.factual_treatment_value,
                 "counterfactual_treatment_value": payload.counterfactual_treatment_value,
                 "declared_root_hypothesis": missing_root_nodes,
+                **abduction_diagnostic.as_metadata(),
             },
         )
 
@@ -566,13 +573,16 @@ class TwinNetworkQuery:
             interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
             sample_size=n_samples,
             is_heuristic_ci=False,
-            gate_eligible=True,
+            gate_eligible=(
+                abduction_diagnostic.gate_eligible and not bool(missing_root_nodes)
+            ),
             metadata={
                 "query_type": "twin_network",
                 "outcome_variable": payload.outcome_variable,
                 "ite_std": result.ite_std,
                 "po_correlation": result.po_correlation,
                 "declared_root_hypothesis": missing_root_nodes,
+                **abduction_diagnostic.as_metadata(),
             },
         )
         if missing_root_nodes:

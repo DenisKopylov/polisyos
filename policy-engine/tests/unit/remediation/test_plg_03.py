@@ -52,6 +52,25 @@ def _tree_delta(before: object, after: object) -> float:
     return float(jnp.sum(jnp.stack(leaves)))
 
 
+def test_native_projection_preserves_economics_wage_and_hours(
+    simulator: PolisySimulator,
+) -> None:
+    """The bounded bridge carries Economics-only fields through native state slots."""
+
+    simulator.initialize(seed=7)
+    adapter = EconomicsTrainingAdapter.from_composite(
+        simulator.get_state(),
+        simulator._executor,
+    )
+    assert adapter is not None
+
+    native_state = adapter.to_native_state(seed=7)
+    economic_state = simulator.get_state().get_domain("economics")
+
+    assert jnp.array_equal(native_state.agents.savings_target, economic_state.agents.wage)
+    assert jnp.array_equal(native_state.agents.education_years, economic_state.agents.hours_worked)
+
+
 def test_economics_training_updates_policy_and_produces_readable_artifact(
     simulator: PolisySimulator,
     tmp_path: Path,

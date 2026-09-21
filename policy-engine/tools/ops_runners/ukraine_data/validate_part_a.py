@@ -12,10 +12,12 @@ from pathlib import Path
 from polisyos.data_forge.domains.ukraine.manifests import (
     PartAGateManifest,
     utc_now_iso,
-    write_manifest,
 )
-from polisyos.data_forge.domains.ukraine.models import ServerConfig
-from polisyos.data_forge.domains.ukraine.orchestrator import load_pipeline_config
+from polisyos.data_forge.domains.ukraine.models import PipelineConfig, ServerConfig
+from polisyos.data_forge.domains.ukraine.orchestrator import (
+    UkraineDataOrchestrator,
+    load_pipeline_config,
+)
 from polisyos.data_forge.domains.ukraine.server import (
     PartAGateRunner,
     is_repository_checkout,
@@ -87,6 +89,19 @@ def run_part_a_gate(config: ServerConfig, workspace_root: Path | None) -> PartAG
     return _run_gate_with_runner(config, workspace_root, runner=runner)
 
 
+def build_orchestrator(
+    config: PipelineConfig,
+    workspace_root: Path | None,
+) -> UkraineDataOrchestrator:
+    """Compose the domain orchestrator with this ops-owned gate runner."""
+
+    return UkraineDataOrchestrator(
+        config,
+        workspace_root=workspace_root,
+        part_a_gate_runner=run_part_a_gate,
+    )
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=None)
@@ -105,17 +120,16 @@ def main(argv: list[str] | None = None) -> int:
 
     args = _build_parser().parse_args(argv)
     config = load_pipeline_config(args.config, root=args.root)
-    manifest = run_part_a_gate(config.server, args.workspace_root)
-    output_path = write_manifest(config.build_root.part_a_gate_manifest_path, manifest)
+    summary = build_orchestrator(config, args.workspace_root).validate_part_a()
     print(
         json.dumps(
-            {"manifest": manifest.model_dump(mode="json"), "path": str(output_path)},
+            summary.manifest.model_dump(mode="json"),
             ensure_ascii=True,
             indent=2,
             sort_keys=True,
         )
     )
-    return 0 if manifest.passed else 1
+    return 0 if summary.status == "passed" else 1
 
 
 if __name__ == "__main__":

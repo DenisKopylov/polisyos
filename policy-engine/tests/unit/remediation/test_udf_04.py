@@ -8,8 +8,21 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.data_forge.domains.ukraine import cli, server
+from polisyos.data_forge.domains.ukraine.manifests import PartAGateManifest
 from polisyos.data_forge.domains.ukraine.models import build_default_pipeline_config
 from polisyos.data_forge.domains.ukraine.orchestrator import UkraineDataOrchestrator
+
+
+def _make_repository_checkout(root: Path) -> Path:
+    """Create only the structural inputs needed for the repository gate."""
+
+    (root / "src" / "polisyos").mkdir(parents=True)
+    (root / "tests" / "integration").mkdir(parents=True)
+    (root / "pyproject.toml").write_text("[project]\nname = 'fixture'\n", encoding="utf-8")
+    (root / "tests" / "integration" / "test_c7_synthetic_full_pipeline.py").write_text(
+        "", encoding="utf-8"
+    )
+    return root
 
 
 def test_orchestrator_default_workspace_root_is_product_root_not_source_package(
@@ -89,7 +102,7 @@ def test_part_a_gate_records_command_cwd_env_exit_and_skip(
 
     config = build_default_pipeline_config(root=tmp_path / "artifacts")
     config.server.require_server_for_build = False
-    repo_root = tmp_path / "checkout"
+    repo_root = _make_repository_checkout(tmp_path / "checkout")
     calls: list[dict[str, object]] = []
 
     def recording_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
@@ -150,3 +163,70 @@ def test_part_a_gate_reports_typed_unavailable_without_checkout(
     assert calls == []
     assert manifest.notes
     assert "checkout" in " ".join(manifest.notes).lower()
+
+
+def test_part_a_gate_missing_workspace_is_unavailable_before_subprocess(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A missing workspace fails closed without touching the subprocess seam."""
+
+    config = build_default_pipeline_config(root=tmp_path / "artifacts")
+    calls: list[object] = []
+
+    def recording_run(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append((args, kwargs))
+        raise AssertionError("missing workspace must not start the repository gate")
+
+    monkeypatch.setattr(server.subprocess, "run", recording_run)
+
+    manifest = server.run_part_a_gate(config.server, None)
+
+    assert manifest.server_only is True
+    assert manifest.status == "unavailable"
+    assert manifest.passed is False
+    assert manifest.skipped is False
+    assert manifest.command == []
+    assert calls == []
+
+
+def test_ops_runner_composes_domain_orchestrator_with_gate_callback(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """The ops entry invokes its callback through the domain orchestrator."""
+
+    from tools.ops_runners.ukraine_data import validate_part_a
+
+    config = build_default_pipeline_config(root=tmp_path / "artifacts")
+    config.server.require_server_for_build = False
+    workspace_root = _make_repository_checkout(tmp_path / "checkout")
+    captured: dict[str, object] = {}
+
+    def recording_gate(config: object, workspace_root: Path | None) -> PartAGateManifest:
+        captured["config"] = config
+        captured["workspace_root"] = workspace_root
+        return PartAGateManifest(status="passed", server_only=True, passed=True)
+
+    monkeypatch.setattr(validate_part_a, "_run_repository_gate", recording_gate)
+    orchestrator = validate_part_a.build_orchestrator(config, workspace_root)
+    summary = orchestrator.validate_part_a()
+
+    assert orchestrator.part_a_gate_runner is validate_part_a.run_part_a_gate
+    assert summary.status == "passed"
+    assert captured["config"] is config.server
+    assert captured["workspace_root"] == workspace_root
+
+
+def test_ops_bootstrap_composes_domain_orchestrator_with_renderer_callback(
+    tmp_path: Path,
+) -> None:
+    """The ops bootstrap entry uses the domain renderer callback seam."""
+
+    from tools.ops_runners.ukraine_data import server_bootstrap
+
+    config = build_default_pipeline_config(root=tmp_path / "artifacts")
+    orchestrator = server_bootstrap.build_orchestrator(config, tmp_path / "checkout")
+
+    assert orchestrator.bootstrap_script_renderer is server_bootstrap.render_bootstrap_script
+    assert orchestrator.server_capability_probe is server_bootstrap.probe_local_server_capabilities

@@ -627,6 +627,121 @@ class _LinearGaussianPosterior:
     covariance: np.ndarray
 
 
+@dataclass(frozen=True)
+class _AbductionDiagnostic:
+    """Typed provenance and eligibility for one factual-abduction attempt."""
+
+    profile: str
+    observed_nodes: tuple[str, ...] = ()
+    noise_nodes: tuple[str, ...] = ()
+    gate_eligible: bool = True
+    limitation: str | None = None
+
+    def with_noise_nodes(
+        self,
+        noise_nodes: Mapping[str, float] | Sequence[str],
+    ) -> _AbductionDiagnostic:
+        """Return this diagnostic with the noises actually supplied to prediction."""
+        names = tuple(noise_nodes) if not isinstance(noise_nodes, Mapping) else tuple(noise_nodes)
+        return _AbductionDiagnostic(
+            profile=self.profile,
+            observed_nodes=self.observed_nodes,
+            noise_nodes=tuple(sorted(names)),
+            gate_eligible=self.gate_eligible,
+            limitation=self.limitation,
+        )
+
+    def as_metadata(self) -> dict[str, Any]:
+        """Expose provenance without changing the persisted DTO schema."""
+        metadata: dict[str, Any] = {
+            "abduction_profile": self.profile,
+            "abduction_observed_nodes": list(self.observed_nodes),
+            "abduction_noise_nodes": list(self.noise_nodes),
+            "abduction_gate_eligible": self.gate_eligible,
+        }
+        if self.limitation is not None:
+            metadata["abduction_limitation"] = self.limitation
+        return metadata
+
+
+def _fallback_residual_is_exact(
+    *,
+    condition: Mapping[str, float],
+    order: list[str],
+    parents_map: Mapping[str, list[str]],
+    mechanisms: Mapping[str, NodeMechanism],
+    treatment_variable: str,
+) -> bool:
+    """Check whether legacy fallback only uses directly observed residual inputs."""
+    observed = set(condition).intersection(order)
+    for node in order:
+        if node not in observed or node == treatment_variable:
+            continue
+        mechanism = mechanisms.get(node)
+        if mechanism is None:
+            return False
+        if mechanism.family in {
+            MechanismFamily.LINEAR,
+            MechanismFamily.ADDITIVE_NOISE,
+        }:
+            if not set(parents_map.get(node, ())).issubset(observed):
+                return False
+            continue
+        if mechanism.family is MechanismFamily.EMPIRICAL and not mechanism.parents:
+            continue
+        return False
+    return True
+
+
+def _prepare_linear_gaussian_abduction(
+    *,
+    condition: Mapping[str, float],
+    order: list[str],
+    parents_map: Mapping[str, list[str]],
+    mechanisms: Mapping[str, NodeMechanism],
+    treatment_variable: str,
+) -> tuple[_LinearGaussianPosterior | None, _AbductionDiagnostic]:
+    """Select supported posterior, exact residual, or limited fallback explicitly."""
+    observed_nodes = tuple(node for node in order if node in condition)
+    if not observed_nodes:
+        return None, _AbductionDiagnostic(profile="not_requested")
+
+    posterior = _linear_gaussian_posterior(
+        condition=condition,
+        order=order,
+        parents_map=parents_map,
+        mechanisms=mechanisms,
+    )
+    if posterior is not None:
+        return posterior, _AbductionDiagnostic(
+            profile="linear_gaussian_posterior",
+            observed_nodes=observed_nodes,
+            noise_nodes=posterior.node_order,
+        )
+
+    if _fallback_residual_is_exact(
+        condition=condition,
+        order=order,
+        parents_map=parents_map,
+        mechanisms=mechanisms,
+        treatment_variable=treatment_variable,
+    ):
+        return None, _AbductionDiagnostic(
+            profile="exact_residual_fallback",
+            observed_nodes=observed_nodes,
+        )
+
+    return None, _AbductionDiagnostic(
+        profile="limited_imputed_fallback",
+        observed_nodes=observed_nodes,
+        gate_eligible=False,
+        limitation=(
+            "linear-Gaussian posterior unavailable for partial factual evidence; "
+            "legacy abduction uses model-imputed inputs and is not gate eligible"
+        ),
+    )
+
+
 def _linear_gaussian_posterior(
     *,
     condition: Mapping[str, float],
@@ -640,7 +755,8 @@ def _linear_gaussian_posterior(
     noises.  Conditioning the observed rows of that affine system avoids
     treating an unobserved parent as if its prior mean were factual evidence.
     ``None`` means that the model is outside this deliberately small supported
-    posterior profile; callers retain the existing limited fallback then.
+    posterior profile; callers may retain the legacy fallback only as an
+    explicitly limited, non-gate-eligible result when it imputes evidence.
     """
     if not condition or not order:
         return None
@@ -803,7 +919,7 @@ def _simulate_samples(
     condition_override: Mapping[str, float] | None = None,
     precomputed_abduced_noises: dict[str, float] | None = None,
     allow_declared_hypothesis: bool = False,
-) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+) -> tuple[np.ndarray, dict[str, np.ndarray], _AbductionDiagnostic]:
     order = _topological_order(scm_spec)
     parents_map = _parents_by_node(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
@@ -814,15 +930,21 @@ def _simulate_samples(
     descendants = _descendants_of_treatment(scm_spec, query.treatment_variable)
 
     linear_gaussian_posterior: _LinearGaussianPosterior | None = None
+    abduction_diagnostic = _AbductionDiagnostic(profile="not_requested")
     if precomputed_abduced_noises is not None:
         # Caller provided pre-computed noises (e.g. from twin-network query)
         abduced_noises = precomputed_abduced_noises
+        abduction_diagnostic = _AbductionDiagnostic(
+            profile="precomputed_abduction",
+            noise_nodes=tuple(sorted(precomputed_abduced_noises)),
+        )
     elif query.query_type is QueryType.COUNTERFACTUAL:
-        linear_gaussian_posterior = _linear_gaussian_posterior(
+        linear_gaussian_posterior, abduction_diagnostic = _prepare_linear_gaussian_abduction(
             condition=condition,
             order=order,
             parents_map=parents_map,
             mechanisms=mechanisms,
+            treatment_variable=query.treatment_variable,
         )
         abduced_noises = {}
         if linear_gaussian_posterior is None:
@@ -832,6 +954,9 @@ def _simulate_samples(
                 parents_map=parents_map,
                 mechanisms=mechanisms,
             )
+            abduction_diagnostic = abduction_diagnostic.with_noise_nodes(abduced_noises)
+        if abduction_diagnostic.limitation is not None:
+            _append_warning(warnings, f"limited abduction: {abduction_diagnostic.limitation}")
     else:
         abduced_noises = {}
 
@@ -907,7 +1032,7 @@ def _simulate_samples(
         outcome_values[index] = assignment[query.outcome_variable]
 
     samples_by_node = {node: np.asarray(values, dtype=float) for node, values in by_node.items()}
-    return outcome_values, samples_by_node
+    return outcome_values, samples_by_node, abduction_diagnostic
 
 
 def _percentile_ci(samples: np.ndarray, confidence_level: float) -> tuple[float, float]:
@@ -980,7 +1105,7 @@ def _build_dowhy_comparison(
                 "treatment_value": None,
             }
         )
-        _, node_samples = _simulate_samples(
+        _, node_samples, _ = _simulate_samples(
             scm_spec=scm_spec,
             query=obs_query,
             n_samples=n_obs,
@@ -1024,7 +1149,7 @@ def _build_dowhy_comparison(
                 "condition": {},
             }
         )
-        treated_outcomes, _ = _simulate_samples(
+        treated_outcomes, _, _ = _simulate_samples(
             scm_spec=scm_spec,
             query=treat_query,
             n_samples=query.n_samples,
@@ -1033,7 +1158,7 @@ def _build_dowhy_comparison(
             intervention_override=treat_query.intervention_spec,
             condition_override={},
         )
-        control_outcomes, _ = _simulate_samples(
+        control_outcomes, _, _ = _simulate_samples(
             scm_spec=scm_spec,
             query=control_query,
             n_samples=query.n_samples,
@@ -1167,7 +1292,7 @@ class GCMQuery:
             intervention = _effective_intervention(query)
             if intervention is None:
                 raise ValueError("attribution queries require intervention context")
-            treated, _ = _simulate_samples(
+            treated, _, treated_abduction = _simulate_samples(
                 scm_spec=scm_spec,
                 query=query.model_copy(update={"query_type": QueryType.INTERVENTIONAL}),
                 n_samples=query.n_samples,
@@ -1177,7 +1302,7 @@ class GCMQuery:
                 condition_override={},
                 allow_declared_hypothesis=allow_declared_hypothesis,
             )
-            baseline, _ = _simulate_samples(
+            baseline, _, baseline_abduction = _simulate_samples(
                 scm_spec=scm_spec,
                 query=query.model_copy(update={"query_type": QueryType.INTERVENTIONAL}),
                 n_samples=query.n_samples,
@@ -1188,8 +1313,13 @@ class GCMQuery:
                 allow_declared_hypothesis=allow_declared_hypothesis,
             )
             samples = treated - baseline
+            abduction_diagnostic = (
+                treated_abduction
+                if not treated_abduction.gate_eligible
+                else baseline_abduction
+            )
         else:
-            samples, _ = _simulate_samples(
+            samples, _, abduction_diagnostic = _simulate_samples(
                 scm_spec=scm_spec,
                 query=query,
                 n_samples=query.n_samples,
@@ -1222,17 +1352,19 @@ class GCMQuery:
                 "confidence_level": confidence_level,
                 "warnings_count": len(warnings),
                 "declared_root_hypothesis": missing_root_nodes,
+                **abduction_diagnostic.as_metadata(),
             },
         )
 
         envelope = query_result.to_uncertainty_envelope()
-        if missing_root_nodes:
+        if missing_root_nodes or not abduction_diagnostic.gate_eligible:
             envelope = envelope.model_copy(
                 update={
                     "gate_eligible": False,
                     "metadata": {
                         **dict(envelope.metadata),
                         "declared_root_hypothesis": missing_root_nodes,
+                        **abduction_diagnostic.as_metadata(),
                     },
                 }
             )

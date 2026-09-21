@@ -22,7 +22,11 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.contracts import SearchCandidate, SearchLedger
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+from polisyos.data_forge.kernel.embeddings import (
+    GENERATION_SELECTOR_FILENAME,
+    embedding_generation_manifest,
+    resolve_embedding_generation,
+)
 from polisyos.fabric import (
     ConnectorSchemaContract,
     DataSchema,
@@ -1657,7 +1661,7 @@ def _semantic_search_state(
     repo_root: Path,
 ) -> tuple[G1_SEMANTIC_SEARCH_STATUS, tuple[str, ...]]:
     index_dir = Path(repo_root) / L1_DCAT_INDEX_DIR
-    hnsw_refs = (
+    legacy_refs = (
         f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_index.hnsw",
         f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_embeddings.npz",
     )
@@ -1666,6 +1670,11 @@ def _semantic_search_state(
         legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
         legacy_index_path=index_dir / "ds_dataset_index.hnsw",
     )
+    hnsw_refs = _embedding_evidence_refs(
+        repo_root=Path(repo_root),
+        index_dir=index_dir,
+        legacy_refs=legacy_refs,
+    )
     if (
         generation is not None
         and generation.status != "empty_generation"
@@ -1673,6 +1682,42 @@ def _semantic_search_state(
     ):
         return "enabled", hnsw_refs
     return "disabled_missing_index", hnsw_refs
+
+
+def _embedding_evidence_refs(
+    *,
+    repo_root: Path,
+    index_dir: Path,
+    legacy_refs: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Return selected-generation refs while preserving legacy URI shape."""
+
+    try:
+        manifest = embedding_generation_manifest(
+            index_dir,
+            legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
+            legacy_index_path=index_dir / "ds_dataset_index.hnsw",
+        )
+    except (AttributeError, IndexError, KeyError, OSError, TypeError, ValueError):
+        manifest = None
+    if manifest is not None:
+        metadata, artifact_paths = manifest
+        if metadata.get("status") == "legacy":
+            return legacy_refs
+        return tuple(_duckdb_path_ref(path, repo_root) for path in artifact_paths)
+
+    selector_path = index_dir / GENERATION_SELECTOR_FILENAME
+    if selector_path.exists():
+        return (_duckdb_path_ref(selector_path, repo_root),)
+    return legacy_refs
+
+
+def _duckdb_path_ref(path: Path, repo_root: Path) -> str:
+    try:
+        relative = path.relative_to(repo_root).as_posix()
+    except ValueError:
+        relative = str(path)
+    return f"duckdb://{relative}"
 
 
 def _l1_query_ref(repo_root: Path, construct: str) -> str:

@@ -19,7 +19,11 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.contracts import SearchCandidate, SearchFrontier
-from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+from polisyos.data_forge.kernel.embeddings import (
+    GENERATION_SELECTOR_FILENAME,
+    embedding_generation_manifest,
+    resolve_embedding_generation,
+)
 from polisyos.method_requirement import MethodValidityRequirementSpec
 from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
     build_g2_request_dict_from_data_home,
@@ -1492,21 +1496,20 @@ def build_g2_search_recall_freshness(
         hnsw_freshness_status = "not_required_for_request"
         hnsw_query_vector_producer_status = "not_required_for_request"
 
-    hnsw_records = (
+    hnsw_records = tuple(
         Layer3G2IndexFreshnessRecord(
-            artifact_ref=_relative_or_str(hnsw_index_path, root),
+            artifact_ref=artifact_ref,
             status=hnsw_freshness_status,
             issue_codes=()
             if hnsw_freshness_status in {"pass", "not_required_for_request"}
             else ("layer3_g2_stale_index_blocks_domain_ceiling",),
-        ),
-        Layer3G2IndexFreshnessRecord(
-            artifact_ref=_relative_or_str(embeddings_path, root),
-            status=hnsw_freshness_status,
-            issue_codes=()
-            if hnsw_freshness_status in {"pass", "not_required_for_request"}
-            else ("layer3_g2_stale_index_blocks_domain_ceiling",),
-        ),
+        )
+        for artifact_ref in _embedding_evidence_refs(
+            index_dir,
+            root,
+            legacy_embeddings_path=embeddings_path,
+            legacy_index_path=hnsw_index_path,
+        )
     )
     post_hnsw_trace_refs: tuple[str, ...] = ()
     hnsw_settings: dict[str, Any] = {}
@@ -1676,7 +1679,14 @@ def build_g2_search_engineering_quality_report(
     index_refs = [CANONICAL_L2_ROUTE]
     if hnsw_required:
         named_library_refs.append("hnswlib")
-        index_refs.append("ac_work_index.hnsw")
+        index_refs.extend(
+            _embedding_evidence_refs(
+                index_dir,
+                root,
+                legacy_embeddings_path=index_dir / "ac_work_embeddings.npz",
+                legacy_index_path=index_dir / "ac_work_index.hnsw",
+            )
+        )
     status: Literal["pass", "fail"] = "pass" if not issue_codes else "fail"
     return Layer3G2SearchEngineeringQualityReport(
         status=status,
@@ -6180,6 +6190,41 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 def _relative_or_str(path: Path, root: Path) -> str:
     return path.relative_to(root).as_posix() if _is_relative_to(path, root) else str(path)
+
+
+def _embedding_evidence_refs(
+    index_dir: Path,
+    root: Path,
+    *,
+    legacy_embeddings_path: Path,
+    legacy_index_path: Path,
+) -> tuple[str, ...]:
+    """Return evidence paths for the selected generation or legacy pair."""
+
+    try:
+        manifest = embedding_generation_manifest(
+            index_dir,
+            legacy_embeddings_path=legacy_embeddings_path,
+            legacy_index_path=legacy_index_path,
+        )
+    except (AttributeError, IndexError, KeyError, OSError, TypeError, ValueError):
+        manifest = None
+    if manifest is not None:
+        metadata, artifact_paths = manifest
+        if metadata.get("status") == "legacy":
+            return (
+                _relative_or_str(legacy_index_path, root),
+                _relative_or_str(legacy_embeddings_path, root),
+            )
+        return tuple(_relative_or_str(path, root) for path in artifact_paths)
+
+    selector_path = index_dir / GENERATION_SELECTOR_FILENAME
+    if selector_path.exists():
+        return (_relative_or_str(selector_path, root),)
+    return (
+        _relative_or_str(legacy_index_path, root),
+        _relative_or_str(legacy_embeddings_path, root),
+    )
 
 
 def _stable_id(*parts: str) -> str:

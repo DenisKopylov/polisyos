@@ -11,12 +11,13 @@ import json
 from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-def _json_default(value: Any) -> Any:
+def _json_default(value: object) -> object:
     """Convert domain values to the legacy JSON-compatible representation."""
     if isinstance(value, (np.integer, np.floating)):
         return value.item()
@@ -42,7 +43,7 @@ def _json_default(value: Any) -> Any:
     return str(value)
 
 
-def _write_json(path: Path, payload: Any) -> Path:
+def _write_json(path: Path, payload: object) -> Path:
     """Write a deterministic domain JSON document atomically."""
     path.parent.mkdir(parents=True, exist_ok=True)
     serialized = payload.model_dump(mode="json") if isinstance(payload, BaseModel) else payload
@@ -69,7 +70,7 @@ def _write_frame(path: Path, frame: pd.DataFrame) -> ArtifactRecord:
     return ArtifactRecord.from_path(path, row_count=len(frame))
 
 
-def _write_npz(path: Path, **arrays: Any) -> ArtifactRecord:
+def _write_npz(path: Path, **arrays: object) -> ArtifactRecord:
     """Write a compressed NumPy artifact and record its non-zero count."""
     buffer = BytesIO()
     np.savez_compressed(buffer, **arrays)
@@ -214,10 +215,13 @@ def _select_procurement_frame(
     return _load_source_frame(config, "prozorro_full", columns=columns), "prozorro_full", warnings
 
 
-def _cas_put_json(store: FileSystemCAS, payload: Any, *, kind: str):
+def _cas_put_json(store: FileSystemCAS, payload: object, *, kind: str) -> ArtifactRef:
     """Persist JSON through the existing CAS canonicalization contract."""
     return store.put_json(
         payload,
         PutOptions(kind=kind, media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+
+
+__all__ = ()

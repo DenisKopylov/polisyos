@@ -57,6 +57,29 @@ def _load_runtime_trace_types() -> tuple[Any, Any, Any]:
 _RuntimeSpanKind, _RuntimeStatus, _RuntimeStatusCode = _load_runtime_trace_types()
 
 
+class LLMAccountingError(RuntimeError):
+    """A provider result was received but mandatory accounting did not commit.
+
+    The response is attached so callers can persist or reconcile the received
+    result without treating the provider operation as if it never happened.
+    """
+
+    def __init__(
+        self,
+        *,
+        response: Any,
+        event: dict[str, Any],
+        cause: BaseException,
+    ) -> None:
+        self.response = response
+        self.event = event
+        self.cause = cause
+        super().__init__(
+            "LLM provider result received but mandatory accounting failed; "
+            f"reconciliation required: {cause}",
+        )
+
+
 def _default_tracer() -> PolicyOSTracer:
     return get_tracer()
 
@@ -88,6 +111,7 @@ class TracedLLMClient:
         prompt_sanitizer: PromptSanitizer | None = None,
         tracer: PolicyOSTracer | Any | None = None,
         metrics: MetricsRegistry | Any | None = None,
+        required_accounting: Callable[[dict[str, Any]], None] | None = None,
     ) -> None:
         self._client = client
         self._model_name = model_name or self._detect_model_name()
@@ -99,7 +123,14 @@ class TracedLLMClient:
         self._call_observer = call_observer
         self._prompt_sanitizer = prompt_sanitizer
         self._tracer = tracer if tracer is not None else _default_tracer()
-        self._metrics = metrics if metrics is not None else _default_metrics()
+        if metrics is not None:
+            self._metrics = metrics
+        else:
+            try:
+                self._metrics = _default_metrics()
+            except Exception:
+                self._metrics = None
+        self._required_accounting = required_accounting
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -222,6 +253,7 @@ class TracedLLMClient:
         latency_ms: int,
         status: str,
         provider: str,
+        response: Any,
     ) -> None:
         prompt_tokens = parsed.prompt_tokens
         completion_tokens = parsed.completion_tokens
@@ -229,46 +261,84 @@ class TracedLLMClient:
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
         )
-        cost_usd = parsed.cost_usd if parsed.cost_usd is not None else estimated_cost_usd
-        cost_delta_usd = float(cost_usd) - float(estimated_cost_usd)
+        origin_cost_usd = parsed.cost_usd if parsed.cost_usd is not None else estimated_cost_usd
+        provider_call = not parsed.cache_hit
+        billable_prompt_tokens = prompt_tokens if provider_call else 0
+        billable_completion_tokens = completion_tokens if provider_call else 0
+        billable_cost_usd = float(origin_cost_usd) if provider_call else 0.0
+        cost_delta_usd = float(origin_cost_usd) - float(estimated_cost_usd)
+
+        event = {
+            "model": self._model_name,
+            "provider": provider,
+            "status": "cache_hit" if parsed.cache_hit else status,
+            "prompt_tokens": billable_prompt_tokens,
+            "completion_tokens": billable_completion_tokens,
+            "total_tokens": billable_prompt_tokens + billable_completion_tokens,
+            "origin_prompt_tokens": prompt_tokens,
+            "origin_completion_tokens": completion_tokens,
+            "origin_total_tokens": prompt_tokens + completion_tokens,
+            "cost_usd": billable_cost_usd,
+            "origin_cost_usd": float(origin_cost_usd),
+            "estimated_cost_usd": float(estimated_cost_usd),
+            "cost_delta_usd": float(cost_delta_usd),
+            "latency_ms": latency_ms,
+            "run_id": self._run_id,
+            "model_variant_id": self._model_variant_id,
+            "request_id": parsed.request_id,
+            "cache_hit": parsed.cache_hit,
+            "provider_call": provider_call,
+            "usage_origin": parsed.usage_origin,
+        }
+
+        if self._required_accounting is not None:
+            try:
+                self._required_accounting(dict(event))
+            except Exception as exc:
+                raise LLMAccountingError(
+                    response=response,
+                    event=event,
+                    cause=exc,
+                ) from exc
 
         span.set_attribute("polisyos.llm.tokens.prompt", prompt_tokens)
         span.set_attribute("polisyos.llm.tokens.completion", completion_tokens)
         span.set_attribute("polisyos.llm.tokens.total", prompt_tokens + completion_tokens)
         span.set_attribute("polisyos.llm.latency_ms", latency_ms)
-        span.set_attribute("polisyos.llm.cost_usd", float(cost_usd))
+        span.set_attribute("polisyos.llm.cost_usd", billable_cost_usd)
+        span.set_attribute("polisyos.llm.origin_cost_usd", float(origin_cost_usd))
         span.set_attribute("polisyos.llm.estimated_cost_usd", float(estimated_cost_usd))
         span.set_attribute("polisyos.llm.cost_delta_usd", float(cost_delta_usd))
+        span.set_attribute("polisyos.llm.cache_hit", parsed.cache_hit)
+        span.set_attribute("polisyos.llm.provider_call", provider_call)
+        span.set_attribute("polisyos.llm.usage_origin", parsed.usage_origin)
 
-        metrics.record_llm_call(
-            model=self._model_name,
-            status=status,
-            prompt_tokens=prompt_tokens,
-            completion_tokens=completion_tokens,
-            provider=provider,
-            run_id=self._run_id,
-            model_variant_id=self._model_variant_id,
-            cost_usd=cost_usd,
-            latency_ms=latency_ms,
-        )
+        metrics_status = "not_configured"
+        if metrics is not None:
+            try:
+                metrics.record_llm_call(
+                    model=self._model_name,
+                    status=event["status"],
+                    prompt_tokens=billable_prompt_tokens,
+                    completion_tokens=billable_completion_tokens,
+                    provider=provider,
+                    run_id=self._run_id,
+                    model_variant_id=self._model_variant_id,
+                    cost_usd=billable_cost_usd,
+                    latency_ms=latency_ms,
+                )
+                metrics_status = "recorded"
+            except Exception:
+                metrics_status = "degraded"
+                logging.getLogger(__name__).warning(
+                    "Optional LLM metrics sink failed",
+                    exc_info=True,
+                )
+        span.set_attribute("polisyos.llm.metrics_status", metrics_status)
+        event["metrics_status"] = metrics_status
         if self._call_observer is not None:
             try:
-                self._call_observer(
-                    {
-                        "model": self._model_name,
-                        "provider": provider,
-                        "status": status,
-                        "prompt_tokens": prompt_tokens,
-                        "completion_tokens": completion_tokens,
-                        "total_tokens": prompt_tokens + completion_tokens,
-                        "latency_ms": latency_ms,
-                        "cost_usd": float(cost_usd),
-                        "estimated_cost_usd": float(estimated_cost_usd),
-                        "cost_delta_usd": float(cost_delta_usd),
-                        "run_id": self._run_id,
-                        "model_variant_id": self._model_variant_id,
-                    }
-                )
+                self._call_observer(dict(event))
             except Exception:
                 # Observability callback must never break agent execution.
                 logging.getLogger(__name__).debug(
@@ -300,20 +370,19 @@ class TracedLLMClient:
                     latency_ms,
                     "success",
                     provider,
+                    response,
                 )
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 return self._restore_response(response)
+            except LLMAccountingError as exc:
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
+                span.record_exception(exc)
+                raise
             except Exception as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
-                self._metrics.record_llm_call(
-                    model=self._model_name,
-                    status="error",
-                    prompt_tokens=0,
-                    completion_tokens=0,
+                self._record_error_metric(
                     provider=provider,
-                    run_id=self._run_id,
-                    model_variant_id=self._model_variant_id,
                     latency_ms=max(0, int((time.perf_counter() - start) * 1000)),
                 )
                 raise
@@ -342,26 +411,29 @@ class TracedLLMClient:
                     latency_ms,
                     "success",
                     provider,
+                    response,
                 )
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 return self._restore_response(response)
+            except LLMAccountingError as exc:
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
+                span.record_exception(exc)
+                raise
             except Exception as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
-                self._metrics.record_llm_call(
-                    model=self._model_name,
-                    status="error",
-                    prompt_tokens=0,
-                    completion_tokens=0,
+                self._record_error_metric(
                     provider=provider,
-                    run_id=self._run_id,
-                    model_variant_id=self._model_variant_id,
                     latency_ms=max(0, int((time.perf_counter() - start) * 1000)),
                 )
                 raise
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
-        prompt_text = self._build_prompt_text(args[0] if args else kwargs.get("prompt"), **kwargs)
+        call_args, call_kwargs = self._normalize_generate_call(args, kwargs)
+        prompt = call_args[0] if call_args else call_kwargs.get("prompt")
+        prompt_kwargs = dict(call_kwargs)
+        prompt_kwargs.pop("prompt", None)
+        prompt_text = self._build_prompt_text(prompt, **prompt_kwargs)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
@@ -372,8 +444,11 @@ class TracedLLMClient:
             kind=_RuntimeSpanKind.CLIENT,
         ) as span:
             try:
-                call_args, call_kwargs = self._sanitize_call_args(args, kwargs)
-                response = self._client.generate(*call_args, **call_kwargs)
+                sanitized_args, sanitized_kwargs = self._sanitize_call_args(
+                    call_args,
+                    call_kwargs,
+                )
+                response = self._client.generate(*sanitized_args, **sanitized_kwargs)
                 if inspect.isawaitable(response):
                     response = await response
                 parsed = extract_llm_response_data(response)
@@ -386,26 +461,67 @@ class TracedLLMClient:
                     latency_ms,
                     "success",
                     provider,
+                    response,
                 )
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                 return self._restore_response(response)
+            except LLMAccountingError as exc:
+                span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
+                span.record_exception(exc)
+                raise
             except Exception as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
                 span.record_exception(exc)
-                self._metrics.record_llm_call(
-                    model=self._model_name,
-                    status="error",
-                    prompt_tokens=0,
-                    completion_tokens=0,
+                self._record_error_metric(
                     provider=provider,
-                    run_id=self._run_id,
-                    model_variant_id=self._model_variant_id,
                     latency_ms=max(0, int((time.perf_counter() - start) * 1000)),
                 )
                 raise
 
+    @staticmethod
+    def _normalize_generate_call(
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> tuple[tuple[Any, ...], dict[str, Any]]:
+        """Normalize the supported positional/named prompt forms once."""
+
+        if len(args) > 1:
+            raise TypeError("generate() accepts at most one positional prompt")
+        normalized_kwargs = dict(kwargs)
+        if not args or "prompt" not in normalized_kwargs:
+            return args, normalized_kwargs
+        positional_prompt = args[0]
+        named_prompt = normalized_kwargs["prompt"]
+        if positional_prompt != named_prompt:
+            raise TypeError("generate() received conflicting prompt values")
+        normalized_kwargs["prompt"] = positional_prompt
+        return (), normalized_kwargs
+
+    def _record_error_metric(self, *, provider: str, latency_ms: int) -> None:
+        """Best-effort error metric; provider failures remain the primary error."""
+
+        if self._metrics is None:
+            return
+        try:
+            self._metrics.record_llm_call(
+                model=self._model_name,
+                status="error",
+                prompt_tokens=0,
+                completion_tokens=0,
+                provider=provider,
+                run_id=self._run_id,
+                model_variant_id=self._model_variant_id,
+                latency_ms=latency_ms,
+            )
+        except Exception:
+            logging.getLogger(__name__).warning(
+                "Optional LLM error metrics sink failed",
+                exc_info=True,
+            )
+
 
 __all__ = [
+    "LLMAccountingError",
     "LLMClientProtocol",
     "TracedLLMClient",
 ]

@@ -242,6 +242,7 @@ class CachingLLMClient:
         return self._client
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
+        args, kwargs = _normalize_prompt_call(args, kwargs)
         reason = _cache_skip_reason(
             model=self._model,
             args=args,
@@ -288,18 +289,57 @@ class CachingLLMClient:
         cached = self._cache.get(cache_key)
         if cached is not None:
             logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
-            if isinstance(cached, GatewayLLMResponse) and cached.raw is not None:
-                cached.raw.setdefault("_polisyos_cache", {})["status"] = "hit"
-                cached.raw["_polisyos_cache"]["cache_key"] = cache_key
+            if isinstance(cached, GatewayLLMResponse):
+                _mark_cache_response(cached, status="hit", cache_key=cache_key)
             return cached
 
         response = await _maybe_await(self._client.generate(*args, **kwargs))
+        if isinstance(response, GatewayLLMResponse):
+            _mark_cache_response(response, status="miss", cache_key=cache_key)
         self._cache.put(cache_key, response, ttl_s=self._ttl_s)
-        if isinstance(response, GatewayLLMResponse) and response.raw is not None:
-            response.raw.setdefault("_polisyos_cache", {})["status"] = "miss"
-            response.raw["_polisyos_cache"]["cache_key"] = cache_key
         logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
         return response
+
+
+def _normalize_prompt_call(
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+) -> tuple[tuple[Any, ...], dict[str, Any]]:
+    """Collapse an equivalent positional/named prompt pair before forwarding."""
+
+    if len(args) > 1:
+        raise TypeError("generate() accepts at most one positional prompt")
+    normalized_kwargs = dict(kwargs)
+    if not args or "prompt" not in normalized_kwargs:
+        return args, normalized_kwargs
+    if args[0] != normalized_kwargs["prompt"]:
+        raise TypeError("generate() received conflicting prompt values")
+    normalized_kwargs["prompt"] = args[0]
+    return (), normalized_kwargs
+
+
+def _mark_cache_response(
+    response: GatewayLLMResponse,
+    *,
+    status: str,
+    cache_key: str,
+) -> None:
+    """Attach cache provenance even when the provider returned no raw payload."""
+
+    if response.raw is None:
+        response.raw = {}
+    marker = response.raw.setdefault("_polisyos_cache", {})
+    if not isinstance(marker, dict):
+        marker = {}
+        response.raw["_polisyos_cache"] = marker
+    marker.update(
+        {
+            "status": status,
+            "cache_key": cache_key,
+            "provider_call": status == "miss",
+            "usage_origin": "provider",
+        }
+    )
 
 
 def _cache_skip_reason(

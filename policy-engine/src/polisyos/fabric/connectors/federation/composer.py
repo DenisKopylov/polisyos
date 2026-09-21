@@ -317,8 +317,6 @@ class DataComposer:
         if not key_columns:
             raise FederationError("UNION strategy requires key_columns or schema")
 
-        merge_log: list[MergeLogEntry] = []
-
         # Validate key columns exist in all sources
         for df, metadata in sources:
             missing_keys = [k for k in key_columns if k not in df.columns]
@@ -379,7 +377,6 @@ class DataComposer:
 
             if resolution.log_entry:
                 collector.record(resolution.log_entry)
-                merge_log.append(resolution.log_entry)
 
             resolved_rows.append(pd.Series(resolution.chosen_candidate.value))
 
@@ -734,42 +731,47 @@ class DataComposer:
             if col not in result_df.columns:
                 result_df[col] = pd.NA
 
+        indexed_secondaries: dict[int, pd.DataFrame] = {}
         for col in result_df.columns:
             null_mask = result_df[col].isna()
             if not null_mask.any():
                 continue
 
-            for secondary_df, secondary_meta in secondaries:
+            for secondary_index, (secondary_df, secondary_meta) in enumerate(secondaries):
                 if col not in secondary_df.columns:
                     continue
 
-                secondary_indexed = secondary_df.set_index(key_columns, drop=True)
+                secondary_indexed = indexed_secondaries.get(secondary_index)
+                if secondary_indexed is None:
+                    secondary_indexed = secondary_df.set_index(key_columns, drop=True)
+                    indexed_secondaries[secondary_index] = secondary_indexed
                 aligned = secondary_indexed[col].reindex(result_df.index)
 
                 fill_mask = null_mask & aligned.notna()
                 if fill_mask.any():
-                    for idx in result_df.index[fill_mask]:
-                        row_key = self._row_key_from_index(key_columns, idx)
-                        entry = MergeLogEntry(
-                            row_index=None,
-                            row_key=row_key,
-                            column=col,
-                            conflict_type="null_fill",
-                            source_a_id=primary_metadata.connector_id,
-                            source_a_value=None,
-                            source_a_trust=primary_metadata.metadata.trust_level,
-                            source_b_id=secondary_meta.connector_id,
-                            source_b_value=aligned.loc[idx],
-                            source_b_trust=secondary_meta.metadata.trust_level,
-                            chosen_source=secondary_meta.connector_id,
-                            chosen_value=aligned.loc[idx],
-                            resolution_reason=(
-                                f"OVERLAY: fill null from {secondary_meta.connector_id}"
-                            ),
-                            resolution_policy=ConflictPolicy.FIRST_AVAILABLE.value,
-                            timestamp=None,
-                        )
-                        collector.record(entry)
+                    if request.audit_level != AuditLevel.NONE:
+                        for idx in result_df.index[fill_mask]:
+                            row_key = self._row_key_from_index(key_columns, idx)
+                            entry = MergeLogEntry(
+                                row_index=None,
+                                row_key=row_key,
+                                column=col,
+                                conflict_type="null_fill",
+                                source_a_id=primary_metadata.connector_id,
+                                source_a_value=None,
+                                source_a_trust=primary_metadata.metadata.trust_level,
+                                source_b_id=secondary_meta.connector_id,
+                                source_b_value=aligned.loc[idx],
+                                source_b_trust=secondary_meta.metadata.trust_level,
+                                chosen_source=secondary_meta.connector_id,
+                                chosen_value=aligned.loc[idx],
+                                resolution_reason=(
+                                    f"OVERLAY: fill null from {secondary_meta.connector_id}"
+                                ),
+                                resolution_policy=ConflictPolicy.FIRST_AVAILABLE.value,
+                                timestamp=None,
+                            )
+                            collector.record(entry)
 
                     result_df.loc[fill_mask, col] = aligned[fill_mask]
                     null_mask = result_df[col].isna()

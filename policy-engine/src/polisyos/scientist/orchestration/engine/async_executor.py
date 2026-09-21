@@ -375,22 +375,23 @@ class AsyncWorkflowExecutor:
                         )
                         abort = True
                     elif tier_completed:
+                        completed_before_tier = list(completed_nodes)
                         completed_nodes.extend(tier_completed)
-                        tier_cache_refs = [
-                            tier_cache_entry_refs[alias]
-                            for alias in tier_completed
-                            if alias in tier_cache_entry_refs
-                        ]
                         checkpoint_alias = tier_completed[-1]
                         state = await self._handle_tier_checkpoint(
                             state,
                             aliases=tier_completed,
                             alias=checkpoint_alias,
                             node_id=str(invocations[checkpoint_alias].node_id),
+                            node_ids={
+                                alias: str(invocations[alias].node_id)
+                                for alias in tier_completed
+                            },
+                            completed_nodes_before_tier=completed_before_tier,
                             completed_nodes=completed_nodes,
                             workflow=workflow,
                             workflow_fingerprint=workflow_fingerprint,
-                            cache_entry_refs=tier_cache_refs,
+                            cache_entry_refs_by_alias=tier_cache_entry_refs,
                         )
 
                 tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
@@ -1083,29 +1084,36 @@ class AsyncWorkflowExecutor:
         aliases: list[str],
         alias: str,
         node_id: str,
+        node_ids: dict[str, str],
+        completed_nodes_before_tier: list[str],
         completed_nodes: list[str],
         workflow: WorkflowSpec,
         workflow_fingerprint: str,
-        cache_entry_refs: list[ArtifactRef],
+        cache_entry_refs_by_alias: dict[str, ArtifactRef],
     ) -> ExperimentState:
-        """Publish one checkpoint for a successfully merged tier frontier."""
+        """Publish a merged tier frontier through the available hook contract."""
         if self._checkpoint_hook is None:
             return state
 
         async_checkpoint = getattr(self._checkpoint_hook, "on_tier_complete_async", None)
-        if callable(async_checkpoint):
-            result = await async_checkpoint(
-                state=state,
-                alias=alias,
-                node_id=node_id,
-                completed_nodes=list(completed_nodes),
-                workflow_id=workflow.workflow_id,
-                workflow_fingerprint=workflow_fingerprint,
-                cache_entry_refs=list(cache_entry_refs),
-            )
-        else:
-            sync_checkpoint = getattr(self._checkpoint_hook, "on_tier_complete", None)
-            if callable(sync_checkpoint):
+        sync_checkpoint = getattr(self._checkpoint_hook, "on_tier_complete", None)
+        if callable(async_checkpoint) or callable(sync_checkpoint):
+            cache_entry_refs = [
+                cache_entry_refs_by_alias[successful_alias]
+                for successful_alias in aliases
+                if successful_alias in cache_entry_refs_by_alias
+            ]
+            if callable(async_checkpoint):
+                result = await async_checkpoint(
+                    state=state,
+                    alias=alias,
+                    node_id=node_id,
+                    completed_nodes=list(completed_nodes),
+                    workflow_id=workflow.workflow_id,
+                    workflow_fingerprint=workflow_fingerprint,
+                    cache_entry_refs=list(cache_entry_refs),
+                )
+            else:
                 result = await run_blocking_async(
                     sync_checkpoint,
                     state=state,
@@ -1116,56 +1124,54 @@ class AsyncWorkflowExecutor:
                     workflow_fingerprint=workflow_fingerprint,
                     cache_entry_refs=list(cache_entry_refs),
                 )
-            else:
-                # Preserve compatibility with legacy hooks while keeping one
-                # publication point.  Built-in CAS hooks implement the tier
-                # API above and retain every cache reference.
-                result = await run_blocking_async(
-                    self._checkpoint_hook.on_node_complete,
-                    state=state,
-                    alias=alias,
-                    node_id=node_id,
-                    completed_nodes=list(completed_nodes),
-                    workflow_id=workflow.workflow_id,
-                    workflow_fingerprint=workflow_fingerprint,
-                    cache_entry_ref=cache_entry_refs[-1] if cache_entry_refs else None,
+            if result is not None:
+                state = state.model_copy(
+                    update={"last_checkpoint_ref": result.checkpoint_ref},
                 )
-
-        if result is not None:
-            state = state.model_copy(
-                update={"last_checkpoint_ref": result.checkpoint_ref},
-            )
-            if self._ctx.audit is not None:
-                self._ctx.audit.append(
-                    run_id=state.run_id,
-                    actor="engine",
-                    action="CHECKPOINT_CREATED",
-                    artifact_refs=[result.checkpoint_ref],
-                    metadata={
-                        "sequence_number": result.sequence_number,
-                        "alias": alias,
-                        "aliases": list(aliases),
-                        "tier_atomic": True,
-                    },
-                )
-            if self._provenance_dag is not None:
-                try:
-                    self._provenance_dag.record_checkpoint(
-                        alias=alias,
-                        checkpoint_ref=result.checkpoint_ref,
-                        sequence_number=result.sequence_number,
-                    )
-                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-                    _executor_degraded(
-                        operation="record_tier_checkpoint_provenance",
-                        reason="provenance_record_failed",
-                        exc=exc,
-                        details={
+                if self._ctx.audit is not None:
+                    self._ctx.audit.append(
+                        run_id=state.run_id,
+                        actor="engine",
+                        action="CHECKPOINT_CREATED",
+                        artifact_refs=[result.checkpoint_ref],
+                        metadata={
+                            "sequence_number": result.sequence_number,
                             "alias": alias,
-                            "node_id": node_id,
                             "aliases": list(aliases),
+                            "tier_atomic": True,
                         },
                     )
+                if self._provenance_dag is not None:
+                    try:
+                        self._provenance_dag.record_checkpoint(
+                            alias=alias,
+                            checkpoint_ref=result.checkpoint_ref,
+                            sequence_number=result.sequence_number,
+                        )
+                    except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                        _executor_degraded(
+                            operation="record_tier_checkpoint_provenance",
+                            reason="provenance_record_failed",
+                            exc=exc,
+                            details={
+                                "alias": alias,
+                                "node_id": node_id,
+                                "aliases": list(aliases),
+                            },
+                        )
+            return state
+
+        # Legacy node-level hooks retain the former per-success callback contract.
+        for successful_alias in aliases:
+            state = await self._handle_checkpoint(
+                state,
+                successful_alias,
+                node_ids[successful_alias],
+                [*completed_nodes_before_tier, successful_alias],
+                workflow,
+                workflow_fingerprint,
+                cache_entry_ref=cache_entry_refs_by_alias.get(successful_alias),
+            )
         return state
 
     async def _handle_checkpoint(

@@ -21,7 +21,6 @@ from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 from polisyos.berl.adapters.shap_tree import TreeSHAPAdapter
 from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
 from polisyos.berl.contracts.schema import generated_explanation_bundle_schema
-from polisyos.berl.metrics.empirical_bounds import adjust_confidence_for_union
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
@@ -471,16 +470,13 @@ def test_alias_dedup_preserves_requested_claim_confidence_and_validation_posture
         two_claim_request,
     )
 
-    one_claim_confidence = adjust_confidence_for_union(
-        global_confidence=one_claim_request.confidence,
-        claim_count=1,
-    )
-    two_claim_confidence = adjust_confidence_for_union(
-        global_confidence=two_claim_request.confidence,
-        claim_count=2,
-    )
+    base_confidence = 0.95
+    one_claim_confidence = base_confidence
+    two_claim_confidence = 1.0 - ((1.0 - base_confidence) / 2)
     one_claim_method = one_claim_bundle.methods[0]
 
+    assert one_claim_request.confidence == base_confidence
+    assert two_claim_request.confidence == base_confidence
     assert one_claim_method.infidelity is not None
     assert one_claim_method.infidelity.confidence == pytest.approx(one_claim_confidence)
     assert all(method.infidelity is not None for method in two_claim_bundle.methods)

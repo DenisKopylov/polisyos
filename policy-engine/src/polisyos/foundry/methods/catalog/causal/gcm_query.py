@@ -671,6 +671,7 @@ def _fallback_residual_is_exact(
     parents_map: Mapping[str, list[str]],
     mechanisms: Mapping[str, NodeMechanism],
     treatment_variable: str,
+    allow_observed_empirical_roots: bool = True,
 ) -> bool:
     """Check whether legacy fallback only uses directly observed residual inputs."""
     observed = set(condition).intersection(order)
@@ -687,7 +688,11 @@ def _fallback_residual_is_exact(
             if not set(parents_map.get(node, ())).issubset(observed):
                 return False
             continue
-        if mechanism.family is MechanismFamily.EMPIRICAL and not mechanism.parents:
+        if (
+            allow_observed_empirical_roots
+            and mechanism.family is MechanismFamily.EMPIRICAL
+            and not mechanism.parents
+        ):
             continue
         return False
     return True
@@ -700,6 +705,7 @@ def _prepare_linear_gaussian_abduction(
     parents_map: Mapping[str, list[str]],
     mechanisms: Mapping[str, NodeMechanism],
     treatment_variable: str,
+    allow_observed_empirical_roots: bool = True,
 ) -> tuple[_LinearGaussianPosterior | None, _AbductionDiagnostic]:
     """Select supported posterior, exact residual, or limited fallback explicitly."""
     observed_nodes = tuple(node for node in order if node in condition)
@@ -725,20 +731,42 @@ def _prepare_linear_gaussian_abduction(
         parents_map=parents_map,
         mechanisms=mechanisms,
         treatment_variable=treatment_variable,
+        allow_observed_empirical_roots=allow_observed_empirical_roots,
     ):
         return None, _AbductionDiagnostic(
             profile="exact_residual_fallback",
             observed_nodes=observed_nodes,
         )
 
-    return None, _AbductionDiagnostic(
-        profile="limited_imputed_fallback",
-        observed_nodes=observed_nodes,
-        gate_eligible=False,
-        limitation=(
+    observed_empirical_roots = tuple(
+        node
+        for node in observed_nodes
+        if (
+            mechanisms.get(node) is not None
+            and mechanisms[node].family is MechanismFamily.EMPIRICAL
+            and not mechanisms[node].parents
+        )
+    )
+    if not allow_observed_empirical_roots and observed_empirical_roots:
+        limitation = (
+            "twin prediction cannot pin observed empirical root values; "
+            f"the factual root condition is not applied for {list(observed_empirical_roots)}"
+        )
+    else:
+        limitation = (
             "linear-Gaussian posterior unavailable for partial factual evidence; "
             "legacy abduction uses model-imputed inputs and is not gate eligible"
-        ),
+        )
+    profile = (
+        "limited_unpinned_empirical_root"
+        if not allow_observed_empirical_roots and observed_empirical_roots
+        else "limited_imputed_fallback"
+    )
+    return None, _AbductionDiagnostic(
+        profile=profile,
+        observed_nodes=observed_nodes,
+        gate_eligible=False,
+        limitation=limitation,
     )
 
 

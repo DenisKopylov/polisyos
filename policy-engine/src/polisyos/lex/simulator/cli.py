@@ -12,7 +12,6 @@ from polisyos.ir.loading.norm_pack import NormPack
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
-
     from polisyos.lex.legal_evaluation.impact_diff import NormImpactReport
 
 

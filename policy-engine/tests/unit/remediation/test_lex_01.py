@@ -19,9 +19,7 @@ from polisyos.lex.simulator.diff import (
     NormDiff as SimulatorNormDiff,
     diff_norm_packs as simulator_diff_norm_packs,
 )
-from polisyos.lex.simulator.engine import (
-    NormImpactAnalyzer as SimulatorEngineNormImpactAnalyzer,
-)
+from polisyos.lex.simulator.engine import NormImpactAnalyzer as SimulatorEngineNormImpactAnalyzer
 from polisyos.lex.simulator.report import (
     AffectedKPI as SimulatorAffectedKPI,
     ComplianceDelta as SimulatorComplianceDelta,

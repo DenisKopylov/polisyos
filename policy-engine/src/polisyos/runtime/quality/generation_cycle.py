@@ -3170,6 +3170,7 @@ class GenerationCycleController:
         run_id = f"generation_cycle_{design_problem_ref.removeprefix('sha256:')[:16]}"
         self._begin_source_run(run_id)
         current_problem = problem
+        last_cycle_problem = problem
         cycles: list[GenerationCycleRecord] = []
         summaries: list[CandidateSummary] = []
         terminal_status: TerminalStatus = "completed"
@@ -3230,6 +3231,7 @@ class GenerationCycleController:
                 )
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
+            last_cycle_problem = current_problem
             if terminal_status == "blocked":
                 break
             if cycle.voi_decision.next_action != "advance":
@@ -3251,14 +3253,17 @@ class GenerationCycleController:
             current_problem = cycle.revision_request.revised_problem
             cycle_index += 1
 
+        promotion_summaries = _current_candidate_summaries(tuple(summaries))
+        promotion_basis_ref = _cycle_basis_ref(cycles[-1]) if cycles else None
         promotion = self._promote_completed_generation(
-            summaries=tuple(summaries),
-            problem=problem,
+            summaries=promotion_summaries,
+            problem=last_cycle_problem,
+            design_problem_basis_ref=promotion_basis_ref,
         )
         summaries = _apply_promotion_to_summaries(
             tuple(summaries),
             promotion,
-            problem=problem,
+            problem=last_cycle_problem,
             open_world_resolver=self._open_world_resolver,
             promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
@@ -3494,9 +3499,22 @@ class GenerationCycleController:
         *,
         summaries: tuple[CandidateSummary, ...],
         problem: DesignProblem,
+        design_problem_basis_ref: str | None = None,
     ) -> PromotionPortObservation:
         """Run the fixed post-loop subject/gate strangle before canonical N9."""
 
+        # N9 receives the current projection only.  Older occurrences remain
+        # in the run history, but must never reach the owner denominator as a
+        # repeated candidate_id.
+        summaries = _current_candidate_summaries(summaries)
+        if (
+            design_problem_basis_ref is not None
+            and design_problem_basis_ref != _problem_ref(problem)
+        ):
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="epoch_validity_refused:generation_cycle_promotion_basis_mismatch",
+            )
         runtime = self._promotion_runtime
         if runtime is None:
             if self._authority_scope != "contract_testing":
@@ -4451,8 +4469,8 @@ def validate_generation_cycle_run(
         issues.append({"code": "fabricated_promotion_without_n9"})
     observations = run.promotion_port.pre_n9_open_world_gates
     if observations and (
-        len(observations) != len(run.candidate_summaries)
-        or tuple(row.ordinal for row in observations) != tuple(range(len(run.candidate_summaries)))
+        len(observations) != len(current_summaries)
+        or tuple(row.ordinal for row in observations) != tuple(range(len(current_summaries)))
     ):
         issues.append({"code": "pre_n9_open_world_gate_denominator_mismatch"})
     return tuple(issues)

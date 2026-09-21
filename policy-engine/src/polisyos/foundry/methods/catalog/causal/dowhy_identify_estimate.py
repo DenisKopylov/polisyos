@@ -126,6 +126,18 @@ _METHOD_MAP: dict[str, CausalMethod] = {
     "frontdoor.two_stage_regression": CausalMethod.DOWHY_FRONTDOOR,
 }
 
+# These are the estimand profiles exposed by DoWhy 0.13's AutoIdentifier.
+# Keep this adapter-side allowlist explicit so an unknown request cannot be
+# relabelled as the backend's default ATE.
+_SUPPORTED_ESTIMAND_TYPES = frozenset(
+    {
+        "nonparametric-ate",
+        "nonparametric-cde",
+        "nonparametric-nde",
+        "nonparametric-nie",
+    }
+)
+
 
 def _base_signature() -> MethodSignature:
     return MethodSignature(
@@ -199,6 +211,31 @@ def _run_dowhy(
     n_treated = int(np.sum(treatment_values != 0))
     n_control = int(sample_size - n_treated)
 
+    if estimand_type not in _SUPPORTED_ESTIMAND_TYPES:
+        reason = f"unsupported_estimand_type: {estimand_type}"
+        report = build_failure_report(
+            method=causal_method,
+            status=EstimationStatus.INPUT_INVALID,
+            reason=reason,
+            estimand=estimand_type,
+            sample_size=sample_size,
+            n_treated=n_treated,
+            n_control=n_control,
+            pre_periods=0,
+            post_periods=0,
+            assumptions=dict(assumptions),
+            confidence_level=None,
+            method_params=method_params,
+            estimand_type=estimand_type,
+            graph_ref=data.graph_ref,
+            metadata={
+                "capability": "unsupported_estimand_type",
+                "requested_estimand_type": estimand_type,
+                "supported_estimand_types": sorted(_SUPPORTED_ESTIMAND_TYPES),
+            },
+        )
+        return wrap_causal_output(report, warnings=[reason])
+
     try:
         dowhy, pd = _load_dowhy_dependencies()
     except ModuleNotFoundError as exc:
@@ -229,8 +266,12 @@ def _run_dowhy(
             treatment=data.treatment,
             outcome=data.outcome,
             graph=graph_text,
+            estimand_type=estimand_type,
         )
-        identified = model.identify_effect(proceed_when_unidentifiable=False)
+        identified = model.identify_effect(
+            estimand_type=estimand_type,
+            proceed_when_unidentifiable=False,
+        )
     except Exception as exc:
         report = build_failure_report(
             method=causal_method,
@@ -253,7 +294,11 @@ def _run_dowhy(
         )
 
     try:
-        estimate = model.estimate_effect(identified, method_name=method_name)
+        estimate = model.estimate_effect(
+            identified,
+            method_name=method_name,
+            confidence_intervals=True,
+        )
         point_estimate = _to_float_scalar(estimate.value)
     except Exception as exc:
         report = build_failure_report(
@@ -277,10 +322,41 @@ def _run_dowhy(
             warnings=[report.status_reason or "estimation failed"],
         )
 
+    standard_error = _extract_standard_error(estimate)
     ci = _extract_confidence_interval(estimate)
     if ci is None:
-        epsilon = max(abs(point_estimate) * 1e-9, 1e-9)
-        ci = (point_estimate - epsilon, point_estimate + epsilon)
+        reason = (
+            "DoWhy estimate did not provide a supported confidence interval; "
+            "point estimate retained as point-only"
+        )
+        report = build_failure_report(
+            method=causal_method,
+            status=EstimationStatus.NUMERICAL_FAILURE,
+            reason=reason,
+            estimand=estimand_type,
+            sample_size=sample_size,
+            n_treated=n_treated,
+            n_control=n_control,
+            pre_periods=0,
+            post_periods=0,
+            assumptions=dict(assumptions),
+            confidence_level=None,
+            point_estimate=point_estimate,
+            standard_error=standard_error,
+            method_params=method_params,
+            identified_estimand=str(identified),
+            estimand_type=estimand_type,
+            graph_ref=data.graph_ref,
+            metadata={
+                "treatment": data.treatment,
+                "outcome": data.outcome,
+                "graph_supplied": graph_text is not None,
+                "graph_field": graph_field,
+                "inference_status": "point_only",
+                "confidence_interval_available": False,
+            },
+        )
+        return wrap_causal_output(report, warnings=[reason])
 
     report = build_success_report(
         method=causal_method,
@@ -294,7 +370,7 @@ def _run_dowhy(
         pre_periods=0,
         post_periods=0,
         assumptions=dict(assumptions),
-        standard_error=_extract_standard_error(estimate),
+        standard_error=standard_error,
         method_params=method_params,
         identified_estimand=str(identified),
         estimand_type=estimand_type,

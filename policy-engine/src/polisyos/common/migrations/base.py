@@ -5,6 +5,11 @@ from __future__ import annotations
 import copy
 from collections.abc import Callable
 
+from polisyos.common.migrations._engine import (
+    LinearMigrationProfile,
+    run_linear_migration,
+)
+
 ArtifactPayload = dict[str, object]
 MigrationDecorator = Callable[["MigrationFn"], "MigrationFn"]
 
@@ -27,12 +32,10 @@ def register_migration(
     return decorator
 
 
-def migrate_artifact(
+def _prepare_common_payload(
     data: ArtifactPayload,
     artifact: str,
-    target_version: str,
-) -> ArtifactPayload:
-    """Apply the registered migration chain without mutating caller-owned input."""
+) -> tuple[ArtifactPayload, str]:
     current_data = copy.deepcopy(data)
     if "schema_version" not in current_data:
         raise ValueError(f"Missing schema_version for artifact '{artifact}'")
@@ -41,32 +44,58 @@ def migrate_artifact(
         raise TypeError(
             f"schema_version for '{artifact}' must be a string, got {type(schema_version).__name__}"
         )
-    current_version = schema_version
-    if current_version == target_version:
-        return current_data
+    return current_data, schema_version
 
-    visited = set()
-    while current_version != target_version:
-        if current_version in visited:
-            raise ValueError(
-                f"Migration loop detected for '{artifact}': {current_version} -> {target_version}"
-            )
-        visited.add(current_version)
 
-        artifact_migrations = _MIGRATIONS.get(artifact, {})
-        if current_version not in artifact_migrations:
-            raise ValueError(
-                f"No migrator for '{artifact}' from {current_version} to {target_version}"
-            )
-        next_version, fn = artifact_migrations[current_version]
-        migrated = fn(copy.deepcopy(current_data))
-        if not isinstance(migrated, dict):
-            raise TypeError(
-                f"Migrator for '{artifact}' from {current_version} returned "
-                f"{type(migrated).__name__}, expected dict"
-            )
-        current_data = copy.deepcopy(migrated)
-        current_data["schema_version"] = next_version
-        current_version = next_version
+def _lookup_common_edge(
+    artifact: str,
+    from_version: str,
+) -> tuple[str, MigrationFn] | None:
+    return _MIGRATIONS.get(artifact, {}).get(from_version)
 
+
+def _common_edge_target(edge: tuple[str, MigrationFn]) -> str:
+    return edge[0]
+
+
+def _apply_common_step(
+    data: ArtifactPayload,
+    edge: tuple[str, MigrationFn],
+    artifact: str,
+    from_version: str,
+    to_version: str,
+) -> ArtifactPayload:
+    del to_version
+    next_version, fn = edge
+    migrated = fn(copy.deepcopy(data))
+    if not isinstance(migrated, dict):
+        raise TypeError(
+            f"Migrator for '{artifact}' from {from_version} returned "
+            f"{type(migrated).__name__}, expected dict"
+        )
+    current_data = copy.deepcopy(migrated)
+    current_data["schema_version"] = next_version
     return current_data
+
+
+_COMMON_PROFILE = LinearMigrationProfile(
+    prepare=_prepare_common_payload,
+    no_op=lambda payload: payload,
+    edge_target=_common_edge_target,
+    apply_step=_apply_common_step,
+)
+
+
+def migrate_artifact(
+    data: ArtifactPayload,
+    artifact: str,
+    target_version: str,
+) -> ArtifactPayload:
+    """Apply the registered migration chain without mutating caller-owned input."""
+    return run_linear_migration(
+        data,
+        artifact=artifact,
+        target_version=target_version,
+        edge_lookup=_lookup_common_edge,
+        profile=_COMMON_PROFILE,
+    )

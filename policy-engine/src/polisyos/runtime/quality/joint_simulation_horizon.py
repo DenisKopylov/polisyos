@@ -1249,18 +1249,32 @@ class JointSimulationHorizonController:
             output = method.pure_step(state, params)
             result = output.get("result", {})
             raw_trajectory = result.get("trajectory")
-            if raw_trajectory is None:
+            if (
+                raw_trajectory is None
+                or isinstance(raw_trajectory, Mapping)
+                or isinstance(raw_trajectory, str | bytes | bytearray)
+            ):
                 raise JointSimulationControllerError(
                     "method_registry_temporal_output_missing",
                     decision.method_fqn,
                 )
-            points: list[TrajectoryPoint] = []
-            for index, step in enumerate(request.horizon.steps()):
-                state_values = (
-                    raw_trajectory[index]
-                    if index < len(raw_trajectory)
-                    else result.get("final_stocks", raw_trajectory[-1])
+            try:
+                trajectory_length = len(raw_trajectory)
+            except TypeError as exc:
+                raise JointSimulationControllerError(
+                    "trajectory_coverage_incomplete",
+                    decision.method_fqn,
+                ) from exc
+            requested_steps = request.horizon.steps()
+            covered_count = min(trajectory_length, len(requested_steps))
+            if covered_count == 0:
+                raise JointSimulationControllerError(
+                    "trajectory_coverage_incomplete",
+                    decision.method_fqn,
                 )
+            points: list[TrajectoryPoint] = []
+            for index, step in enumerate(requested_steps[:covered_count]):
+                state_values = raw_trajectory[index]
                 outcomes = _system_dynamics_outcomes(
                     result,
                     state_values,
@@ -1294,6 +1308,12 @@ class JointSimulationHorizonController:
                         "engine": decision.method_fqn,
                         "horizon_loop": True,
                         "temporal_capability": "multi_period",
+                        "coverage_status": (
+                            "complete" if covered_count == len(requested_steps) else "partial"
+                        ),
+                        "covered_steps": requested_steps[:covered_count],
+                        "requested_steps": requested_steps,
+                        "hold_last": False,
                     },
                 )
             )
@@ -1509,7 +1529,14 @@ def _ncm_intervention(
                     "value_expr_intervention_not_supported_by_ncm_controller",
                     assignment.variable,
                 )
-            intervention[variable] = float(assignment.value)
+            value = float(assignment.value)
+            previous = intervention.get(variable)
+            if previous is not None and previous != value:
+                raise JointSimulationControllerError(
+                    "ncm_intervention_conflict",
+                    variable,
+                )
+            intervention[variable] = value
     return intervention
 
 
@@ -1614,14 +1641,31 @@ def _ncm_outcomes(
     selected_outcomes: Sequence[str],
     plan: EnginePlan,
 ) -> dict[str, float]:
-    payload = output.get("counterfactual_result", {})
-    summaries = payload.get("world_summaries", [])
-    summary = summaries[0] if summaries else {}
+    payload = output.get("counterfactual_result")
+    if not isinstance(payload, Mapping):
+        raise JointSimulationControllerError("ncm_world_summaries_missing")
+    summaries = payload.get("world_summaries")
+    if (
+        not isinstance(summaries, Sequence)
+        or isinstance(summaries, str | bytes | bytearray)
+        or not summaries
+        or not isinstance(summaries[0], Mapping)
+    ):
+        raise JointSimulationControllerError("ncm_world_summaries_missing")
+    summary = summaries[0]
     outcomes: dict[str, float] = {}
     for outcome in selected_outcomes:
         engine_outcome = _engine_variable(outcome, plan)
-        stats = summary.get(engine_outcome, {})
-        outcomes[outcome] = float(stats.get("mean", 0.0))
+        stats = summary.get(engine_outcome)
+        if not isinstance(stats, Mapping) or "mean" not in stats:
+            raise JointSimulationControllerError("ncm_outcome_missing", engine_outcome)
+        try:
+            value = float(stats["mean"])
+        except (TypeError, ValueError) as exc:
+            raise JointSimulationControllerError("ncm_outcome_non_numeric", engine_outcome) from exc
+        if not np.isfinite(value):
+            raise JointSimulationControllerError("ncm_outcome_non_finite", engine_outcome)
+        outcomes[outcome] = value
     return outcomes
 
 

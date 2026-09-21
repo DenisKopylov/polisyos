@@ -21,7 +21,7 @@ class PredictionEvaluator:
         y_pred: dict[str, list[float]],
         y_true: dict[str, list[float]],
         intervals: dict[str, list[tuple[float, float]]] | None = None,
-        confidence_level: float = 0.95,
+        confidence_level: float | None = 0.95,
         jurisdiction: str = "",
         intervention_date: str = "",
         data_source: str = "",
@@ -35,7 +35,8 @@ class PredictionEvaluator:
             y_pred: Predicted metric trajectories keyed by metric name.
             y_true: Ground-truth trajectories keyed by metric name.
             intervals: Optional per-step confidence intervals aligned with `y_pred`.
-            confidence_level: Nominal confidence level requested for the intervals.
+            confidence_level: Nominal confidence level requested for the intervals;
+                ``None`` is reserved for non-statistical persisted bounds.
             jurisdiction: Scenario jurisdiction metadata.
             intervention_date: Historical intervention cutoff used by masking.
             data_source: Source path/ref metadata.
@@ -45,9 +46,10 @@ class PredictionEvaluator:
             `BacktestScenario` with per-point comparisons and aggregate RMSE/MAE/
             MAPE/coverage metrics.
         """
-        confidence_level = float(confidence_level)
-        if not math.isfinite(confidence_level) or not 0.0 < confidence_level < 1.0:
-            raise ValueError("confidence_level must be finite and between 0 and 1")
+        if confidence_level is not None:
+            confidence_level = float(confidence_level)
+            if not math.isfinite(confidence_level) or not 0.0 < confidence_level < 1.0:
+                raise ValueError("confidence_level must be finite and between 0 and 1")
 
         comparisons: list[OutcomeComparison] = []
         squared_errors: list[float] = []

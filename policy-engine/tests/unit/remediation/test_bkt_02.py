@@ -11,7 +11,10 @@ import math
 
 import pytest
 
+import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+from polisyos.core.artifacts import StorePutOptions
 from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import (
@@ -274,3 +277,71 @@ def test_non_default_nominal_confidence_survives_orchestrator_and_persisted_repo
     assert persisted.overall_coverage_probability == pytest.approx(1.0)
     assert scenario.nominal_confidence_level == pytest.approx(0.80)
     assert scenario.interval_type == "predictive"
+
+
+def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_path) -> None:
+    history_path = tmp_path / "history.json"
+    history_path.write_text("{}", encoding="utf-8")
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+
+    def put_artifact(payload: dict, kind: str) -> dict[str, str]:
+        ref = orchestrator._store.put_json(
+            payload,
+            StorePutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema={"name": kind, "version": "1.0"},
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        return {"artifact_id": str(ref.artifact_id)}
+
+    metrics_ref = put_artifact(
+        {"values": {"metric": [20.0, 21.0, 22.0]}},
+        "scientist.backtest.metrics",
+    )
+    envelope_ref = put_artifact(
+        {
+            "confidence_intervals": [[19.0, 21.0], [20.0, 22.0], [0.0, 1.0]],
+            "confidence_level": 0.80,
+            "interval_semantics": "credible_interval",
+        },
+        "scientist.backtest.envelope",
+    )
+    simulation_ref = put_artifact(
+        {"uncertainty_envelopes": {"metric": envelope_ref}},
+        "scientist.backtest.simulation",
+    )
+    monkeypatch.setattr(
+        orchestrator_module,
+        "run_experiment",
+        lambda _state: {
+            "artifacts_index": {
+                "metrics_ref": metrics_ref,
+                "simulation_result_ref": simulation_ref,
+            }
+        },
+    )
+    plan = HistoricalValidationPlan(
+        plan_id="persisted-envelope-metadata",
+        historical_data_path=str(history_path),
+        intervention_step=1,
+        ground_truth_outcomes={"metric": [20.0, 21.0, 22.0]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.SCIENTIST,
+        scientist_state={"run_id": "BKT-02-envelope"},
+        confidence_level=0.95,
+        metadata={"interval_type": "plan_default"},
+    )
+
+    report = orchestrator.run([plan])
+
+    scenario = report.scenarios[0]
+    assert scenario.nominal_confidence_level == pytest.approx(0.80)
+    assert scenario.interval_type == "credible_interval"
+    assert scenario.metadata["interval_metadata_source"] == "persisted_envelope"
+    assert scenario.coverage_probability == pytest.approx(2 / 3)
+    assert report.trust_score == pytest.approx(0.9167)
+    contract = report.metadata["interval_contracts"][0]
+    assert contract["nominal_confidence_level"] == pytest.approx(0.80)
+    assert contract["interval_type"] == "credible_interval"

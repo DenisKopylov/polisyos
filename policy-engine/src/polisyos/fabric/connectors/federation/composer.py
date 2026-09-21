@@ -112,7 +112,8 @@ class MergeLogCollector:
         self.seed = seed or ""
         self.entries: list[MergeLogEntry] = []
         self.summary = MergeLogSummary(sample_seed=self.seed)
-        self._sample_heap: list[tuple[int, MergeLogEntry]] = []
+        self._sample_heap: list[tuple[int, int, MergeLogEntry]] = []
+        self._sample_sequence = 0
         self._dropped_entries = 0
 
     def record(self, entry: MergeLogEntry) -> None:
@@ -136,13 +137,15 @@ class MergeLogCollector:
 
     def _sample(self, entry: MergeLogEntry) -> None:
         hash_value = self._stable_hash(entry)
+        sequence = self._sample_sequence
+        self._sample_sequence += 1
         if len(self._sample_heap) < self.sample_size:
-            heapq.heappush(self._sample_heap, (-hash_value, entry))
+            heapq.heappush(self._sample_heap, (-hash_value, sequence, entry))
             return
 
         current_max = -self._sample_heap[0][0]
         if hash_value < current_max:
-            heapq.heapreplace(self._sample_heap, (-hash_value, entry))
+            heapq.heapreplace(self._sample_heap, (-hash_value, sequence, entry))
 
     def finalize(self) -> None:
         self.summary.extra["audit_entries_retained"] = len(self.entries)
@@ -151,10 +154,13 @@ class MergeLogCollector:
         if self.audit_level != AuditLevel.SUMMARY or self.sample_size == 0:
             return
         samples = sorted(
-            [(-hash_value, entry) for hash_value, entry in self._sample_heap],
-            key=lambda item: item[0],
+            [
+                (-hash_value, sequence, entry)
+                for hash_value, sequence, entry in self._sample_heap
+            ],
+            key=lambda item: (item[0], item[1]),
         )
-        self.summary.sample_entries = [entry for _, entry in samples]
+        self.summary.sample_entries = [entry for _, _, entry in samples]
 
     def _stable_hash(self, entry: MergeLogEntry) -> int:
         payload = {
@@ -376,6 +382,9 @@ class DataComposer:
                 merge_log.append(resolution.log_entry)
 
             resolved_rows.append(pd.Series(resolution.chosen_candidate.value))
+
+        if not resolved_rows:
+            return combined.drop(columns=[source_column]).iloc[:0].copy()
 
         result = pd.DataFrame(resolved_rows)
         result = result.sort_values(by=key_columns, kind="mergesort").reset_index(drop=True)
